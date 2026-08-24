@@ -1,0 +1,274 @@
+\chapter{$O(a)$ improvement in the Dirac Action}
+% Section 13 of R. Gupta, "Introduction to Lattice QCD" (hep-lat/9807028).
+
+The first attempt to improve the Wilson fermion action by removing the
+$O(a)$ corrections was by Hamber and Wu [102].  They added a two link
+term to the Wilson action
+\begin{align}
+\mathcal{S}_{HW}
+&= A_W + \frac{r\kappa}{4a} \sum_{x,\mu} \bar{\psi}^L(x)
+   \left[ U_\mu (x) U_\mu (x+\hat{\mu}) \psi^L (x+2\hat{\mu})
+   + U_\mu^\dagger (x-\hat{\mu}) U_\mu^\dagger (x-2\hat{\mu}) \psi^L (x-2\hat{\mu}) \right] \nonumber\\
+&\equiv \sum_{x,y} \bar{\psi}_L (x) M_{xy}^{HW} \psi_L (y) .
+\label{eq:HWaction}
+\end{align}
+
+It is easy to check by Taylor expansion that, at the classical level,
+the $O(a)$ artifact in $\mathcal{S}_W$ is cancelled by the HW term.  One can
+include quantum corrections by calculating the relative coefficient in
+perturbation theory.  It turns out that this action has not been
+pursued --- in the 1980's due to the lack of computer power, and in the
+1990's due to the merits of the Sheikholeslami-Wohlert (called SW or
+the clover) action [20].
+
+\section{The Sheikholeslami-Wohlert (clover) Action}
+
+SW proposed adding a second dimension five operator to $\mathcal{S}_W$, the
+magnetic moment term, to remove the $O(a)$ artifacts without
+spoiling Wilson's fix for doublers.  The resulting SW action is
+\begin{equation}
+\mathcal{S}_{SW} \ = \ \mathcal{S}_W -
+   \frac{i a C_{SW} \kappa r}{4}\ \bar{\psi}(x) \sigma_{\mu\nu} F_{\mu\nu} \psi(x) \ .
+\label{eq:SWact}
+\end{equation}
+
+The fact that this action is $O(a)$ improved for on-shell quantities
+cannot be deduced from a Taylor expansion.  To show improvement
+requires an enumeration of all dimension 5 operators, the use of
+equations of motion to remove some of them, and incorporating the
+remaining two ($m^2 \bar{\psi}\psi$ and $m F^{\mu\nu} F_{\mu\nu}$)
+by renormalizing $g^2 \to g^2 (1+b_g ma)$ and $m \to m (1+b_m ma)$.  The
+construction of the SW action has been explained in detail by Prof.
+L\"uscher at this school, so instead of repeating it, I direct you to
+his lectures.  I will simply summarize results of tuning $C_{SW}$ using
+both perturbative and non-perturbative methods.  A list of
+perturbatively improved values of $C_{SW}$ that have been used in
+simulations is as follows.
+
+\begin{center}
+\begin{tabular}{ll}
+$C_{SW} = 1$                                & tree-level improvement \\
+$C_{SW} = 1 + 0.2659(1) g_0^2$              & 1-loop improved [103] \\
+$C_{SW} = 1/u_0^3$                          & tadpole improved \\
+$C_{SW} = 1/u_0^3 (1 + 0.0159 g_I^2)$       & 1-loop tadpole improved \\
+\end{tabular}
+\end{center}
+
+In the 1-loop TI result $u_0$ was chosen to be the fourth root of the
+plaquette.  As an exercise convince yourself that using the expectation
+value of the link in Landau gauge gives a value closer ($1.6$)
+to the non-perturbatively improved result ($1.77$ at $g=1$) given
+below.  For each of the above values of $C_{SW}$, the errors are reduced
+from $O(a)$ (Wilson action) to at least $O(\alpha_s a)$.
+
+The recent exciting development, also reviewed by L\"uscher, is that
+the axial Ward identity $C_{SW}$ can be used to non-perturbatively
+tune $C_{SW}$ and remove all $O(a)$ artifacts provided one
+simultaneously improves the coupling $g^2$, the quark mass $m_q$, and
+the currents [104].  Estimates of $C_{SW}$ have been made
+at a number of values of $g$ for the quenched theory with Wilson's
+gauge action [104,105].  These data can be fit by [105]
+\begin{equation}
+C_{SW} = \frac{1 - 0.6084 g^2 - 0.2015 g^4 + 0.03075 g^6}{1 - 0.8743 g^2} \ .
+\label{eq:CSWnonpert}
+\end{equation}
+for $6/g^2 > 5.7$.
+
+The advantages of the SW action is that it is local and leaves
+perturbation theory tractable [106].  Adding the clover
+term is only a $\sim 15\%$ overhead on Wilson fermion simulations.  An
+example of improvement obtained using the SW versus Wilson action
+for fixed quark mass ($M_\pi/M_\rho = 0.7$) is that the deviations
+from the $a=0$ values in $M_N/\sqrt{\sigma}$ and $M_{\rm vector}/\sqrt{\sigma}$ at
+$a=0.17$ fermi are reduced from $30-40\% \to \sim 3-5\%$
+[105].  Further tests and evaluation of the improvement are
+being done by a number of collaborations.  I expect a number of
+quenched results to be reported at the LATTICE 98 conference, and
+these should appear on the e-print archive by late 1998.
+
+\section{D234c action}
+
+As mentioned before, there are two sources of discretization errors:
+(i) approximating derivatives by finite differences, and (ii) quantum
+corrections, for example those due to modes with momentum $> \pi/a$
+that are absent from the lattice theory.
+Alford, Klassen, and Lepage have proposed improved gauge
+and Dirac actions that reduce (i) by classical improvement and (ii)
+by tadpole improvement [107,79].  Their current
+proposal for isotropic lattices, called the \textbf{D234c action} as
+it involves second, third, and fourth order derivatives, is
+\begin{align}
+M_{D234c}
+&= m(1+0.5 r a m) + \sum_\mu \left\{ \gamma_\mu \Delta_\mu^{(1)}
+   - \frac{C_3}{6} a^2 \gamma_\mu \Delta_\mu^{(3)} \right\} \nonumber\\
+&\quad + r \sum_\mu \left\{ - \frac{1}{2} a \Delta_\mu^{(2)}
+   - \frac{C_F}{4} a \sum_\nu \sigma_{\mu\nu} F_{\mu\nu}
+   + \frac{C_4}{24} a^2 \Delta_\mu^{(4)} \right\} \ .
+\label{eq:D234caction}
+\end{align}
+
+Here $\Delta_\mu^{(n)}$ is the $n$th order lattice covariant
+derivative (symmetric and of shortest extent).  The term proportional
+to $C_3$ is precisely what is needed to kill the leading
+discretization error in $\Delta_\mu^{(1)}$ as shown in
+Eq.~7.6.  The terms proportional to $r$ are
+generated by a field redefinition and thus represent a redundant
+operator.  They, therefore leave unalterated the $O(a)$ improvement of
+the naive action for on-shell quantities.  The three terms in it are
+respectively the Wilson term, that is again used to remove the
+doublers, clover term (for $F_{\mu\nu}$ they use an $O(a^2)$ improved
+version) as in the SW action needed to remove the $O(a)$ error
+introduced by the Wilson fix, and an $a^3$ correction.  To include
+quantum corrections to the classical values $C_3 = C_F = C_4 = 1$ they
+resort to tadpole improvement, $i.e.$, they divide all links appearing
+in $M_{D234c}$ by $u_0$, which is taken to be the mean link in Landau
+gauge.
+
+Quantum corrections generally also induce additional operators,
+however, in perturbation theory these start at $O(\alpha_s)$.  After
+tadpole improvement the coefficients of $\alpha_s$ for such operators
+are all expected to be small, so one hopes that their contributions
+can be neglected.  The philosophy/motivation is analogous to dropping the small
+$\mathcal{L}_2^{(6)}$ term in the tadpole improved Luscher-Weisz pure gauge
+action given in Eq.~12.14.
+
+For two of the coefficients, $C_F$ and $C_3$, the authors have carried
+out non-perturbative tests of the accuracy of tadpole improvement
+[79].  Since only the operator $\Delta_\mu^{(3)}$ breaks
+rotational symmetry at $O(a^2)$, therefore $C_3$ can be tuned
+non-perturbatively by studying rotational invariance of dispersion
+relations.  Similary, the clover term and the Wilson term break chiral
+symmetry at $O(a)$, thus their relative coefficient $C_F$ can be tuned
+by studying the axial Ward identity.  Results of their tests show that
+errors in the spectrum and dispersion relations for momenta as high as
+$p = 1.5/a$ are $\approx 10\%$ even at $a = 0.4$ fermi!  The authors
+are extending their analyses of the $D234$ action to anisotropic
+lattices which, as will be discussed in Section 18.4,
+have already yielded rich dividends in the calculation of glueball
+masses.
+
+\section{NRQCD action}
+
+In the simulation of heavy quarks one has to worry about $O(m_H a)$
+errors in addition to $O(pa)$ and $O(\Lambda_{\rm QCD} a)$.  For charm and
+bottom quarks these errors are $O(1)$ in the range of lattice spacings
+one can reasonably simulate.  Lepage and collaborators, recognizing
+that the heavy quark in heavy-heavy or heavy-light systems is, to a
+good approximation, non-relativistic, developed a non-relativistic
+formulation (NRQCD) valid for $m_H a > 1$ [108].
+In this approach, the action for the two-component Pauli spinors
+is obtained by a Foldy-Wouthuysen transformation, and relativistic and
+discretization corrections are added as a systematic expansion in $1/M$
+and $p/M$.
+One version of the NRQCD action is [109]
+\begin{align}
+\mathcal{L}
+&= \bar{\psi}_t \psi_t \nonumber\\
+&\quad - \bar{\psi}_t
+   \left( 1 - \frac{a \delta H}{2} \right)_t
+   \left( 1 - \frac{a H_0}{2n} \right)^n_t
+   U_4^\dagger
+   \left( 1 - \frac{a H_0}{2n} \right)^n_{t-1}
+   \left( 1 - \frac{a \delta H}{2} \right)_{t-1} \psi_{t-1},
+\label{eq:nrqcdact}
+\end{align}
+where $\psi$ is the two-component Pauli spinor and
+$H_0$ is the nonrelativistic kinetic energy operator,
+\begin{equation}
+H_0 = - \frac{\Delta^{(2)}}{2 M_0} \ .
+\label{eq:nrqcdH0}
+\end{equation}
+$\delta H$ includes relativistic and finite-lattice-spacing
+corrections,
+\begin{align}
+\delta H
+&= - \frac{g c_1}{2 M_0} \boldsymbol{\sigma}\cdot\boldsymbol{B} \nonumber\\
+&\quad + \frac{i g c_2}{8 (M_0)^2}
+   \left( \boldsymbol{\Delta}\cdot\boldsymbol{E} - \boldsymbol{E}\cdot\boldsymbol{\Delta} \right)
+   - \frac{g c_3}{8 (M_0)^2}
+   \boldsymbol{\sigma}\cdot
+   \left( \boldsymbol{\Delta}\times\boldsymbol{E} - \boldsymbol{E}\times\boldsymbol{\Delta} \right) \nonumber\\
+&\quad - \frac{c_4 (\Delta^{(2)})^2}{8 (M_0)^3}
+   + \frac{c_5 a^2 \Delta^{(4)}}{24 M_0}
+   - \frac{c_6 a (\Delta^{(2)})^2}{16 n (M_0)^2} \ .
+\label{eq:NRQCDdeltaH}
+\end{align}
+Here $\boldsymbol{E}$ and $\boldsymbol{B}$ are the electric and magnetic fields,
+$\boldsymbol{\Delta}$ and $\Delta^{(2)}$ are the
+spatial gauge-covariant lattice derivative and
+laplacian, and $\Delta^{(4)}$ is a lattice version of the continuum
+operator $\sum_i D_i^4$.  The parameter $n$ is introduced to remove
+instabilities in the heavy quark propagator due to the highest
+momentum modes [108].  Again, the tree-level
+coefficients $c_i = 1$ can be tadpole-improved by rescaling all the
+link matrices by $u_0$.
+
+This formulation has been used very successfully to calculate
+$\alpha_s$ from the upsilon spectrum [110] as discussed
+in Section 19, the heavy-heavy and heavy-light spectrum
+[111], and the heavy-light decay constants $f_B$ and $f_{B_s}$
+[109].  The drawback of NRQCD is that it is an effective theory
+and one cannot take $a \to 0$.  In fact, to simulate charm and bottom
+quarks, one has to work in a narrow window $1 \lesssim 1/a \lesssim 2.5$
+GeV to keep $m_H a > 1$.  The good news is that current data
+[110,111,109] show that
+the discretization and relativistic corrections are small and under
+control with the terms included in Eq.~13.7.
+
+\section{Perfect action}
+
+The development of a perfect Dirac action is not complete.  The method
+is same as used for the gauge action and discussed in [90].
+The bottleneck is that the saddle point integration gives an action that even
+in the free field limit involves a number of sites, and the gauge
+connections between any pair of sites is the average of a large number
+of paths [112].  First tests of such an action truncated to
+a $3^4$ hypercube have been carried out by Degrand and collaborators
+[100].  From these it is not clear whether the
+improvement, compared to other discretization schemes, justifies the
+extra cost of simulating such an action.  Hopefully better ways to tune
+and test such actions will be formulated soon.
+
+\section{Fermilab action}
+
+The Fermilab group has proposed a ``Heavy Wilson'' fermion action
+[113].  This action is meant to interpolate between the
+light $O(a)$ improved SW-clover action and the NRQCD action for heavy
+quarks.  The goal is to remove not only $O(a)$ discretization
+corrections but also take into account all powers of $ma$ errors so
+that charmonium and bottomonium systems can be simulated with the same
+reliability as light-light physics.  This improvement is especially
+targeted towards improving heavy-light matrix elements.  So far no
+tests have been reported with the proposed action, therefore I will
+not reproduce the action here but refer interested readers to
+[113] for details.
+
+\section{Summary}
+
+In analogy to discussions of improved gauge actions, having seen
+tangible evidence for improvement in quenched lattice data with each of
+the above formulations, the question is, which action is the most
+efficient for a comprehensive study?  The deciding factor, in my
+opinion, will be dynamical simulations since the prefactor and the
+scaling exponent ($L^{\sim 10}$) makes the cost of update of
+background configurations prohibitive without improvement on today's
+computers.  Dynamical simulations using improved actions have just
+begun, so it will be a few years before enough data can be generated
+to determine the advantages and disadvantages of different approaches.
+
+Finally, I should mention a recent novel approach --- domain wall
+fermions --- for improving the chiral properties of Wilson fermions
+[114].  In this approach the system (domain) is
+5-dimensional and the fermions live on 4-dimensional surfaces that
+make up the opposite boundaries (walls).  The 4-dimensional gauge
+fields on the two walls are identical, whereas the fermion zero-modes
+have opposite chirality.  The overlap between these modes is
+exponentially suppressed by the separation in the fifth
+dimension.  Consequently, the chiral symmetry breaking contributions are
+also supressed, and results with good chiral properties for vector
+like theories like QCD can be obtained by adding the contribution from
+the two domain walls.  First simulations of weak matrix elements show
+results with good chiral properties and in general look extremely
+promising [115].  Since I do
+not do justice to this exciting approach in these lectures, interested
+readers should consult [115] and references therein.

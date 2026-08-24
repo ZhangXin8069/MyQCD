@@ -1,0 +1,277 @@
+% SECTION 6: Formulation of Lattice Gauge Theories
+
+% -------- PDF page 25 --------
+INTRODUCTION TO LATTICE QCD
+
+25
+
+plitudes at threshold can be calculated from the energy shift in a finite
+volume, the difference between the 2-particle energy and the sum of the
+two particles in isolation [27–30].
+
+6. Formulation of Lattice Gauge Theories
+
+In 1974 Wilson [31] formulated Euclidean gauge theories on the lattice as
+a means to study confinement and carry out non-perturbative analysis of
+QCD. The numerical implementation of the path integral approach requires
+the following five steps.
+– Discretization of space-time.
+– The transcription of the gauge and fermion degrees of freedom.
+– Construction of the action.
+– Definition of the measure of integration in the path integral.
+– The transcription of the operators used to probe the physics.
+Of these, the construction of the action and the operators is the most
+intricate. Rather than give you the most recent and improved version of
+the lattice action, which will be the subject of Martin Lüscher’s lectures, I
+have chosen to follow the original path of discovery.
+
+6.1. Discrete space-time grid
+There are a number of possible ways to discretize space-time in 4 Euclidean
+dimensions. These include hypercubic, body-centered cubic [32], and random [33] lattices. Of these the simplest is the isotropic hypercubic grid
+with spacing a = aS = aT and size NS × NS × NS × NT . Since this grid
+is used almost exclusively, it will be the only one discussed in these sets
+of lectures. In the case of the random lattice even the free field analysis
+becomes difficult [33]. In fact very little exploration of variant grid geometries has actually been done, as there is little expectation of significant
+physics gains to offset the additional computational complexity. Recently,
+proposals involving anisotropic lattices – a hypercubic grid with different
+spacing in space and time directions – have shown promise for reducing the
+discretization errors. I shall come back to this development in Section 18.3
+when discussing the glueball spectrum.
+
+
+% -------- PDF page 26 --------
+26
+
+Rajan Gupta
+
+6.2. Lattice transcription of field variables ψ(x) and Aµ (x):
+The lattice transcription of the matter fields ψ(x) is straightforward. The
+quark field is represented by anticommuting Grassmann variables defined
+at each site of the lattice. They belong to the fundamental representation
+of SU(3). The rules for integration over a pair of fermion variables ψ and
+ψ are those standard for Grassmann variables
+Z
+Z
+Z
+dψ dψ =
+dψ dψ ψ = dψ dψ ψ = 0
+Z
+Z
+dψ ψ = dψ ψ = i
+Z
+(6.1)
+dψ dψ ψ ψ = 1
+Since the fermion action is linear in both ψ and ψ, these rules can be used
+to integrate over them, and the path integral reduces to one over only the
+gauge degrees of freedom. Thus, it turns out that in practice one does not
+have to worry about transcribing grassmann variables on the lattice and
+implementing the Pauli exclusion principle.
+As an aside I would like to mention that the rules of integration for
+Grassmann variables are sufficient to do the fermion path integral. Consider hψ(x1 ) . . . ψ(xn )ψ(x1 ) . . . ψ(xn )i. To get a non-zero expectation value
+one needs to saturate each site with a ψψ. The sites not covered by
+the fields in the operator have to come from the SfV −n term in the expansion exp Sf = 1 + Sf + Sf2 /2 + . . ., where V is the total number of
+P
+/ + m)ψ(x) is a sum over sites, the number of
+sites. Since Sf = x ψ(x)(D
+V −n
+terms in Sf
+poses an exponentially hard combinatorial problem. Furthermore, each term contributing to the connected diagram will contain a
+/ term
+path-ordered product of gauge links (coming from the discretized D
+in Sf . For example, see Eq. 7.5) connecting the sites in the operator, while
+the fermionic integration is ±mV −n with the sign given by the number of
+times the ψ and ψ are anti-commuted. You should convince yourself that
+the fermionic functional integral is the sum over all possible paths touching
+each site a maximum of one time. Having enumerated all such paths and
+their weights, the gauge functional integral now requires integrating over
+each link in each path. This is clearly a very formidable approach, and in
+practice rarely considered.
+The construction of gauge fields is less intuitive. In the continuum, the
+gauge fields Aµ (x) carry 4-vector Lorentz indices, and mediate interactions
+between fermions. To transcribe them Wilson noted that in the continuum
+
+
+% -------- PDF page 27 --------
+INTRODUCTION TO LATTICE QCD
+
+27
+
+a fermion moving from site x to y in presence of a gauge field Aµ (x) picks
+up a phase factor given by the path ordered product
+Ry
+igAµ (x)dxµ
+ψ(y) = P e x
+ψ(x) .
+(6.2)
+
+The eight types of gluons that mediate interactions between quarks are
+written in terms of the matrix Aµ (x) ≡ Aaµ (x) · λa /2, where the group
+generators λa are normalized to T rλa λb = 2δab . Eq. 6.2 suggested that
+gauge fields be associated with links that connect sites on the lattice. So,
+with each link Wilson associated a discrete version of the path ordered
+product
+µ̂
+
+U (x, x + µ̂) ≡ Uµ (x) = eiagAµ (x+ 2 ) ,
+
+(6.3)
+
+where, for concreteness, the average field Aµ is defined at the midpoint of
+the link, and U is a 3 × 3 unitary matrix with unit determinant. Also, the
+path ordering in eqn. (2.3) specifies that
+µ̂
+
+U (x, x − µ̂) ≡ U−µ (x) = e−iagAµ (x− 2 ) = U † (x − µ̂, x) .
+
+(6.4)
+
+6.3. Discrete Symmetries of the lattice theory
+The symmetry group of the continuum theory – Poincaré invariance – is
+reduced to a discrete group. On a hypercubic lattice rotations by only 90o
+are allowed so the continuous rotation group is replaced by the discrete
+hypercubic group [34]. Translations have to be by at least one lattice unit,
+so the allowed momenta are discrete
+2πn
+n = 0, 1, . . . L
+k =
+La
+or equivalently
+2πn
+k = ±
+n = 0, 1, . . . L/2 .
+La
+On the lattice momentum is conserved modulo 2π.
+In addition to the local gauge symmetry and Poincaré invariance, the
+lattice action is invariant under parity (P), charge conjugation (C) and
+time reversal (T ). The behavior of the field variables under these discrete
+transformations is given in Table 2.
+6.4. Local Gauge Symmetry
+The effect of a local gauge transformation V (x) on the variables ψ(x) and
+U is defined to be
+ψ(x) → V (x)ψ(x)
+
+
+% -------- PDF page 28 --------
+Rajan Gupta
+
+28
+Table 2
+
+The behavior of the gauge and fermion degrees of freedom under
+the discrete transformations of parity, charge-conjugation, and timereversal. The charge-conjugation matrix C satisﬁes the relation
+T = −γ ∗ , and shall be represented by C = γ γ .
+Cγµ C −1 = −γµ
+4 2
+µ
+Note that in the Euclidean formulation T is a linear operator.
+P
+C
+T
+U4 (x, τ )
+
+U4 (−x, τ )
+
+U4∗ (x, τ )
+
+Ui (x, τ )
+
+U−i (−x, τ )
+
+Ui∗ (x, τ )
+
+ψ(x, τ )
+
+γ4 ψ(−x, τ )
+
+ψ(x, τ )
+
+ψ(−x, τ )γ4
+
+ψ(x) → ψ(x)V † (x)
+
+Uµ (x) → V (x)Uµ (x)V † (x + µ̂)
+
+T
+
+Cψ (x, τ )
+
+−ψT (x, τ )C −1
+
+U−4 (x, −τ )
+Ui (x, −τ )
+
+γ4 γ5 ψ(x, −τ )
+ψ(x, −τ )γ5 γ4
+
+(6.5)
+
+where V (x) is in the same representation as the U , i.e., it is an SU (3) matrix. With these definitions there are two types of gauge invariant objects
+that one can construct on the lattice.
+– A string consisting of a path-ordered product of links capped by a fermion
+and an antifermion as shown in Fig. 5a. A simple example is
+(6.6)
+Tr ψ(x) Uµ (x) Uν (x + µ̂) . . . Uρ (y − ρ̂) ψ(y)
+where the trace is over the color indices. I will use the word string for a
+generalized version; a single spin and color trace as defined in Eq. 6.6, or
+a product of elementary strings that are path-ordered and do not have a
+spatial discontinuity. On lattices with periodic boundary conditions one
+does not need the ψ, ψ caps if the string stretches across the lattice and is
+closed by the periodicity. Such strings are called Wilson/Polyakov lines.
+– Closed Wilson loops as shown in Fig. 5b. The simplest example is the
+plaquette, a 1 × 1 loop,
+
+1×1
+Wµν
+= Re Tr Uµ (x) Uν (x + µ̂) Uµ† (x + ν̂) Uν† (x) .
+(6.7)
+Unless otherwise specified, whenever I use the term Wilson loops I will assume that the real part of the trace, Re Tr, has been taken. For SU (N ≥ 3)
+the trace of any Wilson loop in the fundamental representation is complex, with the two possible path-orderings giving complex conjugate values.
+Thus, taking the trace insures gauge invariance, and taking the real part
+is equivalent to averaging the loop and its charge conjugate.
+Exercise: Convince yourself that there do not exist any other independent
+gauge invariant quantities.
+
+
+% -------- PDF page 29 --------
+INTRODUCTION TO LATTICE QCD
+
+29
+
+U x(x,y+3)
+
+U y(x,y)
+
+U y(x+4,y)
+U x(x,y)
+
+(a)
+
+(b)
+
+Fig. 5. The two gauge invariant quantities. a) An ordered string of U ′ s capped by a
+fermion and an anti-fermion and b) closed Wilson loops.
+
+Exercise: Convince yourself that to preserve gauge invariance one has to
+formulate the lattice theory in terms of link variables Uµ rather than the
+Aµ directly.
+A gauge invariant action, therefore, has to be built out of loops and
+strings. However, note that these two basic gauge invariant objects can be
+of arbitrary size and shape. Furthermore, they can be taken to lie in any
+representation of color SU (3). The only necessary constraint is that it give
+the familiar continuum theory in the limit a → 0. The reasons for wanting
+to preserve gauge invariance at all a is that otherwise one would have
+many more parameters to tune (the zero gluon mass, and the equality of
+the quark-gluon, 3-gluon, and 4-gluon couplings are consequences of gauge
+symmetry) and there would arise many more operators at any given order in
+a (these are irrelevant operators, but at finite a give rise to discretization
+errors as discussed in Section 8). In fact, one would like to preserve as
+many symmetries of the theory as possible at all values of a and not just
+in the continuum limit. It turns out to be relatively simple to maintain
+local gauge invariance, however, maintaining chiral symmetry, which has
+proven so important in the phenomenology of light quarks, and a one-to-one
+relation between Dirac and lattice fermion degrees of freedom has eluded
+us. This is discussed in Section 9. Also, discretization de f acto breaks
+continuous rotational, Lorentz, and translational symmetry. The key idea
+of improved discretization schemes, to be discussed in Sections 8, 12, and
+
+

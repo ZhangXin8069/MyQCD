@@ -1,0 +1,1146 @@
+% ======================================================================
+% Chapter 10: Systematics of Renormalization
+% (book pages 315-345; PDF pages 338-369)
+% ======================================================================
+\chapter{Systematics of Renormalization}
+
+While computing radiative corrections in Chapters~6 and~7, we encountered
+three QED diagrams with ultraviolet divergences: the electron self-energy, the
+vertex correction, and the vacuum polarization.  In each case we saw that the
+divergence could be regulated and canceled, yielding finite expressions for
+measurable quantities.  In Chapter~8, we pointed out that such ultraviolet
+divergences occur commonly and, in fact, naturally in quantum field theory
+calculations.  We sketched a physical interpretation of these divergences, with
+implications both in quantum field theory and in the statistical theory of
+phase transitions.  In the next few chapters, we will convert this sketchy
+picture into a quantitative theory that allows precise calculations.
+
+In this chapter, we begin this study by developing a classification of the
+ultraviolet divergences that can appear in a quantum field theory.  Rather
+than stumbling across these divergences one by one and repairing them case by
+case, we now set out to determine once and for all which diagrams are
+divergent, and in which theories these divergences can be eliminated
+systematically.  As examples we will consider both QED and scalar field
+theories.
+
+\section{Counting of Ultraviolet Divergences}
+
+In this section we will use elementary arguments to determine, tentatively,
+when a Feynman diagram contains an ultraviolet divergence.  We begin by
+analyzing quantum electrodynamics.
+
+First we introduce the following notation, to characterize a typical diagram
+in QED:
+\begin{equation}
+  \begin{aligned}
+    N_e &= \text{number of external electron lines};\\
+    N_\gamma &= \text{number of external photon lines};\\
+    P_e &= \text{number of electron propagators};\\
+    P_\gamma &= \text{number of photon propagators};\\
+    V &= \text{number of vertices};\\
+    L &= \text{number of loops}.
+  \end{aligned}
+\end{equation}
+(This analysis applies to correlation functions as well as scattering
+amplitudes.  In the former case, propagators that are connected to external
+points should be counted as external lines, not as propagators.)
+
+The expression corresponding to a typical diagram looks like this:
+\begin{equation}
+  \int d^4k_1\,d^4k_2\cdots d^4k_L\
+    \frac{(\slashed{k}_i\cdots)(\cdots)}{(k_i^2-m^2)\cdots(k_j^2)\cdots}
+    \cdots .
+\end{equation}
+For each loop there is a potentially divergent 4-momentum integral, but each
+propagator aids the convergence of this integral by putting one or two powers
+of momentum into the denominator.  Very roughly speaking, the diagram
+diverges unless there are more powers of momentum in the denominator than in
+the numerator.  Let us therefore define the \emph{superficial degree of
+divergence}, $D$, as the difference:
+\begin{equation}
+  D = (\text{power of }k\text{ in numerator}) - (\text{power of }k
+    \text{ in denominator}) = 4L - P_e - 2P_\gamma .
+  \label{eq:10.1}
+\end{equation}
+Naively, we expect a diagram to have a divergence proportional to
+$\Lambda^D$, where $\Lambda$ is a momentum cutoff, when $D > 0$.  We expect a
+divergence of the form $\log\Lambda$ when $D = 0$, and no divergence when
+$D < 0$.
+
+This naive expectation is often wrong, for one of three reasons (see
+Fig.~\ref{fig:10.1}).  When a diagram contains a divergent subdiagram, its
+actual divergence may be worse than that indicated by $D$.  When symmetries
+(such as the Ward identity) cause certain terms to cancel, the divergence of a
+diagram may be reduced or even eliminated.  Finally, a trivial diagram with no
+propagators and no loops has $D = 0$ but no divergence.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6\textwidth]{fig10.1.png}
+  \caption{Some simple QED diagrams that illustrate the superficial degree of
+    divergence.  The first diagram is finite, even though $D = 0$.  The third
+    diagram has $D = 2$ but only a logarithmic divergence, due to the Ward
+    identity (see Section~7.5).  The fourth diagram diverges, even though
+    $D < 0$, since it contains a divergent subdiagram.  Only in the second and
+    fifth diagrams does the superficial degree of divergence coincide with the
+    actual degree of divergence.}
+  \label{fig:10.1}
+\end{figure}
+
+Despite all of these complications, $D$ is still a useful quantity.  To see
+why, let us rewrite it in terms of the number of external lines
+($N_e$, $N_\gamma$) and vertices ($V$).  Note that the number of loop
+integrations in a diagram is
+\begin{equation}
+  L = P_e + P_\gamma - V + 1,
+  \label{eq:10.2}
+\end{equation}
+since in our original Feynman rules each propagator has a momentum integral,
+each vertex has a delta function, and one delta function merely enforces
+overall momentum conservation.  Furthermore, the number of vertices is
+\begin{equation}
+  V = 2P_\gamma + N_\gamma = \tfrac{1}{2}(2P_e + N_e),
+  \label{eq:10.3}
+\end{equation}
+since each vertex involves exactly one photon line and two electron lines.
+(The propagators count twice since they have two ends on vertices.)  Putting
+these relations together, we find that $D$ can be expressed as
+\begin{equation}
+  D = 4L - P_e - 2P_\gamma = 4 - \frac{3}{2}N_e - N_\gamma ,
+  \label{eq:10.4}
+\end{equation}
+independent of the number of vertices.  The superficial degree of divergence
+of a QED diagram depends only on the number of external legs of each type.
+
+According to result \eqref{eq:10.4}, only diagrams with a small number of
+external legs have $D \ge 0$; those seven types of diagrams are shown in
+Fig.~\ref{fig:10.2}.  Since external legs do not enter the potentially
+divergent integral, we can restrict our attention to amputated diagrams.  We
+can also restrict our attention to one-particle-irreducible diagrams, since
+reducible diagrams are simple products of the integrals corresponding to
+their irreducible parts.  Thus the task of enumerating all of the divergent
+QED diagrams reduces to that of analyzing the seven types of amputated,
+one-particle-irreducible amplitudes shown in Fig.~\ref{fig:10.2}.  Other
+diagrams may diverge, but only when they contain one of these seven as a
+subdiagram.  Let us therefore consider each of these seven amplitudes in
+turn.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6\textwidth]{fig10.2.png}
+  \caption{The seven QED amplitudes whose superficial degree of divergence
+    ($D$) is $\ge 0$.  (Each circle represents the sum of all possible QED
+    diagrams.)  As explained in the text, amplitude (a) is irrelevant to
+    scattering processes, while amplitudes (b) and (d) vanish because of
+    symmetries.  Amplitude (e) is nonzero, but its divergent parts cancel due
+    to the Ward identity.  The remaining amplitudes (c, f, and g) are all
+    logarithmically divergent, even though $D > 0$ for (c) and (f).}
+  \label{fig:10.2}
+\end{figure}
+
+The zero-point function, Fig.~\ref{fig:10.2}(a), is very badly divergent.  But
+this object merely causes an unobservable shift of the vacuum energy; it never
+contributes to $S$-matrix elements.
+
+To analyze the photon one-point function (Fig.~\ref{fig:10.2}b), note that the
+external photon must be attached to a QED vertex.  Neglecting the external
+photon propagator, this amplitude is therefore
+\begin{equation}
+  \mathcal{M}^\mu(q) = -ie\int d^4x\ e^{-iq\cdot x}\
+    \langle\Omega|T j^\mu(x)|\Omega\rangle ,
+  \label{eq:10.5}
+\end{equation}
+where $j^\mu = \bar{\psi}\gamma^\mu\psi$ is the electromagnetic current
+operator.  But the vacuum expectation value of $j^\mu$ must vanish by Lorentz
+invariance, since otherwise it would be a preferred 4-vector.
+
+The photon one-point function also vanishes for a second reason:
+charge-conjugation invariance.  Recall that $C$ is a symmetry of QED, so
+$C|\Omega\rangle = |\Omega\rangle$.  But $j^\mu(x)$ changes sign under charge
+conjugation, $Cj^\mu(x)C^{\dagger} = -j^\mu(x)$, so its vacuum expectation
+value must vanish:
+\begin{equation}
+  \langle\Omega|T j^\mu(x)|\Omega\rangle
+  = \langle\Omega|C^{\dagger}Cj^\mu(x)C^{\dagger}C|\Omega\rangle
+  = -\langle\Omega|T j^\mu(x)|\Omega\rangle = 0 .
+\end{equation}
+The same argument applies to any vacuum expectation value of an odd number of
+electromagnetic currents.  In particular, the photon three-point function,
+Fig.~\ref{fig:10.2}(d), vanishes.  (This result is known as \emph{Furry's
+theorem}.)  It is not hard to check explicitly that the photon one- and
+three-point functions vanish in the leading order of perturbation theory (see
+Problem~10.1).
+
+The remaining amplitudes in Fig.~\ref{fig:10.2} are all nonzero, so we must
+analyze their structures in more detail.  Consider, for example, the electron
+self-energy (Fig.~\ref{fig:10.2}f).  This amplitude is a function of the
+electron momentum $p$, so let us expand it in a Taylor series about $p = 0$:
+\begin{equation}
+  \Sigma(\slashed{p}) = A_0 + A_1\slashed{p} + A_2\slashed{p}^2 + \cdots ,
+\end{equation}
+where each coefficient is independent of $p$:
+\begin{equation}
+  A_n = \frac{1}{n!}\ \frac{d^n}{d\slashed{p}^n}\ \Sigma(\slashed{p})
+    \Big|_{\slashed{p}=0} .
+\end{equation}
+(These coefficients are infrared divergent; to compute them explicitly we
+would need an infrared regulator, as in Chapter~6.)  The diagrams contributing
+to the electron self-energy depend on $p$ through the denominators of
+propagators.  To compute the coefficients $A_n$, we differentiate these
+propagators, giving expressions like
+\begin{equation}
+  \frac{d}{dp_\mu}\ \frac{1}{\slashed{p}-m} = -\frac{1}{\slashed{p}-m}\,
+    \gamma^\mu\ \frac{1}{\slashed{p}-m} .
+\end{equation}
+That is, each derivative with respect to the external momentum $p$ lowers the
+superficial degree of divergence by 1.  Since the constant term $A_0$ has
+(superficially) a linear divergence, $A_1$ can have only a logarithmic
+divergence; all the remaining $A_n$ are finite.  (This argument breaks down
+when the divergence is in a subdiagram, since then not all propagators involve
+the large momentum $k$.  We will face this problem in Section~10.4.)
+
+The electron self-energy amplitude has one additional subtlety.  If the
+constant term $A_0$ were proportional to $\Lambda$ (the ultraviolet cutoff),
+the electron mass shift would, according to the analysis in Section~7.1, also
+have a term proportional to $\Lambda$.  But the electron mass shift must
+actually be proportional to $m$, since chiral symmetry would forbid a mass
+shift if $m_0$ were zero.  At worst, the constant term can be proportional to
+$m\log\Lambda$.  We therefore expect the entire self-energy amplitude to have
+the form
+\begin{equation}
+  -a_0\,m\log\Lambda + a_1\slashed{p}\log\Lambda + (\text{finite terms}),
+  \label{eq:10.6}
+\end{equation}
+exactly what we found for the term of order $\alpha$ in Eq.~\eqref{eq:7.19}.
+
+Let us analyze the exact electron-photon vertex, Fig.~\ref{fig:10.2}(g), in
+the same way.  (Again we implicitly assume that infrared divergences have been
+regulated.)  Expanding in powers of the three external momenta, we immediately
+see that only the constant term is divergent, since differentiating with
+respect to any external momentum would lower the degree of divergence to
+$-1$.  This amplitude therefore contains only one divergent constant:
+\begin{equation}
+  \propto -ie\log\Lambda + \text{finite terms} .
+  \label{eq:10.7}
+\end{equation}
+As discussed in Section~7.5, the photon self-energy (Fig.~\ref{fig:10.2}c) is
+constrained by the Ward identity to have the form
+\begin{equation}
+  \Pi^{\mu\nu}(q) = (g^{\mu\nu}q^2 - q^\mu q^\nu)\,\Pi(q^2) .
+  \label{eq:10.8}
+\end{equation}
+Viewing this expression as a Taylor series in $q$, we see that the constant and
+linear terms both vanish, lowering the superficial degree of divergence from 2
+to 0.  The only divergence, therefore, is in the constant term of
+$\Pi(q^2)$, and this divergence is only logarithmic.  This result is exactly
+what we found for the lowest-order contribution to $\Pi(q^2)$ in
+Eq.~(7.90).
+
+Finally, consider the photon-photon scattering amplitude,
+Fig.~\ref{fig:10.2}(e).  The Ward identity requires that if we replace any
+external photon by its momentum vector, the amplitude vanishes:
+\begin{equation}
+  k_{\mu_1}\mathcal{M}^{\mu_1\mu_2\mu_3\mu_4}(k_1,k_2,k_3,k_4) = 0 .
+  \label{eq:10.9}
+\end{equation}
+By exhaustion one can show that this condition is satisfied only if the
+amplitude is proportional to $(g^{\mu_1\mu_3}k^{\mu_2} - g^{\mu_1\mu_2}k^{\mu_3})$,
+with a similar factor for each of the other three legs.  Each of these factors
+involves one power of momentum, so all terms with less than four powers of
+momentum in the Taylor series of this amplitude must vanish.  The first
+nonvanishing term has $D = 0 - 4 = -4$, and therefore this amplitude is
+finite.
+
+In summary, we have found that there are only three ``primitively'' divergent
+amplitudes in QED: the three that we already found in Chapters~6 and~7.
+(Other amplitudes may also be divergent, but only because of diagrams that
+contain these primitive amplitudes as components.)  Furthermore, the
+dependence of these divergent amplitudes on external momenta is extremely
+simple.  If we expand each amplitude as a power series in its external
+momenta, there are altogether only four divergent coefficients in the
+expansions.  In other words, QED contains only four divergent numbers.  In
+the next section we will see how these numbers can be absorbed into
+unobservable Lagrangian parameters, so that observable scattering amplitudes
+are always finite.
+
+For the remainder of this section, let us try to understand the superficial
+degree of divergence from a more general viewpoint.  The theory of QED in four
+spacetime dimensions is rather special, so let us first generalize to QED in
+$d$ dimensions.  In this case, $D$ is given by
+\begin{equation}
+  D = dL - P_e - 2P_\gamma ,
+  \label{eq:10.10}
+\end{equation}
+since each loop contributes a $d$-dimensional momentum integral.  Relations
+\eqref{eq:10.2} and \eqref{eq:10.3} still hold, so we can again rewrite $D$ in
+terms of $V$, $N_e$, and $N_\gamma$:
+\begin{equation}
+  D = d - \frac{d-1}{2}N_e - \frac{d-2}{2}N_\gamma .
+\end{equation}
+For $d = 4$, this reduces to \eqref{eq:10.4}.  For $d > 4$, the divergences
+become worse; for $d < 4$, they are milder.
+
+Let us now perform the analogous analysis for a theory of a real scalar field
+with a $\phi^n$ interaction in $d$ spacetime dimensions.  The Lagrangian is
+\begin{equation}
+  \mathcal{L} = \tfrac{1}{2}(\partial_\mu\phi)^2 - \tfrac{1}{2}m^2\phi^2
+    - \frac{\lambda}{n!}\phi^n .
+  \label{eq:10.12}
+\end{equation}
+The superficial degree of divergence of a diagram with $N$ external lines is
+\begin{equation}
+  D = dL - 2P ,
+  \label{eq:10.13}
+\end{equation}
+where $P$ is the number of scalar propagators.  Using
+$L = P - V + 1$ and $N = nV - 2P$, we can rewrite $D$ as
+\begin{equation}
+  D = d + V\Bigl[ \frac{n(d-2)}{2} - d \Bigr] - \frac{d-2}{2}N .
+  \label{eq:10.13b}
+\end{equation}
+The theory is renormalizable if the coefficient of $V$ is zero, that is, if
+\begin{equation}
+  n = \frac{2d}{d-2} .
+\end{equation}
+For $d = 4$, this gives $n = 4$: In four dimensions a $\phi^4$ coupling is
+renormalizable, while higher powers of $\phi$ are non-renormalizable.  In three
+dimensions a $\phi^6$ coupling becomes renormalizable, while $\phi^4$ is
+super-renormalizable.  In two spacetime dimensions any coupling of the form
+$\phi^n$ is super-renormalizable.
+
+Expression \eqref{eq:10.13} can also be derived in a somewhat different way,
+from dimensional analysis.  In any quantum field theory, the action
+$S = \int d^dx\ \mathcal{L}$ must be dimensionless, since we work in units
+where $\hbar = 1$.  In this system of units, the integral $d^dx$ has units
+$(\mathrm{mass})^{-d}$, and so the Lagrangian has units
+$(\mathrm{mass})^d$.  Since all units can be expressed as powers of mass, it is
+unambiguous to say simply that the Lagrangian has ``dimension $d$.''  Using
+this result, we can infer from the explicit form of \eqref{eq:10.12} the
+dimensions of the field $\phi$ and the coupling constant $\lambda$.  From the
+kinetic term in $\mathcal{L}$ we see that $\phi$ has dimension $(d-2)/2$.  Note
+that the parameter $m$ consistently has dimensions of mass.  From the
+interaction term and the dimension of $\phi$, we infer that the $\lambda$ has
+dimension
+\begin{equation}
+  [\lambda] = d - n\frac{d-2}{2} .
+\end{equation}
+Now consider an arbitrary diagram with $N$ external lines.  One way that such
+a diagram could arise is from an interaction term $\eta\phi^N$ in the
+Lagrangian.  The dimension of $\eta$ would then be
+$d - N(d-2)/2$, and therefore we conclude that any (amputated) diagram with
+$N$ external lines has dimension $d - N(d-2)/2$.  In our theory with only the
+$\lambda\phi^n$ vertex, if the diagram has $V$ vertices, its divergent part is
+proportional to $\lambda^V\Lambda^D$, where $\Lambda$ is a high-momentum
+cutoff and $D$ is the superficial degree of divergence.  (This is the
+``generic'' case; all the exceptions noted above also apply here.)  Applying
+dimensional analysis, we find
+\begin{equation}
+  [\lambda^V\Lambda^D] = V\Bigl[ d - \frac{n(d-2)}{2} \Bigr] + D
+  = d - \frac{N(d-2)}{2},
+\end{equation}
+in agreement with \eqref{eq:10.13}.
+
+Note that the quantity that multiplies $V$ in this expression is just the
+dimension of the coupling constant $\lambda$.  This analysis can be carried out
+for QED and other field theories, with the same result.  Thus we can
+characterize the three degrees of renormalizability in a second way:
+\begin{equation}
+  \begin{aligned}
+    \text{Super-Renormalizable:}\quad & \text{Coupling constant has positive
+      mass dimension.}\\
+    \text{Renormalizable:}\quad & \text{Coupling constant is dimensionless.}\\
+    \text{Non-Renormalizable:}\quad & \text{Coupling constant has negative
+      mass dimension.}
+  \end{aligned}
+\end{equation}
+This is exactly the conclusion that we stated without proof in Section~4.1.
+In QED, the coupling constant $e$ is dimensionless; thus QED is (at least
+superficially) renormalizable.
+
+\section{Renormalized Perturbation Theory}
+
+In the previous section we saw that a renormalizable quantum field theory
+contains only a small number of superficially divergent amplitudes.  In QED,
+for example, there are three such amplitudes, containing four infinite
+constants.  In Chapters~6 and~7 these infinities disappeared by the end of our
+computations: The infinity in the vertex correction diagram was canceled by
+the electron field-strength renormalization, while the infinity in the vacuum
+polarization diagram caused only an unobservable shift of the electron's
+charge.  In fact, it is generally true that the divergences in a renormalizable
+quantum field theory never show up in observable quantities.
+
+To obtain a finite result for an amplitude involving divergent diagrams, we
+have so far used the following procedure: Compute the diagrams using a
+regulator, to obtain an expression that depends on the bare mass ($m_0$), the
+bare coupling constant ($e_0$), and some ultraviolet cutoff ($\Lambda$).
+Then compute the physical mass ($m$) and the physical coupling constant
+($e$), to whatever order is consistent with the rest of the calculation; these
+quantities will also depend on $m_0$, $e_0$, and $\Lambda$.  To calculate an
+$S$-matrix element (rather than a correlation function), one must also compute
+the field-strength renormalization(s) $Z$ (in accord with Eq.~\eqref{eq:7.45}).
+Combining all of these expressions, eliminate $m_0$ and $e_0$ in favor of $m$
+and $e$; this step is the ``renormalization.''  The resulting expression for
+the amplitude should be finite in the limit $\Lambda\to\infty$.
+
+The above procedure always works in a renormalizable quantum field theory.
+However, it can often be cumbersome, especially at higher orders in
+perturbation theory.  In this section we will develop an alternative procedure
+which works more automatically.  We will do this first for $\phi^4$ theory,
+returning to QED in the next section.
+
+The Lagrangian of $\phi^4$ theory is
+\begin{equation}
+  \mathcal{L} = \tfrac{1}{2}(\partial_\mu\phi)^2 - \tfrac{1}{2}m_0^2\phi^2
+    - \frac{\lambda_0}{4!}\phi^4 .
+\end{equation}
+We now write $m_0$ and $\lambda_0$, to emphasize that these are the bare values
+of the mass and coupling constant, not the values measured in experiments.
+
+The superficial degree of divergence of a diagram with $N$ external legs is,
+according to \eqref{eq:10.13},
+\begin{equation}
+  D = 4 - N .
+\end{equation}
+Since the theory is invariant under $\phi\to-\phi$, all amplitudes with an odd
+number of external legs vanish.  The only divergent amplitudes are therefore
+the two-point function,
+\begin{equation}
+  \sim \Lambda^2 + p^2\log\Lambda + (\text{finite terms}) ;
+\end{equation}
+the four-point function,
+\begin{equation}
+  \sim \log\Lambda + (\text{finite terms}) ;
+\end{equation}
+and the vacuum energy,
+\begin{equation}
+  \text{(unobservable vacuum energy shift)} .
+\end{equation}
+Ignoring the vacuum diagram, these amplitudes contain three infinite
+constants.  Our goal is to absorb these constants into the three unobservable
+parameters of the theory: the bare mass, the bare coupling constant, and the
+field strength.  To accomplish this goal, it is convenient to reformulate the
+perturbation expansion so that these unobservable quantities do not appear
+explicitly in the Feynman rules.
+
+First we will eliminate the shift in the field strength.  Recall from
+Section~7.1 that the exact two-point function has the form
+\begin{equation}
+  \int d^4x\ \langle\Omega|T\phi(x)\phi(0)|\Omega\rangle\ e^{ip\cdot x}
+  = \frac{iZ}{p^2-m^2} + (\text{terms regular at } p^2 = m^2),
+  \label{eq:10.14}
+\end{equation}
+where $m$ is the physical mass.  We can eliminate the awkward residue $Z$ from
+this equation by rescaling the field:
+\begin{equation}
+  \phi = Z^{1/2}\phi_r .
+  \label{eq:10.15}
+\end{equation}
+This transformation changes the values of correlation functions by a factor of
+$Z^{-1/2}$ for each field.  Thus, in computing $S$-matrix elements, we no
+longer need the factors of $Z$ in Eq.~\eqref{eq:7.45}; a scattering amplitude
+is simply the sum of all connected, amputated diagrams, exactly as we
+originally guessed in Eq.~\eqref{eq:4.103}.
+
+The Lagrangian is much uglier after the rescaling:
+\begin{equation}
+  \mathcal{L} = \tfrac{1}{2}Z(\partial_\mu\phi_r)^2
+    - \tfrac{1}{2}m_0^2Z\phi_r^2 - \frac{\lambda_0}{4!}Z^2\phi_r^4 .
+  \label{eq:10.16}
+\end{equation}
+The bare mass and coupling constant still appear in $\mathcal{L}$, but they can
+be eliminated as follows.  Define
+\begin{equation}
+  \delta_Z = Z - 1,\qquad
+  \delta_m = m_0^2Z - m^2,\qquad
+  \delta_\lambda = \lambda_0Z^2 - \lambda,
+  \label{eq:10.17}
+\end{equation}
+where $m$ and $\lambda$ are the physically measured mass and coupling
+constant.  Then the Lagrangian becomes
+\begin{equation}
+  \mathcal{L} = \tfrac{1}{2}(\partial_\mu\phi_r)^2
+    - \tfrac{1}{2}m^2\phi_r^2 - \frac{\lambda}{4!}\phi_r^4
+    + \tfrac{1}{2}\delta_Z(\partial_\mu\phi_r)^2
+      - \tfrac{1}{2}\delta_m\phi_r^2 - \frac{\delta_\lambda}{4!}\phi_r^4 .
+  \label{eq:10.18}
+\end{equation}
+The first line now looks like the familiar $\phi^4$-theory Lagrangian, but is
+written in terms of the physical mass and coupling.  The terms in the second
+line, known as \emph{counterterms}, have absorbed the infinite but
+unobservable shifts between the bare parameters and the physical parameters.
+It is tempting to say that we have ``added'' these counterterms to the
+Lagrangian, but in fact we have merely split each term in \eqref{eq:10.16}
+into two pieces.
+
+The definitions in \eqref{eq:10.17} are not useful unless we give precise
+definitions of the physical mass and coupling constant.  Equation
+\eqref{eq:10.14} defines $m^2$ as the location of the pole in the propagator.
+There is no obviously best definition of $\lambda$, but a perfectly good
+definition would be obtained by setting $\lambda$ equal to the magnitude of the
+scattering amplitude at zero momentum.  Thus we have the two defining
+relations,
+\begin{equation}
+  \frac{i}{p^2-m^2} + (\text{terms regular at } p^2 = m^2) ;
+  \qquad -i\lambda = \text{(amputated amplitude at } s = 4m^2,\
+    t = u = 0) .
+  \label{eq:10.19}
+\end{equation}
+These equations are called \emph{renormalization conditions}.  (The first
+equation actually contains two conditions, specifying both the location of the
+pole and its residue.)
+
+Our new Lagrangian, Eq.~\eqref{eq:10.18}, gives a new set of Feynman rules,
+shown in Fig.~\ref{fig:10.3}.  The propagator and the first vertex come from
+the first line of \eqref{eq:10.18}, and are identical to the old rules except
+for the appearance of the physical mass and coupling in place of the bare
+values.  The counterterms in the second line of \eqref{eq:10.18} give two new
+vertices (also called counterterms):
+\begin{equation}
+  \text{(propagator counterterm)} = i(p^2\delta_Z - \delta_m);
+  \qquad \text{(four-point counterterm)} = -i\delta_\lambda .
+  \label{eq:10.20}
+\end{equation}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6\textwidth]{fig10.3.png}
+  \caption{Feynman rules for $\phi^4$ theory in renormalized perturbation
+    theory.}
+  \label{fig:10.3}
+\end{figure}
+
+We can use these new Feynman rules to compute any amplitude in $\phi^4$
+theory.  The procedure is as follows.  Compute the desired amplitude as the
+sum of all possible diagrams created from the propagator and vertices shown in
+Fig.~\ref{fig:10.3}.  The loop integrals in the diagrams will often diverge, so
+one must introduce a regulator.  The result of this computation will be a
+function of the three unknown parameters $\delta_Z$, $\delta_m$, and
+$\delta_\lambda$.  Adjust (or ``renormalize'') these three parameters as
+necessary to maintain the renormalization conditions \eqref{eq:10.19}.  After
+this adjustment, the expression for the amplitude should be finite and
+independent of the regulator.
+
+This procedure, using Feynman rules with counterterms, is known as
+\emph{renormalized perturbation theory}.  It should be contrasted with the
+procedure we used in Part~I, outlined at the beginning of this section, which
+is called \emph{bare perturbation theory} (since the Feynman rules involve the
+bare mass and coupling constant).  The two methods are completely equivalent.
+The differences between them are purely a matter of bookkeeping.  You will get
+the same answers using either procedure, so you may choose whichever you find
+more convenient.  In general, renormalized perturbation theory is technically
+easier to use, especially for multiloop diagrams; however, bare perturbation
+theory is sometimes easier for complicated one-loop calculations.  We will use
+renormalized perturbation theory in most of the rest of this book.
+
+\subsection{One-Loop Structure of $\phi^4$ Theory}
+
+To make more sense of the renormalization procedure, let us carry it out
+explicitly at the one-loop level.
+
+First consider the basic two-particle scattering amplitude,
+\begin{equation}
+  i\mathcal{M}(p_1p_2\to p_3p_4) = \text{(tree)} + \text{(one-loop)}
+    + \cdots .
+\end{equation}
+If we define $p = p_1+p_2$, then the second diagram is
+\begin{equation}
+  = (-i\lambda)^2\cdot iV(p^2) ,
+  \label{eq:10.21}
+\end{equation}
+where
+\begin{equation}
+  V(p^2) = \frac{1}{2}\int \frac{d^dk}{(2\pi)^d}\ \frac{1}{k^2-m^2+i\epsilon}\
+    \frac{1}{(k+p)^2-m^2+i\epsilon} .
+  \label{eq:10.22}
+\end{equation}
+Note that $p^2$ is equal to the Mandelstam variable $s$.  The next two diagrams
+are identical, except that $s$ will be replaced by $t$ and $u$.  The entire
+amplitude is therefore
+\begin{equation}
+  i\mathcal{M} = -i\lambda + (-i\lambda)^2\bigl[ iV(s) + iV(t) + iV(u) \bigr]
+    - i\delta_\lambda .
+  \label{eq:10.23}
+\end{equation}
+According to our renormalization condition \eqref{eq:10.19}, this amplitude
+should be equal to $-i\lambda$ when $s = 4m^2$, $t = u = 0$.  This fixes
+$\delta_\lambda$:
+\begin{equation}
+  \delta_\lambda = (-\lambda)^2\bigl[ V(4m^2) + 2V(0) \bigr] .
+  \label{eq:10.24}
+\end{equation}
+Substituting this back into \eqref{eq:10.23}, we obtain the finite result
+\begin{equation}
+  i\mathcal{M} = -i\lambda + (-i\lambda)^2\bigl[ iV(s) - iV(4m^2)
+    + iV(t) - iV(0) + iV(u) - iV(0) \bigr] ,
+\end{equation}
+where the differences $V(s) - V(4m^2)$ and $V(t) - V(0)$ are finite, since the
+divergences are independent of the external momenta.
+
+Next consider the two-point function at one loop.  The one-loop correction to
+the propagator is
+\begin{equation}
+  = (-i\lambda)\ \frac{1}{2}\int \frac{d^dk}{(2\pi)^d}\ \frac{1}{k^2-m^2}
+  = -i\lambda\,V_0 ,
+\end{equation}
+where $V_0$ is the value of the loop integral with both external momenta zero.
+This diagram is quadratically divergent.  Together with the counterterm, the
+exact two-point function is
+\begin{equation}
+  = \frac{i}{p^2-m^2} + \frac{i}{p^2-m^2}\ \bigl[
+    i(p^2\delta_Z - \delta_m) - i\lambda V_0 \bigr]\ \frac{i}{p^2-m^2}
+    + \cdots .
+  \label{eq:10.28}
+\end{equation}
+The renormalization conditions \eqref{eq:10.19} require that the pole remain
+at $p^2 = m^2$ with residue $i$.  This fixes the counterterms
+\begin{equation}
+  \delta_m = -\lambda V_0,\qquad \delta_Z = 0 .
+  \label{eq:10.29}
+\end{equation}
+Thus, in $\phi^4$ theory at one loop, the field-strength renormalization
+counterterm $\delta_Z$ vanishes.  (This is a special feature of $\phi^4$
+theory; the vanishing of $\delta_Z$ at one-loop order does not occur in more
+general theories of scalar fields.)
+
+The Yukawa theory described in Section~4.7 gives an explicit example of a
+one-loop correction for which this counterterm is required.  In the Yukawa
+theory, the scalar field propagator receives corrections at order $g^2$ from a
+fermion loop diagram and the two propagator counterterms.  Using the Feynman
+rules to compute the loop diagram, we find
+\begin{equation}
+  \begin{aligned}
+    -iM^2(p^2) &= (-ig)^2\ \int \frac{d^dk}{(2\pi)^d}\ \mathrm{tr}\Bigl[
+      \frac{i(\slashed{k}+m_f)}{k^2-m_f^2}\ \frac{i(\slashed{k}+\slashed{p}
+        +m_f)}{(k+p)^2-m_f^2} \Bigr]\\
+    &\quad + i(p^2\delta_Z - \delta_m) ,
+  \end{aligned}
+  \label{eq:10.32}
+\end{equation}
+where $m_f$ is the mass of the fermion that couples to the Yukawa field.  To
+evaluate the integral, combine denominators and shift as in Eq.~\eqref{eq:10.23}.
+Then the first term in the last line becomes
+\begin{equation}
+  \begin{aligned}
+    &= 4g^2\int_0^1 dx\ \int \frac{d^d\ell}{(2\pi)^d}\
+      \frac{\ell^2 - x(1-x)p^2 + m_f^2}{(\ell^2 + x(1-x)p^2 - m_f^2)^2}\\
+    &= -4g^2\int_0^1 dx\ \frac{i}{(4\pi)^{d/2}}\ \frac{\Gamma(1-d/2)}
+      {\Delta^{1-d/2}} + 4g^2\int_0^1 dx\ \frac{i(d-1)}{(4\pi)^{d/2}}\
+      \frac{\Gamma(2-d/2)}{\Delta^{2-d/2}} ,
+  \end{aligned}
+  \label{eq:10.33}
+\end{equation}
+where $\Delta = m_f^2 - x(1-x)p^2$.
+
+Now we can see that both of the counterterms $\delta_m$ and $\delta_Z$ must
+take nonzero values in order to satisfy the renormalization conditions
+\eqref{eq:10.28}.  To determine $\delta_m$, we subtract the value of the loop
+diagram at $p^2 = m^2$ as before, so that
+\begin{equation}
+  \delta_m = -4g^2\int_0^1 dx\ \frac{i}{(4\pi)^{d/2}}\ \frac{\Gamma(2-d/2)}
+    {\bigl[ m_f^2 - x(1-x)m^2 \bigr]^{2-d/2}} .
+  \label{eq:10.34}
+\end{equation}
+To determine $\delta_Z$, we cancel also the first derivative with respect to
+$p^2$ of the loop integral \eqref{eq:10.33}.  This gives
+\begin{equation}
+  \delta_Z = -\frac{4g^2(d-1)}{(4\pi)^{d/2}}\ \int_0^1 dx\ x(1-x)\
+    \frac{\Gamma(2-d/2)}{\bigl[ m_f^2 - x(1-x)m^2 \bigr]^{2-d/2}} .
+  \label{eq:10.35}
+\end{equation}
+Thus, in Yukawa theory, the propagator corrections at one-loop order require a
+quadratically divergent mass renormalization and a logarithmically divergent
+field strength renormalization.  This is the usual situation in scalar field
+theories.
+
+\section{Renormalization of Quantum Electrodynamics}
+
+The procedure we followed in the previous section, yielding a ``renormalized''
+perturbation theory formulated in terms of physically measurable parameters,
+can be summarized as follows:
+\begin{enumerate}
+  \item Absorb the field-strength renormalizations into the Lagrangian by
+    rescaling the fields.
+  \item Split each term of the Lagrangian into two pieces, absorbing the
+    infinite and unobservable shifts into counterterms.
+  \item Specify the renormalization conditions, which define the physical
+    masses and coupling constants and keep the field-strength renormalizations
+    equal to 1.
+  \item Compute amplitudes with the new Feynman rules, adjusting the
+    counterterms as necessary to maintain the renormalization conditions.
+\end{enumerate}
+Let us now use this procedure to construct a renormalized perturbation theory
+for Quantum Electrodynamics.
+
+The original QED Lagrangian is
+\begin{equation}
+  \mathcal{L} = -\frac{1}{4}(F_{\mu\nu})^2
+    + \bar{\psi}(i\slashed{\partial} - m_0)\psi - e_0\bar{\psi}\gamma^\mu\psi
+      A_\mu .
+\end{equation}
+Computing the electron and photon propagators with this Lagrangian, we would
+find expressions of the general form
+\begin{equation}
+  \frac{iZ_2}{\slashed{p}-m},\qquad \frac{-ig_{\mu\nu}Z_3}{q^2} .
+\end{equation}
+(We found just such expressions in the explicit one-loop calculations of
+Chapter~7.)  To absorb $Z_2$ and $Z_3$ into $\mathcal{L}$, and hence eliminate
+them from formula \eqref{eq:7.45} for the $S$-matrix, we substitute
+$\psi = Z_2^{1/2}\psi_r$ and $A^\mu = Z_3^{1/2}A_r^\mu$.  Then the Lagrangian
+becomes
+\begin{equation}
+  \mathcal{L} = -\frac{1}{4}Z_3(F_{\mu\nu}^r)^2 + Z_2\bar{\psi}_r
+    (i\slashed{\partial} - m_0)\psi_r - e_0Z_2Z_3^{1/2}\bar{\psi}_r\gamma^\mu
+      \psi_r A_r^\mu .
+  \label{eq:10.36}
+\end{equation}
+We can introduce the physical electric charge $e$, measured at large distances
+($q = 0$), by defining a scaling factor $Z_1$ as follows:%
+\footnote{Since we define $e$ by the renormalization condition
+$\Gamma^\mu(q=0) = \gamma^\mu$, the factor of $Z_1$ in the Lagrangian must
+cancel the multiplicative correction factor that arises from loop corrections.
+Therefore this definition of $Z_1$ is equivalent to that given in
+Eq.~(7.47).}
+\begin{equation}
+  e_0Z_2Z_3^{1/2} = eZ_1 .
+  \label{eq:10.37}
+\end{equation}
+If we let $m$ be the physical mass (the location of the pole in the electron
+propagator), then we can split each term of the Lagrangian into two pieces as
+follows:
+\begin{equation}
+  \begin{aligned}
+    \mathcal{L} &= -\frac{1}{4}(F_{\mu\nu}^r)^2 + \bar{\psi}_r(i\slashed{\partial}
+      - m)\psi_r - e\bar{\psi}_r\gamma^\mu\psi_r A_r^\mu\\
+    &\quad - \frac{1}{4}\delta_3(F_{\mu\nu}^r)^2 + \bar{\psi}_r(i\delta_2\slashed{\partial}
+      - \delta_m)\psi_r - e\delta_1\bar{\psi}_r\gamma^\mu\psi_r A_r^\mu ,
+  \end{aligned}
+  \label{eq:10.38}
+\end{equation}
+where
+\begin{equation}
+  \delta_3 = Z_3 - 1,\qquad
+  \delta_m = Z_2m_0 - m,\qquad
+  \delta_2 = Z_2 - 1,\qquad
+  \delta_1 = Z_1 - 1 = (e_0/e)Z_2Z_3^{1/2} - 1 .
+\end{equation}
+The Feynman rules for renormalized QED are shown in Fig.~\ref{fig:10.4}.  In
+addition to the familiar propagators and vertex, there are three counterterm
+vertices.  The $\bar{e}e$ and $\bar{e}e\gamma$ counterterm vertices can be read
+directly from the Lagrangian \eqref{eq:10.38}.  To derive the two-photon
+counterterm, integrate $-\tfrac{1}{4}\delta_3(F_{\mu\nu})^2$ by parts to
+obtain $\tfrac{1}{2}A^\mu\delta_3(g_{\mu\nu}\partial^2 - \partial_\mu
+\partial_\nu)A^\nu$; this gives the expression shown in the figure.  In the
+remainder of the book, when we set up renormalized perturbation theory, we
+will drop the subscript $r$ used here to distinguish the rescaled fields.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6\textwidth]{fig10.4.png}
+  \caption{Feynman rules for Quantum Electrodynamics in renormalized
+    perturbation theory.}
+  \label{fig:10.4}
+\end{figure}
+
+Each of the four counterterm coefficients must be fixed by a renormalization
+condition.  The four conditions that we require have already been stated
+implicitly: Two of them fix the electron and photon field-strength
+renormalizations to 1, while the other two define the physical electron mass
+and charge.  To write these conditions more explicitly, recall our notation
+from Chapters~6 and~7:
+\begin{equation}
+  \begin{aligned}
+    \frac{}{} &= i\Pi^{\mu\nu}(q) = i(g^{\mu\nu}q^2 - q^\mu q^\nu)\Pi(q^2),
+    \qquad \Sigma(\slashed{p}) = i(\slashed{p}\delta_2 - \delta_m)
+      + \cdots ,\\
+    -ie\Gamma^\mu(p',p) &= \text{(amputated vertex)},
+  \end{aligned}
+  \label{eq:10.39}
+\end{equation}
+These amplitudes are now to be computed in renormalized perturbation theory;
+that is, we are now redefining $\Pi(q^2)$, $\Sigma(\slashed{p})$, and
+$\Gamma^\mu(p',p)$ to include counterterm vertices.  Furthermore, the new
+definition of $\Gamma$ involves the physical electron charge.  With this
+notation, the four conditions are
+\begin{equation}
+  \Sigma(\slashed{p}=m) = 0;\qquad
+  \Pi(q^2=0) = 0;\qquad
+  \frac{d\Sigma}{d\slashed{p}}\Big|_{\slashed{p}=m} = 0;\qquad
+  -ie\Gamma^\mu(p'-p = 0) = -ie\gamma^\mu .
+  \label{eq:10.40}
+\end{equation}
+The first condition fixes the electron mass at $m$, while the next two fix the
+residues of the electron and photon propagators at 1.  Given these conditions,
+the final condition fixes the electron charge to be $e$.
+
+\subsection{One-Loop Structure of QED}
+
+The four conditions \eqref{eq:10.40} allow us to determine the four
+counterterms in \eqref{eq:10.38} in terms of the values of loop diagrams.  In
+Chapters~6 and~7 we computed all of the diagrams required to carry out this
+determination to one-loop order.  We will now collect these results and find
+explicit expressions for the renormalization constants of QED to order
+$\alpha$.  For overall consistency, we will use dimensional regularization,
+which preserves the Ward identity, throughout.  The results are:
+\begin{equation}
+  \delta_2 = \frac{-\alpha}{2\pi}\int_0^1 dx\ (1-x)\ \Bigl[
+    \frac{2}{\epsilon} - \gamma_E + \log 4\pi - \log(m^2-x(1-x)m^2) \Bigr]
+    + \cdots ,
+  \label{eq:10.41}
+\end{equation}
+\begin{equation}
+  \delta_m = m\ \frac{-\alpha}{2\pi}\int_0^1 dx\ 2\ \Bigl[
+    \frac{2}{\epsilon} - \gamma_E + \log 4\pi - \log(m^2-x(1-x)m^2) \Bigr]
+    + \cdots ,
+  \label{eq:10.42}
+\end{equation}
+\begin{equation}
+  \delta_1 = \delta_2 \qquad \text{(by the Ward identity)},
+  \label{eq:10.43}
+\end{equation}
+\begin{equation}
+  \delta_3 = \frac{-\alpha}{3\pi}\ \Bigl[ \frac{2}{\epsilon} - \gamma_E
+    + \log 4\pi - \log m^2 \Bigr] + \cdots .
+  \label{eq:10.44}
+\end{equation}
+The equality $\delta_1 = \delta_2$, which follows from the Ward identity, is
+the statement that the electron charge renormalization is entirely determined
+by the field-strength renormalizations.  It is this relation that ensures that
+the theory contains only three independent renormalization constants.
+
+\section{Renormalization Beyond the Leading Order}
+
+In Section~10.1 we counted the ultraviolet divergences of QED and $\phi^4$
+theory and found only a small number of superficially divergent amplitudes.
+The analysis of that section relied on a single-loop understanding of
+divergences.  We must now face the problem that arises when we go to higher
+orders in perturbation theory: diagrams can contain divergent subdiagrams,
+and the naive counting based on the superficial degree of divergence of the
+whole diagram can fail.
+
+Let us consider the two-loop contribution to the four-point function in
+$\phi^4$ theory.  The two-loop diagrams can be classified into those that
+contain divergent subdiagrams (such as one-loop self-energy or vertex
+corrections) and those that do not.  For the diagrams containing divergent
+subdiagrams, the naive counting gives a divergence, but the subdivergence is
+localized in a subdiagram that can be contracted to a point.  The philosophy of
+renormalized perturbation theory is that these subdivergences should be
+removed by the counterterms associated with the divergent subdiagrams.
+
+A more difficult situation occurs when we have \emph{nested} or
+\emph{overlapping} divergences, that is, when two divergent loops share a
+propagator.  Some examples of diagrams with overlapping divergences are
+\begin{equation}
+  \text{(in } \phi^4 \text{ theory)}:\quad \text{(sunset diagram)};\qquad
+  \text{(in QED)}:\quad \text{(two-loop vacuum polarization)} .
+\end{equation}
+To see the difficulty, consider the photon self-energy diagram.  One
+contribution to this diagram comes from the region of momentum space where
+$k_2$ is very large.  This means that, in position space, $x$, $y$, and $z$ are
+very close together, while $w$ can be farther away.  In this region we can
+think of the virtual photon as giving a correction to the vertex at $x$.  We
+saw in Section~6.3 that this vertex correction is logarithmically divergent,
+of the form
+\begin{equation}
+  \sim a\log\Lambda ,
+\end{equation}
+in the limit $\Lambda\to\infty$.  Plugging this vertex into the rest of the
+diagram and integrating over $k_1$, we obtain an expression identical to the
+one-loop photon self-energy correction $\Pi_2(q^2)$, displayed in
+Eq.~(7.90), multiplied by the additional logarithmic divergence:
+\begin{equation}
+  \sim \alpha(g^{\mu\nu}q^2 - q^\mu q^\nu)\bigl( \log\Lambda^2
+    + \log q^2 \bigr)\cdot\alpha\log\Lambda^2 .
+  \label{eq:10.50}
+\end{equation}
+The $\log^2\Lambda^2$ term comes from the region where both $k_1$ and $k_2$
+are large, while the $\log q^2\log\Lambda^2$ term comes from the region where
+$k_2$ is large but $k_1$ is small.  Another such term would come from the
+region where $k_1$ is large but $k_2$ is small.
+
+The appearance of terms proportional to $\Pi_2(q^2)\cdot\log\Lambda^2$ in the
+two-loop vacuum polarization diagram contradicts our naive argument, based on
+the criterion of the superficial degree of divergence, that the divergent
+terms of a Feynman integral are always simple polynomials in $q^2$.  We will
+refer to divergences multiplying only polynomials in $q^2$ as \emph{local
+divergences}, since their Fourier transforms back to position space are delta
+functions or derivatives of delta functions.  We will call the new,
+nonpolynomial, term a \emph{nonlocal divergence}.  Fortunately, our derivation
+of the nonlocal divergent term gave this term a physical interpretation: It is
+a local divergence surrounded by an ordinary, nondivergent, quantum field
+theory process.
+
+If this picture accurately describes all of the divergent terms of the
+two-loop diagram, we should expect that these divergences are canceled by two
+types of counterterm diagrams.  First, we can build diagrams of order
+$\alpha^2$ by inserting the order-$\alpha$ counterterm vertex into the
+one-loop vacuum polarization diagram.  These diagrams should cancel the
+nonlocal divergence in \eqref{eq:10.50} and the corresponding contribution
+from the region where $k_1$ is large and $k_2$ is small.  In fact, a detailed
+analysis shows that the sum of the original diagram and these two counterterm
+diagrams contains only local divergences.  Once these diagrams are added, the
+only divergence that remains is a local one, which can be canceled by the
+diagram that adds an order-$\alpha^2$ term to $\delta_3$.
+
+We can extend the lessons of this example to a general picture of the
+divergences of higher-loop Feynman diagrams and their cancellation.  A given
+diagram may contain local divergences, as predicted by the analysis of
+Section~10.1.  It may also contain nonlocal divergences due to divergent
+subgraphs embedded in loops carrying small momenta.  These divergences are
+canceled by diagrams in which the divergent subgraphs are replaced by their
+counterterm vertices.  One might still ask two questions: First, does this
+procedure remove all nonlocal divergences?  Second, does this procedure
+preserve the finiteness of amplitudes, such as Eq.~(10.49), that are not
+expected to be divergent by the superficial criteria of Section~10.1?  To
+answer these questions requires an intricate study of nested Feynman
+integrals.  The general analysis was begun by Bogoliubov and Parasiuk,
+completed by Hepp, and elegantly refined by Zimmermann;%
+\footnote{N.~N.~Bogoliubov and O.~S.~Parasiuk, \emph{Acta Math.} \textbf{97},
+227 (1957); K.~Hepp, \emph{Comm.\ Math.\ Phys.} \textbf{2}, 301 (1966);
+W.~Zimmermann, in Deser, et.\ al.\ (1970).} they showed that the answer to
+both questions is yes.  Their result, known as the \emph{BPHZ theorem}, states
+that, for a general renormalizable quantum field theory, to any order in
+perturbation theory, all divergences are removed by the counterterm vertices
+corresponding to superficially divergent amplitudes.  In other words, any
+superficially renormalizable quantum field theory is in fact rendered finite
+when one performs renormalized perturbation theory with the complete set of
+counterterms.
+
+The proof of the BPHZ theorem is quite technical, and we will not include it in
+this book.  Instead, we will investigate one detailed example of a two-loop
+calculation, which demonstrates explicitly the appearance and cancellation of
+nonlocal divergences.
+
+\section{A Two-Loop Example}
+
+To illustrate the issues discussed in the previous section, let us consider the
+two-loop contribution to the four-point function in $\phi^4$ theory.  There
+are 16 relevant diagrams, shown in Fig.~\ref{fig:10.5}.  (There are also
+several diagrams involving the one-loop correction to the propagator.  But
+each of these is exactly canceled by its counterterm, as we saw in
+Eq.~\eqref{eq:10.29}, so we can just ignore them.)  Fortunately, many of the
+diagrams are simply related to each other.  Crossing symmetry reduces the
+number of distinct diagrams to only six:
+\begin{equation}
+  \text{(six distinct two-loop diagrams)} .
+  \label{eq:10.51}
+\end{equation}
+If this sum of diagrams is finite, then simply replacing $s$ with $t$ or $u$
+gives a finite result for the remaining diagrams.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.65\textwidth]{fig10.5.png}
+  \caption{The two-loop contributions to the four-point function in $\phi^4$
+    theory.  Note that the diagrams in the first three lines are related to
+    each other by crossing, being in the $s$-, $t$-, and $u$-channels,
+    respectively.  The last two diagrams in each of these lines involve the
+    $\mathcal{O}(\lambda^2)$ vertex counterterm, while the final diagram is the
+    $\mathcal{O}(\lambda^3)$ contribution to the vertex counterterm.}
+  \label{fig:10.5}
+\end{figure}
+
+The value of the last diagram in \eqref{eq:10.51} is just a constant, which we
+can freely adjust to absorb any divergent terms that are independent of the
+external momenta.  Our goal, therefore, is to show that all momentum-dependent
+divergent terms cancel among the remaining five diagrams.
+
+The fourth and fifth diagrams in \eqref{eq:10.51} involve the one-loop vertex
+counterterm, which we computed in Eq.~\eqref{eq:10.24}.  Let us briefly recall
+that computation.  We defined $iV(p^2)$ as the fundamental loop integral,
+\begin{equation}
+  iV(p^2) = \frac{1}{2}\int \frac{d^dk}{(2\pi)^d}\ \frac{1}{k^2-m^2+i\epsilon}\
+    \frac{1}{(k+p)^2-m^2+i\epsilon} .
+  \label{eq:10.52}
+\end{equation}
+The counterterm, according to the renormalization condition \eqref{eq:10.19},
+had to cancel the three one-loop diagrams (one for each channel) at threshold
+($s = 4m^2$, $t = u = 0$); thus we found
+\begin{equation}
+  -i\delta_\lambda = (-i\lambda)^2\bigl[ -iV(4m^2) - 2iV(0) \bigr] .
+\end{equation}
+For our present purposes it will be convenient to separate the two terms of
+this expression.  Let us therefore define
+\begin{equation}
+  V_s = (-i\lambda)^2\cdot(-iV(4m^2));\qquad
+  V_u = (-i\lambda)^2\cdot(-2iV(0)) .
+\end{equation}
+We can now divide the first five diagrams in \eqref{eq:10.51} into three
+groups:
+\begin{equation}
+  \text{Group I}:\quad \text{(two } s\text{-channel bubbles)};\qquad
+  \text{Group II}:\quad \text{(one bubble + one counterterm)};\qquad
+  \text{Group III}:\quad \text{(crossed version of Group II)} .
+\end{equation}
+We will find that all divergent terms that depend on momentum cancel
+separately within each group.  Since Groups II and III are related by a simple
+interchange of initial and final momenta, it suffices to demonstrate this
+cancellation for Groups I and II.
+
+Group I is actually quite easy, since each diagram factors into a product of
+objects we have already computed.  Referring to Eq.~\eqref{eq:10.52}, we have
+\begin{equation}
+  \text{(bubble)}^2 = (-i\lambda)^3\bigl[ iV(p^2) \bigr]^2;
+  \qquad \text{(bubble $\times$ counterterm)} = (-i\lambda)^3\
+    \bigl[ -2iV(p^2)\,iV(4m^2) \bigr] .
+\end{equation}
+The sum of all three diagrams is therefore
+\begin{equation}
+  (-i\lambda)^3\Bigl( \bigl[ iV(p^2) \bigr]^2 - 2iV(p^2)\,iV(4m^2)
+    \Bigr)
+  = (-i\lambda)^3\Bigl( -\bigl[ V(p^2) - V(4m^2) \bigr]^2
+    + \bigl[ V(4m^2) \bigr]^2 \Bigr) .
+  \label{eq:10.53}
+\end{equation}
+But the difference $V(p^2) - V(4m^2)$ is finite, as was required for the
+cancellation of divergences in the one-loop calculation:
+\begin{equation}
+  V(p^2) - V(4m^2) = \frac{1}{2}\int_0^1 dx\ \log\Bigl(
+    \frac{m^2 - x(1-x)p^2}{m^2 - x(1-x)4m^2} \Bigr) .
+\end{equation}
+The only remaining divergence is in the term $[V(4m^2)]^2$, which is
+independent of momentum and can therefore be absorbed into the second-order
+counterterm in \eqref{eq:10.51}.
+
+Two general properties of result \eqref{eq:10.53} are worth noting.  First,
+the divergent piece (and hence the $\mathcal{O}(\lambda^3)$ vertex
+counterterm) is proportional to
+\begin{equation}
+  \bigl[ V(4m^2) \bigr]^2 \propto \bigl[ \Gamma(2-d/2) \bigr]^2
+  \qquad \text{for } d = 4-\epsilon .
+\end{equation}
+This is a \emph{double pole}, in contrast to the simple pole we found for the
+one-loop counterterm.  Higher-loop diagrams will similarly have higher-order
+poles, but in all cases the divergent terms are momentum-independent
+constants.  Second, consider the large-momentum limit,
+\begin{equation}
+  V(p^2) - V(4m^2) \xrightarrow{p^2\to\infty}
+    \frac{1}{2}\log^2\Bigl( \frac{p^2}{m^2} \Bigr) .
+\end{equation}
+The two-loop vertex is proportional to $\log^2(p^2/m^2)$.  A diagram of this
+structure with $n$ loops will have the form
+\begin{equation}
+  \lambda^{n+1}\ \frac{1}{n!}\ \Bigl[ \log\Bigl( \frac{p^2}{m^2} \Bigr)
+    \Bigr]^n .
+\end{equation}
+This asymptotic behavior is actually a generic property of multiloop diagrams,
+which we will explore in more detail in Chapter~12.
+
+Now consider the more difficult diagram, from Group II:
+\begin{equation}
+  \text{(bubble with vertex correction inserted)} .
+  \label{eq:10.54}
+\end{equation}
+In evaluating this diagram, we will combine denominators in the manner that
+makes it most straightforward to extract the divergent terms, at the price of
+complicating the evaluation of the finite parts.  Another approach to the
+calculation of this diagram is discussed in Problem~10.4.
+
+To begin the evaluation of \eqref{eq:10.54}, combine the pair of denominators
+shown explicitly, and substitute expression \eqref{eq:10.52} for $V(p^2)$.
+This gives the expression
+\begin{equation}
+  \frac{(-i\lambda)^3}{2(4\pi)^{d/2}}\ \Gamma(2-d/2)\ \int_0^1 dx\ \int
+    \frac{d^dk}{(2\pi)^d}\ \frac{1}{k^2-m^2}\ \frac{1}{(k+p)^2-m^2}\
+    \frac{1}{\bigl[ m^2 - x(1-x)(k+p)^2 \bigr]^{2-d/2}} .
+  \label{eq:10.55}
+\end{equation}
+It is possible to combine this pair of denominators by using the identity
+\begin{equation}
+  \frac{1}{A^\alpha B^\beta} = \frac{\Gamma(\alpha+\beta)}
+    {\Gamma(\alpha)\Gamma(\beta)}\ \int_0^1 dw\ \frac{w^{\alpha-1}(1-w)^{\beta-1}}
+      {\bigl[ wA + (1-w)B \bigr]^{\alpha+\beta}} .
+  \label{eq:10.56}
+\end{equation}
+This is a special case of the formula quoted in Section~6.3,
+Eq.~\eqref{eq:6.42}.  To prove it, change variables in the integral:
+$w = x/(x+y)$, and use the definition of the beta function.
+
+Carrying out the algebra, one finds that the divergent pieces of the Group II
+diagram contain double poles and nonlocal logarithms, which exactly cancel
+against the corresponding terms from the crossed diagram.  The remaining terms
+are all either finite, or divergent but independent of momentum.  This
+completes the proof that the two-loop contribution to the four-point function
+is finite.
+
+The two features of the Group I diagrams appear here in Group II as well.
+The divergent pieces of the two-loop diagrams contain double poles that do not
+cancel, so we again find that the second-order vertex counterterm must contain
+a double pole.  The finite pieces contain double logarithms, so we again find
+that the two-loop amplitude behaves as $\lambda^3\log^2 p^2$ as
+$p\to\infty$.
+
+\problems
+
+\textbf{10.1} \emph{One-loop structure of QED.}  In Section~10.1 we argued
+from general principles that the photon one-point and three-point functions
+vanish, while the four-point function is finite.
+\begin{enumerate}[label=(\alph*)]
+  \item Verify directly that the one-loop diagram contributing to the
+    one-point function vanishes.  There are two Feynman diagrams contributing
+    to the three-point function at one-loop order.  Show that these cancel.
+    Show that the diagrams contributing to any $n$-point photon amplitude, for
+    $n$ odd, cancel in pairs.
+  \item The photon four-point amplitude is a sum of six diagrams.  Show
+    explicitly that the potential logarithmic divergences of these diagrams
+    cancel.
+\end{enumerate}
+
+\textbf{10.2} \emph{Renormalization of Yukawa theory.}  Consider the
+pseudoscalar Yukawa Lagrangian,
+\begin{equation}
+  \mathcal{L} = \tfrac{1}{2}(\partial_\mu\phi)^2 - \tfrac{1}{2}m^2\phi^2
+    + \bar{\psi}(i\slashed{\partial} - M)\psi - ig\bar{\psi}\gamma^5\psi\phi ,
+\end{equation}
+where $\phi$ is a real scalar field and $\psi$ is a Dirac fermion.  Notice
+that this Lagrangian is invariant under the parity transformation
+\begin{equation}
+  \psi(t,\mathbf{x}) \to \gamma^0\psi(t,-\mathbf{x}),\qquad
+  \phi(t,\mathbf{x}) \to -\phi(t,-\mathbf{x}),
+\end{equation}
+in which the field $\phi$ carries odd parity.
+\begin{enumerate}[label=(\alph*)]
+  \item Determine the superficially divergent amplitudes and work out the
+    Feynman rules for renormalized perturbation theory for this Lagrangian.
+    Include all necessary counterterm vertices.  Show that the theory contains
+    a superficially divergent $4\phi$ amplitude.  This means that the theory
+    cannot be renormalized unless one includes a scalar self-interaction,
+    \begin{equation}
+      -\frac{\lambda}{4!}\phi^4 ,
+    \end{equation}
+    and a counterterm of the same form.  It is of course possible to set the
+    renormalized value of this coupling to zero, but that is not a natural
+    choice, since the counterterm will still be nonzero.  Are any further
+    interactions required?
+  \item Compute the divergent part (the pole as $d\to 4$) of each
+    counterterm, to the one-loop order of perturbation theory, implementing a
+    sufficient set of renormalization conditions.  You need not worry about
+    finite parts of the counterterms.  Since the divergent parts must have a
+    fixed dependence on the external momenta, you can simplify this
+    calculation by choosing the momenta in the simplest possible way.
+\end{enumerate}
+
+\textbf{10.3} \emph{Field-strength renormalization in $\phi^4$ theory.}  The
+two-loop contribution to the propagator in $\phi^4$ theory involves the three
+diagrams shown in Eq.~(10.31).  Compute the first of these diagrams in
+the limit of zero mass for the scalar field, using dimensional regularization.
+Show that, near $d = 4$, this diagram takes the form:
+\begin{equation}
+  \sim \frac{\lambda^2}{16\pi^4}\ \frac{1}{4\epsilon}\ p^2 ,
+\end{equation}
+with $\epsilon = 4-d$.  The coefficient in this equation involves a Feynman
+parameter integral that can be evaluated by setting $d = 4$.  Verify that the
+second diagram in Eq.~(10.31) vanishes near $d = 4$.  Thus the first
+diagram should contain a pole only at $\epsilon = 0$, which can be canceled by
+a field-strength renormalization counterterm.
+
+\textbf{10.4} \emph{Asymptotic behavior of diagrams in $\phi^4$ theory.}
+Compute the leading terms in the $S$-matrix element for boson-boson scattering
+in $\phi^4$ theory in the limit $s\to\infty$, $t$ fixed.  Ignore all masses on
+internal lines, and keep external masses nonzero only as infrared regulators
+where these are needed.  Show that
+\begin{equation}
+  i\mathcal{M} \sim -i\lambda - \frac{i\lambda^2}{32\pi^2}\ \log\Bigl(
+    \frac{-s}{m^2} \Bigr) + \cdots .
+\end{equation}
+Notice that ignoring the internal masses allows some pleasing simplifications
+of the Feynman parameter integrals.

@@ -1,0 +1,1454 @@
+% =====================================================================
+%  Chapter 7: Chiral symmetry on the lattice
+%  Gattringer & Lang, "Quantum Chromodynamics on the Lattice" (LNP 788)
+%  Reconstructed from extract/ch07.txt; equations auto-numbered.
+% =====================================================================
+
+\chapter{Chiral symmetry on the lattice}
+
+Chiral symmetry and its spontaneous breaking are central properties of QCD
+with important phenomenological implications. They explain why pions have
+unexpectedly small masses and why we do not see degenerate masses for parity
+partners in the baryon sector. This important role of chiral symmetry and the
+mechanism of its breaking require that a reasonable lattice version of QCD
+has to implement chiral symmetry properly.
+
+However, putting chiral symmetry onto the lattice turned out to be a
+formidable challenge. The underlying reason is the doubling problem. In
+Chap.~5 we have added the Wilson term to the naive fermion action in order to
+remove the doublers. This term, however, breaks chiral symmetry explicitly.
+Only more than 20 years after Wilson's introduction of lattice gauge theory
+the problem of chiral symmetry on the lattice was solved with a generalization
+of chiral symmetry through the so-called ``Ginsparg--Wilson equation'' for the
+lattice Dirac operator. With this new concept a clean implementation of chiral
+symmetry on the lattice has been achieved.
+
+This chapter is devoted to chiral symmetry on the lattice. After a brief
+review of chiral symmetry in continuum QCD we discuss why Wilson fermions
+fail to show chiral symmetry. Subsequently we present the Ginsparg--Wilson
+equation and explore its consequences concerning the axial anomaly and the
+index theorem. Finally we discuss an explicit solution of the Ginsparg--Wilson
+equation, the so-called overlap operator.
+
+\section{Chiral symmetry in continuum QCD}
+
+\subsection{Chiral symmetry for a single flavor}
+
+To warm up, let us first discuss chiral symmetry for the case of only a single
+flavor in the continuum. The action for a massless fermion reads (for
+notational convenience we drop the space--time argument $x$ in the following)
+\begin{equation}
+  S_F[\psi,\bar\psi,A] = \int d^4x\;\mathcal{L}(\psi,\bar\psi,A),
+  \qquad
+  \mathcal{L}(\psi,\bar\psi,A) = \bar\psi\,\gamma_\mu(\partial_\mu + iA_\mu)\,\psi
+  = \bar\psi D\psi,
+\end{equation}
+where $D$ denotes the massless Dirac operator.
+
+We now perform a chiral rotation of the fermion fields
+\begin{equation}
+  \psi \to \psi' = e^{i\alpha\gamma_5}\psi,
+  \qquad
+  \bar\psi \to \bar\psi' = \bar\psi\,e^{i\alpha\gamma_5},
+\end{equation}
+where $\gamma_5$ is the chirality matrix acting in Dirac space and $\alpha$ is
+a constant, real parameter. The Lagrangian density is invariant under the
+chiral rotation,
+\begin{align}
+  \mathcal{L}(\psi',\bar\psi',A)
+  &= \bar\psi'\,\gamma_\mu(\partial_\mu + iA_\mu)\,\psi'
+  = \bar\psi\,e^{i\alpha\gamma_5}\,\gamma_\mu(\partial_\mu + iA_\mu)\,e^{i\alpha\gamma_5}\,\psi \notag\\
+  &= \bar\psi\,e^{i\alpha\gamma_5}\,e^{-i\alpha\gamma_5}\,\gamma_\mu(\partial_\mu + iA_\mu)\,\psi
+  = \mathcal{L}(\psi,\bar\psi,A),
+\end{align}
+where in the second step we have used $\gamma_\mu\gamma_5 = -\gamma_5\gamma_\mu$.
+A mass term breaks this invariance since it transforms nontrivially:
+\begin{equation}
+  m\,\bar\psi'\psi' = m\,\bar\psi\,e^{i2\alpha\gamma_5}\psi.
+\end{equation}
+
+The chiral symmetry decouples the action of left- and right-handed massless
+fermions. To see this we introduce the right- and left-handed projectors
+\begin{equation}
+  P_R = \frac{1+\gamma_5}{2},
+  \qquad
+  P_L = \frac{1-\gamma_5}{2},
+\end{equation}
+which obey
+\begin{align}
+  P_R^2 = P_R,\qquad P_L^2 = P_L, \qquad P_R P_L = P_L P_R = 0, \qquad P_R + P_L = 1,
+  \notag\\
+  \gamma_\mu P_L = P_R\gamma_\mu, \qquad \gamma_\mu P_R = P_L\gamma_\mu .
+\end{align}
+With these we can define right- and left-handed fermion fields
+\begin{equation}
+  \psi_R = P_R\psi, \qquad \psi_L = P_L\psi,
+  \qquad
+  \bar\psi_R = \bar\psi P_L, \qquad \bar\psi_L = \bar\psi P_R .
+\end{equation}
+After a few lines of algebra the decoupling of left- and right-handed
+components follows
+\begin{equation}
+  \mathcal{L}(\psi,\bar\psi,A) = \bar\psi_L D\psi_L + \bar\psi_R D\psi_R .
+\end{equation}
+Thus we find that left- and right-handed components ``do not talk to each
+other.'' A mass term, however, mixes the components:
+\begin{equation}
+  m\,\bar\psi\psi = m\left(\bar\psi_R\psi_L + \bar\psi_L\psi_R\right).
+\end{equation}
+Since chiral symmetry of the action holds only for massless quarks, the limit
+of vanishing quark mass is often referred to as the chiral limit.
+
+One can summarize the essence of chiral symmetry in the simple equation
+\begin{equation}
+  D\gamma_5 + \gamma_5 D = 0 .
+\end{equation}
+It expresses the fact that the massless Dirac operator
+$D = \gamma_\mu(\partial_\mu + iA_\mu)$ anticommutes with $\gamma_5$.
+
+\subsection{Several flavors}
+
+Let us now delve somewhat deeper into the symmetry properties of the QCD
+action and consider the theory with $\Nf$ flavors of quarks. Now the fermion
+fields $\psi$, $\bar\psi$ carry also a flavor index. However, for notational
+convenience we use vector notation for the flavor index, too. In this notation
+the fermion action reads
+\begin{equation}
+  S_F[\psi,\bar\psi,A] = \int d^4x\;\bar\psi\left(\gamma_\mu(\partial_\mu + iA_\mu) + M\right)\psi,
+\end{equation}
+where we introduce a mass matrix
+\begin{equation}
+  M = \mathrm{diag}(m_1, m_2, \ldots, m_{\Nf})
+\end{equation}
+acting in flavor space (in the real world $m_1 = m_u$, $m_2 = m_d$, etc.).
+For generalizing the chiral transformations of the last paragraph we use
+matrices that mix the different flavors. In particular we denote the
+generators of $SU(\Nf)$ by $T_i$, $i = 1, 2, \ldots, \Nf^2 - 1$ (see
+Appendix~A.1).
+
+Before we discuss the chiral rotations, let us first note that the action for
+massless quarks is also invariant under the $\Nf^2$ vector
+transformations\footnote{The name ``vector transformations'' comes from the
+fact that the corresponding Noether currents are vector currents.}
+\begin{equation}
+  \psi' = e^{i\alpha T_i}\psi,
+  \qquad
+  \bar\psi' = \bar\psi\,e^{-i\alpha T_i},
+\end{equation}
+\begin{equation}
+  \psi' = e^{i\alpha\,\mathbb{1}}\psi,
+  \qquad
+  \bar\psi' = \bar\psi\,e^{-i\alpha\,\mathbb{1}},
+\end{equation}
+where $\mathbb{1}$ denotes the $\Nf \times \Nf$ unit matrix. The invariance of
+(7.11) for $M = 0$ under transformations (7.13) and (7.14) is evident.
+However, the invariance under (7.13) extends also to the case of degenerate
+masses $M = \mathrm{diag}(m, m, \ldots, m)$. This symmetry is the isospin
+symmetry, generalized to $\Nf$ flavors. Symmetry (7.14) even holds for
+arbitrary masses and the corresponding conserved quantity is baryon number.
+
+The chiral or axial vector rotations are defined as
+\begin{equation}
+  \psi' = e^{i\alpha\gamma_5 T_i}\psi,
+  \qquad
+  \bar\psi' = \bar\psi\,e^{i\alpha\gamma_5 T_i},
+\end{equation}
+\begin{equation}
+  \psi' = e^{i\alpha\gamma_5\,\mathbb{1}}\psi,
+  \qquad
+  \bar\psi' = \bar\psi\,e^{i\alpha\gamma_5\,\mathbb{1}},
+\end{equation}
+where now also the left- and right-handed components of the different flavors
+mix. Like for the case of a single flavor one finds that the action (7.11) is
+invariant under (7.15) and (7.16) for the case of $M = 0$.
+
+Taken altogether, the massless action has the symmetry
+\begin{equation}
+  SU(\Nf)_L \times SU(\Nf)_R \times U(1)_V \times U(1)_A .
+\end{equation}
+The notation used for the two $SU(\Nf)$ pieces stresses that the terms for the
+left- and right-handed components are symmetric under independent $SU(\Nf)$
+rotations.
+
+However, when one considers the fully quantized theory one finds that the
+fermion determinant is not invariant under (7.16) and the corresponding
+so-called $U(1)_A$ axial symmetry is broken explicitly by a noninvariance of
+the fermion integration measure (we will show this in Sect.~7.3). Taking into
+account this so-called axial anomaly [1, 2] we find that for the quantized,
+massless theory the symmetry is broken explicitly to the remaining symmetry
+\begin{equation}
+  SU(\Nf)_L \times SU(\Nf)_R \times U(1)_V .
+\end{equation}
+Introducing nonvanishing, degenerate masses, $M = \mathrm{diag}(m, m \ldots
+m)$, breaks the symmetry $SU(\Nf)_L \times SU(\Nf)_R$ explicitly to its
+subgroup $SU(\Nf)_V$,
+\begin{equation}
+  SU(\Nf)_V \times U(1)_V,
+\end{equation}
+and allowing for nondegenerate masses reduces the symmetry further to
+\begin{equation}
+  U(1)_V \times U(1)_V \times \ldots \times U(1)_V
+  \qquad (\Nf \text{ factors}) .
+\end{equation}
+
+It is interesting to have a second look at the explicit breaking due to the
+quark masses. The lightest quarks have masses that are relatively small
+compared to the typical QCD scale of 1\,GeV given by, e.g., the mass of the
+proton ($\approx$\,940\,MeV). In particular one has (in the $\overline{MS}$
+renormalization scheme)
+\begin{equation}
+  m_u \approx m_d \approx 5\,\mathrm{MeV}, \qquad m_s \approx 100\,\mathrm{MeV},
+\end{equation}
+such that the explicit breaking of the chiral symmetry is very small for $u$
+and $d$ quarks and a 10\% effect for the $s$ quark. Thus we would expect that
+(7.18) is a good approximate symmetry for $\Nf = 2$ and in part also for
+$\Nf = 3$.
+
+\subsection{Spontaneous breaking of chiral symmetry}
+
+If $u$ and $d$ quarks were massless, $SU(2)_L \times SU(2)_R \times U(1)_V$
+would be an exact symmetry of QCD (for $\Nf = 2$) at least on the Lagrangian
+level. Due to the small mass of the $u$ and $d$ quarks the explicit breaking
+is very small and traces of the symmetry should be visible. One of the
+consequences is that one expects degenerate masses for the nucleon and its
+partner with negative parity, the so-called $N^*$.
+
+We briefly sketch the argument for such a degeneracy of the masses: In the
+last chapter we have shown that the masses of the nucleon and its negative
+parity partner are obtained from the exponential decay of the zero momentum
+correlators
+\begin{equation}
+  C_\pm(t) = -\int d^3x\,
+  \left\langle
+    \varepsilon_{abc}\,u(0)^T_a C\gamma_5 d(0)_b u(0)_c\,
+    \tfrac{1\pm\gamma_4}{2}\,
+    \varepsilon_{efg}\,\bar{u}_e(x) u(x)^T_f C\gamma_5 d(x)_g
+  \right\rangle,
+\end{equation}
+where $x = (\vec{x}, t)$. This equation gives the continuum version of the
+lattice correlator (6.21) after projection to zero momentum. The exponential
+decay of $C_+(t)$ gives the mass of the nucleon (for forward running $t$) and
+$C_-(t)$ corresponds to the $N^*$. Now consider the transformation
+\begin{equation}
+  \psi \to \exp\left(i\alpha\gamma_5 T_3\right)\psi,
+  \qquad
+  \bar\psi \to \bar\psi\exp\left(i\alpha\gamma_5 T_3\right),
+\end{equation}
+where $\psi$ and $\bar\psi$ are vectors in flavor space:
+$\psi = (u, d)^T$, $\bar\psi = (\bar{u}, \bar{d})$. Using
+$T_3 = \sigma_3/2 = \mathrm{diag}(1/2, -1/2)$ we find that the individual
+flavors transform as
+\begin{align}
+  u &\to \exp\left(+i\,\frac{\alpha}{2}\gamma_5\right)u, \qquad
+  \bar{u} \to \bar{u}\exp\left(+i\,\frac{\alpha}{2}\gamma_5\right), \notag\\
+  d &\to \exp\left(-i\,\frac{\alpha}{2}\gamma_5\right)d, \qquad
+  \bar{d} \to \bar{d}\exp\left(-i\,\frac{\alpha}{2}\gamma_5\right).
+\end{align}
+When setting $\alpha = \pi$ this simplifies to
+\begin{equation}
+  u \to i\gamma_5 u, \qquad
+  \bar{u} \to i\bar{u}\gamma_5, \qquad
+  d \to -i\gamma_5 d, \qquad
+  \bar{d} \to -i\bar{d}\gamma_5 .
+\end{equation}
+Inserting this transformation into (7.22) one finds that the correlators
+transform under (7.25) as
+\begin{equation}
+  C_\pm(t) \to -C_\mp(t) .
+\end{equation}
+Thus, up to an overall minus sign, the correlator $C_+(t)$ for the nucleon and
+the correlator $C_-(t)$ for the $N^*$ are transformed into each other. Since
+an overall minus sign does not alter the exponential decay properties of the
+correlator, the invariance under (7.23) implies that the nucleon and its
+parity partner $N^*$ have equal masses.
+
+However, no such degeneracy of the nucleon and $N^*$ masses is observed. The
+nucleon (proton or neutron) has a mass of 940\,MeV, while the $N^*$ is found
+at 1535\,MeV. The mass difference of almost 600\,MeV is far too large to be
+explained by the small explicit breaking of chiral symmetry due to the $u$ and
+$d$ quark masses. So another mechanism which breaks the symmetry under (7.23)
+must be at work. Since the action itself is invariant (up to the small
+explicit breaking by the quark masses), the strong breaking effect observed in
+nature must come from a spontaneous breaking of chiral symmetry, except for
+$U(1)_A$ which is broken explicitly by the anomaly.
+
+The spontaneous breaking of symmetries is a concept which is well known from,
+e.g., spin systems describing ferromagnets. While the Hamiltonian of the
+system is invariant under a global rotation of the spins, in the ground state
+of the system all spins point in the same direction, thus leading to a
+macroscopic magnetization of the system.
+
+A similar effect is taking place in QCD. While the action is invariant under
+chiral rotations, the ground state is not. An order parameter for chiral
+symmetry breaking is
+\begin{equation}
+  \ev{u(x)\bar{u}(x)},
+\end{equation}
+the so-called chiral condensate. The chiral condensate transforms like a mass
+term and is not invariant under chiral rotations. Consequently, when the
+theory has a nonvanishing chiral condensate this implies that chiral symmetry
+is broken spontaneously. In Sect.~7.3 we will discuss the calculation of the
+chiral condensate on the lattice and show that it has a nonvanishing value.
+
+Another important consequence of a spontaneously broken continuous symmetry
+is the appearance of so-called Goldstone modes or Goldstone bosons (see
+standard text books on quantum field theory such as [3, 4]). Goldstone modes
+are massless bosonic excitations. For the example of the spin system with
+continuous symmetry group these are spin waves. In the case of QCD the pions
+are interpreted as the ``would-be'' Goldstone bosons of chiral symmetry
+breaking. For massless quarks a spontaneous symmetry breaking mechanism of QCD
+would explain massless pions. Their relatively small masses of about 140\,MeV
+can be understood as resulting from the explicit breaking by the $u$ and $d$
+quark masses.
+
+To summarize, we find that for the light quark flavors the action is
+essentially invariant under chiral transformations -- up to the chiral $U(1)$
+transformation symmetry, which is broken explicitly by the axial anomaly.
+However, the experimental findings do not reflect the chiral symmetry and we
+must conclude that chiral symmetry is broken spontaneously due to the dynamics
+of QCD. Chiral symmetry at the classical level and its spontaneous breaking
+provide an explanation for several phenomena, such as the nondegenerate masses
+of baryonic parity partners or the small masses of the pions.
+
+\section{Chiral symmetry and the lattice}
+
+Having convinced ourselves of the crucial importance of chiral symmetry and
+its breaking for QCD phenomenology, let us now return to the lattice. We start
+with analyzing the chiral properties of Wilson fermions.
+
+\subsection{Wilson fermions and the Nielsen--Ninomiya theorem}
+
+Upon inspecting the Wilson Dirac operator (5.51) we find that (7.10) is
+violated also for vanishing quark mass. The culprit is the Wilson term (5.50)
+which we had to add to the naive action in order to remove the doublers. This
+term comes with the unit matrix $\mathbb{1}$ in Dirac space which does not
+anticommute with $\gamma_5$ and therefore violates (7.10). Thus, even for
+massless quarks we break chiral symmetry explicitly. Consequently we cannot
+expect to capture such a subtle effect as spontaneous chiral symmetry breaking
+with Wilson fermions.
+
+This situation cannot be simply overcome by adding a term for removing the
+doublers in a different way. There is a fundamental theorem by Nielsen and
+Ninomiya [5--7] which states that on the lattice one cannot implement chiral
+symmetry in the form of (7.10) and at the same time have a theory free of
+doublers. More explicitly [8] consider a Euclidean action for free fermions in
+the form
+\begin{equation}
+  S = \sum_{n,m,\mu} \bar\psi(n)\,i\gamma_\mu\,F_\mu(n|m)\,P_R\,\psi(m) .
+\end{equation}
+The kernel $F(n|m)$ is assumed to be translationally invariant,
+$F_\mu(n|m) = F_\mu(n-m)$, and should give rise to a hermitian Hamilton
+operator which implies $F_\mu(-n) = F_\mu(n)^*$. Furthermore, $F_\mu(n)$ must
+be local, i.e., decrease sufficiently fast, such that its Fourier transform
+$\hat{F}_\mu(p)$ exists and all its derivatives are continuous. Due to the
+right-handed projector $P_R$ one would naively expect that action (7.28)
+describes only right-handed fermions. However, the arguments in [8], based on
+the expansion of $\hat{F}_\mu(p)$ around its zeros (poles in the propagator),
+show that an equal number of left- and right-handed fermions is described by
+an action of the form (7.28).
+
+For many years the Nielsen--Ninomiya theorem seemed to define the ultimate
+limitation for a further development of lattice QCD. A deep understanding of
+chiral symmetry on the lattice became possible only after the rediscovery of
+the Ginsparg--Wilson equation.
+
+\subsection{The Ginsparg--Wilson equation}
+
+In their seminal paper [9], Ginsparg and Wilson formulated the essential
+equation for chiral symmetry on the lattice. Based on renormalization group
+transformations (which we will discuss in Chap.~9) they proposed to replace
+the continuum expression (7.10) by
+\begin{equation}
+  D\gamma_5 + \gamma_5 D = a\,D\gamma_5 D .
+\end{equation}
+In this equation the anti-commutator (7.10) is augmented with a nonvanishing
+right-hand side. For dimensional reasons -- the Dirac operator $D$ has
+dimension 1/length -- an extra factor of the lattice constant $a$ appears for
+the term quadratic in $D$. Thus the right-hand side vanishes for $a \to 0$ and
+the continuum form of chiral symmetry is recovered in a naive continuum limit.
+However, (7.29) allows to define chiral symmetry on the lattice also for
+finite $a$. We will discuss this construction and the consequences of the
+Ginsparg--Wilson equation in great detail below.
+
+It is interesting to analyze the effect of the extra term for the quark
+propagator $D^{-1}$. Assuming that $D$ has no zero modes and is invertible, we
+may multiply (7.29) with $D^{-1}$ from both sides and obtain
+\begin{equation}
+  \gamma_5 D^{-1}(n|m) + D^{-1}(n|m)\,\gamma_5 = a\,\gamma_5\,\delta(n-m),
+\end{equation}
+where we write explicitly the space--time arguments $n$, $m$ of the
+propagators. The term introduced by Ginsparg and Wilson is simply a contact
+term, i.e., the anti-commutator of the propagator with $\gamma_5$ is modified
+only for $n = m$.
+
+Before we explore the consequences of the Ginsparg--Wilson equation, we should
+remark that the original paper [9] from 1982 had no immediate consequences and
+was ``forgotten,'' since no solution of the nonlinear equation (7.29) was
+imagined for the interacting case (nontrivial gauge links) at that time. Only
+in 1997 and 1998 it was realized [10, 11] that two independent approaches to
+chiral symmetry on the lattice, overlap and fixed point fermions introduced
+earlier, give rise to Dirac operators $D$ obeying (7.29). We discuss these in
+Sect.~7.4 and Chap.~9.
+
+\subsection{Chiral symmetry on the lattice}
+
+We have already announced that, based on the Ginsparg--Wilson equation, it is
+possible to define a modified chiral rotation which leaves the lattice action
+for massless quarks invariant [12]. Let $D$ be a lattice Dirac operator
+obeying the Ginsparg--Wilson equation (7.29). Using $D$ we can define a chiral
+rotation, which for $a \to 0$ reduces to the continuum transformation (7.2),
+\begin{equation}
+  \psi' = \exp\!\left(i\alpha\gamma_5\left(1-\frac{aD}{2}\right)\right)\psi,
+  \qquad
+  \bar\psi' = \bar\psi\exp\!\left(i\alpha\left(1-\frac{aD}{2}\right)\gamma_5\right).
+\end{equation}
+In this equation the action of the Dirac operator is understood in the sense
+\begin{equation}
+  (D\psi)(n)^a_\alpha = \sum_{m,\beta,b} D(n|m)^{ab}_{\alpha\beta}\,\psi(m)^b_\beta,
+  \qquad
+  (\bar\psi D)(m)^b_\beta = \sum_{n,\alpha,a} \bar\psi(n)^a_\alpha\,D(n|m)^{ab}_{\alpha\beta}.
+\end{equation}
+In the subsequent equations we refer to this convention, but use
+matrix/vector notation for all indices: space--time, Dirac, and color.
+
+The Lagrangian density for massless fermions for such a Dirac operator is
+invariant under the transformation (7.31):
+\begin{align}
+  \mathcal{L}(\psi',\bar\psi') &= \bar\psi'\,D\,\psi' \notag\\
+  &= \bar\psi\exp\!\left(i\alpha\left(1-\frac{aD}{2}\right)\gamma_5\right)D
+     \exp\!\left(i\alpha\gamma_5\left(1-\frac{aD}{2}\right)\right)\psi \notag\\
+  &= \bar\psi\exp\!\left(i\alpha\left(1-\frac{aD}{2}\right)\gamma_5\right)
+     \exp\!\left(-i\alpha\left(1-\frac{aD}{2}\right)\gamma_5\right)D\,\psi \notag\\
+  &= \bar\psi\,D\,\psi = \mathcal{L}(\psi,\bar\psi) .
+\end{align}
+In the step from the second to the third line we have used
+\begin{equation}
+  D\,\gamma_5\left(1-\frac{aD}{2}\right) + \left(1-\frac{aD}{2}\right)\gamma_5\,D = 0,
+\end{equation}
+which is just another way of writing the Ginsparg--Wilson equation (7.29).
+
+Decomposition (7.7) into left- and right-handed components can be generalized
+to the lattice. We define a new kind of projectors
+\begin{equation}
+  \hat P_R = \frac{1+\hat\gamma_5}{2}, \qquad
+  \hat P_L = \frac{1-\hat\gamma_5}{2}, \qquad
+  \hat\gamma_5 = \gamma_5(1 - aD) .
+\end{equation}
+Due to the Ginsparg--Wilson equation (7.29) one finds
+$\hat\gamma_5^2 = 1$, implying
+\begin{equation}
+  \hat P_R^2 = \hat P_R, \qquad
+  \hat P_L^2 = \hat P_L, \qquad
+  \hat P_R\hat P_L = \hat P_L\hat P_R = 0, \qquad
+  \hat P_R + \hat P_L = 1 .
+\end{equation}
+Invoking again the Ginsparg--Wilson equation one shows
+\begin{equation}
+  D\hat P_R = P_L D, \qquad
+  D\hat P_L = P_R D .
+\end{equation}
+Based on this last equation a sensible definition of left- and right-handed
+components, which generalizes the continuum form (7.7), is
+\begin{equation}
+  \psi_R = \hat P_R\psi, \qquad \psi_L = \hat P_L\psi,
+  \qquad
+  \bar\psi_R = \bar\psi P_L, \qquad \bar\psi_L = \bar\psi P_R .
+\end{equation}
+This definition, together with (7.37), implies the vanishing of terms like
+$\bar\psi_L D\psi_R$ and $\bar\psi_R D\psi_L$. The action thus can be
+decomposed like the continuum action (7.8) into left- and right-handed parts:
+\begin{equation}
+  \bar\psi D\psi = \bar\psi_L D\psi_L + \bar\psi_R D\psi_R .
+\end{equation}
+We thus may identify the continuum fields $\psi_L$, $\psi_R$ with the lattice
+quantities (7.38). The symmetry breaking mass term (7.9) is identified as the
+lattice term
+\begin{equation}
+  m\left(\bar\psi_R\psi_L + \bar\psi_L\psi_R\right)
+  = m\,\bar\psi\left(P_L\hat P_L + P_R\hat P_R\right)\psi
+  = m\,\bar\psi\left(1-\frac{aD}{2}\right)\psi .
+\end{equation}
+Thus Ginsparg--Wilson fermions with mass are described by the operator [13]
+\begin{equation}
+  D_m = D + m\left(1-\frac{aD}{2}\right) = \omega D + m\,\mathbb{1},
+\end{equation}
+with the abbreviation
+\begin{equation}
+  \omega \equiv 1-\frac{am}{2} .
+\end{equation}
+With chiral rotation (7.31) and decomposition (7.39) we have successfully
+implemented the corresponding continuum structures (7.2) and (7.8) on the
+lattice. The generalization to several flavors proceeds along the same steps
+as for the continuum case.
+
+Let us stress the most important difference between the concept of chirality
+in the continuum and on the lattice. In the continuum chirality is a strictly
+local concept independent of the gauge field. Rotation (7.2), as well as
+projection (7.7), only involves the spinors at a given space--time point $x$,
+i.e., only $\psi(x)$ or $\bar\psi(x)$ is needed. This is different on the
+lattice. Both chiral rotation (7.31) and projection (7.38) require the
+application of the lattice Dirac operator $D$. Thus the chiral rotation and
+the decomposition into components involve neighboring sites and depend on the
+gauge field. Consequently the chirality of a lattice fermion is determined
+using information from the gauge field and from neighboring lattice sites.
+
+\section{Consequences of the Ginsparg--Wilson equation}
+
+In this section we discuss some of the most important consequences of the
+Ginsparg--Wilson equation (7.29) without specifying a particular solution.
+Actual solutions will be presented in Sect.~7.4, the so-called overlap action,
+and in Sects.~9.2 and 9.3 fixed point fermions will be discussed. We remark
+that chiral symmetry will also play a major role when we discuss Ward
+identities in Chap.~11. This subject is not addressed here.
+
+\subsection{Spectrum of the Dirac operator}
+
+We begin our discussion of the consequences of the Ginsparg--Wilson equation
+by analyzing the eigenvalue spectrum of the Dirac operator on a finite lattice.
+The corresponding eigenvalue equation is denoted by
+\begin{equation}
+  D\,v_\lambda = \lambda\,v_\lambda .
+\end{equation}
+At the moment we do not invoke the Ginsparg--Wilson equation and only require
+the Dirac operator $D$ to be $\gamma_5$-hermitian (compare Sect.~5.4.3),
+\begin{equation}
+  \gamma_5 D\gamma_5 = D^\dagger .
+\end{equation}
+This property is obeyed by most commonly used Dirac operators.\footnote{Unless
+a chemical potential, a $\theta$-angle or a twisted mass term is introduced.}
+For the example of the Wilson Dirac operator this can be shown in a few lines
+of algebra, and the overlap operator, which we will discuss below, inherits
+$\gamma_5$-hermiticity from the kernel Dirac operator used for its
+construction.
+
+The requirement of $\gamma_5$-hermiticity alone already has interesting
+consequences for the eigensystem. For the characteristic polynomial $P(\lambda)$
+of $D$ one finds (the asterisk denotes complex conjugation)
+\begin{align}
+  P(\lambda) &= \det[D - \lambda\,\mathbb{1}]
+  = \det[\gamma_5^2(D-\lambda\,\mathbb{1})]
+  = \det[\gamma_5(D-\lambda\,\mathbb{1})\gamma_5] \notag\\
+  &= \det[D^\dagger - \lambda\,\mathbb{1}]
+  = \det[D - \lambda^*\,\mathbb{1}]^*
+  = P(\lambda^*)^*,
+\end{align}
+where we have used $\gamma_5^2 = 1$ and (7.44). The eigenvalues $\lambda$ are
+the zeros of $P(\lambda)$ and (7.45) implies that if $\lambda$ is a zero, so is
+$\lambda^*$. Thus for a $\gamma_5$-hermitian Dirac operator the eigenvalues
+are either real or come in complex conjugate pairs.
+
+Equation (7.44) also has an interesting consequence for the $\gamma_5$ matrix
+element of the eigenvectors. Writing the inner product of two vectors $u$, $v$
+as $u^\dagger v = (u, v)$ we find
+\begin{align}
+  \lambda\,(v_\lambda, \gamma_5 v_\lambda)
+  &= (v_\lambda, \gamma_5 D v_\lambda)
+  = (v_\lambda, D^\dagger\gamma_5 v_\lambda)
+  = (D v_\lambda, \gamma_5 v_\lambda) \notag\\
+  &= \lambda^*\,(v_\lambda, \gamma_5 v_\lambda),
+\end{align}
+and thus $(\mathrm{Im}\,\lambda)\,(v_\lambda, \gamma_5 v_\lambda) = 0$. This
+implies
+\begin{equation}
+  (v_\lambda, \gamma_5 v_\lambda) = 0, \qquad \text{unless} \quad \lambda \in \mathbb{R} .
+\end{equation}
+Hence only eigenvectors $v_r$ with real eigenvalues $r$ can have nonvanishing
+chirality, i.e., $(v_r, \gamma_5 v_r) \neq 0$.
+
+In addition to being $\gamma_5$-hermitian, we now also require the Dirac
+operator $D$ to obey the Ginsparg--Wilson equation (7.29). Multiplying this
+equation with $\gamma_5$ from either left or right and using (7.44) we obtain
+\begin{equation}
+  D^\dagger + D = a\,D^\dagger D, \qquad
+  D + D^\dagger = a\,D D^\dagger .
+\end{equation}
+A first consequence of these two equations is that a $\gamma_5$-hermitian
+Ginsparg--Wilson Dirac operator $D$ is a normal operator, i.e., $D$ and
+$D^\dagger$ commute, since the left-hand sides of the two Equations (7.48) are
+equal. Normality implies that the eigenvectors form an orthogonal basis (see
+Appendix~A.5). Furthermore, multiplying the first equation in (7.48) with a
+normalized eigenvector $v_\lambda$ from the right and with $v_\lambda^\dagger$
+from the left, one finds
+\begin{equation}
+  \lambda^* + \lambda = a\,\lambda^*\lambda .
+\end{equation}
+Writing the eigenvalue as $\lambda = x + iy$ this equation turns into
+\begin{equation}
+  \left(x-\frac{1}{a}\right)^2 + y^2 = \frac{1}{a^2},
+\end{equation}
+which shows that the eigenvalues of a $\gamma_5$-hermitian Ginsparg--Wilson
+Dirac operator are restricted to a circle in the complex plane (compare the
+left-hand side plot of Fig.~7.1). This so-called Ginsparg--Wilson circle has
+its center at $1/a$ on the real axis and a radius of $1/a$. We remark that the
+doubler modes, i.e., those modes where in the free case at least one of the
+momentum components equals to $\pi/a$, end up near $2/a$ in the complex plane
+and decouple as $a \to 0$.
+
+A convenient parametrization of the eigenvalues $\lambda$ of a
+Ginsparg--Wilson Dirac operator is given by
+\begin{equation}
+  \lambda = \frac{1}{a}\left(1 - e^{i\phi}\right), \qquad
+  \phi \in (-\pi, \pi] .
+\end{equation}
+Using this parametrization one finds that the eigenvalues $1/\lambda$ of the
+quark propagator $D^{-1}$ fall on a line parallel to the imaginary axis (see
+Fig.~7.1),
+\begin{equation}
+  \frac{1}{\lambda} = \frac{a}{2} + i\,\frac{a\sin(\phi)}{2\,(1-\cos(\phi))} .
+\end{equation}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig71.png}
+  \caption*{Fig. 7.1. \emph{Allowed regions for the eigenvalues $\lambda$ of a
+  Ginsparg--Wilson Dirac operator in the complex plane (left-hand side plot)
+  and for the eigenvalues $\lambda^{-1}$ of the corresponding propagator
+  (right-hand side plot)}.}
+  \label{fig:71}
+\end{figure}
+
+Since the Ginsparg--Wilson circle touches the origin of the complex plane,
+$D$ may have exact zero eigenvalues. Let $v_0$ be a zero mode, then
+\begin{equation}
+  D v_0 = 0 \;\Rightarrow\; \gamma_5 D v_0 = 0 \;\Rightarrow\; D\gamma_5 v_0 = 0,
+\end{equation}
+using the Ginsparg--Wilson equation in the last step. Thus, on the subspace of
+zero modes, the Dirac operator commutes with $\gamma_5$ and the zero modes can
+be chosen as eigenstates of $\gamma_5$. Since $\gamma_5^2 = 1$, the eigenvalues
+of $\gamma_5$ are $+1$ and $-1$ and we conclude
+\begin{equation}
+  \gamma_5 v_0 = \pm v_0,
+\end{equation}
+implying that the zero modes are chiral. A zero mode with positive chirality
+is referred to as right handed, while left handed is used for negative
+chirality.
+
+From the left-hand side plot in Fig.~7.1 it is obvious that a Ginsparg--Wilson
+Dirac operator can have real eigenvalues also at $2/a$. Following the same
+steps as for the zero modes, one finds that also the eigenmodes with real
+eigenvalue $2/a$ are chiral. These eigenmodes are the doubler partners of the
+zero modes shifted to the other side of the Ginsparg--Wilson circle, where
+they decouple in the limit $a \to 0$.
+
+\subsection{Index theorem}
+
+In the continuum the celebrated Atiyah--Singer index theorem [14] relates the
+numbers of left- and right-handed zero modes of the massless Dirac operator to
+a quantity $Q_{\mathrm{top}}$ which is a property of the gauge fields, the
+so-called topological charge. To derive the lattice equivalent of the index
+theorem [15] we consider
+\begin{align}
+  Q_{\mathrm{top}} &\equiv \frac{1}{2}\tr[\gamma_5 D]
+  = -\frac{1}{2}\tr[\gamma_5(2-aD)]
+  = -\frac{1}{2}\sum_\lambda (v_\lambda, \gamma_5(2-aD)v_\lambda) \notag\\
+  &= -\frac{1}{2}\sum_\lambda (2-a\lambda)\,(v_\lambda, \gamma_5 v_\lambda)
+  = n_- - n_+,
+\end{align}
+where $n_-$, $n_+$ denote the numbers of left- and right-handed zero modes.
+In the second step we have used $\tr[\gamma_5] = 0$, and in the third step we
+expressed the trace as a sum over the eigenvectors $v_\lambda$ of $D$. As
+discussed above, $D$ is normal and thus its normalized eigenvectors form an
+orthonormal basis suitable for computing the trace. In the last step we have
+used (7.47), implying that only eigenvectors with real eigenvalues have
+nonvanishing chirality and that the factor $(2-a\lambda)$ cancels the
+contributions from the doubler modes with $\lambda = 2/a$. The $\gamma_5$
+matrix elements of the surviving zero modes are $\pm 1$ due to (7.54).
+
+If one leaves out the second step in (7.55), where the extra $\gamma_5$ was
+sneaked in, one obtains $Q_{\mathrm{top}} = n'_+ - n'_-$, where $n'_\pm$ are
+the numbers of left- and right-handed eigenvectors with eigenvalue $2/a$. This
+gives the same result, since the doublers enter with opposite chirality.
+
+The topological charge $Q_{\mathrm{top}}$ can be written as the space--time
+sum of the so-called topological charge density $q(n)$. Doing so we obtain
+\begin{equation}
+  Q_{\mathrm{top}} = a^4\sum_{n\in\Lambda} q(n), \qquad
+  q(n) = \frac{1}{2a^3}\,\tr_{CD}[\gamma_5 D(n|n)], \qquad
+  Q_{\mathrm{top}} = n_- - n_+,
+\end{equation}
+where $\tr_{CD}$ denotes the trace over color and Dirac indices.
+
+The lattice index theorem (7.56) is a truly remarkable result: The Dirac
+operator depends on the gauge field variables $U_\mu(n)$. Thus the topological
+charge $Q_{\mathrm{top}}$ is a functional of the gauge field, and it is a
+highly nontrivial statement that this functional is an integer number. As the
+name ``topological charge'' already indicates the underlying reason is of
+topological nature.
+
+At this point we remark that in actual lattice calculations one never finds
+zero modes of both chiralities for a single configuration, i.e., $n_+$ and
+$n_-$ are not both nonzero simultaneously. It may be argued that the
+underlying reason is that only a very subtle arrangement of the gauge field
+would give rise to $n_+ \neq 0$ and $n_- \neq 0$ at the same time. Such an
+arrangement has zero measure in the path integral, and the fact that at least
+one of the numbers $n_+$, $n_-$ vanishes implies $Q_{\mathrm{top}} = n_-$ or
+$Q_{\mathrm{top}} = -n_+$. This fact is sometimes referred to as absence of
+fine tuning.
+
+In the continuum the index theorem takes the form
+$Q^{\mathrm{cont}}_{\mathrm{top}} = n_- - n_+$, with the topological charge
+given by
+\begin{equation}
+  Q^{\mathrm{cont}}_{\mathrm{top}} = \int d^4x\;q(x)^{\mathrm{cont}}, \qquad
+  q(x)^{\mathrm{cont}} = \frac{1}{32\pi^2}\,\varepsilon_{\mu\nu\rho\sigma}
+  \tr_C[F_{\mu\nu}(x)F_{\rho\sigma}(x)],
+\end{equation}
+where $\varepsilon_{\mu\nu\rho\sigma}$ is the completely anti-symmetric rank 4
+Levi--Civita tensor and $F_{\mu\nu}$ is the field strength tensor (2.15). The
+functional $Q^{\mathrm{cont}}_{\mathrm{top}}$ is an expression for the
+so-called Pontryagin index.
+
+An instance of a continuum gauge field configuration with nonvanishing
+$Q^{\mathrm{cont}}_{\mathrm{top}}$ is so-called instantons [16]. There it was
+also shown that instantons are local minima of the gauge action. Thus they
+give a contribution in a saddle point evaluation of the path integral. This
+insight led to a wealth of papers analyzing the role of topological objects in
+QCD (for reviews see [17, 18] and references therein). For an introductory
+text on topological field configurations and an elementary proof that
+$Q^{\mathrm{cont}}_{\mathrm{top}}$ of (7.57) is indeed integer valued we
+recommend [19].
+
+On the lattice the topological charge (7.55) is an integer due to its
+definition through the number of zero modes of a chiral Dirac operator. Thus
+the remaining question is whether the lattice definition (7.56) of the
+topological charge density $q(n)$ approaches its continuum counterpart
+$q(x)^{\mathrm{cont}}$ of (7.57) in the limit $a \to 0$. It can be shown that
+under certain (smoothness) conditions for the gauge fields one has
+$q(n) = q(x)^{\mathrm{cont}} + \order{a^2}$ as $a \to 0$. Several derivations
+of this fact have been given for various settings and conditions on the gauge
+fields, the first results being [15, 20, 21].
+
+The QCD path integral is symmetric with respect to configurations of positive
+and negative topological charges and thus the expectation value
+$\ev{Q_{\mathrm{top}}}$ vanishes. However, one can consider the topological
+susceptibility defined as
+\begin{equation}
+  \chi_{\mathrm{top}} = \frac{1}{V}\ev{Q_{\mathrm{top}}^2}
+  = \frac{1}{a^8|\Lambda|}\sum_{m,n}\ev{q(m)q(n)}
+  = a^4\sum_n \ev{q(0)q(n)},
+\end{equation}
+where in the last step we have used translational invariance of the correlator
+to get rid of the summation over $m$. We remark that $\chi_{\mathrm{top}}$ is
+volume dependent. The topological susceptibility considered in the infinite
+volume limit provides information about the distribution of topological charge
+as a function of $\Nf$ and $m$ [22]. Using the fermionic definition (7.55) of
+the topological charge it has been determined in several quenched calculations
+[23--25] (and references therein) with a result of
+$\chi_{\mathrm{top}} \approx (190\,\mathrm{MeV})^4$. Since in the quenched case
+the fermion determinant is not taken into account, this result is independent
+of $m$. For the dynamical case the simulations are not so far advanced and the
+dependence of $\chi_{\mathrm{top}}$ on $\Nf$ and $m$ is not finally settled.
+Phenomenologically, the topological susceptibility plays an interesting role
+in the so-called Witten--Veneziano formula which we briefly address at the end
+of the next section.
+
+\subsection{The axial anomaly}
+
+Having implemented chiral symmetry on the lattice, we are now ready to give a
+(lattice) derivation [12] of the axial anomaly which we have already addressed
+in Sect.~7.1. There it was stated that the integration measure for the fermions
+is not invariant under the flavor diagonal rotation (7.16).
+
+To derive the anomaly on the lattice we consider lattice QCD with $\Nf$
+massless flavors with a Dirac operator obeying the Ginsparg--Wilson equation.
+The spinors $\psi$, $\bar\psi$, describing our $\Nf$ flavors, are transformed
+with an infinitesimal chiral rotation of the form
+\begin{equation}
+  \psi' = \left(1 + i\varepsilon M\gamma_5\left(1-\frac{aD}{2}\right)\right)\psi,
+  \qquad
+  \bar\psi' = \bar\psi\left(1 + i\varepsilon M\left(1-\frac{aD}{2}\right)\gamma_5\right).
+\end{equation}
+This transformation is the infinitesimal version of (7.31) obtained by setting
+$\alpha = \varepsilon$ in (7.31) and keeping only the leading terms in the
+expansion of the exponential in $\varepsilon$. In addition we consider several
+flavors by allowing for a mixing matrix $M$ which can either be the identity,
+$M = \mathbb{1}_{\Nf}$, or one of the generators of $SU(\Nf)$, $M = T_i$.
+According to (5.26) for the transformation of the integration measure of
+Grassmann variables we obtain
+\begin{align}
+  \mathcal{D}[\psi,\bar\psi] &= \mathcal{D}[\psi',\bar\psi']\,
+  \det\!\left[1 + i\varepsilon M\gamma_5\left(1-\frac{aD}{2}\right)\right]
+  \det\!\left[1 + i\varepsilon M\left(1-\frac{aD}{2}\right)\gamma_5\right] \notag\\
+  &= \mathcal{D}[\psi',\bar\psi']\,
+  \det\!\left[1 + i\varepsilon M\gamma_5\left(1-\frac{aD}{2}\right)\right]^2,
+\end{align}
+where in the second step we used the invariance of the determinant under cyclic
+permutation of $\gamma_5$. Expansion in $\varepsilon$ gives
+\begin{align}
+  \det\Bigl[1 + i\varepsilon M\gamma_5\Bigl(1-\tfrac{aD}{2}\Bigr)\Bigr]^2
+  &= \exp\Bigl[2\tr\ln\Bigl(1 + i\varepsilon M\gamma_5\Bigl(1-\tfrac{aD}{2}\Bigr)\Bigr)\Bigr] \notag\\
+  &= \exp\Bigl[-2\sum_{j=1}^\infty \frac{(-i\varepsilon)^j}{j}\,
+     \tr M\Bigl(\gamma_5\Bigl(1-\tfrac{aD}{2}\Bigr)\Bigr)^j\Bigr] \notag\\
+  &= 1 + 2i\varepsilon\,\tr\Bigl[M\gamma_5\Bigl(1-\tfrac{aD}{2}\Bigr)\Bigr] + \order{\varepsilon^2} \notag\\
+  &= 1 + 2i\varepsilon\,\tr_F[M]\sum_{n\in\Lambda}\tfrac{a}{2}\Bigl(3\,\tr_D[\gamma_5] \notag\\
+  &\qquad - \tr_{CD}[\gamma_5 D(n|n)]\Bigr) + \order{\varepsilon^2}.
+\end{align}
+In the first line of this equation we have used a well-known formula for the
+determinant (see Appendix~A.5) and in the second line the logarithm was
+expanded in a power series. In the last line we have split the trace into its
+components, with $\tr_F$, $\tr_C$, and $\tr_D$ denoting the traces over flavor,
+color, and Dirac indices, respectively. The sum runs over all sites of the
+lattice $\Lambda$. Since $\gamma_5$ is traceless, the first of the
+$\order{\varepsilon}$ terms vanishes.
+
+If the flavor matrix $M$ is chosen to be one of the $SU(\Nf)$ generators, the
+anomaly is canceled due to the vanishing trace over the flavor indices. Only
+for the flavor singlet choice $M = \mathbb{1}_{\Nf}$ this trace is nontrivial,
+$\tr_F[M] = \Nf$. Combining (7.60) and (7.61) we obtain for this case
+\begin{equation}
+  \mathcal{D}[\psi,\bar\psi]
+  = \mathcal{D}[\psi',\bar\psi']\left(1 - 2i\varepsilon\,\Nf\,Q_{\mathrm{top}}
+     + \order{\varepsilon^2}\right),
+\end{equation}
+where we have used definition (7.56) of the topological charge
+$Q_{\mathrm{top}}$.
+
+We conclude that indeed a chiral, flavor singlet rotation is not a symmetry of
+QCD, although the action itself is invariant (for massless quarks). The
+non-invariance comes from the measure and the symmetry breaking term is the
+topological charge. This result underlines again the strong connection between
+chiral symmetry and topological gauge field configurations which we have
+already addressed when we discussed the index theorem.
+
+The axial anomaly has important physical consequences. Most importantly it
+implies that the chiral flavor singlet symmetry cannot be broken spontaneously
+and no flavor singlet Goldstone particle exists. This explains why the
+$\eta$-meson is much heavier than the pions, when one considers approximate
+chiral symmetry for $\Nf = 2$. For approximate chiral symmetry with $\Nf = 3$,
+this role is taken over by the $\eta'$-meson. The aforementioned
+Witten--Veneziano formula [26--28] relates the mass of the $\eta'$ to the
+topological susceptibility $\chi_{\mathrm{top}}$, thus revealing a deep
+connection of QCD vacuum properties and the mass spectrum. The mathematical
+subtleties of the Witten--Veneziano formula have been addressed in several
+recent articles [29--33], partly based on the rigorous framework provided by
+Ginsparg--Wilson fermions.
+
+\subsection{The chiral condensate}
+
+In Sect.~7.1 we have discussed that in the continuum the vacuum expectation
+value $\ev{u(x)\bar{u}(x)}$ is not invariant under any of the chiral rotations
+(7.15) and (7.16). Thus it can serve as an order parameter for spontaneous
+chiral symmetry breaking, with a nonvanishing condensate signaling the
+spontaneous breaking of chiral symmetry. We emphasize again that this
+spontaneous breaking occurs only for $\Nf \geq 2$, since for $\Nf = 1$ the
+single axial symmetry is not broken spontaneously, but explicitly by the
+anomaly.
+
+When discussing chiral symmetry we have identified the correct mass term on
+the lattice in (7.40), i.e., the scalar bilinear which maximally mixes left-
+and right-handed components. Accordingly, we consider the scalar expectation
+value for lattice QCD with Ginsparg--Wilson fermions
+\begin{equation}
+  \Sigma^{\mathrm{lat}}(a, m, |\Lambda|) \equiv
+  -\left\langle \bar{u}(n)\left(1-\frac{aD}{2}\right)u(n)\right\rangle .
+\end{equation}
+The expectation value on the right-hand side is evaluated on a lattice
+$\Lambda$ with $|\Lambda|$ sites and a lattice spacing $a$. We consider $\Nf$
+flavors of fermions, all with mass $m$, and the corresponding Dirac operator
+$D_m$ is given by (7.41). The term $aD/2$ in (7.63) cancels the real part of
+the eigenvalues (7.52) of the massless propagator, thus shifting its spectrum
+onto the imaginary axis as in the continuum (see the right-hand side of
+Fig.~7.1).
+
+Since our formulation is translationally invariant, (7.63) is independent of
+$n$ and we can average over all lattice sites. Doing so and performing the
+Grassmann integration according to (5.54) we find
+\begin{equation}
+  \Sigma^{\mathrm{lat}}(a, m, |\Lambda|) =
+  \frac{1}{a^4|\Lambda|}\left\langle
+    \tr\left[\left(1-\frac{aD}{2}\right)D_m^{-1}\right]
+  \right\rangle_G,
+\end{equation}
+where the trace runs over space--time, color, and Dirac indices, and
+\begin{equation}
+  \ev{X}_G = \frac{1}{Z}\int \mathcal{D}[U]\,e^{-S_G[U]}\,\det[D_m]^{\Nf}\,X
+\end{equation}
+is the remaining gauge field integral. With the abbreviation (7.42) the
+propagator, i.e., the inverse of $D_m$ defined in (7.41), reads
+$D_m^{-1} = (\omega D + m\,\mathbb{1})^{-1}$, $\omega = 1 - am/2$, and after
+some algebra (7.64) turns into
+\begin{equation}
+  \Sigma^{\mathrm{lat}}(a, m, |\Lambda|) =
+  \frac{1}{\omega\, a^4|\Lambda|}\left\langle
+    \tr\left[(\omega D + m\,\mathbb{1})^{-1}\left(1-\frac{aD}{2}\right)\right]
+  \right\rangle_G .
+\end{equation}
+This expression is now ready for a numerical or analytical investigation of
+the chiral condensate.
+
+At this point a few remarks on the necessary limits are in order. Spontaneous
+breaking of a symmetry requires an infinite system, therefore the limit
+$|\Lambda| \to \infty$ has to be taken. Subsequently the explicit breaking
+through the mass term has to be removed, i.e., the limit $m \to 0$ has to be
+performed. Like in other cases of spontaneous symmetry breaking these limits
+cannot be interchanged. After these limits, (7.66) becomes a bare condensate at
+a fixed ultraviolet cutoff $1/a$. The definition of the physical condensate is
+regularization scheme dependent and its value must be converted to other
+schemes (like the continuum $\overline{MS}$ scheme) by renormalization with
+the scalar renormalization factor $Z_S$ which we discuss in Chap.~11.
+Subsequently one can analyze the scaling with $a$ and perform the continuum
+limit.
+
+It is obvious that in a numerical approach the discussed sequence of limits is
+hard to establish. However, in [22] the chiral condensate has been studied in
+a 4D box of volume $V$ at finite mass $m$ using low-energy effective theory.
+An expression for the chiral condensate $\Sigma(m, V)$ as a function of $m$ and
+$V$ was obtained which contains the physical chiral condensate
+\begin{equation}
+  \Sigma \equiv \lim_{m \to 0}\;\lim_{V \to \infty} \Sigma(m, V)
+\end{equation}
+as a parameter. Here both, $\Sigma$ and $\Sigma(m, V)$, are understood at
+finite cutoff. Since this is not necessarily a lattice cutoff we do not
+indicate it explicitly. Once the functional form $\Sigma(m, V)$ is known, one
+can use lattice simulations to compute the condensate
+$\Sigma^{\mathrm{lat}}(a, m, |\Lambda|)$ at finite volume $V = a^4|\Lambda|$
+and finite mass $m$ and fit the data to the function $\Sigma(m, V)$ to obtain
+the true bare condensate $\Sigma$ as a fit parameter. This procedure has first
+been carried out for the quenched case, which we discuss here. As always, the
+motivation for studying the quenched case is the hope that the quenched result
+for $\Sigma$ will be close to its value at $\Nf = 3$.
+
+Within partially quenched chiral perturbation theory one can derive the
+functional form for the chiral condensate [34, 35] for different topological
+sectors as a function of the volume $V$ and mass parameter $m$. We speak of the
+topological sector $\nu$ when in the path integral only gauge configurations
+with topological charge $Q_{\mathrm{top}} = \nu$ are considered. On the lattice
+this is a concept which can, e.g., be implemented by sorting all configurations
+of a Monte Carlo ensemble with respect to $Q_{\mathrm{top}}$ as determined from
+the index theorem (7.56). The result from chiral perturbation theory mirrors a
+finding from random matrix theory, where one obtains universal properties of
+the spectra of certain symmetry classes of random matrices. The quenched result
+for the condensate in the topological sector $\nu$ is given by
+\begin{equation}
+  \Sigma(m, V)_\nu = \Sigma\left[
+    z\Bigl(I_{|\nu|}(z)K_{|\nu|}(z) + I_{|\nu|+1}(z)K_{|\nu|-1}(z)\Bigr)
+    + \frac{|\nu|}{mV}\right],
+\end{equation}
+where $z = m V \Sigma$ is a dimensionless scaling variable and $\Sigma$ is the
+bare condensate defined in (7.67). The lattice condensate
+$\Sigma^{\mathrm{lat}}(a, m, |\Lambda|)$ is then computed for each sector $\nu$
+separately and fitted to the functional form (7.68).
+
+Let us discuss the strategy for a numerical determination of $\Sigma$ in more
+detail [36]. Expanding the Bessel functions in (7.68) one finds for $m \to 0$:
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig72.png}
+  \caption*{Fig. 7.2. \emph{Lattice results for the bare condensate for
+  different volumes and different topological sectors [37]}. (Reprinted from
+  Hasenfratz et al., copyright (2002) with permission from Elsevier)}
+  \label{fig:72}
+\end{figure}
+\begin{equation}
+  \frac{\Sigma(m, V)_\nu}{m}
+  \xrightarrow{m \to 0}
+  \begin{cases}
+    \displaystyle \Sigma^2 V\left(\frac{1}{2} - \ln(z/2) - \gamma\right),
+      & \nu = 0,\\[3mm]
+    \displaystyle \frac{\Sigma^2 V}{2|\nu|} + \frac{|\nu|}{2\,mV},
+      & \nu \neq 0 .
+  \end{cases}
+\end{equation}
+The topologically trivial case ($\nu = 0$) contains a logarithmic divergence at
+small $m$ ($=$ small $z$) and thus was found to be not very suitable for a
+numerical study at small $m$. For $\nu \neq 0$ an extra term from the zero
+modes appears which diverges even more strongly.\footnote{For the case of
+dynamical fermions, zero modes are suppressed by the fermion determinant which
+vanishes at $m = 0$ and thus no such divergent term occurs.} However, this
+contribution can be cleanly removed by hand in order to improve the signal.
+This is done by exploiting the chirality of the zero modes (7.54) and taking
+the trace in (7.66) only after the propagator has been multiplied with
+$(1 \pm \gamma_5)/2$. For each individual gauge configuration the sign is
+chosen opposite to the chirality of the zero modes. After this modification
+the trace can be computed using the stochastic estimator techniques discussed
+in Chap.~8.
+
+Since we are computing the bare condensate at finite $V$ and $m$, cutoff
+effects can alter behavior (7.69). In leading order in $m$ this gives rise to
+an extra cutoff-dependent constant $c$. Thus for nontrivial topological sectors
+and subtracted zero mode contributions one finds the final form
+\begin{equation}
+  \frac{\Sigma(m, V)'_\nu}{m}
+  \xrightarrow{m \to 0}
+  \frac{\Sigma^2 V}{2|\nu|} + c
+  \qquad (\nu \neq 0) .
+\end{equation}
+The ratio $\Sigma^{\mathrm{lat}}(a, m, |\Lambda|)/m$ thus is expected to
+approach a constant at $m \to 0$, and comparison of different volumes and
+topological sectors allows one to extract the bare condensate $\Sigma$. The
+data in Fig.~7.2 were computed in [37] along these lines and nicely illustrate
+the behavior according to (7.70).
+
+The last step, which we will address in detail only in Chap.~11, is the
+renormalization with $Z_S$ to obtain the physical quenched condensate
+$\Sigma_{\mathrm{phys}} = Z_S \Sigma$. Several independent calculations
+[36--39] determined the quenched chiral condensate and after renormalization
+obtained $\Sigma_{\mathrm{phys}} \approx (270\,\mathrm{MeV})^3$ (in the
+$\overline{MS}$ scheme at renormalization scale 2\,GeV).
+
+\subsection{The Banks--Casher relation}
+
+So far we have discussed the numerical analysis of the chiral condensate for a
+finite system at finite quark mass $m$. However, one can at least formally
+perform the thermodynamic and chiral limits and parameterize the unknown
+nonperturbative information in terms of the eigenvalue density of the Dirac
+operator near the origin. This gives rise to an important relation, the
+so-called Banks--Casher relation [40], which we now derive.
+
+The starting point of our derivation is (7.66). In a first step we express the
+trace as a sum over all eigenvalues $\lambda_i$ of $D$:
+\begin{align}
+  \tr\left[(\omega D + m\,\mathbb{1})^{-1}\left(1-\frac{aD}{2}\right)\right]
+  &= \sum_{\lambda_i}\left(\frac{1}{\omega\lambda_i + m} - \frac{a}{2}\right) \notag\\
+  &= (n_+ + n_-)\left(\frac{1}{m} - \frac{a}{2}\right) \notag\\
+  &\quad + (n'_+ + n'_-)\left(\frac{1}{2\omega/a + m} - \frac{a}{2}\right) \notag\\
+  &\qquad + \sum_{\lambda_i \neq 0,\,2/a}\left(\frac{1}{\omega\lambda_i + m} - \frac{a}{2}\right),
+\end{align}
+where in the second line we have split the sum over all eigenvalues in the
+contributions of the $n_+ + n_-$ eigenvalues $0$, the $n'_+ + n'_-$ eigenvalues
+$2/a$, and a sum over the complex eigenvalues. Recalling definition (7.42) for
+$\omega$ one finds that the factor for the contribution of the eigenvalues at
+$0$ reduces to $\omega/m$, whereas the contribution of the eigenvalues at
+$2/a$ vanishes. Expressing the eigenvalues $\lambda_i$ through the phases
+$\phi_i$ introduced in (7.51) and combining the complex conjugate pairs of
+eigenvalues the last expression turns into
+\begin{equation}
+  \frac{\omega}{m}(n_+ + n_-) + \sum_{\phi_i \neq 0,\pi}
+  \frac{\omega\,(1+\cos\phi_i)\,m}{(2-2\cos\phi_i)(1-a^2m^2/4)/a^2 + m^2} .
+\end{equation}
+Thanks to the above discussed ``absence of fine tuning'' for a given gauge
+configuration only one of the numbers $n_+$, $n_-$ can be nonvanishing and we
+may replace $(n_+ + n_-) \to |Q_{\mathrm{top}}|$, the number of zero modes.
+Inserting (7.72) for the trace in (7.66) one arrives at
+\begin{align}
+  \Sigma^{\mathrm{lat}}(a) &\equiv \lim_{m\to 0}\;\lim_{|\Lambda|\to\infty}
+  \Sigma^{\mathrm{lat}}(a,m,|\Lambda|) \notag\\
+  &= \lim_{|\Lambda|\to\infty}\frac{1}{a^4|\Lambda|}\,\frac{\ev{|Q_{\mathrm{top}}|}_G}{m}
+   \notag\\
+  &\qquad + \frac{1}{2a^4}\int_{-\pi}^{\pi}d\phi\,\rho_A(\phi)\,
+     \frac{(1+\cos\phi)\,m}{(2-2\cos\phi)(1-a^2m^2/4)/a^2 + m^2},
+\end{align}
+where we have defined the angular density $\rho_A(\phi)$ for the angles
+$\phi$ of the eigenvalues on the Ginsparg--Wilson circle as
+\begin{equation}
+  \rho_A(\phi) = \left\langle \lim_{|\Lambda|\to\infty}\frac{1}{|\Lambda|}
+  \sum_{\phi_i \neq 0,\pi}\delta(\phi-\phi_i)\right\rangle_G .
+\end{equation}
+In the definition of the density $\rho_A(\phi)$ we have already performed the
+limit $|\Lambda| \to \infty$ (at fixed $a$) necessary for the spontaneous
+breaking of a continuous symmetry. In this limit the eigenvalues become dense
+on the Ginsparg--Wilson circle and $\rho_A(\phi)$ as defined in (7.74) indeed
+becomes a density.
+
+The first contribution (7.73) vanishes for $|\Lambda| \to \infty$, since
+$\ev{|Q_{\mathrm{top}}|}_G$ does not grow faster than $\sqrt{V}$. This follows
+from the finiteness of $\chi_{\mathrm{top}} = \ev{Q^2_{\mathrm{top}}}/V$.
+For the second term in (7.73) one can utilize that
+\begin{equation}
+  \delta_m(X) = \frac{1}{\pi}\,\frac{m}{X^2 + m^2}\left(1 + \order{m^2}\right)
+\end{equation}
+is a $\delta$-sequence, i.e., $\delta_m(X) \to \delta(X)$ for $m \to 0$ (see
+e.g. [41]). Thus we obtain for the second part of (7.73), which remains finite
+for $m \to 0$:
+\begin{align}
+  &\frac{1}{2a^4}\int_{-\pi}^{\pi}d\phi\,\rho_A(\phi)\,
+    \frac{(1+\cos\phi)\,m}{(2-2\cos\phi)(1-a^2m^2/4)/a^2 + m^2} \notag\\
+  &= \frac{\pi}{2a^3}\int_{-\pi}^{\pi}d\phi\,(1+\cos\phi)\,
+     \delta\!\bigl(a^{-1}(2-2\cos\phi)\bigr)\,\rho_A(\phi) \notag\\
+  &= \frac{\pi}{2a^3}\int_{-\pi}^{\pi}d\phi\,(1+\cos\phi)\,
+     \delta(\phi)\,\rho_A(\phi) = \frac{\pi}{a^3}\,\rho_A(0),
+\end{align}
+where we have used standard manipulations for the Dirac-delta with a function
+as argument. Equation (7.76) shows that after taking the infinite volume limit
+the chiral condensate is proportional to the angular density $\rho_A(\phi)$ at
+$\phi = 0$. We emphasize that in the definition of the density the exact zero
+eigenvalues are left out.
+
+Usually one does not use the angular density $\rho_A$, but the density
+$\rho_\lambda$ of eigenvalues on the imaginary axis is
+$\rho_\lambda = \Delta n/\Delta y$, where $\Delta n$ is the number of
+eigenvalues per interval $\Delta y$ on the imaginary axis. For small angles
+$\phi$ one has $\Delta y = \Delta\phi/a$ (compare Fig.~7.1), implying that
+$\rho_\lambda = a\,\rho_A$. Thus we conclude
+\begin{equation}
+  \frac{\pi}{a^3}\,\rho_A(0) = \frac{\pi}{a^4}\,\rho_\lambda(0)
+  = \pi\,\rho(0),
+\end{equation}
+where $\rho$ is the density of eigenvalues on the imaginary axis per unit
+volume.
+
+While the numerical calculation presented in the last section shows the
+existence of a nonvanishing chiral condensate from first principles, it cannot
+provide insight about an underlying physical mechanism for chiral symmetry
+breaking. The Banks--Casher relation (7.77), however, has at least opened the
+door to understanding such a mechanism.
+
+A very influential idea is that the chiral condensate is formed through a
+``fluid'' of weakly interacting topological field configurations such as
+instantons (see [17, 18] for reviews). Often, as in the case of instantons,
+the topological configurations are localized and such structures have been
+nicknamed topological lumps. A gauge field configuration which carries
+topological charge gives rise to zero eigenvalues according to the index
+theorem (7.56). For a mixture of topological lumps with different charges one
+cannot assume that the zero eigenvalues survive unperturbed. Instead one
+expects that the eigenvalues move in the imaginary direction. A fluid of
+weakly interacting topological lumps gives rise to an accumulation of
+eigenvalues on the imaginary axis thus building up the density of eigenvalues
+$\rho(0)$ near the origin. This in turn gives rise to the nonvanishing chiral
+condensate via the Banks--Casher relation (7.77). This mechanism and the
+possible structure of the topological lumps have been studied extensively on
+the lattice and the reviews [42--46] may serve as a guide to further reading.
+
+The density of eigenvalues can be studied in some detail within random matrix
+theory, which we addressed briefly in the preceding section. Fine details like
+distribution densities of the smallest eigenvalue, the next-to-smallest
+eigenvalue, and so on appear to be universal properties of the spectra of
+random matrices with the symmetry properties of the Dirac operator. There is a
+wealth of tools to analyze spectra in this way and thereby disentangle
+``universal'' features from properties specific for the dynamics of the
+theory, such as the condensate value. More about these issues can be found in
+[47, 48].
+
+\section{The overlap operator}
+
+Up to now our presentation of chiral symmetry on the lattice did not refer to
+a particular solution of the Ginsparg--Wilson equation. In this section we
+close this gap and introduce the overlap operator. We analyze the locality
+properties of the overlap operator and discuss its numerical evaluation. A
+second solution of the Ginsparg--Wilson equation, the fixed point Dirac
+operator, will be presented in Chap.~9. Furthermore, in Sect.~10.2 we discuss
+domain wall fermions which are closely related to the overlap formulation.
+
+\subsection{Definition of the overlap operator}
+
+Originating from the initial papers on the overlap formulation [49--52],
+Neuberger presented the modern form of the overlap Dirac operator in [53] and
+showed in [11] that it is a solution of the Ginsparg--Wilson equation (7.29).
+Explicitly the overlap Dirac operator is given by
+\begin{equation}
+  D_{\mathrm{ov}} = \frac{1}{a}\left(1 + \gamma_5\,\mathrm{sign}[H]\right),
+  \qquad
+  H = \gamma_5 A,
+\end{equation}
+where $A$ denotes some suitable $\gamma_5$-hermitian ``kernel'' Dirac operator,
+thus $H$ is hermitian with real eigenvalues. The operator sign function may be
+defined through the spectral representation of the operator (A.51).
+Alternatively one may write the overlap operator in the form
+\begin{equation}
+  D_{\mathrm{ov}} = \frac{1}{a}\left(1 + \gamma_5 H\left(H^2\right)^{-1/2}\right).
+\end{equation}
+The simplest choice is to use the Wilson Dirac operator for the kernel,
+\begin{equation}
+  A = a\,D_W - \mathbb{1}(1+s), \qquad
+  \text{such that} \qquad
+  D_{\mathrm{ov}} = \frac{1}{a}\left(1 + A\left(\gamma_5 A\gamma_5 A\right)^{-1/2}\right),
+\end{equation}
+where $s$ is a real parameter with $|s| < 1$ which can be used to optimize
+locality (see below). $D_W$ is the massless Wilson Dirac operator (compare
+(5.51))
+\begin{equation}
+  D_W(n|m)^{ab}_{\alpha\beta} = \frac{1}{a}\,\delta_{\alpha\beta}\,\delta_{ab}\,
+  \delta_{n,m}
+  - \frac{1}{2a}\sum_{\mu=\pm1}^{\pm4}(1-\gamma_\mu)_{\alpha\beta}\,
+    U_\mu(n)_{ab}\,\delta_{n+\hat\mu,m} .
+\end{equation}
+Since the Wilson Dirac operator is $\gamma_5$-hermitian (compare (5.76)) so is
+$A$, i.e., $\gamma_5 A\gamma_5 = A^\dagger$. Thus we have
+$\gamma_5 A\gamma_5 A = A^\dagger A$ and the square root in (7.80) is well
+defined through the spectral theorem.
+
+In order to see that the overlap operator obeys the Ginsparg--Wilson equation
+we insert $D_{\mathrm{ov}}$ into (7.29). With the representation (7.78) we
+find
+\begin{align}
+  a\,D_{\mathrm{ov}}D_{\mathrm{ov}}^\dagger
+  &= \frac{1}{a}\left(1+\gamma_5\,\mathrm{sign}[H]\right)
+     \left(1+\mathrm{sign}[H]\,\gamma_5\right) \notag\\
+  &= \frac{1}{a}\left(1+\gamma_5\,\mathrm{sign}[H] + \mathrm{sign}[H]\,\gamma_5 + 1\right)
+  = D_{\mathrm{ov}} + D_{\mathrm{ov}}^\dagger .
+\end{align}
+We have taken into account hermiticity, $\mathrm{sign}\,H =
+\mathrm{sign}\,H^\dagger$, and the squared sign function as the unit operator:
+$(\mathrm{sign}\,H)^2 = 1$. Similar to the steps (2.40), (2.41), and (2.42)
+performed for the naive Dirac operator, one can expand the overlap operator
+(7.80) for small $a$ and show that it approaches the Dirac operator of the
+continuum (up to an irrelevant multiplicative constant:
+$\hat{D}^{\mathrm{ov}} \approx i\gamma_\mu p_\mu/(1+s) + \order{p^2}$).
+
+The Wilson operator $D_W$ used in the construction of the overlap operator can
+be replaced by some other lattice Dirac operator which is free of doublers
+[54]. This can improve the locality properties of the overlap operator (see
+next section) and it may speed up the convergence in the numerical evaluation
+of the overlap operator (Sect.~7.4.3) [38]. In this sense the overlap
+construction may also be viewed as a projection of a non-chiral lattice Dirac
+operator onto a solution of the Ginsparg--Wilson equation.
+
+\subsection{Locality properties of chiral Dirac operators}
+
+While the Wilson Dirac operator (7.81) and thus $A$ involve only nearest
+neighbor terms and therefore are sparse matrices, the inverse square root
+$(\gamma_5 A\gamma_5 A)^{-1/2}$ leads to a matrix that has nonvanishing entries
+for all pairs $n$, $m$ of lattice sites. Thus $D_{\mathrm{ov}}(n|m) \neq 0$ for
+all $n$, $m$ and the overlap operator is not an ultralocal operator. General
+arguments that this is true for all solutions of the Ginsparg--Wilson equation
+were given in [55].
+
+However, locality is an essential concept for quantum field theories and its
+violation is punished by noncausal interactions. Thus one has to understand in
+which sense locality has to be manifest for a lattice field theory. A natural
+requirement is that the Dirac operator $D$ falls off exponentially independent
+of $\beta$, i.e., $D$ obeys the bound
+\begin{equation}
+  \left|D(n|m)^{ab}_{\alpha\beta}\right| \leq C\,\exp\left(-\gamma\,\|n-m\|\right),
+\end{equation}
+where the constants $C$ and $\gamma$ are independent of the gauge field. If
+such a bound holds, then the interaction range $1/\gamma$ is a fixed distance
+in lattice units. However, when expressed in physical units, this distance
+decreases as we let $a \to 0$ in order to approach the continuum limit. Thus,
+the interaction range in physical units, $a/\gamma$, shrinks to zero and in
+the continuum limit we recover a local field theory. For the overlap operator
+locality in the sense of (7.83) was established in [56], both with analytical
+arguments and a numerical investigation. There it was also demonstrated that
+the parameter $s$ in (7.80) can be tuned to optimize locality.
+
+\subsection{Numerical evaluation of the overlap operator}
+
+Numerically the main problem is to compute the sign function of the operator
+$H$. Formally it is well defined through the spectral theorem:
+\begin{equation}
+  \mathrm{sign}[H] = \mathrm{sign}\left[\sum_i \lambda_i \ket{i}\bra{i}\right]
+  = \sum_i \mathrm{sign}(\lambda_i)\,\ket{i}\bra{i} .
+\end{equation}
+Only for exactly vanishing eigenvalues of $H$, a numerically highly improbable
+case, one introduces a ``tie-breaker,'' e.g., a randomly chosen $\pm 1$
+replacing sign $\lambda$. However, for the huge Dirac matrices exact complete
+diagonalization is prohibitively expensive and therefore methods based on
+(7.84) are not applied except for some few test cases.
+
+In most computations one utilizes instead
+\begin{equation}
+  \mathrm{sign}[H] = H\,|H|^{-1} = H\left(H^2\right)^{-1/2}
+\end{equation}
+and approximates $(H^2)^{-1/2}$ by either a polynomial in $H^2$ or a ratio of
+polynomials. The convergence of such an approximations depends on the actual
+matrix $H$, in particular on its eigenvalues, and therefore also on the current
+gauge field configuration. Smaller eigenvalues of $H$ will lead to worse
+convergence in general. As discussed in Sect.~6.2.5 the fluctuations of the
+real eigenvalues of the Wilson Dirac operator are nonnegligible. A real
+eigenvalue of $D_W$ in the vicinity of $(1+s)/a$ will give rise to a small
+eigenvalue of $H$ leading to numerical problems. The situation can be improved
+by applying smearing techniques (compare Sect.~6.2.6) or by using for the
+overlap projection a different kernel operator which already approximates a
+solution of the Ginsparg--Wilson equation.
+
+For the numerical evaluation of the sign function we discuss here the two most
+popular approximation methods and the so-called small eigenmode reduction
+technique. Comparative studies are, e.g., found in [57--59].
+
+\textbf{Polynomial approximation:} The Chebyshev polynomials $T_n(x)$ are
+orthogonal polynomials with regard to the scalar product
+\begin{equation}
+  (f, g) \equiv \int_{-1}^{1} dx\,\frac{f(x)g(x)}{\sqrt{1-x^2}},
+\end{equation}
+normalized such that $(T_n, T_m) = \delta_{nm}$. A given function $r(x)$ has
+the series expansion
+\begin{equation}
+  r(x) = \sum_{n=0}^{\infty} c_n\,T_n(x) \qquad \text{with} \qquad
+  c_n = (r, T_n) .
+\end{equation}
+The series converges pointwise for functions which are continuous in $[-1, 1]$
+up to a finite number of discontinuities in that interval. For the truncated
+series
+\begin{equation}
+  r(x) \approx \sum_{n=0}^{N-1} c_n\,T_n(x),
+\end{equation}
+the error is spread smoothly over the interval $-1 \leq x \leq 1$. The
+coefficients for the truncated series may be approximated by
+\begin{equation}
+  c_n = \frac{\pi}{N}\sum_{k=1}^{N} r(x_k)\,T_n(x_k),
+  \qquad \text{where} \qquad
+  x_k = \cos\!\left(\frac{\pi}{N}\left(k-\frac{1}{2}\right)\right) .
+\end{equation}
+Following [36, 60] we apply the method to computing the inverse square root of
+$H^2$. It can be shown that for $|s| \leq 1$, $\|H\| \leq 8$ (in lattice
+units). We denote the (in magnitude) smallest and the largest eigenvalues of
+$H$ with $\alpha$ and $\beta$. Consequently $H^2$ has eigenvalues $\lambda$ in
+an interval $[\alpha^2, \beta^2] \subset [0, 64]$. The general interval
+$\lambda \in [\alpha^2, \beta^2]$ can be mapped into the generic domain
+$x \in [-1, 1]$ by
+\begin{equation}
+  x = \frac{2\lambda - (\beta^2 + \alpha^2)}{\beta^2 - \alpha^2} .
+\end{equation}
+For the inverse square root function in question we then find
+\begin{equation}
+  r(x) = \left[\frac{1}{2}(\beta^2+\alpha^2) + \frac{1}{2}(\beta^2-\alpha^2)x\right]^{-1/2}
+  = \frac{1}{\sqrt{\lambda(x)}},
+\end{equation}
+and with that function the coefficients are computed according to (7.89). The
+approximation of the sign function is then obtained by multiplication with $H$:
+\begin{align}
+  \mathrm{sign}[H] &= \frac{H}{\sqrt{H^2}}
+  = H\sum_{n=0}^{N-1} c_n\,T_n(X)
+    + \order{\exp(-2N|\alpha/\beta|)}, \notag\\
+  \text{with} \qquad
+  X &\equiv \frac{2H^2 - (\beta^2+\alpha^2)\,\mathbb{1}}{\beta^2-\alpha^2} .
+\end{align}
+The error of the approximation series decreases
+$\propto \exp(-2N|\alpha/\beta|)$, i.e., the number of terms necessary for a
+requested accuracy grows proportional to $|\beta/\alpha|$. This ratio is just
+the condition number of $H$: $|\lambda_{\max}/\lambda_{\min}|$. To improve the
+condition number, the method is usually combined with a ``removal'' of small
+eigenmodes of $H$, which we discuss below. The series may have several hundred
+terms and therefore one should use error reducing techniques like the Clenshaw
+recursion relation for summing it [61].
+
+The polynomial approximation is technically simple and quite robust and may be
+straightforwardly applied to the force calculations necessary when introducing
+dynamical fermions (cf. Chap.~8). Theoretical arguments, however, suggest that
+the polynomial approximation is less efficient than the rational approximation
+methods and indeed it is more sensitive to the condition number. In a
+comparison [58] for test examples the polynomial approximation typically
+needed between 1.5 and 4 times more matrix--vector multiplications with the
+operator $H$ than a rational approximation based on the Zolotarev method.
+
+\textbf{Partial fractions \`a la Zolotarev:} In [57, 62] it was suggested to
+approximate $1/\sqrt{x^2}$ by a ratio of polynomials. Meanwhile it has become
+clear [58, 59, 63] that the best such approximation for the square root on an
+interval $x^2 \in [1, \beta^2/\alpha^2]$ is the Zolotarev approximation [64].
+In particular,
+\begin{equation}
+  \frac{1}{\sqrt{x^2}} \approx Q(x^2) = d\prod_{n=1}^{m}
+  \frac{x^2 + c_{2n}}{x^2 + c_{2n-1}},
+  \qquad
+  c_n = \frac{\mathrm{sn}^2\left(nK(k')/(2m+1); k'\right)}
+              {1 - \mathrm{sn}^2\left(nK(k')/(2m+1); k'\right)},
+\end{equation}
+with $k' = \sqrt{1-\alpha/\beta}$ and $K(k')$ is the so-called complete
+elliptic integral and $\mathrm{sn}(u; k)$ denotes a Jacobi elliptic function
+[65].
+
+The normalization constant $d$ may be fixed by requiring $Q(1) = 1$. This
+results in an approximation to the sign function that is bounded by 1 from
+below (on the positive branch). Requesting instead that the approximation
+fluctuates symmetrically around 1 corresponds to setting
+\begin{equation}
+  Q(1) + \frac{\beta^2}{\alpha^2}\,Q\!\left(\frac{\beta^2}{\alpha^2}\right) = 2 .
+\end{equation}
+The rational function can be decomposed into partial fractions such that
+\begin{equation}
+  Q(x^2) = d\,(x^2 + c_{2m})\sum_{n=1}^{m}\frac{b_n}{x^2 + c_{2n-1}},
+\end{equation}
+where the parameters $b_n$ may be computed from (7.93) giving
+\begin{equation}
+  b_n = \frac{\prod_{k=1}^{m-1}(c_{2k} - c_{2n-1})}
+             {\prod_{k=1,\,k\neq n}^{m}(c_{2k-1} - c_{2n-1})} .
+\end{equation}
+In order to apply this to the matrix $H$ we have to scale it by dividing by
+the absolute value of its smallest eigenvalue $|\alpha|$. The final formula for
+the sign function, obtained by multiplication with $H$, thus reads
+\begin{equation}
+  \mathrm{sign}[H] \approx d\,\frac{H}{|\alpha|}\left[\left(\frac{H}{\alpha}\right)^2 + c_{2m}\right]
+  \sum_{n=1}^{m} b_n\left[\left(\frac{H}{\alpha}\right)^2 + c_{2n-1}\right]^{-1} .
+\end{equation}
+Here $\alpha$ and $\beta$ denote the smallest and the largest eigenvalues of
+$H$ and consequently the matrix $(H/\alpha)^2$ has its spectrum in
+$[1, \beta^2/\alpha^2]$, as assumed for expansion (7.93).
+
+Since in an application of (7.97) one always wants to compute the product of
+the overlap matrix with some vector, one may compute the terms of (7.97)
+simultaneously by a multi-shift conjugate gradient solver [66--68], as
+discussed already in Chap.~6 in the context of computing the quark propagators
+for several masses at once. The necessary overhead is small such that the
+computational effort is essentially governed by the smallest $|c_{2n-1}|$.
+
+Compared to other rational approximations, for a given accuracy, the Zolotarev
+method drastically reduces the number of necessary terms in (7.97).
+
+\textbf{Small eigenmode reduction:} In particular the polynomial approximation
+is quite sensitive to the condition number of $H$. For $|s| < 1$ the
+eigenvalues of $H$ are bounded from above, $|\lambda_{\max}| \leq 8$ (lattice
+units), and therefore the true source of trouble is the smallest eigenvalue,
+as discussed earlier. There is a method, however, to deal with cases with very
+small $|\lambda_{\min}|$. We know from the spectral theorem (see
+Appendix~A.5) that
+\begin{align}
+  f[H] &= \sum_i f(\lambda_i)\,v_i v_i^\dagger \notag\\
+  &= \sum_{\lambda_i \geq \lambda_c} f(\lambda_i)\,v_i v_i^\dagger
+    + \sum_{\lambda_i < \lambda_c} f(\lambda_i)\,v_i v_i^\dagger \notag\\
+  &\equiv \sum_{\lambda_i < \lambda_c} f(\lambda_i)\,v_i v_i^\dagger
+    + f\left[H^{\mathrm{(red)}}\right].
+\end{align}
+Here $v_i$ denotes the eigenvector for eigenvalue $\lambda_i$. We may
+therefore split the problem into two parts. First we determine all eigenvalues
+below some value $\lambda_c$ as well as their eigenvectors. Then we define a
+reduced matrix by removing the small eigenvalue sector explicitly:
+\begin{equation}
+  H^{\mathrm{(red)}} \equiv H - \sum_{\lambda_i < \lambda_c}
+  \lambda_i\,v_i v_i^\dagger .
+\end{equation}
+We compute $\mathrm{sign}\,H^{\mathrm{(red)}}$ for this reduced operator,
+which has improved condition number, by some approximation scheme and invoke
+(7.98) to reconstruct
+\begin{equation}
+  \mathrm{sign}[H] = \mathrm{sign}\left[H^{\mathrm{(red)}}\right]
+  + \sum_{\lambda_i < \lambda_c}\mathrm{sign}(\lambda_i)\,v_i v_i^\dagger .
+\end{equation}
+The overhead due to the necessity to compute the low-eigenvalue sector is not
+as disastrous as it may seem. This has to be done only once for a given gauge
+configuration. The multiplication of the overlap Dirac operator (for that gauge
+configuration) with a vector, however, has to be computed quite often, as it is
+usually embedded in, e.g., a conjugate gradient solver used for calculating
+the quark propagator. The effort of computing the, say, lowest 20 eigenvalues
+is therefore in most situations small in comparison to the total cost.
+
+\section*{References}
+
+\begin{enumerate}[label={[\arabic*]}]
+  \item J.~S.~Bell and R.~Jackiw: Nuovo Cimento 60A, 47 (1969).
+  \item S.~L.~Adler: Phys.~Rev.~177, 2426 (1969).
+  \item C.~Itzykson and J.-B.~Zuber: \emph{Quantum Field Theory} (McGraw-Hill,
+        New York 1985).
+  \item M.~E.~Peskin and D.~V.~Schroeder: \emph{An Introduction to Quantum
+        Field Theory} (Addison-Wesley, Reading, Massachusetts 1995).
+  \item H.~B.~Nielsen and M.~Ninomiya: Phys.~Lett.~B 105, 219 (1981).
+  \item H.~B.~Nielsen and M.~Ninomiya: Nucl.~Phys.~B 185, 20 (1981).
+  \item H.~B.~Nielsen and M.~Ninomiya: Nucl.~Phys.~B 193, 173 (1981).
+  \item L.~H.~Karsten: Phys.~Lett.~B 192, 315 (1981).
+  \item P.~H.~Ginsparg and K.~G.~Wilson: Phys.~Rev.~D 25, 2649 (1982).
+  \item P.~Hasenfratz: Nucl.~Phys.~B (Proc.~Suppl.) 63A--C, 53 (1998).
+  \item H.~Neuberger: Phys.~Lett.~B 427, 353 (1998).
+  \item M.~L\"uscher: Phys.~Lett.~B 428, 342 (1998).
+  \item S.~Chandrasekharan: Phys.~Rev.~D 60, 074503 (1999).
+  \item M.~Atiyah and I.~M.~Singer: Ann.~Math.~93, 139 (1971).
+  \item P.~Hasenfratz, V.~Laliena, and F.~Niedermayer: Phys.~Lett.~B 427, 125 (1998).
+  \item A.~A.~Belavin, A.~M.~Polyakov, A.~S.~Schwartz, and Y.~S.~Tyupkin:
+        Phys.~Lett.~B 59, 85 (1975).
+  \item T.~Sch\"afer and E.~Shuryak: Rev.~Mod.~Phys.~70, 323 (1998).
+  \item D.~Diakonov: Prog.~Part.~Nucl.~Phys.~51, 173 (2003).
+  \item R.~Rajaraman: \emph{Solitons and Instantons} (North Holland Publishers,
+        Amsterdam 1982).
+  \item Y.~Kikukawa and A.~Yamada: Phys.~Lett.~B 448, 265 (1999).
+  \item K.~Fujikawa: Nucl.~Phys.~B 546, 480 (1999).
+  \item H.~Leutwyler and A.~Smilga: Phys.~Rev.~D 46, 5607 (1992).
+  \item C.~Gattringer, R.~Hoffmann, and S.~Schaefer: Phys.~Lett.~B 535, 358 (2002).
+  \item L.~Del Debbio and C.~Pica: JHEP 0402, 003 (2004).
+  \item L.~Del Debbio, L.~Giusti, and C.~Pica: Phys.~Rev.~Lett.~94, 032003 (2005).
+  \item E.~Witten: Nucl.~Phys.~B 156, 269 (1979).
+  \item G.~Veneziano: Nucl.~Phys.~B 159, 213 (1979).
+  \item G.~Veneziano: Phys.~Lett.~B 95, 90 (1980).
+  \item L.~Giusti, G.~Rossi, M.~Testa, and G.~Veneziano: Nucl.~Phys.~B 628, 234 (2002).
+  \item E.~Seiler: Phys.~Lett.~B 525, 355 (2002).
+  \item L.~Giusti, G.~Rossi, and M.~Testa: Phys.~Lett.~B 587, 157 (2004).
+  \item M.~L\"uscher: Phys.~Lett.~B 593, 296 (2004).
+  \item M.~Aguado and E.~Seiler: Phys.~Rev.~D 72, 094502 (2005).
+  \item J.~Osborn, D.~Toublan, and J.~Verbaarschot: Nucl.~Phys.~B 540, 317 (1999).
+  \item P.~H.~Damgaard, J.~C.~Osborn, D.~Toublan, and J.~J.~Verbaarschot:
+        Nucl.~Phys.~B 547, 305 (1999).
+  \item P.~Hern\'andez, K.~Jansen, and L.~Lellouch: Phys.~Lett.~B 469, 198 (1999).
+  \item P.~Hasenfratz et al.: Nucl.~Phys.~B 643, 280 (2002).
+  \item T.~DeGrand: Phys.~Rev.~D 63, 034503 (2000).
+  \item L.~Giusti, C.~Hoelbling, and C.~Rebbi: Phys.~Rev.~D 64, 114508 (2001).
+  \item T.~Banks and A.~Casher: Nucl.~Phys.~B 169, 103 (1980).
+  \item F.~Constantinescu: \emph{Distributions and Their Applications in
+        Physics} (Pergamon Press, Oxford 1980).
+\end{enumerate}

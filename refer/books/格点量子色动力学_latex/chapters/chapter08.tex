@@ -1,0 +1,660 @@
+% =====================================================================
+%  Chapter 8: Dynamical fermions
+%  Gattringer & Lang, "Quantum Chromodynamics on the Lattice" (LNP 788)
+%  Reconstructed from extract/ch08.txt; equations auto-numbered.
+% =====================================================================
+
+\chapter{动力学费米子}
+
+QCD 是胶子与夸克的量子场论。在之前的章节中我们已经发现，对于胶子而言，在蒙特卡罗模拟中包含完整的动力学行为是直接的，但对于夸克却并非如此。本章我们讨论仍然缺失的一环：动力学夸克。含动力学费米子的计算比淬火计算要困难得多，需要新的算法思想来纳入费米子行列式。在本章中我们介绍其中一些算法与技术。随后我们讨论耦合-质量相图，并介绍一些动力学 QCD 计算的结果。
+
+\section{费米子行列式的多重面貌}
+
+在路径积分中，只要费米子在作用量中呈双线性出现，格拉斯曼积分就可以解析地算出，结果作为费米子行列式因子出现。作为例子，我们引用第 6.1.5 节给出的味三重态介子两点函数的表达式，
+\begin{equation}
+\begin{split}
+\ev{O_T(n)\,O_T(m)} &= -\frac{1}{Z}\int D[U]\,e^{-S_G[U]}\det[D_u]\det[D_d]\\
+&\qquad\times \tr\!\big[\Gamma D_u^{-1}(n|m)\,\Gamma D_d^{-1}(m|n)\big],\\
+Z &= \int D[U]\,e^{-S_G[U]}\det[D_u]\det[D_d].
+\end{split}
+\end{equation}
+介子插值算符被转化为夸克传播子的乘积，每一种夸克味贡献一个费米子行列式因子。在我们的例子中考虑了最轻的两种夸克 $u$ 和 $d$。在第 6.1.6 节讨论的淬火近似中，行列式被人为地设为 1。这等价于忽略夸克的真空圈（见图 6.2）。这里我们现在计入费米子的效应。我们要强调，费米子行列式是规范场的泛函，对每一个规范组态都必须重新计算。即使对中等大小的格点，狄拉克算符也是一个巨大的矩阵，有 $N = 12|\Lambda|$ 行和列，其中 12 是色与狄拉克指标的乘积，$|\Lambda|$ 是格点总数。这个数目很容易超过一百万。即使只计算这样一个行列式（其形式上包含 $N!$ 个贡献项）的闭式表达式，其计算代价也是高得难以承受的。
+
+\subsection{将费米子行列式作为观测量}
+
+让我们暂时忘记高计算代价这一技术问题。对于小的格点尺寸和少数几个组态，直接确定行列式当然是可行的。在这种情况下，可以尝试把行列式当作观测量的组成部分，并把 (8.1) 改写为
+\begin{equation}
+\ev{O(U,\psi,\bar{\psi})} = \frac{\ev{\det[D_u]\det[D_d]\,O[U]}_G}{\ev{\det[D_u]\det[D_d]}_G}.
+\end{equation}
+其中期望值 $\ev{\cdots}_G$ 用纯规范理论的路径积分计算，
+\begin{equation}
+\ev{A}_G = \frac{1}{Z_G}\int D[U]\,e^{-S_G[U]}A[U], \qquad
+Z_G = \int D[U]\,e^{-S_G[U]}.
+\end{equation}
+虽然把行列式作为观测量的想法颇具吸引力，但它有一个严重的缺陷：行列式随规范组态不同可能取差别很大的值，通常跨越好几个数量级。在对所有组态求和时，这会导致围绕平均值的大幅涨落，从而产生内在的不稳定性。事实上，按照 (8.3) 对规范组态进行的分布，与在蒙特卡罗生成组态时同时把行列式计入权重所得到的分布差别很大。
+因此，把行列式作为观测量处理，在数值上只有对极大的统计量才说得通。只有在较低维数下（例如二维 Schwinger 模型），这样的方法才得到了可接受的结果。
+
+\subsection{将费米子行列式作为权重因子}
+
+为了得到分布适当的规范组态，人们尝试在生成规范组态的马尔可夫链时把行列式作为概率权重因子包含进来。于是规范场 $U$ 按照联合分布（对两种动力学夸克味）分布，
+\begin{equation}
+\frac{1}{Z}\,e^{-S_G[U]}\det[D_u]\det[D_d].
+\end{equation}
+一旦规范组态按照这一分布生成，观测量就在这些规范组态上按照第 4 章和第 6 章讨论的方法计算。
+
+然而，存在一个潜在的问题：如果我们想把费米子行列式的贡献解释为概率权重中的一个因子，它必须是实数且非负的。在大多数情况下，可以利用 $D$ 的 $\gamma_5$-厄米性（见 (5.76)），即 $\gamma_5 D \gamma_5 = D^\dagger$，来证明行列式是实数：
+\begin{equation}
+\det[D]^* = \det[D^\dagger] = \det[\gamma_5 D\gamma_5] = \det[D].
+\end{equation}
+但是，行列式仍然可能是实数但为负。一个具有物理根据的（见 (7.21)）可能解决办法是假设 $u$ 和 $d$ 夸克质量简并，从而 $D_u = D_d \equiv D$。更一般地，对于偶数个质量简并的夸克，费米子行列式被提升到偶数次幂，合成的权重因子是非负的。这样就不会遇到将其解释为概率权重的原则性障碍。对于两种简并味的情况，我们可以利用 (8.5) 写出
+\begin{equation}
+0 \le \det[D]\det[D] = \det[D]\det[D^\dagger] = \det[DD^\dagger].
+\end{equation}
+在最后一步，我们把两味的两个行列式的乘积改写为厄米矩阵 $DD^\dagger$ 的单个行列式，这一形式以后会有用。
+如果除了 $\gamma_5$-厄米性之外，狄拉克算符还是手征的（在夸克质量为零时），它就满足形如 (7.48) 的 Ginsparg--Wilson 方程。无质量情形下的谱就限制在图 7.1 所示的 Ginsparg--Wilson 圆上。由于本征值成复共轭对出现（参见 (7.45)），行列式是实数且非负的。如果引入质量项，行列式甚至是严格正的。因此，对于手征的 $\gamma_5$-厄米狄拉克算符，费米子行列式的奇数次幂也能给出适当的概率权重。
+在一些特殊但重要的情形下，例如引入化学势或 $\theta$-角时，$\gamma_5$-厄米性不再成立，行列式甚至可能是复的。这些情形需要用不同的方法处理（见第 12 章）。
+
+\subsection{赝费米子}
+
+在规范场的蒙特卡罗抽样中引入动力学费米子的核心思想，基于费米型与玻色型高斯积分之间的类比。考虑 $N$ 个复变量的矢量 $\varphi = \varphi_R + i\varphi_I$，以及一个本征值为 $\lambda$、且所有本征值都有正实部 $\Re\lambda > 0$ 的矩阵 $A$。那么可以计算一个与 (5.32) 等价的高斯积分，得到生成泛函
+\begin{equation}
+\begin{split}
+W[\chi,\chi^\dagger] &\equiv \int_{\mathbb{R}^{2N}}\Big(\prod_{i=1}^{N}d\varphi_{R,i}\,d\varphi_{I,i}\Big)
+\exp\Big(-\sum_{i,j=1}^{N}\varphi_i^\dagger A_{ij}\varphi_j\\
+&\qquad\qquad + \sum_{i=1}^{N}\varphi_i^\dagger\chi_i + \sum_{i=1}^{N}\chi_i^\dagger\varphi_i\Big)\\
+&= \frac{\pi^N}{|\det[A]|}\exp\Big(\sum_{i,j=1}^{N}\chi_i^\dagger(A^{-1})_{ij}\chi_j\Big).
+\end{split}
+\end{equation}
+除一个无关紧要的因子 $\pi^N$ 外，结果与相应的格拉斯曼积分一致，只是行列式现在出现在分母中。为简便起见，我们再次引入缩写
+$\int D[\varphi_R]D[\varphi_I] \equiv \prod_i d\varphi_{R,i}\,d\varphi_{I,i}$。
+这一对应关系促成了所谓的赝费米子的引入。它们是玻色子，自由度数目与费米子变量相同。它们有两种不同的用途：
+\begin{itemize}
+  \item 取 $A \equiv (DD^\dagger)^{-1}$，可以将费米子行列式表示成玻色子场的高斯积分。在这种用途下我们称这些变量为赝费米子场（见下文）。
+  \item 取 $A \equiv (DD^\dagger)$，可以利用该高斯积分来估计 $D^{-1}(n|m)$ 这样的矩阵元或 $\tr[D^{-1}]$ 这样的求和。这种蒙特卡罗求和会引入统计噪声，因此我们称这些变量为噪声赝费米子，用来构造噪声赝费米子估计器。这些技术将在第 8.4 节讨论。
+\end{itemize}
+
+对于本征值都不为零的 $D$，我们有
+$\det[D] = 1/\det[D^{-1}]$。因此可以进一步利用玻色子-费米子类比。文献 [1] 通过如下观察引入了赝费米子场，即从 (8.7) 可以得到
+\begin{equation}
+\det[DD^\dagger] = \pi^{-N}\int D[\varphi_R]D[\varphi_I]\,e^{-\varphi^\dagger(DD^\dagger)^{-1}\varphi},
+\end{equation}
+其中我们略去了色、狄拉克、味和格点指标，对 $\varphi$ 和 $D$ 采用矢量/矩阵记号。人们用这一关系把两种质量简并味的费米子格拉斯曼变量积分替换为玻色子变量的积分，
+\begin{equation}
+\int D[\psi]D[\bar{\psi}]\,e^{-\bar{\psi}_u D\psi_u - \bar{\psi}_d D\psi_d}
+= \pi^{-N}\int D[\varphi_R]D[\varphi_I]\,e^{-\varphi^\dagger(DD^\dagger)^{-1}\varphi}.
+\end{equation}
+在这一表述中，给定质量的费米子数目必须是偶数，以保证正性，这是高斯积分收敛所必需的。有效的玻色子相互作用包含逆矩阵 $(DD^\dagger)^{-1}$，因此是高度非局域的。
+
+\subsection{有效费米子作用量}
+
+理解费米子行列式的一个有用的方式是把它解释为对规范作用量的额外贡献，即所谓的有效费米子作用量。利用 (A.54) 把行列式写成指数形式，我们得到
+\begin{equation}
+\det[D] = \exp(\tr[\ln(D)]) \equiv \exp(-S_F^{\mathrm{eff}}), \qquad
+S_F^{\mathrm{eff}}[U] = -\tr[\ln(D)].
+\end{equation}
+这里我们假设 $\det[D]$ 是实数且为正，即 $D$ 要么是手征的 $\gamma_5$-厄米矩阵加上质量项，要么我们处理两种味并且按照 (8.6) 用 $DD^\dagger$ 替换 $D$。
+
+与局域的规范作用量相反，有效费米子作用量是一个非常非局域的量，它基本上把系统的所有规范变量相互联系起来。这里我们用术语非局域和局域来区分耦合是作用于系统的所有变量还是只作用于邻域内的场变量。后者常被称为超局域（ultralocal），以区别于仅在连续极限下才是局域的情形——后者只需证明对远处场变量的耦合随距离指数衰减即可（比较第 7.4.2 节关于狄拉克算符局域性性质的讨论）。
+
+按照组合玻尔兹曼权重因子
+\begin{equation}
+\exp(-S[U]) \qquad \text{with} \qquad S[U] = S_G[U] + S_F^{\mathrm{eff}}[U]
+\end{equation}
+生成规范组态，是纳入动力学费米子的一种可能方式。为了按照分布 (8.11) 生成规范组态序列，我们需要总作用量的变化
+\begin{equation}
+\exp(-S[U'] + S[U]) = \exp(-S_G[U'] + S_G[U])\,
+  \exp(-S_F^{\mathrm{eff}}[U'] + S_F^{\mathrm{eff}}[U])
+\end{equation}
+用于 Metropolis 步骤，在该步骤中我们决定接受候选组态 $U'$ 还是拒绝它。计算来自规范作用量的因子很简单（比较第 4.1 节）。第二项来自有效费米子作用量，需要新的技术。
+
+\subsection{费米子更新的初步尝试}
+
+在我们更详细地描述现代费米子算法之前，先简要讨论一些更新的一般思想。不同方法的区别在于作用量变化的确定方式，以及计算机时间对格点体积和费米子质量的依赖：
+\begin{itemize}
+  \item 全局改变规范场，以行列式作为权重因子接受：我们按第 8.4 节讨论的随机方法估计比值
+        \begin{equation}
+        \exp(-\Delta S_F^{\mathrm{eff}})
+        \equiv \exp(-S_F^{\mathrm{eff}}[U'] + S_F^{\mathrm{eff}}[U])
+        = \frac{\det[D[U']]}{\det[D[U]]}
+        \end{equation}
+  \item 小步长，用对规范变量变化基本线性的近似来估计 $\Delta S_F^{\mathrm{eff}}$。由于这种近似，误差可能累积，因此必须依赖纠正措施。
+\end{itemize}
+
+这两条路径都有人采用过。
+
+例如，在 Metropolis 步骤中更新单个规范链环变量需要确定作用量的变化。为此必须计算 $D^{-1}$ 作用在一个矢量上，通常使用共轭梯度算法（见第 8.2.3 节）。假设所需的迭代次数只弱依赖于体积，这样一次求逆需要的计算机时间与格点体积成正比。接受率可能是合理的，但这一计算必须对每次规范变量变化都重复进行，因此整个算法的代价随 $V^2$ 增长。
+另一方面，考虑全局更新（所有链环变量都改变）或部分全局更新（参见 [2]），作用量的变化通常与体积成正比，接受率随体积指数下降。因此必须把步长按体积的倒数减小，这同样导致计算量随体积平方增长。
+然而，还有一些性能好得多的算法，它们基于赝费米子场概念。其思想是不完全随机地选择规范场的变化，而是沿着由作用量确定的方向进行。这会引入偏差，但在更新中有办法有效地消除这一偏差，使细致平衡得到满足。所谓的混合蒙特卡罗（HMC）算法就是这样一种方法，我们接下来讨论。
+
+\section{混合蒙特卡罗}
+
+对由规范场作用量和有效费米子作用量定义的分布 $P_S(U) \propto \exp(-S)$ 中规范场变量的更新分为两部分。首先必须为规范变量的变化找到一个合理的候选。这引入了一个先验选择概率因子 $T_0(U'|U)$（比较第 4.1.3 节）。第二步根据接受概率 $T_A(U'|U)$ 决定接受还是拒绝新组态。两步合起来给出总的跃迁概率
+\begin{equation}
+T(U'|U) = T_A(U'|U)\,T_0(U'|U).
+\end{equation}
+$T(U'|U)$ 的细致平衡条件 (4.15) 可以用遵循 (4.16) 的 Metropolis 接受-拒绝概率来满足。
+
+如果只考虑规范场作用量，两步都是简单的，因为规范作用量是超局域的（参见第 4 章）。因此计算规范作用量的变化很便宜，可以对变量做小的改变，甚至可能只改变一个链环，然后决定接受还是拒绝这个改变。把这一点应用于包含费米子的完整作用量在计算上代价高昂，因为行列式导致 $S^{\mathrm{eff}}$ 是非局域的，从而即使只改变一个规范链环，计算作用量的变化也涉及所有链环变量。因此人们尝试在一步中更新许多变量。
+
+如果以幼稚的方式来做这件事，通常会导致作用量的大变化和极小的接受概率，因而是低效的。理想情况下，接受概率应该很大且只弱依赖于体积。同时，相邻组态之间的自关联应尽可能小。
+有各种策略可以找到有合理机会被接受的新组态。我们现在讨论微分方程方法。
+
+\subsection{分子动力学蛙跳演化}
+
+首先让我们看看基本概念：一个在计算机时间（马尔可夫时间）$\tau$ 中演化的哈密顿过程。为了聚焦核心思想，我们先用实标量场 $Q$ 来讨论该方法。为表述简便，我们略去该场的格点指标，采用矢量/矩阵记号。使用规范变量会带来技术上的复杂性，这将在后面处理。与玻色子场变量 $Q$ 共轭，我们引入实动量 $P$，并把某个观测量 $O$ 的真空期望值公式写成
+\begin{equation}
+\ev{O}_Q = \frac{\int D[Q]\,e^{-S[Q]}\,O[Q]}{\int D[Q]\,e^{-S[Q]}}
+= \frac{\int D[Q]D[P]\,e^{-\half P^2 - S[Q]}\,O[Q]}
+        {\int D[Q]D[P]\,e^{-\half P^2 - S[Q]}}
+= \ev{O}_{P,Q}.
+\end{equation}
+为了举例说明我们矢量/矩阵记号的使用，我们指出 $P^2$ 代表
+\begin{equation}
+P^2 = \sum_{n\in\Lambda}P(n)^2.
+\end{equation}
+(8.15) 中的第二种形式是等价的，因为在期望值中 $P$ 的高斯积分会消去。在大体积极限下，这一新形式代表一个经典（非相对论）系统的微正则系综，其哈密顿量为
+\begin{equation}
+H[Q,P] \equiv \half P^2 + S[Q].
+\end{equation}
+这一系统（在计算机时间中）的经典运动方程为
+\begin{equation}
+\dot{P} = -\frac{\partial H}{\partial Q} = -\frac{\partial S}{\partial Q},
+\qquad \dot{Q} = \frac{\partial H}{\partial P} = P.
+\end{equation}
+这里用于导数的记号是与我们的矢量/矩阵约定相一致的简写记号，表示对单个格点上的场值求导。
+
+方程 (8.18) 被称为分子动力学方程，因为它们决定经典粒子系统的时间演化。哈密顿量是运动常数，组态 $(P,Q)$ 的路径位于相空间中恒定能量的超曲面上，因此如果 (8.18) 的演化能精确完成，路径就总是会被接受。
+方程 (8.18) 可以数值演化，根据 (8.15)，我们可以从 $Q$--$P$ 系综提取所要求的期望值 $\ev{O}_Q$。我们要强调，还必须证明这一演化给出的更新对所关注的场（即此处的场 $Q$）是遍历的。
+将微正则演化用于纯规范理论是在 [3] 中提出的，用于费米子是在 [4] 中提出的。这类分子动力学演化方程也与随机微分方程（如 Langevin 方程）密切相关，后者中经典演化被噪声项扰动。随机噪声给出量子场论的量子涨落 [5, 6]。按高斯分布随机改变共轭动量，并在这些改变之间沿微正则路径行进，由此产生了所谓的混合算法 [7, 8]。
+(8.18) 的数值实现引入了离散步长 $\varepsilon \equiv \Delta\tau$，数值误差不可避免。一个简单的线性演化方案引入 $\order{\varepsilon^2}$ 的误差。要么找到一种方法把结果外推到步长趋于零，要么引入一个纠正步骤。后一种思想导致了混合蒙特卡罗算法。
+我们把沿近似分子动力学演化的一系列小步称为一条轨迹。对于 HMC 方法，首先沿这样一条轨迹演化构造一个新组态，然后在 Metropolis 步骤中决定是否接受新组态。
+可以证明，为了满足细致平衡条件 (4.15)，我们对分子动力学轨迹需要两个要求：
+\begin{itemize}
+  \item 积分测度 $D[Q]D[P]$ 的面积保持（保体积性）。
+  \item 轨迹的可逆性，
+        $T_{\mathrm{md}}(P',Q'|P,Q) = T_{\mathrm{md}}(-P,Q|-P',Q')$。
+\end{itemize}
+
+可逆性可以通过所谓的蛙跳（leapfrog）积分方案实现（假设算术精度无限）：$Q$ 以长度为 $\varepsilon$ 的 $n$ 步演化，而共轭动量先走半个步长 $\varepsilon/2$，然后走 $(n-1)$ 个整步，最后再走半个步长。我们针对这样的一步
+\begin{equation}
+Q(0) \to Q(\varepsilon), \qquad
+P(0) \to P(\tfrac{\varepsilon}{2}) \to P(\varepsilon),
+\end{equation}
+来讨论所需的两个性质，面积保持与可逆性，而更长的轨迹由若干这样的步组合而成。最简单的 Euler 积分方案对应下列方程
+\begin{equation}
+\begin{split}
+Q(\varepsilon) &= Q(0) + P(\tfrac{\varepsilon}{2})\,\varepsilon, \\
+P(\tfrac{\varepsilon}{2}) &= P(0) - \left.\frac{\partial S}{\partial Q}\right|_{Q(0)}\frac{\varepsilon}{2}, \\
+P(\varepsilon) &= P(\tfrac{\varepsilon}{2}) - \left.\frac{\partial S}{\partial Q}\right|_{Q(\varepsilon)}\frac{\varepsilon}{2}.
+\end{split}
+\end{equation}
+
+积分的面积保持可以从这一序列的雅可比行列式之积来证明\footnote{为记号方便，我们采用 $Q(n\varepsilon) \equiv Q_n$ 和 $P(n\varepsilon) \equiv P_n$。}：
+\begin{equation}
+\det\frac{\partial(P_1,Q_1)}{\partial(P_0,Q_0)}
+= \det\frac{\partial(P_1,Q_1)}{\partial(P_{1/2},Q_1)}\,
+  \det\frac{\partial(P_{1/2},Q_1)}{\partial(P_{1/2},Q_0)}\,
+  \det\frac{\partial(P_{1/2},Q_0)}{\partial(P_0,Q_0)}.
+\end{equation}
+右边分解为三个三角矩阵的行列式之积，例如
+\begin{equation}
+\det\frac{\partial(P_{1/2},Q_0)}{\partial(P_0,Q_0)}
+= \det\begin{pmatrix} 1 & \cdots \\ 0 & 1 \end{pmatrix} = 1,
+\end{equation}
+其余雅可比行列式同样处理。因此总雅可比行列式为 1，积分测度不变。
+
+为了检验可逆性，我们先把方程 (8.20) 从时间 0 处的某个初始值 $(Q_0,P_0)$ 开始组合起来。我们得到
+\begin{equation}
+\begin{split}
+Q_1 &= Q_0 + P_0\varepsilon - \half\left.\frac{\partial S}{\partial Q}\right|_{Q_0}\varepsilon^2, \\
+P_1 &= P_0 - \half\Big(\left.\frac{\partial S}{\partial Q}\right|_{Q_0}
+  + \left.\frac{\partial S}{\partial Q}\right|_{Q_1}\Big)\varepsilon.
+\end{split}
+\end{equation}
+向后走一步对应从 $(Q_1,P_1)$ 出发，以负步长 $-\varepsilon$ 应用这些方程。我们得到
+\begin{equation}
+\begin{split}
+Q(\varepsilon - \varepsilon) = Q_0 &= Q_1 - P_1\varepsilon
+  - \half\left.\frac{\partial S}{\partial Q}\right|_{Q_1}\varepsilon^2 \\
+&= Q_1 - P_0\varepsilon + \half\Big(\left.\frac{\partial S}{\partial Q}\right|_{Q_0}
+  + \left.\frac{\partial S}{\partial Q}\right|_{Q_1}\Big)\varepsilon^2
+  - \half\left.\frac{\partial S}{\partial Q}\right|_{Q_1}\varepsilon^2 \\
+&= Q_1 - P_0\varepsilon + \half\left.\frac{\partial S}{\partial Q}\right|_{Q_0}\varepsilon^2
+  = Q_0, \\
+P(\varepsilon - \varepsilon) = P_0 &= P_1 + \half\Big(\left.\frac{\partial S}{\partial Q}\right|_{Q_1}
+  + \left.\frac{\partial S}{\partial Q}\right|_{Q_0}\Big)\varepsilon = P_0.
+\end{split}
+\end{equation}
+于是我们回到了起点，可逆性得到确立。在上述方程中，时间总是乘以 $P$，因此这等价于说演化满足 $T_{\mathrm{md}}(P',Q'|P,Q) = T_{\mathrm{md}}(-P,Q|-P',Q')$，正如所要求的。实际上，$P$ 的符号可以反转，因为 $P$ 在分布中以二次形式出现，从而
+$T_{\mathrm{md}}(P',Q'|P,Q) = T_{\mathrm{md}}(P,Q|P',Q')$。
+可以把 $n$ 个蛙跳步 (8.23) 组合起来构造一条长度为 $n\varepsilon \approx 1$ 的轨迹。这相当于在 (8.20) 中插入 $Q$ 和 $P$ 各自的一串整步。半步的离散化误差为 $\order{\varepsilon^2}$，整步的为 $\order{\varepsilon^3}$。在典型计算中这样一步的数目约为 $\order{100}$。
+
+\subsection{用接受-拒绝步骤完成 HMC}
+
+一旦作为蛙跳分子动力学轨迹终点的新组态提议产生，它只以取决于总玻尔兹曼因子变化的概率被接受。这是必要的，因为 (8.18) 的演化由于 $\order{\varepsilon^2}$ 误差而不精确。因此完整的 HMC 步骤由以下部分组成：
+\begin{itemize}
+  \item 给定组态 $Q$，从高斯分布 $P_G(P) \propto \exp(-P^2/2)$ 生成一组共轭动量 $P$。
+  \item 分子动力学轨迹把组态 $(P,Q)$ 带到组态 $(P(\tau + n\varepsilon), Q(\tau + n\varepsilon))
+        \equiv (P',Q')$。如上所述，这是一个确定性过程，满足
+        \begin{equation}
+        T_{\mathrm{md}}(P',Q'|P,Q) = T_{\mathrm{md}}(-P,Q|-P',Q').
+        \end{equation}
+  \item 新组态以如下概率被接受（见 (4.16)）
+        \begin{equation}
+        T_A(P',Q'|P,Q) = \min\!\Big(1, \frac{\exp(-H[P',Q'])}{\exp(-H[P,Q])}\Big).
+        \end{equation}
+\end{itemize}
+
+现在我们证明这是组态马尔可夫链中一个有效的 Metropolis 步骤，即我们证明该算法的细致平衡。从 $Q$ 移动到 $Q'$ 的总概率来自对所有 $P$ 和 $P'$ 的积分，
+\begin{equation}
+T(Q'|Q) = \int D[P]D[P']\,T_A(P',Q'|P,Q)\,T_{\mathrm{md}}(P',Q'|P,Q)\,e^{-P^2/2}.
+\end{equation}
+然后我们作变换
+\begin{equation}
+\begin{split}
+e^{-P^2/2-S[Q]}\,T_A(P',Q'|P,Q)
+&= e^{-P^2/2-S[Q]}\min\!\Big(1,\frac{e^{-P'^2/2-S[Q']}}{e^{-P^2/2-S[Q]}}\Big)\\
+&= e^{-P'^2/2-S[Q']+P^2/2+S[Q]}
+   \min\!\Big(\frac{e^{-P^2/2-S[Q]}}{e^{-P'^2/2-S[Q']}},1\Big)\\
+&= e^{-P'^2/2-S[Q']+P^2/2+S[Q]}\,T_A(P,Q|P',Q')\\
+&= e^{-P'^2/2-S[Q']+P^2/2+S[Q]}\,T_A(-P,Q|-P',Q').
+\end{split}
+\end{equation}
+在最后一步中我们用了 $T_A$ 显然对动量变量为偶函数。考虑分子动力学演化的可逆性 (8.25)，积分 (8.27) 变为
+\begin{equation}
+\begin{split}
+T(Q'|Q) &= \int D[P]D[P']\,T_A(P',Q'|P,Q)\,T_{\mathrm{md}}(P',Q'|P,Q)\,e^{-P^2/2}\\
+&= \int D[P]D[P']\,T_A(-P,Q|-P',Q')\,T_{\mathrm{md}}(-P,Q|-P',Q')\\
+&\qquad \times e^{-S[Q']+S[Q]}\,e^{-P^2/2}\\
+&= \int D[P]D[P']\,T_A(P,Q|P',Q')\,T_{\mathrm{md}}(P,Q|P',Q')\\
+&\qquad \times e^{-S[Q']+S[Q]}\,e^{-P^2/2}.
+\end{split}
+\end{equation}
+第二步可行，是因为积分测度在所有动量改变符号下不变。乘以 $\exp(-S[Q])$ 并与 (8.27) 比较，得到
+\begin{equation}
+e^{-S[Q]}T(Q'|Q) = e^{-S[Q']}T(Q|Q').
+\end{equation}
+这就是分布概率 $\exp(-S[Q])$ 的细致平衡方程 (4.15)，证明完成。
+如果分子动力学方程在数值上被精确实现，那么 $H[P',Q'] = H[P,Q]$，接受概率 (8.26) 变为 1。因此蒙特卡罗步骤纠正了离散化中的数值误差。但还不止这些。有时候在计算上可能更有利的是用另一个更简单的（例如）作用量 $S'$ 演化分子动力学轨迹，而在 (8.26) 中用期望的作用量 $S$ 来决定是否接受这个变化。这是完全合法的。不过它会影响接受率，如果两个作用量在任何显著方面不同，接受率可能变得很小。
+
+\subsection{对规范场和费米子实现 HMC}
+
+现在让我们把 HMC 更新应用到具有两种动力学、质量简并夸克味的 QCD 上。按 (8.8) 用赝费米子改写行列式，我们得到赝费米子场 $\varphi$ 和规范场 $U$ 以玻尔兹曼权重因子分布的系综
+\begin{equation}
+\exp(-S[U]) \qquad \text{with} \qquad S[U] = S_G[U] - \varphi^\dagger(DD^\dagger)^{-1}\varphi.
+\end{equation}
+赝费米子 $\varphi$ 与狄拉克场 $\psi$ 具有相同的指标，即色、狄拉克和时空指标。场 $\varphi$ 和 $U$ 按照分布 (8.31) 交替更新。
+场 $\varphi$ 的更新很简单。事实上，$\varphi$ 可以容易地生成：先生成一个按高斯分布 $\exp(-\chi^\dagger\chi)$ 的复矢量 $\chi$，然后确定 $\varphi = D\chi$。这一变换带来的雅可比行列式无关紧要，因为此步骤中规范场不变。
+一旦构造好 $\varphi$，规范场 $U$ 就在一条分子动力学轨迹中被更新，其中 $\varphi$ 被当作外部恒定场。这产生一个新的候选规范组态，然后在最后的 Metropolis 步骤中被接受或拒绝。构造场 $\varphi$、演化 $U$、以 Metropolis 步骤收尾这一过程反复迭代。
+
+我们必须考虑到规范场 $U$ 是群元素，而到目前为止我们是在平坦空间中变量上表述分子动力学算法的。在转向 SU(3) 之前，让我们先讨论规范群 U(1) 的较简单阿贝尔情形，此时链环变量可以写为 $U = \exp(iQ)$。我们用实变量 $Q$ 和相应的实动量 $P$ 作为共轭变量。哈密顿方程与 (8.18) 相同。让我们考虑其中第二个方程的离散化，
+\begin{equation}
+\begin{aligned}
+\dot{Q} = P \;&\to\; Q(\varepsilon) = Q(0) + P(0)\varepsilon
+\;\to\; -i\ln U(\varepsilon) = -i\ln U(0) + P(0)\varepsilon\\
+&\to\; U(\varepsilon) = e^{iP(0)\varepsilon}U(0).
+\end{aligned}
+\end{equation}
+对这个微分方程积分可能使 $Q$ 超出群的主值区间。对于 U(1) 这不是问题，因为关系式 $U = \exp(iQ)$ 会自动把它投影回来。
+
+现在让我们为非阿贝尔规范群 SU(3) 实现该算法。可以把每个链环变量写为（参见 (A.2)）
+\begin{equation}
+U = \exp\Big(i\sum_{i=1}^{8}\omega^{(i)}T_i\Big) \equiv \exp(iQ).
+\end{equation}
+与 U(1) 的情形一样，我们的 $Q$ 被等同于代数（lie algebra）元素，即它们是由实变量 $\omega^{(i)}$ 参数化的无迹厄米矩阵。对每个链环变量 $U_\mu(n)$，有八个实动量变量 $P_\mu^{(i)}(n)$ 与参数 $\omega_\mu^{(i)}(n)$ 共轭，其中 $n \in \Lambda$ 是时空指标。我们可以把它们与生成元 $T_i$ 求和合并为 SU(3) 代数的一个元素，
+\begin{equation}
+P_\mu(n) = \sum_{i=1}^{8}P_\mu^{(i)}(n)\,T_i.
+\end{equation}
+于是 $P_\mu(n)$ 也是无迹厄米矩阵。哈密顿方程涉及如下求和（利用 (A.3)）
+\begin{equation}
+\half\sum_{n,\mu,i}\Big(P_\mu^{(i)}(n)\Big)^2 = \sum_{n,\mu}\tr\big[P_\mu(n)^2\big].
+\end{equation}
+我们将用矩阵 $P_\mu(n)$ 和 $U_\mu(n)$ 来表述该算法。
+对于分子动力学演化，我们还需要作用量对 $Q$ 的导数。导数总是位于流形的切空间中。对于酉群，这就是代数（见附录 A.1），因此导数沿代数中的某条路径。群元素的某个函数 $f(U)$ 沿代数方向 $T_i$ 的导数可以定义为\footnote{这个定义可以通过把 $\ln(U) = i\sum_k \omega^{(k)}T_k$ 对 $\omega^{(i)}$ 求导来理解。我们指出，这个定义不是唯一的，但如果 $f(U)$ 是类函数，则 (8.36) 的结果是唯一的。}，
+\begin{equation}
+\nabla^{(i)}f(U) \equiv \frac{\partial f(U)}{\partial\omega^{(i)}}
+= \left.\frac{\partial}{\partial\omega^{(i)}}f\big(e^{i\omega^{(i)}T_i}U\big)\right|_{\omega=0}.
+\end{equation}
+用这种方式我们发现，例如（$A, B \in \mathrm{SU}(3)$）
+\begin{equation}
+\nabla^{(i)}(AUB) = iAT_iUB, \qquad
+\nabla^{(i)}(AUUB) = iAT_iUUB + iAUT_iUB,
+\end{equation}
+等等。总共 $n$ 步的蛙跳离散化分子动力学方程 (8.20) 于是变为：
+\begin{enumerate}
+  \item \textbf{赝费米子}\\
+        生成赝费米子场 $\varphi = D\chi$，其中 $\chi$ 按 $\exp(-\chi^\dagger\chi)$ 分布。
+  \item \textbf{共轭场}\\
+        给定规范组态 $U_0$，按高斯分布 $\exp(-\tr[P^2])$ 生成 $P_0$（对每个 $(n,\mu)$ 有八个实数）。
+  \item \textbf{初始步}\\
+        $P_{\frac12} = P_0 - \frac{\varepsilon}{2}F[U,\varphi]\big|_{U_0}$。
+  \item \textbf{中间步}\\
+        对 $k = 1, \ldots, n-1$ 的整步：
+        $U_k = \exp(i\varepsilon P_{k-\frac12})U_{k-1}$，\qquad
+        $P_{k+\frac12} = P_{k-\frac12} - \varepsilon F[U,\varphi]\big|_{U_k}$。
+  \item \textbf{最终步}\\
+        $U_n = \exp(i\varepsilon P_{n-\frac12})U_{n-1}$，\qquad
+        $P_n = P_{n-\frac12} - \frac{\varepsilon}{2}F[U,\varphi]\big|_{U_n}$。
+  \item \textbf{蒙特卡罗步骤}\\
+        轨迹末尾的接受-拒绝步骤：如果随机数 $r \in [0,1)$ 小于
+        \begin{equation}
+        \begin{aligned}
+        &\min\Big(1,\;\exp\big[\tr P^2 - \tr P'^2 + S_G[U] - S_G[U']\\
+        &\qquad + \varphi^\dagger\big((DD^\dagger)^{-1} - (D'D'^\dagger)^{-1}\big)\varphi\big]\Big).
+        \end{aligned}
+        \end{equation}
+\end{enumerate}
+在这些方程中
+\begin{equation}
+F[U,\varphi] = \sum_{i=1}^{8}T_i\nabla^{(i)}\Big(S_G[U] + \varphi^\dagger(DD^\dagger)^{-1}\varphi\Big) \in su(3)
+\end{equation}
+表示驱动力，是代数 $su(3)$ 的一个元素。
+对于接受-拒绝步骤中的赝费米子贡献，可以复用步骤 (5) 中为力计算出的矢量，即 $(D'D'^\dagger)^{-1}\varphi$。
+一个技术问题是步骤 (4) 中的指数化 $\exp(i\varepsilon P)$，它把代数元素映射为群元素。这既可以通过级数展开来做，也可以如 [9] 中那样利用 Cayley--Hamilton 关系更快地完成。
+
+力项 (8.39) 涉及对代数元素的导数。作为例子，让我们确定由 Wilson 规范作用量 (4.20) 中涉及某个链环 $U$ 的贡献产生的力。它由
+\begin{equation}
+-\frac{\beta}{6}\tr\big[UA + A^\dagger U^\dagger\big],
+\end{equation}
+给出，其中 $A$ 表示相邻椅形（staple）之和 (4.20)。于是迹项的导数为
+\begin{equation}
+\nabla^{(i)}\tr\big[UA + A^\dagger U^\dagger\big]
+= \tr\big[iT_iUA - iA^\dagger U^\dagger T_i\big]
+= \tr\big[iT_i\big(UA - A^\dagger U^\dagger\big)\big].
+\end{equation}
+由此产生的力为
+\begin{equation}
+-\frac{\beta}{6}\sum_{i=1}^{8}T_i\,\tr\big[iT_i\big(UA - A^\dagger U^\dagger\big)\big]
+= -\frac{\beta}{12}\,i\big(UA - A^\dagger U^\dagger\big).
+\end{equation}
+我们用了 $i(UA - A^\dagger U^\dagger)$ 是无迹厄米的，因而是 $T_j$ 的线性组合。对这样的求和有恒等式
+\begin{equation}
+\sum_j T_j\,\tr\Big[T_j\sum_k c_k T_k\Big] = \half\sum_j c_j T_j.
+\end{equation}
+迹把 $T_j$ 的贡献投影出来（引入 1/2 因子），求和再把表达式重构出来。
+\begingroup\emergencystretch=4em 费米子作用量对力的贡献需要计算（这里我们用到\linebreak[0] $\partial M^{-1}/\partial\omega \allowbreak = \allowbreak -M^{-1}(\partial M/\partial\omega)M^{-1}$）\par\endgroup
+\begin{equation}
+\begin{split}
+\nabla^{(i)}\varphi^\dagger(DD^\dagger)^{-1}\varphi
+&= -\varphi^\dagger(DD^\dagger)^{-1}\big[\nabla^{(i)}(DD^\dagger)\big](DD^\dagger)^{-1}\varphi \\
+&= -\Big((DD^\dagger)^{-1}\varphi\Big)^\dagger
+   \Big[D\frac{\partial D^\dagger}{\partial\omega^{(i)}}
+   + \frac{\partial D}{\partial\omega^{(i)}}D^\dagger\Big](DD^\dagger)^{-1}\varphi .
+\end{split}
+\end{equation}
+因此在轨迹的每一个子步中都必须计算 $D$ 的导数和 $DD^\dagger$ 的逆，这是算法中最耗时的部分。
+在计算狄拉克算符的导数时必须注意群元素的不可交换性。有些狄拉克算符包含链环变量出现不止一次的贡献。一个明显的例子是以有理函数或级数近似出现的 overlap 算符（见第 7.4.3 节）。在这种情况下，确定导数时必须特别小心。
+Wilson 狄拉克算符 (5.51) 对规范场变量是简单线性的，此时计算导数是直接的。对于某个链环 $U_\mu(k)$ 的贡献，我们得到
+\begin{equation}
+\frac{\partial D(n|m)}{\partial\omega_\mu^{(i)}(k)}
+= -i\frac{1+\gamma_\mu}{2a}T_iU_\mu(k)\delta_{n+\hat{\mu},m}\delta_{n,k}
+  + i\frac{1-\gamma_\mu}{2a}U_\mu(k)^\dagger T_i\delta_{n-\hat{\mu},m}\delta_{m,k}.
+\end{equation}
+由于每条轨迹末尾的 Metropolis 判定，HMC 算法是精确的。离散化中造成的任何数值误差都会被概率性的接受-拒绝步骤``修复''。然而，接受率可能变低。因此必须调整步长 $\varepsilon$ 以防止过大的偏差。典型数值是完整轨迹取 50--100 步，积分时间 $n\varepsilon \approx 1$。HMC 算法的估计计算量只随 $\propto V^{5/4}$ 增长 [10, 11]。
+
+\section{其他算法思想}
+
+\subsection{R 算法}
+
+HMC 算法是精确的。然而，在我们这里给出的形式中，它只适用于正定费米子作用量（如 overlap 作用量）或重复数目为偶数的费米子种类。\footnote{关于如何纳入单种费米子的建议将在第 8.3.3 节讨论。}它由更早的更新方法演化而来，那些方法也使用微正则（或 Langevin）型微分方程，但没有纠正性的蒙特卡罗步骤。
+在所有所谓的混合算法 [7] 中，系统沿一条分子动力学轨迹演化，并定期刷新共轭动量。这一过程等价于按随机微分方程的演化。人们论证过，处于非平衡的系统会被驱动趋向平衡，并在更新过程中保持在那里。关键的问题是必需的离散化，它会以离散化时间步长的某一阶次引入系统误差。
+其中一种方法，即所谓的 R 算法 [12]，被提倡用于 Kogut--Susskind 或交错费米子（参见第 10 章）。其核心思想是使用 (8.10) 中讨论的有效作用量。分子动力学更新遵循与前面讨论过的那些相似的步骤。有效作用量的变化借助噪声赝费米子随机估计 [13]。由于规范变量变化引起的有效费米子作用量的变化为
+\begin{equation}
+\begin{split}
+\Delta S_F^{\mathrm{eff}} &= S_F^{\mathrm{eff}}[U_\mu(n)'] - S_F^{\mathrm{eff}}[U_\mu(n)]\\
+&= \sum_{n,\mu,i}\frac{\partial S_F^{\mathrm{eff}}[U_\mu(n)]}{\partial\omega_\mu^{(i)}(n)}
+   \Delta\omega_\mu^{(i)}(n)
+   + \order{\Big(\Delta\omega_\mu^{(i)}(n)\Big)^2}.
+\end{split}
+\end{equation}
+对有效作用量的导数我们得到
+\begin{equation}
+\frac{\partial S_F^{\mathrm{eff}}}{\partial\omega_\mu^{(i)}(n)}
+= -\frac{\partial\tr[\ln(D[U])]}{\partial\omega_\mu^{(i)}(n)}
+= -\tr\Big[D[U]^{-1}\frac{\partial D[U]}{\partial\omega_\mu^{(i)}(n)}\Big].
+\end{equation}
+注意这些参数是矩阵，通常不可交换。不过，迹的循环性简化了表达式。对于链环变量线性出现的作用量，$D$ 的导数特别简单。
+
+由于没有纠正性的 MC 步骤，该方法会表现出对所选离散化时间步长 $\varepsilon$ 数值的依赖。通过巧妙修改，误差可以做到 $\order{\varepsilon^2}$ 量级。这种依赖性必须通过用不同的 $\varepsilon$ 值重复计算并外推到 0 来处理。
+在每一个时间步，从按高斯分布的随机矢量 $\chi$ 计算赝费米子 $\varphi = M^\dagger\chi$。更多细节见文献 [12]。
+
+\subsection{部分更新}
+
+对于基于演化方程的更新方法（如 HMC 和 R 算法，或任何使用 Langevin 型微分方程的方法），都必须计算力项。对于 Ginsparg--Wilson 型狄拉克算符，这变得相当复杂。在那里，仅仅计算 $D$ 本身就已经要用到计算代价高昂的算法。
+因此人们倾向于通过一次更新更大块的规范变量来缩短更新。然而，正如前面所论证的，在大体积下这样做可能遇到接受率问题：一种幼稚的实现会导致 $\order{V^2}$ 的数值代价。因此必须投入一些努力为规范变量的变化提供更好的建议，类似于最初导致混合算法的那些思想。
+文献 [14, 15] 提倡在格点的部分区域上交错进行规范场更新，采用一个以某种方式近似费米子作用量效应的局域规范作用量。这可以通过，例如，考虑一组系数经过适当调节的闭合规范圈来实现。这种部分-全局的变量变化随后经历一个接受/拒绝步骤，其中行列式之比被随机估计。由于有效作用量的变化可能很大，必须特别小心以获得该比值的可靠估计。因此人们求助于诸如多项式近似、预条件化和多赝费米子等技术。
+对于实数正行列式，就可以模拟单种费米子。这对 Ginsparg--Wilson 算符成立，它们是正规矩阵，本征值具有正实部。对这类算符，可以使用 $(\varphi, D^{-1}\varphi)$ 形式的赝费米子作用量，并用高斯 $\chi$ 且 $\varphi = \sqrt{D}\,\chi$ 来生成正确的分布。取平方根时使用类似构造 overlap 算符所讨论的方法。
+
+\subsection{多项式和有理 HMC}
+
+在标准 HMC 算法中，狄拉克算符以 $DD^\dagger$ 的二次形式出现，以保证所有本征值实部为正，这是赝费米子高斯积分收敛所必需的。因此在这种形式下只能模拟偶数个费米子。
+如果 $\det[D]$ 为正，有一种方法可以绕过这一限制。在 HMC 轨迹计算中用算符 $TT^\dagger$ 近似 $D^{-1}$，并在接受-拒绝步骤中纠正这一近似。所建议的近似要么用多项式 [16--18]，要么用有理函数 [19--22]，其精神与第 7 章中求 overlap 算符的方法一致。
+作为例子，我们讨论文献 [18] 的建议。狄拉克算符的逆被一个偶多项式近似，
+\begin{equation}
+D^{-1} \approx P_{2n}(D) = \prod_{k=1}^{n}(D - z_{2k-1})(D - z_{2k-1}^*),
+\end{equation}
+其中 $z_k = 1 - \exp(i\,2\pi k/(2n+1))$。假设 $\gamma_5$-厄米性，有
+\begin{equation}
+\det[D - z_k^*] = \det[\gamma_5 D^\dagger\gamma_5 - z_k^*] = \det[D - z_k]^*,
+\end{equation}
+因此我们可以把 $P_{2n}$ 分裂为一个乘积
+\begin{equation}
+P_{2n}(D) = T_n(D)T_n^\dagger(D) \qquad \text{with} \qquad
+T_n(D) = \prod_{k=1}^{n}(D - z_{2k-1}).
+\end{equation}
+正确的行列式为
+\begin{equation}
+\det[D] = C\det[T_n^\dagger T_n]^{-1} \qquad \text{with} \qquad
+C = \det[DT_n^\dagger T_n].
+\end{equation}
+HMC 轨迹于是用赝费米子作用量计算
+\begin{equation}
+S = -\varphi^\dagger T_n^\dagger(D)T_n(D)\varphi,
+\end{equation}
+从而提供了 (8.51) 中的第二个因子，而修正因子 $C$ 在轨迹末尾的 Metropolis 接受-拒绝步骤中处理。这类方法允许人们用精确的 MC 算法处理奇数个夸克味。
+
+\subsection{多赝费米子与 UV 滤波}
+
+在每次 HMC 轨迹末尾或（部分）全局算法中必需的接受-拒绝 Metropolis 步骤中，用噪声赝费米子估计进行的随机确定会引入额外的噪声。虽然形式上正确，但由此引起的费米子力的涨落可能使算法失稳 [2, 20, 23]，迫使使用更小的步长。
+减少随机估计器噪声的一个可能方法是使用多于一套赝费米子变量。假设 $M$ 正定，利用恒等式
+\begin{equation}
+\det[M] = \Big(\det[M^{1/n}]\Big)^n.
+\end{equation}
+随机估计器于是为
+\begin{equation}
+\det[M] \propto \prod_{k=1}^{n}\int D[\varphi_R]D[\varphi_I]\,e^{-\varphi^\dagger M^{-1/n}\varphi},
+\end{equation}
+其中 $M$ 要么是正定狄拉克算符，要么是 $M = DD^\dagger$。矩阵 $M^{-1/n}$ 可以用有理函数或 $M$ 的多项式来近似。
+这个方法的一个变体 [24] 把行列式分裂为
+\begin{equation}
+\det[M] = \det[M']\,\det[M'^{-1}M]
+\end{equation}
+对两个因子分别使用独立的赝费米子场。通过为矩阵 $M$ 和 $M'$ 选择不同参数，可以改善更新性能：步长可以增大，同时接受率保持稳定。在应用中，人们为两个分量选择不同的质量参数；因此这种方法也被称为质量预条件化。
+另一种改善行列式之比估计的方法是引入 UV 滤波 [25]。其思想是减小待随机估计算符的本征值分布范围。定义一个约化矩阵
+\begin{equation}
+D_{m,r} = D\,e^{f(D)},
+\end{equation}
+其中 $f(D)$ 选为 $D$ 的适当低阶实系数多项式，使得 $D_{m,r}$ 的本征值在复平面上集中在 $z = 1$ 附近，即 $e^{f(D)}$ 粗略近似 $D^{-1}$。在接受步骤中于是计算（利用 $\gamma_5$-厄米性）
+\begin{equation}
+\frac{\det[D^\dagger D]_{\mathrm{new}}}{\det[D^\dagger D]_{\mathrm{old}}}
+= \exp(-2\tr[f(D)_{\mathrm{new}}] + 2\tr[f(D)_{\mathrm{old}}])\,
+  \frac{\det[D_{m,r}^\dagger D_{m,r}]_{\mathrm{new}}}{\det[D_{m,r}^\dagger D_{m,r}]_{\mathrm{old}}}.
+\end{equation}
+对 $D$ 的多项式的迹的计算对简单狄拉克算符是可行的，但对扩展型的算符可能成为障碍。
+
+\subsection{进一步发展}
+
+多赝费米子方法和多项式近似在精神上都与更早提出的多玻色子算法 [26] 相关。取决于狄拉克算符，还有各种预条件化方法（另见第 6.2.4 节）。质量预条件化及其变体是一种可能的改进。对于只涉及最近邻耦合的算符，可以把格点分成偶数和奇数格点，从而简化计算。这种方法称为偶-奇预条件化。
+另一种分层组织的方法把格点分成互不重叠的区域，并在子区域上求解系统。这种所谓的 Schwarz 交替过程 [27--29] 已针对预条件化和动力学费米子算法都进行了测试。它是求解椭圆型微分方程的一种区域分解方法（早在十九世纪就已引入）。
+尽管至少对 HMC 算法而言，人们预期给定一组耦合下所需计算机时间随 $V^{5/4}$ 增长，但作为格点间距或夸克质量的函数的增长方式并不那么清楚。由于我们预期夸克质量与最轻赝标量的质量平方成正比，用这样的单位讨论计算代价是有用的。数值代价的期望函数形式为 [30, 31]
+\begin{equation}
+\mathrm{cost} \propto L^{z_L}\,a^{-z_a}\,M_\pi^{-z_\pi}.
+\end{equation}
+这种考虑涉及多个方面。如前所述，体积标度为 $z_L \approx 5$。狄拉克算符矩阵的条件数随介子质量减小而增大，因此 CGR 求解器需要更多迭代。HMC 轨迹中的步长必须减小，自关联时间可能增加。各种研究（例如用 Wilson 费米子作用量）得出了 [30] $z_a \approx 7$ 和 $z_\pi \approx 6$ 的数值，但也有人给出了更小的值 $\order{3-4}$ [31]。
+动力学费米子算法领域多年来一直在发展，并且尚未止步。人们提出了各种我们这里不讨论的思想。其他思想肯定会不断涌现，我们建议关注年度格点会议论文集。
+
+\section{使用赝费米子的其他技术}
+
+在第 8.1.3 节中我们曾指出，赝费米子场被用于专为计算费米子观测量而设计的噪声估计器技术中。出发点在于玻色子与费米子生成泛函（(5.32) 和 (8.7)）之间的结构相似性。
+让我们用一个非常重要的例子来开始讨论噪声估计器的思想：费米子凝聚 $\ev{\bar{\psi}\psi}$ 的值。在第 7 章中我们发现它本质上由 $\tr[D^{-1}]$ 给出。直接计算该迹需要确定 $12|\Lambda|$ 个点源的传播子，这显然是一项不可能完成的任务。对于噪声估计器方法，我们考虑一组不相关的复随机数 $\chi_i \equiv \chi_{R,i} + i\chi_{I,i}$，具有单位方差，
+\begin{equation}
+\ev{\chi_i\chi_j^*}_\chi = \delta_{ij}.
+\end{equation}
+例如，我们可以为 $\chi_i$ 选择高斯分布
+\begin{equation}
+\ev{\cdots}_\chi = \pi^{-N}\int D[\chi_R]D[\chi_I]\exp(-\chi^\dagger\chi)\cdots.
+\end{equation}
+我们可以用对 $K$ 个随机矢量 $\chi^{(k)}$ 的平均来近似这个积分，这些矢量的分量 $\chi_i^{(k)}$ 按照概率密度 (8.60) 分布，
+\begin{equation}
+\delta_{ij} = \ev{\chi_i\chi_j^*}_\chi \approx \frac{1}{K}\sum_{k=1}^{K}\chi_i^{(k)}\chi_j^{(k)*}.
+\end{equation}
+利用这一点可以估计迹
+\begin{equation}
+\tr[D^{-1}] = \sum_{i,j}(D^{-1})_{ji}\delta_{ij}
+\approx \frac{1}{K}\sum_{k=1}^{K}\chi^{(k)\dagger}D^{-1}\chi^{(k)}.
+\end{equation}
+同样，随机变量的数目与费米子自由度数目一致。所考虑的噪声矢量数 $K$ 取决于估计所需的精度。
+高斯噪声赝费米子也可以用来计算费米子有效作用量的变化 [32]，这是蒙特卡罗更新算法所需要的。对于本征值实部严格为正的矩阵 $M$，我们有
+\begin{equation}
+\begin{split}
+\det[M] &= \frac{\int D[\chi_R]D[\chi_I]\exp(-\chi^\dagger\chi)\exp\big(-\chi^\dagger(M^{-1}-1)\chi\big)}
+        {\int D[\chi_R]D[\chi_I]\exp(-\chi^\dagger\chi)}\\
+&= \Big\langle\exp\big(-\chi^\dagger(M^{-1}-1)\chi\big)\Big\rangle_\chi .
+\end{split}
+\end{equation}
+这个恒等式由 (8.7) 推出，可以直接用来确定有效的两味作用量的变化：
+\begin{equation}
+\begin{split}
+\exp(-\delta S_{F,\mathrm{eff}}) &= \det[(D'D'^\dagger)(DD^\dagger)^{-1}]
+  = \det[D'^\dagger(DD^\dagger)^{-1}D']\\
+&= \Big\langle\exp\big(-\chi^\dagger\big(D'^{-1}DD^\dagger(D'^\dagger)^{-1}-1\big)\chi\big)\Big\rangle_\chi\\
+&= \Big\langle\exp\big(-\chi^\dagger D'^{-1}\big(DD^\dagger - D'D'^\dagger\big)(D'^\dagger)^{-1}\chi\big)\Big\rangle_\chi .
+\end{split}
+\end{equation}
+同样，$\ev{\cdots}_\chi$ 用有限数目的噪声矢量来近似。
+文献 [33] 建议在蒙特卡罗接受判定中只用单个 $\varphi$ 系综来替代对许多 $\varphi$ 系综的求和。用任何一种方式确定更新步骤中的这一比值，平均而言都是正确的。然而，这类方法涉及蒙特卡罗求和中的蒙特卡罗求和，而且正如例如 [34] 中所讨论的，它对应一种计算机时间至少随格点体积平方增长的更新算法，还没有考虑临界减慢等其他效应。
+每当需要精确计算夸克传播子时，人们使用数值求逆器。然而，对许多不同源计算逆矩阵是昂贵的。例如，对断开的（disconnected）部分求和就需要这样做（见图 6.1）。在这种情况下，人们可能愿意用较低的精度换取更多的源点。噪声赝费米子为近似传播子矩阵元提供了工具。利用 (8.7) 可以把它们计算为玻色子高斯分布中 $\varphi_n\varphi_k^*$ 的期望值：
+\begin{equation}
+D_{nm}^{-1} = \Big[(D^\dagger D)^{-1}\Big]_{nk}D_{km}^\dagger
+= \frac{\int D[\varphi_R]D[\varphi_I]\,e^{-\varphi^\dagger D^\dagger D\varphi}\,\varphi_n\varphi_k^*}
+       {\int D[\varphi_R]D[\varphi_I]\,e^{-\varphi^\dagger D^\dagger D\varphi}}\,D_{km}^\dagger .
+\end{equation}
+只要 $D$ 的本征值不为零，这个高斯积分就有良好定义。它可以用对 $\varphi$ 的随机过程来求值。
+这类公式也曾在实现动力学费米子的早期建议 [35] 中被用来计算 (8.46) 中有效费米子作用量变化所需的表达式。
+
+\section{耦合-质量相图}
+
+\subsection{连续极限与相变}
+
+在第 3.5.4 节中我们讨论了纯规范理论的真正的连续极限。我们用重整化群分析结果 (3.88) 把格点间距 $a$ 表示为逆耦合 $\beta$ 的函数，以确定 $\beta \to \infty$ 的极限就是 $a \to 0$、连续物理得以恢复的极限。这里我们第二次讨论连续极限，但这次用统计力学的语言来重新表述。
+为了勾画这一思想，我们首先考虑简单而熟悉的二维 Ising 模型。在没有外磁场的情况下，只有一个耦合参数。取决于其数值，人们发现两相：一个无序的``热''相和一个磁化强度不为零的相，即``有序''相。一个二级相变把两相分开。相变发生在耦合的一个特定数值处，即所谓的临界点，此处系统的关联长度 $\xi$ 发散。关联长度可以通过位于原点与某个格点 $n$ 的两个自旋变量的连通关联函数来定义。对于自旋之间的大距离，关联函数指数衰减
+\begin{equation}
+\ev{s_ns_0} - \ev{s_n}\ev{s_0} \propto \exp\Big(-\frac{|n|}{\xi}\Big)
+\qquad \text{for } n \to \infty.
+\end{equation}
+关联长度 $\xi$ 是两个自旋相关联的距离的量度。当耦合被驱动接近其临界值时，$\xi$ 变得很大，自旋在长距离上相关联。只延伸于彼此靠近格点上的局域结构变得越来越不重要。
+为什么发散关联长度的概念对格点场论是相关的？我们已经知道某个强子 $H$ 的物理质量 $M_H$ 可以从强子插值算符 $O_H$ 的两点函数计算，
+\begin{equation}
+\ev{O_H(n_t)\,O_H(0)^\dagger} \propto e^{-n_t a M_H} = e^{-n_t/\xi_H}.
+\end{equation}
+这里我们把插值算符 $O_H$ 的关联长度 $\xi_H$ 定义为
+\begin{equation}
+\xi_H = \frac{1}{aM_H}.
+\end{equation}
+我们要强调，不同强子的插值算符一般会给出彼此成比例的不同关联长度。由于 $M_H$ 是常数，物理可观测态的所有关联长度 $\xi_H$ 都应在连续极限 $a \to 0$ 中发散。与统计力学系统一样，我们必须把耦合（逆规范耦合 $\beta$ 和夸克质量 $m$）驱动到关联长度发散的临界值。在这些临界值处，我们可以构造连续极限。因此在相图中找出这样的临界点极为重要。
+
+\subsection{Wilson 费米子的相图}
+
+在 QCD 中，我们预期正确的连续极限可以在规范耦合为零 $g = 0$（对应 $\beta = \infty$）和费米子质量参数为零处获得。然而，在耦合的其他数值处也存在分开不同物理相的跃迁。
+对于 Wilson 费米子，通常用逆规范耦合 $\beta = 6/g^2$ 和在 (5.55) 中引入的跳跃参数 $\kappa$ 来讨论相图。跳跃参数通过 $\kappa = 1/(2am + 8)$ 与连续极限中的裸夸克质量相联系。在跳跃参数记号下，狄拉克算符由 (5.57) 给出。
+在讨论相图时，先考虑简单的极限情形总是有用的。对于 $\kappa = 0$，跳跃项被关闭，狄拉克算符变为单位矩阵。这个极限对应无穷重夸克。这就是前面已经讨论过的纯规范理论（淬火情形）的情况。在该极限下，通过 Wilson 圈定义的弦张力可以被解释为序参量。正如我们在第 3.4.1 节讨论的，在 $\beta = 0$（裸规范耦合 $g$ 无穷大）时理论是禁闭的，蒙特卡罗证据表明这一禁闭相延伸到 $\beta \to \infty$（$g = 0$）的整个取值范围。实际上，由于蒙特卡罗计算是有限的，我们真正能说的只是：对于纯规范理论，在足够大的格点上没有禁闭相到退禁闭相相变的数值证据。
+另一个极限情形是自由格点费米子。这在 $\beta = \infty$（$g = 0$）时得到，此时所有基本方格趋于单位元。在无穷格点上，这等价于把所有链环变量设为 1。借助格点傅里叶变换可以计算自由情形下的夸克传播子，并发现关联长度由夸克质量的倒数给出。因此关联长度在夸克质量为零 $m = 0$ 时发散，对应 $\kappa = 1/8$。
+对于有限的 $\beta$ 值，人们发现系统中最小的可观测质量（介子质量）在某个 $\kappa$ 值处消失，我们把这个值记为 $\kappa_{\mathrm{ch}}(\beta)$。由于我们把介子与自发手征对称性破缺的 Goldstone 模相联系，这就是在有限 $\beta$ 下夸克质量为零的点。以这种间接方式，我们获得了关于夸克质量本身的第一条信息。这条 $\kappa = \kappa_{\mathrm{ch}}(\beta)$ 的曲线看起来从 $\kappa_{\mathrm{ch}}(\beta = \infty) = 1/8$ 一直延续到 $\kappa_{\mathrm{ch}}(\beta = 0)$。有关于介子质量的强耦合展开结果 [36, 37] 表明 $\kappa_{\mathrm{ch}}(\beta = 0) \approx 1/4$。由此得到的相图如图 8.1 所示。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{fig81.png}
+  \caption*{图 8.1. \emph{含 Wilson 费米子的 QCD 的相图。耦合常数为 $\beta = 6/g^2$ 和跳跃参数 $\kappa$。虚线是恒定质量比的曲线，例如 $M_\pi/M_\rho = \mathrm{const}$。}}
+  \label{fig:81}
+\end{figure}
+
+在给定的 $\beta$ 处，当 $\kappa$ 从 0 变到 $\kappa_{\mathrm{ch}}(\beta)$ 时，夸克质量于是取介于无穷大与 0 之间的值。当 $\kappa$ 被驱动趋向 $\kappa_{\mathrm{ch}}(\beta)$ 时，介子质量减小到 0，但系统的其他质量（如 $\rho$ 或核子质量）趋近非零值。在某个 $\kappa$ 值处，例如 $M_\pi/M_\rho$ 的质量比将达到其实验值。在这个 $\kappa$ 值处，我们用无量纲组合 $aM$ 和实验值 $M$ 来确定格点间距 $a$，以设定标度。
+对变化的 $\beta$ 收集这样的点，就定义了一条``物理''曲线（图 8.1 中的虚线）。沿着这样一条曲线，格点间距随 $\beta$ 增大而减小到零，系统逼近连续极限。我们要强调，海夸克的动力学当然也影响格点间距 $a$，因此它是两个耦合参数的函数 $a = a(\beta, \kappa)$。恒定格点间距的曲线因而不会简单地就是恒定 $\beta$ 的直线。我们还要指出，在手征曲线 $\kappa = \kappa_{\mathrm{ch}}(\beta < \infty)$ 上，格点间距不为零。\footnote{这种情况类似于 $N$ 分量 $\varphi^4$ 理论中的自发对称破缺。在那里两个耦合是最邻近耦合 $g$（扮演我们规范耦合的角色）和一个外磁场 $h$（与 QCD 中的费米子质量相关）。在破缺相中，对于 $g > g_{\mathrm{crit}}$ 且 $h = 0$，序参量 $\ev{\varphi}$ 不为零，既有 Goldstone 模也有有质量模。格点间距只在趋近临界点 $g \to g_{\mathrm{crit}}$ 时才为零。当外场开启时，Goldstone 模变为有质量的，类似于介子。}沿着手征曲线趋近连续极限是另一种适合与质量无关的重整化方案的选择。在这种情形下，给定规范耦合的格点间距 $a$ 在手征极限中定义，即在手征曲线上。
+我们必须对上述讨论补充一个重要说明。正如将在第 12 章详述的，通过研究具有有限时间范围（以物理单位计）的格点，可以在有限温度下模拟 QCD。这引入另一个参数——温度，导致更复杂的相图。人们发现在某个临界温度（即当时间或空间范围变得足够小）处有一个到退禁闭相的相变。这里我们只强调，上述关于相结构的讨论基于我们的格点时间范围足够大、使我们始终处于禁闭相的假设。
+
+\subsection{Ginsparg--Wilson 费米子}
+
+形如 (7.41) 的 Ginsparg--Wilson 狄拉克算符的裸质量参数 $am$ 的取值范围限于 $[0, 2]$。数值 $am = 0$ 定义无质量费米子和（自发破缺）手征对称性的点。在最大值 $am = 2$ 处，费米子从系统退耦；这对应无穷重夸克的极限。
+由于手征对称性曲线只是 $m = 0$ 处的一条线，且不依赖规范耦合（不同于所讨论的 Wilson 作用量的情况），相图看起来比图 8.1 简单。变量 $am$ 取代 $\kappa$，取值范围从纯规范理论（淬火极限）的 $am = 2$ 到手征极限的 $m = 0$。同样可以找到在 $\beta \to \infty$、$m = 0$ 处趋近连续极限的恒定质量比曲线。
+让我们讨论使用一个在夸克质量为零时满足 Ginsparg--Wilson 方程的狄拉克算符的另一个方面。对于这样的狄拉克算符，本征值谱被限制在复平面上一个圆上。这个圆到原点的最小距离由裸夸克质量给出，最小的可能本征值就是由这个质量给出。对于非零质量，逆狄拉克算符（即夸克传播子）总可以计算，并且（原则上）手征线可以被逼近。
+对于非手征狄拉克算符（如 Wilson 狄拉克算符），本征值没有这样的限制，它们随规范场涨落。因此即使夸克质量非零，也可能在例外组态（比较第 6.2.5 节）上出现狄拉克算符的零本征值。结果是，对于这样的组态无法计算夸克传播子。因此，狄拉克本征值的涨落常常阻碍对手征线 $\kappa_{\mathrm{ch}}(\beta)$ 的逼近。使用更大的 $\beta$ 值、更大的格点，或者本征值涨落更小的更先进的狄拉克算符，可以改善这一情况。
+
+\section{全 QCD 计算}
+
+在全 QCD 计算中，大质量夸克 $c$、$b$ 和 $t$ 对夸克海动力学的贡献可以忽略不计。因此，只考虑两种质量简并的轻夸克 $u$、$d$ 和一种较重的夸克 $s$ 作为海夸克，是一个极好的近似。即便如此，这也提出了算法上的问题。对于第 8.3.1 节讨论的非精确 R 型算法，某种夸克的种类数目可以容易地通过一个前置因子固定；然而味道混合和连续极限是有争议的。另一方面，对于原始形式的精确 HMC 算法，正性要求偶数个质量简并的费米子。但是，有一些变体可以借助多项式近似实现奇数个费米子，如第 8.3 节所述。
+有多个国际协作组在研究各种类型狄拉克算符的动力学费米子。如果我们试图逐一列出它们，即使在本著作出版之时也难免遗漏其中一些。因此我们只指出：对于简单的改进 Wilson 作用量，目前对两种轻味（有些甚至包含奇异夸克）已达到空间格点尺寸 50--100。对扭曲质量和交错费米子（见第 10 章）也在研究类似的格点尺寸。对于数值上要求更高的畴壁（domain wall）表述（第 10 章），人们通常在格点尺寸（以格点单位计）减半的格点上工作。这大致反映了数值代价的增加，即一至两个数量级。对 overlap 费米子，在更小的格点上（又比畴壁尺寸小两倍）已经产生了首批结果，但有一些限制，例如由于不同拓扑扇区之间隧穿的算法问题而固定拓扑扇区。在大多数这些协作中，参与的科学家们在攻克广泛的物理问题。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig82.png}
+  \caption*{图 8.2. \emph{Budapest--Marseille--Wuppertal 协作组 [38] 完全动力学模拟的谱学结果。（摘自 S.~D\"urr 等人：Science 322, 1224 (2008)。经 AAAS 许可转载）}}
+  \label{fig:82}
+\end{figure}
+
+为了给出一个动力学费米子计算的例子，我们在图 8.2 中展示 Budapest--Marseille--Wuppertal 协作组 [38] 用两种轻动力学费米子和一个动力学奇异夸克做的一次谱学计算的结果。该模拟用改进的（比较第 9 章）Wilson 规范作用量和 Wilson 费米子作用量在空间范围达 4 fm 的格点上进行。进入狄拉克算符的规范场经过了六级 stout 涂抹处理。达到了低至 190 MeV 的介子质量，分析中计入了有限体积效应以及共振效应。图 8.2 展示了不同介子和重子的质量，已外推到物理夸克质量和零格点间距。
+把这些结果与图 6.5 的淬火谱学计算结果比较，可以发现格点结果与实验数值之间的差异已经消失。图 8.2 表明，当计入轻动力学夸克的效应时，对于广泛的不同量子数，一次受控的 \emph{从头算}（ab initio）格点谱学计算使数值结果与实验数据达到极好的一致。
+
+\section*{参考文献}
+
+\begin{enumerate}[label={[\arabic*]}]
+  \item D.~H.~Weingarten and D.~N.~Petcher: Phys.\ Lett.\ B 99, 333 (1981) 188
+  \item A.~Alexandru and A.~Hasenfratz: Phys.\ Rev.\ D 66, 094502 (2002) 190, 201
+  \item D.~J.~E.~Callaway and A.~Rahman: Phys.\ Rev.\ D 28, 1506 (1983) 192
+  \item J.~Polonyi and H.~W.~Wyld: Phys.\ Rev.\ Lett.\ 51, 2257 (1983) 192
+  \item G.~Parisi and Y.-S.~Wu: Sci.\ Sin.\ 24, 483 (1981) 192
+  \item J.~R.~Klauder: in \emph{Recent Developments in High-Energy Physics};
+        Acta Phys.\ Austriaca Suppl.\ 25, edited by H.~Mitter and C.~B.~Lang,
+        p.~251 (Springer, Wien, New York 1983) 192
+  \item S.~Duane and J.~B.~Kogut: Phys.\ Rev.\ Lett.\ 55, 2774 (1985) 192, 199
+  \item S.~Duane and J.~B.~Kogut: Nucl.\ Phys.\ B 275, 398 (1986) 192
+  \item C.~Morningstar and M.~Peardon: Phys.\ Rev.\ D 69, 054501 (2004) 198
+  \item R.~Gupta, G.~W.~Kilcup, and S.~R.~Sharpe: Phys.\ Rev.\ D 38, 1278 (1988) 199
+  \item M.~Creutz: Phys.\ Rev.\ D 38, 1228 (1988) 199
+  \item S.~Gottlieb et al.: Phys.\ Rev.\ D 35, 2531 (1987) 199, 200
+  \item G.~G.~Batrouni et al.: Phys.\ Rev.\ D 32, 2736 (1985) 199
+  \item A.~Hasenfratz and A.~Alexandru: Phys.\ Rev.\ D 65, 114506 (2002) 200
+  \item A.~Hasenfratz, P.~Hasenfratz, and F.~Niedermayer: Phys.\ Rev.\ D 72,
+        114508 (2005) 200
+  \item P.~de~Forcrand and T.~Takaishi: Nucl.\ Phys.\ B (Proc.\ Suppl.) 53,
+        968 (1997) 201
+  \item R.~Frezzotti and K.~Jansen: Phys.\ Lett.\ B 402, 328 (1997) 201
+  \item T.~Takaishi and P.~de~Forcrand: Int.\ J.\ Mod.\ Phys.\ C 13, 343
+        (2002) 201
+  \item I.~Horv\'ath, A.~D.~Kennedy, and S.~Sint: Nucl.\ Phys.\ B (Proc.\
+        Suppl.) 73, 834 (1999) 201
+  \item M.~A.~Clark and A.~D.~Kennedy: Nucl.\ Phys.\ B (Proc.\ Suppl.) 129,
+        850 (2004) 201
+  \item M.~A.~Clark, P.~de~Forcrand, and A.~D.~Kennedy: PoS LAT2005, 115
+        (2005) 201
+  \item M.~A.~Clark: PoS LAT2006, 004 (2006) 201
+  \item M.~Hasenbusch: Phys.\ Rev.\ D 59, 054505 (1999) 201
+  \item M.~Hasenbusch: Phys.\ Lett.\ B 519, 177 (2001) 202
+  \item P.~de~Forcrand: Nucl.\ Phys.\ B (Proc.\ Suppl.) 73, 822 (1999) 202
+  \item M.~L\"uscher: Nucl.\ Phys.\ B 418, 637 (1994) 202
+  \item M.~L\"uscher: JHEP 0305, 052 (2003) 203
+  \item M.~L\"uscher: Comput.\ Phys.\ Commun.\ 165, 199 (2005) 203
+  \item M.~L\"uscher: Comput.\ Phys.\ Commun.\ 156, 209 (2004) 203
+  \item A.~Ukawa: Nucl.\ Phys.\ B (Proc.\ Suppl.) 106, 195 (2002) 203
+  \item M.~Hasenbusch: Nucl.\ Phys.\ B (Proc.\ Suppl.) 129--130, 27 (2004) 203
+  \item G.~Bhanot, U.~M.~Heller, and I.~O.~Stamatescu: Phys.\ Lett.\ B 129,
+        440 (1983) 204
+  \item M.~Grady: Phys.\ Rev.\ D 32, 1496 (1985) 204
+  \item M.~Creutz: \emph{Quantum Fields on the Computer} (World Scientific,
+        Singapore 1992) 204
+  \item F.~Fucito, E.~Marinari, G.~Parisi, and C.~Rebbi: Nucl.\ Phys.\ B 180,
+        369 (1981) 205
+  \item K.~G.~Wilson: Phys.\ Rev.\ D 10, 2445 (1974) 207
+  \item K.~G.~Wilson: in \emph{New Phenomena in Subnuclear Physics}, edited by
+        A.~Zichichi (Plenum, New York 1977) 207
+  \item S.~D\"urr et al.: Science 322, 1224 (2008) 209, 210
+\end{enumerate}

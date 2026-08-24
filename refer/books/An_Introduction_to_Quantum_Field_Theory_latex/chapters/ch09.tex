@@ -1,0 +1,1739 @@
+% ======================================================================
+% Chapter 9: Functional Methods
+% (book pages 275-314; PDF pages 298-337)
+% ======================================================================
+\chapter{Functional Methods}
+
+Feynman once said that%
+\footnote{\emph{The Character of Physical Law} (MIT Press, 1965), p.~168.}
+``every theoretical physicist who is any good knows six or seven different
+theoretical representations for exactly the same physics.''  Following his
+advice, we introduce in this chapter an alternative method of deriving the
+Feynman rules for an interacting quantum field theory: the method of
+\emph{functional integration}.
+
+Aside from Feynman's general principle, we have several specific reasons for
+introducing this formalism.  It will provide us with a relatively easy
+derivation of our expression for the photon propagator, completing the proof
+of the Feynman rules for QED given in Section~4.8.  The functional method
+generalizes more readily to other interacting theories, such as scalar QED
+(Problem~9.1), and especially the non-Abelian gauge theories (Part~III).
+Since it uses the Lagrangian, rather than the Hamiltonian, as its fundamental
+quantity, the functional formalism explicitly preserves all symmetries of a
+theory.  Finally, the functional approach reveals the close analogy between
+quantum field theory and statistical mechanics.  Exploiting this analogy, we
+will turn Feynman's advice upside down and apply the same theoretical
+representation to two completely different areas of physics.
+
+\section{Path Integrals in Quantum Mechanics}
+
+We begin by applying the functional integral (or path integral) method to the
+simplest imaginable system: a nonrelativistic quantum-mechanical particle
+moving in one dimension.  The Hamiltonian for this system is
+\begin{equation}
+  H = \frac{p^2}{2m} + V(q) .
+\end{equation}
+Suppose that we wish to compute the amplitude for this particle to travel from
+one point ($x_a$) to another ($x_b$) in a given time ($T$).  We will call this
+amplitude $U(x_a, x_b; T)$; it is the position representation of the
+Schr\"odinger time-evolution operator.  In the canonical Hamiltonian
+formalism, $U$ is given by
+\begin{equation}
+  U(x_a, x_b; T) = \langle x_b|\ e^{-iHT/\hbar}\ |x_a\rangle .
+  \label{eq:9.1}
+\end{equation}
+(For the next few pages we will display all factors of $\hbar$ explicitly.)
+
+In the path-integral formalism, $U$ is given by a very different-looking
+expression.  We will first try to motivate that expression, then prove that it
+is equivalent to \eqref{eq:9.1}.
+
+Recall that in quantum mechanics there is a superposition principle: When a
+process can take place in more than one way, its total amplitude is the
+coherent sum of the amplitudes for each way.  A simple but nontrivial example
+is the famous double-slit experiment, shown in Fig.~\ref{fig:9.1}.  The total
+amplitude for an electron to arrive at the detector is the sum of the
+amplitudes for the two paths shown.  Since the paths differ in length, these
+two amplitudes generally differ, causing interference.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.55\textwidth]{fig9.1.png}
+  \caption{The double-slit experiment.  Path 2 is longer than path 1 by an
+    amount $d$, and therefore has a phase that is larger by
+    $2\pi d/\lambda$, where $\lambda = 2\pi\hbar/p$ is the particle's de
+    Broglie wavelength.  Constructive interference occurs when
+    $d = 0, \lambda, \ldots$, while destructive interference occurs when
+    $d = \lambda/2, 3\lambda/2, \ldots$.}
+  \label{fig:9.1}
+\end{figure}
+
+For a general system, we might therefore write the total amplitude for
+traveling from $x_a$ to $x_b$ as
+\begin{equation}
+  \langle x_b|e^{-iHT/\hbar}|x_a\rangle = \sum_{\text{all paths}}
+    \text{(phase)} .
+  \label{eq:9.2}
+\end{equation}
+To be democratic, we have written the amplitude for each particular path as a
+pure phase, so that no path is inherently more important than any other.  The
+symbol $\int\mathcal{D}x(t)$ is simply another way of writing ``sum over all
+paths''; since there is one path for every function $x(t)$ that begins at
+$x_a$ and ends at $x_b$, the sum is actually an integral over this continuous
+space of functions.
+
+We can define this integral as part of a natural generalization of the
+calculus to spaces of functions.  A function that maps functions to numbers is
+called a \emph{functional}.  The integrand in \eqref{eq:9.2} is a functional,
+since it associates a complex amplitude with any function $x(t)$.  The
+argument of a functional $F[x(t)]$ is conventionally written in square
+brackets rather than parentheses.  Just as an ordinary function $y(x)$ can be
+integrated over a set of points $x$, a functional $F[x(t)]$ can be integrated
+over a set of functions $x(t)$; the measure of such a functional integral is
+conventionally written with a script capital $D$, as in \eqref{eq:9.2}.  A
+functional can also be differentiated with respect to its argument (a
+function), and this \emph{functional derivative} is denoted by
+$\delta F/\delta x(t)$.  We will develop more precise definitions of this new
+integral and derivative in the course of this section and the next.
+
+What should we use for the ``phase'' in Eq.~\eqref{eq:9.2}?  In the classical
+limit, we should find that only one path, the classical path, contributes to
+the total amplitude.  We might therefore hope to evaluate the integral in
+\eqref{eq:9.2} by the method of stationary phase, identifying the classical
+path $x_{cl}(t)$ by the stationary condition,
+\begin{equation}
+  \frac{\delta S[x]}{\delta x(t)}\Big|_{x=x_{cl}} = 0 .
+\end{equation}
+But the classical path is the one that satisfies the principle of least
+action,
+\begin{equation}
+  \delta S = 0,\qquad S = \int L\,dt ,
+\end{equation}
+where $S = \int L\,dt$ is the classical action.  It is tempting, therefore, to
+identify the phase with $S$, up to a constant.  Since the stationary-phase
+approximation should be valid in the classical limit---that is, when
+$S \gg \hbar$---we will use $S/\hbar$ for the phase.  Our final formula for the
+propagation amplitude is thus
+\begin{equation}
+  \langle x_b|\ e^{-iHT/\hbar}\ |x_a\rangle = U(x_a, x_b; T)
+  = \int \mathcal{D}x(t)\ e^{iS[x(t)]/\hbar} .
+  \label{eq:9.3}
+\end{equation}
+We can easily verify that this formula gives the correct interference pattern
+in the double-slit experiment.  The action for either path shown in
+Fig.~\ref{fig:9.1} is just $(1/2)mv^2t$, the kinetic energy times the time.
+For path 1 the velocity is $v_1 = D/t$, so the phase is $mD^2/2\hbar t$.  For
+path 2 we have $v_2 = (D+d)/t$, so the phase is $m(D+d)^2/2\hbar t$.  We must
+assume that $d \ll D$, so that $v_1 \approx v_2$ (i.e., the electrons have a
+well-defined velocity).  The excess phase for path 2 is then
+$mDd/\hbar t \approx pd/\hbar$, where $p$ is the momentum.  This is exactly
+what we would expect from the de Broglie relation $p = \hbar/\lambda$, so we
+must be doing something right.
+
+To evaluate the functional integral more generally, we must define the symbol
+$\int\mathcal{D}x(t)$ in the case where the number of paths $x(t)$ is more
+than two (and, in fact, continuously infinite).  We will use a brute-force
+definition, by discretization.  Break up the time interval from 0 to $T$ into
+many small pieces of duration $\epsilon$, as shown in Fig.~\ref{fig:9.2}.
+Approximate a path $x(t)$ as a sequence of straight lines, one in each time
+slice.  The action for this discretized path is
+\begin{equation}
+  \sum_k \epsilon\ \Bigl[ \frac{m}{2}\Bigl( \frac{x_{k+1}-x_k}{\epsilon}
+    \Bigr)^2 - V\Bigl( \frac{x_{k+1}+x_k}{2} \Bigr) \Bigr] .
+\end{equation}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.5\textwidth]{fig9.2.png}
+  \caption{We define the path integral by dividing the time interval into
+    small slices of duration $\epsilon$, then integrating over the coordinate
+    $x_k$ of each slice.}
+  \label{fig:9.2}
+\end{figure}
+
+We then define the path integral by
+\begin{equation}
+  \begin{aligned}
+    \int \mathcal{D}x(t)\ F[x(t)] &= \lim_{\epsilon\to 0}\
+      \Bigl[ \prod_k \int \frac{dx_k}{C(\epsilon)} \Bigr]\ F[x(t)]\,
+      e^{i\sum_k \epsilon \mathcal{L}_k}\\
+    &= \lim_{\epsilon\to 0}\ \Bigl[ \int \frac{dx_1}{C(\epsilon)}
+      \cdots \int \frac{dx_{N-1}}{C(\epsilon)} \Bigr]\ F[x(t)]\,
+      e^{i\sum_k \epsilon \mathcal{L}_k} ,
+  \end{aligned}
+  \label{eq:9.4}
+\end{equation}
+where $C(\epsilon)$ is a constant, to be determined later.  (We have included
+one factor of $C(\epsilon)$ for each of the $N$ time slices, for reasons that
+will be clear below.)  At the end of the calculation we take the limit
+$\epsilon\to 0$.  (As in Sections~4.5 and~6.2, the $\prod$ symbol is an
+instruction to write what follows once for each $k$.)
+
+Using \eqref{eq:9.4} as the definition of the right-hand side of
+\eqref{eq:9.3}, we will now demonstrate the validity of \eqref{eq:9.3} for a
+general one-particle potential problem.  To do this, we will show that the
+left- and right-hand sides of \eqref{eq:9.3} are obtained by integrating the
+same differential equation, with the same initial condition.  In the process,
+we will determine the constant $C(\epsilon)$.
+
+To derive the differential equation satisfied by \eqref{eq:9.4}, consider the
+addition of the very last time slice in Fig.~\ref{fig:9.2}.  According to
+\eqref{eq:9.3} and the definition \eqref{eq:9.4}, we should have
+\begin{equation}
+  \begin{aligned}
+    U(x_a, x_b; T) &= \int_{-\infty}^{\infty} dx'\ C(\epsilon)\
+      \exp\Bigl[ \frac{im(x_b-x')^2}{2\hbar\epsilon}
+        - \frac{i\epsilon}{\hbar}V\Bigl( \frac{x_b+x'}{2} \Bigr) \Bigr]\
+      U(x_a, x'; T-\epsilon) .
+  \end{aligned}
+\end{equation}
+The integral over $x'$ is just the contribution to $\int\mathcal{D}x$ from the
+last time slice, while the exponential factor is the contribution to
+$e^{iS/\hbar}$ from that slice.  All contributions from previous slices are
+contained in $U(x_a, x'; T-\epsilon)$.
+
+As we send $\epsilon\to 0$, the rapid oscillation of the first term in the
+exponential constrains $x'$ to be very close to $x_b$.  We can therefore
+expand the above expression in powers of $(x'-x_b)$:
+\begin{equation}
+  U(x_a, x_b; T) = \int_{-\infty}^{\infty} dx'\ C(\epsilon)\
+    \exp\Bigl[ \frac{im(x_b-x')^2}{2\hbar\epsilon} \Bigr]\
+    \Bigl[ 1 - \frac{i\epsilon}{\hbar}V(x_b) + \cdots \Bigr]\
+    U(x_a, x_b; T-\epsilon) .
+  \label{eq:9.5}
+\end{equation}
+We can now perform the $x'$ integral by treating the exponential factor as a
+Gaussian.  (Properly, we should introduce a small real term in the exponent
+for convergence; we will ignore this term until the next section, when we
+derive Feynman rules using functional methods.)  Recall the Gaussian
+integration formulae
+\begin{equation}
+  \int d\xi\ e^{i b\xi^2} = \sqrt{\frac{i\pi}{b}},\qquad
+  \int d\xi\ \xi\,e^{i b\xi^2} = 0,\qquad
+  \int d\xi\ \xi^2 e^{i b\xi^2} = \frac{i}{2b}\sqrt{\frac{i\pi}{b}} .
+\end{equation}
+Applying these identities to \eqref{eq:9.5}, we find
+\begin{equation}
+  U(x_a, x_b; T) = C(\epsilon)\sqrt{\frac{2\pi i\hbar\epsilon}{-m}}\
+    \Bigl( 1 - \frac{i\epsilon}{\hbar}V(x_b) + \frac{i\hbar\epsilon}{2m}
+      \frac{\partial^2}{\partial x_b^2} + \mathcal{O}(\epsilon^2) \Bigr)\
+    U(x_a, x_b; T-\epsilon) .
+\end{equation}
+This expression makes no sense in the limit $\epsilon\to 0$ unless the factor
+in parentheses is equal to 1.  We can therefore identify the correct definition
+of $C$:
+\begin{equation}
+  C(\epsilon) = \Bigl( \frac{2\pi\hbar\epsilon}{-im} \Bigr)^{1/2}
+  = \sqrt{\frac{2\pi i\hbar\epsilon}{m}} .
+  \label{eq:9.6}
+\end{equation}
+Given this definition, we can compare terms of order $\epsilon$ and multiply
+by $i\hbar$ to obtain
+\begin{equation}
+  i\hbar\frac{\partial}{\partial T}U(x_a, x_b; T)
+  = \Bigl[ -\frac{\hbar^2}{2m}\frac{\partial^2}{\partial x_b^2}
+    + V(x_b) \Bigr]U(x_a, x_b; T)
+  = H U(x_a, x_b; T) .
+  \label{eq:9.7}
+\end{equation}
+This is the Schr\"odinger equation.  But it is easy to show that the
+time-evolution operator $U$, as originally defined in \eqref{eq:9.1},
+satisfies the same equation.
+
+As $T\to 0$, the left-hand side of \eqref{eq:9.3} tends to
+$\delta(x_a-x_b)$.  Compare this to the value of \eqref{eq:9.4} in the case of
+one time slice:
+\begin{equation}
+  \frac{1}{C(\epsilon)}\ \exp\Bigl[ \frac{im(x_b-x_a)^2}{2\hbar\epsilon}
+    \Bigr] \to \delta(x_a-x_b) + \mathcal{O}(\epsilon) .
+\end{equation}
+This is just the peaked exponential of \eqref{eq:9.5}, and it also tends to
+$\delta(x_a-x_b)$ as $\epsilon\to 0$.  Thus the left- and right-hand sides of
+\eqref{eq:9.3} satisfy the same differential equation with the same initial
+condition.  We conclude that the Hamiltonian definition of the time evolution
+operator \eqref{eq:9.1} and the path-integral definition \eqref{eq:9.3} are
+equivalent, at least for the case of this simple one-dimensional system.
+
+To conclude this section, let us generalize our path-integral formula to more
+complicated quantum systems.  Consider a very general quantum system,
+described by an arbitrary set of coordinates $q^i$, conjugate momenta $p_i$,
+and Hamiltonian $H(q,p)$.  We will give a direct proof of the path-integral
+formula for transition amplitudes in this system.
+
+The transition amplitude that we would like to compute is
+\begin{equation}
+  U(q_a, q_b; T) = \langle q_b|\ e^{-iHT}\ |q_a\rangle .
+  \label{eq:9.8}
+\end{equation}
+(When $q$ or $p$ appears without a superscript, it will denote the set of all
+coordinates $\{q^i\}$ or momenta $\{p_i\}$.  Also, for convenience, we now set
+$\hbar = 1$.)  We break up the time interval into $N$ slices of duration
+$\epsilon = T/N$, and insert complete sets of position and momentum states
+between successive time slices.  The result is
+\begin{equation}
+  \begin{aligned}
+    U(q_a, q_b; T) &= \Bigl[ \prod_{k=1}^{N-1}\int dq_k \Bigr]\
+      \Bigl[ \prod_{k=0}^{N-1}\int \frac{dp_k}{2\pi} \Bigr]\
+      \exp\Bigl\{ i\sum_{k=0}^{N-1}\Bigl[ p_k(q_{k+1}-q_k)
+        - \epsilon H(p_k, \bar{q}_k) \Bigr] \Bigr\}\\
+    &= \int \mathcal{D}q(t)\,\mathcal{D}p(t)\ \exp\Bigl[ i\int_0^T dt\
+      \bigl( p\dot{q} - H(p,q) \bigr) \Bigr] .
+  \end{aligned}
+  \label{eq:9.12}
+\end{equation}
+This is the phase-space form of the path integral.
+
+For a nonrelativistic particle, the Hamiltonian is simply
+$H = p^2/2m + V(q)$.  In this case we can evaluate the $p$-integrals by
+completing the square in the exponent:
+\begin{equation}
+  \int \frac{dp_k}{2\pi}\ \exp\Bigl[ i\Bigl( p_k(q_{k+1}-q_k)
+    - \epsilon\frac{p_k^2}{2m} \Bigr) \Bigr]
+  = C(\epsilon)\ \exp\Bigl[ \frac{im}{2\epsilon}(q_{k+1}-q_k)^2 \Bigr] ,
+\end{equation}
+where $C(\epsilon)$ is just the factor \eqref{eq:9.6}.  Notice that we have one
+such factor for each time slice.  Thus we recover expression \eqref{eq:9.3},
+in discretized form, including the proper factors of $C$:
+\begin{equation}
+  U(q_a, q_b; T) = \lim_{\epsilon\to 0}\ \Bigl[ \prod_k
+    \int \frac{dq_k}{C(\epsilon)} \Bigr]\
+    \exp\Bigl\{ \sum_k \epsilon\ \Bigl[ \frac{m}{2}\Bigl(
+      \frac{q_{k+1}-q_k}{\epsilon} \Bigr)^2 - V(q_k) \Bigr] \Bigr\}.
+  \label{eq:9.13}
+\end{equation}
+
+\section{Functional Quantization of Scalar Fields}
+
+In this section we will apply the functional integral formalism to the quantum
+theory of a real scalar field $\phi(x)$.  Our goal is to derive the Feynman
+rules for such a theory directly from functional integral expressions.
+
+The general functional integral formula \eqref{eq:9.12} derived in the last
+section holds for any quantum system, so it should hold for a quantum field
+theory.  In the case of a real scalar field, the coordinates $q^i$ are the
+field amplitudes $\phi(\mathbf{x})$, and the Hamiltonian is
+\begin{equation}
+  H = \int d^3x\ \Bigl[ \tfrac{1}{2}\pi^2 + \tfrac{1}{2}(\nabla\phi)^2
+    + V(\phi) \Bigr].
+\end{equation}
+Thus our formula becomes
+\begin{equation}
+  \langle \phi_b(\mathbf{x})|\ e^{-iHT}\ |\phi_a(\mathbf{x})\rangle
+  = \int \mathcal{D}\phi\,\mathcal{D}\pi\ \exp\Bigl[ i\int_0^T d^4x\
+    \bigl( \pi\dot{\phi} - \tfrac{1}{2}\pi^2 - \tfrac{1}{2}(\nabla\phi)^2
+      - V(\phi) \bigr) \Bigr] ,
+\end{equation}
+where the functions $\phi(\mathbf{x})$ over which we integrate are constrained
+to the specific configurations $\phi_a(\mathbf{x})$ at $x^0 = 0$ and
+$\phi_b(\mathbf{x})$ at $x^0 = T$.  Since the exponent is quadratic in $\pi$,
+we can complete the square and evaluate the $\int\mathcal{D}\pi$ integral to
+obtain
+\begin{equation}
+  \langle \phi_b(\mathbf{x})|\ e^{-iHT}\ |\phi_a(\mathbf{x})\rangle
+  = \int_{\phi_a}^{\phi_b} \mathcal{D}\phi\ \exp\Bigl[ i\int_0^T d^4x\
+    \mathcal{L} \Bigr],
+  \label{eq:9.14}
+\end{equation}
+where
+\begin{equation}
+  \mathcal{L} = \tfrac{1}{2}(\partial_\mu\phi)^2 - V(\phi)
+\end{equation}
+is the Lagrangian density.  The integration measure $\mathcal{D}\phi$ in
+\eqref{eq:9.14} again involves an awkward constant, which we will not write
+explicitly.
+
+The time integral in the exponent of \eqref{eq:9.14} goes from 0 to $T$, as
+determined by our choice of what transition function to compute; in all other
+respects this formula is manifestly Lorentz invariant.  Any other symmetries
+that the Lagrangian may have are also explicitly preserved by the functional
+integral.  As we proceed in our study of quantum field theory, symmetries and
+their associated conservation laws will play an increasingly central role.  We
+therefore propose to take a rash step: Abandon the Hamiltonian formalism, and
+take Eq.~\eqref{eq:9.14} to define the Hamiltonian dynamics.  Any such formula
+corresponds to some Hamiltonian; to find it, one can always differentiate with
+respect to $T$ and derive the Schr\"odinger equation as in the previous
+section.  We thus consider the Lagrangian $\mathcal{L}$ to be the most
+fundamental specification of a quantum field theory.  We will see next that
+one can use the functional integral to compute from $\mathcal{L}$ directly,
+without invoking the Hamiltonian at all.
+
+\subsection{Correlation Functions}
+
+To make direct use of the functional integral, we need a functional formula
+for computing correlation functions.  To find such an expression, consider the
+object
+\begin{equation}
+  \int \mathcal{D}\phi(x)\ \phi(x_1)\phi(x_2)\ \exp\Bigl[ i\int_{-T}^{T}
+    d^4x\ \mathcal{L}(\phi) \Bigr],
+  \label{eq:9.15}
+\end{equation}
+where the boundary conditions on the path integral are
+$\phi(-T,\mathbf{x}) = \phi_a(\mathbf{x})$ and
+$\phi(T,\mathbf{x}) = \phi_b(\mathbf{x})$ for some $\phi_a$, $\phi_b$.  We
+would like to relate this quantity to the two-point correlation function,
+$\langle\Omega|T\phi_H(x_1)\phi_H(x_2)|\Omega\rangle$.  (To distinguish
+operators from ordinary numbers, we write the Heisenberg picture operator
+with an explicit subscript: $\phi_H(x)$.  Similarly, we will write
+$\phi_S(\mathbf{x})$ for the Schr\"odinger picture operator.)
+
+First we break up the functional integral in \eqref{eq:9.15} as follows:
+\begin{equation}
+  \int \mathcal{D}\phi(x) = \int \mathcal{D}\phi_1(\mathbf{x})\,
+    \int \mathcal{D}\phi_2(\mathbf{x})\, \int_{\phi_1}^{\phi_2}
+    \mathcal{D}\phi(x) .
+  \label{eq:9.16}
+\end{equation}
+The main functional integral $\int\mathcal{D}\phi(x)$ is now constrained at
+times $x^0_1$ and $x^0_2$ (in addition to the endpoints $-T$ and $T$), but we
+must integrate separately over the intermediate configurations
+$\phi_1(\mathbf{x})$ and $\phi_2(\mathbf{x})$.  After this decomposition, the
+extra factors $\phi(x_1)$ and $\phi(x_2)$ in \eqref{eq:9.15} become
+$\phi_1(x_1)$ and $\phi_2(x_2)$, and can be taken outside the main integral.
+The main integral then factors into three pieces, each being a simple
+transition amplitude according to \eqref{eq:9.14}.  The times $x^0_1$ and
+$x^0_2$ automatically fall in order; for example, if $x^0_1 < x^0_2$, then
+\eqref{eq:9.15} becomes
+\begin{equation}
+  \int \mathcal{D}\phi_1(\mathbf{x})\int \mathcal{D}\phi_2(\mathbf{x})\
+    \phi_1(x_1)\phi_2(x_2)\ \langle \phi_b|e^{-iH(T-x^0_2)}|\phi_2\rangle\
+    \langle \phi_2|e^{-iH(x^0_2-x^0_1)}|\phi_1\rangle\
+    \langle \phi_1|e^{-iH(x^0_1+T)}|\phi_a\rangle .
+\end{equation}
+We can turn the field $\phi_1(x_1)$ into a Schr\"odinger operator using
+$\phi_S(\mathbf{x})|\phi_1\rangle = \phi_1(\mathbf{x})|\phi_1\rangle$.  The
+completeness relation $\int\mathcal{D}\phi_1\,|\phi_1\rangle\langle\phi_1| = 1$
+then allows us to eliminate the intermediate state $|\phi_1\rangle$.  Similar
+manipulations work for $\phi_2$, yielding the expression
+\begin{equation}
+  \langle \phi_b|\ e^{-iH(T-x^0_2)}\ \phi_S(\mathbf{x}_2)\
+    e^{-iH(x^0_2-x^0_1)}\ \phi_S(\mathbf{x}_1)\
+    e^{-iH(x^0_1+T)}\ |\phi_a\rangle .
+\end{equation}
+Most of the exponential factors combine with the Schr\"odinger operators to
+make Heisenberg operators.  In the case $x^0_1 > x^0_2$, the order of $x_1$ and
+$x_2$ would simply be interchanged.  Thus expression \eqref{eq:9.15} is equal
+to
+\begin{equation}
+  \langle \phi_b|\ e^{-iHT}\ T\{\phi_H(x_1)\phi_H(x_2)\}\ e^{-iHT}\
+    |\phi_a\rangle .
+  \label{eq:9.17}
+\end{equation}
+This expression is almost equal to the two-point correlation function.  To
+make it more nearly equal, we take the limit $T\to\infty(1-i\epsilon)$.  Just
+as in Section~4.2, this trick projects out the vacuum state $|\Omega\rangle$
+from $|\phi_a\rangle$ and $|\phi_b\rangle$ (provided that these states have
+some overlap with $|\Omega\rangle$, which we assume).  For example, decomposing
+$|\phi_a\rangle$ into eigenstates $|n\rangle$ of $H$, we have
+\begin{equation}
+  e^{-iHT}|\phi_a\rangle = \sum_n e^{-iE_nT}|n\rangle\langle n|\phi_a\rangle
+  \xrightarrow{T\to\infty(1-i\epsilon)}
+    \langle\Omega|\phi_a\rangle\ e^{-iE_0T}|\Omega\rangle .
+\end{equation}
+As in Section~4.2, we obtain some awkward phase and overlap factors.  But
+these factors cancel if we divide by the same quantity as \eqref{eq:9.15} but
+without the two extra fields $\phi(x_1)$ and $\phi(x_2)$.  Thus we obtain the
+simple formula
+\begin{equation}
+  \langle\Omega|T\phi_H(x_1)\phi_H(x_2)|\Omega\rangle
+  = \lim_{T\to\infty(1-i\epsilon)}\
+    \frac{\int\mathcal{D}\phi\ \phi(x_1)\phi(x_2)\ \exp\bigl[
+      i\int_{-T}^{T}d^4x\ \mathcal{L} \bigr]}
+      {\int\mathcal{D}\phi\ \exp\bigl[ i\int_{-T}^{T}d^4x\ \mathcal{L} \bigr]} .
+  \label{eq:9.18}
+\end{equation}
+This is our desired formula for the two-point correlation function in terms of
+functional integrals.  For higher correlation functions, just insert additional
+factors of $\phi$ on both sides.
+
+\subsection{Feynman Rules}
+
+Our next task is to compute various correlation functions directly from the
+right-hand side of formula \eqref{eq:9.18}.  In other words, we will now use
+\eqref{eq:9.18} to derive the Feynman rules for a scalar field theory.  We
+will begin by computing the two-point function in the free Klein--Gordon
+theory, then generalize to higher correlation functions in the free theory.
+Finally, we will consider $\phi^4$ theory, in which we can perform a
+perturbation expansion to obtain the same Feynman rules as in Section~4.4.
+
+Consider first a noninteracting real-valued scalar field:
+\begin{equation}
+  S_0 = \int d^4x\ \mathcal{L}_0
+  = \int d^4x\ \Bigl[ \tfrac{1}{2}(\partial_\mu\phi)^2
+    - \tfrac{1}{2}m^2\phi^2 \Bigr].
+  \label{eq:9.19}
+\end{equation}
+Since $\mathcal{L}_0$ is quadratic in $\phi$, the functional integrals in
+\eqref{eq:9.18} take the form of generalized, infinite-dimensional Gaussian
+integrals.  We will therefore be able to evaluate the functional integrals
+exactly.
+
+Since this is our first functional integral computation, we will do it in a
+very explicit, but ugly, way.  We must first define the integral
+$\int\mathcal{D}\phi$ over field configurations.  To do this, we use the method
+of Eq.~\eqref{eq:9.4} in considering the continuous integral as a limit of a
+large but finite number of integrals.  We thus replace the variables
+$\phi(x)$ defined on a continuum of points by variables $\phi(x_i)$ defined at
+the points $x_i$ of a square lattice.  Let the lattice spacing be $\epsilon$,
+let the four-dimensional spacetime volume be $L^4$, and define
+\begin{equation}
+  \mathcal{D}\phi = \prod_i d\phi(x_i),
+  \label{eq:9.20}
+\end{equation}
+up to an irrelevant overall constant.
+
+The field values $\phi(x_i)$ can be represented by a discrete Fourier series:
+\begin{equation}
+  \phi(x) = \sum_{k_n} \frac{1}{\sqrt{V}}\ \phi(k_n)\,e^{ik_n\cdot x},
+  \qquad \phi(k_n) = \frac{1}{\sqrt{V}}\int d^4x\ \phi(x)\,e^{-ik_n\cdot x},
+\end{equation}
+where $k_n^\mu = 2\pi n^\mu/L$, with $n^\mu$ an integer, $|k_n^\mu| < \pi/\epsilon$,
+and $V = L^4$.  The Fourier coefficients $\phi(k)$ are complex.  However,
+$\phi(x)$ is real, and so these coefficients must obey the constraint
+$\phi^{*}(k) = \phi(-k)$.  We will consider the real and imaginary parts of the
+$\phi(k_n)$ with $k_n^0 > 0$ as independent variables.  The change of variables
+from the $\phi(x_i)$ to these new variables $\phi(k_n)$ is a unitary
+transformation, so we can rewrite the integral as
+\begin{equation}
+  \mathcal{D}\phi(x) = \Bigl[ \prod_{k_n^0>0} d\,\mathrm{Re}\,\phi(k_n)\,
+    d\,\mathrm{Im}\,\phi(k_n) \Bigr] .
+\end{equation}
+Later, we will take the limit $L\to\infty$, $\epsilon\to 0$.  The effect of
+this limit is to convert discrete, finite sums over $k_n$ to continuous
+integrals over $k$:
+\begin{equation}
+  \frac{1}{V}\sum_{k_n} \to \int \frac{d^4k}{(2\pi)^4} .
+  \label{eq:9.22}
+\end{equation}
+In the following discussion, this limit will produce Feynman perturbation
+theory in the form derived in Part~I.  We will not eliminate the infrared and
+ultraviolet divergences of Feynman diagrams that we encountered in Chapter~6,
+but at least the functional integral introduces no new types of singular
+behavior.
+
+Now, in the free theory, the exponent of \eqref{eq:9.18} is
+\begin{equation}
+  S_0 = \int \frac{d^4k}{(2\pi)^4}\ \Bigl[ \phi^{*}(k)
+    \bigl( \tfrac{1}{2}k^2 - \tfrac{1}{2}m^2 \bigr)\phi(k) \Bigr] .
+\end{equation}
+The Gaussian integral over $\phi$ can be performed explicitly.  For a
+quadratic form, the result is the inverse of the quadratic coefficient.  We
+find, for the two-point function,
+\begin{equation}
+  \langle 0|T\phi(x_1)\phi(x_2)|0\rangle = D_F(x_1-x_2)
+  = \int \frac{d^4k}{(2\pi)^4}\ \frac{i}{k^2-m^2+i\epsilon}\
+    e^{-ik\cdot(x_1-x_2)} ,
+  \label{eq:9.28}
+\end{equation}
+which is the familiar Feynman propagator of the Klein--Gordon theory.  The
+$i\epsilon$ term arises from the convergence factor of the functional integral,
+as we noted below Eq.~\eqref{eq:9.5}.  For the four-point function, we
+evaluate the Gaussian integral and obtain
+\begin{equation}
+  \langle 0|T\phi(x_1)\phi(x_2)\phi(x_3)\phi(x_4)|0\rangle
+  = D_F(x_1-x_2)D_F(x_3-x_4)
+    + D_F(x_1-x_3)D_F(x_2-x_4)
+    + D_F(x_1-x_4)D_F(x_2-x_3) ,
+  \label{eq:9.29}
+\end{equation}
+in agreement with Wick's theorem.
+
+We are now ready to move from the free Klein--Gordon theory to $\phi^4$
+theory.  Add to $\mathcal{L}_0$ a $\phi^4$ interaction:
+\begin{equation}
+  \mathcal{L} = \mathcal{L}_0 - \frac{\lambda}{4!}\phi^4 .
+\end{equation}
+Assuming that $\lambda$ is small, we can expand
+\begin{equation}
+  \exp\Bigl[ i\int d^4x\ \mathcal{L} \Bigr] = \exp\Bigl[
+    i\int d^4x\ \mathcal{L}_0 \Bigr]\ \Bigl[ 1 - \frac{i\lambda}{4!}
+      \int d^4x\ \phi^4 + \cdots \Bigr] .
+\end{equation}
+Making this expansion in both the numerator and the denominator of
+\eqref{eq:9.18}, we see that each is (aside from the constant factor
+Eq.~(9.23), which again cancels) expressed entirely in terms of free-field
+correlation functions.  Moreover, since
+$i\int d^4x\ \mathcal{L}_{\mathrm{int}} = -i\lambda/4!\int d^4x\ \phi^4$, we
+obtain exactly the same expansion as in Eq.~\eqref{eq:4.31}.  We can express
+both the numerator and the denominator in terms of Feynman diagrams, with the
+fundamental interaction again given by the vertex
+\begin{equation}
+  = -i\lambda\,(2\pi)^4\delta^{(4)}(\textstyle\sum k_i) .
+  \label{eq:9.30}
+\end{equation}
+All of the combinatorics work the same as in Section~4.4.  In particular, the
+disconnected vacuum bubble diagrams exponentiate and factor from the
+numerator of \eqref{eq:9.18}, and are canceled by the denominator, just as in
+Eq.~\eqref{eq:4.31}.
+
+The vertex rule for $\phi^4$ theory follows from the Lagrangian in an
+exceedingly simple way, and this simple procedure will turn out to be valid
+for other quantum field theories as well.  Once the quadratic terms in the
+Lagrangian are properly understood and the propagators of the theory are
+computed, the vertices can be read directly from the Lagrangian as the
+coefficients of the cubic and higher-order terms.
+
+\subsection{Functional Derivatives and the Generating Functional}
+
+To conclude this section, we will now introduce a slicker, more formal, method
+for computing correlation functions.  This method, based on an object called
+the \emph{generating functional}, avoids the awkward Fourier expansions of the
+preceding derivation.
+
+First we define the functional derivative, $\delta/\delta J(x)$, as follows.
+The functional derivative obeys the basic axiom (in four dimensions)
+\begin{equation}
+  \frac{\delta}{\delta J(x)}\,J(y) = \delta^{(4)}(x-y)
+  \qquad\text{or}\qquad
+  \frac{\delta}{\delta J(x)}\,\int d^4y\ J(y)\phi(y) = \phi(x) .
+  \label{eq:9.31}
+\end{equation}
+This definition is the natural generalization, to continuous functions, of the
+rule for discrete vectors,
+\begin{equation}
+  \frac{\partial}{\partial x_i}\,x_j = \delta_{ij} .
+\end{equation}
+To take functional derivatives of more complicated functionals we simply use
+the ordinary rules for derivatives of composite functions.  For example,
+\begin{equation}
+  \frac{\delta}{\delta J(x)}\ \exp\Bigl[ i\int d^4y\ J(y)\phi(y) \Bigr]
+  = i\phi(x)\ \exp\Bigl[ i\int d^4y\ J(y)\phi(y) \Bigr] .
+  \label{eq:9.32}
+\end{equation}
+When the functional depends on the derivative of $J$, we integrate by parts
+before applying the functional derivative:
+\begin{equation}
+  \frac{\delta}{\delta J(x)}\ \int d^4y\ \partial_\mu J(y)\,\phi(y)
+  = -\partial_\mu\phi(x) .
+  \label{eq:9.33}
+\end{equation}
+
+The basic object of this formalism is the \emph{generating functional of
+correlation functions}, $Z[J]$.  (Some authors call it $W[J]$.)  In a scalar
+field theory, $Z[J]$ is defined as
+\begin{equation}
+  Z[J] = \int \mathcal{D}\phi\ \exp\Bigl[ i\int d^4x\ \bigl(
+    \mathcal{L} + J(x)\phi(x) \bigr) \Bigr] .
+  \label{eq:9.34}
+\end{equation}
+This is a functional integral over $\phi$ in which we have added to
+$\mathcal{L}$ in the exponent a source term, $J(x)\phi(x)$.
+
+Correlation functions of the Klein--Gordon field theory can be simply
+computed by taking functional derivatives of the generating functional.  For
+example, the two-point function is
+\begin{equation}
+  \langle 0|T\phi(x_1)\phi(x_2)|0\rangle
+  = \frac{1}{Z_0}\ \Bigl( -i\frac{\delta}{\delta J(x_1)} \Bigr)\
+    \Bigl( -i\frac{\delta}{\delta J(x_2)} \Bigr)\ Z[J]\Big|_{J=0},
+  \label{eq:9.35}
+\end{equation}
+where $Z_0 = Z[J=0]$.  Each functional derivative brings down a factor of
+$\phi$ in the numerator of $Z[J]$; setting $J=0$, we recover expression
+\eqref{eq:9.18}.  To compute higher correlation functions we simply take more
+functional derivatives.
+
+Formula \eqref{eq:9.35} is useful because, in a free field theory, $Z[J]$ can
+be rewritten in a very explicit form.  Consider the exponent of \eqref{eq:9.34}
+in the free Klein--Gordon theory.  Integrating by parts, we obtain
+\begin{equation}
+  \int d^4x\ \bigl[ \mathcal{L}_0(\phi) + J\phi \bigr]
+  = \int d^4x\ \Bigl[ \tfrac{1}{2}\phi(-\partial^2-m^2+i\epsilon)\phi
+    + J\phi \Bigr].
+  \label{eq:9.36}
+\end{equation}
+(The $i\epsilon$ is a convergence factor for the functional integral, as we
+discussed below Eq.~(9.23).)  We can complete the square by
+introducing a shifted field,
+\begin{equation}
+  \phi'(x) = \phi(x) - i\int d^4y\ D_F(x-y)\,J(y) .
+\end{equation}
+Making this substitution and using the fact that $D_F$ is a Green's function
+of the Klein--Gordon operator, we find that \eqref{eq:9.36} becomes
+\begin{equation}
+  \int d^4x\ \bigl[ \mathcal{L}_0(\phi)+J\phi \bigr]
+  = \int d^4x\ \Bigl[ \tfrac{1}{2}\phi'(-\partial^2-m^2+i\epsilon)\phi'
+    - \tfrac{1}{2}J(-iD_F)J \Bigr] .
+\end{equation}
+More symbolically, we could write the change of variables as
+\begin{equation}
+  \phi' = \phi + (-\partial^2-m^2+i\epsilon)^{-1}J,
+  \label{eq:9.37}
+\end{equation}
+and the result
+\begin{equation}
+  \int d^4x\ \bigl[ \mathcal{L}_0(\phi)+J\phi \bigr]
+  = \int d^4x\ \bigl[ \tfrac{1}{2}\phi'(-\partial^2-m^2+i\epsilon)\phi'
+    - \tfrac{1}{2}J(-\partial^2-m^2+i\epsilon)^{-1}J \bigr].
+  \label{eq:9.38}
+\end{equation}
+Now change variables from $\phi$ to $\phi'$ in the functional integral of
+\eqref{eq:9.34}.  This is just a shift, and so the Jacobian of the
+transformation is 1.  The result is
+\begin{equation}
+  Z[J] = \int \mathcal{D}\phi'\ \exp\Bigl[ i\int d^4x\ \mathcal{L}_0(\phi')
+    \Bigr]\ \exp\Bigl[ -\frac{i}{2}\int d^4x\,d^4y\ J(x)
+      \bigl[ -iD_F(x-y) \bigr]J(y) \Bigr] .
+\end{equation}
+The second exponential factor is independent of $\phi'$, while the remaining
+integral over $\phi'$ is precisely $Z_0$.  Thus the generating functional of
+the free Klein--Gordon theory is simply
+\begin{equation}
+  Z[J] = Z_0\ \exp\Bigl[ \frac{i}{2}\int d^4x\,d^4y\ J(x)\,
+    \frac{iD_F(x-y)}{i}\,J(y) \Bigr]
+  = Z_0\ \exp\Bigl[ -\frac{1}{2}\int d^4x\,d^4y\ J(x)\,D_F(x-y)\,J(y)
+    \Bigr].
+  \label{eq:9.39}
+\end{equation}
+Let us use Eqs.~\eqref{eq:9.39} and \eqref{eq:9.35} to compute some
+correlation functions.  The two-point function is
+\begin{equation}
+  \begin{aligned}
+    \langle 0|T\phi(x_1)\phi(x_2)|0\rangle
+    &= \frac{1}{Z_0}\ \frac{\delta}{\delta J(x_1)}\ \frac{\delta}
+      {\delta J(x_2)}\ \exp\Bigl[ -\frac{1}{2}\int d^4x\,d^4y\
+        J(x)D_F(x-y)J(y) \Bigr]\Big|_{J=0}\\
+    &= D_F(x_1-x_2) .
+  \end{aligned}
+  \label{eq:9.40}
+\end{equation}
+Taking one derivative brings down two identical terms; the second derivative
+gives several terms, but only when it acts on the outside factor do we get a
+term that survives when we set $J=0$.
+
+It is instructive to work out the four-point function by this method as well.
+In order to fit the computation in a reasonable amount of space, let us
+abbreviate arguments of functions as subscripts: $\phi_i = \phi(x_i)$,
+$J_i = J(x_i)$, $D_{ij} = D_F(x_i-x_j)$, and so on.  Repeated subscripts will
+be integrated over implicitly.  The four-point function is then
+\begin{equation}
+  \begin{aligned}
+    \langle 0|T\phi_1\phi_2\phi_3\phi_4|0\rangle
+    &= \frac{\delta}{\delta J_1}\frac{\delta}{\delta J_2}
+      \frac{\delta}{\delta J_3}\frac{\delta}{\delta J_4}\
+      \exp\Bigl[ -\frac{1}{2}J_iD_{ij}J_j \Bigr]\Big|_{J=0}\\
+    &= D_{12}D_{34} + D_{13}D_{24} + D_{14}D_{23} ,
+  \end{aligned}
+  \label{eq:9.41}
+\end{equation}
+in agreement with \eqref{eq:9.29}.  The rules for differentiating the
+exponential give rise to the same familiar pattern: We get one term for each
+possible way of contracting the four points in pairs, with a factor of $D_F$
+for each contraction.
+
+The generating functional method used just above to construct the
+correlations of a free field theory can be used as well to represent the
+correlation functions of an interacting field theory.  Formula \eqref{eq:9.35}
+is independent of whether the theory is free or interacting.  The factor
+$Z[J=0]$ is nontrivial in the case of an interacting field theory, but it
+simply gives the denominator of Eq.~\eqref{eq:9.18}, that is, the sum of
+vacuum diagrams.  Again from this approach, the combinatoric issues in the
+evaluation of correlation functions are the same as in Section~4.4.
+
+\section{The Analogy Between Quantum Field Theory and Statistical Mechanics}
+
+Let us now pause from the technical aspects of this discussion to consider some
+implications of the formulae we have derived.  To begin, let us summarize the
+formal conclusions of the previous section in the following way: For a field
+theory governed by the Lagrangian $\mathcal{L}$, the generating functional of
+correlation functions is
+\begin{equation}
+  Z[J] = \int \mathcal{D}\phi\ \exp\Bigl[ i\int d^4x\
+    \bigl( \mathcal{L} + J\phi \bigr) \Bigr] .
+  \label{eq:9.42}
+\end{equation}
+The time variable of integration in the exponent runs from $-T$ to $T$, with
+$T\to\infty(1-i\epsilon)$.  A correlation function such as \eqref{eq:9.18} is
+reproduced by writing
+\begin{equation}
+  \langle \Omega|T\phi(x_1)\phi(x_2)|\Omega\rangle
+  = Z[J]^{-1}\ \Bigl( -i\frac{\delta}{\delta J(x_1)} \Bigr)\
+    \Bigl( -i\frac{\delta}{\delta J(x_2)} \Bigr)\ Z[J]\Big|_{J=0} .
+  \label{eq:9.43}
+\end{equation}
+The generating functional \eqref{eq:9.42} is reminiscent of the partition
+function of statistical mechanics.  It has the same general structure of an
+integral over all possible configurations of an exponential statistical weight.
+The source $J(x)$ plays the role of an external field.  In fact, our method of
+computing correlation functions by differentiating with respect to $J(x)$
+mimics the trick often used in statistical mechanics of computing correlation
+functions by differentiating with respect to such variables as the pressure or
+the magnetic field.
+
+This analogy can be made more precise by manipulating the time variable of
+integration in \eqref{eq:9.42}.  The derivation of the functional integral
+formula implied that the time integration was slightly tipped into the complex
+plane, in just the direction to permit the contour to be rotated clockwise
+onto the imaginary axis.  We have already noted (below Eq.~(9.23)) that
+the original infinitesimal rotation gives the correct $i\epsilon$ prescription
+to produce the Feynman propagator.  The finite rotation is the analogue in
+configuration space of the Wick rotation of the time component of momentum
+illustrated in Fig.~\ref{fig:6.1}.  Like the Wick rotation in a momentum
+integral, this Wick rotation of the time coordinate $t\to -ix^0$ produces a
+Euclidean 4-vector product:
+\begin{equation}
+  x^2 = t^2 - |\mathbf{x}|^2 \to -(x^0)^2 - |\mathbf{x}|^2 = -|x_E|^2 .
+  \label{eq:9.44}
+\end{equation}
+It is possible to show, by manipulating the expression for each Feynman
+diagram, that the analytic continuation of the time variables in any Green's
+function of a quantum field theory produces a correlation function invariant
+under the rotational symmetry of four-dimensional Euclidean space.  This Wick
+rotation inside the functional integral demonstrates this same conclusion in a
+more general way.
+
+To understand what we have achieved by this rotation, consider the example of
+$\phi^4$ theory.  The action of $\phi^4$ theory coupled to sources is
+\begin{equation}
+  \int d^4x\ \bigl( \mathcal{L} + J\phi \bigr) = \int d^4x\ \Bigl[
+    \tfrac{1}{2}(\partial_\mu\phi)^2 - \tfrac{1}{2}m^2\phi^2
+      - \frac{\lambda}{4!}\phi^4 + J\phi \Bigr] .
+\end{equation}
+After the Wick rotation $t\to -ix^0$, this becomes
+\begin{equation}
+  i\int d^4x\ \bigl( \mathcal{L}+J\phi \bigr) \to -\int d^4x_E\ \Bigl[
+    \tfrac{1}{2}(\nabla_E\phi)^2 + \tfrac{1}{2}m^2\phi^2
+      + \frac{\lambda}{4!}\phi^4 - J\phi \Bigr] ,
+\end{equation}
+which is precisely the exponent appearing in the statistical partition
+function of the magnetic system discussed in Chapter~8.  The identification is
+completed by noting that the Euclidean field theory in $d$ spatial dimensions
+corresponds to the statistical system at a temperature given by the inverse
+period of the Euclidean time coordinate, which is taken to infinity.  This is
+the precise sense in which a quantum field theory in $d+1$ spacetime
+dimensions corresponds to a statistical system in $d$ spatial dimensions.  The
+analogy is fully developed in Problem~9.2, where we evaluate the finite-
+temperature (periodic Euclidean time) version of the path integral.
+
+\section{Quantization of the Electromagnetic Field}
+
+We now turn to the quantization of the electromagnetic field, which we have
+been avoiding since Section~4.8.  In this section we will apply the functional
+integral method to the quantization of the photon.  The new difficulty, of
+course, is gauge invariance.
+
+Let us begin by attempting to write down the generating functional for the
+electromagnetic field in the same way as for a scalar field:
+\begin{equation}
+  Z[J] = \int \mathcal{D}A\ \exp\Bigl[ i\int d^4x\ \bigl(
+    \mathcal{L} + J_\mu A^\mu \bigr) \Bigr] ,
+  \label{eq:9.47}
+\end{equation}
+where
+\begin{equation}
+  \mathcal{L} = -\frac{1}{4}(F_{\mu\nu})^2
+\end{equation}
+is the free electromagnetic Lagrangian.  If we work in the free-field theory,
+we can perform the functional integral over $A$ exactly, just as we did for the
+scalar field.  The quadratic form in the exponent is
+\begin{equation}
+  \int d^4x\ \Bigl[ -\frac{1}{4}(F_{\mu\nu})^2 + J_\mu A^\mu \Bigr]
+  = \int d^4x\ \Bigl[ \tfrac{1}{2}A^\mu\bigl( g_{\mu\nu}\partial^2
+    - \partial_\mu\partial_\nu \bigr)A^\nu + J_\mu A^\mu \Bigr] .
+  \label{eq:9.52}
+\end{equation}
+The operator $(g_{\mu\nu}\partial^2 - \partial_\mu\partial_\nu)$ has no
+inverse: it annihilates any function proportional to $\partial_\mu\Lambda(x)$,
+since
+\begin{equation}
+  \bigl( g_{\mu\nu}\partial^2 - \partial_\mu\partial_\nu \bigr)
+    \partial^\nu\Lambda = 0 .
+\end{equation}
+This is, of course, just the gauge invariance of the photon: the action is
+unchanged by the transformation $A_\mu\to A_\mu + \partial_\mu\Lambda$.  The
+quadratic form is singular, and the functional integral over $A$ is not
+well-defined as it stands.  Physically, we must not integrate over the gauge
+degrees of freedom; we should integrate over only the physical, gauge-inequivalent
+field configurations.
+
+The solution to this problem is the \emph{Faddeev--Popov} procedure.  We
+insert a factor of 1 into the functional integral, in the form of an integral
+over the gauge transformation group.  Consider the functional integral
+\begin{equation}
+  \int \mathcal{D}A\ e^{iS[A]} ,
+\end{equation}
+where $S[A]$ is gauge invariant.  We insert
+\begin{equation}
+  1 = \Delta[A]\ \int \mathcal{D}\alpha\ \delta\bigl( G(A^\alpha) \bigr) ,
+  \label{eq:9.53}
+\end{equation}
+where $G(A)$ is a gauge-fixing function (which vanishes for exactly one gauge
+orbit representative), $A^\alpha$ is the gauge-transformed field, and
+$\Delta[A]$ is the Faddeev--Popov determinant, defined so that the integral is
+1.  Using the gauge invariance of the action and of the measure, we can
+evaluate the functional integral:
+\begin{equation}
+  \int \mathcal{D}A\ e^{iS[A]} = \det\Bigl( \frac{\delta G}{\delta\alpha}
+    \Bigr)\ \Bigl( \int \mathcal{D}\alpha \Bigr)\
+    \int \mathcal{D}A\ e^{iS[A]}\ \delta\bigl( G(A) \bigr) .
+  \label{eq:9.54}
+\end{equation}
+The functional integral over $A$ is now restricted by the delta function to
+physically inequivalent field configurations, as desired.  The divergent
+integral over $\alpha(x)$ simply gives an infinite multiplicative factor.
+
+To go further we must specify a gauge-fixing function $G(A)$.  We choose the
+general class of functions
+\begin{equation}
+  G(A) = \partial^\mu A_\mu(x) - \omega(x) ,
+  \label{eq:9.55}
+\end{equation}
+where $\omega(x)$ can be any scalar function.  Setting this $G(A)$ equal to
+zero gives a generalization of the Lorentz gauge condition.  The functional
+determinant is the same as in Lorentz gauge,
+$\det(\delta G(A^\alpha)/\delta\alpha) = \det(\partial^2/e)$.  Thus the
+functional integral becomes
+\begin{equation}
+  \int \mathcal{D}A\ e^{iS[A]} = \det\Bigl( \frac{1}{e}\partial^2 \Bigr)\
+    \Bigl( \int \mathcal{D}\alpha \Bigr)\ \int \mathcal{D}A\ e^{iS[A]}\
+    \delta\bigl( \partial^\mu A_\mu - \omega(x) \bigr) .
+\end{equation}
+This equality holds for any $\omega(x)$, so it will also hold if we replace the
+right-hand side with any properly normalized linear combination involving
+different functions $\omega(x)$.  For our final trick, we will integrate over
+all $\omega(x)$, with a Gaussian weighting function centered on $\omega=0$.
+The above expression is thus equal to
+\begin{equation}
+  \begin{aligned}
+    \int \mathcal{D}A\ e^{iS[A]} &= N(\xi)\ \det\Bigl( \frac{1}{e}\partial^2
+      \Bigr)\ \Bigl( \int \mathcal{D}\alpha \Bigr)\ \int \mathcal{D}A\
+      e^{iS[A]}\ \exp\Bigl[ -\frac{i}{2\xi}\int d^4x\
+        (\partial^\mu A_\mu)^2 \Bigr] ,
+  \end{aligned}
+  \label{eq:9.56}
+\end{equation}
+where $N(\xi)$ is an unimportant normalization constant and we have used the
+delta function to perform the integral over $\omega$.  We can choose $\xi$ to
+be any finite constant.  Effectively, we have added a new term
+$-(\partial^\mu A_\mu)^2/2\xi$ to the Lagrangian.
+
+So far we have worked only with the denominator of our formula for correlation
+functions,
+\begin{equation}
+  \langle\Omega|T\mathcal{O}(A)|\Omega\rangle
+  = \lim_{T\to\infty(1-i\epsilon)}\
+    \frac{\int\mathcal{D}A\ \mathcal{O}(A)\ \exp\bigl[
+      i\int_{-T}^{T}d^4x\ \mathcal{L} \bigr]}
+      {\int\mathcal{D}A\ \exp\bigl[ i\int_{-T}^{T}d^4x\ \mathcal{L} \bigr]} .
+\end{equation}
+The same manipulations can also be performed on the numerator, provided that
+the operator $\mathcal{O}(A)$ is gauge invariant.  (If it is not, the variable
+change from $A$ to $A^\alpha$ preceding Eq.~\eqref{eq:9.54} does not work.)
+Assuming that $\mathcal{O}(A)$ is gauge invariant, we find for its correlation
+function
+\begin{equation}
+  \langle\Omega|T\mathcal{O}(A)|\Omega\rangle
+  = \lim_{T\to\infty(1-i\epsilon)}\
+    \frac{\int\mathcal{D}A\ \mathcal{O}(A)\ \exp\bigl[ i\int_{-T}^{T}d^4x\
+      \bigl( \mathcal{L} - \frac{1}{2\xi}(\partial^\mu A_\mu)^2 \bigr)
+      \bigr]}
+      {\int\mathcal{D}A\ \exp\bigl[ i\int_{-T}^{T}d^4x\
+        \bigl( \mathcal{L} - \frac{1}{2\xi}(\partial^\mu A_\mu)^2 \bigr)
+        \bigr]} .
+  \label{eq:9.57}
+\end{equation}
+The awkward constant factors in \eqref{eq:9.56} have canceled; the only trace
+left by this whole process is the extra $\xi$-term that is added to the
+action.
+
+At the beginning of this section, in Eq.~\eqref{eq:9.52}, we saw that we
+could not obtain a sensible photon propagator from the action $S[A]$.  With
+the new $\xi$-term, however, that equation becomes
+\begin{equation}
+  \bigl( -k^2 g_{\mu\nu} + \bigl( 1 - \tfrac{1}{\xi} \bigr)k_\mu k_\nu \bigr)
+    \tilde{D}^{\nu\rho}(k) = -i\delta^\rho_\mu ,
+\end{equation}
+which has the solution
+\begin{equation}
+  \tilde{D}^{\mu\nu}(k) = \frac{-i}{k^2+i\epsilon}\ \Bigl[
+    g^{\mu\nu} - (1-\xi)\frac{k^\mu k^\nu}{k^2} \Bigr] .
+  \label{eq:9.58}
+\end{equation}
+This is our desired expression for the photon propagator.  The $i\epsilon$
+term in the denominator arises exactly as in the Klein--Gordon case.  Note the
+overall minus sign relative to the Klein--Gordon propagator, which was already
+evident in Eq.~\eqref{eq:9.52}.
+
+In practice one usually chooses a specific value of $\xi$ when making
+computations.  Two choices that are often convenient are
+\begin{equation}
+  \xi = 0 \qquad \text{Landau gauge};\qquad
+  \xi = 1 \qquad \text{Feynman gauge} .
+\end{equation}
+So far in this book we have always used Feynman gauge.%
+\footnote{Other choices of $\xi$ may be useful in specific applications; for
+example, in certain problems of bound states in QED, the Yennie gauge,
+$\xi = 3$, produces a cancellation that is otherwise difficult to make
+explicit.  See H.~M.~Fried and D.~R.~Yennie, \emph{Phys.\ Rev.} \textbf{112},
+1391 (1958).}
+
+The Faddeev--Popov procedure guarantees that the value of any correlation
+function of gauge-invariant operators computed from Feynman diagrams will be
+independent of the value of $\xi$ used in the calculation (as long as the same
+value of $\xi$ is used consistently).  In the case of QED, it is not difficult
+to prove this $\xi$-independence directly.  Notice in Eq.~\eqref{eq:9.58}
+that $\xi$ multiplies a term in the photon propagator proportional to
+$k^\mu k^\nu$.  According to the Ward--Takahashi identity \eqref{eq:7.68}, the
+replacement in a Green's function of any photon propagator by $k^\mu k^\nu$
+yields zero, except for terms involving external off-shell fermions.  These
+terms are equal and opposite for particle and antiparticle and vanish when the
+fermions are grouped into gauge-invariant combinations.
+
+To complete our treatment of the quantization of the electromagnetic field, we
+need one additional ingredient.  In Chapters~5 and~6, we computed $S$-matrix
+elements for QED from the correlation functions of non-gauge-invariant
+operators $\psi(x)$, $\bar{\psi}(x)$, and $A^\mu(x)$.  We will now argue that
+the $S$-matrix elements are given correctly by this procedure.  Since the
+$S$-matrix is defined between asymptotic states, we can compute $S$-matrix
+elements in a formalism in which the coupling constant is turned off
+adiabatically in the far past and far future.  In the zero coupling limit,
+there is a clean separation between gauge-invariant and gauge-variant states.
+Single-particle states containing one electron, one positron, or one
+transversely polarized photon are gauge-invariant, while states with timelike
+and longitudinal photon polarizations transform under gauge motions.  We can
+thus define a gauge-invariant $S$-matrix in the following way: Let $S_{FP}$ be
+the $S$-matrix between general asymptotic states, computed from the
+Faddeev--Popov procedure.  This matrix is unitary but not gauge-invariant.
+Let $P_0$ be a projection onto the subspace of the space of asymptotic states
+in which all particles are either electrons, positrons, or transverse photons.
+Then let
+\begin{equation}
+  S = P_0\,S_{FP}\,P_0 .
+  \label{eq:9.59}
+\end{equation}
+This $S$-matrix is gauge invariant by construction, because it is projected
+onto gauge-invariant states.  It is not obvious that it is unitary.  However,
+we addressed this issue in Section~5.5.  We showed there that any matrix
+element $\mathcal{M}^\mu\epsilon^{*}_\mu$ for photon emission satisfies
+\begin{equation}
+  \sum_{\epsilon=1,2} \bigl| \mathcal{M}^\mu\epsilon^{*}_\mu \bigr|^2
+  = -g_{\mu\nu}\mathcal{M}^\mu\mathcal{M}^{\nu*} ,
+  \label{eq:9.60}
+\end{equation}
+where the sum on the left-hand side runs only over transverse polarizations.
+The same argument applies if $\mathcal{M}^\mu$ and $\mathcal{M}^{\nu*}$ are
+distinct amplitudes, as long as they satisfy the Ward identity.  This is
+exactly the information we need to see that
+\begin{equation}
+  SS^{\dagger} = P_0\,S_{FP}\,P_0\,S_{FP}^{\dagger}\,P_0
+    = P_0\,S_{FP}\,S_{FP}^{\dagger}\,P_0 .
+  \label{eq:9.61}
+\end{equation}
+Now we can use the unitarity of $S_{FP}$ to see that $S$ is unitary,
+$S^{\dagger}S = 1$, on the subspace of gauge-invariant states.  It is easy to
+check explicitly that the formula \eqref{eq:9.59} for the $S$-matrix is
+independent of $\xi$: The Ward identity implies that any QED matrix element
+with all external fermions on-shell is unchanged if we add to the photon
+propagator $D^{\mu\nu}(q)$ any term proportional to $q^\mu q^\nu$.
+
+\section{Functional Quantization of Spinor Fields}
+
+The functional methods that we have used so far allow us to compute, using
+Eq.~\eqref{eq:9.18} or \eqref{eq:9.35}, correlation functions involving fields
+that obey canonical commutation relations.  To generalize these methods to
+include spinor fields, which obey canonical anticommutation relations, we must
+do something different: We must represent even the classical fields by
+\emph{anticommuting numbers}.
+
+\subsection{Anticommuting Numbers}
+
+We will define anticommuting numbers (also called Grassmann numbers) by giving
+algebraic rules for manipulating them.  These rules are formal and might seem
+ad hoc.  We will justify them by showing that they lead to the familiar
+quantum theory of the Dirac equation.
+
+The basic feature of anticommuting numbers is that they anticommute.  For any
+two such numbers $\theta$ and $\eta$,
+\begin{equation}
+  \theta\eta = -\eta\theta .
+  \label{eq:9.62}
+\end{equation}
+In particular, the square of any Grassmann number is zero:
+\begin{equation}
+  \theta^2 = 0 .
+\end{equation}
+(This fact makes algebra extremely easy.)  A product $(\theta\eta)$ of two
+Grassmann numbers commutes with other Grassmann numbers.  We will also wish to
+add Grassmann numbers, and to multiply them by ordinary numbers; these
+operations have all the properties of addition and scalar multiplication in
+any vector space.
+
+The main thing we want to do with anticommuting numbers is integrate over
+them.  To define functional integration, we do not need general definite
+integrals of these parameters, but only the analog of $\int dx$.  So let us
+define the integral of a general function $f$ of a Grassmann variable
+$\theta$, over the complete range of $\theta$:
+\begin{equation}
+  \int d\theta\ f(\theta) = \int d\theta\ (A + B\theta) .
+\end{equation}
+In general, $f(\theta)$ can be expanded in a Taylor series, which terminates
+after two terms since $\theta^2 = 0$.  The integral should be linear in $f$;
+thus it must be a linear function of $A$ and $B$.  Its value is fixed by one
+additional property: In our analysis of bosonic functional integrals (for
+instance, in \eqref{eq:9.38} and \eqref{eq:9.54}), we made strong use of the
+invariance of the integral to shifts of the integration variable.  We will see
+in Section~9.6 that this shift invariance of the functional integral plays a
+central role in the derivation of the quantum mechanical equations of motion
+and conservation laws, and thus must be considered a fundamental aspect of the
+formalism.  We must, then, demand this same property for integrals over
+$\theta$.  Invariance under the shift $\theta\to\theta+\eta$ yields the
+condition
+\begin{equation}
+  \int d\theta\ (A+B\theta) = \int d\theta\ \bigl( (A+B\eta) + B\theta \bigr) .
+\end{equation}
+The shift changes the constant term, but leaves the linear term unchanged.
+The only linear function of $A$ and $B$ that has this property is a constant
+(conventionally taken to be 1) times $B$, so we define
+\begin{equation}
+  \int d\theta\ (A + B\theta) = B .
+  \label{eq:9.63}
+\end{equation}
+When we perform a multiple integral over more than one Grassmann variable, an
+ambiguity in sign arises; we adopt the convention
+\begin{equation}
+  \int d\eta\,d\theta\ \theta\eta = +1 ,
+  \label{eq:9.64}
+\end{equation}
+performing the innermost integral first.
+
+Since the Dirac field is complex-valued, we will work primarily with complex
+Grassmann numbers, which can be built out of real and imaginary parts in the
+usual way.  It is convenient to define complex conjugation to reverse the
+order of products, just like Hermitian conjugation of operators:
+\begin{equation}
+  (\theta\eta)^{*} = \eta^{*}\theta^{*} = -\theta^{*}\eta^{*} .
+  \label{eq:9.65}
+\end{equation}
+To integrate over complex Grassmann numbers, let us define
+\begin{equation}
+  \theta = \frac{\theta_1 + i\theta_2}{\sqrt{2}},\qquad
+  \theta^{*} = \frac{\theta_1 - i\theta_2}{\sqrt{2}} .
+\end{equation}
+We can now treat $\theta$ and $\theta^{*}$ as independent Grassmann numbers,
+and adopt the convention $\int d\theta^{*}d\theta\ (\theta\theta^{*}) = 1$.
+
+Let us evaluate a Gaussian integral over a complex Grassmann variable:
+\begin{equation}
+  \int d\theta^{*}d\theta\ e^{-\theta^{*}b\theta}
+  = \int d\theta^{*}d\theta\ (1 - \theta^{*}b\theta)
+  = \int d\theta^{*}d\theta\ (1 + \theta\theta^{*}b) = b .
+  \label{eq:9.66}
+\end{equation}
+If $\theta$ were an ordinary complex number, this integral would equal
+$2\pi/b$.  The factor of $2\pi$ is unimportant; the main difference with
+anticommuting numbers is that the $b$ comes out in the numerator rather than
+the denominator.  However, if there is an additional factor of $\theta\theta^{*}$
+in the integrand, we obtain
+\begin{equation}
+  \int d\theta^{*}d\theta\ \theta\theta^{*}\ e^{-\theta^{*}b\theta}
+  = 1 = 1/b .
+  \label{eq:9.67}
+\end{equation}
+The extra $\theta\theta^{*}$ introduces a factor of $(1/b)$, just as it does in
+an ordinary Gaussian integral.
+
+To perform general Gaussian integrals in higher dimensions, we must first
+prove that an integral over complex Grassmann variables is invariant under
+unitary transformations.  Consider a set of $n$ complex Grassmann variables
+$\theta_i$, and a unitary matrix $U$.  If $\theta'_i = U_{ij}\theta_j$, then
+the transformation of the integration measure introduces the determinant of
+$U$, which is a phase.  Together with the transformation of the integrand, the
+phase cancels, and we find that the integral is invariant under unitary
+transformations.
+
+The general Gaussian integral over complex Grassmann variables is then
+evaluated by diagonalizing the Hermitian matrix $M$ by a unitary
+transformation, and using \eqref{eq:9.66} for each eigenvalue.  The result is
+\begin{equation}
+  \int \Bigl[ \prod_i d\theta^{*}_i d\theta_i \Bigr]\
+    \exp\Bigl[ -\theta^{*}_i M_{ij}\theta_j \Bigr] = \det M .
+  \label{eq:9.70}
+\end{equation}
+This is the fundamental formula for functional integrals over anticommuting
+fields.  Note that the determinant appears in the numerator, in contrast to
+the bosonic case, where the inverse determinant appears.
+
+\subsection{The Dirac Propagator}
+
+We are now ready to apply the functional method to the Dirac field.  The
+generating functional for the free Dirac field is
+\begin{equation}
+  Z[\eta, \bar{\eta}] = \int \mathcal{D}\bar{\psi}\,\mathcal{D}\psi\
+    \exp\Bigl[ i\int d^4x\ \Bigl( \bar{\psi}(i\slashed{\partial}-m)\psi
+      + \bar{\eta}\psi + \bar{\psi}\eta \Bigr) \Bigr] ,
+  \label{eq:9.71}
+\end{equation}
+where $\eta$ and $\bar{\eta}$ are Grassmann-valued sources.  Completing the
+square as in the scalar case, and using the Gaussian integral
+\eqref{eq:9.70}, we find
+\begin{equation}
+  Z[\eta, \bar{\eta}] = Z_0\ \exp\Bigl[ -\int d^4x\,d^4y\
+    \bar{\eta}(x)\,S_F(x-y)\,\eta(y) \Bigr] ,
+  \label{eq:9.74}
+\end{equation}
+where $S_F(x-y)$ is the Feynman propagator of the Dirac field,
+\begin{equation}
+  S_F(x-y) = \int \frac{d^4p}{(2\pi)^4}\ \frac{i(\slashed{p}+m)}
+    {p^2-m^2+i\epsilon}\ e^{-ip\cdot(x-y)} .
+\end{equation}
+Correlation functions are obtained by differentiating with respect to the
+sources.  For example,
+\begin{equation}
+  \langle 0|T\psi(x_1)\bar{\psi}(x_2)|0\rangle
+  = \frac{1}{Z_0}\ \Bigl( -i\frac{\delta}{\delta\eta(x_1)} \Bigr)\
+    \Bigl( -i\frac{\delta}{\delta\bar{\eta}(x_2)} \Bigr)\ Z[\eta,\bar{\eta}]
+    \Big|_{\eta=\bar{\eta}=0}
+  = S_F(x_1-x_2) .
+  \label{eq:9.75}
+\end{equation}
+Plugging in formula \eqref{eq:9.74} for $Z[\eta,\bar{\eta}]$ and carefully
+keeping track of the signs, we find that this expression is equal to the
+Feynman propagator, $S_F(x_1-x_2)$.  Higher correlation functions can be
+evaluated in a similar way.
+
+\subsection{QED}
+
+As we saw in Section~9.2 for the case of scalar fields, the functional
+integral method allows us to read the Feynman rules for vertices directly from
+the Lagrangian for an interacting field theory.  For the theory of Quantum
+Electrodynamics, the full Lagrangian is
+\begin{equation}
+  \begin{aligned}
+    \mathcal{L}_{\mathrm{QED}} &= \bar{\psi}(i\gamma^\mu\partial_\mu-m)\psi
+      - \tfrac{1}{4}(F_{\mu\nu})^2\\
+    &= \bar{\psi}(i\slashed{D}-m)\psi - \tfrac{1}{4}(F_{\mu\nu})^2
+      - e\bar{\psi}\gamma^\mu\psi A_\mu\\
+    &= \mathcal{L}_0 - e\bar{\psi}\gamma^\mu\psi A_\mu ,
+  \end{aligned}
+  \label{eq:9.76}
+\end{equation}
+where $D_\mu = \partial_\mu + ieA_\mu$ is the gauge-covariant derivative.
+
+To evaluate correlation functions, we expand the exponential of the
+interaction term:
+\begin{equation}
+  \exp\Bigl[ i\int \mathcal{L} \Bigr] = \exp\Bigl[ i\int \mathcal{L}_0 \Bigr]\
+    \Bigl[ 1 - ie\int d^4x\ \bar{\psi}\gamma^\mu\psi A_\mu + \cdots \Bigr] .
+\end{equation}
+The two terms of the free Lagrangian yield the Dirac and electromagnetic
+propagators derived in this section and the last:
+\begin{equation}
+  \psi\bar{\psi}: \quad \frac{i(\slashed{p}+m)}{p^2-m^2+i\epsilon};\qquad
+  A^\mu A^\nu: \quad \frac{-ig^{\mu\nu}}{k^2+i\epsilon}
+    \quad \text{(Feynman gauge)} .
+\end{equation}
+The interaction term gives the QED vertex,
+\begin{equation}
+  \text{vertex} = -ie\gamma^\mu .
+\end{equation}
+As in Chapter~4, we can rearrange these rules, performing the integrations
+over vertex positions to obtain momentum-conserving delta functions, and using
+these delta functions to perform most of the propagator momentum integrals.
+
+The only remaining aspect of the QED Feynman rules is the placement of various
+minus signs.  These signs are also built into the functional integral; for
+example, interchanging $\theta_k$ and $\theta_j$ in Eq.~\eqref{eq:9.70} would
+introduce a factor of $-1$.  We will see another example of a fermion minus
+sign in the computation that follows.
+
+\subsection{Functional Determinants}
+
+Throughout this chapter we have encountered expressions that we wrote
+formally as functional determinants.  To end this section, let us investigate
+one of these objects more closely.  We will find that, at least in this case,
+we can write the determinant explicitly as a sum of Feynman diagrams.
+
+Consider the object
+\begin{equation}
+  \int \mathcal{D}\bar{\psi}\,\mathcal{D}\psi\ \exp\Bigl[ i\int d^4x\
+    \bar{\psi}(i\slashed{D}-m)\psi \Bigr],
+  \label{eq:9.77}
+\end{equation}
+where $D_\mu = \partial_\mu + ieA_\mu$ and $A_\mu(x)$ is a given external
+background field.  Formally, this expression is a functional determinant:
+\begin{equation}
+  \begin{aligned}
+    \int \mathcal{D}\bar{\psi}\,\mathcal{D}\psi\ \exp\Bigl[ i\int d^4x\
+      \bar{\psi}(i\slashed{D}-m)\psi \Bigr]
+    &= \det(i\slashed{D}-m) = \det(i\slashed{\partial}-m - e\slashed{A})\\
+    &= \det(i\slashed{\partial}-m)\cdot\det\Bigl( 1 -
+      \frac{1}{i\slashed{\partial}-m}(-e\slashed{A}) \Bigr) .
+  \end{aligned}
+\end{equation}
+In the last form, the first term is an infinite constant.  The second term
+contains the dependence of the determinant on the external field $A$.  We will
+now show that this dependence is well defined and, in fact, is exactly
+equivalent to the sum of vacuum diagrams.
+
+To demonstrate this, we need only apply standard identities from linear
+algebra.  First notice that, if a matrix $B$ has eigenvalues $b_i$, we can
+write its determinant as
+\begin{equation}
+  \det B = \prod_i b_i = \exp\Bigl[ \sum_i \log b_i \Bigr]
+  = \exp\Bigl[ \mathrm{Tr}\bigl( \log B \bigr) \Bigr],
+  \label{eq:9.78}
+\end{equation}
+where the logarithm of a matrix is defined by its power series.  Applying this
+identity to our determinant, and writing out the power series of the
+logarithm, we obtain
+\begin{equation}
+  \det\Bigl( 1 - \frac{1}{i\slashed{\partial}-m}(-e\slashed{A}) \Bigr)
+  = \exp\Bigl[ -\sum_{n=1}^{\infty} \frac{1}{n}\ \mathrm{Tr}\Bigl(
+    \frac{1}{i\slashed{\partial}-m}(-e\slashed{A}) \Bigr)^n \Bigr] .
+  \label{eq:9.79}
+\end{equation}
+Alternatively, we can evaluate this determinant by returning to expression
+\eqref{eq:9.77} and using Feynman diagrams.  Expanding the interaction term,
+we obtain the vertex rule $-ie\gamma^\mu$.  Our determinant is then equal to a
+sum of Feynman diagrams,
+\begin{equation}
+  \text{(sum of all closed fermion-loop diagrams with } n \text{ external
+    photon legs)} .
+  \label{eq:9.80}
+\end{equation}
+The series exponentiates, since the disconnected diagrams are products of
+connected pieces (with appropriate symmetry factors when a piece is
+repeated).
+
+Now let us evaluate the $n$th diagram in the exponent of \eqref{eq:9.79}.
+There is a factor of $-1$ from the fermion loop, and a symmetry factor of $1/n$
+since we could rotate the interactions around the diagram up to $n$ times
+without changing it.  (The factor is not $1/n!$, because the cyclic order of
+the interaction points is significant.)  The diagram is therefore
+\begin{equation}
+  -\int d^4x_1\cdots d^4x_n\ \mathrm{tr}\bigl( -ie\slashed{A}(x_1) \bigr)\
+    S_F(x_2-x_1)\cdots\ \bigl( -ie\slashed{A}(x_n) \bigr)\ S_F(x_1-x_n)
+  \label{eq:9.81}
+\end{equation}
+in exact agreement with \eqref{eq:9.79}, including the minus sign and the
+symmetry factor.
+
+The computation of functional determinants using Feynman diagrams is an
+important tool, as we will see in Chapter~11.
+
+\section{Symmetries in the Functional Formalism}
+
+We have now seen that the quantum field theoretic correlation functions of
+scalar, vector, and spinor fields can be computed from the functional integral,
+completely bypassing the construction of the Hamiltonian, the Hilbert space of
+states, and the equations of motion.  The functional integral formalism makes
+the symmetries of the problem manifest; any invariance of the Lagrangian will
+be an invariance of the quantum dynamics.%
+\footnote{There are some subtle exceptions to this rule, which we will treat in
+Chapter~19.}  However, we would like to be able to appeal also to the
+conservation laws that follow from the quantum equations of motion, or to
+these equations of motion themselves.  For example, the Ward identity, which
+played a major role in our discussion of photons in QED (Section~5.5), is
+essentially the conservation law of the electric charge current.  Since, as we
+saw in Section~2.2, the conservation laws follow from symmetries of the
+Lagrangian, one might guess that it is not difficult to derive these
+conservation laws from the functional integral.  In this section we will see
+how to do that.  We will see that the functional integral gives, in a most
+direct way, a quantum generalization of Noether's theorem.  This result will
+lead to the analogue of the Ward--Takahashi identity for any symmetry of a
+general quantum field theory.
+
+\subsection{Equations of Motion}
+
+To prepare for this discussion, we should determine how the quantum equations
+of motion follow from the functional integral formalism.  As a first problem
+to study, let us examine the Green's functions of the free scalar field.  To
+be specific, consider the three-point function:
+\begin{equation}
+  \langle\Omega|T\phi(x_1)\phi(x_2)\phi(x_3)|\Omega\rangle
+  = Z^{-1}\int \mathcal{D}\phi\ e^{i\int d^4x\ \mathcal{L}}\
+    \phi(x_1)\phi(x_2)\phi(x_3) ,
+  \label{eq:9.82}
+\end{equation}
+where $\mathcal{L} = \tfrac{1}{2}(\partial_\mu\phi)^2 - \tfrac{1}{2}m^2\phi^2$
+and $Z$ is a shorthand for $Z[J=0]$, the functional integral over the
+exponential.  In classical mechanics, we would derive the equations of motion
+by insisting that the action be stationary under an infinitesimal variation
+\begin{equation}
+  \phi(x) \to \phi'(x) = \phi(x) + \epsilon(x) .
+  \label{eq:9.83}
+\end{equation}
+The appropriate generalization is to consider \eqref{eq:9.83} as an
+infinitesimal change of variables.  A change of variables does not alter the
+value of the integral.  Nor does a shift of the integration variable alter the
+measure: $\mathcal{D}\phi' = \mathcal{D}\phi$.  Thus we can write
+\begin{equation}
+  \int \mathcal{D}\phi\ e^{i\int d^4x\ \mathcal{L}}\ \phi(x_1)\phi(x_2)
+    \phi(x_3) = \int \mathcal{D}\phi'\ e^{i\int d^4x\ \mathcal{L}'}\
+    \phi'(x_1)\phi'(x_2)\phi'(x_3) ,
+\end{equation}
+where $\phi' = \phi + \epsilon$.  Expanding this equation to first order in
+$\epsilon$, we find
+\begin{equation}
+  \begin{aligned}
+    0 &= \int \mathcal{D}\phi\ e^{i\int d^4x\ \mathcal{L}}\ \Bigl[
+      i\int d^4x\ \epsilon(x)(-\partial^2-m^2)\phi(x)\ \phi(x_1)\phi(x_2)
+        \phi(x_3)\\
+    &\quad + \epsilon(x_1)\phi(x_2)\phi(x_3) + \phi(x_1)\epsilon(x_2)\phi(x_3)
+      + \phi(x_1)\phi(x_2)\epsilon(x_3) \Bigr] .
+  \end{aligned}
+  \label{eq:9.84}
+\end{equation}
+The last three terms can be combined with the first by writing, for instance,
+$\epsilon(x_1) = \int d^4x\ \epsilon(x)\,\delta(x-x_1)$.  Noting that the
+right-hand side must vanish for any possible variation $\epsilon(x)$, we then
+obtain
+\begin{equation}
+  \begin{aligned}
+    0 &= \int \mathcal{D}\phi\ e^{i\int d^4x\ \mathcal{L}}\ \Bigl[
+      i(\partial^2+m^2)\phi(x)\ \phi(x_1)\phi(x_2)\phi(x_3)\\
+    &\quad + i\delta(x-x_1)\phi(x_2)\phi(x_3) + i\phi(x_1)\delta(x-x_2)
+      \phi(x_3) + i\phi(x_1)\phi(x_2)\delta(x-x_3) \Bigr] .
+  \end{aligned}
+  \label{eq:9.85}
+\end{equation}
+A similar equation holds for any number of fields $\phi(x_i)$.
+
+To see the implications of \eqref{eq:9.85}, let us specialize to the case of
+one field $\phi(x_1)$ in \eqref{eq:9.82}.  Notice that the derivatives acting
+on $\phi(x)$ can be pulled outside the functional integral.  Then, dividing
+\eqref{eq:9.85} by $Z$ yields the identity
+\begin{equation}
+  (\partial^2 + m^2)\ \langle\Omega|T\phi(x)\phi(x_1)|\Omega\rangle
+  = -i\delta(x-x_1) .
+  \label{eq:9.86}
+\end{equation}
+The left-hand side of this relation is the Klein--Gordon operator acting on a
+correlation function of $\phi(x)$.  The right-hand side is zero unless
+$x = x_1$; that is, the correlation function satisfies the Klein--Gordon
+equation except at the point where the arguments of the two $\phi$ fields
+coincide.  The modification of the Klein--Gordon equation at this point is
+called a \emph{contact term}.  In this simple case, the modification is hardly
+unfamiliar to us; Eq.~\eqref{eq:9.86} merely says that the Feynman propagator
+is a Green's function of the Klein--Gordon operator, as we originally showed
+in Section~2.4.  We saw there that the delta function arises when the time
+derivative in $\partial^2$ acts on the time-ordering symbol.  We will see below
+that, quite generally in quantum field theory, the classical equations of
+motion for fields are satisfied by all quantum correlation functions of those
+fields, up to contact terms.
+
+As an example, consider the identity that follows from \eqref{eq:9.85} for an
+$(n+1)$-point correlation function of scalar fields:
+\begin{equation}
+  \begin{aligned}
+    (\partial^2+m^2)\ \langle\Omega|T\phi(x)\phi(x_1)\cdots\phi(x_n)
+      |\Omega\rangle
+    &= \sum_{i=1}^{n}\ \langle\Omega|T\phi(x_1)\cdots\bigl(
+      -i\delta(x-x_i) \bigr)\cdots\phi(x_n)|\Omega\rangle .
+  \end{aligned}
+  \label{eq:9.87}
+\end{equation}
+This identity says that the Klein--Gordon equation is obeyed by $\phi(x)$
+inside any expectation value, up to contact terms associated with the time
+ordering.  The result can also be derived from the Hamiltonian formalism using
+the methods of Section~2.4, or, using the special properties of free-field
+theory, by evaluating both sides of the equation using Wick's theorem.
+
+As long as the functional measure is invariant under a shift of the
+integration variable, we can repeat this argument and obtain the quantum
+equations of motion for Green's functions for any theory of scalar, vector,
+and spinor fields.  This is the reason why, in Eq.~\eqref{eq:9.63}, we took
+the shift invariance to be the fundamental, defining property of the Grassmann
+integral.
+
+For a general field theory of a field $\phi(x)$, governed by the Lagrangian
+$\mathcal{L}[\phi]$, the manipulations leading to \eqref{eq:9.84} give the
+identity
+\begin{equation}
+  0 = \int \mathcal{D}\phi\ e^{i\int d^4x\ \mathcal{L}}\ \Bigl[
+    i\frac{\delta S}{\delta\phi(x)}\ \phi(x_1)\cdots\phi(x_n)
+    + \sum_{i=1}^{n} i\delta(x-x_i)\ \phi(x_1)\cdots\phi(x_n) \Bigr] ,
+  \label{eq:9.88}
+\end{equation}
+and similar identities for correlation functions of $n$ fields.  By the rule
+for functional differentiation \eqref{eq:9.31}, the derivative of the action
+is
+\begin{equation}
+  \frac{\delta S}{\delta\phi(x)} = \frac{\partial\mathcal{L}}
+    {\partial\phi(x)} - \partial_\mu
+      \frac{\partial\mathcal{L}}{\partial(\partial_\mu\phi)} ;
+\end{equation}
+this is the quantity that equals zero by the Euler--Lagrange equation of
+motion \eqref{eq:2.3} for $\phi$.  Formula \eqref{eq:9.88} and its
+generalizations lead to the set of identities
+\begin{equation}
+  \Bigl\langle \frac{\delta S}{\delta\phi(x)}\ \phi(x_1)\cdots\phi(x_n)
+    \Bigr\rangle = -i\sum_{i=1}^{n}\ \delta(x-x_i)\
+    \langle \phi(x_1)\cdots\phi(x_n) \rangle .
+  \label{eq:9.89}
+\end{equation}
+In this equation, the angle-brackets denote a time-ordered correlation
+function in which derivatives on $\phi(x)$ are placed outside the
+time-ordering symbol, as in Eq.~\eqref{eq:9.87}.  Relation \eqref{eq:9.89}
+states that the classical Euler--Lagrange equations of the field $\phi$ are
+obeyed for all Green's functions of $\phi$, up to contact terms arising from
+the nontrivial commutation relations of field operators.  These quantum
+equations of motion for Green's functions, including the proper contact terms,
+are called \emph{Schwinger--Dyson equations}.
+
+\subsection{Conservation Laws}
+
+In classical field theory, Noether's theorem says that, to each symmetry of a
+local Lagrangian, there corresponds a conserved current.  In Section~2.2 we
+proved Noether's theorem by subjecting the Lagrangian to an infinitesimal
+symmetry variation.  In the spirit of the above discussion of equations of
+motion, we should find the quantum analogue of this theorem by subjecting the
+functional integral to an infinitesimal change of variables along the symmetry
+direction.
+
+Again, it will be most instructive to begin with an example.  Let us consider
+the theory of a free, complex-valued scalar field, with the Lagrangian
+\begin{equation}
+  \mathcal{L} = |\partial_\mu\phi|^2 - m^2|\phi|^2 .
+  \label{eq:9.90}
+\end{equation}
+This Lagrangian is invariant under the transformation $\phi\to e^{i\alpha}\phi$.
+The classical Noether current is
+\begin{equation}
+  j^\mu = i\bigl[ (\partial^\mu\phi^{*})\phi - \phi^{*}(\partial^\mu\phi) \bigr]
+  = \frac{\partial\mathcal{L}}{\partial(\partial_\mu\phi)}\,\Delta\phi
+    - \mathcal{J}^\mu ,
+  \label{eq:9.96}
+\end{equation}
+which is conserved, $\partial_\mu j^\mu = 0$.  To find the quantum analogue,
+we make the infinitesimal symmetry transformation
+\begin{equation}
+  \phi \to (1 + i\epsilon(x))\phi,\qquad
+  \phi^{*} \to (1 - i\epsilon(x))\phi^{*},
+\end{equation}
+with $\epsilon(x)$ a function of spacetime.  Since the Lagrangian is invariant
+for constant $\epsilon$, the variation of $\mathcal{L}$ is proportional to
+$\partial_\mu\epsilon$.  Carrying through the steps leading up to
+\eqref{eq:9.85}, we find the Schwinger--Dyson equation:
+\begin{equation}
+  \begin{aligned}
+    \partial_\mu\ \bigl\langle j^\mu(x)\,\phi(x_1)\phi^{*}(x_2) \bigr\rangle
+    &= -i\Bigl\langle \bigl( \Delta\phi(x_1)\,\delta(x-x_1) \bigr)
+      \phi^{*}(x_2) + \phi(x_1)\bigl( \Delta\phi^{*}(x_2)\,
+        \delta(x-x_2) \bigr) \Bigr\rangle .
+  \end{aligned}
+  \label{eq:9.98}
+\end{equation}
+A similar equation can be found for the correlator of $j^\mu$ with $n$ fields
+$\phi(x)$.  These give the full set of Schwinger--Dyson equations associated
+with the classical Noether theorem.
+
+As an example of the use of this variational procedure to obtain the Noether
+current, consider the symmetry of the Lagrangian with respect to spacetime
+translations.  Under the transformation
+\begin{equation}
+  \phi_a \to \phi_a + a^\mu(x)\partial_\mu\phi_a ,
+  \label{eq:9.99}
+\end{equation}
+the Lagrangian transforms as
+\begin{equation}
+  \mathcal{L} \to \mathcal{L} +
+    \frac{\partial\mathcal{L}}{\partial(\partial_\nu\phi_a)}\,
+      \partial_\mu a^\mu\,\partial_\nu\phi_a + a^\mu\partial_\mu\mathcal{L} .
+\end{equation}
+The variation of $\int d^4x\ \mathcal{L}$ with respect to $a^\mu$ then gives
+rise to the conservation equation for the energy-momentum tensor
+$\partial_\nu T^{\mu\nu} = 0$, with
+\begin{equation}
+  T^{\mu\nu} = \frac{\partial\mathcal{L}}{\partial(\partial_\mu\phi_a)}\,
+    \partial^\nu\phi_a - g^{\mu\nu}\mathcal{L} ,
+  \label{eq:9.100}
+\end{equation}
+in agreement with Eq.~\eqref{eq:2.17}.
+
+The trick we have used in this section, that of considering a symmetry
+transformation whose parameter is a function of spacetime, is reminiscent of a
+technical feature of our earlier discussion introducing the Lagrangian of QED.
+In Eq.~\eqref{eq:4.6}, we noted that the minimal coupling prescription for
+coupling the photon to charged fields produces a Lagrangian invariant not only
+under the global symmetry transformation with $\alpha$ constant, but also
+under a transformation in which the symmetry parameter depends on $x$.  In
+Chapter~15, we will draw these two ideas together in a general discussion of
+field theories with local symmetries.
+
+\subsection{The Ward-Takahashi Identity}
+
+As a final application of the methods of this section, let us derive the
+Schwinger--Dyson equations associated with the global symmetry of QED.
+Consider making, in the QED functional integral, the change of variables
+\begin{equation}
+  \psi(x) \to (1 + ie\alpha(x))\psi(x),
+  \label{eq:9.101}
+\end{equation}
+without the corresponding term in the transformation law for $A_\mu$ (which
+would make the Lagrangian invariant under the transformation).  The QED
+Lagrangian \eqref{eq:4.3} then transforms according to
+\begin{equation}
+  \mathcal{L} \to \mathcal{L} - j^\mu\partial_\mu\alpha ,
+  \label{eq:9.102}
+\end{equation}
+where $j^\mu = \bar{\psi}\gamma^\mu\psi$ is the Dirac vector current.  The
+transformation \eqref{eq:9.101} thus leads to the following identity for the
+functional integral over two fermion fields:
+\begin{equation}
+  \begin{aligned}
+    0 &= \int \mathcal{D}\bar{\psi}\,\mathcal{D}\psi\,\mathcal{D}A\
+      e^{i\int d^4x\ \mathcal{L}}\ \Bigl[ -i\int d^4x\ \partial_\mu\alpha\,
+      j^\mu(x)\ \psi(x_1)\bar{\psi}(x_2)\\
+    &\quad + \bigl( ie\alpha(x_1)\psi(x_1) \bigr)\bar{\psi}(x_2)
+      + \psi(x_1)\bigl( -ie\alpha(x_2)\bar{\psi}(x_2) \bigr) \Bigr] ,
+  \end{aligned}
+  \label{eq:9.103}
+\end{equation}
+with $j^\mu = \bar{\psi}\gamma^\mu\psi$.  As in our other examples, an analogous
+equation holds for any number of fermion fields.
+
+To understand the implications of this set of equations, consider first the
+specific case \eqref{eq:9.103}.  Dividing this relation by $Z$, we find
+\begin{equation}
+  \begin{aligned}
+    \langle 0|T\,\partial_\mu j^\mu(x)\,\psi(x_1)\bar{\psi}(x_2)|0\rangle
+    &= -ie\,\delta(x-x_1)\ \langle 0|T\psi(x_1)\bar{\psi}(x_2)|0\rangle\\
+    &\quad + ie\,\delta(x-x_2)\ \langle 0|T\psi(x_1)\bar{\psi}(x_2)|0\rangle .
+  \end{aligned}
+  \label{eq:9.104}
+\end{equation}
+To put this equation into a more familiar form, compute its Fourier transform
+by integrating:
+\begin{equation}
+  \int d^4x\ e^{ik\cdot x}\ \int d^4x_1\,d^4x_2\ e^{-ip\cdot x_1}\
+    e^{iq\cdot x_2}\ \cdots .
+  \label{eq:9.105}
+\end{equation}
+Then the amplitudes in \eqref{eq:9.104} are converted to the amplitudes
+$\mathcal{M}^\mu(k;p;q)$ and $\mathcal{M}_0(p;q)$ defined below \eqref{eq:7.67}
+in our discussion of the Ward--Takahashi identity.  Indeed, \eqref{eq:9.104}
+falls directly into the form
+\begin{equation}
+  -ik_\mu\mathcal{M}^\mu(k;p;q) = -ie\mathcal{M}_0(p;q-k)
+    + ie\mathcal{M}_0(p+k;q) .
+  \label{eq:9.106}
+\end{equation}
+This is exactly the Ward--Takahashi identity for two external fermions, which
+we derived diagrammatically in Section~7.4.  It is not difficult to check that
+the more general relations involving $n$ fermion fields lead to the general
+Ward--Takahashi identity presented in \eqref{eq:7.68}.  Because of this
+relation, the formula \eqref{eq:9.98} associated with the arbitrary symmetry
+Eq.~(9.94) is usually also referred to as a Ward--Takahashi identity, the
+one associated with the symmetry and its Noether current.
+
+We have now arrived at a more general understanding of the terms on the
+right-hand side of the Ward--Takahashi identity.  These are the contact terms
+that we now expect to find when we convert classical equations of motion to
+Schwinger--Dyson equations for quantum Green's functions.  The functional
+integral formalism allows a simple and elegant derivation of these
+quantum-mechanical terms.
+
+\problems
+
+\textbf{9.1} \emph{Scalar QED.}  This problem concerns the theory of a complex
+scalar field $\phi$ interacting with the electromagnetic field $A^\mu$.  The
+Lagrangian is
+\begin{equation}
+  \mathcal{L} = -\frac{1}{4}F^2_{\mu\nu} + (D_\mu\phi)^{*}(D^\mu\phi)
+    - m^2\phi^{*}\phi ,
+\end{equation}
+where $D_\mu = \partial_\mu + ieA_\mu$ is the usual gauge-covariant
+derivative.
+\begin{enumerate}[label=(\alph*)]
+  \item Use the functional method of Section~9.2 to show that the propagator
+    of the complex scalar field is the same as that of a real field:
+    \begin{equation}
+      \phi(p)\phi^{*}(p') = \frac{i}{p^2-m^2+i\epsilon}\,
+        (2\pi)^4\delta^{(4)}(p-p') .
+    \end{equation}
+    Also derive the Feynman rules for the interactions between photons and
+    scalar particles; you should find
+    \begin{equation}
+      \text{(three-point vertex)} = 2ie(p_1+p_2)^\mu; \qquad
+      \text{(four-point vertex)} = 2ie^2g^{\mu\nu} .
+    \end{equation}
+  \item Compute, to lowest order, the differential cross section for
+    $e^{+}e^{-}\to\phi\phi^{*}$.  Ignore the electron mass (but not the scalar
+    particle's mass), and average over the electron and positron
+    polarizations.  Find the asymptotic angular dependence and total cross
+    section.  Compare your results to the corresponding formulae for
+    $e^{+}e^{-}\to\mu^{+}\mu^{-}$.
+  \item Compute the contribution of the charged scalar to the photon vacuum
+    polarization, using dimensional regularization.  Note that there are two
+    diagrams.  To put the answer into the expected form,
+    \begin{equation}
+      \Pi^{\mu\nu}(q^2) = (g^{\mu\nu}q^2 - q^\mu q^\nu)\,\Pi(q^2) ,
+    \end{equation}
+    it is useful to add the two diagrams at the beginning, putting both terms
+    over a common denominator before introducing a Feynman parameter.  Show
+    that, for $-q^2 \gg m^2$, the charged boson contribution to $\Pi(q^2)$ is
+    exactly $1/4$ that of a virtual electron-positron pair.
+\end{enumerate}
+
+\textbf{9.2} \emph{Quantum statistical mechanics.}
+\begin{enumerate}[label=(\alph*)]
+  \item Evaluate the quantum statistical partition function
+    \begin{equation}
+      Z = \mathrm{tr}\bigl[ e^{-\beta H} \bigr]
+    \end{equation}
+    (where $\beta = 1/k_BT$) using the strategy of Section~9.1 for evaluating
+    the matrix elements of $e^{-iHt}$ in terms of functional integrals.  Show
+    that one again finds a functional integral, over functions defined on a
+    domain that is of length $\beta$ and periodically connected in the time
+    direction.  Note that the Euclidean form of the Lagrangian appears in the
+    weight.  Evaluate this integral for a simple harmonic oscillator,
+    \begin{equation}
+      L = \tfrac{1}{2}\dot{x}^2 + \tfrac{1}{2}\omega^2x^2 ,
+    \end{equation}
+    by introducing a Fourier decomposition of $x(t)$:
+    \begin{equation}
+      x(t) = \sum_n x_n\ \frac{1}{\sqrt{\beta}}\ e^{2\pi int/\beta} .
+    \end{equation}
+    The dependence of the result on $\beta$ is a bit subtle to obtain
+    explicitly, since the measure for the integral over $x(t)$ depends on
+    $\beta$ in any discretization.  However, the dependence on $\omega$ should
+    be unambiguous.  Show that, up to a (possibly divergent and
+    $\beta$-dependent) constant, the integral reproduces exactly the familiar
+    expression for the quantum partition function of an oscillator.  [You may
+    find the identity
+    \begin{equation}
+      \sinh z = z\cdot\prod_{n=1}^{\infty}\Bigl( 1 + \frac{z^2}{n^2\pi^2}
+        \Bigr)
+    \end{equation}
+    useful.]
+  \item Generalize this construction to field theory.  Show that the quantum
+    statistical partition function for a free scalar field can be written in
+    terms of a functional integral.  The value of this integral is given
+    formally by
+    \begin{equation}
+      \bigl[ \det(-\partial^2+m^2) \bigr]^{-1/2} ,
+    \end{equation}
+    where the operator acts on functions on Euclidean space that are periodic
+    in the time direction with periodicity $\beta$.  As before, the $\beta$
+    dependence of this expression is difficult to compute directly.  However,
+    the dependence on $m^2$ is unambiguous.  (More generally, one can usually
+    evaluate the variation of a functional determinant with respect to any
+    explicit parameter in the Lagrangian.)  Show that the determinant indeed
+    reproduces the partition function for relativistic scalar particles.
+  \item Now let $\psi(t)$, $\bar{\psi}(t)$ be two Grassmann-valued
+    coordinates, and define a fermionic oscillator by writing the Lagrangian
+    \begin{equation}
+      L = \bar{\psi}i\partial_t\psi + \omega\bar{\psi}\psi .
+    \end{equation}
+    This Lagrangian corresponds to the Hamiltonian
+    \begin{equation}
+      H = \omega[\bar{\psi}, \psi] \qquad\text{with } \{\bar{\psi},\psi\}=1;
+    \end{equation}
+    that is, to a simple two-level system.  Evaluate the functional integral,
+    assuming that the fermions obey antiperiodic boundary conditions:
+    $\psi(t+\beta) = -\psi(t)$.  (Why is this reasonable?)  Show that the
+    result reproduces the partition function of a quantum-mechanical two-level
+    system, that is, of a quantum state with Fermi statistics.
+  \item Define the partition function for the photon field as the
+    gauge-invariant functional integral
+    \begin{equation}
+      Z = \int \mathcal{D}A\ \exp\Bigl\{ -\int d^4x_E\
+        \tfrac{1}{4}(F_{\mu\nu})^2 \Bigr\}
+    \end{equation}
+    over vector fields $A^\mu$ that are periodic in the time direction with
+    period $\beta$.  Apply the gauge-fixing procedure discussed in
+    Section~9.4 (working, for example, in Feynman gauge).  Evaluate the
+    functional determinants using the result of part (c) and show that the
+    functional integral does give the correct quantum statistical result
+    (including the correct counting of polarization states).
+\end{enumerate}

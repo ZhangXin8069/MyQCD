@@ -1,0 +1,389 @@
+\chapter{Simplest Formulation of the Lattice Action}
+
+\section{Gauge Action}
+
+The gauge action can be expressed in terms of closed loops. I will outline
+the construction for the simpler case of the abelian $U(1)$ model in which
+the link variables are commuting complex numbers instead of SU(3) matrices.
+Consider the simplest Wilson loop, the $1\times1$ plaquette
+$W_{\mu\nu}^{1\times1}$:
+\begin{equation}
+\label{eq:plaqexpA}
+\begin{aligned}
+W_{\mu\nu}^{1\times1} &= U_\mu(x)\, U_\nu(x+\hat{\mu})\, U_\mu^\dagger(x+\hat{\nu})\, U_\nu^\dagger(x) \\
+&= e^{iag\big[ A_\mu(x+\hat{\mu}/2) + A_\nu(x+\hat{\mu}+\hat{\nu}/2) -
+          A_\mu(x+\hat{\nu}+\hat{\mu}/2) - A_\nu(x+\hat{\nu}/2) \big]}
+\end{aligned}
+\end{equation}
+Expanding about $x + (\hat{\mu}+\hat{\nu})/2$ gives
+\begin{equation}
+\label{eq:plaqexpB}
+\begin{aligned}
+&\exp\Big[ ia^2g(\partial_\mu A_\nu - \partial_\nu A_\mu) +
+       \frac{ia^4g}{12}(\partial_\mu^3 A_\nu - \partial_\nu^3 A_\mu) + \ldots \Big] \\
+&= 1 + ia^2gF_{\mu\nu} - \frac{a^4g^2}{2}F_{\mu\nu}F^{\mu\nu} + O(a^6) + \ldots
+\end{aligned}
+\end{equation}
+The real and imaginary parts of the loop give
+\begin{equation}
+\label{eq:plaqexpC}
+\begin{aligned}
+\operatorname{Re}\operatorname{Tr}(1-W_{\mu\nu}^{1\times1}) &=
+   \frac{a^4g^2}{2}F_{\mu\nu}F^{\mu\nu} + \text{terms higher order in } a \\
+\operatorname{Im}(W_{\mu\nu}^{1\times1}) &= a^2gF_{\mu\nu} .
+\end{aligned}
+\end{equation}
+So far the indices $\mu$ and $\nu$ are uncontracted. There are $6$
+distinct positively oriented plaquettes, $\{\mu<\nu\}$, associated with
+each site. Summing over $\mu,\nu$, and taking care of the double counting
+by an extra factor of $\frac{1}{2}$, gives
+\[
+\frac{1}{g^2}\sum_x\sum_{\mu<\nu}\operatorname{Re}\operatorname{Tr}(1-W_{\mu\nu}^{1\times1})
+= \frac{a^4}{4}\sum_x\sum_{\mu,\nu}F_{\mu\nu}F^{\mu\nu}
+\to \frac{1}{4}\int d^4x\, F_{\mu\nu}F^{\mu\nu} .
+\]
+Thus, to lowest order in $a$, the expansion of the plaquette gives the
+continuum action. The steps in the derivation for non-abelian groups are
+identical and the final expression (up to numeric factors) is the same. The
+result for the gauge action for SU(3), defined in terms of plaquettes and
+called the Wilson action, is
+\begin{equation}
+\label{eq:Wgaugeaction}
+S_g = \frac{6}{g^2}\sum_x\sum_{\mu<\nu}\operatorname{Re}\operatorname{Tr}\,
+      \frac{1}{3}(1-W_{\mu\nu}^{1\times1}) .
+\end{equation}
+For historic reasons the lattice calculations are mostly presented in terms
+of the coupling $\beta \equiv 6/g^2$. Since $\beta$ is used for many other
+quantities like $1/kT$ or the $\beta$-function, I shall try to be more
+explicit in the use of notation ($g$ versus $\beta$) if there is a possibility
+for confusion.
+
+\medskip
+\noindent\textit{Exercise: Repeat the Taylor expansion for the physical case
+of SU(3). Show that the non-abelian term in $F_{\mu\nu} = \partial_\mu A_\nu -
+\partial_\nu A_\mu + g[A_\mu, A_\nu]$ arises due to the non-commuting property
+of $\lambda$ matrices. The details of the derivation for SU(2) are given in
+section 3 of Ref.~[8].}
+\medskip
+
+There are four important points to note based on the above construction of
+the lattice action.
+
+\textbf{1)} The leading correction is $O(a^2)$. The term
+$\frac{a^2}{6}F_{\mu\nu}(\partial_\mu^3 A_\nu - \partial_\nu^3 A_\mu)$ is
+present in the expansion of all planar Wilson loops. Thus at the classical
+level it can be gotten rid of by choosing an action that is a linear
+combination of say $1\times1$ and $1\times2$ Wilson loops with the appropriate
+relative strength given by the Taylor expansion (see Section 12).
+
+\textbf{2)} Quantum effects will give rise to corrections, \textit{i.e.}
+$a^2 \to X(g^2)a^2$ where in perturbation theory
+$X(g^2) = 1 + c_1 g^2 + \ldots$, and will bring in additional non-planar
+loops. Improvement of the action will consequently require including these
+additional loops, and adjusting the relative strengths which become
+functions of $g^2$. This is also discussed in Section 12.
+
+\textbf{3)} The reason for defining the action in terms of small loops is
+computational speed and reducing the size of the discretization errors. For
+example the leading correction to $1\times1$ loops is proportional to
+$a^2/6$ whereas for $1\times2$ loops it increases to $5a^2/12$. Also, the
+cost of simulation increases by a factor of $2-3$.
+
+\textbf{4)} The electric and magnetic fields $E$ and $B$ are proportional
+to $F_{\mu\nu}$. Eq.~\ref{eq:plaqexpC} shows that these are given in terms
+of the imaginary part of Wilson loops.
+
+\section{Fermion Action}
+
+To discretize the Dirac action, Wilson replaced the derivative with the
+symmetrized difference and included appropriate gauge links to maintain
+gauge invariance
+\begin{equation}
+\label{eq:Dslnaive}
+\bar\psi\not{D}\psi = \frac{1}{2a}\bar\psi(x)\sum_\mu\gamma_\mu
+\big[ U_\mu(x)\psi(x+\hat{\mu}) - U_\mu^\dagger(x-\hat{\mu})
+      \psi(x-\hat{\mu}) \big] .
+\end{equation}
+It is easy to see that one recovers the Dirac action in the limit $a \to 0$
+by Taylor expanding the $U_\mu$ and $\psi(x+\hat{\mu})$ in powers of the
+lattice spacing $a$. Keeping only the leading term in $a$,
+Eq.~\ref{eq:Dslnaive} becomes
+\[
+\begin{aligned}
+&\frac{1}{2a}\bar\psi(x)\gamma_\mu\Big[
+   \big(1+iagA_\mu(x+\hat{\mu}/2)+\ldots\big)
+   \big(\psi(x)+a\psi'(x)+\ldots\big) \\
+&\quad - \big(1-iagA_\mu(x-\hat{\mu}/2)+\ldots\big)
+   \big(\psi(x)-a\psi'(x)+\ldots\big) \Big] \\
+&= \bar\psi(x)\gamma_\mu\Big(\partial_\mu + \frac{a^2}{6}\partial_\mu^3 +
+   \ldots\Big)\psi(x) \\
+&\quad + ig\bar\psi(x)\gamma_\mu\Big[A_\mu + \frac{a^2}{2}\Big(
+   \frac{1}{4}\partial_\mu^2 A_\mu + (\partial_\mu A_\mu)\partial_\mu +
+   A_\mu\partial_\mu^2\Big) + \ldots \Big]\psi(x) ,
+\end{aligned}
+\]
+which, to $O(a^2)$, is the kinetic part of the standard continuum Dirac
+action in Euclidean space-time. Thus one arrives at the simplest (called
+``naive'') lattice action for fermions
+\begin{equation}
+\label{eq:naiveact}
+\begin{aligned}
+\mathcal{S}^N &= m_q\sum_x\bar\psi(x)\psi(x) \\
+&\quad + \frac{1}{2a}\sum_x\bar\psi(x)\gamma_\mu\big[
+   U_\mu(x)\psi(x+\hat{\mu}) - U_\mu^\dagger(x-\hat{\mu})
+   \psi(x-\hat{\mu}) \big] \\
+&\equiv \sum_x\bar\psi(x)M_{xy}^N[U]\psi(y)
+\end{aligned}
+\end{equation}
+where the interaction matrix $M^N$ is
+\begin{equation}
+\label{eq:naiveactM}
+M_{i,j}^N[U] = m_q\delta_{ij} + \frac{1}{2a}\sum_\mu
+\big[ \gamma_\mu U_{i,\mu}\delta_{i,j-\mu} -
+      \gamma_\mu U_{i-\mu,\mu}^\dagger\delta_{i,j+\mu} \big]
+\end{equation}
+The Euclidean $\gamma$ matrices are hermitian, $\gamma_\mu = \gamma_\mu^\dagger$,
+and satisfy $\{\gamma_\mu,\gamma_\nu\} = 2\delta_{\mu\nu}$. The
+representation I shall use is
+\begin{equation}
+\label{eq:gammamatdef}
+\vec\gamma = \begin{pmatrix} 0 & i\vec\sigma \\ -i\vec\sigma & 0 \end{pmatrix},
+\qquad
+\gamma_4 = \begin{pmatrix} 1 & 0 \\ 0 & -1 \end{pmatrix},
+\qquad
+\gamma_5 = \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix} ,
+\end{equation}
+which is related to Bjorken and Drell conventions as follows:
+$\gamma_i = i\gamma_{BD}^i$, $\gamma_4 = \gamma_{BD}^0$,
+$\gamma_5 = \gamma_{BD}^5$. In this representation $\gamma_1, \gamma_3$ are
+pure imaginary, while $\gamma_2, \gamma_4, \gamma_5$ are real.
+
+The Taylor expansion showed that the discretization errors start at
+$O(a^2)$. For another simple illustration consider the inverse of the
+free-field propagator $m + \frac{i}{a}\sum_\mu\gamma_\mu\sin(p_\mu a)$. Set
+$\vec{p}=0$ and rotate to Minkowski space ($p_4 \to iE$, \textit{i.e.}
+$\sin p_4 a \to i\sinh Ea$). Then, using the forward propagator (upper two
+components of $\gamma_4$), gives
+\begin{equation}
+\label{eq:Npolemass}
+m_q^{\mathrm{pole}} a = \sinh Ea
+\end{equation}
+for the relation between the pole mass and the energy. This shows that, even
+in the free field case, the continuum relation $E(\vec{p}=0) = m$ is violated
+by corrections that are $O(a^2)$.
+
+\noindent\textbf{Symmetries}: The invariance group of the fermion action
+under rotations in space and time is the hypercubic group. Full Euclidean
+invariance will be recovered only in the continuum limit. The action is
+invariant under translations by $a$ and under $\mathcal{P}$, $\mathcal{C}$,
+and $\mathcal{T}$ as can be checked using Table 2.
+
+The naive action $\bar\psi_x M_{xy}^N\psi_y$ has the following global
+symmetry:
+\begin{equation}
+\label{eq:vector_psi}
+\begin{aligned}
+\psi(x) &\to e^{i\theta}\psi(x) \\
+\bar\psi(x) &\to \bar\psi(x)e^{-i\theta}
+\end{aligned}
+\end{equation}
+where $\theta$ is a continuous parameter. This symmetry is related to baryon
+number conservation and leads to a conserved vector current. For $m_q = 0$
+the action is also invariant under
+\begin{equation}
+\label{eq:axial_psi}
+\begin{aligned}
+\psi(x) &\to e^{i\theta\gamma_5}\psi(x) \\
+\bar\psi(x) &\to \bar\psi(x)e^{i\theta\gamma_5}
+\end{aligned}
+\end{equation}
+Having both a vector and an axial symmetry in a hard-cutoff regularization
+would imply a violation of the Adler-Bell-Jackiw theorem. It turns out that
+while the naive fermion action preserves chiral symmetry it also has the
+notorious fermion doubling problem as explained in Section 9. The chiral
+charges of these extra fermions are such as to exactly cancel the anomaly.
+In fact the analysis of $\mathcal{S}^N$ lead to a no-go theorem by
+Nielsen-Ninomiya [14] that states that it is not possible to define a local,
+translationally invariant, hermitian lattice action that preserves chiral
+symmetry and does not have doublers.
+
+We will discuss two fixes to the doubling/anomaly/chiral symmetry problem.
+First, include an additional term in the action that breaks chiral symmetry
+and removes the doublers (Wilson's fix). Second, exploit the fact that the
+naive fermion action has a much larger symmetry group, $U_V(4)\otimes U_A(4)$,
+to reduce the doubling problem from $2^d = 16 \to 16/4$ while maintaining a
+remnant chiral symmetry (staggered fermions). In both cases one regains the
+correct anomaly in the continuum limit. Before diving into these fixes, I
+would like to first discuss issues of the measure of integration and gauge
+fixing, and give an overview of Symanzik's improvement program.
+
+\section{The Haar Measure}
+
+The fourth ingredient needed to complete the formulation of LQCD as a quantum
+field theory via the path integral is to define the measure of integration
+over the gauge degrees of freedom. Note that, unlike the continuum fields
+$A_\mu$, lattice fields are SU(3) matrices with elements that are bounded in
+the range $[0,1]$. Therefore, Wilson proposed an invariant group measure, the
+Haar measure, for this integration. This measure is defined such that for any
+elements $V$ and $W$ of the group
+\begin{equation}
+\label{eq:haarmeasure}
+\int dU\, f(U) = \int dU\, f(UV) = \int dU\, f(WU)
+\end{equation}
+where $f(U)$ is an arbitrary function over the group. This construction is
+simple, and has the additional advantage that in non-perturbative studies it
+avoids the problem of having to include a gauge fixing term in the path
+integral. This is because the field variables are compact. Hence there are no
+divergences and one can normalize the measure by defining
+\begin{equation}
+\label{eq:haarnorm}
+\int dU = 1 .
+\end{equation}
+For gauge invariant quantities each gauge copy contributes the same amount.
+Consequently the lack of a gauge fixing term just gives an overall extra
+numerical factor. This cancels in the calculation of correlation functions
+due to the normalization of the path integral. Note that gauge fixing and the
+Fadeev-Papov construction does have to be introduced when doing lattice
+perturbation theory [36].
+
+The measure and the action are invariant under $\mathcal{C}$, $\mathcal{P}$,
+$\mathcal{T}$ transformations, therefore when calculating correlation
+functions via the path integral we must average over a configuration
+$\mathcal{U}$ and the ones obtained from it by the application of
+$\mathcal{C}$, $\mathcal{P}$, $\mathcal{T}$. In most cases this averaging
+occurs very naturally, for example, Euclidean translation invariance
+guarantees $\mathcal{P}$ and $\mathcal{T}$ invariance. Similarly, taking the
+real part of the trace of a Wilson loop is equivalent to summing over $U$ and
+its the charge conjugate configuration. A cook-book recipe for evaluating the
+behavior of correlation functions after average over configurations related
+by the lattice discrete symmetries is given in Section 17.
+
+One important consequence of these symmetries is that only the real part of
+Euclidean correlation functions has a non-zero expectation value. This places
+restriction on the quantities one can calculate using LQCD. For example,
+simulations of LQCD have not been very successful at calculations of
+scattering amplitudes, which are in general complex [48]. The connection
+between Minkowski and Euclidean correlation functions was discussed in
+Section 5. To get scattering amplitudes what is required is to first
+calculate Euclidean amplitudes for all values of the Euclidean time $\tau$,
+followed by a fourier transform in $\tau$, and finally a Wick rotation to
+Minkowski space. For such an procedure to work requires data with phenomenal
+accuracy. Unfortunately, simulations give Euclidean correlation functions for
+a discrete set of $\tau$ and with errors that get exponentially magnified in
+the rotation. The best that has been done is to use L\"uscher's method that
+relates scattering phase shifts to shifts in two particle energy states in
+finite volume [27,28]. So far this method has been tested on models in 2--4
+dimensions, and used to calculate scattering lengths in QCD [29,30].
+
+\section{Gauge Fixing and Gribov Copies}
+
+Gauge invariance and the property of group integration, $\int dU\, U = 0$,
+are sufficient to show that only gauge invariant correlation functions have
+non-zero expectation values. This is the celebrated Elitzur's theorem [37].
+It states that a local continuous symmetry cannot be spontaneously broken.
+
+In certain applications (study of quark and gluon propagators [38], 3-gluon
+coupling [39], hadronic wavefunctions [40], and determination of
+renormalization constants using quark states [41]) it is useful to work in a
+fixed gauge. The common gauge choices are axial ($\eta_\mu A_\mu = 0$ where
+$\eta$ in Minkowski space is a fixed time-like vector. The common choice is
+$A_4 = 0$), Coulomb ($\partial_i A_i = 0$), and Landau
+($\partial_\mu A_\mu = 0$). Their lattice analogues, assuming periodic
+boundary conditions, are the following.
+
+\textbf{Maximal Axial Gauge}: On a lattice with periodic boundary conditions
+one cannot enforce $A_4 = 0$ by setting all links in the time direction to
+unity as the Wilson line in each direction is an invariant. The gauge freedom
+at all but one site can be removed as follows. Set all time-like links $U_4 =
+1$ on all but one timeslice. On that time-slice all $U_4$ links are
+constrained to be the original Wilson line in 4-direction, however, one can
+set links in $\hat{z}$ direction $U_3 = 1$ except on one z-plane. On that
+z-plane set $U_3$ links to the Wilson line in that direction and all links in
+$\hat{y}$ direction $U_2 = 1$ except on one y-line. On this y-line set all
+$U_2$ links to the value of y-lines and links in $\hat{x}$ direction $U_1 = 1$
+except on one point. While such a construction is unique, the choice of the
+time-slice, z-plane, y-line, and x-point and the labeling of $x,y,z,t$ axis
+are not. Also, this gauge fixing does not respect Euclidean translation
+invariance and it is not smooth.
+
+\textbf{Coulomb Gauge}: The lattice condition is given by the gauge
+transformation $V(x)$ that maximizes the function
+\begin{equation}
+\label{eq:Coulombgauge}
+F[V] = \sum_x\sum_i \operatorname{Re}\operatorname{Tr} V(x)
+\bigg( U_i(x)V^\dagger(x+\hat{i}) +
+       U_i^\dagger(x-\hat{i})V^\dagger(x-\hat{i}) \bigg)
+\end{equation}
+separately on each time-slice and $i$ runs over the spatial indices $1-3$.
+
+\textbf{Landau Gauge}: This is defined by the same function as in
+Eq.~\ref{eq:Coulombgauge} except that the sum is evaluated on the whole
+lattice and $i = 1-4$.
+
+The maximization condition, Eq.~\ref{eq:Coulombgauge}, corresponds, in the
+continuum, to finding the stationary points of $F[V] = \lVert A^V \rVert =
+\int d^4x\, \operatorname{Tr}(A_\mu^V)^2(x)$. What we would like is to find
+the global minimum corresponding to the ``smoothest'' fields $A_\mu$, or the
+copies in case it is not unique. For any gauge configuration there is an
+infinite set of gauge equivalent configurations obtained by applying the set
+of transformations $\{V(x)\}$. This set is called the gauge orbit. The first
+question is whether the gauge fixing procedure gives a unique solution,
+\textit{i.e.} whether the gauge-fixing algorithm converges to the same final
+point irrespective of the starting point on the gauge orbit. For the maximal
+axial gauge, the construction is unique (the configuration $\{U\}$ and
+$\{VUV^\dagger\}$ for any $\{V\}$ give the same final link matrices), so the
+answer is clearly yes. For the Coulomb and Landau gauge choices the answer is
+no --- there are a number of solutions to the gauge-fixing condition. These
+are the famous Gribov copies [42]. For a recent theoretical review of this
+subject see [43].
+
+The algorithms for fixing to either the Coulomb gauge or the Landau gauge are
+mostly local. Local algorithms generate, for each site, a gauge matrix
+$v_i(x)$ that maximizes the sum, defined in Eq.~\ref{eq:Coulombgauge}, of the
+link matrices emerging from that site. This gauge transformation is then
+applied to the lattice. These two steps are iterated until the global maximum
+is found. The ordered product $\prod_i v_i(x)$ gives $V(x)$. For all
+practical purposes we shall call this end-point of the gauge fixing algorithm
+a Gribov copy. It is, in most cases and especially for the local gauge-fixing
+algorithms, the nearest extremum, and not the global minimum of
+$\lVert A^V \rVert$. A set of Gribov copies can be generated by first
+performing a different random gauge transformation on the configuration and
+then applying the same gauge-fixing algorithm, or by using different
+gauge-fixing algorithms. For recent studies of the efficacy of different
+algorithms see [44,45].
+
+The Monte Carlo update procedure is such that it is highly improbable that
+any finite statistical sample contains gauge equivalent configurations. So
+one does not worry about gauge copies. In the gauge-fixed path integral one
+would \textit{a priori} like to average over only one Gribov copy per
+configuration and choose this to be the ``smoothest''. Finding the $V(x)$
+which gives the smoothest configuration has proven to be a non-trivial
+problem.
+
+The open questions are: (i) how to define the ``smoothest'' solution of the
+gauge-fixing algorithm (\textit{i.e.} defining the fundamental modular
+domain), (ii) how to ascertain that a solution is unique (lies within or on
+the boundary of the fundamental modular domain), and (iii) how to find it.
+
+The ultimate question is --- what is the dependence of the quantities one
+wants to calculate on the choice of Gribov copy? A number of studies have
+been carried out [46], however the results and their interpretation are not
+conclusive. Firstly, it is not known whether the smoothest solution lying
+within the fundamental modular domain can be found economically for all
+configurations and over the range of gauge coupling being investigated. In
+the absence of the smoothest solution it is not clear whether (i) the
+residual gauge freedom simply contributes to noise in the correlation
+function, and (ii) one should average over a set of Gribov copies for each
+configuration to reduce this noise. In my opinion these remain challenging
+problems that some of you may wish to pursue.
+
+The problem of Gribov copies and the Faddeev-Papov construction (a gauge
+fixing term and the Faddeev-Papov determinant) resurfaces when one wants to
+do lattice perturbation theory or when taking the Hamiltonian limit of the
+path integral via the transfer matrix formalism. This construction is
+analogous to that in the continuum [36]. Finally, let me mention that in a
+fixed gauge, the lattice theory has only a BRST invariance [27]. While BRST
+invariance is sufficient to prove that the theory is renormalizable, the set
+of operators of any given dimension allowed by BRST invariance is larger than
+that with full gauge invariance. In the analyses of improvement of the action
+and operators it is this enlarged set that has to be considered [47].

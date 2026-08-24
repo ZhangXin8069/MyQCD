@@ -1,0 +1,876 @@
+% =====================================================================
+%  Chapter 2: QCD on the Lattice - a First Look
+%  Gattringer & Lang, "Quantum Chromodynamics on the Lattice" (LNP 788)
+%  Reconstructed from extract/ch02.txt; equations auto-numbered.
+% =====================================================================
+
+\chapter{QCD on the Lattice -- a First Look}
+
+In Chap.~1 we derived the lattice path integral for a scalar field theory
+using the canonical approach for the quantization of the system.
+Subsequently, we changed our point of view and adopted the lattice path
+integral itself as a method of quantization. The steps involved are a
+lattice discretization of the classical Euclidean action and the
+construction of the measure for the integration over ``all configurations''
+of the classical fields. In this chapter we begin with the implementation of
+these two steps for quantum chromodynamics.
+
+Quantum chromodynamics (QCD) is the theory of strongly interacting particles
+and fields, i.e., the theory of quarks and gluons. In the first section of
+this chapter we will review the QCD action functional and its symmetries.
+This serves as a preparation for the subsequent discretization of QCD on the
+lattice. The discretization proceeds in several steps. We begin with the
+naive discretization of the fermionic part of the QCD action followed by
+discussing the lattice action for the gluons. In the end we write down a
+complete expression for the QCD lattice path integral. Already at this point
+we stress, however, that the expression for the path integral obtained in
+this chapter is not the final word. The nature of the quark fields in our
+path integral will have to be changed in order to incorporate Fermi
+statistics. This step will be taken in Chap.~5 where we reinterpret the
+quark fields as anti-commuting numbers, so-called Grassmann numbers.
+
+\section{The QCD action in the continuum}
+
+We begin our construction of the QCD lattice path integral with a review of
+the Euclidean continuum action. After introducing the quark and gluon
+fields, we develop the QCD continuum action starting with the discussion of
+the fermionic part of the action and its invariance under gauge
+transformations. Subsequently, we construct an action for the gluon fields
+that are invariant under these transformations.
+
+\subsection{Quark and gluon fields}
+
+The quarks are massive fermions and as such are described by Dirac 4-spinors
+\begin{equation}
+  \psi^{(f)}(x)^\alpha_c , \qquad \bar\psi^{(f)}(x)^\alpha_c .
+\end{equation}
+These quark fields carry several indices and arguments. The space--time
+position is denoted by $x$, the Dirac index by $\alpha = 1, 2, 3, 4$, and
+the color index by $c = 1, 2, 3$. In general we will use Greek letters for
+Dirac indices and letters $a, b, c, \ldots$ for color. Each field
+$\psi^{(f)}(x)$ thus has 12 independent components. In addition the quarks
+come in several flavors called up, down, strange, charm, bottom, and top,
+which we indicate by a flavor index $f = 1, 2, \ldots, 6$. In many
+calculations it is sufficient to include only the lightest two or three
+flavors of quarks. Thus, our flavor index will run from 1 to $\Nf$, the
+number of flavors. We remark that often we omit the indices and use
+matrix/vector notation instead.
+
+In the Minkowskian operator approach the fields $\psi$ and $\bar\psi$ are
+related by $\bar\psi = \psi^\dagger \gamma_0$, where $\gamma_0$ is the
+$\gamma$-matrix related to time. In the Euclidean path integral one uses
+independent integration variables $\psi$ and $\bar\psi$.
+
+In addition to the quarks, QCD contains gauge fields describing the gluons,
+\begin{equation}
+  A_\mu(x)_{cd} .
+\end{equation}
+These fields also carry several indices. As for the quark fields we have a
+space--time argument denoted by $x$. In addition, the gauge fields
+constitute a vector field carrying a Lorentz index $\mu$ which labels the
+direction of the different components in space--time. Since we are
+interested in the Euclidean action, the Lorentz index $\mu$ is Euclidean,
+i.e., we do not distinguish between covariant and contravariant indices.
+There is no metric tensor involved and $\mu = 1, 2, 3, 4$ simply label the
+different components. Finally, the gluon field carries color indices
+$c, d = 1, 2, 3$. For given $x$ and $\mu$, the field $A_\mu(x)$ is a
+traceless, hermitian $3 \times 3$ matrix at each space--time point $x$. We
+will discuss the structure of these matrices and their physical motivation
+in more detail below.
+
+It is convenient to split the QCD action into a fermionic part, which
+includes quark fields and an interaction term coupling them to the gluons,
+and a gluonic part, which describes propagation and interaction of only the
+gluons.
+
+\subsection{The fermionic part of the QCD action}
+
+The fermionic part $S_F[\psi, \bar\psi, A]$ of the QCD action is a bilinear
+functional in the fields $\psi$ and $\bar\psi$. It is given by
+\begin{equation}
+  \begin{split}
+    S_F[\psi, \bar\psi, A] &=
+      \sum_{f=1}^{\Nf} \int \dd^4 x\,
+      \bar\psi^{(f)}(x) \Big(\gamma_\mu \big(\partial_\mu
+        + \im A_\mu(x)\big) + m^{(f)}\Big) \psi^{(f)}(x) \\
+    &= \sum_{f=1}^{\Nf} \int \dd^4 x\,
+      \bar\psi^{(f)}(x)^\alpha_c \Big( (\gamma_\mu)_{\alpha\beta}
+      \big(\delta_{cd}\,\partial_\mu + \im A_\mu(x)_{cd}\big)\\
+    &\qquad + m^{(f)}\,\delta_{\alpha\beta}\,\delta_{cd}\Big)
+      \psi^{(f)}(x)^\beta_d .
+  \end{split}
+\end{equation}
+In the first line of this equation we have used matrix/vector notation for
+the color and Dirac indices, while in the second line we write all indices
+explicitly. Note that we use the Einstein summation convention.
+
+Equation (2.3) makes it obvious that the action is a sum of the actions for
+the individual flavors $f = 1, 2, \ldots, \Nf$. The quarks with different
+flavor all couple in exactly the same way to the gluon field $A_\mu$ and
+only differ in their masses $m^{(f)}$. Of course, different flavors also
+have different electric charge and thus couple differently to the
+electromagnetic field. However, here we only discuss the strong interaction.
+
+The color indices $c$ and $d$ of the quark fields $\psi$, $\bar\psi$ are
+summed over with the corresponding indices of the gauge field and, in this
+way, couple the quarks to the gluons. The coupling of the gauge field is
+different for each component $\mu$ since each component is multiplied with
+a different matrix $\gamma_\mu$. The $\gamma$-matrices are $4\times 4$
+matrices in Dirac space, and in the QCD action they mix the different Dirac
+components of the quark fields. They are the Euclidean versions of the
+(Minkowski) $\gamma$-matrices familiar from the Dirac equation. The
+Euclidean $\gamma$-matrices $\gamma_\mu$, $\mu = 1, 2, 3, 4$, obey the
+Euclidean anti-commutation relations
+\begin{equation}
+  \{\gamma_\mu, \gamma_\nu\} = 2\,\delta_{\mu\nu}\,\mathbb{1} .
+\end{equation}
+In Appendix A.2 we discuss how to construct the Euclidean $\gamma$-matrices
+from their Minkowski counterparts and give an explicit representation. The
+different partial derivatives in the kinetic term of (2.3) mix the Dirac
+components in the same way as the gauge fields, i.e., the $\partial_\mu$ are
+also contracted with the matrices $\gamma_\mu$. The kinetic term is,
+however, trivial in color space. The mass term, finally, is trivial in both
+color and Dirac space.
+
+Having discussed our notation in detail, we still should verify that the
+action (2.3) indeed gives rise to the relativistic wave equation for
+fermions, the Dirac equation. For a single flavor, the contribution to the
+action is given by (we drop the flavor index for the subsequent discussion
+and use matrix/vector notation for the color and Dirac indices)
+\begin{equation}
+  S_F[\psi, \bar\psi, A] = \int \dd^4 x\,
+    \bar\psi(x) \big(\gamma_\mu (\partial_\mu + \im A_\mu(x)) + m\big)
+    \psi(x) .
+\end{equation}
+The simplest way of applying the Euler--Lagrange equations (1.43) in (2.5)
+is to differentiate the integrand of (2.5) with respect to $\bar\psi(x)$.
+This gives rise to
+\begin{equation}
+  \big(\gamma_\mu (\partial_\mu + \im A_\mu(x)) + m\big) \psi(x) = 0 ,
+\end{equation}
+which is indeed the (Euclidean) Dirac equation in an external field
+$A_\mu$. Thus, we have verified that the action (2.5) has the correct form.
+
+\subsection{Gauge invariance of the fermion action}
+
+So far we have only discussed the different building blocks of QCD and how
+they are assembled in the fermionic part of the QCD action. Let us now dive
+a little bit deeper into the underlying structures and symmetries.
+
+Up to the additional color structure, the action (2.5) is exactly the action
+of electrodynamics -- when using matrix/vector notation this difference is
+not even explicit. As a matter of fact, the QCD action is obtained by
+generalizing the gauge invariance of electrodynamics.
+
+In electrodynamics the action is invariant under multiplication of the
+fermion fields with an arbitrary phase at each space--time point $x$,
+combined with a transformation of the gauge field. In QCD we require
+invariance under local rotations among the color indices of the quarks. At
+each space--time point $x$ we choose an independent complex $3 \times 3$
+matrix $\Omega(x)$. The matrices are required to be unitary,
+$\Omega(x)^\dagger = \Omega(x)^{-1}$, and to have $\det[\Omega(x)] = 1$.
+Such matrices are the defining representation of the special unitary group,
+denoted by SU(3) for the case of $3 \times 3$ matrices. It is easy to see
+that this set is closed under matrix multiplication. Furthermore the unit
+matrix is contained in this set and for every element there exists an
+inverse (the hermitian conjugate matrix). Thus the set of SU(3) matrices
+forms a group. We collect the basic equations showing these statements in
+Appendix A.1. Note, however, that the group operation -- the matrix
+multiplication -- is not commutative. Groups with a non-commutative group
+operation are called non-abelian groups. The idea of using non-abelian
+groups for a gauge theory was pursued by Yang and Mills [1], and such
+theories are often referred to as Yang--Mills theories.
+
+Returning to our discussion of the QCD gauge invariance, we require that the
+action is invariant under the transformation
+\begin{equation}
+  \psi(x) \to \psi'(x) = \Omega(x)\psi(x) , \qquad
+  \bar\psi(x) \to \bar\psi'(x) = \bar\psi(x)\Omega(x)^\dagger
+\end{equation}
+for the fermion fields and a yet unspecified transformation
+$A_\mu(x) \to A'_\mu(x)$ for the gauge fields. Invariance of the action
+means that we require
+\begin{equation}
+  S_F[\psi', \bar\psi', A'] = S_F[\psi, \bar\psi, A] .
+\end{equation}
+With (2.5) and (2.7), this gives
+\begin{equation}
+  S_F[\psi', \bar\psi', A'] =
+    \int \dd^4 x\,
+    \bar\psi(x)\Omega(x)^\dagger
+    \Big(\gamma_\mu \big(\partial_\mu + \im A'_\mu(x)\big) + m\Big)
+    \Omega(x)\psi(x) .
+\end{equation}
+Using $\Omega(x)^\dagger = \Omega(x)^{-1}$, we see immediately that for the
+mass term the gauge transformation matrices cancel. For the other terms the
+situation is a bit more involved. From comparing (2.5) with (2.9) we obtain
+the condition
+\begin{equation}
+  \begin{split}
+    \partial_\mu + \im A_\mu(x) &=
+      \Omega(x)^\dagger \big(\partial_\mu + \im A'_\mu(x)\big) \Omega(x) \\
+    &= \partial_\mu + \Omega(x)^\dagger \big(\partial_\mu \Omega(x)\big)
+      + \im\, \Omega(x)^\dagger A'_\mu(x)\Omega(x) .
+  \end{split}
+\end{equation}
+This is an equation for an operator acting on a function of $x$. Thus, due
+to the product rule, we find two terms with derivatives. We now can solve
+for $A'_\mu(x)$ (again we use $\Omega(x)^\dagger = \Omega(x)^{-1}$) and we
+arrive at the transformation property for the gauge field
+\begin{equation}
+  A_\mu(x) \to A'_\mu(x)
+  = \Omega(x) A_\mu(x) \Omega(x)^\dagger
+    + \im\, \big(\partial_\mu \Omega(x)\big) \Omega(x)^\dagger .
+\end{equation}
+Note that also $A'_\mu(x)$ is hermitian and traceless as required for the
+gauge fields. For the first term on the right-hand side of (2.11), this
+follows from the fact that $A_\mu(x)$ is traceless and
+$\Omega(x)^\dagger = \Omega(x)^{-1}$. For the second term this is shown in
+Appendix A.1 (see (A.11) and (A.15)).
+
+The requirement that the fermion action (2.5) remains invariant under the
+gauge transformation (2.7) of the fermions necessarily implies the presence
+of gauge fields $A_\mu(x)$ with the transformation properties given by
+(2.11).
+
+In the next section, when we discretize QCD on the lattice, we again
+require the invariance of the lattice action under the local gauge
+transformations (2.7) for the quark fields. Gauge fields have to be
+introduced to achieve gauge invariance of the action.
+
+\subsection{The gluon action}
+
+Let us now discuss the action for the gluon fields $A_\mu(x)$. The gluon
+action $S_G[A_\mu]$ is a functional of only the gauge fields and is required
+to be invariant under the transformation (2.11):
+\begin{equation}
+  S_G[A'] = S_G[A] .
+\end{equation}
+To construct an action with this property we define the covariant derivative
+\begin{equation}
+  D_\mu(x) = \partial_\mu + \im A_\mu(x) .
+\end{equation}
+From our intermediate result in the first line of (2.10) we read off the
+transformation property for the covariant derivative as
+\begin{equation}
+  D_\mu(x) \to D'_\mu(x) = \partial_\mu + \im A'_\mu(x)
+  = \Omega(x) D_\mu(x) \Omega(x)^\dagger .
+\end{equation}
+These transformation properties ensure that $D_\mu(x)\psi(x)$ and
+$\psi(x)$ transform in exactly the same way -- thus, the name ``covariant
+derivative.''
+
+The covariant derivatives are now used to construct an action functional
+which is a generalization of the expression known from electrodynamics. We
+define the field strength tensor $F_{\mu\nu}(x)$ as the commutator
+\begin{equation}
+  F_{\mu\nu}(x) = -\im [D_\mu(x), D_\nu(x)]
+  = \partial_\mu A_\nu(x) - \partial_\nu A_\mu(x)
+    + \im [A_\mu(x), A_\nu(x)] ,
+\end{equation}
+where the last term on the right-hand side does not vanish since $A_\mu(x)$
+and $A_\nu(x)$ are matrices, i.e., objects where multiplication is a
+non-commutative operation. Up to this commutator, the field strength tensor
+$F_{\mu\nu}(x)$ has the same form as the field strength in electrodynamics.
+
+The fact that the field strength tensor is the commutator of two covariant
+derivatives implies that it inherits the transformation properties (2.14),
+i.e., it transforms as
+\begin{equation}
+  F_{\mu\nu}(x) \to F'_{\mu\nu}(x) = \Omega(x) F_{\mu\nu}(x) \Omega(x)^\dagger .
+\end{equation}
+As a candidate for the gauge action we now consider the expression
+\begin{equation}
+  S_G[A] = \frac{1}{2 g^2} \int \dd^4 x\,
+    \tr\big[F_{\mu\nu}(x) F_{\mu\nu}(x)\big] .
+\end{equation}
+Taking the trace over the color indices ensures that (2.17) is invariant
+under gauge transformations. One can use (2.16), the invariance of the trace
+under cyclic permutations, and $\Omega(x)^\dagger = \Omega(x)^{-1}$ to
+verify this property. Furthermore, the summation over the Lorentz indices
+$\mu$, $\nu$ (summation convention) ensures that the action is a Lorentz
+scalar. We stress again that (2.17) is understood in Euclidean space.
+
+From (2.15) and (2.17) it is obvious that our gauge action generalizes the
+action of electrodynamics. Up to the trace and the different overall factor,
+it exactly matches the action for the electromagnetic field. The trace is
+due to the fact that gluon fields are matrix valued. Below, we decompose the
+matrix-valued fields into components and in this way get rid of the trace,
+pushing the similarity to electrodynamics even further. The extra factor
+$1/g^2$ is just a convenient way to introduce the coupling. After rescaling
+the gauge fields
+\begin{equation}
+  A_\mu(x) \to \frac{1}{g} A_\mu(x) ,
+\end{equation}
+the factor $1/g^2$ in (2.17) is gone and the gauge action assumes the more
+familiar form. Now, the gauge coupling shows up in the covariant derivative
+\begin{equation}
+  D_\mu(x) \to \partial_\mu + \im g A_\mu(x) ,
+\end{equation}
+making obvious that $g$ is the coupling strength of the gauge fields to the
+quarks. On the lattice it is more convenient to have the gauge coupling as
+an overall factor of the gauge action, i.e., we work with the form (2.17).
+
+\subsection{Color components of the gauge field}
+
+We have introduced the gauge fields $A_\mu(x)$ as hermitian, traceless
+matrices and have shown that the gauge transformation (2.11) preserves these
+properties. Thus the $A_\mu(x)$ are in the Lie algebra su(3) and we can
+write
+\begin{equation}
+  A_\mu(x) = \sum_{i=1}^{8} A_\mu^{(i)}(x)\, T_i .
+\end{equation}
+The components $A_\mu^{(i)}(x)$, $i = 1, 2, \ldots 8$, are real-valued
+fields, the so-called color components, and the $T_i$ are a basis for
+traceless hermitian $3 \times 3$ matrices (see Appendix A.1). We can use
+this representation (2.20) of the gauge field to write also the field
+strength tensor (2.15) in terms of its components. Inserting (2.20) into
+(2.15) we obtain
+\begin{equation}
+  F_{\mu\nu}(x) = \sum_{i=1}^{8}
+    \big(\partial_\mu A_\nu^{(i)}(x) - \partial_\nu A_\mu^{(i)}(x)\big) T_i
+    + \im \sum_{j,k=1}^{8} A_\mu^{(j)}(x) A_\nu^{(k)}(x)\,
+      [T_j, T_k] .
+\end{equation}
+The commutator on the right-hand side can be simplified further with the
+commutation relations (A.4) and one ends up with
+\begin{equation}
+  F_{\mu\nu}(x) = \sum_{i=1}^{8} F_{\mu\nu}^{(i)}(x)\, T_i ,
+\end{equation}
+\begin{equation}
+  F_{\mu\nu}^{(i)}(x) = \partial_\mu A_\nu^{(i)}(x) - \partial_\nu A_\mu^{(i)}(x)
+    - f_{ijk}\, A_\mu^{(j)}(x) A_\nu^{(k)}(x) .
+\end{equation}
+This representation of the field strength can now be inserted in the
+expression (2.17) for the gauge action and, using (A.3) to evaluate the
+trace, we obtain
+\begin{equation}
+  S_G[A] = \frac{1}{4 g^2} \sum_{i=1}^{8}
+    \int \dd^4 x\, F_{\mu\nu}^{(i)}(x) F_{\mu\nu}^{(i)}(x) .
+\end{equation}
+From this equation we see that the gauge action is a sum over color
+components and each term has the form of the action of electrodynamics.
+However, there appears a qualitatively new feature: From the right-hand side
+of (2.23) we see that the field strength color components are not linear in
+the gauge field $A_\mu^{(i)}(x)$ but have a quadratic piece which mixes the
+different color components of the gluon field. Thus, in the action (2.24) we
+not only encounter the term quadratic in the gauge fields which is familiar
+from electrodynamics, but also find cubic and quartic terms. These terms
+give rise to self-interactions of the gluons, making QCD a highly
+nontrivial theory. The self-interactions are responsible for confinement of
+color, the most prominent feature of QCD.
+
+In Fig.~2.1 we show a schematic picture (a so-called tree-level Feynman
+diagram) illustrating the cubic and quartic interaction terms. The curly
+lines represent the gluons and the dots are the interaction vertices.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{fig21.png}
+  \caption*{Fig. 2.1. \emph{Schematic picture of the cubic and quartic gluon
+    self-interaction. The wavy lines represent the gluon propagators and the
+    dots are the interaction vertices}.}
+  \label{fig:21}
+\end{figure}
+
+These remarks conclude our review of the continuum action and we have all
+the concepts and notations necessary to begin the lattice discretization of
+quantum chromodynamics. We stress, however, that besides gauge invariance,
+there are other important symmetries of the QCD action. We discuss these
+symmetries later as we need them.
+
+\section{Naive discretization of fermions}
+
+In this section we introduce the so-called naive discretization of the
+fermion action. Later, in Chap.~5, this discretization will be augmented
+with an additional term to remove lattice artifacts. Here, it serves to
+present the basic idea and, more importantly, to discuss the representation
+of the lattice gluon field which differs from the continuum form. We show
+that on the lattice the gluon fields must be introduced as elements of the
+gauge group and not as elements of the algebra, as is done in the continuum
+formulation.
+
+\subsection{Discretization of free fermions}
+
+As discussed in Sect.~1.4, the first step in the lattice formulation is the
+introduction of the 4D lattice $\Lambda$:
+\begin{equation}
+  \Lambda = \{n = (n_1, n_2, n_3, n_4) \;|\;
+    n_1, n_2, n_3 = 0, 1, \ldots, N-1 ; \;
+    n_4 = 0, 1, \ldots, N_T-1\} .
+\end{equation}
+The vectors $n \in \Lambda$ label points in space--time separated by a
+lattice constant $a$. In our lattice discretization of QCD we now place
+spinors at the lattice points only, i.e., our fermionic degrees of freedom
+are
+\begin{equation}
+  \psi(n) , \quad \bar\psi(n) , \quad n \in \Lambda ,
+\end{equation}
+where the spinors carry the same color, Dirac, and flavor indices as in the
+continuum (we suppress them in our notation). Note that for notational
+convenience we only use the integer-valued 4-coordinate $n$ to label the
+lattice position of the quarks and not the actual physical space--time point
+$x = an$.
+
+In the continuum the action $S_F^0$ for a free fermion is given by the
+expression (set $A_\mu = 0$ in (2.5))
+\begin{equation}
+  S_F^0[\psi, \bar\psi] = \int \dd^4 x\,
+    \bar\psi(x) (\gamma_\mu \partial_\mu + m) \psi(x) .
+\end{equation}
+When formulating this action on the lattice we have to discretize the
+integral over space--time as well as the partial derivative. The
+discretization is implemented as a sum over $\Lambda$, as we did for the
+scalar field theory in Chap.~1. The partial derivative is discretized with
+the symmetric expression
+\begin{equation}
+  \partial_\mu \psi(x) \to
+    \frac{1}{2a}\big(\psi(n + \hat\mu) - \psi(n - \hat\mu)\big) .
+\end{equation}
+Thus, our lattice version of the free fermion action reads
+\begin{equation}
+  S_F^0[\psi, \bar\psi] = a^4 \sum_{n\in\Lambda}
+    \bar\psi(n) \left( \sum_{\mu=1}^{4} \gamma_\mu\,
+      \frac{\psi(n + \hat\mu) - \psi(n - \hat\mu)}{2a} + m\,\psi(n) \right) .
+\end{equation}
+This form is the starting point for the introduction of the gauge fields.
+
+\subsection{Introduction of the gauge fields as link variables}
+
+In the last section we showed that requiring the invariance of the action
+under the local rotation (2.7) of the color indices of the quark fields
+enforces the introduction of the gauge fields. On the lattice we implement
+the same transformation by choosing an element $\Omega(n)$ of SU(3) for each
+lattice site $n$ and transforming the fermion fields according to
+\begin{equation}
+  \psi(n) \to \psi'(n) = \Omega(n) \psi(n) , \qquad
+  \bar\psi(n) \to \bar\psi'(n) = \bar\psi(n) \Omega(n)^\dagger .
+\end{equation}
+As for the continuum case, we find that on the lattice the mass term of
+(2.29) is invariant under the transformation (2.30). For the discretized
+derivative terms in (2.29), this is not the case. Consider, e.g., the term
+\begin{equation}
+  \bar\psi(n)\psi(n + \hat\mu) \to
+  \bar\psi'(n) \psi'(n + \hat\mu) =
+  \bar\psi(n) \Omega(n)^\dagger \Omega(n + \hat\mu) \psi(n + \hat\mu) .
+\end{equation}
+This is not gauge-invariant. If, however, we introduce a field $U_\mu(n)$
+with a directional index $\mu$, then
+\begin{equation}
+  \bar\psi'(n) U'_\mu(n) \psi'(n + \hat\mu) =
+  \bar\psi(n) \Omega(n)^\dagger U'_\mu(n) \Omega(n + \hat\mu)
+  \psi(n + \hat\mu)
+\end{equation}
+is gauge-invariant if we define the gauge transformation of the new field by
+\begin{equation}
+  U_\mu(n) \to U'_\mu(n) = \Omega(n) U_\mu(n) \Omega(n + \hat\mu)^\dagger .
+\end{equation}
+In order to make the fermionic action (2.29) gauge-invariant, we introduce
+the gauge fields $U_\mu(n)$ as elements of the gauge group SU(3) which
+transform as given in (2.33). These matrix-valued variables are oriented and
+are attached to the links of the lattice and thus are often referred to as
+link variables. $U_\mu(n)$ lives on the link which connects the sites $n$
+and $n + \hat\mu$.
+
+Since the link variables are oriented, we can also define link variables
+that point in negative $\mu$ direction. Note that these are not independent
+link variables but are introduced only for notational convenience. In
+particular, $U_{-\mu}(n)$ points from $n$ to $n - \hat\mu$ and is related to
+the positively oriented link variable $U_\mu(n - \hat\mu)$ via the definition
+\begin{equation}
+  U_{-\mu}(n) \equiv U_\mu(n - \hat\mu)^\dagger .
+\end{equation}
+In Fig.~2.2 we illustrate the geometrical setting of the link variables on
+the lattice.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{fig22.png}
+  \caption*{Fig. 2.2. \emph{The link variables $U_\mu(n)$ and $U_{-\mu}(n)$}.}
+  \label{fig:22}
+\end{figure}
+
+From the definitions (2.34) and (2.33) we obtain the transformation
+properties of the link in negative direction
+\begin{equation}
+  U_{-\mu}(n) \to U'_{-\mu}(n) =
+  \Omega(n) U_{-\mu}(n) \Omega(n - \hat\mu)^\dagger .
+\end{equation}
+Note that we have introduced the gluon fields $U_\mu(n)$ as elements of the
+gauge group SU(3), not as elements of the Lie algebra which were used in the
+continuum. According to the gauge transformations (2.33) and (2.35) also the
+transformed link variables are elements of the group SU(3).
+
+Having introduced the link variables and their properties under gauge
+transformations, we can now generalize the free fermion action (2.29) to the
+so-called naive fermion action for fermions in an external gauge field $U$:
+\begin{equation}
+  \begin{split}
+    S_F[\psi, \bar\psi, U] = a^4 \sum_{n\in\Lambda}
+    \bar\psi(n) \Big( \sum_{\mu=1}^{4} \gamma_\mu\,
+      \frac{U_\mu(n)\psi(n + \hat\mu) - U_{-\mu}(n)\psi(n - \hat\mu)}{2a}\\
+    + m\,\psi(n) \Big) .
+  \end{split}
+\end{equation}
+Using (2.30), (2.33), and (2.35) for the gauge transformation properties of
+fermions and link variables, one readily sees the gauge invariance of the
+fermion action (2.36), $S_F[\psi, \bar\psi, U] = S_F[\psi', \bar\psi', U']$.
+
+\subsection{Relating the link variables to the continuum gauge fields}
+
+Let us now discuss the link variables in more detail and see how they can be
+related to the algebra-valued gauge fields of the continuum formulation. We
+have introduced $U_\mu(n)$ as the link variable connecting the points $n$
+and $n + \hat\mu$. The gauge transformation properties (2.33) are
+consequently governed by the two transformation matrices $\Omega(n)$ and
+$\Omega(n + \hat\mu)^\dagger$. Also in the continuum an object with such
+transformation properties is known: It is the path-ordered exponential
+integral of the gauge field $A_\mu$ along some curve $C_{xy}$ connecting two
+points $x$ and $y$, the so-called gauge transporter:
+\begin{equation}
+  G(x, y) = \mathcal{P} \exp\!\left( \im \int_{C_{xy}} A \cdot ds \right) .
+\end{equation}
+We may assume that a lattice is embedded in the continuum, where smooth
+gauge fields live. For a detailed discussion of the path-ordered exponential
+in the continuum see, e.g., [2]. We do not need the precise definition of
+the continuum gauge transporters and only use that under a gauge
+transformation (2.11) they transform as
+\begin{equation}
+  G(x, y) \to \Omega(x) G(x, y) \Omega(y)^\dagger .
+\end{equation}
+These transformation properties are the same as for our link variables
+$U_\mu(n)$ when $n$ and $n + \hat\mu$ are considered as end points of a
+path. Based on these transformation properties, we interpret the link
+variable $U_\mu(n)$ as a lattice version of the gauge transporter connecting
+the points $n$ and $n + \hat\mu$, i.e., we wish to establish
+$U_\mu(n) = G(n, n + \hat\mu) + O(a)$. For that purpose we introduce
+algebra-valued lattice gauge fields $A_\mu(n)$ and write
+\begin{equation}
+  U_\mu(n) = \exp\!\big(\im a A_\mu(n)\big) .
+\end{equation}
+When comparing (2.37) and (2.39) one sees that we have approximated the
+integral along the path from $n$ to $n + \hat\mu$ by $aA_\mu(n)$, i.e., by
+the length $a$ of the path times the value of the field $A_\mu(n)$ at the
+starting point.\footnote{We remind the reader that for notational
+convenience we denote the lattice points only by their integer-valued
+4-coordinates $n$. For the current discussion it should, however, be kept in
+mind that the physical space--time coordinates are $a\,n$, i.e., neighboring
+lattice points are separated by the distance $a$.} This approximation is
+good to $O(a)$ and no path ordering is necessary to that order. Since the
+link variables act as gauge transporters, we will often use this
+nomenclature instead of ``link variable.''
+
+Based on the relation (2.39) we can now also connect the lattice fermion
+action (2.36) to its continuum counterpart (2.5). Since one of the guiding
+principles of our construction is the requirement that in the limit
+$a \to 0$ the lattice action approaches the continuum form, we expand (2.39)
+for small $a$,
+\begin{equation}
+  U_\mu(n) = 1 + \im a A_\mu(n) + O(a^2) , \qquad
+  U_{-\mu}(n) = 1 - \im a A_\mu(n - \hat\mu) + O(a^2) ,
+\end{equation}
+where we use (2.34) and $A_\mu = A_\mu^\dagger$ for the expansion of
+$U_{-\mu}(n)$. Inserting these expanded link variables into expression
+(2.36) we find
+\begin{equation}
+  S_F[\psi, \bar\psi, U] = S_F^0[\psi, \bar\psi] + S_F^I[\psi, \bar\psi, A] ,
+\end{equation}
+where $S_F^0$ denotes the free part of the action and the interaction part
+reads
+\begin{equation}
+  \begin{split}
+    S_F^I[\psi, \bar\psi, A] &= \im a^4 \sum_{n\in\Lambda}\sum_{\mu=1}^{4}
+      \bar\psi(n) \gamma_\mu\,
+      \half\big(A_\mu(n) \psi(n + \hat\mu) + A_\mu(n - \hat\mu)
+        \psi(n - \hat\mu)\big) \\
+    &= \im a^4 \sum_{n\in\Lambda}\sum_{\mu=1}^{4}
+      \bar\psi(n) \gamma_\mu A_\mu(n) \psi(n) + O(a) .
+  \end{split}
+\end{equation}
+In the second step we have used $\psi(n \pm \hat\mu) = \psi(n) + O(a)$ and
+$A_\mu(n - \hat\mu) = A_\mu(n) + O(a)$. The two Eqs. (2.41) and (2.42)
+establish that when expanding the lattice version (2.36) of the fermionic
+action for $a \to 0$, we indeed recover the continuum form (2.5).
+
+Before we continue with discretizing the gauge part of the QCD action we
+stress an important conceptual point: The group-valued link variables
+$U_\mu(n)$ are not merely an auxiliary construction to sneak the Lie
+algebra-valued fields $A_\mu(x)$ of the continuum into the lattice
+formulation. Instead, the group elements $U_\mu(n)$ are considered as the
+fundamental variables which are integrated over in the path integral (see
+Chap.~3). This change from algebra-valued to (compact) group-valued fields
+has important consequences. In particular, the role of gauge fixing changes
+considerably. We will discuss these issues in detail once we have completed
+the construction of QCD on the lattice.
+
+\section{The Wilson gauge action}
+
+We have introduced the link variables as the basic quantities for putting
+the gluon field on the lattice. Now we construct a lattice gauge action in
+terms of the link variables and show that in the limit $a \to 0$ it
+approaches its continuum counterpart (assuming that the lattice gauge fields
+are embedded in a continuous background). This is the naive continuum limit
+in contradistinction to the continuum limit of the full, integrated quantum
+theory.
+
+\subsection{Gauge-invariant objects built with link variables}
+
+As a preparation for the construction of the gluon action let us first
+discuss the transformation properties of a string of link variables along a
+path of links. Let $P$ be such a path of $k$ links on the lattice connecting
+the points $n_0$ and $n_1$. We define the ordered product
+\begin{equation}
+  P[U] = U_{\mu_0}(n_0) U_{\mu_1}(n_0 + \hat\mu_0) \ldots
+    U_{\mu_{k-1}}(n_1 - \hat\mu_{k-1})
+  \equiv \prod_{(n,\mu)\in P} U_\mu(n) .
+\end{equation}
+This object is the lattice version of the continuum gauge transporter
+(2.37). Note that the path $P$ may contain link variables for both
+directions $\pm\mu$.
+
+From the transformation properties for single link variables, (2.33) and
+(2.35), it follows that gauge rotations for all but the end points cancel:
+Consider the transformation of two subsequent link variables on the path,
+one ending at $n$ the other one starting from this point. The two
+transformation matrices $\Omega(n)^\dagger$ and $\Omega(n)$ cancel each
+other at $n$. Only the matrices at the two end points of the path, $n_0$
+and $n_1$, remain. Thus the product $P[U]$ transforms according to
+\begin{equation}
+  P[U] \to P[U'] = \Omega(n_0) P[U] \Omega(n_1)^\dagger .
+\end{equation}
+Like for the single link term, from such a product of link variables $P[U]$
+a gauge-invariant quantity can be constructed by attaching quark fields at
+the starting point and at the end point,
+\begin{equation}
+  \bar\psi(n_0) P[U] \psi(n_1) .
+\end{equation}
+An alternative way of constructing a gauge-invariant product of link
+variables is to choose for the path $P$ and a closed loop $L$ and to take
+the trace,
+\begin{equation}
+  L[U] = \tr\!\left[ \prod_{(n,\mu)\in L} U_\mu(n) \right] .
+\end{equation}
+According to (2.44), under a gauge transformation only the matrices
+$\Omega(n_0)$ and $\Omega(n_0)^\dagger$ at the point $n_0$ where the loop is
+rooted remain. These matrices then cancel when taking the trace. We find
+\begin{equation}
+  L[U'] = \tr\!\left[ \Omega(n_0) \prod_{(n,\mu)\in L} U_\mu(n)
+    \Omega(n_0)^\dagger \right] = \tr\!\left[ \prod_{(n,\mu)\in L} U_\mu(n)
+    \right] = L[U] .
+\end{equation}
+Thus, we have established that the trace over a closed loop of link
+variables is a gauge-invariant object. Such loops of link variables are used
+for the construction of the gluon action and later will also serve as
+physical observables.
+
+\subsection{The gauge action}
+
+For the gluon action it is sufficient to use the shortest, nontrivial
+closed loop on the lattice, the so-called plaquette. The plaquette variable
+$U_{\mu\nu}(n)$ is a product of only four link variables defined as
+\begin{equation}
+  \begin{split}
+    U_{\mu\nu}(n) &= U_\mu(n) U_\nu(n + \hat\mu) U_{-\mu}(n + \hat\mu + \hat\nu)
+      U_{-\nu}(n + \hat\nu)\\
+    &= U_\mu(n) U_\nu(n + \hat\mu) U_\mu(n + \hat\nu)^\dagger U_\nu(n)^\dagger .
+  \end{split}
+\end{equation}
+In the second formulation we have utilized the equivalence (2.34). We depict
+the plaquette in Fig.~2.3. As we have shown in the last paragraph, the trace
+of the plaquette variable is a gauge-invariant object.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{fig23.png}
+  \caption*{Fig. 2.3. \emph{The four link variables which build up the
+    plaquette $U_{\mu\nu}(n)$. The circle indicates the order that the links
+    are run through in the plaquette}.}
+  \label{fig:23}
+\end{figure}
+
+We now present Wilson's form of the gauge action [3] -- the first
+formulation of lattice gauge theory -- and subsequently show that it indeed
+approaches the continuum form in the naive limit $a \to 0$. The Wilson
+gauge action is a sum over all plaquettes, with each plaquette counted with
+only one orientation. This sum can be realized by a sum over all lattice
+points $n$ where the plaquettes are located, combined with a sum over the
+Lorentz indices $1 \leq \mu < \nu \leq 4$,
+\begin{equation}
+  S_G[U] = \frac{2}{g^2} \sum_{n\in\Lambda} \sum_{\mu<\nu}
+    \Re\, \tr\big[1 - U_{\mu\nu}(n)\big] .
+\end{equation}
+The individual contributions are the real parts of traces over the unit
+matrix minus the plaquette variable. The factor $2/g^2$ is included to match
+the form of the continuum action (2.17) in the limit $a \to 0$. Let us now
+discuss this limit.
+
+For establishing the correct limit we need to expand the link variables in
+the form (2.39) for small $a$. In order to handle the products of the four
+link variables in the plaquette in an organized way, it is useful to invoke
+the Baker--Campbell--Hausdorff formula for the product of exponentials of
+matrices:
+\begin{equation}
+  \exp(A) \exp(B) = \exp\!\left( A + B + \half [A, B] + \cdots \right) ,
+\end{equation}
+where $A$ and $B$ are arbitrary matrices and the dots indicate powers of the
+matrices larger than 2 which are omitted. The formula (2.50) can be proven
+easily by expanding both sides in powers of $A$ and $B$. Inserting (2.39)
+into the definition (2.48) of the plaquette and applying (2.50) iteratively,
+we obtain
+\begin{multline}
+  U_{\mu\nu}(n) = \exp\!\Big(
+    \im a A_\mu(n) + \im a A_\nu(n + \hat\mu)
+    - \frac{a^2}{2} [A_\mu(n), A_\nu(n + \hat\mu)] \\
+    - \im a A_\mu(n + \hat\nu) - \im a A_\nu(n)
+    - \frac{a^2}{2} [A_\mu(n + \hat\nu), A_\nu(n)] \\
+    + \frac{a^2}{2} [A_\nu(n + \hat\mu), A_\mu(n + \hat\nu)]
+    + \frac{a^2}{2} [A_\mu(n), A_\nu(n)] \\
+    + \frac{a^2}{2} [A_\mu(n), A_\mu(n + \hat\nu)]
+    + \frac{a^2}{2} [A_\nu(n + \hat\mu), A_\nu(n)] + O(a^3) \Big) .
+\end{multline}
+In this expression we have gauge fields with shifted arguments such as
+$A_\nu(n + \hat\mu)$. We now perform a Taylor expansion for these fields,
+i.e., we set
+\begin{equation}
+  A_\nu(n + \hat\mu) = A_\nu(n) + a\, \partial_\mu A_\nu(n) + O(a^2) ,
+\end{equation}
+in all these terms and take into account contributions up to $O(a^2)$. With
+this expansion several terms cancel and we obtain
+\begin{equation}
+  \begin{split}
+    U_{\mu\nu}(n) &= \exp\!\big( \im a^2
+      \big(\partial_\mu A_\nu(n) - \partial_\nu A_\mu(n)
+      + \im [A_\mu(n), A_\nu(n)]\big) + O(a^3) \big) \\
+    &= \exp\!\big( \im a^2 F_{\mu\nu}(n) + O(a^3) \big) .
+  \end{split}
+\end{equation}
+In the second step we use the continuum definition of the field strength
+given in (2.15). The form (2.53) can now be inserted in (2.49) for the
+Wilson gauge action. The exponential in (2.53) is expanded and we find
+\begin{equation}
+  \begin{split}
+    S_G[U] &= \frac{2}{g^2} \sum_{n\in\Lambda} \sum_{\mu<\nu}
+      \Re\, \tr\big[1 - U_{\mu\nu}(n)\big] \\
+    &= \frac{a^4}{2 g^2} \sum_{n\in\Lambda} \sum_{\mu,\nu}
+      \tr\big[F_{\mu\nu}(n)^2\big] + O(a^2) .
+  \end{split}
+\end{equation}
+The terms of $O(a^2)$ that appear in the expansion of the exponential in
+(2.53) cancel when taking the real part of $\tr[1 - U_{\mu\nu}(n)]$ (one may
+use $\tr[U_{\mu\nu}(n)]^* = \tr[U_{\mu\nu}(n)^\dagger] = \tr[U_{\nu\mu}(n)]$
+to see this). In a similar way also the $O(a^3)$ terms in the expansion of
+(2.53) cancel, such that the Wilson action approximates the continuum form
+up to $O(a^2)$, as stated in (2.54). Note that the factor $a^4$ together
+with the sum over $\Lambda$ is just the discretization of the space--time
+integral and thus $\lim_{a\to 0} S_G[U] = S_G[A]$. This completes our
+discussion of the naive continuum limit $a \to 0$ for the Wilson gauge
+action.
+
+Concluding this section we remark that different lattice actions for the
+gauge fields have been proposed in order to reduce cutoff effects further.
+We return to this issue in Chap.~9.
+
+\section{Formal expression for the QCD lattice path integral}
+
+Having constructed the fermion and gauge field actions on the lattice we can
+now write down the complete expression for the lattice QCD path integral
+formula for Euclidean correlators. As already announced, the preliminary
+formulation presented here will be refined further in subsequent chapters.
+Nevertheless, we find such an intermediate summary helpful for understanding
+the line of the construction.
+
+\subsection{The QCD lattice path integral}
+
+Following the discussion of Sect.~1.4 we write Euclidean correlators as a
+lattice path integral in the form
+\begin{equation}
+  \ev{O_2(t)\, O_1(0)} = \frac{1}{Z} \int
+    \mathcal{D}[\psi, \bar\psi]\, \mathcal{D}[U]\,
+    e^{-S_F[\psi,\bar\psi,U] - S_G[U]}\,
+    O_2[\psi, \bar\psi, U]\, O_1[\psi, \bar\psi, U] ,
+\end{equation}
+where the partition function $Z$ is given by
+\begin{equation}
+  Z = \int \mathcal{D}[\psi, \bar\psi]\, \mathcal{D}[U]\,
+    e^{-S_F[\psi,\bar\psi,U] - S_G[U]} .
+\end{equation}
+The quantization of the system in the path integral formalism is implemented
+as an integral over all field configurations. On the lattice the
+corresponding path integral measures are products of measures of all quark
+field components and products of measures for all link variables:
+\begin{equation}
+  \begin{split}
+    \mathcal{D}[\psi, \bar\psi] &=
+      \prod_{n\in\Lambda}\prod_{f,\alpha,c}
+      \dd\psi^{(f)}(n)_c^\alpha\,
+      \dd\bar\psi^{(f)}(n)_c^\alpha ,\\
+    \mathcal{D}[U] &= \prod_{n\in\Lambda}\prod_{\mu=1}^{4} \dd U_\mu(n) .
+  \end{split}
+\end{equation}
+Both the fermion and gauge field measures shown here will be discussed in
+more detail in subsequent sections. For the fermion fields we have to
+include the Pauli's principle, turning the spinors $\psi$ and $\bar\psi$
+into anticommuting variables. These so-called Grassmann numbers and the
+corresponding rules of integration will be discussed in Chap.~5. For the
+gauge fields we have denoted in (2.57) the measure for a single link
+variable as $\dd U_\mu(n)$, but not yet specified how we implement the
+integration over the group manifold of SU(3). This leads to the concept of
+Haar measure which we discuss in the next chapter. Despite these issues, the
+expressions in (2.57) already incorporate some of the essential features of
+lattice QCD, in particular the reduction of the original quantum fields to a
+countable number of classical variables.
+
+As discussed in Sect.~1.4, in the path integral quantization (2.55) the
+configurations to be integrated over are weighted with the Boltzmann factor
+of the Euclidean action. The corresponding lattice versions of the fermion
+and gauge parts of the action have been derived as (compare (2.36) and
+(2.49))
+\begin{multline}
+  S_F[\psi, \bar\psi, U] = a^4 \sum_{f=1}^{\Nf}\sum_{n\in\Lambda}
+    \bar\psi^{(f)}(n) \Big( \sum_{\mu=1}^{4} \gamma_\mu\\
+    \frac{U_\mu(n)\psi^{(f)}(n + \hat\mu)
+      - U_{-\mu}(n)\psi^{(f)}(n - \hat\mu)}{2a}
+    + m^{(f)}\, \psi^{(f)}(n) \Big) \\
+    + \text{terms discussed in Chap.~5} ,
+\end{multline}
+where we now also sum over $\Nf$ flavors of quarks. We stress again that the
+fermion action has to be augmented with another term in order to remove
+lattice artifacts (see Chap.~5). The gauge action, however, is ready to go
+and is taken over unchanged from (2.49):
+\begin{equation}
+  S_G[U] = \frac{2}{g^2} \sum_{n\in\Lambda} \sum_{\mu<\nu}
+    \Re\, \tr\big[1 - U_{\mu\nu}(n)\big] .
+\end{equation}
+Let us remark that the functionals $O_1[\psi, \bar\psi, U]$ and
+$O_2[\psi, \bar\psi, U]$ are translations of the operators $\hat{O}_1$ and
+$\hat{O}_2$ acting in Hilbert space. The translation proceeds as expressed
+in (1.81) by evaluating the operators between field eigenstates. We stress
+that the functional $O_2$ depends only on the fields with time argument
+$n_t$ related to Euclidean time $t$ on the right-hand side of (2.55) via
+$t = a\, n_t$. The fields in the functional $O_1$ depend only on the fields
+with $t = 0$.
+
+Equations (2.55), (2.56), (2.57), (2.58), and (2.59) comprise our current
+status in the construction of lattice QCD. So far we discussed the
+fundamental fields describing quarks and gluons and put them onto the
+lattice -- quarks on the sites and the gauge fields on the links of the
+lattice. In order to allow for color rotations of the fermion fields in the
+same way as in the continuum, the gauge fields were introduced as
+group-valued link variables. Subsequently, we showed that products of link
+variables along closed paths are gauge-invariant and we have used the
+plaquette to construct Wilson's gauge action. Finally, we put together these
+ingredients according to the path integral quantization recipe of Sect.~1.4.
+Operators are translated into functionals of classical fields. These
+functionals are weighted with the Boltzmann factor and this product is then
+integrated over all possible field configurations. The precise definition of
+this integration -- Grassmann integration for the fermions, Haar measure for
+the link variables -- will be discussed in subsequent chapters.
+
+\section*{References}
+
+\begin{enumerate}[label={[\arabic*]}]
+  \item C.~N.~Yang and R.~Mills: Phys.\ Rev.\ 96, 191 (1954).
+  \item M.~E.~Peskin and D.~V.~Schroeder: \emph{An Introduction to Quantum
+        Field Theory} (Addison-Wesley, Reading, Massachusetts 1995).
+  \item K.~G.~Wilson: Phys.\ Rev.\ D 10, 2445 (1974).
+\end{enumerate}

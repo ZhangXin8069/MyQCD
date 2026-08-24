@@ -1,0 +1,997 @@
+% ======================================================================
+% 第 12 章：重整化群
+% （原书第 393-438 页；PDF 第 416-461 页）
+% ======================================================================
+\chapter{重整化群}
+
+在过去的两章中，我们的主要目标一直是确定量子场论中紫外发散的消除在何时以及如何发生。我们已经看到，在很大一类场论中，发散只出现在少数几个参数的值中：裸质量和耦合常数，或者，在重整化微扰论中，是抵消项。除了这些参数的移动之外，具有很大动量的虚粒子对这些理论中的计算没有任何影响。
+
+紫外发散的消除是一个理论要给出定量物理预言所必不可少的。但在更深的层面上，高动量虚量子对一个理论的影响竟然如此之小，这一事实相当令人惊讶。量子场论的一个本质特征是局域性，即不同时空点处的场是独立的自由度，具有独立的量子涨落。任意短距离上的量子涨落在费曼图计算中表现为具有任意高动量的虚量子。在可重整化理论中，对虚粒子动量的圈积分总是由与有限的外部粒子动量可比的值所主导。但这是为什么呢？我们不容易理解，与极短距离相关联的量子涨落怎么会如此无害，以至于对一个理论的影响仅仅是通过其少数几个参数的值。
+
+本章从 Kenneth Wilson 提出的一个物理图像开始，它解释了这种不寻常且违反直觉的简化。这一图像推广了第~7 章末尾引入的依赖于距离或标度的电荷的概念，并表明可重整化场论的所有参数都可以有效地看作是依赖于标度的实体。我们将看到，这种标度依赖由简单的微分方程描述，称为\emph{重整化群方程}。这些方程的解将导致一种全新类型的物理预言：在某些情形下，量子场的关联函数随其坐标而表现出不寻常但可计算的标度律。
+
+\section{威尔逊的重整化理论方法}
+
+威尔逊方法基于场论的泛函积分途径，其中量子场的自由度是积分变量。在这种途径中，可以通过分离泛函积分对场的短距离自由度的依赖来研究紫外发散的起源。%
+\footnote{Wilson 的思想见 K.~G.~Wilson 和 J.~Kogut 的综述，
+\emph{Phys.\ Repts.} \textbf{12C}, 75 (1974)。} 在本节中，我们将以
+$\phi^4$ 理论这一最简单的例子来说明这一思想。
+
+为使我们的分析更具体，本节将放弃维数正规化这一优美但有些神秘的方法，而改用锐利的动量截断。由于这里我们只在 $\phi^4$ 理论中工作，我们不会担心这种截断会使满足 Ward 恒等式变得困难。Wilson 的分析可以推广到 QED 和其他这种微妙之处很重要的情形，但 $\phi^4$ 理论的情形足以给我们提供这种方法的基本定性结果。
+
+在第~9.2 节中，我们通过生成泛函 $Z[J]$ 的泛函积分表示构造了 $\phi^4$ 理论的 Green 函数。基本的积分变量是场 $\phi(k)$ 的 Fourier 分量，因此 $Z[J]$ 具体地由下式给出
+\begin{equation}
+  Z[J] = \int \mathcal{D}\phi\ e^{i[S+J\phi]}
+  = \Bigl( \prod_{k_n} \int d\phi(k_n) \Bigr)\ e^{i[S+J\phi]} .
+  \label{eq:12.1}
+\end{equation}
+为了施加锐利的紫外截断 $\Lambda$，我们限制式~\eqref{eq:12.1} 中显示的积分变量的数目。也就是说，我们只对满足 $|k| < \Lambda$ 的 $\phi(k)$ 积分，并令 $|k| > \Lambda$ 时 $\phi(k) = 0$。
+
+泛函积分的这一修改提示了一种评估极短距离或极大动量处量子涨落影响的方法。在泛函积分表示中，这些涨落由对动量接近截断的 $\phi$ 的 Fourier 分量的积分来表示。为什么不显式地完成对这些变量的积分呢？然后我们可以把结果与原来的泛函积分进行比较，并精确确定这些高动量模式对理论物理预言的影响。
+
+不过在开始这一分析之前，我们必须引入一处修改。乍看起来，在 Minkowski 空间中定义紫外截断似乎最为自然。然而，截断 $k^2 < \Lambda^2$ 在控制大动量方面并不完全有效，因为在类光方向上 $k$ 的分量可以非常大而 $k^2$ 仍然很小。因此，我们将考虑把截断施加于 Wick 转动之后得到的 Euclidean 动量上。等价地，我们考虑第~9.3 节给出的泛函积分的 Euclidean 形式，并把它的变量 $\phi(k)$（$k$ 为 Euclidean）限制在 $|k| < \Lambda$。
+
+转入 Euclidean 空间也使我们更接近第~8 章所预告的重整化理论与统计力学之间的联系。正如我们在第~9.3 节看到的，$\phi^4$ 理论的 Euclidean 泛函积分与磁体统计力学的连续描述具有完全相同的形式。场 $\phi(x)$ 被解释为涨落的自旋场 $s(x)$。真实的磁体由原子构成，原子间距提供了一个物理截断，即涨落可以发生的最短距离。截断的泛函积分以一种粗略的方式模拟了这种原子尺度的影响。
+
+通过追寻这一类比，我们可以得到关于场论中紫外截断效应的物理直觉。在磁体中，很容易想象原子尺度上的自旋统计涨落。事实上，对于远离任何临界点的温度值，统计涨落被限制在这一尺度；在几十个原子间距的距离上，磁体已经表现出均匀的宏观行为。我们在第~8 章已经看到，可以用 Euclidean $\phi^4$ 理论的传播子来近似自旋场的关联函数。在这一近似下，
+\begin{equation}
+  \langle s(x)s(0)\rangle \sim \int \frac{d^dk}{(2\pi)^d}\
+    \frac{e^{ik\cdot x}}{k^2+m^2} .
+  \label{eq:12.2}
+\end{equation}
+只要温度远离临界温度，``质量'' $m$ 的大小就由问题中唯一的自然标度，即原子间距，所决定。因此，我们预期 $m \sim \Lambda$。在我们的场论计算中，我们特别关注 $m \ll \Lambda$ 的情形，并调整理论的参数以满足这一条件。而在描述磁体时，似乎并不需要这样的调整。
+
+然而，我们在第~8 章看到，存在一种情形，其中自旋场的关联远长于原子间距，从而确实有 $m \ll \Lambda$。当自旋系统开始磁化时，恰在临界点附近，随着涨落的自旋试图选择其最终的磁化方向，自旋在任意长的距离上变得相关。为了研究磁体中的这些长程关联，必须仔细调节温度，使系统进入相变附近。同样地，我们可以设想对 $\phi^4$ 理论的参数 $m$ 进行精细调节，使量子场论进入这样的参数区域，在那里我们确实发现场 $\phi(x)$ 在远大于 $1/\Lambda$ 的距离上存在关联。
+
+\subsection{对单一动量壳层积分}
+
+有了这些铺垫，我们现在将完成对 $\phi$ 的高动量自由度的积分。我们首先更明确地写出 $\phi^4$ 理论情形的泛函积分 \eqref{eq:12.1}。我们应用前面描述的截断方案，并为了简单起见令 $J = 0$。于是
+\begin{equation}
+  Z = \int [\mathcal{D}\phi]_\Lambda\ \exp\Bigl( -\int d^dx\ \Bigl[
+    \tfrac{1}{2}(\partial_\mu\phi)^2 + \tfrac{1}{2}m^2\phi^2
+    + \frac{\lambda}{4!}\phi^4 \Bigr] \Bigr),
+  \label{eq:12.3}
+\end{equation}
+其中
+\begin{equation}
+  [\mathcal{D}\phi]_\Lambda = \prod_{|k|<\Lambda} d\phi(k) .
+  \label{eq:12.4}
+\end{equation}
+在式~\eqref{eq:12.3} 的拉格朗日量中，$m$ 和 $\lambda$ 是裸参数，因此没有抵消项。与我们对发散表面积的研究一样，在任意时空维度 $d$ 中进行这一分析将是有用的。
+
+我们现在把积分变量 $\phi(k)$ 分成两组。选取一个分数 $b < 1$。满足 $b\Lambda < |k| < \Lambda$ 的变量 $\phi(k)$ 是我们要积分掉的高动量自由度。为了标记这些自由度，我们定义
+\begin{equation}
+  \hat{\phi}(k) = \begin{cases}
+    \phi(k) & \text{for } b\Lambda < |k| < \Lambda;\\
+    0 & \text{otherwise}.
+  \end{cases}
+\end{equation}
+接下来，我们定义一个新的 $\phi(k)$，它在 $|k| < b\Lambda$ 时与旧的相同，在 $|k| > b\Lambda$ 时为零。然后我们可以把拉格朗日量中的旧 $\phi$ 替换为 $\phi + \hat{\phi}$，并把式~\eqref{eq:12.3} 重写为
+\begin{equation}
+  \begin{aligned}
+    Z &= \int \mathcal{D}\phi\ \int \mathcal{D}\hat{\phi}\ \exp\Bigl(
+      -\int d^dx\ \Bigl[ \tfrac{1}{2}(\partial_\mu(\phi+\hat{\phi}))^2
+        + \tfrac{1}{2}m^2(\phi+\hat{\phi})^2 + \frac{\lambda}{4!}
+          (\phi+\hat{\phi})^4 \Bigr] \Bigr)\\
+    &= \int \mathcal{D}\phi\ e^{-\int d^dx\ \mathcal{L}(\phi)}\ \int
+      \mathcal{D}\hat{\phi}\ \exp\Bigl( -\int d^dx\ \Bigl[
+        \tfrac{1}{2}(\partial_\mu\hat{\phi})^2 + \tfrac{1}{2}m^2\hat{\phi}^2
+        + \frac{\lambda}{4!}\hat{\phi}^4 + \frac{\lambda}{3!}\hat{\phi}^3\phi
+        + \frac{\lambda}{4}\hat{\phi}^2\phi^2 \Bigr] \Bigr) .
+  \end{aligned}
+  \label{eq:12.5}
+\end{equation}
+在最后这个表达式中，我们把所有与 $\hat{\phi}$ 无关的项都归入了 $\mathcal{L}(\phi)$。注意，$\phi\hat{\phi}$ 形式的二次项为零，因为不同波长的 Fourier 分量是正交的。
+
+接下来几段将解释如何完成对 $\hat{\phi}$ 的积分。这一积分将把 \eqref{eq:12.5} 变换为如下形式的表达式
+\begin{equation}
+  Z = \int [\mathcal{D}\phi]_{b\Lambda}\ \exp\Bigl( -\int d^dx\
+    \mathcal{L}_{eff}(\phi) \Bigr) ,
+  \label{eq:12.6}
+\end{equation}
+其中 $\mathcal{L}_{eff}(\phi)$ 只涉及满足 $|k| < b\Lambda$ 的 Fourier 分量 $\phi(k)$。我们将看到 $\mathcal{L}_{eff}(\phi) = \mathcal{L}(\phi)$ 加上正比于 $\Lambda$ 的幂次的修正。这些修正项通过提供剩余 $\phi(k)$ 之间的相互作用来补偿大 $k$ Fourier 分量 $\hat{\phi}$ 的移除，这些相互作用以前是由 $\hat{\phi}$ 的涨落所传递的。
+
+为了完成对 $\hat{\phi}(k)$ 的积分，我们使用与第~9.2 节推导费曼规则时相同的方法。事实上，我们下面将看到，$\mathcal{L}_{eff}$ 中的新项可以写成图解的形式。在这一分析中，我们把 \eqref{eq:12.5} 中的四次项（全都正比于 $\lambda$）视为微扰。由于我们主要感兴趣的是 $m^2 \ll \Lambda^2$ 的情形，我们也将质量项 $\tfrac{1}{2}m^2\hat{\phi}^2$ 视为微扰。于是拉格朗日量中涉及 $\hat{\phi}$ 的部分的领头阶项为
+\begin{equation}
+  \int \mathcal{L}_0 = \int_{b\Lambda<|k|<\Lambda} \frac{d^dk}{(2\pi)^d}\
+    \frac{1}{2}k^2\,|\hat{\phi}(k)|^2 .
+  \label{eq:12.7}
+\end{equation}
+这一项给出一个传播子
+\begin{equation}
+  \langle\hat{\phi}(k)\hat{\phi}(p)\rangle = (2\pi)^d\,\delta(k+p)\,
+    \frac{1}{k^2}\,g(k) ,
+  \label{eq:12.8}
+\end{equation}
+其中
+\begin{equation}
+  g(k) = \begin{cases}
+    1 & \text{if } b\Lambda < |k| < \Lambda;\\
+    0 & \text{otherwise}.
+  \end{cases}
+  \label{eq:12.9}
+\end{equation}
+我们将把式~\eqref{eq:12.5} 中剩余的 $\hat{\phi}$ 项视为微扰，并对指数做展开。这些微扰的各种贡献可以用 Wick 定理以 \eqref{eq:12.8} 为传播子来求值。
+
+首先考虑把 \eqref{eq:12.5} 指数中的 $\hat{\phi}^2\phi^2$ 项展开到一次幂所得的项。我们得到
+\begin{equation}
+  -\frac{\lambda}{4}\int d^dx\ \phi^2\hat{\phi}^2 = -\frac{1}{2}\int
+    \frac{d^dk}{(2\pi)^d}\ \Delta m^2\,\phi(k)\phi(-k) ,
+  \label{eq:12.10}
+\end{equation}
+其中系数 $\Delta m^2$ 是对两个 $\hat{\phi}$ 场做缩并的结果：
+\begin{equation}
+  \begin{aligned}
+    \Delta m^2 &= \frac{\lambda}{2}\ \int_{b\Lambda<|k|<\Lambda}
+      \frac{d^dk}{(2\pi)^d}\ \frac{1}{k^2}\\
+    &= \frac{\lambda}{2}\ \frac{1}{(4\pi)^{d/2}}\ \frac{\Lambda^{d-2}}{\Gamma(d/2)}
+      \ \frac{1-b^{d-2}}{d-2} .
+  \end{aligned}
+  \label{eq:12.11}
+\end{equation}
+项 \eqref{eq:12.10} 本来也可以由指数
+\begin{equation}
+  \exp\Bigl( -\int d^dx\ \frac{1}{2}\Delta m^2\,\phi^2 + \cdots \Bigr) .
+  \label{eq:12.12}
+\end{equation}
+的展开而产生。我们很快就会看到，微扰级数的其余部分也自行组织成这种形式。因此系数 $\Delta m^2$ 对 $\mathcal{L}$ 中的 $m^2$ 项给出一个正修正。
+
+修正项中微扰论的更高阶可以用类似的方法求出。与我们对 $\phi^4$ 理论标准微扰论的推导一样，采用图解记号是有用的。用双线表示传播子 \eqref{eq:12.8}。这一传播子将连接来自各个四次相互作用的成对的场 $\hat{\phi}$。把这些相互作用中未被积掉的场 $\phi$ 表示为单条外线。
+
+对 $\phi^4$ 耦合常数的领头阶修正来自具有两条内部 $\hat{\phi}$ 线和四条外部 $\phi$ 线的图：
+\begin{equation}
+  \Delta\lambda = -\frac{3\lambda^2}{2}\ \int_{b\Lambda<|k|<\Lambda}
+    \frac{d^dk}{(2\pi)^d}\ \frac{1}{k^2}\ \frac{1}{k^2}
+  = -\frac{3\lambda^2}{2}\ \frac{\Lambda^{d-4}}{(4\pi)^{d/2}}\ \frac{1-b^{d-4}}
+    {d-4}\ \cdots ,
+  \label{eq:12.15}
+\end{equation}
+精确到有限项。对场强项 $(\partial_\mu\phi)^2$ 和 $(\partial_\mu\phi)^4$ 系数的修正来自具有导数耦合的图，并被 $\lambda$ 的更高幂次所压低。
+
+我们现在可以总结对高动量壳层积分的结果。有效拉格朗日量具有如下形式
+\begin{equation}
+  \int d^dx\ \mathcal{L}_{eff} = \int d^dx\ \Bigl[
+    \tfrac{1}{2}(1+\Delta Z)(\partial_\mu\phi)^2 + \tfrac{1}{2}
+      (m^2+\Delta m^2)\phi^2 + \frac{1}{4!}(\lambda+\Delta\lambda)\phi^4
+      + \cdots \Bigr] .
+  \label{eq:12.18}
+\end{equation}
+为了把它与原始拉格朗日量比较，我们必须重新标度坐标和场，使动能项回到其标准形式。定义重新标度的坐标
+\begin{equation}
+  x' = bx,\qquad \partial_\mu' = \frac{1}{b}\partial_\mu ,
+  \label{eq:12.19}
+\end{equation}
+并把场重新标度为
+\begin{equation}
+  \phi' = \bigl[ b^{2-d}(1+\Delta Z) \bigr]^{1/2}\phi .
+  \label{eq:12.22}
+\end{equation}
+在这一重新标度之后，无微扰的作用量回到其初始形式，而各种微扰则经历一个变换。把结果写成一个新的拉格朗日量的形式，拉格朗日量的新参数为
+\begin{equation}
+  \begin{aligned}
+    m'^2 &= (m^2+\Delta m^2)(1+\Delta Z)^{-1}\,b^{-2};\\
+    \lambda' &= (\lambda+\Delta\lambda)(1+\Delta Z)^{-2}\,b^{d-4};\\
+    C' &= (C+\Delta C)(1+\Delta Z)^{-2}\,b^d;\\
+    D' &= (D+\Delta D)(1+\Delta Z)^{-3}\,b^{2d-6} ,
+  \end{aligned}
+  \label{eq:12.24}
+\end{equation}
+等等。（原始的拉格朗日量具有 $C = D = 0$，但如果 $C$ 和 $D$ 的初始值不为零，同样的方程仍然适用。）所有修正，$\Delta m^2$、$\Delta\lambda$ 等等，都来自图，因此如果微扰论是成立的，它们与领头项相比都是小的。
+
+通过把积分掉高动量自由度的操作与重新标度 \eqref{eq:12.19} 相结合，我们已经把这一操作改写为对拉格朗日量的一个变换。继续这一过程，我们可以对动量空间的另一壳层积分，并进一步变换拉格朗日量。逐次积分产生变换 \eqref{eq:12.24} 的进一步迭代。如果我们取参数 $b$ 接近 1，使得动量空间的壳层为无穷薄，那么变换就变成连续的了。于是我们可以把对一个场论的高动量自由度积分的结果描述为所有可能拉格朗日量空间中的一条轨迹或一个流。
+
+出于历史原因，这些连续生成的拉格朗日量变换被称为\emph{重整化群}。它们并不构成严格意义上的群，因为积分掉自由度的操作不可逆。另一方面，它们无疑与重整化相关，我们现在就来看到这一点。
+
+设想我们想要计算动量为 $p_i$ 的场的关联函数，所有这些动量都远小于 $\Lambda$。我们可以用原始拉格朗日量 $\mathcal{L}$，或用对直至外动量 $p_i$ 标度的所有动量壳层积分之后得到的有效拉格朗日量 $\mathcal{L}_{eff}$，来微扰地计算这一关联函数。两种方法最终都必须给出相同的结果。但在第一种情形中，场的高动量涨落效应要等到我们计算圈图时才显现出来。在第二种情形中，这些效应已经被吸收到新的耦合常数（$m'$、$\lambda'$ 等）中，因此它们的影响可以直接从拉格朗日量中看出。在第一种方法中，从原始（裸）参数到适用于低动量过程之值的大幅移动突然出现在单圈图中，似乎使微扰论的运用失效。在第二种方法中，这些修正是缓慢而系统地引入的。只要 $\lambda'$ 这样的有效耦合常数保持很小，每一步的微扰处理都是有效的。
+
+然而，有效拉格朗日量的参数可能与原始拉格朗日量的参数非常不同，因为为了从大的动量 $\Lambda$ 降到典型实验的动量标度，我们必须多次迭代变换 \eqref{eq:12.24}。因此，让我们更仔细地考察拉格朗日量在重整化群变换下趋于如何变化。
+
+最简单的情形是靠近 $m^2 = \lambda = C = D = \cdots = 0$ 这一点的拉格朗日量，在该点所有微扰都为零。我们定义的变换使该点保持不变；我们说自由场拉格朗日量
+\begin{equation}
+  \mathcal{L}_0 = \tfrac{1}{2}(\partial_\mu\phi)^2
+  \label{eq:12.25}
+\end{equation}
+是重整化群变换的一个\emph{不动点}。
+
+在 $\mathcal{L}_0$ 附近，我们可以忽略迭代方程 \eqref{eq:12.24} 中的 $\Delta m^2$、$\Delta\lambda$ 等项，只保留那些对微扰为线性的项。这给出一个特别简单的变换律：
+\begin{equation}
+  m'^2 = m^2b^{-2},\qquad \lambda' = \lambda b^{d-4},\qquad C' = Cb^d,\qquad
+  D' = Db^{2d-6},\qquad \text{etc.}
+  \label{eq:12.26}
+\end{equation}
+由于 $b < 1$，那些乘以 $b$ 的负幂次的参数增大，而那些乘以 $b$ 的正幂次的参数衰减。如果拉格朗日量含有增大的系数，这些系数最终将把它从 $\mathcal{L}_0$ 带走。
+
+习惯上把有效拉格朗日量中的各项称为一组局域算符，它们可以作为微扰加到 $\mathcal{L}_0$ 上。我们把系数在递归过程中增大的算符称为\emph{相关}算符。系数衰减消失的算符与\emph{无关}算符相关联。例如，标量场质量算符 $\phi^2$ 总是相关的，而 $\phi^4$ 算符在 $d < 4$ 时是相关的。如果某个算符的系数乘以 $b^0$（例如 $d = 4$ 时的算符 $\phi^4$），我们称该算符为\emph{边缘}的；要弄清它的系数是增大还是衰减，我们必须计入高阶修正的效应。
+
+一般地，含有 $N$ 个 $\phi$ 幂次和 $M$ 个导数的算符，其系数变换为
+\begin{equation}
+  C'_{N,M} = b^{N(d/2-1)+M-d}\,C_{N,M} .
+  \label{eq:12.27}
+\end{equation}
+注意这个系数恰好是 $(d_{N,M}-d)$，其中 $d_{N,M}$ 是第~10.1 节末尾计算的算符的质量维度。换言之，自由理论 $\mathcal{L}_0$ 周围的相关和边缘算符恰好对应于第~10.1 节幂次计数分析中的超可重整化和可重整化相互作用项。
+
+我们也可以用直截了当的量纲分析来理解自由场不动点附近系数的演化。质量维度为 $d_i$ 的算符，其系数具有维度 $(\mathrm{mass})^{d-d_i}$。这一质量的自然量级是截断 $\Lambda$。因此，如果 $d_i < d$，该微扰在低动量处日益重要。另一方面，如果 $d_i > d$，当动量 $p\to 0$ 时这一项的相对大小按 $(p/\Lambda)^{d_i-d}$ 减小；因此该项是真正无关的。
+
+我们现在已经证明，至少在零耦合不动点附近，处于截断标度的任意复杂的拉格朗日量都会退化到只含有限个可重整化相互作用的拉格朗日量。把这个结果与第~10 章的结论相比较是有启发性的。在那里我们采取的观点是，应当通过尽可能快地取极限 $\Lambda\to\infty$ 来消除截断 $\Lambda$。我们发现，只有当拉格朗日量不含具有负质量维度的参数时，这一极限才给出良定义的预言。从这个观点看，QED 等理论竟然不含这样的参数，这似乎极为幸运，否则这一理论就不会给出良定义的预言。
+
+Wilson 的分析采取的恰恰是相反的观点，即任何量子场论从根本上都是以一个具有某种物理意义的截断 $\Lambda$ 来定义的。在统计力学应用中，这一动量标度是原子间距的倒数。在 QED 和适用于基本粒子物理的其他量子场论中，截断必须与时空的某种基本颗粒性联系起来，也许这是引力中量子涨落的结果。我们在尾声中对这一截断的性质做一些猜测。但无论这一标度是什么，它都远远超出当今实验所能企及的范围。我们刚才给出的论证表明，这一情形解释了 QED 和其他粒子相互作用的量子场论的可重整性。无论 QED 的拉格朗日量在其基本标度处是什么样子，只要其耦合足够弱，它在我们的实验能量下就必须由一个可重整化的有效拉格朗日量来描述。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6\textwidth]{fig12.1.png}
+  \caption{标量场论中自由场不动点附近的重整化群流：(a) $d > 4$；(b) $d = 4$。}
+  \label{fig:12.1}
+\end{figure}
+
+另一方面，我们应该强调，这些简单的结论可能被足够强的场论相互作用所改变。在离开自由场不动点的地方，简单的变换律 \eqref{eq:12.26} 会收到正比于耦合常数更高幂次的修正。如果这些修正足够大，它们可以阻止或逆转重整化群流。它们甚至可能产生新的不动点，这将给出新型的 $\Lambda\to\infty$ 极限。
+
+为了在一个相对简单的情形中说明相互作用可能产生的影响，让我们讨论 $\phi^4$ 理论这一具体情形在 $\mathcal{L}_0$ 附近的重整化群流。逐一考虑 $d > 4$、$d = 4$ 和 $d < 4$ 这三种情形是有启发性的。当 $d > 4$ 时，唯一相关的算符是标量场质量项。于是 $\mathcal{L}_0$ 附近的重整化群流具有图~\ref{fig:12.1}(a) 所示的形式。$\phi^4$ 相互作用和可能的高阶相互作用衰减消失，而质量项的重要性增加。
+
+在前几章中，我们总是在质量与截断相比很小的极限下讨论 $\phi^4$ 理论。让我们花一点时间用重整化群流的语言重写这一条件。在流的过程中，有效质量项 $m'^2$ 变大，并最终等于当前的截断。例如，在自由场不动点附近，经过 $n$ 次迭代后，$m'^2 = m^2b^{-2n}$，最终存在某个 $n$ 使得 $m'^2 \sim \Lambda^2$。在这一点，我们已经积分掉了原始 $\Lambda$ 与标量场有效质量之间的整个动量区域。质量项随后压制了剩余的量子涨落。一般地，标量场质量与截断相比很小的判据，等价于说 $m'^2 \sim \Lambda^2$ 只有在重整化群变换迭代很多次之后才出现。
+
+只要重整化群流的初始条件被调整得使轨迹非常靠近某个不动点，这一判据就得到满足。原则上，流可以沿某个无关算符的方向从远处开始。$m^2$ 的原始值不必特别小，只要这一原始值被来自对 $\mathcal{L}_{eff}$ 的图解贡献的修正所抵消即可。因此，我们可以设想通过写出一个复杂的非线性拉格朗日量来构造 $d > 4$ 的标量场论，但调整原始的 $m^2$，使从这一拉格朗日量出发的轨迹最终通过自由场不动点 $\mathcal{L}_0$ 附近。在这种情况下，动量与截断相比很小的有效理论应当极其简单：它将是一个非线性相互作用可忽略的自由场论。正如将在下一章讨论的，这一引人注目的预言已在多于四维的磁系统数学模型中得到了验证：即使原始模型高度非线性，相变附近的自旋关联函数也具有由式~\eqref{eq:12.2} 的高维类比给出的自由场形式。
+
+接下来考虑 $d = 4$ 的情形。对于这一情形，式~\eqref{eq:12.26} 没有给出足够的信息来判断 $\phi^4$ 相互作用在长距离处是重要还是不重要。所以我们必须回到完整的变换律 \eqref{eq:12.24}。$\Delta\lambda$ 的领头阶贡献由式~\eqref{eq:12.15} 给出。$\Delta Z$ 的领头阶贡献为 $\lambda^2$ 阶，可以忽略。（这正是第~10.2 节中 $\delta_Z$ 的第一个修正所发生的情况。）于是我们得到变换
+\begin{equation}
+  \lambda' = \lambda - \frac{3\lambda^2}{16\pi^2}\log(1/b) .
+  \label{eq:12.28}
+\end{equation}
+这表示当我们积分掉高动量自由度时，$\lambda$ 缓慢减小。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6\textwidth]{fig12.2.png}
+  \caption{标量场论中 $d < 4$ 时自由场不动点附近的重整化群流。}
+  \label{fig:12.2}
+\end{figure}
+
+对修正 $\Delta\lambda$ 有贡献的图与第~10.2 节计算的单圈图具有相同的结构。事实上，这些本质上是相同的图，区别仅在于积分是迭代进行还是一次完成。然而，第~10.2 节中的图具有紫外发散，而 Wilson 方法中相应的图是良定义的，并给出耦合常数的一个简单演化方程的系数。这一变换给出了我们将在本章中对紫外发散所做的重新解释的第一个例子。
+
+变换律 \eqref{eq:12.28} 意味着 $\mathcal{L}_0$ 附近的重整化群流具有图~\ref{fig:12.1}(b) 所示的形式，带有一个缓慢衰减的方向。如果我们把流跟得足够远，行为应当再次是自由场的行为。这幅图景有一个令人困惑的含义，即在截断趋于无穷的极限下，四维相互作用的 $\phi^4$ 理论并不存在。我们将在第~12.3 节进一步讨论这一结果——并解释为什么即便如此，把 $\phi^4$ 理论用作模型场论仍然是有意义的。
+
+最后考虑 $d < 4$ 的情形。现在 $\lambda$ 变成一个相关参数。$\mathcal{L}_0$ 附近的重整化群流如图~\ref{fig:12.2} 所示。当我们走向更低动量时耦合常数增大，微扰展开在某个标度处失效。这就是理论发展出非平凡不动点的情形，我们将在第~12.5 节看到。
+
+\section{卡兰-西曼奇克方程}
+
+我们怎样才能指望从已取截断到无穷的重整化 Green 函数的表达式中获得关于重整化群流的信息呢？我们必须首先认识到，重整化的量子场论对应于上一节所考虑的全部可能拉格朗日量中的一个受限类别。用 Wilson 的语言说，截断取得任意大的重整化场论对应于一条花费任意长时间演化到质量参数大值的轨迹。这样的轨迹必然要通过某个不动点的任意近旁，我们假定该不动点是弱耦合不动点。在掠过这一不动点的缓慢演化中，原始拉格朗日量中的无关算符衰减消失，我们只剩下相关和边缘算符。这些算符的系数与可重整化场论的参数一一对应。因此，在处理重整化场论时，我们丢弃了关于无关微扰演化的信息，但保留了关于相关和边缘微扰流的信息。
+
+这些参数的流无法从截断依赖性来确定，因为在这一框架中，截断已经被送到无穷。然而，我们有一个可用的替代工具，尽管它更抽象。可重整化场论的参数由一组重整化条件确定，这些条件在某个动量标度（称为\emph{重整化标度}）处施加。通过考察理论的参数如何依赖重整化标度，我们可以恢复上一节重整化群流所包含的信息。
+
+我们首先考虑四维 $\phi^4$ 理论这一具体情形，其中耦合常数 $\lambda$ 是无量纲的，相应的算符是边缘的。为简单起见，我们还假设质量项 $m^2$ 已被调整为零，使理论恰好位于其临界点。我们将在 Minkowski 空间中用类空参考动量进行这一分析。不过，如果在 Euclidean 空间中进行分析，结果本质上是相同的。如果我们想要考虑类时动量处的重整化群预言，我们必须考虑可能出现新的奇异性的可能性，这使分析变得更加复杂。这些奇异性既包括物理阈，也包括第~6.4 节讨论的 Sudakov 双对数。我们把这些复杂性的讨论推迟到第~17 和~18 章。
+
+\subsection{重整化条件}
+
+为了恰当地定义理论，我们必须明确规定重整化条件。在第~10 章中，我们为 $\phi^4$ 理论使用了一组自然的重整化条件 \eqref{eq:10.19}，它是用物理质量 $m$ 定义的。然而，在 $m = 0$ 的理论中，这些条件不能使用，因为它们会导致抵消项中的奇异性。（例如，考虑式~\eqref{eq:10.24} 的极限 $m^2\to 0$。）为了避免这样的奇异性，我们选取一个任意的动量标度 $M$，并在满足 $p^2 = -M^2$ 的类空动量 $p$ 处施加重整化条件：
+\begin{equation}
+  \begin{aligned}
+    \text{(one-particle-irreducible two-point function)} &= 0
+      \text{ at } p^2 = -M^2;\\
+    \frac{d}{dp^2}\bigl( \text{two-point function} \bigr) &= 1
+      \text{ at } p^2 = -M^2;\\
+    \text{(four-point function)} &= -i\lambda
+      \text{ at } (p_1+p_2)^2 = (p_1+p_3)^2 = (p_1+p_4)^2 = -M^2 .
+  \end{aligned}
+  \label{eq:12.30}
+\end{equation}
+参数 $M$ 称为重整化标度。这些条件定义了二点和四点 Green 函数在某个点处的值，并在此过程中消除所有紫外发散。粗略地说，我们说我们``在标度 $M$ 处定义理论''。这些新的重整化条件需要一些时间来适应。特别是第二个条件意味着，二点 Green 函数在非物理动量 $p^2 = -M^2$ 处（而不是在壳上，即 $p^2 = 0$ 处）的系数为 1：
+\begin{equation}
+  \langle\Omega|\phi(p)\phi(-p)|\Omega\rangle = \frac{i}{p^2}
+  \qquad\text{at } p^2 = -M^2 .
+\end{equation}
+这里 $\phi$ 是重整化场，它与裸场 $\phi_0$ 通过一个我们再次称之为 $Z$ 的比例因子相联系：
+\begin{equation}
+  \phi = Z^{-1/2}\phi_0 .
+  \label{eq:12.31}
+\end{equation}
+然而，这个 $Z$ 不再是第~7 和~10 章中裸场二点 Green 函数物理极点的留数。相反，我们现在有
+\begin{equation}
+  \langle\Omega|\phi_0(p)\phi_0(-p)|\Omega\rangle = \frac{iZ}{p^2}
+  \qquad\text{at } p^2 = -M^2 .
+\end{equation}
+重整化微扰论的费曼规则与第~10 章相同，$Z$ 与抵消项 $\delta_Z$ 之间的关系也相同，即 $\delta_Z = Z - 1$。但现在，抵消项 $\delta_Z$ 和 $\delta_\lambda$ 必须被调整以维持新的条件 \eqref{eq:12.30}。
+
+\eqref{eq:12.30} 中的第一个重整化条件把标量场的物理质量固定在零。我们在第~10 章看到，在 $\phi^4$ 理论中，单圈传播子修正与动量无关，并被质量重整化抵消项完全抵消。然而，在双圈阶，情况变得更加复杂，传播子修正需要质量重整化和场强重整化两者。在更一般的标量场论中，例如第~10.2 节末尾考虑的 Yukawa 理论例子，这种复杂性在单圈阶就已经出现。由于场强重整化抵消项将在下面的讨论中起重要作用，简要讨论我们将如何处理这种双减除将是有帮助的。
+
+对于无质量标量场这一情形（我们在这里考虑的情形），传播子修正的计算有一些特殊的简化，特别是当使用维数正规化时。例如，考虑 Yukawa 理论中的单圈传播子修正。在第~10.2 节我们得到一个如下形式的表达式
+\begin{equation}
+  \Pi(p^2) \sim \frac{\Gamma(1-d/2)}{(4\pi)^{d/2}}\ \frac{p^2}{\Delta^{1-d/2}}
+  ,
+  \label{eq:12.32}
+\end{equation}
+其中 $\Delta$ 是费米子质量 $m_f$ 和 $p^2$ 的线性组合。如果我们只用无质量传播子计算该图，$\Delta$ 正比于 $p^2$。表达式 \eqref{eq:12.32} 在 $d = 2$ 处有一个极点，对应于二次发散的质量重整化。然而，这一极点的留数与 $p^2$ 无关，所以我们可以用质量抵消项 $\delta_m$ 完全抵消该极点。这使我们能把 \eqref{eq:12.32} 解析延拓到 $d = 4$。于是这一表达式取如下形式
+\begin{equation}
+  \Pi(p^2) \sim \frac{\Gamma(2-d/2)}{(4\pi)^{d/2}}\ \frac{p^2}{p^2}
+  = \frac{p^2}{(4\pi)^2}\ \frac{2}{4-d} ,
+  \label{eq:12.33}
+\end{equation}
+并且不给出额外的质量移动，而只给出场强重整化。剩余的发散被抵消项 $\delta_Z$ 抵消。如果我们采纳简单地继续把 \eqref{eq:12.32} 形式的表达式延拓到 $d = 4$ 的规则，我们可以完全忘记抵消项 $\delta_m$。
+
+在具有动量截断的正规化方案中，对 $\delta_m$ 和 $\delta_Z$ 的贡献相互纠缠。这时定义无质量极限更加笨拙。在下面的讨论中，我们将假设使用维数正规化。不过，为了强调截断的物理作用，我们将把 \eqref{eq:12.33} 形式的表达式写为
+\begin{equation}
+  \Pi(p^2) \sim p^2\ \log\Lambda^2 + (\text{finite terms}) .
+  \label{eq:12.34}
+\end{equation}
+正比于 $p^2$ 的对数发散项将与用动量截断得到的发散一致；常数项将不一致，但它们会从我们的最终结果中消去。
+
+在 $\phi^4$ 理论中，单圈传播子修正与动量无关，按照这一方案单圈图被简单地设为零。于是前面的分析适用于双圈及更高阶的修正项。
+
+把本节的分析推广到有质量标量场论需要一些额外的形式体系，我们将其推迟到第~12.5 节。
+
+\subsection{卡兰-西曼奇克方程}
+
+在重整化条件 \eqref{eq:12.30} 中，重整化标度 $M$ 是任意的。我们完全可以在另一个标度 $M'$ 处定义同样的理论。所谓``同样的理论''，我们指的是裸 Green 函数
+\begin{equation}
+  \langle\Omega|T\phi_0(x_1)\phi_0(x_2)\cdots\phi_0(x_n)|\Omega\rangle ,
+\end{equation}
+由裸耦合常数 $\lambda_0$ 和截断 $\Lambda$ 的相同函数给出的理论。这些函数与 $M$ 无关。对 $M$ 的依赖只有在当我们通过重新标度场并把 $\lambda_0$ 用重整化耦合 $\lambda$ 消去来消除截断依赖性时才进入。重整化 Green 函数在数值上等于裸 Green 函数，至多相差场强重整化 $Z$ 的幂次的重新标度：
+\begin{equation}
+  \langle\Omega|T\phi(x_1)\phi(x_2)\cdots\phi(x_n)|\Omega\rangle
+  = Z^{-n/2}\ \langle\Omega|T\phi_0(x_1)\phi_0(x_2)\cdots\phi_0(x_n)
+    |\Omega\rangle .
+  \label{eq:12.35}
+\end{equation}
+重整化 Green 函数同样可以在另一个标度 $M'$ 处定义，使用新的重整化耦合 $\lambda'$ 和新的重新标度因子 $Z'$。
+
+让我们更显式地写出 $M$ 的无穷小移动的效应。设 $G^{(n)}(x_1, \ldots, x_n)$ 为在重整化微扰论中计算的连通 $n$ 点函数：
+\begin{equation}
+  G^{(n)}(x_1, \ldots, x_n) = \langle\Omega|T\phi(x_1)\cdots\phi(x_n)
+    |\Omega\rangle_{\mathrm{connected}} .
+  \label{eq:12.36}
+\end{equation}
+现在假设我们把 $M$ 移动 $\delta M$。耦合常数和场强有相应的移动，使得裸 Green 函数保持固定：
+\begin{equation}
+  M \to M + \delta M,\qquad \lambda \to \lambda + \delta\lambda,\qquad
+  \phi \to (1+\delta\eta)\phi .
+  \label{eq:12.37}
+\end{equation}
+于是任何重整化 Green 函数的移动正是由场的重新标度所诱导的，
+\begin{equation}
+  G^{(n)} \to (1+n\delta\eta)G^{(n)} .
+\end{equation}
+如果我们把 $G^{(n)}$ 视为 $M$ 和 $\lambda$ 的函数，我们可以把这一变换写为
+\begin{equation}
+  \delta G^{(n)} = \Bigl( \delta M\frac{\partial}{\partial M}
+    + \delta\lambda\frac{\partial}{\partial\lambda} \Bigr)G^{(n)}
+  = n\delta\eta\,G^{(n)} .
+  \label{eq:12.38}
+\end{equation}
+习惯上不用 $\delta\lambda$ 和 $\delta\eta$ 来写这一关系，而是定义无量纲参数
+\begin{equation}
+  \beta \equiv \frac{M}{\delta M}\,\delta\lambda,\qquad
+  \gamma \equiv \frac{M}{\delta M}\,\delta\eta .
+  \label{eq:12.39}
+\end{equation}
+把这些替换代入式~\eqref{eq:12.38} 并乘以 $M/\delta M$，我们得到
+\begin{equation}
+  \Bigl[ M\frac{\partial}{\partial M} + \beta\frac{\partial}{\partial\lambda}
+    + n\gamma \Bigr]\ G^{(n)}(x_i, \ldots) = 0 .
+  \label{eq:12.40}
+\end{equation}
+参数 $\beta$ 和 $\gamma$ 对每个 $n$ 都相同，并且必须与 $x_i$ 无关。由于 Green 函数 $G^{(n)}$ 是重整化的，$\beta$ 和 $\gamma$ 不能依赖截断，因此由量纲分析，这些函数不能依赖 $M$。所以它们只是无量纲变量 $\lambda$ 的函数。我们得出结论：无质量 $\phi^4$ 理论的任何 Green 函数都必须满足
+\begin{equation}
+  \Bigl[ M\frac{\partial}{\partial M} + \beta(\lambda)\frac{\partial}
+    {\partial\lambda} + n\gamma(\lambda) \Bigr]\ G^{(n)}\bigl( \{x_i\}; M,
+      \lambda \bigr) = 0 .
+  \label{eq:12.41}
+\end{equation}
+这一关系称为\emph{卡兰-西曼奇克方程}。%
+\footnote{该方程由 C.~G.~Callan，
+\emph{Phys.\ Rev.} \textbf{D2}, 1541 (1970) 和 K.~Symanzik，
+\emph{Comm.\ Math.\ Phys.} \textbf{18}, 227 (1970) 独立推导得出。} 它断言
+存在两个普适函数 $\beta(\lambda)$ 和 $\gamma(\lambda)$，它们与耦合常数和场强的移动相关，补偿了重整化标度 $M$ 的移动。
+
+前面的论证可以毫无困难地推广到具有无量纲耦合的其他无质量理论。在具有多个场和多个耦合的理论中，每个场有一个 $\gamma$ 项，每个耦合有一个 $\beta$ 项。例如，我们可以通过在电子质量为零时引入如式~\eqref{eq:12.30} 那样的重整化标度来定义 QED。传播子的重整化条件在 $p^2 = -M^2$ 处施加，顶点的重整化条件在三个不变量都为 $-M^2$ 量级的点处施加。于是这一理论的重整化 Green 函数满足卡兰-西曼奇克方程
+\begin{equation}
+  \Bigl[ M\frac{\partial}{\partial M} + \beta(e)\frac{\partial}{\partial e}
+    + n\gamma_2(e) + m\gamma_3(e) \Bigr]\ G^{(n,m)}\bigl( \{x_i\}; M, e \bigr)
+  = 0 ,
+  \label{eq:12.42}
+\end{equation}
+其中 $n$ 和 $m$ 分别是 Green 函数 $G^{(n,m)}$ 中电子场和光子场的数目，$\gamma_2$ 和 $\gamma_3$ 是电子场和光子场的重新标度函数。
+
+\subsection{$\beta$ 与 $\gamma$ 的计算}
+
+在我们推导卡兰-西曼奇克方程的推论之前，让我们更仔细地考察出现在其中的函数 $\beta$ 和 $\gamma$。从它们的定义 \eqref{eq:12.39} 我们看到，当重整化标度 $M$ 增大时，它们分别正比于耦合常数的移动和场归一化的移动。耦合常数作为 $M$ 的函数的性质特别令人感兴趣，因为它决定相互作用的强度以及微扰论有效的条件。我们将在下一节看到，场强的移动也直接反映在 Green 函数的值中。
+
+计算卡兰-西曼奇克函数最容易的方法是从抵消项的表达式开始。对于 $\gamma$ 函数，我们考虑重整化二点函数。在单圈阶，它具有一般形式
+\begin{equation}
+  G^{(2)}(p) = \frac{i}{p^2}\ \Bigl( 1 + \delta_Z + i\Pi(p^2) + \cdots
+    \Bigr),
+  \label{eq:12.49}
+\end{equation}
+其中单圈图 $\Pi(p^2)$ 含有一个正比于 $p^2$ 的对数发散项。对 \eqref{eq:12.41} 取 $n = 2$ 并应用卡兰-西曼奇克方程，同时忽略 $\beta$ 项（它总是至少小一个耦合常数的幂次），我们得到
+\begin{equation}
+  -M\frac{\partial}{\partial M}\,\delta_Z + 2\gamma = 0,
+\end{equation}
+或
+\begin{equation}
+  \gamma = \frac{1}{2}M\frac{\partial}{\partial M}\,\delta_Z
+    \qquad \text{(to lowest order)} .
+  \label{eq:12.50}
+\end{equation}
+为了使这一结果更显式，注意抵消项必须是
+\begin{equation}
+  \delta_Z = A\,\lambda^2\log\Lambda + \text{finite}
+\end{equation}
+以消除 $G^{(2)}$ 中的发散对数。因此 $\gamma$ 就是这个对数的系数：
+\begin{equation}
+  \gamma = -A\,\lambda^2 \qquad \text{(to lowest order)} .
+  \label{eq:12.51}
+\end{equation}
+在大多数理论（例如 Yukawa 理论或 QED）中，$\delta_Z$ 的第一个对数发散出现在单圈阶。然而，即使在 $\phi^4$ 理论中，公式 \eqref{eq:12.50} 和 \eqref{eq:12.51} 对 $\delta_Z$ 的第一个非零项也是成立的，这里即双圈贡献。%
+\footnote{在单圈阶，公式 \eqref{eq:12.33} 意味着在 $d\to 4$ 的极限下，我们也可以把 $\lambda$ 识别为 1PI 自能中 $2/(4-d)$ 的系数。这一关系在更高圈时会改变。然而，式~\eqref{eq:12.50} 仍然正确。} 通过把标量场传播子 $(i/p^2)$ 替换为费米子传播子 $(i\slashed{p}/p^2)$，我们可以逐行重复这一论证，用费米子场的场强抵消项 $\delta_{Z_2}$ 来计算其 $\gamma$ 函数。
+
+我们可以为与 $n$ 点顶点相关联的一般无量纲耦合常数 $g$ 的 $\beta$ 函数推导类似的表达式。计入传播子修正后，完整的连通 Green 函数在单圈阶具有一般形式
+\begin{equation}
+  \begin{aligned}
+    G^{(n)}(p_i) &= \Bigl( \prod_i \frac{i}{p_i^2} \Bigr)\ \Bigl[
+      -i\delta g - i\Bigl( B\log\frac{\Lambda^2}{-p^2} - \delta_g \Bigr)
+      + i\Bigl( \sum_i \delta_{Z_i}\log\frac{\Lambda^2}{p_i^2}
+        - \delta_{Z_i} \Bigr) \Bigr]\\
+    &= \Bigl( \prod_i \frac{i}{p_i^2} \Bigr)\ \Bigl[ -ig - i\Bigl(
+      B - g\sum_i A_i \Bigr)\log\frac{\Lambda^2}{-p^2} + \text{finite terms}
+      \Bigr] .
+  \end{aligned}
+  \label{eq:12.52}
+\end{equation}
+在这一表达式中，$p_i$ 是外腿上的动量，$p^2$ 表示由这些动量构成的一个典型不变量。我们假设重整化条件在所有这些不变量都为类空且为 $-M^2$ 量级的点处施加。这一表达式对 $M$ 的依赖性来自抵消项 $\delta_g$ 和 $\delta_{Z_i}$。应用卡兰-西曼奇克方程，我们得到
+\begin{equation}
+  \beta(g) = M\frac{\partial}{\partial M}\Bigl( -\delta g
+    + g\sum_i \delta_{Z_i} \Bigr) \qquad \text{(to lowest order)} .
+  \label{eq:12.53}
+\end{equation}
+为了更显式，我们注意到
+\begin{equation}
+  \delta_g = -B\log\frac{\Lambda^2}{M^2} + \text{finite} .
+\end{equation}
+因此 $\beta$ 函数只是发散对数系数的组合：
+\begin{equation}
+  \beta(g) = -2B - g\sum_i A_i \qquad \text{(to lowest order)} .
+  \label{eq:12.54}
+\end{equation}
+注意抵消项的有限部分与 $M$ 无关，因此永远不会对 $\beta$ 或 $\gamma$ 有贡献。这意味着，为了计算卡兰-西曼奇克函数中的领头项，我们在规定重整化条件时不需要过于精确：任何 $M^2$ 量级的动量标度都会给出相同的结果。抵消项的发散部分可以简单地通过把对数内的所有不变量设为 $M^2$ 来估计，正如我们在上面 $n$ 点 Green 函数的表达式中所做的那样。
+
+与计算 $\gamma$ 时一样，这一论证可以几乎不加改动地应用于带自旋场的耦合常数。例如，在 Yukawa 理论中，我们考虑含有一个入射费米子、一个出射费米子和一个标量子的三点函数，其动量分别为 $p_1$、$p_2$ 和 $p_3$。于是三点函数的树图级表达式为
+\begin{equation}
+  \frac{i}{\slashed{p}_1}\ (-ig)\ \frac{i}{\slashed{p}_2}\ \frac{i}{p_3^2}
+  .
+  \label{eq:12.55}
+\end{equation}
+单圈修正把量 $(-ig)$ 替换为式~\eqref{eq:12.52} 中方括号内的表达式。于是公式 \eqref{eq:12.53} 和 \eqref{eq:12.54} 对这一理论的 $\beta$ 函数也成立。
+
+类似的表达式也适用于 QED，尽管有一些小的复杂性。第一个出现在计算光子传播子的 $\gamma$ 函数时。在式~(7.74) 中，我们看到 Feynman 规范中光子传播子的一般形式为
+\begin{equation}
+  D^{\mu\nu}(q) = D(q)\Bigl( -g^{\mu\nu} + \frac{q^\mu q^\nu}{q^2} \Bigr)
+    + \frac{1}{\xi}\frac{q^\mu q^\nu}{q^2} .
+  \label{eq:12.56}
+\end{equation}
+\eqref{eq:12.56} 中最后一项的系数依赖于规范。幸运的是，这一项从所有规范不变可观测量中消去。因此，集中于第一项、把所有外光子投影到其横向分量上是有意义的。对光子传播子做投影，我们看到 $D(q)$ 满足卡兰-西曼奇克方程。由于对这一函数的修正具有 \eqref{eq:12.49} 的形式，该公式之后的论证对光子以及对电子和标量量子都有效。因此，到领头阶，
+\begin{equation}
+  \gamma_3(e) = \frac{1}{2}M\frac{\partial}{\partial M}\,\delta_3 ,
+  \label{eq:12.57}
+\end{equation}
+其中 $\delta_2$ 和 $\delta_3$ 是第~10.3 节定义的抵消项。
+
+类似地，我们可以考虑三点连通 Green 函数 $\langle\psi(p_1)\bar{\psi}(p_2)A^\mu(q)\rangle$，并投影到光子的横向分量上。在领头阶，这一函数等于
+\begin{equation}
+  \frac{i}{\slashed{p}_1}\ (-ie\gamma^\mu)\ \frac{i}{\slashed{p}_2}\
+  \Bigl( -g^{\mu\nu} + \frac{q^\mu q^\nu}{q^2} \Bigr) .
+\end{equation}
+发散的单圈修正具有相同的形式，$(-ie)$ 被对数发散的项替换。因此，式~\eqref{eq:12.53} 给出 $\beta$ 函数的最低阶表达式：
+\begin{equation}
+  \beta(e) = M\frac{\partial}{\partial M}\Bigl( -e\delta_1 + e\delta_2
+    + \frac{e}{2}\delta_3 \Bigr) .
+  \label{eq:12.58}
+\end{equation}
+为了找到 QED 卡兰-西曼奇克函数的显式表达式，我们必须写出抵消项 $\delta_1$、$\delta_2$、$\delta_3$ 的表达式。在第~10.3 节中，我们用有质量费米子的在壳重整化条件计算了这些抵消项。我们现在必须对无质量费米子以及在 $-M^2$ 处重整化重新计算这些项。幸运的是，我们只需要计算这些抵消项的对数发散部分，它在两种情形中是相同的。从式~\eqref{eq:10.43} 和 \eqref{eq:10.44} 读出，我们得到
+\begin{equation}
+  \delta_2 = \frac{-e^2}{16\pi^2}\ \frac{\Gamma(2-d/2)}{(M^2)^{2-d/2}},\qquad
+  \delta_3 = \frac{-e^2}{48\pi^2}\ \frac{4\Gamma(2-d/2)}{(M^2)^{2-d/2}}
+  \ \cdots .
+  \label{eq:12.59}
+\end{equation}
+利用公式 \eqref{eq:12.57} 和 \eqref{eq:12.59}，我们在领头阶得到
+\begin{equation}
+  \gamma_2(e) = \frac{e^2}{16\pi^2},\qquad
+  \gamma_3(e) = \frac{e^2}{48\pi^2} .
+  \label{eq:12.60}
+\end{equation}
+并且由式~\eqref{eq:12.58}，我们得到
+\begin{equation}
+  \beta(e) = \frac{e^3}{12\pi^2} .
+  \label{eq:12.61}
+\end{equation}
+重要的是要记住，我们用于 $\delta_2$ 的表达式显式假设使用了 Feynman 规范。事实上，$\gamma_2$ 依赖于规范参数，这是合理的，因为单个 $\psi$ 和 $\bar{\psi}$ 场的 Green 函数不是规范不变的。另一方面，QED 真空极化，从而 $\gamma_3$ 和 $\beta$，是规范不变的。
+
+\subsection{$\beta$ 与 $\gamma$ 的意义}
+
+通过把 $\beta$ 和 $\gamma$ 用裸微扰论的参数——对于 $\phi^4$ 理论即 $Z$、$\lambda_0$ 和 $\Lambda$——来表示，我们可以更深入地理解它们的本质。
+
+首先回忆裸场与重整化场由下式相联系
+\begin{equation}
+  \phi(p) = Z^{1/2}(M)\,\phi_0(p) .
+  \label{eq:12.62}
+\end{equation}
+这一方程表达了场的重新标度对 $M$ 的依赖性。如果 $M$ 增大 $\delta M$，重整化场移动
+\begin{equation}
+  \frac{Z(M+\delta M)^{-1/2}}{Z(M)^{-1/2}} - 1 .
+\end{equation}
+因此我们对 $\gamma$ 的原始定义 \eqref{eq:12.39} 立即给出
+\begin{equation}
+  \gamma(\lambda) = \frac{1}{2}M\frac{\partial}{\partial M}\log Z .
+  \label{eq:12.63}
+\end{equation}
+由于 $\delta_Z = Z - 1$（式~\eqref{eq:10.17}），这一公式与 \eqref{eq:12.50} 在领头阶一致。然而，公式 \eqref{eq:12.63} 是一个精确的关系。这一表达式澄清了 $\gamma$ 与场强重新标度的关系。但它掩盖了 $\gamma$ 与截断 $\Lambda$ 无关这一事实。要理解 $\gamma$ 的这一方面，我们必须回到这个函数用重整化 Green 函数表述的原始定义，其截断无关性由理论的可重整性得出。
+
+类似地，我们可以找到用裸耦合常数表示 $\beta$ 的一个有启发性的表达式。裸耦合常数与重整化耦合常数由下式相联系
+\begin{equation}
+  \lambda_0 = Z^{-2}\,\lambda\,M^{4-d}\,\cdots ,
+  \label{eq:12.64}
+\end{equation}
+其精确形式依赖于重整化方案。由于 $\lambda_0$ 与 $M$ 无关，我们可以对 \eqref{eq:12.64} 关于 $M$ 求导，得到一个确定 $\beta(\lambda)$ 的关系。结果为
+\begin{equation}
+  \beta(\lambda) = M\frac{\partial\lambda}{\partial M}
+  = -\lambda\,\Bigl( \frac{d-4}{2} \Bigr) + \cdots ,
+  \label{eq:12.66}
+\end{equation}
+精确到来自 $Z$ 因子的修正。在四维中，这给出显式的单圈结果
+\begin{equation}
+  \beta(\lambda) = \frac{3\lambda^2}{16\pi^2} .
+  \label{eq:12.46}
+\end{equation}
+
+\section{耦合常数的演化}
+
+我们现在可以求解卡兰-西曼奇克方程并提取重整化群的物理内容了。让我们考虑对由动量均匀重新标度联系的一组 Green 函数求解卡兰-西曼奇克方程。对于 $\phi^4$ 理论的二点函数，取 $p^2 = -P^2$ 为类空，卡兰-西曼奇克方程具有如下形式
+\begin{equation}
+  \Bigl[ P\frac{\partial}{\partial P} - \beta(\lambda)\frac{\partial}
+    {\partial\lambda} + 2\gamma(\lambda) \Bigr]\ G^{(2)}(P; \lambda) = 0 ,
+  \label{eq:12.70}
+\end{equation}
+其中我们利用了 $G^{(2)}$ 只依赖于比值 $P/M$ 和 $\lambda$ 这一事实。这一方程的解可以写为
+\begin{equation}
+  G^{(2)}(P; \lambda) = \bar{G}^{(2)}\bigl( \bar{\lambda}(P) \bigr)\
+    \exp\Bigl[ -2\int_{M}^{P} \frac{dp'}{p'}\ \gamma\bigl(
+      \bar{\lambda}(p') \bigr) \Bigr] ,
+  \label{eq:12.76}
+\end{equation}
+其中\emph{跑动耦合常数} $\bar{\lambda}(p)$ 定义为微分方程
+\begin{equation}
+  \frac{d}{d\log(p/M)}\ \bar{\lambda}(p) = \beta\bigl( \bar{\lambda}(p)
+    \bigr),\qquad \bar{\lambda}(M) = \lambda ,
+  \label{eq:12.73}
+\end{equation}
+的解，而 $\bar{G}^{(2)}$ 通过在 $p = M$ 处匹配解来确定：
+\begin{equation}
+  \bar{G}^{(2)}(\lambda) = G^{(2)}(M; \lambda) .
+\end{equation}
+对于 $\phi^4$ 理论的二点函数，这一匹配相当平凡：$G^{(2)} = 1 + \mathcal{O}(\lambda)$。
+
+前面的分析可以应用于任何由动量均匀重新标度联系起来的 Green 函数族。例如，考虑 $\phi^4$ 理论的连通四点函数，在满足 $p_i^2 = -P^2$、$p_i\cdot p_j = 0$ 的类空动量 $p_i$ 处取值，使得 $s$、$t$ 和 $u$ 都为 $-P^2$ 量级。在微扰论的领头阶，这一函数由下式给出
+\begin{equation}
+  G^{(4)}(P) = \Bigl( \frac{i}{P^2} \Bigr)^4\ \hat{G}^{(4)}(\lambda) .
+  \label{eq:12.77}
+\end{equation}
+利用 $G^{(4)}$ 具有维度 $(\mathrm{mass})^{-8}$ 这一事实，我们可以在卡兰-西曼奇克方程中把 $M$ 换成 $P$，并把该方程写为
+\begin{equation}
+  \Bigl[ P\frac{\partial}{\partial P} - \beta(\lambda)\frac{\partial}
+    {\partial\lambda} + 8 - 4\gamma(\lambda) \Bigr]\ \hat{G}^{(4)}(P; \lambda)
+  = 0 .
+  \label{eq:12.78}
+\end{equation}
+这一方程的解为
+\begin{equation}
+  \hat{G}^{(4)}(P; \lambda) = \bar{G}^{(4)}\bigl( \bar{\lambda}(P) \bigr)\
+    \exp\Bigl[ 4\int_{M}^{P} \frac{dp'}{p'}\ \gamma\bigl(
+      \bar{\lambda}(p') \bigr) \Bigr] .
+  \label{eq:12.79}
+\end{equation}
+这一公式必须在 $\lambda$ 的领头阶与 \eqref{eq:12.77} 一致；这一匹配要求
+\begin{equation}
+  \bar{G}^{(4)}\bigl( \bar{\lambda}(P) \bigr) = -i\bar{\lambda}
+    + \mathcal{O}(\bar{\lambda}^2) .
+  \label{eq:12.80}
+\end{equation}
+
+我们现在可以看到卡兰-西曼奇克方程的物理含义。Green 函数的普通费曼微扰级数既依赖耦合常数 $\lambda$，也依赖无量纲参数 $\log(-p^2/M^2)$。即使 $\lambda$ 很小，如果比值 $p^2/M^2$ 很大，微扰论也可能行为很差。解 \eqref{eq:12.76} 和 \eqref{eq:12.79} 把这一依赖性重组为跑动耦合常数的函数与一个指数标度因子之积。我们依次考虑这两部分。
+
+式~\eqref{eq:12.76} 和 \eqref{eq:12.79} 中的第一个因子是跑动耦合常数在动量标度 $p$ 处取值的函数。如果 $p$ 为 $M$（重整化标度）的量级，这一函数本质上就是 Green 函数的普通微扰计算。结果 \eqref{eq:12.76} 和 \eqref{eq:12.79} 指示我们在标度 $p$ 处使用同一个表达式，但把 $\lambda$ 替换为适合该标度的新耦合常数 $\bar{\lambda}$。因此，跑动耦合常数 $\bar{\lambda}(p)$ 正是重整化群流的有效耦合常数。这一解释在 $\hat{G}^{(4)}(P)$ 的解 \eqref{eq:12.79} 中特别清楚，因为这个函数直接度量 $\phi^4$ 耦合常数的强度。
+
+式~\eqref{eq:12.76} 和 \eqref{eq:12.79} 中的指数因子有一个同样简单的解释：它是关联函数从参考点 $M$ 到计算 Green 函数所在的实际动量 $p$ 所累积的场强重新标度。这一因子从 $M$ 与 $p$ 之间的每个中间标度得到一个乘法贡献。这些贡献中的每一个都恰当地用该特定标度处的跑动耦合常数来计算。
+
+作为对这些形式论证的检验，我们可以用式~\eqref{eq:12.46} 中找到的 $\phi^4$ 理论 $\beta$ 函数的显式形式以及重整化群方程 \eqref{eq:12.73} 来求 $\phi^4$ 理论的跑动耦合常数。该跑动耦合常数满足微分方程
+\begin{equation}
+  \frac{d}{d\log(p/M)}\,\bar{\lambda} = \frac{3\bar{\lambda}^2}{16\pi^2},
+  \qquad\text{with } \bar{\lambda}(M;\lambda) = \lambda .
+  \label{eq:12.81}
+\end{equation}
+积分得到
+\begin{equation}
+  \frac{1}{\bar{\lambda}} - \frac{1}{\lambda} = -\frac{3}{16\pi^2}\log
+    \frac{p}{M},
+\end{equation}
+从而，
+\begin{equation}
+  \bar{\lambda}(p) = \frac{\lambda}{1 - (3\lambda/16\pi^2)\log(p/M)} .
+  \label{eq:12.82}
+\end{equation}
+卡兰-西曼奇克方程解的许多性质都可以在这一关系中看到。首先，把这一 $\bar{\lambda}$ 公式展开到 $\lambda^2$ 阶，与式~\eqref{eq:12.28}（威尔逊方法中重整化群流的速率）精确一致。其次，跑动耦合常数的这一表达式在 $p\to 0$ 时以对数速率趋于零。这与我们的预期一致，即 $\beta$ 函数的正值意味着有效耦合在大动量处变强、在小动量处变弱。
+
+如果我们把跑动耦合常数 $\bar{\lambda}(p)$ 按 $\lambda$ 的幂次展开，我们会发现耦合常数的逐次幂乘以对数的幂次，
+\begin{equation}
+  \lambda^{n+1}\bigl( \log p/M \bigr)^n ,
+\end{equation}
+当 $p$ 远大于或远小于 $M$ 时，这些项变得很大并使简单的微扰展开失效。我们已经在图计算中多次看到这种大对数问题，并在式~\eqref{eq:11.81} 之后的讨论中特别把它作为一个问题加以评述。我们现在看到，重整化群给了这一问题一个部分解。在这个例子以及我们将研究的许多其他例子中，卡兰-西曼奇克方程告诉我们如何把这些大对数求和进跑动耦合常数和乘法重新标度中。如果跑动耦合常数变大，正如 $\phi^4$ 理论在 $p\to\infty$ 时发生的那样，微扰展开无论如何都会失效，我们将需要更先进的方法。然而，如果跑动耦合常数变小，正如 $\phi^4$ 理论在 $p\to 0$ 时那样，我们就能成功地把对数的幂次组织成有意义且受控的表达式。第~11.4 节末尾提出的具体问题将在第~13.2 节用这一方法显式求解。
+
+\subsection{在 QED 中的应用}
+
+作为卡兰-西曼奇克方程的一个更具体的应用，我们可以再次考察我们在第~7.5 节研究过的静态电荷之间的电磁势 $V(\mathbf{x})$。在很短的距离或很大的动量处，我们可以忽略电子质量来计算对这一势的 QED 修正。在这一近似下，该势应服从无质量 QED 的卡兰-西曼奇克方程。我们可以对 $V(\mathbf{x})$ 本身或对其 Fourier 变换来写这一方程；我们选择在 Fourier 空间中工作，以便更容易与第~7.5 节的结果建立联系。
+
+我们通过规定一个定义重整化耦合 $e_r$ 的重整化标度 $M$ 来定义 QED 的无质量极限。如果取 $M$ 接近电子质量 $m$，恰在无质量近似刚刚开始有效之处，那么 $e_r$ 的值将接近物理电子电荷 $e$。静态电荷之间的势是一个可测量的能量，因此其归一化是明确的，不会从一个重整化点移动到另一个重整化点。因此，势的 Fourier 变换的卡兰-西曼奇克方程没有 $\gamma$ 项，只是
+\begin{equation}
+  \Bigl[ M\frac{\partial}{\partial M} + \beta(e_r)\frac{\partial}
+    {\partial e_r} \Bigr]\ V(q; M, e_r) = 0 .
+  \label{eq:12.83}
+\end{equation}
+势的 Fourier 变换具有维度 $(\mathrm{mass})^{-2}$，所以我们可以像上面标量场论的讨论那样，把对 $M$ 的依赖换成对 $q$ 的依赖。这给出
+\begin{equation}
+  \Bigl[ q\frac{\partial}{\partial q} - \beta(e_r)\frac{\partial}{\partial
+    e_r} + 2 \Bigr]\ V(q; M, e_r) = 0 .
+  \label{eq:12.84}
+\end{equation}
+式~\eqref{eq:12.84} 与式~\eqref{eq:12.66} 几乎相同，所以我们可以立即把解写为 \eqref{eq:12.76} 的一个特例：
+\begin{equation}
+  V(q, e_r) = \frac{1}{q^2}\ \bar{V}\bigl( \bar{e}(q; e_r) \bigr) ,
+  \label{eq:12.85}
+\end{equation}
+其中 $\bar{e}(q)$ 是重整化群方程
+\begin{equation}
+  \frac{d}{d\log(q/M)}\ \bar{e} = \beta(\bar{e}),\qquad
+  \bar{e}(M; e_r) = e_r .
+  \label{eq:12.86}
+\end{equation}
+的解。把这一 $V(q)$ 公式与领头阶结果 $V(q) = e_r^2/q^2$ 比较，我们可以识别出 $\bar{V}(\bar{e}) = \bar{e}^2 + \mathcal{O}(\bar{e}^4)$。于是
+\begin{equation}
+  V(q, e_r) = \frac{\bar{e}^2(q)}{q^2} ,
+  \label{eq:12.87}
+\end{equation}
+精确到被 $e^2$ 的幂次压低、且不含补偿性的 $q/M$ 大对数的修正。
+
+要把式~\eqref{eq:12.87} 变成一个完全显式的公式，我们只需要求解重整化群方程 \eqref{eq:12.86}。利用 QED 的 $\beta$ 函数 \eqref{eq:12.61}，我们可以对 \eqref{eq:12.86} 积分得到
+\begin{equation}
+  \frac{12\pi^2}{e^2}\Bigl( \frac{1}{\bar{e}^2} - \frac{1}{e_r^2} \Bigr)
+  = \log\frac{q}{M} .
+\end{equation}
+这简化为
+\begin{equation}
+  \bar{e}^2(q) = \frac{e_r^2}{1 - (e_r^2/6\pi^2)\log(q/M)} .
+  \label{eq:12.88}
+\end{equation}
+这一结果与我们在式~\eqref{eq:7.96} 中得到的有效电荷公式几乎相同。为了巩固这一识别，令 $M$ 为电子质量量级，$M^2 = \Lambda m^2$，并在这一点用 $e$ 近似 $e_r$，其中 $\alpha = e^2/4\pi$。于是式~\eqref{eq:12.88} 取如下形式
+\begin{equation}
+  \bar{\alpha}(q) = \frac{\alpha}{1 - (\alpha/3\pi)\log(-q^2/\Lambda m^2)} .
+  \label{eq:12.89}
+\end{equation}
+特别地选取 $\Lambda = \exp(5/3)$ 就重现式~\eqref{eq:7.96}。当然，没有第~7.5 节详细的单圈计算，我们不可能找到这种精确的对应关系。尽管如此，我们现在的分析产生了有效电荷正确的渐近公式。此外，我们现在的形式体系可以应用于任何可重整化量子场论；它不依赖于我们在第~7.5 节利用的 QED 的特殊对称性。
+
+\subsection{耦合常数跑动的各种可能}
+
+既然我们已经计算了两种具体量子场论中跑动耦合常数的行为，让我们更一般地考虑原则上可能有哪些跑动耦合常数的行为。我们继续把讨论限制在无质量极限下的可重整化理论，具有单一无量纲耦合常数 $\lambda$。
+
+由上一节的论证，任何这样的理论中的 Green 函数都服从卡兰-西曼奇克方程。这一方程的解依赖于跑动耦合常数 $\bar{\lambda}(p)$，它满足一个微分方程
+\begin{equation}
+  \frac{d}{d\log(p/M)}\ \bar{\lambda} = \beta(\bar{\lambda}),
+  \label{eq:12.90}
+\end{equation}
+其中函数 $\beta(\lambda)$ 可以按耦合常数的幂级数来计算。在我们刚刚讨论的例子中，这一幂级数的首项系数为正。然而，作为原则问题，在小 $\lambda$ 区域可能有三种行为：
+\begin{equation}
+  \begin{aligned}
+    (1)\quad &\beta(\lambda) > 0;\\
+    (2)\quad &\beta(\lambda) = 0;\\
+    (3)\quad &\beta(\lambda) < 0 .
+  \end{aligned}
+\end{equation}
+
+在情形 (1) 中，耦合常数随动量增大而增大，理论在大动量处变为强耦合。这就是 $\phi^4$ 理论和 QED 中的情形。只有在情形 (3) 中，耦合在大动量处减小，理论才是\emph{渐近自由}的。我们将在第~16 章看到，非阿贝尔规范理论（如 QCD）属于情形 (3)。情形 (2) 是边缘情形，需要计算 $\beta$ 中的高阶项来确定流。
+
+跑动耦合常数的行为决定微扰论在大动量处的有效性。在情形 (1) 中，微扰论在某个大动量标度处失效，理论必须由额外的输入来定义（如 QED 中的朗道极点）。在情形 (3) 中，理论在大动量处变为弱耦合，因此微扰预言在那里是可靠的。
+
+如果 $\beta$ 函数在耦合常数的非零值 $\lambda^{*}$ 处有一个零点，我们说理论在 $\lambda^{*}$ 处有一个\emph{非平凡不动点}。在这样的不动点附近，跑动耦合以由 $\beta$ 在不动点处的斜率决定的速率接近 $\lambda^{*}$。Green 函数在不动点附近的行为由反常维度在不动点处的值所支配。这样的不动点在临界现象理论中起核心作用，我们将在第~13 章讨论。在不动点附近得到的物理预言（如临界指数）——$\lambda^{*}$ 本身的值、零点处的斜率 $B$，以及反常维度在不动点处的值——都应该与计算 $\beta$ 和 $\gamma$ 所用的约定无关。
+
+\section{局域算符的重整化}
+
+前两节的分析一直局限于只具有无量纲系数的量子场论，即无质量极限下严格可重整化的场论。把这一形式体系推广到具有质量项和其他系数带有质量维度的算符的理论并不困难。然而，值得先对中间一步给予一些注意，即分析局域算符矩阵元的重整化群性质。这本身就是一个有趣的问题，我们将在第~18 章用相当大的篇幅讨论这一形式体系的应用。
+
+局域算符的矩阵元在量子场论计算中经常出现。典型地，人们考虑一组相互作用的粒子，它们与一个额外的粒子弱耦合，该额外粒子传递新的力。例如，考虑受弱衰变过程效应微扰的强相互作用夸克理论。弱相互作用由一个有质量矢量玻色子 $W$ 传递。让我们非常示意性地把夸克与 $W$ 的相互作用写为
+\begin{equation}
+  \delta\mathcal{L} = \frac{g}{\sqrt{2}}\ \bar{\psi}\gamma^\mu(1-\gamma^5)\psi\,
+    W_\mu ,
+  \label{eq:12.98}
+\end{equation}
+并赋予 $W$ 玻色子传播子
+\begin{equation}
+  \frac{-i}{q^2-m_W^2}\ \Bigl( g^{\mu\nu} - \frac{q^\mu q^\nu}{m_W^2}
+    \Bigr) .
+\end{equation}
+（我们将在第~18.2 节和第~20 章更正确地讨论这一相互作用。）$W$ 玻色子的交换导致图~\ref{fig:12.5} 所示的相互作用。对于与 $m_W$ 相比很小的动量转移，我们可以忽略 $W$ 传播子中的 $q^2$，并把这一相互作用写为算符的矩阵元
+\begin{equation}
+  -\frac{g^2}{2m_W^2}\ \mathcal{O}(x) ,
+  \label{eq:12.100}
+\end{equation}
+其中
+\begin{equation}
+  \mathcal{O}(x) = \bar{\psi}\gamma^\mu(1-\gamma^5)\psi\,
+    \bar{\psi}\gamma_\mu(1-\gamma^5)\psi .
+\end{equation}
+本着 Wilson 重整化群方法的精神，我们可以说，在大于 $m_W^{-1}$ 的距离标度上，$W$ 玻色子可以被积分掉，留下相互作用 \eqref{eq:12.100}。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.5\textwidth]{fig12.5.png}
+  \caption{$W$ 玻色子交换产生的夸克相互作用。}
+  \label{fig:12.5}
+\end{figure}
+
+我们如何分析算符 \eqref{eq:12.100} 对由夸克和反夸克组成的强相互作用粒子的效应呢？一个有用的开端是计算算符 $\mathcal{O}$ 连同产生和消灭夸克的场的 Green 函数。如果我们用自由费米子理论来近似夸克理论，就很容易计算这些 Green 函数；例如：
+\begin{equation}
+  \langle\psi(p_1)\bar{\psi}(-p_2)\psi(p_3)\bar{\psi}(-p_4)
+    \mathcal{O}(0)\rangle
+  = S_F(p_1)\gamma^\mu(1-\gamma^5)S_F(p_2)\ S_F(p_3)\gamma_\mu(1-\gamma^5)
+    S_F(p_4) .
+  \label{eq:12.101}
+\end{equation}
+然而，在相互作用的场论中，答案要复杂得多。其中一些复杂性将涉及夸克的低能相互作用，我们将其排除在当前的讨论之外。然而，在夸克相互作用的可重整化理论中，人们也会发现含有 $\mathcal{O}$ 的 Green 函数有新的紫外发散。对 \eqref{eq:12.101} 的单圈修正将包含这样一些图，它们的值等于 \eqref{eq:12.101} 的右端乘以一个发散积分。这些图可以被解释为算符 $\mathcal{O}$ 的场强重整化。与基本场的关联函数一样，只有当我们建立局域算符归一化的约定，并逐阶在微扰论中引入算符重新标度形式的抵消项来维持这些约定时，我们才能得到局域算符有限且良定义的矩阵元。更具体地说，在费米子 $\psi$ 的无质量可重整化场论中，我们应该约定式~\eqref{eq:12.101} 在某个满足 $p_1^2 = p_2^2 = p_3^2 = p_4^2 = -M^2$ 的类空归一化点处精确成立。然后我们应该加上一个 $\delta_{\mathcal{O}}\mathcal{O}(x)$ 形式的抵消项，并在微扰论的每一阶调整该抵消项以确保这些关系得到保持。我们把在 $M^2$ 处满足归一化条件 \eqref{eq:12.101} 的算符记为 $\mathcal{O}_M$。
+
+重整化算符 $\mathcal{O}_M$ 是由裸场构成的算符 $\mathcal{O}_0$ 的重新标度版本，
+\begin{equation}
+  \mathcal{O}_0(x) = \bar{\psi}_0\gamma^\mu(1-\gamma^5)\psi_0\,
+    \bar{\psi}_0\gamma_\mu(1-\gamma^5)\psi_0 .
+  \label{eq:12.102}
+\end{equation}
+正如我们对基本场所做的那样，我们可以把这一关系写为
+\begin{equation}
+  \mathcal{O}_0 = Z_{\mathcal{O}}(M)\,\mathcal{O}_M .
+  \label{eq:12.103}
+\end{equation}
+这使我们能够写出裸场与重整化场 Green 函数之间关系 \eqref{eq:12.35} 的推广。让我们回到标量场论的语言，并考虑 $\mathcal{O}(x)$ 是标量场论中的一个局域算符。定义
+\begin{equation}
+  G^{(n;1)}(p_1, \ldots, p_n; k) = \bigl\langle \phi(p_1)\cdots\phi(p_n)\,
+    \mathcal{O}_M(k) \bigr\rangle .
+  \label{eq:12.104}
+\end{equation}
+于是 $G^{(n;1)}$ 与裸场的 Green 函数通过下式相联系
+\begin{equation}
+  G^{(n;1)}(p_1, \ldots, p_n; k) = Z^{n/2}Z_{\mathcal{O}}(M)^{-1}\
+    \bigl\langle \phi_0(p_1)\cdots\phi_0(p_n)\,\mathcal{O}_0(k) \bigr\rangle .
+  \label{eq:12.105}
+\end{equation}
+重复式~\eqref{eq:12.63} 和 \eqref{eq:12.64} 的推导，我们发现含有局域算符的 Green 函数服从卡兰-西曼奇克方程
+\begin{equation}
+  \Bigl[ M\frac{\partial}{\partial M} + \beta(\lambda)\frac{\partial}
+    {\partial\lambda} + n\gamma(\lambda) + \gamma_{\mathcal{O}}(\lambda) \Bigr]
+    G^{(n;1)} = 0 ,
+  \label{eq:12.106}
+\end{equation}
+其中
+\begin{equation}
+  \gamma_{\mathcal{O}} = M\frac{\partial}{\partial M}\log Z_{\mathcal{O}}(M)
+  .
+  \label{eq:12.107}
+\end{equation}
+
+经常发生的情况是，一个量子场论含有几个具有相同量子数的算符。例如，在量子电动力学中，算符 $\bar{\psi}[\gamma^\mu D^\nu + \gamma^\nu D^\mu]\psi$ 和 $F^{\mu\lambda}F^{\nu}_{\ \lambda}$ 都是零电荷的对称张量；此外，两个算符的质量维度都为 4。这样的具有相同量子数和相同质量维度的算符可以被量子修正所\emph{混合}。对于这样一组算符 $\{\mathcal{O}_i\}$，重整化算符与裸算符的关系必须推广为
+\begin{equation}
+  \mathcal{O}_i = Z^{ij}_{\mathcal{O}}(M)\,\mathcal{O}_j .
+  \label{eq:12.108}
+\end{equation}
+这一关系又意味着，卡兰-西曼奇克方程中的反常维度函数 $\gamma_{\mathcal{O}}$ 必须推广为一个矩阵，
+\begin{equation}
+  \gamma_{\mathcal{O}} = \bigl[ Z_{\mathcal{O}}(M) \bigr]^{-1}\ M\frac{\partial}
+    {\partial M}\ Z_{\mathcal{O}}(M) .
+  \label{eq:12.109}
+\end{equation}
+我们在第~18 章中对 \eqref{eq:12.106} 的大部分应用都需要这一推广。%
+\footnote{我们在无质量场论中工作的假设限制了算符混合的可能性。在有质量场论中，给定维度的算符还可以与更低维度的算符混合。}
+
+另一方面，有些算符的重新标度和反常维度特别简单。如果 $\mathcal{O}$ 是夸克数流 $\bar{\psi}\gamma^\mu\psi$，它的归一化一劳永逸地被固定，因为相关的电荷
+\begin{equation}
+  Q = \int d^3x\ \bar{\psi}\gamma^0\psi
+\end{equation}
+恰好是给定态中守恒的整数个夸克数减去反夸克数。更一般地，对于任何守恒流 $J^\mu$，$Z_J(M) = 1$ 且 $\gamma_J = 0$。同样的论证适用于能量-动量张量。因此，在上面的 QED 例子中，特定的线性组合
+\begin{equation}
+  T^{\mu\nu} = \bar{\psi}\bigl[ \gamma^\mu D^\nu + \gamma^\nu D^\mu \bigr]\psi
+    - \cdots ,
+  \label{eq:12.110}
+\end{equation}
+不受重新标度，也没有反常维度。算符的这一线性组合必须是矩阵 $\gamma^{ij}$ 的特征值为零的特征向量。
+
+到目前为止，我们对算符矩阵元的讨论还相当抽象。为了使其更具体，我们将构造一个从单圈抵消项计算 $\gamma_{\mathcal{O}}$ 领头阶的公式，然后把这一公式应用于 $\phi^4$ 理论中的一个简单例子。
+
+为了找到 $\gamma_{\mathcal{O}}$ 的一个简单公式，我们沿着从式~\eqref{eq:12.52} 到 $\beta$ 函数公式 \eqref{eq:12.53} 的相同路径。考虑一个归一化条件基于含 $m$ 个标量场的 Green 函数的算符：
+\begin{equation}
+  G^{(m;1)} = \bigl\langle \phi(p_1)\cdots\phi(p_m)\,\mathcal{O}_M(k)
+    \bigr\rangle .
+  \label{eq:12.111}
+\end{equation}
+为了在单圈阶计算这一 Green 函数，我们找到如下一组图：
+\begin{equation}
+  \text{(tree level)} + \text{(one-loop vertex correction)} + \text{(external
+    leg corrections)} + \text{(counterterm)} .
+\end{equation}
+最后一个图是维持重整化条件所需的抵消项 $\delta_{\mathcal{O}}$。注意抵消项 $\delta_Z$ 也出现。如果我们坚持这组图的和在 $\lambda$ 的领头阶满足卡兰-西曼奇克方程 \eqref{eq:12.106}，我们就会发现，与 \eqref{eq:12.53} 类似，有关系
+\begin{equation}
+  \gamma_{\mathcal{O}}(\lambda) = M\frac{\partial}{\partial M}\Bigl(
+    \delta_{\mathcal{O}} + \frac{m}{2}\delta_Z \Bigr) .
+  \label{eq:12.112}
+\end{equation}
+
+作为使用这一公式的一个具体例子，让我们计算 $\phi^4$ 理论中质量算符 $\phi^2$ 的反常维度 $\gamma_{\mathcal{O}}$。这一计算涉及一个小的微妙之处。$\phi^4$ 理论的费曼图产生一个加性质量重整化，它必须在微扰论的每一阶被质量抵消项移除。我们想把质量算符定义为可以加到这样定义的无质量理论上的一个微扰。为了澄清被重整化到零的底层质量与显式质量微扰之间的区别，我们将分析 $\phi^2$ 的一个 Green 函数，其中该算符携带一个特定的非零动量。因此我们选择用如下约定来定义 $\phi^2$ 的归一化
+\begin{equation}
+  \bigl\langle \phi(p)\phi(q)\phi^2(k) \bigr\rangle
+  = \frac{i}{p^2}\frac{i}{q^2}\frac{i}{k^2}\cdot 2
+  \qquad\text{at } p^2 = q^2 = k^2 = -M^2 .
+  \label{eq:12.113}
+\end{equation}
+对 \eqref{eq:12.113} 的单粒子不可约单圈修正是
+\begin{equation}
+  \frac{i}{p^2}\frac{i}{q^2}\ \frac{i}{2}(-\lambda)\ \int
+    \frac{d^dr}{(2\pi)^d}\ \frac{i}{r^2}\ \frac{i}{(k+r)^2}
+  = \frac{i}{p^2}\frac{i}{q^2}\ \frac{\lambda}{2}\ \frac{\Gamma(2-d/2)}
+    {(4\pi)^{d/2}}\ \frac{1}{(M^2)^{2-d/2}}\ \cdots ,
+  \label{eq:12.114}
+\end{equation}
+其中 $\Delta$ 是外动量的函数。在 $-M^2$ 处，这一贡献必须被一个抵消项图抵消，
+\begin{equation}
+  \frac{i}{p^2}\frac{i}{q^2}\ \delta_{\mathcal{O}}\ \frac{i}{k^2}\cdot 2 .
+  \label{eq:12.115}
+\end{equation}
+因此，抵消项必须是
+\begin{equation}
+  \delta_{\mathcal{O}} = -\frac{\lambda}{2}\ \frac{\Gamma(2-d/2)}
+    {(4\pi)^2}\ \frac{1}{(M^2)^{2-d/2}} .
+  \label{eq:12.116}
+\end{equation}
+由于 $\delta_Z$ 到 $\lambda$ 阶是有限的，这是对 \eqref{eq:12.112} 的唯一贡献，我们得到
+\begin{equation}
+  \gamma_{\phi^2} = \frac{\lambda}{16\pi^2} .
+  \label{eq:12.117}
+\end{equation}
+
+\section{质量参数的演化}
+
+我们现在讨论标量场论质量参数的重整化群演化。在前几节中，我们考虑了无质量理论，其中质量在临界点处被调整为零。我们现在把分析推广到包含质量项，它是一个相关算符。形式体系沿与之前相同的路线，但现在卡兰-西曼奇克方程包含来自质量的一个额外项。
+
+我们考虑有质量 $\phi^4$ 理论，由推广到包含非零质量的重整化条件 \eqref{eq:12.30} 定义。重整化拉格朗日量包含质量项 $\tfrac{1}{2}m^2\phi^2$，重整化条件在 $-M^2$ 量级的类空动量处施加。裸质量 $m_0$ 与重整化质量 $m$ 由下式相联系
+\begin{equation}
+  m_0^2 = Z_m\,m^2 ,
+\end{equation}
+其中 $Z_m$ 是一个新的重整化常数。有质量理论的卡兰-西曼奇克方程具有如下形式
+\begin{equation}
+  \Bigl[ M\frac{\partial}{\partial M} + \beta(\lambda)\frac{\partial}
+    {\partial\lambda} - \gamma_m(\lambda)\,m^2\frac{\partial}{\partial m^2}
+    + n\gamma(\lambda) \Bigr]\ G^{(n)} = 0 ,
+  \label{eq:12.126}
+\end{equation}
+其中 $\gamma_m$ 是质量算符的反常维度，它与 $Z_m$ 的关系为
+\begin{equation}
+  \gamma_m = M\frac{\partial}{\partial M}\log Z_m .
+\end{equation}
+在领头阶，我们在上一节看到质量算符 $\phi^2$ 对 $\phi^4$ 理论具有反常维度
+\begin{equation}
+  \gamma_m = \frac{\lambda}{16\pi^2} + \cdots ,
+  \label{eq:12.127}
+\end{equation}
+
+用无量纲量
+\begin{equation}
+  \rho_m = \frac{m^2}{M^2} .
+\end{equation}
+来参数化质量是方便的。于是卡兰-西曼奇克方程 \eqref{eq:12.126} 可以用 $\rho_m$ 来写，跑动质量满足方程
+\begin{equation}
+  \frac{d}{d\log(p/M)}\ \rho_m = \bigl[ -2 + \gamma_m(\lambda) \bigr]\rho_m .
+  \label{eq:12.131}
+\end{equation}
+对于具有多个耦合 $\lambda_i$ 和多个质量 $m_i$ 的一般场论，演化方程具有如下形式
+\begin{equation}
+  \beta = (d-4)\lambda + \beta^{(4)}(\lambda) + \cdots,\qquad
+  \beta_m = \bigl[ -2 + \gamma_m^{(4)} \bigr]m^2 + \cdots ,
+  \label{eq:12.132}
+\end{equation}
+其中带有上标 $(4)$ 的函数是本节前面得到的四维结果。
+
+\subsection{临界指数：初探}
+
+作为本节形式体系的一个应用，让我们计算 $\phi^4$ 理论中质量算符系数的重整化群流。这可以通过对式~\eqref{eq:12.126} 积分，利用 \eqref{eq:12.131} 中的 $\beta_m$ 值来求得：
+\begin{equation}
+  \frac{d}{d\log(p/M)}\ \rho_m = \bigl[ -2 + \gamma_{\phi^2}(\lambda) \bigr]
+    \rho_m .
+  \label{eq:12.134}
+\end{equation}
+对于 $\lambda = 0$，这一方程给出平凡关系
+\begin{equation}
+  \rho_m(p) = \rho_m(M)\ \Bigl( \frac{M}{p} \Bigr)^2 .
+  \label{eq:12.135}
+\end{equation}
+如果我们回忆起最初定义 $\rho_m = m^2/M^2$，这只不过是用一种复杂的方式说明，当 $p$ 变为 $m$ 的量级时，质量项成为拉格朗日量中的一个重要项。在这一点，$\phi$ 场中的关联开始以指数方式衰减。关联的特征范围，在统计力学中称为\emph{关联长度} $\xi$，由下式给出
+\begin{equation}
+  \xi \sim p_0^{-1},
+  \qquad\text{where } \rho_m(p_0) = 1 .
+  \label{eq:12.136}
+\end{equation}
+如果我们计算这一判据，就会发现 $\xi \sim (M^2\rho_m)^{-1/2}$，即 $\xi \sim m^{-1}$，正如我们所预期的。
+
+然而，在不动点 $\lambda^{*}$ 处应用这一判据给出一个有趣得多的结果。如果我们令 $\bar{\lambda} = \lambda^{*}$，那么式~\eqref{eq:12.134} 有解
+\begin{equation}
+  \rho_m \sim \rho_m(M)\ \Bigl( \frac{p}{M} \Bigr)^{-2 +
+    \gamma_{\phi^2}(\lambda^{*})} .
+  \label{eq:12.137}
+\end{equation}
+这给出一个非平凡的关系
+\begin{equation}
+  \xi \sim \rho_m^{-\nu} ,
+  \label{eq:12.138}
+\end{equation}
+其中指数 $\nu$ 形式上由表达式
+\begin{equation}
+  \nu^{-1} = 2 - \gamma_{\phi^2}(\lambda^{*}) .
+  \label{eq:12.139}
+\end{equation}
+给出。利用式~(12.133) 和 \eqref{eq:12.117} 的结果，我们可以对接近 4 的 $d$ 显式计算它：
+\begin{equation}
+  \nu^{-1} = 2 - \frac{1}{6}(4-d) .
+  \label{eq:12.140}
+\end{equation}
+Wilson 和 Fisher 证明，这一表达式可以推广为 $\nu$ 按 $\epsilon = (4-d)$ 幂次的系统展开。%
+\footnote{这一展开显示到相当高的阶，见 E.~Brezin,
+J.~C.~Le~Guillou, 和 J.~Zinn-Justin, \emph{Phys.\ Rev.} \textbf{D9}, 1121
+(1974)。}%
+\footnote{K.~G.~Wilson 和 M.~E.~Fisher, \emph{Phys.\ Rev.\ Lett.} \textbf{28},
+240 (1972)。}
+
+因为指数 $\nu$ 在统计力学中有解释，它在三维的现实情形中可以直接测量。在标量场论的统计力学解释中，$\rho_m$ 正是必须精细调节以使系统达到临界温度的参数。因此 $\rho_m$ 正比于对临界温度的偏离 $(T-T_c)$。我们的场论分析因此意味着，磁体中的关联长度按标度关系
+\begin{equation}
+  \xi \sim (T-T_c)^{-\nu} .
+  \label{eq:12.141}
+\end{equation}
+随 $T\to T_c$ 增长。它还给出关于 $\nu$ 值的一个确定且有些不同寻常的预言。它预言 $\nu$ 接近第~8 章研究的 Landau 近似（式~\eqref{eq:8.16}）所建议的值 $1/2$，但 $\nu$ 与这一值相差一些系统修正。
+
+在磁体中观察到 \eqref{eq:12.141} 类型的标度行为，并且已知会出现几种确定的标度律，取决于自旋序的对称性。磁体可以用涨落自旋分量的数目来表征：$N=1$ 对应有优先轴的磁体，$N=2$ 对应有优先平面的磁体，$N=3$ 对应三维空间中各向同性的磁体。$\nu$ 的实验值依赖这一参数。本章讨论的 $\phi^4$ 场论只含有一个涨落场；这是单自旋分量磁体的类比。在第~11 章中，我们考虑了 $\phi^4$ 理论到具有 $O(N)$ 对称性的 $N$ 场理论的推广。我们可能猜想这一系统模拟一般 $N$ 的磁体。
+
+如果这一对应关系正确，式~\eqref{eq:12.140} 就给出对具有优先轴的磁体中 $\nu$ 值的预言。在第~13.1 节中，我们将在 $O(N)$ 对称 $\phi^4$ 理论中重复导致这一方程的分析，并推导公式
+\begin{equation}
+  \nu^{-1} = 2 - \frac{N+2}{N+8}(4-d) ,
+  \label{eq:12.142}
+\end{equation}
+它到 $(4-d)$ 的一阶对一般 $N$ 有效。对于 $N = 1, 2, 3$ 和 $d = 3$ 的情形，这一公式预言
+\begin{equation}
+  \nu = 0.60,\ 0.63,\ 0.65 .
+  \label{eq:12.143}
+\end{equation}
+作为比较，目前磁系统中 $\nu$ 的最佳实验测定给出%
+\footnote{更多细节见第~13.1 节的表~13.1 及随附的讨论。}
+\begin{equation}
+  \nu = 0.64,\ 0.67,\ 0.71
+  \label{eq:12.144}
+\end{equation}
+对 $N = 1, 2, 3$。预言 \eqref{eq:12.143} 对实验结果给出合理的一阶近似。
+
+量子场论预言临界指数的能力，既给了量子场论与统计力学之间形式联系一个具体应用，也给了重整化群预言的耦合常数流一个具体应用。然而，临界行为还有另一个更引人注目、更有说服力的实验方面。临界行为不仅可以在磁体中研究，还可以在流体、二元合金、超流氦以及大量其他系统中研究。人们早就知道，对于微观动力学如此迥异的系统，临界点处的标度指数只取决于涨落变量的维度 $N$，而不取决于原子结构的任何其他细节。例如，流体、二元合金和单轴磁体具有相同的临界指数。在外行看来，这似乎是一个奇迹。但对量子场论学家来说，这一结论是重整化群思想的自然结果，其中场论相互作用的大部分细节由算符描述，这些算符在场论找到其恰当的、简单的大距离行为时变为无关。
+
+\problems
+
+\textbf{12.1} \emph{Yukawa 理论中的 $\beta$ 函数。} 在习题~10.2 研究的赝标量 Yukawa 理论中，把质量设为零，
+\begin{equation}
+  \mathcal{L} = \tfrac{1}{2}(\partial_\mu\phi)^2 - \frac{\lambda}{4!}\phi^4
+    - ig\bar{\psi}\gamma^5\psi\phi ,
+\end{equation}
+计算 $\lambda$ 和 $g$ 的卡兰-西曼奇克 $\beta$ 函数：
+\begin{equation}
+  \beta_\lambda(\lambda, g),\qquad \beta_g(\lambda, g) .
+\end{equation}
+[提示：计算标量和费米子传播子以及两类顶点的发散，并像式~\eqref{eq:12.50} 和 \eqref{eq:12.54} 那样提取发散对数的系数。]
+
+\textbf{12.2} \emph{$O(N)$ 模型中的临界指数。} 对 $O(N)$ 对称 $\phi^4$ 理论重复第~12.5 节的分析，并推导临界指数 $\nu$ 到 $\epsilon = 4-d$ 一阶的公式 \eqref{eq:12.142}。
+
+\textbf{12.3} \emph{精细结构常数的演化。} 利用 QED 的 $\beta$ 函数，在给定零动量处精细结构常数值的情况下，计算 $Z$ 极点处精细结构常数的值。证明 $\alpha(m_Z) \approx 1/128$，而 $\alpha(0) \approx 1/137$。
+
+\textbf{12.4} \emph{$\phi^2$ 算符在双圈阶的反常维度。} 计算 $\phi^4$ 理论中质量算符反常维度的双圈贡献。

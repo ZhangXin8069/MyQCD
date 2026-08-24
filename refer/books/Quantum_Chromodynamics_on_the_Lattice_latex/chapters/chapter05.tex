@@ -1,0 +1,997 @@
+% =====================================================================
+%  Chapter 5: Fermions on the lattice
+%  Gattringer & Lang, "Quantum Chromodynamics on the Lattice" (LNP 788)
+%  Reconstructed from extract/ch05.txt; equations auto-numbered.
+% =====================================================================
+
+\chapter{Fermions on the lattice}
+
+In our first look at QCD on the lattice in Chap.~2 we have already announced
+that our formulation of lattice fermions has not reached its final form. In
+particular we still need to take into account the correct statistics. In the first
+section of this chapter we will show that the required Fermi statistics can be
+implemented by using anti-commuting numbers for the quark fields, so-called
+Grassmann numbers. We will discuss the rules for calculating with Grassmann
+numbers, and we will derive a few key formulas for Gaussian integrals with
+Grassmann numbers.
+
+The lattice formulation of the fermions as presented in Chap.~2 still suffers
+from certain lattice artifacts, so-called doublers. We will identify the doublers
+by analyzing the Fourier transform of the lattice Dirac operator. To remove
+the doublers we will add an extra term to the fermion action and in this way
+arrive at the Wilson fermion action.
+
+In a short section we will present the so-called hopping expansion for
+fermionic observables. Although this expansion is useful only for very heavy
+quarks, it provides an interesting conceptual insight: We will be able to interpret the fermions as paths of link variables connecting points in space--time.
+
+Finally we will discuss the symmetries of the Wilson action which we will need
+later when we construct hadron interpolators in Chap.~6.
+
+\section{Fermi statistics and Grassmann numbers}
+
+\subsection{Some new notation}
+
+Before we come to presenting the arguments for the need of Grassmann numbers, let us introduce some new notation. For the discussion in this chapter
+it is convenient to separate the fermionic part $\langle\ldots\rangle_F$ and the gauge field part
+$\langle\ldots\rangle_G$ of the path integral and to write (compare (2.55), (2.56), and (2.57))
+\begin{equation}
+  \ev{O} = \ev{\ev{O}_F}_G .
+\end{equation}
+
+The fermionic part $\langle\ldots\rangle_F$ of the path integral is defined by
+\begin{equation}
+  \ev{A}_F =
+    \frac{1}{Z_F[U]}\int D\psi\,D\bar{\psi}\;
+    e^{-S_F[\psi,\bar{\psi},U]}\,A[\psi,\bar{\psi},U] .
+\end{equation}
+
+In this integration $U$ is an external field. The fermionic partition function
+\begin{equation}
+  Z_F[U] = \int D\psi\,D\bar{\psi}\; e^{-S_F[\psi,\bar{\psi},U]} ,
+\end{equation}
+depends on the gauge field through the gauge field dependence of the fermion
+action $S_F[\psi,\bar{\psi},U]$. Later we will identify $Z_F[U]$ as the so-called fermion determinant, i.e., the determinant of the Dirac operator. The abbreviation $\langle\ldots\rangle_G$
+for the gauge field part of the path integral is defined as
+\begin{equation}
+  \ev{B}_G = \frac{1}{Z}\int D[U]\; e^{-S_G[U]}\,Z_F[U]\,B[U] .
+\end{equation}
+
+Here $B[U]$ could be $\ev{A}_F$, but also other integrands, such as observables made
+from the gauge fields only, are possible. As we will discuss below, the nature
+of the fermionic part and the gauge field part of the path integral is quite
+different. Thus the separation of the two parts will turn out to be convenient.
+
+\subsection{Fermi statistics}
+
+Let us now discuss the fermionic vacuum expectation value of a product of
+fermion fields ($\alpha_i$, $\beta_i$ are Dirac indices, $a_i$, $b_i$ refer to color, $n_i$, $m_i$ are the
+space--time arguments and $f_i$, $g_i$ flavor labels)
+\begin{equation}
+  \Big\langle
+    \psi^{(f_1)}_{a_1}(n_1)_{\alpha_1}\,
+    \psi^{(f_2)}_{a_2}(n_2)_{\alpha_2}\cdots
+    \psi^{(f_k)}_{a_k}(n_k)_{\alpha_k}\,
+    \bar{\psi}^{(g_1)}_{b_1}(m_1)_{\beta_1}\cdots
+    \bar{\psi}^{(g_k)}_{b_k}(m_k)_{\beta_k}
+  \Big\rangle_F .
+\end{equation}
+
+As it stands, this product of fermion fields is not gauge-invariant in general.
+Factors built from products of link variables might be needed to make it
+gauge-invariant. However, here we are focusing on the fermionic part of the
+path integral and such gauge factors can be added later before the integration
+over the gauge field is performed.
+
+One of the defining properties of fermions is the requirement that they
+obey Fermi statistics. For our vacuum expectation value (5.5) this implies
+antisymmetry under the interchange of quantum numbers. If we interchange
+the quantum numbers of any two of the fermions, say we interchange
+\begin{equation}
+  f_1 \leftrightarrow f_2, \quad n_1 \leftrightarrow n_2, \quad
+  \alpha_1 \leftrightarrow \alpha_2, \quad a_1 \leftrightarrow a_2,
+\end{equation}
+the vacuum expectation value (5.5) has to acquire a minus sign. The interchange (5.6) is equivalent to commuting the first two fermion variables in
+(5.5), and the requirement of producing a minus sign can be accounted for by
+demanding an extra minus sign under this commutation. Thus we require the
+fermion fields to behave as anti-commuting numbers for any combination of
+the indices $f$, $f'$, $n$, $n'$, $\alpha$, $\alpha'$, $a$, $a'$,
+\begin{equation}
+  \psi^{(f)}_{a}(n)_{\alpha}\,
+  \psi^{(f')}_{a'}(n')_{\alpha'}
+  = -\psi^{(f')}_{a'}(n')_{\alpha'}\,
+  \psi^{(f)}_{a}(n)_{\alpha} .
+\end{equation}
+
+Also the $\bar{\psi}$ have to anti-commute among each other and furthermore the $\bar{\psi}$
+have to anti-commute with the $\psi$. Hence in addition to (5.7) we demand
+\begin{equation}
+  \bar{\psi}^{(f)}_{a}(n)_{\alpha}\,
+  \bar{\psi}^{(f')}_{a'}(n')_{\alpha'}
+  = -\bar{\psi}^{(f')}_{a'}(n')_{\alpha'}\,
+  \bar{\psi}^{(f)}_{a}(n)_{\alpha} ,
+\end{equation}
+\begin{equation}
+  \bar{\psi}^{(f)}_{a}(n)_{\alpha}\,
+  \psi^{(f')}_{a'}(n')_{\alpha'}
+  = -\psi^{(f')}_{a'}(n')_{\alpha'}\,
+  \bar{\psi}^{(f)}_{a}(n)_{\alpha} .
+\end{equation}
+
+Thus all fermionic degrees in our lattice theory anti-commute with each other.
+
+We remark that the fermionic path integral in terms of anti-commuting
+numbers may be derived from the canonical anti-commutation relations for
+fermions by introducing coherent states. For this approach we refer the reader
+to [1, 2] for an introductory presentation.
+
+\subsection{Grassmann numbers and derivatives}
+
+After having motivated the use of anti-commuting numbers, so-called Grassmann numbers, for the fermionic path integral, we need to learn how to calculate with Grassmann numbers.\footnote{An introductory text on Grassmann numbers, going beyond our short presentation, can be found in [3].} We consider a set of Grassmann numbers
+$\eta_i$, $i = 1, \ldots, N$, obeying
+\begin{equation}
+  \eta_i \eta_j = -\eta_j \eta_i ,
+\end{equation}
+for all $i, j$. This equation implies that the $\eta_i$ are nilpotent, i.e., they obey
+$\eta_i^2 = 0$. Hence the power series for a function of the $\eta_i$ terminates after a finite
+number of terms, and the only relevant class of functions are polynomials,
+\begin{equation}
+  A = a + \sum_i a_i\,\eta_i + \sum_{i<j} a_{ij}\,\eta_i\eta_j
+      + \sum_{i<j<k} a_{ijk}\,\eta_i\eta_j\eta_k + \cdots
+      + a_{12\ldots N}\,\eta_1\eta_2\cdots\eta_N ,
+\end{equation}
+with complex coefficients $a$, $a_i$, $a_{ij} \ldots a_{12\ldots N}$. These polynomials can be added
+and multiplied and form a so-called Grassmann algebra. The Grassmann numbers $\eta_i$ are referred to as the generators of the Grassmann algebra.
+
+One may differentiate elements of the Grassmann algebra with respect to
+the generators. In order to develop the rules for such Grassmann derivatives,
+we consider a simple example. For a Grassmann algebra with only $N = 2$
+generators the most general function is
+\begin{equation}
+  A = a + a_1\eta_1 + a_2\eta_2 + a_{12}\eta_1\eta_2 .
+\end{equation}
+
+We define the left derivative of $A$ with respect to $\eta_1$ by
+\begin{equation}
+  \frac{\partial}{\partial\eta_1}\,A = a_1 + a_{12}\,\eta_2 .
+\end{equation}
+
+However, using (5.10) we can interchange the order of the generators in the
+last term of (5.12) and write our polynomial $A$ also in the form
+\begin{equation}
+  A = a + a_1\eta_1 + a_2\eta_2 - a_{12}\,\eta_2\eta_1 .
+\end{equation}
+
+Thus, in order to get consistent results, we have to assign the Grassmann
+property also to the derivative operator:
+\begin{equation}
+  \frac{\partial}{\partial\eta_1}\,\eta_2 = -\eta_2\,\frac{\partial}{\partial\eta_1} .
+\end{equation}
+
+Furthermore, if we apply another derivative $\partial/\partial\eta_2$ to $\partial/\partial\eta_1\,A$, we find that for
+consistency also the derivatives have to anti-commute with each other. Thus
+we define the following rules for our derivatives:
+\begin{equation}
+  \begin{aligned}
+    \frac{\partial}{\partial\eta_i}\,1 = 0, \qquad
+    \frac{\partial}{\partial\eta_i}\,\eta_i = 1, \qquad
+    \frac{\partial}{\partial\eta_i}\frac{\partial}{\partial\eta_j}
+      = -\frac{\partial}{\partial\eta_j}\frac{\partial}{\partial\eta_i}, \\
+    \frac{\partial}{\partial\eta_i}\,\eta_j = -\eta_j\,\frac{\partial}{\partial\eta_i}
+    \quad (i \neq j) .
+  \end{aligned}
+\end{equation}
+
+\subsection{Integrals over Grassmann numbers}
+
+In addition to differentiation, we also want to find a consistent definition of
+integration over Grassmann numbers. The guiding principle of our construction is to implement the properties of the integration in $\mathbb{R}^N$. More specifically,
+we consider the integral over a domain $\Omega \subset \mathbb{R}^N$, with an integrand $f$ that
+vanishes at the boundary $\partial\Omega$,
+\begin{equation}
+  \int_{\Omega}d^Nx\,f(x) =
+  \int_{\Omega}dx_1\cdots dx_N\,f(x_1, x_2, \ldots, x_N) ,
+\end{equation}
+as a linear functional of the function $f$. We want to construct a linear functional $\int d^N\eta$ acting on Grassmann polynomials $A$ with equivalent properties.
+The requirement that the integral is a complex linear functional reads
+\begin{equation}
+  \int d^N\eta\,A \in \mathbb{C}, \qquad
+  \int d^N\eta\,(\lambda_1 A_1 + \lambda_2 A_2)
+  = \lambda_1\int d^N\eta\,A_1 + \lambda_2\int d^N\eta\,A_2 ,
+\end{equation}
+where $\lambda_1$, $\lambda_2$ are complex numbers. The second defining equation of the Grassmann integral is
+\begin{equation}
+  \int d^N\eta\,\frac{\partial}{\partial\eta_i}\,A = 0 .
+\end{equation}
+
+This requirement is equivalent to demanding for the integration over $\Omega \subset \mathbb{R}^N$
+that the integrand $f(x_1, \ldots, x_N)$ vanishes at the boundary $\partial\Omega$. The corresponding formula equivalent to (5.19) is
+\begin{equation}
+  \int_{\Omega}d^Nx\,\frac{\partial}{\partial x_i}\,f(x_1, \ldots, x_N) = 0 .
+\end{equation}
+
+Formula (5.19) implies that whenever a polynomial $A$ can be written as a
+derivative of some other polynomial $A'$, the integral over $A$ vanishes. Thus
+we conclude that the integral over $A$ must be proportional to the coefficient
+$a_{12\ldots N}$ for the highest power of the generators $\eta_i$. In order to complete the
+definition of our integral we demand the normalization
+\begin{equation}
+  \int d^N\eta\,\eta_1\eta_2\cdots\eta_N = 1 ,
+  \qquad \text{which implies} \qquad
+  \int d^N\eta\,A = a_{12\ldots N} .
+\end{equation}
+
+We can push the definition of the Grassmann integral even closer to integration in $\mathbb{R}^N$, by writing the measure $d^N\eta$ as a product
+\begin{equation}
+  d^N\eta = d\eta_N\,d\eta_{N-1}\cdots d\eta_1 ,
+\end{equation}
+where the individual measures $d\eta_i$ obey
+\begin{equation}
+  \int d\eta_i\,1 = 0, \qquad
+  \int d\eta_i\,\eta_i = 1, \qquad
+  d\eta_i\,d\eta_j = -d\eta_j\,d\eta_i .
+\end{equation}
+
+The last property is required by the freedom to interchange the $\eta_i$ in the
+integrand. Using (5.23) it is possible to define the integration over only a
+subset of the generators $\eta_i$, analogous to the case of $\mathbb{R}^N$. It is interesting to
+note that the measures $d\eta_i$ and the derivatives $\partial/\partial\eta_i$ obey the same algebraic
+properties (compare (5.23) and (5.16)).
+
+Finally we need to discuss how the measure $d^N\eta$ transforms under a linear
+change of variables defined by
+\begin{equation}
+  \eta'_i = \sum_{j=1}^{N}M_{ij}\,\eta_j ,
+\end{equation}
+where $M$ is a complex $N \times N$ matrix. Applying this change of variables to
+the normalization integral (5.21) we find
+\begin{equation}
+  \begin{aligned}
+    &\int d^N\eta\,\eta_1\cdots\eta_N
+     = \int d^N\eta'\,\eta'_1\cdots\eta'_N\\
+    &= \int d^N\eta'\sum_{i_1,\ldots,i_N}M_{1i_1}\cdots M_{Ni_N}\,
+       \eta_{i_1}\cdots\eta_{i_N}\\
+    &= \int d^N\eta'\sum_{i_1,\ldots,i_N}M_{1i_1}\cdots M_{Ni_N}\,
+      \varepsilon_{i_1i_2\ldots i_N}\,\eta_1\cdots\eta_N\\
+    &= \det[M]\int d^N\eta'\,\eta_1\cdots\eta_N .
+  \end{aligned}
+\end{equation}
+
+In the second line of this equation we have reordered the product of Grassmann
+numbers $\eta_{i_1}\cdots\eta_{i_N}$. This product vanishes if two of the indices $i_k$ are equal.
+The sign from the reordering is given by the completely anti-symmetric tensor
+$\varepsilon_{i_1i_2\ldots i_N}$. The summation of the matrix elements $M_{ij}$ with this tensor gives the
+determinant. Comparing the first and the last expression in (5.25) one reads
+off the transformation properties of the measure in the Grassmann integration
+\begin{equation}
+  d^N\eta = \det[M]\,d^N\eta' .
+\end{equation}
+
+This transformation is ``opposite'' to the transformation of the integration
+measure for $\mathbb{R}^N$, where $\det[M]$ would appear on the left-hand side.
+
+\subsection{Gaussian integrals with Grassmann numbers}
+
+We finally derive formulas for Gaussian integrals with Grassmann numbers
+which we will need for our treatment of lattice fermions. In particular we
+consider a Grassmann algebra with $2N$ generators $\eta_i$, $\bar{\eta}_i$, $i = 1, 2, \ldots, N$. We
+stress that all these $2N$ generators anti-commute with each other, i.e., we have
+\begin{equation}
+  \eta_i\eta_j = -\eta_j\eta_i, \qquad
+  \bar{\eta}_i\bar{\eta}_j = -\bar{\eta}_j\bar{\eta}_i, \qquad
+  \bar{\eta}_i\eta_j = -\eta_j\bar{\eta}_i .
+\end{equation}
+
+The first integral we prove is the so-called Matthews--Salam formula [4, 5]
+\begin{equation}
+  Z_F = \int d\eta_N\,d\bar{\eta}_N\cdots d\eta_1\,d\bar{\eta}_1\;
+    \exp\Big(\sum_{i,j=1}^{N}\bar{\eta}_i M_{ij}\eta_j\Big) = \det[M] ,
+\end{equation}
+where $M$ is a complex $N \times N$ matrix. A possible minus sign in the exponent,
+as it appears in (5.2), can be absorbed in the definition of $M$. When setting
+$M = -D$, (5.28) establishes that the fermionic partition function (5.3) is
+indeed a determinant, called fermion determinant.
+
+To show the result (5.28) we define transformed integration variables $\eta'_j$
+\begin{equation}
+  \eta'_j = \sum_{k=1}^{N}M_{jk}\,\eta_k .
+\end{equation}
+
+From (5.26) we find for the transformation of the measure
+\begin{equation}
+  d\eta_N\,d\bar{\eta}_N\cdots d\eta_1\,d\bar{\eta}_1
+  = \det[M]\,d\eta'_N\,d\bar{\eta}'_N\cdots d\eta'_1\,d\bar{\eta}'_1 .
+\end{equation}
+
+Using the transformation (5.29) and (5.30) we prove formula (5.28):
+\begin{equation}
+  \begin{aligned}
+    Z_F &= \det[M]\int\prod_{i=1}^{N}d\eta'_i\,d\bar{\eta}'_i\,
+      \exp\Big(\sum_{j=1}^{N}\bar{\eta}'_j\eta'_j\Big)
+      = \det[M]\prod_{i=1}^{N}\int d\eta'_i\,d\bar{\eta}'_i\,
+      \exp\big(\bar{\eta}'_i\eta'_i\big)\\
+      &= \det[M]\prod_{i=1}^{N}\int d\eta'_i\,d\bar{\eta}'_i\,
+      \big(1 + \bar{\eta}'_i\eta'_i\big)
+      = \det[M] .
+  \end{aligned}
+\end{equation}
+
+In (5.31) we have used the fact that pairs of Grassmann objects such as $\eta'_i\bar{\eta}'_i$
+and $d\eta'_j\,d\bar{\eta}'_j$ commute with other pairs. In the second line we have expanded
+the individual exponential functions in power series. Due to the nilpotency of
+Grassmann numbers these series terminate after the second term.
+
+Let us now generalize the integral (5.28) by embedding the $2N$-dimensional
+Grassmann algebra generated by $\eta_i$, $\bar{\eta}_i$, $i = 1, 2, \ldots, N$ into a $4N$-dimensional
+algebra generated by $\eta_i$, $\bar{\eta}_i$, $\theta_i$, $\bar{\theta}_i$, $i = 1, 2, \ldots, N$. All these $4N$ Grassmann
+numbers anti-commute with each other. However, we integrate only over the
+$\eta_i$, $\bar{\eta}_i$ and the other generators $\theta_i$, $\bar{\theta}_i$ serve as source terms. The integral we
+consider is the so-called generating functional for fermions. It is given by
+\begin{equation}
+  \begin{aligned}
+    &W(\theta,\bar{\theta})\\
+    &= \int\prod_{i=1}^{N}d\eta_i\,d\bar{\eta}_i\,
+      \exp\Big(\sum_{k,l=1}^{N}\bar{\eta}_k M_{kl}\eta_l
+      + \sum_{k=1}^{N}\bar{\theta}_k\eta_k
+      + \sum_{k=1}^{N}\bar{\eta}_k\theta_k\Big)\\
+    &= \det[M]\,\exp\Big(-\sum_{n,m=1}^{N}\bar{\theta}_n M^{-1}_{nm}\theta_m\Big) .
+  \end{aligned}
+\end{equation}
+
+For proving this result we first complete the square in the exponent and write
+the exponent as (we use summation convention for all indices):
+\begin{equation}
+  \big(\bar{\eta}_i + \bar{\theta}_j M^{-1}_{ji}\big) M_{ik}
+  \big(\eta_k + M^{-1}_{kl}\theta_l\big)
+  - \bar{\theta}_n M^{-1}_{nm}\theta_m .
+\end{equation}
+
+Then we perform a transformation of variables
+\begin{equation}
+  \eta'_k = \eta_k + M^{-1}_{kl}\theta_l, \qquad
+  \bar{\eta}'_i = \bar{\eta}_i + \bar{\theta}_j M^{-1}_{ji} .
+\end{equation}
+
+From (5.23) it follows that the integration measure remains invariant under
+this transformation. Applying the transformation (5.33) to (5.32) we find
+\begin{equation}
+  \begin{aligned}
+    &W(\theta,\bar{\theta})\\
+    &= \exp\Big(-\sum_{n,m=1}^{N}\bar{\theta}_n M^{-1}_{nm}\theta_m\Big)
+      \int\prod_{i=1}^{N}d\eta'_i\,d\bar{\eta}'_i\,
+      \exp\Big(\sum_{k,l=1}^{N}\bar{\eta}'_k M_{kl}\eta'_l\Big)\\
+    &= \det[M]\,\exp\Big(-\sum_{n,m=1}^{N}\bar{\theta}_n M^{-1}_{nm}\theta_m\Big) ,
+  \end{aligned}
+\end{equation}
+where in the last step we have used (5.28), thus completing the proof.
+
+\subsection{Wick's theorem}
+
+Using the generating functional (5.32) we can now discuss a key formula for
+calculating the fermionic expectation value $\langle\ldots\rangle_F$ for products of Grassmann
+numbers. The formula is known as Wick's theorem and reads
+\begin{equation}
+  \begin{aligned}
+    &\ev{\eta_{i_1}\bar{\eta}_{j_1}\cdots\eta_{i_n}\bar{\eta}_{j_n}}_F\\
+    &= \frac{1}{Z_F}\int\prod_{k=1}^{N}d\eta_k\,d\bar{\eta}_k\,
+      \eta_{i_1}\bar{\eta}_{j_1}\cdots\eta_{i_n}\bar{\eta}_{j_n}\,
+      \exp\Big(\sum_{l,m=1}^{N}\bar{\eta}_l M_{lm}\eta_m\Big)\\
+    &= (-1)^n\sum_{P(1,2,\ldots,n)}\operatorname{sign}(P)\,
+      M^{-1}_{i_1 j_{P_1}}M^{-1}_{i_2 j_{P_2}}\cdots M^{-1}_{i_n j_{P_n}} ,
+  \end{aligned}
+\end{equation}
+where the sum in the second line runs over all permutations $P(1, 2, \ldots, n)$ of
+the numbers $1, 2, \ldots, n$, and $\operatorname{sign}(P)$ is the sign of the permutation $P$. The
+expectation values in Wick's theorem are often referred to as $n$-point functions.
+
+The formula can be proven by noting that from the definition of $W(\theta,\bar{\theta})$
+in the first line of (5.32) follows
+\begin{equation}
+  \ev{\eta_{i_1}\bar{\eta}_{j_1}\cdots\eta_{i_n}\bar{\eta}_{j_n}}_F
+  = \frac{1}{Z_F}\frac{\partial}{\partial\theta_{j_1}}
+    \frac{\partial}{\partial\bar{\theta}_{i_1}}\cdots
+    \frac{\partial}{\partial\theta_{j_n}}
+    \frac{\partial}{\partial\bar{\theta}_{i_n}}\,
+    W(\theta,\bar{\theta})\Big|_{\theta=\bar{\theta}=0} .
+\end{equation}
+
+Using the explicit form of the generating functional $W(\theta,\bar{\theta})$, given in the second line of (5.32), and performing the derivatives with respect to the sources,
+one arrives at the result (5.36). In a similar way it is easy to show that expectation values with different numbers of $\eta_i$ and $\bar{\eta}_j$ vanish.
+
+This completes our discussion of computing with Grassmann numbers, and
+we now have the algebraic tools ready for working with fermions.
+
+\section{Fermion doubling and Wilson's fermion action}
+
+In the last section we have introduced Grassmann numbers in order to incorporate Fermi statistics in our formulation of QCD on the lattice. In this
+section we will first rewrite the naive fermion action presented in Chap.~2 as
+a quadratic form. This step makes explicit that Wick's theorem, shown in the
+last section, can be applied. Based on this form we will then consider the free
+case and analyze the Fourier transform of the lattice Dirac operator. We will
+identify the aforementioned doublers and add a term to the action in order to
+remove these unwanted degrees of freedom in the continuum limit.
+
+\subsection{The Dirac operator on the lattice}
+
+The naive fermion action presented in Sect.~2.2 reads (see (2.36)):
+\begin{equation}
+  \begin{aligned}
+    &S_F[\psi,\bar{\psi},U] = a^4\sum_{n\in\Lambda}\Big[
+      \sum_{\mu=1}^{4}\bar{\psi}(n)\,\gamma_\mu\,
+      \frac{U_\mu(n)\psi(n+\hat{\mu}) - U_{-\mu}(n)\psi(n-\hat{\mu})}{2a}\\
+    &\qquad + m\,\bar{\psi}(n)\psi(n)\Big] .
+  \end{aligned}
+\end{equation}
+
+Here we discuss the case of only a single flavor for notational convenience and
+thus no sum over the flavor index occurs. The flavors differ only by the value
+of the mass parameter $m$ which is irrelevant for the discussion below.
+
+Since the action is bilinear in $\psi$ and $\bar{\psi}$, we can write it in the form
+\begin{equation}
+  S_F[\psi,\bar{\psi},U] = a^4\sum_{n,m\in\Lambda}\sum_{a,b,\alpha,\beta}
+    \bar{\psi}(n)^{\alpha}_a\,D(n|m)^{\alpha\beta}_{ab}\,\psi(m)^{\beta}_b .
+\end{equation}
+
+The naive Dirac operator on the lattice is then given by
+\begin{equation}
+  D(n|m)^{\alpha\beta}_{ab} = \sum_{\mu=1}^{4}(\gamma_\mu)_{\alpha\beta}\,
+    \frac{U_\mu(n)_{ab}\,\delta_{n+\hat{\mu},m} - U_{-\mu}(n)_{ab}\,\delta_{n-\hat{\mu},m}}{2a}
+    + m\,\delta_{\alpha\beta}\,\delta_{ab}\,\delta_{n,m} .
+\end{equation}
+
+In (5.39) we have rewritten the fermion action in exactly the form which is
+used in Wick's theorem (5.36) when setting $M = -a^4 D$. The only notational
+difference is that in (5.39) we sum over several different indices, while in (5.36)
+we use only a single index to label the different Grassmann numbers. However,
+this does not change the algebraic content or the applicability of the formula.
+
+\subsection{The doubling problem}
+
+Let us now compute the Fourier transform of the lattice Dirac operator
+$D(n|m)$ for trivial gauge fields $U_\mu(n) = 1$, i.e., for the case of free lattice
+fermions. In Appendix A.3 we collect and discuss the formulas necessary for
+Fourier transformation on the lattice. Fourier transformation is applied independently to the two space--time arguments $n$ and $m$. In order to have
+a unitary similarity transformation the second index (here $m$) of a matrix
+is Fourier transformed using the complex conjugate phase $\exp(iq\cdot ma)$. The
+Fourier transform of the Dirac operator (5.40) for trivial gauge field reads
+(since $U_\mu(n) = 1$ we omit the color indices for notational convenience and use
+vector/matrix notation in Dirac space)
+\begin{equation}
+  \begin{aligned}
+    \hat{D}(p|q)
+    &= \frac{1}{|\Lambda|}\sum_{n,m\in\Lambda}e^{-ip\cdot na}\,
+      D(n|m)\,e^{iq\cdot ma}\\
+    &= \frac{1}{|\Lambda|}\sum_{n\in\Lambda}e^{-i(p-q)\cdot na}\Big[
+      \sum_{\mu=1}^{4}\gamma_\mu\,
+      \frac{e^{+iq_\mu a} - e^{-iq_\mu a}}{2a}\\
+    &\qquad + m\,\mathbb{1}\Big]\\
+    &= \delta(p-q)\,\hat{D}(p) ,
+  \end{aligned}
+\end{equation}
+where $|\Lambda|$ is the total number of lattice points (see Appendix A.3) and the
+Fourier transform of the lattice Dirac operator is defined by
+\begin{equation}
+  \hat{D}(p) = m\,\mathbb{1} + \frac{i}{a}\sum_{\mu=1}^{4}\gamma_\mu\sin(p_\mu a) .
+\end{equation}
+
+From the last line in (5.41) it is obvious that in the new basis, where the matrix
+elements are labeled by $p$, $q$, the Dirac operator is diagonal in the momenta.
+Thus, in order to calculate the inverse $\hat{D}^{-1}(n|m)$ of the Dirac operator in real
+space, we simply need to compute the inverse of the $4 \times 4$ matrix $\hat{D}(p)$ and
+then invert the Fourier transformation. The matrix $\hat{D}(p)^{-1}$ can be calculated
+easily with the help of (A.26),
+\begin{equation}
+  \hat{D}(p)^{-1} = \frac{m\,\mathbb{1} - i\,a^{-1}\sum_\mu\gamma_\mu\sin(p_\mu a)}
+    {m^2 + a^{-2}\sum_\mu\sin(p_\mu a)^2} ,
+\end{equation}
+and we obtain upon inverting the Fourier transformation
+\begin{equation}
+  D^{-1}(n|m) = \frac{1}{|\Lambda|}\sum_{p\in\Lambda}\hat{D}(p)^{-1}\,
+    e^{ip\cdot(n-m)a} ,
+\end{equation}
+where we have eliminated one of the momentum sums using $\delta(p-q)$ from
+(5.41). Thus for free fermions we have calculated the inverse $D^{-1}(n|m)$ of the
+lattice Dirac operator. This inverse is referred to as the quark propagator.
+
+According to the Wick's theorem (5.36), the quark propagator governs the
+behavior of $n$-point functions and therefore it is important to analyze it. For
+free fermions this analysis is best done in momentum space, i.e., we study
+the momentum space propagator $\hat{D}(p)^{-1}$. Of particular interest is the case of
+massless fermions and we set $m = 0$ in (5.43). First we remark that for fixed
+$p$ the propagator has the correct naive continuum limit,
+\begin{equation}
+  \hat{D}(p)^{-1}\Big|_{m=0}
+  = \frac{-i\,a^{-1}\sum_\mu\gamma_\mu\sin(p_\mu a)}
+         {a^{-2}\sum_\mu\sin(p_\mu a)^2}
+  \xrightarrow{\;a\to 0\;}
+  \frac{-i\sum_\mu\gamma_\mu p_\mu}{p^2} .
+\end{equation}
+
+In the continuum the momentum space propagator for massless fermions
+(right-hand side of (5.45)) has a pole at
+\begin{equation}
+  p = (0, 0, 0, 0) .
+\end{equation}
+
+This pole corresponds to the single fermion which is described by the continuum Dirac operator. On the lattice the situation is different. There the propagator for free fermions (center term in (5.45)) has additional poles: Whenever
+all components are either $p_\mu = 0$ or $p_\mu = \pi/a$, we find a pole. The momentum
+space contains all momenta $p_\mu \in (-\pi/a, \pi/a]$, with $-\pi/a$ and $\pi/a$ identified
+(compare Appendix A.3), and we cannot simply exclude the value $p_\mu = \pi/a$.
+Thus, as it stands, our lattice Dirac operator has unphysical poles at
+\begin{equation}
+  p = (\pi/a, 0, 0, 0), \;(0, \pi/a, 0, 0), \ldots, (\pi/a, \pi/a, \pi/a, \pi/a) .
+\end{equation}
+
+It is easy to see that this gives rise to 15 unwanted poles, the so-called doublers.
+We now discuss a way to remove the doublers from our theory, at least in the
+continuum limit.
+
+\subsection{Wilson fermions}
+
+In order to remove the doublers we need to distinguish between the proper
+pole with all $p_\mu = 0$ and the doublers that contain momentum components
+$p_\mu = \pi/a$. A possible solution was suggested by Wilson. He proposed to add
+an extra term, such that the momentum space Dirac operator reads
+\begin{equation}
+  \hat{D}(p) = m\,\mathbb{1} + \frac{i}{a}\sum_{\mu=1}^{4}\gamma_\mu\sin(p_\mu a)
+    + \frac{1}{a}\,\mathbb{1}\sum_{\mu=1}^{4}\big(1 - \cos(p_\mu a)\big) .
+\end{equation}
+
+The extra term, the so-called Wilson term, is exactly what we need. For
+components with $p_\mu = 0$ it simply vanishes. For each component with $p_\mu =
+\pi/a$ it provides an extra contribution $2/a$. This term acts like an additional
+mass term, and the total mass of the doublers is given by
+\begin{equation}
+  m + \frac{2\varepsilon}{a} ,
+\end{equation}
+where $\varepsilon$ is the number of momentum components with $p_\mu = \pi/a$. In the limit
+$a \to 0$ the doublers become very heavy and decouple from the theory. If one
+calculates the corresponding momentum space propagator $\hat{D}(p)^{-1}$, one finds
+that the unwanted poles are gone and only the physical pole (5.46) remains.
+
+For the free case, the form of the Wilson term in position space can be
+found by inverse Fourier transformation of the last term in (5.48). It contains
+nearest neighbor terms which can be made gauge-invariant by inserting link
+variables. One obtains ($U_{-\mu}(n) \equiv U_\mu(n-\hat{\mu})^\dagger$):
+\begin{equation}
+  -\frac{a}{2a^2}\sum_{\mu=1}^{4}\Big[
+    U_\mu(n)_{ab}\,\delta_{n+\hat{\mu},m} - 2\delta_{ab}\,\delta_{n,m}
+    + U_{-\mu}(n)_{ab}\,\delta_{n-\hat{\mu},m}\Big] .
+\end{equation}
+
+The Wilson term is a discretization of $-(a/2)\partial_\mu\partial_\mu$, i.e., proportional to the
+negative Laplace operator.\footnote{Taylor expansion gives $(f(x + \varepsilon) - 2f(x) + f(x - \varepsilon))/\varepsilon^2 = f''(x) + \order{\varepsilon^2}$.} The pre-factor $a$ shows that the Wilson term
+vanishes in the naive continuum limit $a \to 0$. We can now combine the Wilson
+term (5.50) with the naive Dirac operator to obtain Wilson's complete Dirac
+operator. Using a particularly compact notation it reads:
+\begin{equation}
+  D^{(f)}(n|m)^{\alpha\beta}_{ab}
+    = \Big(m^{(f)} + \frac{4}{a}\Big)\delta_{\alpha\beta}\,\delta_{ab}\,\delta_{n,m}
+    - \frac{1}{2a}\sum_{\mu=\pm1}^{\pm4}(1-\gamma_\mu)_{\alpha\beta}\,
+      U_\mu(n)_{ab}\,\delta_{n+\hat{\mu},m} ,
+\end{equation}
+where we have defined
+\begin{equation}
+  \gamma_{-\mu} = -\gamma_\mu, \qquad \mu = 1, 2, 3, 4 .
+\end{equation}
+
+In (5.51) we have now also made explicit the flavor dependence of the mass
+parameter $m^{(f)}$. Thus the fermion action for QCD with $\Nf$ flavors is given by
+\begin{equation}
+  S_F[\psi,\bar{\psi},U] = \sum_{f=1}^{N_f}a^4\sum_{n,m\in\Lambda}
+    \bar{\psi}^{(f)}(n)\,D^{(f)}(n|m)\,\psi^{(f)}(m) .
+\end{equation}
+
+We stress that the right-hand side depends on the gauge field $U$, via the
+$U$-dependence of the Dirac operator $D$. For notational simplicity we do not
+display the argument $U$ of the Dirac operator explicitly.
+
+We now have a working formulation of lattice QCD, Wilson's formulation.
+For the convenience of the reader we collect the defining formulas for Wilson's
+formulation of lattice QCD in Appendix A.4. Although we will further refine
+our formulation in the next chapters, we strongly recommend that the reader
+has a brief look at Appendix A.4 now. It summarizes all the conceptual steps
+we have taken so far in this book and highlights again the red line through
+the construction.
+
+\section{Fermion lines and hopping expansion}
+
+In this section we analyze Wilson fermions in the limit of large quark mass.
+This will lead us to the so-called hopping expansion. Although the hopping expansion is not very powerful as an analytical tool, it will provide an important
+physical insight: Fermions can be viewed as paths of link variables, so-called
+fermion lines [6--8]. Based on this insight we will justify a step which we used
+in Chap.~3 when constructing the Wilson loop, namely the replacement of
+the quark--antiquark pair by a Wilson line (compare (3.57)--(3.47)). We will
+also find an interpretation for the fermion determinant: It can be seen as a
+collection of closed fermion lines, so-called fermion loops.
+
+\subsection{Hopping expansion of the quark propagator}
+
+In Sect.~5.1 we have shown that the fermionic expectation value of a fermion
+and an anti-fermion field, i.e., a two-point function of fermions, is given by
+the inverse of the Dirac operator,
+\begin{equation}
+  \ev{\psi(n)^{\alpha}_a\,\bar{\psi}(m)^{\beta}_b}_F
+  = a^{-4}\,D^{-1}(n|m)^{\alpha\beta}_{ab} .
+\end{equation}
+
+This formula follows from Wick's theorem (5.36) by setting $M = -a^4 D$, $n = 1$
+and replacing the multi-index $i_1$ by $(n, \alpha, a)$ and $j_1$ by $(m, \beta, b)$.
+
+The inverse of the Dirac operator, the quark propagator $D^{-1}$, as well as
+the fermion determinant will now be expanded for large quark mass $m$. In
+particular we will use Wilson's Dirac operator given in (5.51). This Dirac
+operator can be written as (we use matrix/vector notation)
+\begin{equation}
+  D = C\,\big(1 - \kappa H\big)
+  \qquad \text{with} \qquad
+  \kappa = \frac{1}{2(am+4)}, \qquad C = m + \frac{4}{a},
+\end{equation}
+\begin{equation}
+  H(n|m)^{\alpha\beta}_{ab} = \sum_{\mu=\pm1}^{\pm4}(1-\gamma_\mu)_{\alpha\beta}\,
+    U_\mu(n)_{ab}\,\delta_{n+\hat{\mu},m} .
+\end{equation}
+
+The term $H$ collects all nearest neighbor terms in the Dirac operator and thus
+is referred to as hopping matrix. The real number $\kappa$ is the hopping parameter.
+The constant $C$ is irrelevant, since it can be absorbed in a redefinition of the
+quark fields $\psi \to \sqrt{C}\,\psi$, $\bar{\psi} \to \sqrt{C}\,\bar{\psi}$. Thus we can equally work well with the
+Dirac operator in the form
+\begin{equation}
+  D = \mathbb{1} - \kappa H, \qquad \kappa = \frac{1}{2(am+4)} .
+\end{equation}
+
+The essence of the hopping expansion is that $\kappa$ becomes small for large
+mass. The idea is to expand $D^{-1}$ and $\det[D]$ in powers of $\kappa$. For the quark
+propagator one can use the well-known geometric series
+\begin{equation}
+  D^{-1} = (\mathbb{1} - \kappa H)^{-1} = \sum_{j=0}^{\infty}\kappa^j H^j .
+\end{equation}
+
+The series converges for $\kappa\|H\| < 1$. It is relatively easy to show that the norm\footnote{$\|H\| = \max_\varphi \sqrt{(H\varphi, H\varphi)/(\varphi, \varphi)}$, with $\varphi$ a complex vector of length $12|\Lambda|$.}
+of the hopping term obeys $\|H\| \leq 8$ and thus the series converges for $\kappa < 1/8$.
+
+Let us look at (5.58) in more detail and display all indices explicitly:
+\begin{equation}
+  D^{-1}(n|m)^{\alpha\beta}_{ab} = \sum_{j=0}^{\infty}\kappa^j\,H^j(n|m)^{\alpha\beta}_{ab} .
+\end{equation}
+
+Here $H^j(n|m)^{\alpha\beta}_{ab}$ denotes an entry of the $j$-th power of $H$. Using (5.56) we
+find for these powers
+\begin{equation}
+  \begin{aligned}
+    &H^0(n|m)^{\alpha\beta}_{ab} = \delta_{\alpha\beta}\,\delta_{ab}\,\delta_{n,m},\\
+    &H^1(n|m)^{\alpha\beta}_{ab} = \sum_{\mu=\pm1}^{\pm4}(1-\gamma_\mu)_{\alpha\beta}\,
+      U_\mu(n)_{ab}\,\delta_{n+\hat{\mu},m},\\
+    &H^2(n|m)^{\alpha\beta}_{ab} = \sum_{l,\rho,c}H(n,l)^{\alpha\rho}_{ac}\,H(l,m)^{\rho\beta}_{cb}\\
+    &\qquad = \sum_{\mu,\nu=\pm1}^{\pm4}\big((1-\gamma_\mu)(1-\gamma_\nu)\big)_{\alpha\beta}\,
+      \big(U_\mu(n)\,U_\nu(n+\hat{\mu})\big)_{ab}\,\delta_{n+\hat{\mu}+\hat{\nu},m},\\
+    &H^j(n|m)^{\alpha\beta}_{ab} = \sum_{\mu_i=\pm1}^{\pm4}
+      \Big(\prod_{i=1}^{j}(1-\gamma_{\mu_i})\Big)_{\alpha\beta}\,
+      P_{\mu_1\ldots\mu_j}(n)_{ab}\,\delta_{n+\hat{\mu}_1+\cdots+\hat{\mu}_j,m}.
+  \end{aligned}
+\end{equation}
+
+In the last line we used the abbreviation
+\begin{equation}
+  \begin{aligned}
+    P_{\mu_1\ldots\mu_j}(n)_{ab}
+    &= \big[U_{\mu_1}(n)\,U_{\mu_2}(n+\hat{\mu}_1)\cdots\\
+    &\qquad U_{\mu_j}(n+\hat{\mu}_1+\hat{\mu}_2\cdots\hat{\mu}_{j-1})\big]_{ab} ,
+  \end{aligned}
+\end{equation}
+for the emerging products of link variables. The 0-th and first powers of $H$
+are trivial. For computing the second power in (5.60) we wrote the matrix
+multiplication explicitly as a sum over $l$, $\rho$, $c$ and then used (5.56). The sum
+over $l$ vanishes due to the Kronecker deltas. Iterating this step one calculates
+higher powers of $H$ giving the result in the last line of (5.60).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{fig51.png}
+  \caption*{Fig. 5.1. \emph{The propagator from $n$ to $m$ is a sum over paths of link variables connecting the two points. A path of length $j$ comes with a factor of $\kappa^j$.}}
+  \label{fig:51}
+\end{figure}
+
+The terms in (5.60) have a simple interpretation. Due to the Kronecker
+delta $\delta_{n+\hat{\mu}_1+\cdots+\hat{\mu}_j,m}$ they are nonvanishing only if the positions $n$ and $m$ on
+the lattice are related by
+\begin{equation}
+  m = n + \hat{\mu}_1 + \cdots + \hat{\mu}_j
+  \qquad \text{for a combination of } \mu_i \in \{\pm1, \pm2, \pm3, \pm4\} .
+\end{equation}
+
+If the condition (5.62) is obeyed, then the two sites $n$ and $m$ are connected
+by the product of link variables on the path as given in (5.61). In Dirac space
+one finds products
+\begin{equation}
+  \prod_{i=1}^{j}(1-\gamma_{\mu_i}) ,
+\end{equation}
+where the $\mu_i$ are the orientations of the links on the path. It is interesting to
+note that
+\begin{equation}
+  (1-\gamma_\mu)(1+\gamma_\mu) = 0 .
+\end{equation}
+
+This property excludes back-tracking paths, i.e., paths containing $180^\circ$ turns.
+
+To summarize our hopping expansion of the quark propagator, we find
+that $D^{-1}(n|m)$ can be written as a sum of non-back-tracking paths. A path
+of length $j$ comes with a power of $\kappa^j$. For given values $n$ and $m$, the leading
+term is the shortest path (or a sum over the shortest paths) connecting $n$ and
+$m$. Higher orders in $\kappa$ will contribute longer and longer paths connecting the
+two points. Along the links of these paths the products of the link variables
+$U_\mu(n)$ provide the factors in color space and the products (5.63) the factors in
+Dirac space. Some paths contributing in the hopping expansion are illustrated
+in Fig.~5.1.
+
+With this result we have also justified the replacement of the product of fermion fields by a Wilson line in our construction of the Wilson
+loop (Sects.~3.3.1--3.3.4): The Wilson line is simply one of the terms in
+the hopping expansion. In particular in the limit of infinite quark mass
+($\kappa \to 0$), which defines the potential of a static quark, only the shortest possible path will contribute in the hopping expansion, i.e., the straight
+Wilson line.
+
+\subsection{Hopping expansion for the fermion determinant}
+
+Similar to the quark propagator, one can also expand the fermion determinant
+in $\kappa$. The central equation is
+\begin{equation}
+  \det[D] = \det[\mathbb{1}-\kappa H] = \exp\big(\tr[\ln(\mathbb{1}-\kappa H)]\big)
+    = \exp\Big(-\sum_{j=1}^{\infty}\frac{\kappa^j}{j}\,\tr H^j\Big) .
+\end{equation}
+
+In the first step we have used (5.57) and in the second a well-known formula
+for the determinant (see Appendix A.5). In the last step the logarithm was
+expanded in a power series.
+
+From (5.65) it follows that for the hopping expansion we have to compute
+traces of powers of the hopping term. These powers have already been calculated in (5.60). Taking the trace means, in addition to the trace in Dirac and
+color space, that we have to set $n = m$ in (5.60) and to sum over the lattice
+points $m$. When $n = m$, the paths of links which we have obtained are turned
+into closed loops, so-called fermion loops.\footnote{Note that these are not the loops of weak coupling perturbation theory.} Thus the fermion determinant is
+the exponential of a sum over closed loops of link variables. Since for each
+loop the trace over color indices is taken, these loops are gauge-invariant, and
+so is the determinant. A loop of length $j$ comes with a factor $\kappa^j/j$. In Dirac
+space we have again products of the type (5.63) but now the trace is taken.
+Again (5.64) excludes non-back-tracking loops.
+
+This concludes our discussion of the hopping expansion. The important
+message to be learned is that quark propagators are sums over fermion lines,
+i.e., paths of link variables, and the fermion determinant is a sum over closed
+fermion loops.
+
+\section{Discrete symmetries of the Wilson action}
+
+Let us now discuss some symmetries of the Wilson fermion action. Certainly
+the lattice discretization breaks many of the symmetries which we have in the
+continuum, such as translation or rotation invariance. On the lattice we are
+reduced to discrete translations and rotations, but one can, e.g., demonstrate
+that in the continuum limit continuous rotational symmetry is recovered.
+In this section, however, we concentrate on the discrete symmetries like
+charge conjugation $C$ and parity $P$. These symmetries are important for the
+construction of hadron interpolators which we will address in Chap.~6.
+
+\subsection{Charge conjugation}
+
+We begin our discussion of the discrete symmetries with the charge conjugation $C$. Charge conjugation transforms particles into antiparticles and acts on
+the spinor fields via (we omit the flavor index in the following)
+\begin{equation}
+  \psi(n) \xrightarrow{\;C\;} \psi(n)^C = C^{-1}\psi(n)^T, \qquad
+  \bar{\psi}(n) \xrightarrow{\;C\;} \bar{\psi}(n)^C = -\psi(n)^T C .
+\end{equation}
+
+In this formula the transposition $T$ is used for notational convenience. It acts
+on both color and Dirac indices, converting a $3 \times 4$ column spinor to a row-spinor. The charge conjugation matrix $C$ acts only on the Dirac indices and
+is defined to obey the relations
+\begin{equation}
+  C\,\gamma_\mu\,C^{-1} = -\gamma_\mu^T .
+\end{equation}
+
+In Appendix A.2 we give the explicit form of $C$ for the chiral representation
+of the gamma matrices in (A.24).
+
+The link variables transform under charge conjugation as
+\begin{equation}
+  U_\mu(n) \xrightarrow{\;C\;} U_\mu(n)^C = U_\mu(n)^* = \big(U_\mu(n)^\dagger\big)^T .
+\end{equation}
+
+When writing the link variable as $U_\mu(n) = \exp(iaA_\mu(n))$ (compare (2.39)),
+we find that charge conjugation (5.68) corresponds to changing $A_\mu(n) \to
+-A_\mu(n)^T$. This change takes into account that an antiparticle has the opposite
+charge of the corresponding particle.
+
+Let us now show that the Wilson action is indeed invariant under charge
+conjugation. For the trivial (mass-type) term we find (sums and constant
+factors are omitted for notational convenience)
+\begin{equation}
+  \bar{\psi}(n)^C\,\psi(n)^C = -\psi(n)^T\,C\,C^{-1}\,\psi(n)^T
+    = -\psi(n)^T\,\psi(n)^T = \psi(n)\psi(n) ,
+\end{equation}
+where the interchange of the Grassmann variables in the last step removes the
+overall minus sign.
+
+For the hopping part we find (we use the conventions $\gamma_{-\mu} = -\gamma_\mu$ and
+$U_{-\mu}(n) = U_\mu(n-\hat{\mu})^\dagger$)
+\begin{equation}
+  \begin{aligned}
+    &a^4\sum_{n}\sum_{\mu=\pm1}^{\pm4}\bar{\psi}(n)^C\,
+      \frac{1-\gamma_\mu}{2a}\,U_\mu(n)^C\,\psi(n+\hat{\mu})^C\\
+    &= -a^4\sum_{n}\sum_{\mu=\pm1}^{\pm4}\psi(n)^T\,C\,
+      \frac{1-\gamma_\mu}{2a}\,C^{-1}\,U_\mu(n)^*\,\psi(n+\hat{\mu})^T\\
+    &= -a^4\sum_{n}\sum_{\mu=\pm1}^{\pm4}\psi(n)^T\,
+      \frac{1+\gamma_\mu^T}{2a}\,\big(U_\mu(n)^\dagger\big)^T\,\psi(n+\hat{\mu})^T .
+  \end{aligned}
+\end{equation}
+
+In the last equation we have a product of transposed matrices and spinors.
+This can be written as the transpose of the product of the matrices and spinors
+in reverse order. Reversing the order of the two Grassmann objects produces
+an overall minus sign. Since the whole product is a scalar, transposition can
+be dropped altogether in the end. Thus we continue the last equation as
+\begin{equation}
+  \begin{aligned}
+    &a^4\sum_{n}\sum_{\mu=\pm1}^{\pm4}\bar{\psi}(n+\hat{\mu})\,
+      \frac{1+\gamma_\mu}{2a}\,U_\mu(n)^\dagger\,\psi(n)\\
+    &= a^4\sum_{m}\sum_{\mu=\pm1}^{\pm4}\bar{\psi}(m)\,
+      \frac{1+\gamma_\mu}{2a}\,U_\mu(m-\hat{\mu})^\dagger\,\psi(m-\hat{\mu})\\
+    &= a^4\sum_{m}\sum_{\mu=\pm1}^{\pm4}\bar{\psi}(m)\,
+      \frac{1-\gamma_{-\mu}}{2a}\,U_{-\mu}(m)\,\psi(m-\hat{\mu})\\
+    &= a^4\sum_{m}\sum_{\mu=\pm1}^{\pm4}\bar{\psi}(m)\,
+      \frac{1-\gamma_\mu}{2a}\,U_\mu(m)\,\psi(m+\hat{\mu}) ,
+  \end{aligned}
+\end{equation}
+showing that also the hopping part is invariant under charge conjugation.
+
+\subsection{Parity and Euclidean reflections}
+
+A parity transformation $P$ acts on our lattice fields as
+\begin{equation}
+  \begin{aligned}
+    \psi(n,n_4) &\xrightarrow{\;P\;} \psi(n,n_4)^P = \gamma_4\,\psi(-n,n_4),\\
+    \bar{\psi}(n,n_4) &\xrightarrow{\;P\;} \bar{\psi}(n,n_4)^P = \bar{\psi}(-n,n_4)\,\gamma_4,\\
+    U_i(n,n_4) &\xrightarrow{\;P\;} U_i(n,n_4)^P = U_i(-n-\hat{i},n_4)^\dagger, \quad i = 1, 2, 3,\\
+    U_4(n,n_4) &\xrightarrow{\;P\;} U_4(n,n_4)^P = U_4(-n,n_4) .
+  \end{aligned}
+\end{equation}
+
+Here a comment on the labeling of the lattice sites is in order: In our definition
+of the lattice $\Lambda$ (see (2.25) or (A.27)) the spatial lattice sites $n_i$ run from $0$
+to $N-1$. This convention is particularly convenient for numerical studies.
+However, one can equally well label the lattice sites as $n_i = -N/2+1, -N/2+
+2, \ldots, N/2$. This latter convention, together with the periodic identification
+$N/2 + 1 \leftrightarrow -N/2 + 1$ is used here when we apply the reflection $n \to -n$.
+
+The diagonal term of the Wilson action is trivially invariant under the
+parity transformation (5.72), since in the sum over the spatial components, $n$
+can always be replaced by a sum over $-n$. For the spatial part of the hopping
+term we find
+\begin{equation}
+  \begin{aligned}
+    &a^4\sum_{n,n_4}\sum_{i=\pm1}^{\pm3}\bar{\psi}(n,n_4)^P\,
+      \frac{1-\gamma_i}{2a}\,U_i(n,n_4)^P\,\psi(n+\hat{i},n_4)^P\\
+    &= a^4\sum_{n,n_4}\sum_{i=\pm1}^{\pm3}\bar{\psi}(-n,n_4)\,\gamma_4\,
+      \frac{1-\gamma_i}{2a}\,\gamma_4\,U_i(-n-\hat{i},n_4)^\dagger\,
+      \psi(-n-\hat{i},n_4)\\
+    &= a^4\sum_{m=-n}\sum_{n_4}\sum_{i=\pm1}^{\pm3}\bar{\psi}(m,n_4)\,
+      \frac{1-\gamma_{-i}}{2a}\,U_{-i}(m,n_4)\,\psi(m-\hat{i},n_4)\\
+    &= a^4\sum_{m}\sum_{n_4}\sum_{i=\pm1}^{\pm3}\bar{\psi}(m,n_4)\,
+      \frac{1-\gamma_i}{2a}\,U_i(m,n_4)\,\psi(m+\hat{i},n_4) .
+  \end{aligned}
+\end{equation}
+
+For the temporal hopping part the equivalent steps are
+\begin{equation}
+  \begin{aligned}
+    &a^4\sum_{n,n_4}\sum_{\mu=\pm4}\bar{\psi}(n,n_4)^P\,
+      \frac{1-\gamma_\mu}{2a}\,U_\mu(n,n_4)^P\,\psi(n,n_4\pm1)^P\\
+    &= a^4\sum_{n,n_4}\sum_{\mu=\pm4}\bar{\psi}(-n,n_4)\,
+      \frac{1-\gamma_\mu}{2a}\,U_\mu(-n,n_4)\,\psi(-n,n_4\pm1)\\
+    &= a^4\sum_{m,n_4}\sum_{\mu=\pm4}\bar{\psi}(m,n_4)\,
+      \frac{1-\gamma_\mu}{2a}\,U_\mu(m,n_4)\,\psi(m,n_4\pm1) .
+  \end{aligned}
+\end{equation}
+
+Thus we have established that the Wilson fermion action is invariant under
+parity transformations.
+
+It is straightforward to show that also the Wilson gauge action is invariant
+under $C$ and $P$, and we leave this as an exercise to the reader. It has to be
+stressed that also other lattice actions, which we discuss later, are invariant
+under parity and charge conjugation. We will, however, not repeat the explicit
+steps to show that.
+
+In Minkowski space the time component and the spatial components are
+distinguished by a relative sign in the metric. In Euclidean space there is no
+such distinction and the Wilson action actually is invariant under the following
+four, more general transformations $P_\mu$, $\mu = 1, 2, 3, 4$,
+\begin{equation}
+  \begin{aligned}
+    \psi(n) &\xrightarrow{\;P_\mu\;} \psi(n)^{P_\mu} = \gamma_\mu\,\psi(P_\mu(n)),\\
+    \bar{\psi}(n) &\xrightarrow{\;P_\mu\;} \bar{\psi}(n)^{P_\mu} = \bar{\psi}(P_\mu(n))\,\gamma_\mu,\\
+    U_\nu(n) &\xrightarrow{\;P_\mu\;} U_\nu(n)^{P_\mu} = U_\nu(P_\mu(n)-\hat{\nu})^\dagger, \quad \nu \neq \mu,\\
+    U_\mu(n) &\xrightarrow{\;P_\mu\;} U_\mu(n)^{P_\mu} = U_\mu(P_\mu(n)) ,
+  \end{aligned}
+\end{equation}
+where $P_\mu(n)$ is the vector $n$ with the sign of all components reversed, except
+for $n_\mu$.
+
+The fact that the action is invariant under under all four reflections $P_\mu$
+shows that in the Euclidean formulation none of the four directions is singled
+out. We remark that the product operation $P_1 P_2 P_3$ corresponds to the Euclidean equivalent of time reflection. This reflection plays an important role for
+the formal reconstruction of the Hilbert space for the Minkowski theory [9--11].
+For this reconstruction it is also necessary to impose anti-periodic temporal
+boundary conditions for the fermions. For this reason, numerical calculations
+are often performed with anti-periodic temporal boundary conditions for the
+fermions, while the gauge fields are usually periodic in all four directions. In
+the thermodynamic limit, however, the choice of boundary conditions is irrelevant, except for studies of QCD at high temperature which we discuss in
+Chap.~12.
+
+\subsection{$\gamma_5$-hermiticity}
+
+Let us finally discuss a more abstract symmetry of lattice Dirac operators
+which, however, has important implications. Almost all Dirac operators $D$
+(except when a chemical potential, a $\theta$-term or a twisted mass term are introduced, cf. Chaps.~10 and 12) are $\gamma_5$-hermitian, i.e., they obey
+\begin{equation}
+  (\gamma_5 D)^\dagger = \gamma_5 D
+  \qquad \text{or, equivalently,} \qquad
+  D^\dagger = \gamma_5 D \gamma_5 .
+\end{equation}
+
+It is a straightforward exercise to show this, e.g., for Wilson's lattice Dirac
+operator (5.51): The diagonal term of (5.51) is real and does not change when
+multiplied with $\gamma_5$ from both sides. In the hopping term the factor $(1-\gamma_\mu)$
+turns into $(1+\gamma_\mu)$ due to the properties of the $\gamma$-matrices. Since the sum runs
+over both signs of $\mu$ we then may write
+\begin{equation}
+  \begin{aligned}
+    &\sum_{\mu=\pm1}^{\pm4}\big(\gamma_5(1-\gamma_\mu)\gamma_5\big)_{\alpha\beta}\,
+      U_\mu(n)_{ab}\,\delta_{n+\hat{\mu},m}\\
+    &= \sum_{\mu=\pm1}^{\pm4}(1+\gamma_\mu)_{\alpha\beta}\,
+      U_\mu(n)_{ab}\,\delta_{n+\hat{\mu},m}
+     = \sum_{\mu=\pm1}^{\pm4}(1-\gamma_\mu)_{\alpha\beta}\,
+      U_{-\mu}(n)_{ab}\,\delta_{n-\hat{\mu},m}\\
+    &= \sum_{\mu=\pm1}^{\pm4}(1-\gamma_\mu)_{\alpha\beta}\,
+      U_\mu(n-\hat{\mu})^\dagger_{ab}\,\delta_{n-\hat{\mu},m}
+     = \sum_{\mu=\pm1}^{\pm4}(1-\gamma_\mu)_{\alpha\beta}\,
+      U_\mu(m)^\dagger_{ab}\,\delta_{n,m+\hat{\mu}} .
+  \end{aligned}
+\end{equation}
+
+In the last step we have used the $\delta$-function to replace the position of the gauge
+field $n-\hat{\mu}$ by $m$. Comparison with (5.51) shows that $U_\mu$ has been replaced
+by $U_\mu^\dagger$ and $n$ and $m$ have been exchanged. We have indeed demonstrated the
+validity of (5.76).
+
+The property is inherited by the inverse operator, the quark propagator,
+which turns out to be useful in calculations of hadron correlation functions
+in Sect.~6.2. Another characteristic of $\gamma_5$-hermitian Dirac operators is that
+their eigenvalues are either real or come in complex conjugate pairs, as we
+discuss in more detail in Sect.~7.3.1. This property also implies that the fermion
+determinant is real. The reality of the determinant will turn out to be crucial
+for Monte Carlo simulations of lattice QCD with fermions, which we discuss
+in Chap.~8.
+
+\section*{References}
+
+\begin{enumerate}[label={[\arabic*]}]
+  \item J.~W.~Negele and H.~Orland: \emph{Quantum Many Particle Systems}
+        (Westview Press -- Advanced Book Classics, Boulder 1998).
+  \item J.~Smit: \emph{Introduction to Quantum Fields on a Lattice} (Cambridge
+        University Press, Cambridge 2002).
+  \item J.~Zinn-Justin: \emph{Quantum Field Theory and Critical Phenomena}
+        (Clarendon Press, Oxford 1996).
+  \item T.~Matthews and A.~Salam: Nuovo Cim.\ 12, 563 (1954).
+  \item T.~Matthews and A.~Salam: Nuovo Cim.\ 2, 120 (1955).
+  \item C.~B.~Lang and H.~Nicolai: Nucl.\ Phys.\ B 200 [FS4], 135 (1982).
+  \item A.~Hasenfratz, P.~Hasenfratz, Z.~Kunszt, and C.~B.~Lang: Phys.\ Lett.\
+        B 115, 289 (1982).
+  \item A.~Hasenfratz, P.~Hasenfratz, Z.~Kunszt, and C.~B.~Lang: Phys.\ Lett.\
+        B 117, 81 (1982).
+  \item J.~Glimm and A.~Jaffe: \emph{Quantum Physics. A Functional Integral
+        Point of View}, 2nd ed.\ (Springer, New York 1987).
+  \item K.~Osterwalder and E.~Seiler: Ann.\ Phys.\ 110, 440 (1978).
+  \item E.~Seiler: \emph{Gauge Theories as a Problem of Constructive Quantum
+        Field Theory and Statistical Mechanics}, Lect.\ Notes Phys.\ 159.
+        Springer, Berlin, Heidelberg, New York (1982).
+\end{enumerate}

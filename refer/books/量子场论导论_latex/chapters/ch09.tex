@@ -1,0 +1,1084 @@
+% ======================================================================
+% 第 9 章：泛函方法
+% (book pages 275-314; PDF pages 298-337)
+% ======================================================================
+\chapter{泛函方法}
+
+Feynman 曾经说过\footnote{\emph{The Character of Physical Law}（MIT Press，1965），第~168 页。}：``每一个优秀的理论物理学家都掌握六、七种不同的理论表示，来描述完全相同的物理学。'' 遵循他的建议，我们在本章中引入一种推导相互作用量子场论费曼规则的替代方法：\emph{泛函积分}方法。
+
+除了 Feynman 的一般原则之外，我们引入这一形式体系还有几个具体的原因。它将为我们提供一个相对容易的光子传播子推导，从而完成第 4.8 节中 QED 费曼规则的证明。泛函方法更容易推广到其他相互作用理论，例如标量 QED（习题 9.1），尤其是非阿贝尔规范理论（第三部分）。由于它以拉格朗日量而非哈密顿量作为基本量，泛函形式体系明确保留了理论的所有对称性。最后，泛函方法揭示了量子场论与统计力学之间的紧密类比。利用这一类比，我们将 Feynman 的建议反过来用，把同一种理论表示应用于物理中两个完全不同的领域。
+
+\section{量子力学中的路径积分}
+
+我们首先将泛函积分（或路径积分）方法应用于所能想象的最简单的系统：一维空间中运动的非相对论量子力学粒子。该系统的哈密顿量为
+\begin{equation}
+  H = \frac{p^2}{2m} + V(q) .
+\end{equation}
+假设我们希望计算该粒子在给定时间（$T$）内从一点（$x_a$）运动到另一点（$x_b$）的振幅。我们将此振幅记为 $U(x_a, x_b; T)$；它是薛定谔时间演化算符的位置表示。在正则哈密顿形式体系中，$U$ 由下式给出
+\begin{equation}
+  U(x_a, x_b; T) = \langle x_b|\ e^{-iHT/\hbar}\ |x_a\rangle .
+  \label{eq:9.1}
+\end{equation}
+（在接下来的几页中，我们将显式地写出所有 $\hbar$ 因子。）
+
+在路径积分形式体系中，$U$ 由一个形式上截然不同的表达式给出。我们将首先尝试说明该表达式的由来，然后证明它与 \eqref{eq:9.1} 等价。
+
+回顾在量子力学中存在叠加原理：当一个过程能以多于一种方式发生时，其总振幅是每种方式振幅的相干叠加。一个简单但不平凡的例子是著名的双缝实验，如图~\ref{fig:9.1} 所示。电子到达探测器的总振幅是图中两条路径振幅之和。由于两条路径长度不同，这两个振幅通常不同，从而产生干涉。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.55\textwidth]{fig9.1.png}
+  \caption{双缝实验。路径 2 比路径 1 长 $d$，因此其相位比路径 1 大 $2\pi d/\lambda$，其中 $\lambda = 2\pi\hbar/p$ 是粒子的 de Broglie 波长。当 $d = 0, \lambda, \ldots$ 时发生相长干涉，而当 $d = \lambda/2, 3\lambda/2, \ldots$ 时发生相消干涉。}
+  \label{fig:9.1}
+\end{figure}
+
+因此，对于一般系统，我们可以把从 $x_a$ 运动到 $x_b$ 的总振幅写成
+\begin{equation}
+  \langle x_b|e^{-iHT/\hbar}|x_a\rangle = \sum_{\text{all paths}}
+    \text{(phase)} .
+  \label{eq:9.2}
+\end{equation}
+为了公平起见，我们把每条特定路径的振幅写成一个纯相位，这样没有任何一条路径内在地比其他路径更重要。符号 $\int\mathcal{D}x(t)$ 只是``对一切路径求和''的另一种写法；由于对于每个从 $x_a$ 出发并在 $x_b$ 终止的函数 $x(t)$ 都有一条路径，这个和实际上是对这个连续函数空间的一个积分。
+
+我们可以把这一积分定义为微积分向函数空间自然推广的一部分。把函数映射为数的函数称为\emph{泛函}。\eqref{eq:9.2} 中的被积函数是一个泛函，因为它把复振幅与任何函数 $x(t)$ 联系起来。泛函 $F[x(t)]$ 的自变量按惯例写在方括号中而非圆括号中。正如普通函数 $y(x)$ 可以在点集 $x$ 上积分，泛函 $F[x(t)]$ 也可以在函数集 $x(t)$ 上积分；这种泛函积分的测度按惯例用花体大写 $D$ 表示，如 \eqref{eq:9.2} 所示。泛函也可以对其自变量（一个函数）求导，这种\emph{泛函导数}记为 $\delta F/\delta x(t)$。在本节和下一节的讨论过程中，我们将给出这一新积分和新导数的更精确定义。
+
+在 \eqref{eq:9.2} 中我们应该用什么作为``相位''呢？在经典极限下，应该只有一条路径，即经典路径，对总振幅有贡献。因此我们或许可以希望用稳相法来求 \eqref{eq:9.2} 中的积分，由稳相条件确定经典路径 $x_{cl}(t)$，
+\begin{equation}
+  \frac{\delta S[x]}{\delta x(t)}\Big|_{x=x_{cl}} = 0 .
+\end{equation}
+但经典路径是满足最小作用量原理的那条路径，
+\begin{equation}
+  \delta S = 0,\qquad S = \int L\,dt ,
+\end{equation}
+其中 $S = \int L\,dt$ 是经典作用量。因此，我们很想把相位等同于 $S$，至多差一个常数。由于稳相近似在经典极限下应当有效——即当 $S \gg \hbar$ 时——我们将把 $S/\hbar$ 用作相位。于是我们的传播振幅的最终公式为
+\begin{equation}
+  \langle x_b|\ e^{-iHT/\hbar}\ |x_a\rangle = U(x_a, x_b; T)
+  = \int \mathcal{D}x(t)\ e^{iS[x(t)]/\hbar} .
+  \label{eq:9.3}
+\end{equation}
+我们可以容易地验证这一公式在双缝实验中给出正确的干涉图样。图~\ref{fig:9.1} 中任一路径的作用量都只是 $(1/2)mv^2t$，即动能乘以时间。对于路径 1，速度为 $v_1 = D/t$，因此相位为 $mD^2/2\hbar t$。对于路径 2，$v_2 = (D+d)/t$，因此相位为 $m(D+d)^2/2\hbar t$。我们必须假设 $d \ll D$，从而 $v_1 \approx v_2$（即电子具有定义良好的速度）。于是路径 2 的超额相位为 $mDd/\hbar t \approx pd/\hbar$，其中 $p$ 是动量。这正是我们从 de Broglie 关系 $p = \hbar/\lambda$ 所预期的结果，所以我们一定做对了什么。
+
+为了更一般地计算泛函积分，我们必须定义符号 $\int\mathcal{D}x(t)$ 在路径 $x(t)$ 的数目多于两条（事实上是连续无限多）时的含义。我们将使用一种强行的定义，即通过离散化来定义。把从 0 到 $T$ 的时间间隔分割成许多持续时间为 $\epsilon$ 的小段，如图~\ref{fig:9.2} 所示。将路径 $x(t)$ 近似为一系列直线段，每个时间段内各一条。这条离散化路径的作用量为
+\begin{equation}
+  \sum_k \epsilon\ \Bigl[ \frac{m}{2}\Bigl( \frac{x_{k+1}-x_k}{\epsilon}
+    \Bigr)^2 - V\Bigl( \frac{x_{k+1}+x_k}{2} \Bigr) \Bigr] .
+\end{equation}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.5\textwidth]{fig9.2.png}
+  \caption{我们把时间间隔划分为持续时间为 $\epsilon$ 的小段，然后对每一段的坐标 $x_k$ 积分，以此来定义路径积分。}
+  \label{fig:9.2}
+\end{figure}
+
+然后我们如下定义路径积分
+\begin{equation}
+  \begin{aligned}
+    \int \mathcal{D}x(t)\ F[x(t)] &= \lim_{\epsilon\to 0}\
+      \Bigl[ \prod_k \int \frac{dx_k}{C(\epsilon)} \Bigr]\ F[x(t)]\,
+      e^{i\sum_k \epsilon \mathcal{L}_k}\\
+    &= \lim_{\epsilon\to 0}\ \Bigl[ \int \frac{dx_1}{C(\epsilon)}
+      \cdots \int \frac{dx_{N-1}}{C(\epsilon)} \Bigr]\ F[x(t)]\,
+      e^{i\sum_k \epsilon \mathcal{L}_k} ,
+  \end{aligned}
+  \label{eq:9.4}
+\end{equation}
+其中 $C(\epsilon)$ 是一个常数，将在后面确定。（我们对 $N$ 个时间段中的每一个都包含了一个因子 $C(\epsilon)$，其原因将在下面变得清楚。）在计算结束时我们取极限 $\epsilon\to 0$。（正如在第 4.5 节和第 6.2 节中一样，$\prod$ 符号是要求对每个 $k$ 写出紧随其后的内容一次。）
+
+现在，我们将使用 \eqref{eq:9.4} 作为 \eqref{eq:9.3} 右端的定义，来证明 \eqref{eq:9.3} 对一般的单粒子势问题成立。为此，我们将证明 \eqref{eq:9.3} 的左端和右端都是通过积分同一个微分方程得到的，并且具有相同的初始条件。在这个过程中，我们将确定常数 $C(\epsilon)$。
+
+为了推导 \eqref{eq:9.4} 所满足的微分方程，考虑图~\ref{fig:9.2} 中最后一个时间段的加入。根据 \eqref{eq:9.3} 和定义 \eqref{eq:9.4}，我们应当有
+\begin{equation}
+  \begin{aligned}
+    U(x_a, x_b; T) &= \int_{-\infty}^{\infty} dx'\ C(\epsilon)\
+      \exp\Bigl[ \frac{im(x_b-x')^2}{2\hbar\epsilon}
+        - \frac{i\epsilon}{\hbar}V\Bigl( \frac{x_b+x'}{2} \Bigr) \Bigr]\
+      U(x_a, x'; T-\epsilon) .
+  \end{aligned}
+\end{equation}
+对 $x'$ 的积分正是 $\int\mathcal{D}x$ 中来自最后一个时间段的贡献，而指数因子是 $e^{iS/\hbar}$ 中来自该时间段的贡献。来自所有先前时间段的贡献都包含在 $U(x_a, x'; T-\epsilon)$ 中。
+
+当我们令 $\epsilon\to 0$ 时，指数中第一项的快速振荡把 $x'$ 限制在非常接近 $x_b$ 的范围内。因此我们可以把上式按 $(x'-x_b)$ 的幂次展开：
+\begin{equation}
+  U(x_a, x_b; T) = \int_{-\infty}^{\infty} dx'\ C(\epsilon)\
+    \exp\Bigl[ \frac{im(x_b-x')^2}{2\hbar\epsilon} \Bigr]\
+    \Bigl[ 1 - \frac{i\epsilon}{\hbar}V(x_b) + \cdots \Bigr]\
+    U(x_a, x_b; T-\epsilon) .
+  \label{eq:9.5}
+\end{equation}
+我们现在可以通过把指数因子视为高斯函数来完成对 $x'$ 的积分。（严格来说，我们应该在指数中引入一个小的实项以保证收敛；我们将忽略这一项，直到下一节我们用泛函方法推导费曼规则时再考虑它。）回顾高斯积分公式
+\begin{equation}
+  \int d\xi\ e^{i b\xi^2} = \sqrt{\frac{i\pi}{b}},\qquad
+  \int d\xi\ \xi\,e^{i b\xi^2} = 0,\qquad
+  \int d\xi\ \xi^2 e^{i b\xi^2} = \frac{i}{2b}\sqrt{\frac{i\pi}{b}} .
+\end{equation}
+将这些恒等式应用于 \eqref{eq:9.5}，我们发现
+\begin{equation}
+  U(x_a, x_b; T) = C(\epsilon)\sqrt{\frac{2\pi i\hbar\epsilon}{-m}}\
+    \Bigl( 1 - \frac{i\epsilon}{\hbar}V(x_b) + \frac{i\hbar\epsilon}{2m}
+      \frac{\partial^2}{\partial x_b^2} + \mathcal{O}(\epsilon^2) \Bigr)\
+    U(x_a, x_b; T-\epsilon) .
+\end{equation}
+在 $\epsilon\to 0$ 极限下，除非括号中的因子等于 1，否则这个表达式没有意义。因此我们可以确定 $C$ 的正确定义：
+\begin{equation}
+  C(\epsilon) = \Bigl( \frac{2\pi\hbar\epsilon}{-im} \Bigr)^{1/2}
+  = \sqrt{\frac{2\pi i\hbar\epsilon}{m}} .
+  \label{eq:9.6}
+\end{equation}
+有了这一定义，我们可以比较 $\epsilon$ 阶的项并乘以 $i\hbar$，得到
+\begin{equation}
+  i\hbar\frac{\partial}{\partial T}U(x_a, x_b; T)
+  = \Bigl[ -\frac{\hbar^2}{2m}\frac{\partial^2}{\partial x_b^2}
+    + V(x_b) \Bigr]U(x_a, x_b; T)
+  = H U(x_a, x_b; T) .
+  \label{eq:9.7}
+\end{equation}
+这就是薛定谔方程。但很容易证明，时间演化算符 $U$ 正如最初在 \eqref{eq:9.1} 中定义的那样，满足同一个方程。
+
+当 $T\to 0$ 时，\eqref{eq:9.3} 的左端趋于 $\delta(x_a-x_b)$。将此与 \eqref{eq:9.4} 在一个时间段情形下的值比较：
+\begin{equation}
+  \frac{1}{C(\epsilon)}\ \exp\Bigl[ \frac{im(x_b-x_a)^2}{2\hbar\epsilon}
+    \Bigr] \to \delta(x_a-x_b) + \mathcal{O}(\epsilon) .
+\end{equation}
+这正是 \eqref{eq:9.5} 中尖锐的指数函数，它在 $\epsilon\to 0$ 时也趋于 $\delta(x_a-x_b)$。因此，\eqref{eq:9.3} 的左端和右端在相同的初始条件下满足同一个微分方程。我们得出结论：时间演化算符的哈密顿定义 \eqref{eq:9.1} 与路径积分定义 \eqref{eq:9.3} 等价，至少对这个简单的一维系统而言是如此。
+
+为了结束本节，让我们把路径积分公式推广到更复杂的量子系统。考虑一个非常一般的量子系统，由任意一组坐标 $q^i$、共轭动量 $p_i$ 和哈密顿量 $H(q,p)$ 描述。我们将对这个系统的跃迁振幅给出路径积分公式的直接证明。
+
+我们要计算的跃迁振幅是
+\begin{equation}
+  U(q_a, q_b; T) = \langle q_b|\ e^{-iHT}\ |q_a\rangle .
+  \label{eq:9.8}
+\end{equation}
+（当 $q$ 或 $p$ 不带上标出现时，它表示所有坐标 $\{q^i\}$ 或所有动量 $\{p_i\}$ 的集合。此外，为方便起见，我们现在令 $\hbar = 1$。）我们把时间间隔分割成 $N$ 段，每段持续 $\epsilon = T/N$，并在相继的时间段之间插入位置态和动量态的完备集。结果是
+\begin{equation}
+  \begin{aligned}
+    U(q_a, q_b; T) &= \Bigl[ \prod_{k=1}^{N-1}\int dq_k \Bigr]\
+      \Bigl[ \prod_{k=0}^{N-1}\int \frac{dp_k}{2\pi} \Bigr]\
+      \exp\Bigl\{ i\sum_{k=0}^{N-1}\Bigl[ p_k(q_{k+1}-q_k)
+        - \epsilon H(p_k, \bar{q}_k) \Bigr] \Bigr\}\\
+    &= \int \mathcal{D}q(t)\,\mathcal{D}p(t)\ \exp\Bigl[ i\int_0^T dt\
+      \bigl( p\dot{q} - H(p,q) \bigr) \Bigr] .
+  \end{aligned}
+  \label{eq:9.12}
+\end{equation}
+这就是路径积分的相空间形式。
+
+对于非相对论粒子，哈密顿量就是 $H = p^2/2m + V(q)$。在这种情况下，我们可以通过在指数中配平方来求 $p$ 积分：
+\begin{equation}
+  \int \frac{dp_k}{2\pi}\ \exp\Bigl[ i\Bigl( p_k(q_{k+1}-q_k)
+    - \epsilon\frac{p_k^2}{2m} \Bigr) \Bigr]
+  = C(\epsilon)\ \exp\Bigl[ \frac{im}{2\epsilon}(q_{k+1}-q_k)^2 \Bigr] ,
+\end{equation}
+其中 $C(\epsilon)$ 就是因子 \eqref{eq:9.6}。注意我们对每个时间段都有这样一个因子。因此我们恢复了离散形式的表达式 \eqref{eq:9.3}，包括正确的 $C$ 因子：
+\begin{equation}
+  U(q_a, q_b; T) = \lim_{\epsilon\to 0}\ \Bigl[ \prod_k
+    \int \frac{dq_k}{C(\epsilon)} \Bigr]\
+    \exp\Bigl\{ \sum_k \epsilon\ \Bigl[ \frac{m}{2}\Bigl(
+      \frac{q_{k+1}-q_k}{\epsilon} \Bigr)^2 - V(q_k) \Bigr] \Bigr\}.
+  \label{eq:9.13}
+\end{equation}
+
+\section{标量场的泛函量子化}
+
+在本节中，我们将把泛函积分形式体系应用于实标量场 $\phi(x)$ 的量子理论。我们的目标是从泛函积分表达式直接推导这类理论的费曼规则。
+
+上一节推导的一般泛函积分公式 \eqref{eq:9.12} 对任何量子系统都成立，因此也应适用于量子场论。对于实标量场，坐标 $q^i$ 就是场振幅 $\phi(\mathbf{x})$，哈密顿量为
+\begin{equation}
+  H = \int d^3x\ \Bigl[ \tfrac{1}{2}\pi^2 + \tfrac{1}{2}(\nabla\phi)^2
+    + V(\phi) \Bigr].
+\end{equation}
+于是我们的公式变为
+\begin{equation}
+  \langle \phi_b(\mathbf{x})|\ e^{-iHT}\ |\phi_a(\mathbf{x})\rangle
+  = \int \mathcal{D}\phi\,\mathcal{D}\pi\ \exp\Bigl[ i\int_0^T d^4x\
+    \bigl( \pi\dot{\phi} - \tfrac{1}{2}\pi^2 - \tfrac{1}{2}(\nabla\phi)^2
+      - V(\phi) \bigr) \Bigr] ,
+\end{equation}
+其中我们积分的函数 $\phi(\mathbf{x})$ 被限制为在 $x^0 = 0$ 处的特定构型 $\phi_a(\mathbf{x})$ 和在 $x^0 = T$ 处的特定构型 $\phi_b(\mathbf{x})$。由于指数中关于 $\pi$ 是二次的，我们可以配平方并求 $\int\mathcal{D}\pi$ 积分，得到
+\begin{equation}
+  \langle \phi_b(\mathbf{x})|\ e^{-iHT}\ |\phi_a(\mathbf{x})\rangle
+  = \int_{\phi_a}^{\phi_b} \mathcal{D}\phi\ \exp\Bigl[ i\int_0^T d^4x\
+    \mathcal{L} \Bigr],
+  \label{eq:9.14}
+\end{equation}
+其中
+\begin{equation}
+  \mathcal{L} = \tfrac{1}{2}(\partial_\mu\phi)^2 - V(\phi)
+\end{equation}
+是拉格朗日密度。\eqref{eq:9.14} 中的积分测度 $\mathcal{D}\phi$ 同样含有一个不便的常数，我们不显式写出。
+
+\eqref{eq:9.14} 指数中的时间积分从 0 到 $T$，这由我们选择计算什么跃迁函数所决定；在其他方面，这个公式是明显洛伦兹不变的。拉格朗日量可能具有的任何其他对称性也被泛函积分显式保留。随着我们对量子场论学习的深入，对称性及其相应的守恒律将扮演越来越核心的角色。因此我们建议采取一个大胆的步骤：抛弃哈密顿形式体系，把式~\eqref{eq:9.14} 作为哈密顿动力学的定义。任何这样的公式都对应某个哈密顿量；为找到它，可以始终对 $T$ 求导并如上一节那样推导薛定谔方程。因此我们认为拉格朗日量 $\mathcal{L}$ 是量子场论最基本的规范。我们将在下面看到，可以用泛函积分直接由 $\mathcal{L}$ 计算，而完全不借助哈密顿量。
+
+\subsection{关联函数}
+
+为了直接利用泛函积分，我们需要一个计算关联函数的泛函公式。为了找到这样的表达式，考虑对象
+\begin{equation}
+  \int \mathcal{D}\phi(x)\ \phi(x_1)\phi(x_2)\ \exp\Bigl[ i\int_{-T}^{T}
+    d^4x\ \mathcal{L}(\phi) \Bigr],
+  \label{eq:9.15}
+\end{equation}
+其中路径积分的边界条件是对某些 $\phi_a$、$\phi_b$ 有 $\phi(-T,\mathbf{x}) = \phi_a(\mathbf{x})$ 和 $\phi(T,\mathbf{x}) = \phi_b(\mathbf{x})$。我们希望把这个量与两点关联函数 $\langle\Omega|T\phi_H(x_1)\phi_H(x_2)|\Omega\rangle$ 联系起来。（为了把算符与普通数区分开来，我们给海森堡绘景算符加上显式下标：$\phi_H(x)$。类似地，我们将写 $\phi_S(\mathbf{x})$ 表示薛定谔绘景算符。）
+
+首先我们把 \eqref{eq:9.15} 中的泛函积分分解如下：
+\begin{equation}
+  \int \mathcal{D}\phi(x) = \int \mathcal{D}\phi_1(\mathbf{x})\,
+    \int \mathcal{D}\phi_2(\mathbf{x})\, \int_{\phi_1}^{\phi_2}
+    \mathcal{D}\phi(x) .
+  \label{eq:9.16}
+\end{equation}
+主泛函积分 $\int\mathcal{D}\phi(x)$ 现在在时刻 $x^0_1$ 和 $x^0_2$ 受到约束（除了端点 $-T$ 和 $T$ 之外），但我们必须对中间构型 $\phi_1(\mathbf{x})$ 和 $\phi_2(\mathbf{x})$ 分别积分。经过这一分解，\eqref{eq:9.15} 中的附加因子 $\phi(x_1)$ 和 $\phi(x_2)$ 变为 $\phi_1(x_1)$ 和 $\phi_2(x_2)$，可以提到主积分之外。主积分于是分解为三个部分，每一部分根据 \eqref{eq:9.14} 都是一个简单的跃迁振幅。时刻 $x^0_1$ 和 $x^0_2$ 自动按顺序排列；例如，如果 $x^0_1 < x^0_2$，那么 \eqref{eq:9.15} 变为
+\begin{equation}
+  \int \mathcal{D}\phi_1(\mathbf{x})\int \mathcal{D}\phi_2(\mathbf{x})\
+    \phi_1(x_1)\phi_2(x_2)\ \langle \phi_b|e^{-iH(T-x^0_2)}|\phi_2\rangle\
+    \langle \phi_2|e^{-iH(x^0_2-x^0_1)}|\phi_1\rangle\
+    \langle \phi_1|e^{-iH(x^0_1+T)}|\phi_a\rangle .
+\end{equation}
+我们可以利用 $\phi_S(\mathbf{x})|\phi_1\rangle = \phi_1(\mathbf{x})|\phi_1\rangle$ 把场 $\phi_1(x_1)$ 变为薛定谔算符。完备性关系 $\int\mathcal{D}\phi_1\,|\phi_1\rangle\langle\phi_1| = 1$ 于是允许我们消去中间态 $|\phi_1\rangle$。对 $\phi_2$ 进行类似的操作，得到表达式
+\begin{equation}
+  \langle \phi_b|\ e^{-iH(T-x^0_2)}\ \phi_S(\mathbf{x}_2)\
+    e^{-iH(x^0_2-x^0_1)}\ \phi_S(\mathbf{x}_1)\
+    e^{-iH(x^0_1+T)}\ |\phi_a\rangle .
+\end{equation}
+大部分指数因子与薛定谔算符合并构成海森堡算符。在 $x^0_1 > x^0_2$ 的情形下，$x_1$ 和 $x_2$ 的顺序将简单地互换。因此表达式 \eqref{eq:9.15} 等于
+\begin{equation}
+  \langle \phi_b|\ e^{-iHT}\ T\{\phi_H(x_1)\phi_H(x_2)\}\ e^{-iHT}\
+    |\phi_a\rangle .
+  \label{eq:9.17}
+\end{equation}
+这个表达式几乎等于两点关联函数。为了让它更接近，我们取极限 $T\to\infty(1-i\epsilon)$。正如在第 4.2 节中一样，这个技巧从 $|\phi_a\rangle$ 和 $|\phi_b\rangle$ 中投影出真空态 $|\Omega\rangle$（前提是这些态与 $|\Omega\rangle$ 有某种重叠，我们假定如此）。例如，把 $|\phi_a\rangle$ 分解为 $H$ 的本征态 $|n\rangle$，我们有
+\begin{equation}
+  e^{-iHT}|\phi_a\rangle = \sum_n e^{-iE_nT}|n\rangle\langle n|\phi_a\rangle
+  \xrightarrow{T\to\infty(1-i\epsilon)}
+    \langle\Omega|\phi_a\rangle\ e^{-iE_0T}|\Omega\rangle .
+\end{equation}
+如在第 4.2 节中一样，我们得到一些不便的相位和重叠因子。但如果用与 \eqref{eq:9.15} 相同的量（但没有两个附加场 $\phi(x_1)$ 和 $\phi(x_2)$）去除，这些因子就会抵消。于是我们得到简单公式
+\begin{equation}
+  \langle\Omega|T\phi_H(x_1)\phi_H(x_2)|\Omega\rangle
+  = \lim_{T\to\infty(1-i\epsilon)}\
+    \frac{\int\mathcal{D}\phi\ \phi(x_1)\phi(x_2)\ \exp\bigl[
+      i\int_{-T}^{T}d^4x\ \mathcal{L} \bigr]}
+      {\int\mathcal{D}\phi\ \exp\bigl[ i\int_{-T}^{T}d^4x\ \mathcal{L} \bigr]} .
+  \label{eq:9.18}
+\end{equation}
+这就是我们想要的用泛函积分表示两点关联函数的公式。对于更高阶的关联函数，只需在两边插入额外的 $\phi$ 因子即可。
+
+\subsection{费曼规则}
+
+我们的下一个任务是从公式 \eqref{eq:9.18} 的右端直接计算各种关联函数。换言之，我们现在将用 \eqref{eq:9.18} 来推导标量场论的费曼规则。我们将首先计算自由 Klein--Gordon 理论中的两点函数，然后推广到自由理论中更高阶的关联函数。最后，我们将考虑 $\phi^4$ 理论，其中我们可以进行微扰展开，得到与第 4.4 节相同的费曼规则。
+
+首先考虑一个无相互作用的实值标量场：
+\begin{equation}
+  S_0 = \int d^4x\ \mathcal{L}_0
+  = \int d^4x\ \Bigl[ \tfrac{1}{2}(\partial_\mu\phi)^2
+    - \tfrac{1}{2}m^2\phi^2 \Bigr].
+  \label{eq:9.19}
+\end{equation}
+由于 $\mathcal{L}_0$ 关于 $\phi$ 是二次的，\eqref{eq:9.18} 中的泛函积分具有广义的、无穷维高斯积分的形式。因此我们将能够精确地计算这些泛函积分。
+
+由于这是我们第一次做泛函积分计算，我们将以一种非常显式但难看的方式来进行。我们必须首先定义场构型上的积分 $\int\mathcal{D}\phi$。为此，我们使用式~\eqref{eq:9.4} 的方法，把连续积分视为大量但有限个积分的极限。因此我们用定义在正方格点各点 $x_i$ 上的变量 $\phi(x_i)$ 来代替定义在连续点集上的变量 $\phi(x)$。令格点间距为 $\epsilon$，四维时空体积为 $L^4$，并定义
+\begin{equation}
+  \mathcal{D}\phi = \prod_i d\phi(x_i),
+  \label{eq:9.20}
+\end{equation}
+至多相差一个无关紧要的整体常数。
+
+场值 $\phi(x_i)$ 可以用离散傅里叶级数表示：
+\begin{equation}
+  \phi(x) = \sum_{k_n} \frac{1}{\sqrt{V}}\ \phi(k_n)\,e^{ik_n\cdot x},
+  \qquad \phi(k_n) = \frac{1}{\sqrt{V}}\int d^4x\ \phi(x)\,e^{-ik_n\cdot x},
+\end{equation}
+其中 $k_n^\mu = 2\pi n^\mu/L$，$n^\mu$ 为整数，$|k_n^\mu| < \pi/\epsilon$，且 $V = L^4$。傅里叶系数 $\phi(k)$ 是复数。然而，$\phi(x)$ 是实的，因此这些系数必须满足约束 $\phi^{*}(k) = \phi(-k)$。我们将把 $k_n^0 > 0$ 的 $\phi(k_n)$ 的实部和虚部视为独立变量。从 $\phi(x_i)$ 到这些新变量 $\phi(k_n)$ 的变量变换是幺正变换，因此我们可以把积分改写为
+\begin{equation}
+  \mathcal{D}\phi(x) = \Bigl[ \prod_{k_n^0>0} d\,\mathrm{Re}\,\phi(k_n)\,
+    d\,\mathrm{Im}\,\phi(k_n) \Bigr] .
+\end{equation}
+稍后，我们将取极限 $L\to\infty$，$\epsilon\to 0$。这个极限的作用是把对 $k_n$ 的离散有限求和转换为对 $k$ 的连续积分：
+\begin{equation}
+  \frac{1}{V}\sum_{k_n} \to \int \frac{d^4k}{(2\pi)^4} .
+  \label{eq:9.22}
+\end{equation}
+在下面的讨论中，这个极限将产生第一部分中推导形式的费曼微扰理论。我们不会消除第 6 章中遇到的费曼图的红外和紫外发散，但至少泛函积分不会引入新的奇异行为类型。
+
+现在，在自由理论中，\eqref{eq:9.18} 的指数为
+\begin{equation}
+  S_0 = \int \frac{d^4k}{(2\pi)^4}\ \Bigl[ \phi^{*}(k)
+    \bigl( \tfrac{1}{2}k^2 - \tfrac{1}{2}m^2 \bigr)\phi(k) \Bigr] .
+\end{equation}
+对 $\phi$ 的高斯积分可以显式地进行。对于二次型，结果是二次系数的倒数。我们发现，对两点函数有
+\begin{equation}
+  \langle 0|T\phi(x_1)\phi(x_2)|0\rangle = D_F(x_1-x_2)
+  = \int \frac{d^4k}{(2\pi)^4}\ \frac{i}{k^2-m^2+i\epsilon}\
+    e^{-ik\cdot(x_1-x_2)} ,
+  \label{eq:9.28}
+\end{equation}
+这就是熟悉的 Klein--Gordon 理论的费曼传播子。$i\epsilon$ 项来自泛函积分的收敛因子，正如我们在式~\eqref{eq:9.5} 下面所指出的。对四点函数，我们计算高斯积分并得到
+\begin{equation}
+  \langle 0|T\phi(x_1)\phi(x_2)\phi(x_3)\phi(x_4)|0\rangle
+  = D_F(x_1-x_2)D_F(x_3-x_4)
+    + D_F(x_1-x_3)D_F(x_2-x_4)
+    + D_F(x_1-x_4)D_F(x_2-x_3) ,
+  \label{eq:9.29}
+\end{equation}
+与 Wick 定理一致。
+
+我们现在准备好从自由的 Klein--Gordon 理论过渡到 $\phi^4$ 理论。把 $\phi^4$ 相互作用加到 $\mathcal{L}_0$ 上：
+\begin{equation}
+  \mathcal{L} = \mathcal{L}_0 - \frac{\lambda}{4!}\phi^4 .
+\end{equation}
+假设 $\lambda$ 很小，我们可以展开
+\begin{equation}
+  \exp\Bigl[ i\int d^4x\ \mathcal{L} \Bigr] = \exp\Bigl[
+    i\int d^4x\ \mathcal{L}_0 \Bigr]\ \Bigl[ 1 - \frac{i\lambda}{4!}
+      \int d^4x\ \phi^4 + \cdots \Bigr] .
+\end{equation}
+在 \eqref{eq:9.18} 的分子和分母中都做这个展开，我们看到每一项（除了再次抵消的常数因子式~(9.23)）都完全用自由场关联函数表示。此外，由于 $i\int d^4x\ \mathcal{L}_{\mathrm{int}} = -i\lambda/4!\int d^4x\ \phi^4$，我们得到与式~\eqref{eq:4.31} 完全相同的展开。我们可以把分子和分母都用费曼图表示，基本相互作用仍由顶点给出
+\begin{equation}
+  = -i\lambda\,(2\pi)^4\delta^{(4)}(\textstyle\sum k_i) .
+  \label{eq:9.30}
+\end{equation}
+所有的组合计数问题都与第 4.4 节相同。特别是，不连通的真空气泡图指数化并从 \eqref{eq:9.18} 的分子中因子化，被分母抵消，正如式~\eqref{eq:4.31} 中一样。
+
+$\phi^4$ 理论的顶点规则以极其简单的方式来自拉格朗日量，这一简单程序对其他量子场论也将同样有效。一旦正确理解了拉格朗日量中的二次项并计算出理论的传播子，就可以直接从拉格朗日量读出顶点，即三次及更高阶项的系数。
+
+\subsection{泛函导数与生成泛函}
+
+为了结束本节，我们现在引入一种更巧妙、更形式化的计算关联函数的方法。这种方法基于一个称为\emph{生成泛函}的对象，避免了前面推导中不便的傅里叶展开。
+
+首先我们如下定义泛函导数 $\delta/\delta J(x)$。泛函导数满足基本公理（在四维中）
+\begin{equation}
+  \frac{\delta}{\delta J(x)}\,J(y) = \delta^{(4)}(x-y)
+  \qquad\text{或}\qquad
+  \frac{\delta}{\delta J(x)}\,\int d^4y\ J(y)\phi(y) = \phi(x) .
+  \label{eq:9.31}
+\end{equation}
+这个定义是离散向量规则
+\begin{equation}
+  \frac{\partial}{\partial x_i}\,x_j = \delta_{ij} .
+\end{equation}
+向连续函数的自然推广。要求更复杂泛函的泛函导数时，我们只需使用复合函数求导的普通规则。例如，
+\begin{equation}
+  \frac{\delta}{\delta J(x)}\ \exp\Bigl[ i\int d^4y\ J(y)\phi(y) \Bigr]
+  = i\phi(x)\ \exp\Bigl[ i\int d^4y\ J(y)\phi(y) \Bigr] .
+  \label{eq:9.32}
+\end{equation}
+当泛函依赖于 $J$ 的导数时，我们先分部积分再应用泛函导数：
+\begin{equation}
+  \frac{\delta}{\delta J(x)}\ \int d^4y\ \partial_\mu J(y)\,\phi(y)
+  = -\partial_\mu\phi(x) .
+  \label{eq:9.33}
+\end{equation}
+
+这一形式体系的基本对象是\emph{关联函数的生成泛函} $Z[J]$。（有些作者称之为 $W[J]$。）在标量场论中，$Z[J]$ 定义为
+\begin{equation}
+  Z[J] = \int \mathcal{D}\phi\ \exp\Bigl[ i\int d^4x\ \bigl(
+    \mathcal{L} + J(x)\phi(x) \bigr) \Bigr] .
+  \label{eq:9.34}
+\end{equation}
+这是对 $\phi$ 的泛函积分，其中我们在指数中的 $\mathcal{L}$ 上添加了一个源项 $J(x)\phi(x)$。
+
+Klein--Gordon 场论的关联函数可以通过对生成泛函求泛函导数来简单计算。例如，两点函数为
+\begin{equation}
+  \langle 0|T\phi(x_1)\phi(x_2)|0\rangle
+  = \frac{1}{Z_0}\ \Bigl( -i\frac{\delta}{\delta J(x_1)} \Bigr)\
+    \Bigl( -i\frac{\delta}{\delta J(x_2)} \Bigr)\ Z[J]\Big|_{J=0},
+  \label{eq:9.35}
+\end{equation}
+其中 $Z_0 = Z[J=0]$。每个泛函导数都会在 $Z[J]$ 的分子中带来一个 $\phi$ 因子；令 $J=0$，我们恢复表达式 \eqref{eq:9.18}。要计算更高阶的关联函数，只需取更多的泛函导数。
+
+公式 \eqref{eq:9.35} 之所以有用，是因为在自由场论中，$Z[J]$ 可以改写为非常显式的形式。考虑自由 Klein--Gordon 理论中 \eqref{eq:9.34} 的指数。分部积分后，我们得到
+\begin{equation}
+  \int d^4x\ \bigl[ \mathcal{L}_0(\phi) + J\phi \bigr]
+  = \int d^4x\ \Bigl[ \tfrac{1}{2}\phi(-\partial^2-m^2+i\epsilon)\phi
+    + J\phi \Bigr].
+  \label{eq:9.36}
+\end{equation}
+（$i\epsilon$ 是泛函积分的收敛因子，如我们在式~(9.23) 下面讨论的那样。）我们可以通过引入一个平移场来配平方，
+\begin{equation}
+  \phi'(x) = \phi(x) - i\int d^4y\ D_F(x-y)\,J(y) .
+\end{equation}
+做这个代换并利用 $D_F$ 是 Klein--Gordon 算符的格林函数这一事实，我们发现 \eqref{eq:9.36} 变为
+\begin{equation}
+  \int d^4x\ \bigl[ \mathcal{L}_0(\phi)+J\phi \bigr]
+  = \int d^4x\ \Bigl[ \tfrac{1}{2}\phi'(-\partial^2-m^2+i\epsilon)\phi'
+    - \tfrac{1}{2}J(-iD_F)J \Bigr] .
+\end{equation}
+更符号化地，我们可以把变量变换写为
+\begin{equation}
+  \phi' = \phi + (-\partial^2-m^2+i\epsilon)^{-1}J,
+  \label{eq:9.37}
+\end{equation}
+结果为
+\begin{equation}
+  \int d^4x\ \bigl[ \mathcal{L}_0(\phi)+J\phi \bigr]
+  = \int d^4x\ \bigl[ \tfrac{1}{2}\phi'(-\partial^2-m^2+i\epsilon)\phi'
+    - \tfrac{1}{2}J(-\partial^2-m^2+i\epsilon)^{-1}J \bigr].
+  \label{eq:9.38}
+\end{equation}
+现在在 \eqref{eq:9.34} 的泛函积分中把变量从 $\phi$ 变换到 $\phi'$。这只是一个平移，因此变换的雅可比行列式为 1。结果是
+\begin{equation}
+  Z[J] = \int \mathcal{D}\phi'\ \exp\Bigl[ i\int d^4x\ \mathcal{L}_0(\phi')
+    \Bigr]\ \exp\Bigl[ -\frac{i}{2}\int d^4x\,d^4y\ J(x)
+      \bigl[ -iD_F(x-y) \bigr]J(y) \Bigr] .
+\end{equation}
+第二个指数因子与 $\phi'$ 无关，而剩下的对 $\phi'$ 的积分恰好就是 $Z_0$。因此自由 Klein--Gordon 理论的生成泛函简化为
+\begin{equation}
+  Z[J] = Z_0\ \exp\Bigl[ \frac{i}{2}\int d^4x\,d^4y\ J(x)\,
+    \frac{iD_F(x-y)}{i}\,J(y) \Bigr]
+  = Z_0\ \exp\Bigl[ -\frac{1}{2}\int d^4x\,d^4y\ J(x)\,D_F(x-y)\,J(y)
+    \Bigr].
+  \label{eq:9.39}
+\end{equation}
+让我们用式~\eqref{eq:9.39} 和 \eqref{eq:9.35} 来计算一些关联函数。两点函数为
+\begin{equation}
+  \begin{aligned}
+    \langle 0|T\phi(x_1)\phi(x_2)|0\rangle
+    &= \frac{1}{Z_0}\ \frac{\delta}{\delta J(x_1)}\ \frac{\delta}
+      {\delta J(x_2)}\ \exp\Bigl[ -\frac{1}{2}\int d^4x\,d^4y\
+        J(x)D_F(x-y)J(y) \Bigr]\Big|_{J=0}\\
+    &= D_F(x_1-x_2) .
+  \end{aligned}
+  \label{eq:9.40}
+\end{equation}
+取一个导数会带来两个相同的项；第二个导数给出若干项，但只有当它作用于最外面的因子时，我们才会得到在令 $J=0$ 后仍然存活的项。
+
+用这种方法算出四点函数也是有启发性的。为了在合理的空间内完成计算，让我们把函数的自变量缩写为下标：$\phi_i = \phi(x_i)$，$J_i = J(x_i)$，$D_{ij} = D_F(x_i-x_j)$，等等。重复的下标将被隐式积分。于是四点函数为
+\begin{equation}
+  \begin{aligned}
+    \langle 0|T\phi_1\phi_2\phi_3\phi_4|0\rangle
+    &= \frac{\delta}{\delta J_1}\frac{\delta}{\delta J_2}
+      \frac{\delta}{\delta J_3}\frac{\delta}{\delta J_4}\
+      \exp\Bigl[ -\frac{1}{2}J_iD_{ij}J_j \Bigr]\Big|_{J=0}\\
+    &= D_{12}D_{34} + D_{13}D_{24} + D_{14}D_{23} ,
+  \end{aligned}
+  \label{eq:9.41}
+\end{equation}
+与 \eqref{eq:9.29} 一致。对指数函数求导的规则产生同样熟悉的模式：对于把四个点两两配对的每一种可能方式，我们得到一个项，每个配对带一个 $D_F$ 因子。
+
+刚才用于构造自由场论关联函数的生成泛函方法，也可以用来表示相互作用场论的关联函数。公式 \eqref{eq:9.35} 与理论是自由还是相互作用的无关。因子 $Z[J=0]$ 在相互作用场论的情形下是非平凡的，但它只是给出式~\eqref{eq:9.18} 的分母，即真空图之和。从这种方法看，关联函数计算中的组合计数问题与第 4.4 节相同。
+
+\section{量子场论与统计力学之间的类比}
+
+现在让我们暂时放下这些讨论的技术性细节，来考虑我们推导出的公式的一些意义。首先，让我们用以下方式总结上一节的正式结论：对于由拉格朗日量 $\mathcal{L}$ 支配的场论，关联函数的生成泛函为
+\begin{equation}
+  Z[J] = \int \mathcal{D}\phi\ \exp\Bigl[ i\int d^4x\
+    \bigl( \mathcal{L} + J\phi \bigr) \Bigr] .
+  \label{eq:9.42}
+\end{equation}
+指数中的积分时间变量从 $-T$ 到 $T$，其中 $T\to\infty(1-i\epsilon)$。像 \eqref{eq:9.18} 这样的关联函数可以通过写下
+\begin{equation}
+  \langle \Omega|T\phi(x_1)\phi(x_2)|\Omega\rangle
+  = Z[J]^{-1}\ \Bigl( -i\frac{\delta}{\delta J(x_1)} \Bigr)\
+    \Bigl( -i\frac{\delta}{\delta J(x_2)} \Bigr)\ Z[J]\Big|_{J=0} .
+  \label{eq:9.43}
+\end{equation}
+来重现。生成泛函 \eqref{eq:9.42} 使人联想到统计力学的配分函数。它具有相同的总体结构：对一切可能构型以指数统计权重进行积分。源 $J(x)$ 扮演外场的角色。事实上，我们通过关于 $J(x)$ 求导来计算关联函数的方法，模仿了统计力学中常用的技巧：通过对压强或磁场等变量求导来计算关联函数。
+
+这一类比可以通过处理 \eqref{eq:9.42} 中的积分时间变量而变得更加精确。泛函积分公式的推导暗示时间积分被略微倾入复平面，方向正好允许积分围道顺时针旋转到虚轴上。我们已经在（式~(9.23) 下面）指出，最初的无穷小旋转给出正确的 $i\epsilon$ 规则以产生费曼传播子。有限旋转是图~\ref{fig:6.1} 所示动量时间分量 Wick 转动在构型空间中的类比。就像动量积分中的 Wick 转动一样，时间坐标的这次 Wick 转动 $t\to -ix^0$ 产生欧几里得 4 矢量积：
+\begin{equation}
+  x^2 = t^2 - |\mathbf{x}|^2 \to -(x^0)^2 - |\mathbf{x}|^2 = -|x_E|^2 .
+  \label{eq:9.44}
+\end{equation}
+可以通过处理每个费曼图的表达式来证明，量子场论任何格林函数中时间变量的解析延拓都会产生一个在四维欧几里得空间的旋转对称性下不变的关联函数。泛函积分内部的这次 Wick 转动以更一般的方式证明了同样的结论。
+
+为了理解这次转动所达到的目的，考虑 $\phi^4$ 理论的例子。耦合到源的 $\phi^4$ 理论的作用量为
+\begin{equation}
+  \int d^4x\ \bigl( \mathcal{L} + J\phi \bigr) = \int d^4x\ \Bigl[
+    \tfrac{1}{2}(\partial_\mu\phi)^2 - \tfrac{1}{2}m^2\phi^2
+      - \frac{\lambda}{4!}\phi^4 + J\phi \Bigr] .
+\end{equation}
+经过 Wick 转动 $t\to -ix^0$ 后，这变为
+\begin{equation}
+  i\int d^4x\ \bigl( \mathcal{L}+J\phi \bigr) \to -\int d^4x_E\ \Bigl[
+    \tfrac{1}{2}(\nabla_E\phi)^2 + \tfrac{1}{2}m^2\phi^2
+      + \frac{\lambda}{4!}\phi^4 - J\phi \Bigr] ,
+\end{equation}
+这正是第 8 章讨论的磁性系统统计配分函数中出现的指数。通过注意 $d$ 个空间维度的欧几里得场论对应于统计系统在由欧几里得时间坐标的逆周期（取为无穷大）所给出的温度下，这个对应关系得以完成。这就是 $d+1$ 维时空中的量子场论对应于 $d$ 个空间维度中的统计系统这一说法的精确含义。这一类比在习题 9.2 中得到充分发展，其中我们计算了路径积分的有限温度（周期欧几里得时间）版本。
+
+\section{电磁场的量子化}
+
+我们现在转向电磁场的量子化，这是自第 4.8 节以来我们一直回避的问题。在本节中，我们将把泛函积分方法应用于光子的量子化。新的困难当然是规范不变性。
+
+让我们首先尝试以与标量场相同的方式写出电磁场的生成泛函：
+\begin{equation}
+  Z[J] = \int \mathcal{D}A\ \exp\Bigl[ i\int d^4x\ \bigl(
+    \mathcal{L} + J_\mu A^\mu \bigr) \Bigr] ,
+  \label{eq:9.47}
+\end{equation}
+其中
+\begin{equation}
+  \mathcal{L} = -\frac{1}{4}(F_{\mu\nu})^2
+\end{equation}
+是自由电磁拉格朗日量。如果我们处理自由场论，我们可以像对标量场那样精确地对 $A$ 进行泛函积分。指数中的二次型为
+\begin{equation}
+  \int d^4x\ \Bigl[ -\frac{1}{4}(F_{\mu\nu})^2 + J_\mu A^\mu \Bigr]
+  = \int d^4x\ \Bigl[ \tfrac{1}{2}A^\mu\bigl( g_{\mu\nu}\partial^2
+    - \partial_\mu\partial_\nu \bigr)A^\nu + J_\mu A^\mu \Bigr] .
+  \label{eq:9.52}
+\end{equation}
+算符 $(g_{\mu\nu}\partial^2 - \partial_\mu\partial_\nu)$ 没有逆：它消灭任何正比于 $\partial_\mu\Lambda(x)$ 的函数，因为
+\begin{equation}
+  \bigl( g_{\mu\nu}\partial^2 - \partial_\mu\partial_\nu \bigr)
+    \partial^\nu\Lambda = 0 .
+\end{equation}
+这当然就是光子的规范不变性：作用量在变换 $A_\mu\to A_\mu + \partial_\mu\Lambda$ 下不变。二次型是奇异的，对 $A$ 的泛函积分按现状并没有良好定义。从物理上讲，我们绝不能对规范自由度积分；我们应该只对物理的、规范不等价的场构型积分。
+
+这个问题的解是\emph{法捷耶夫-波波夫}程序。我们以对规范变换群的积分形式把因子 1 插入泛函积分。考虑泛函积分
+\begin{equation}
+  \int \mathcal{D}A\ e^{iS[A]} ,
+\end{equation}
+其中 $S[A]$ 是规范不变的。我们插入
+\begin{equation}
+  1 = \Delta[A]\ \int \mathcal{D}\alpha\ \delta\bigl( G(A^\alpha) \bigr) ,
+  \label{eq:9.53}
+\end{equation}
+其中 $G(A)$ 是规范固定函数（它恰好在每条规范轨道的一个代表元处为零），$A^\alpha$ 是规范变换后的场，$\Delta[A]$ 是法捷耶夫-波波夫行列式，其定义为使该积分为 1。利用作用量和测度的规范不变性，我们可以计算这个泛函积分：
+\begin{equation}
+  \int \mathcal{D}A\ e^{iS[A]} = \det\Bigl( \frac{\delta G}{\delta\alpha}
+    \Bigr)\ \Bigl( \int \mathcal{D}\alpha \Bigr)\
+    \int \mathcal{D}A\ e^{iS[A]}\ \delta\bigl( G(A) \bigr) .
+  \label{eq:9.54}
+\end{equation}
+对 $A$ 的泛函积分现在被 delta 函数限制到物理上不等价的场构型，这正是所希望的。对 $\alpha(x)$ 的发散积分只是给出一个无穷大乘法因子。
+
+为了进一步讨论，我们必须指定一个规范固定函数 $G(A)$。我们选择一般类型的函数
+\begin{equation}
+  G(A) = \partial^\mu A_\mu(x) - \omega(x) ,
+  \label{eq:9.55}
+\end{equation}
+其中 $\omega(x)$ 可以是任何标量函数。令这个 $G(A)$ 等于零给出洛伦兹规范条件的推广。泛函行列式与洛伦兹规范中的相同，$\det(\delta G(A^\alpha)/\delta\alpha) = \det(\partial^2/e)$。于是泛函积分变为
+\begin{equation}
+  \int \mathcal{D}A\ e^{iS[A]} = \det\Bigl( \frac{1}{e}\partial^2 \Bigr)\
+    \Bigl( \int \mathcal{D}\alpha \Bigr)\ \int \mathcal{D}A\ e^{iS[A]}\
+    \delta\bigl( \partial^\mu A_\mu - \omega(x) \bigr) .
+\end{equation}
+这个等式对任何 $\omega(x)$ 都成立，因此如果我们将右端换成涉及不同函数 $\omega(x)$ 的任意适当归一化的线性组合，它仍然成立。作为我们最后的技巧，我们将对所有 $\omega(x)$ 积分，权重取为中心在 $\omega=0$ 的高斯加权函数。于是上式等于
+\begin{equation}
+  \begin{aligned}
+    \int \mathcal{D}A\ e^{iS[A]} &= N(\xi)\ \det\Bigl( \frac{1}{e}\partial^2
+      \Bigr)\ \Bigl( \int \mathcal{D}\alpha \Bigr)\ \int \mathcal{D}A\
+      e^{iS[A]}\ \exp\Bigl[ -\frac{i}{2\xi}\int d^4x\
+        (\partial^\mu A_\mu)^2 \Bigr] ,
+  \end{aligned}
+  \label{eq:9.56}
+\end{equation}
+其中 $N(\xi)$ 是不重要的归一化常数，我们利用 delta 函数完成了对 $\omega$ 的积分。我们可以选择 $\xi$ 为任何有限常数。实际上，我们已经在拉格朗日量中增加了一项 $-(\partial^\mu A_\mu)^2/2\xi$。
+
+到目前为止，我们只处理了关联函数公式的分母，
+\begin{equation}
+  \langle\Omega|T\mathcal{O}(A)|\Omega\rangle
+  = \lim_{T\to\infty(1-i\epsilon)}\
+    \frac{\int\mathcal{D}A\ \mathcal{O}(A)\ \exp\bigl[
+      i\int_{-T}^{T}d^4x\ \mathcal{L} \bigr]}
+      {\int\mathcal{D}A\ \exp\bigl[ i\int_{-T}^{T}d^4x\ \mathcal{L} \bigr]} .
+\end{equation}
+同样的操作也可以在分子上进行，只要算符 $\mathcal{O}(A)$ 是规范不变的。（如果不是，那么式~\eqref{eq:9.54} 前面从 $A$ 到 $A^\alpha$ 的变量变换就不成立。）假设 $\mathcal{O}(A)$ 是规范不变的，我们得到其关联函数
+\begin{equation}
+  \langle\Omega|T\mathcal{O}(A)|\Omega\rangle
+  = \lim_{T\to\infty(1-i\epsilon)}\
+    \frac{\int\mathcal{D}A\ \mathcal{O}(A)\ \exp\bigl[ i\int_{-T}^{T}d^4x\
+      \bigl( \mathcal{L} - \frac{1}{2\xi}(\partial^\mu A_\mu)^2 \bigr)
+      \bigr]}
+      {\int\mathcal{D}A\ \exp\bigl[ i\int_{-T}^{T}d^4x\
+        \bigl( \mathcal{L} - \frac{1}{2\xi}(\partial^\mu A_\mu)^2 \bigr)
+        \bigr]} .
+  \label{eq:9.57}
+\end{equation}
+\eqref{eq:9.56} 中不便的常数因子已经抵消；整个过程的唯一痕迹是加到作用量上的额外 $\xi$ 项。
+
+在本节开始时，在式~\eqref{eq:9.52} 中，我们看到不能从作用量 $S[A]$ 得到合理的光子传播子。然而，有了新的 $\xi$ 项，那个方程变为
+\begin{equation}
+  \bigl( -k^2 g_{\mu\nu} + \bigl( 1 - \tfrac{1}{\xi} \bigr)k_\mu k_\nu \bigr)
+    \tilde{D}^{\nu\rho}(k) = -i\delta^\rho_\mu ,
+\end{equation}
+其解为
+\begin{equation}
+  \tilde{D}^{\mu\nu}(k) = \frac{-i}{k^2+i\epsilon}\ \Bigl[
+    g^{\mu\nu} - (1-\xi)\frac{k^\mu k^\nu}{k^2} \Bigr] .
+  \label{eq:9.58}
+\end{equation}
+这就是我们想要的光子传播子表达式。分母中的 $i\epsilon$ 项与 Klein--Gordon 情形完全一样地出现。注意相对于 Klein--Gordon 传播子的整体负号，这在式~\eqref{eq:9.52} 中已经很明显了。
+
+在实践中，计算时通常选择 $\xi$ 的特定值。两个经常方便的选取是
+\begin{equation}
+  \xi = 0 \qquad \text{朗道规范};\qquad
+  \xi = 1 \qquad \text{费曼规范} .
+\end{equation}
+到目前为止，在本书中我们一直使用费曼规范。\footnote{$\xi$ 的其他选择在特定应用中可能有用；例如，在 QED 束缚态的某些问题中，Yennie 规范 $\xi = 3$ 会产生一种否则难以显式实现的抵消。见 H.~M.~Fried 和 D.~R.~Yennie，\emph{Phys.\ Rev.} \textbf{112}，1391 (1958)。}
+
+法捷耶夫-波波夫程序保证任何规范不变算符的关联函数从费曼图计算得到的值都与计算中所用 $\xi$ 的值无关（只要一致地使用相同的 $\xi$ 值）。在 QED 情形下，直接证明这种 $\xi$ 无关性并不困难。注意在式~\eqref{eq:9.58} 中，$\xi$ 乘的是光子传播子中正比于 $k^\mu k^\nu$ 的一项。根据沃德-高桥恒等式 \eqref{eq:7.68}，在格林函数中把任何光子传播子替换为 $k^\mu k^\nu$ 都给出零，除了涉及外部离壳费米子的项。这些项对粒子和反粒子大小相等而符号相反，当费米子组合成规范不变的组合时消失。
+
+为了完成我们对电磁场量子化的处理，还需要一个额外的要素。在第 5 章和第 6 章中，我们从非规范不变算符 $\psi(x)$、$\bar{\psi}(x)$ 和 $A^\mu(x)$ 的关联函数计算了 QED 的 $S$-矩阵元。我们现在将论证 $S$-矩阵元由这个程序正确给出。由于 $S$-矩阵是在渐近态之间定义的，我们可以在一个耦合常数在遥远的过去和未来绝热关闭的形式体系中计算 $S$-矩阵元。在零耦合极限下，规范不变态与规范依赖态之间有清晰的分离。包含一个电子、一个正电子或一个横极化光子的单粒子态是规范不变的，而类时极化和纵极化光子的态在规范变换下变换。因此我们可以如下定义一个规范不变的 $S$-矩阵：设 $S_{FP}$ 是由法捷耶夫-波波夫程序计算的一般渐近态之间的 $S$-矩阵。这个矩阵是幺正的但不是规范不变的。设 $P_0$ 为到渐近态空间中所有粒子都是电子、正电子或横光子的子空间上的投影。然后令
+\begin{equation}
+  S = P_0\,S_{FP}\,P_0 .
+  \label{eq:9.59}
+\end{equation}
+这个 $S$-矩阵由构造是规范不变的，因为它投影到规范不变的态上。它是否幺正并不显然。然而，我们在第 5.5 节处理过这个问题。我们在那里证明，光子发射的任何矩阵元 $\mathcal{M}^\mu\epsilon^{*}_\mu$ 都满足
+\begin{equation}
+  \sum_{\epsilon=1,2} \bigl| \mathcal{M}^\mu\epsilon^{*}_\mu \bigr|^2
+  = -g_{\mu\nu}\mathcal{M}^\mu\mathcal{M}^{\nu*} ,
+  \label{eq:9.60}
+\end{equation}
+其中左端的求和只遍历横极化。同样的论证也适用于 $\mathcal{M}^\mu$ 和 $\mathcal{M}^{\nu*}$ 是不同振幅的情形，只要它们满足 Ward 恒等式。这正是我们看出
+\begin{equation}
+  SS^{\dagger} = P_0\,S_{FP}\,P_0\,S_{FP}^{\dagger}\,P_0
+    = P_0\,S_{FP}\,S_{FP}^{\dagger}\,P_0 .
+  \label{eq:9.61}
+\end{equation}
+所需的信息。现在我们可以利用 $S_{FP}$ 的幺正性看出 $S$ 在规范不变态子空间上是幺正的，$S^{\dagger}S = 1$。容易显式检验 $S$-矩阵的公式 \eqref{eq:9.59} 与 $\xi$ 无关：Ward 恒等式意味着，任何所有外费米子在壳的 QED 矩阵元，在给光子传播子 $D^{\mu\nu}(q)$ 加上任何正比于 $q^\mu q^\nu$ 的项后都不变。
+
+\section{旋量场的泛函量子化}
+
+到目前为止我们使用的泛函方法允许我们用式~\eqref{eq:9.18} 或 \eqref{eq:9.35} 计算涉及满足正则对易关系的场的关联函数。为了把这些方法推广到包含满足正则反对易关系的旋量场，我们必须做不同的事情：我们必须用\emph{反对易数}来表示即使经典场也如此。
+
+\subsection{反对易数}
+
+我们将通过给出操纵它们的代数规则来定义反对易数（也称为格拉斯曼数）。这些规则是形式的，可能看起来是特设的。我们将通过表明它们引出熟悉的 Dirac 方程量子理论来为它们辩护。
+
+反对易数的基本特征就是它们反对易。对任意两个这样的数 $\theta$ 和 $\eta$，
+\begin{equation}
+  \theta\eta = -\eta\theta .
+  \label{eq:9.62}
+\end{equation}
+特别地，任何格拉斯曼数的平方为零：
+\begin{equation}
+  \theta^2 = 0 .
+\end{equation}
+（这一事实使代数变得极其容易。）两个格拉斯曼数的乘积 $(\theta\eta)$ 与其他格拉斯曼数对易。我们还希望对格拉斯曼数进行加法，并让它们乘以普通数；这些运算具有任何向量空间中加法和标量乘法的所有性质。
+
+我们想用反对易数做的主要事情是对它们积分。为了定义泛函积分，我们不需要这些参数的一般定积分，而只需要 $\int dx$ 的类比。因此让我们定义格拉斯曼变量 $\theta$ 的一般函数 $f$ 在 $\theta$ 的整个范围内的积分：
+\begin{equation}
+  \int d\theta\ f(\theta) = \int d\theta\ (A + B\theta) .
+\end{equation}
+一般来说，$f(\theta)$ 可以展开为泰勒级数，由于 $\theta^2 = 0$，级数在两项后终止。积分应当关于 $f$ 是线性的；因此它必定是 $A$ 和 $B$ 的线性函数。它的值由一条附加性质确定：在我们对玻色子泛函积分的分析中（例如在 \eqref{eq:9.38} 和 \eqref{eq:9.54} 中），我们充分利用了积分对积分变量平移的不变性。我们将在第 9.6 节看到，泛函积分的这种平移不变性在量子力学运动方程和守恒律的推导中起着核心作用，因此必须被认为是该形式体系的一个基本方面。因此，我们必须对 $\theta$ 的积分要求同样的性质。在平移 $\theta\to\theta+\eta$ 下的不变性给出条件
+\begin{equation}
+  \int d\theta\ (A+B\theta) = \int d\theta\ \bigl( (A+B\eta) + B\theta \bigr) .
+\end{equation}
+平移改变常数项，但保持线性项不变。具有这一性质的 $A$ 和 $B$ 的唯一线性函数是一个常数（按惯例取为 1）乘以 $B$，因此我们定义
+\begin{equation}
+  \int d\theta\ (A + B\theta) = B .
+  \label{eq:9.63}
+\end{equation}
+当我们对多于一个格拉斯曼变量进行多重积分时，会出现符号歧义；我们采用约定
+\begin{equation}
+  \int d\eta\,d\theta\ \theta\eta = +1 ,
+  \label{eq:9.64}
+\end{equation}
+先进行最内层的积分。
+
+由于 Dirac 场是复值的，我们将主要使用复格拉斯曼数，它们可以按通常的方式由实部和虚部构造。方便起见，我们定义复共轭反转乘积的顺序，就像算符的厄米共轭那样：
+\begin{equation}
+  (\theta\eta)^{*} = \eta^{*}\theta^{*} = -\theta^{*}\eta^{*} .
+  \label{eq:9.65}
+\end{equation}
+为了对复格拉斯曼数积分，让我们定义
+\begin{equation}
+  \theta = \frac{\theta_1 + i\theta_2}{\sqrt{2}},\qquad
+  \theta^{*} = \frac{\theta_1 - i\theta_2}{\sqrt{2}} .
+\end{equation}
+我们现在可以把 $\theta$ 和 $\theta^{*}$ 视为独立的格拉斯曼数，并采用约定 $\int d\theta^{*}d\theta\ (\theta\theta^{*}) = 1$。
+
+让我们计算一个复格拉斯曼变量的高斯积分：
+\begin{equation}
+  \int d\theta^{*}d\theta\ e^{-\theta^{*}b\theta}
+  = \int d\theta^{*}d\theta\ (1 - \theta^{*}b\theta)
+  = \int d\theta^{*}d\theta\ (1 + \theta\theta^{*}b) = b .
+  \label{eq:9.66}
+\end{equation}
+如果 $\theta$ 是普通复数，这个积分将等于 $2\pi/b$。因子 $2\pi$ 不重要；与反对易数的主要区别在于 $b$ 出现在分子而非分母中。然而，如果被积函数中还有额外的 $\theta\theta^{*}$ 因子，我们得到
+\begin{equation}
+  \int d\theta^{*}d\theta\ \theta\theta^{*}\ e^{-\theta^{*}b\theta}
+  = 1 = 1/b .
+  \label{eq:9.67}
+\end{equation}
+额外的 $\theta\theta^{*}$ 引入一个 $(1/b)$ 因子，就像在普通高斯积分中一样。
+
+为了在更高维中做一般的高斯积分，我们必须首先证明复格拉斯曼变量的积分在幺正变换下不变。考虑一组 $n$ 个复格拉斯曼变量 $\theta_i$ 和一个幺正矩阵 $U$。如果 $\theta'_i = U_{ij}\theta_j$，那么积分测度的变换引入 $U$ 的行列式，它是一个相位。与被积函数的变换一起，相位抵消，我们发现积分在幺正变换下不变。
+
+于是复格拉斯曼变量的一般高斯积分可以通过用幺正变换对角化厄米矩阵 $M$，并对每个本征值使用 \eqref{eq:9.66} 来计算。结果是
+\begin{equation}
+  \int \Bigl[ \prod_i d\theta^{*}_i d\theta_i \Bigr]\
+    \exp\Bigl[ -\theta^{*}_i M_{ij}\theta_j \Bigr] = \det M .
+  \label{eq:9.70}
+\end{equation}
+这是反对易场泛函积分的基本公式。注意行列式出现在分子中，与玻色子情形相反，后者出现的是逆行列式。
+
+\subsection{狄拉克传播子}
+
+我们现在准备好把泛函方法应用于 Dirac 场。自由 Dirac 场的生成泛函为
+\begin{equation}
+  Z[\eta, \bar{\eta}] = \int \mathcal{D}\bar{\psi}\,\mathcal{D}\psi\
+    \exp\Bigl[ i\int d^4x\ \Bigl( \bar{\psi}(i\slashed{\partial}-m)\psi
+      + \bar{\eta}\psi + \bar{\psi}\eta \Bigr) \Bigr] ,
+  \label{eq:9.71}
+\end{equation}
+其中 $\eta$ 和 $\bar{\eta}$ 是格拉斯曼值的源。像标量情形那样配平方，并使用高斯积分 \eqref{eq:9.70}，我们发现
+\begin{equation}
+  Z[\eta, \bar{\eta}] = Z_0\ \exp\Bigl[ -\int d^4x\,d^4y\
+    \bar{\eta}(x)\,S_F(x-y)\,\eta(y) \Bigr] ,
+  \label{eq:9.74}
+\end{equation}
+其中 $S_F(x-y)$ 是 Dirac 场的费曼传播子，
+\begin{equation}
+  S_F(x-y) = \int \frac{d^4p}{(2\pi)^4}\ \frac{i(\slashed{p}+m)}
+    {p^2-m^2+i\epsilon}\ e^{-ip\cdot(x-y)} .
+\end{equation}
+关联函数通过对源求导得到。例如，
+\begin{equation}
+  \langle 0|T\psi(x_1)\bar{\psi}(x_2)|0\rangle
+  = \frac{1}{Z_0}\ \Bigl( -i\frac{\delta}{\delta\eta(x_1)} \Bigr)\
+    \Bigl( -i\frac{\delta}{\delta\bar{\eta}(x_2)} \Bigr)\ Z[\eta,\bar{\eta}]
+    \Big|_{\eta=\bar{\eta}=0}
+  = S_F(x_1-x_2) .
+  \label{eq:9.75}
+\end{equation}
+把 $Z[\eta,\bar{\eta}]$ 的公式 \eqref{eq:9.74} 代入并仔细跟踪符号，我们发现这个表达式等于费曼传播子 $S_F(x_1-x_2)$。更高阶的关联函数可以类似地计算。
+
+\subsection{量子电动力学（QED）}
+
+正如我们在第 9.2 节对标量场的情形所看到的，泛函积分方法允许我们直接从相互作用场论的拉格朗日量读出顶点的费曼规则。对于量子电动力学理论，完整的拉格朗日量为
+\begin{equation}
+  \begin{aligned}
+    \mathcal{L}_{\mathrm{QED}} &= \bar{\psi}(i\gamma^\mu\partial_\mu-m)\psi
+      - \tfrac{1}{4}(F_{\mu\nu})^2\\
+    &= \bar{\psi}(i\slashed{D}-m)\psi - \tfrac{1}{4}(F_{\mu\nu})^2
+      - e\bar{\psi}\gamma^\mu\psi A_\mu\\
+    &= \mathcal{L}_0 - e\bar{\psi}\gamma^\mu\psi A_\mu ,
+  \end{aligned}
+  \label{eq:9.76}
+\end{equation}
+其中 $D_\mu = \partial_\mu + ieA_\mu$ 是规范协变导数。
+
+为了计算关联函数，我们展开相互作用项的指数：
+\begin{equation}
+  \exp\Bigl[ i\int \mathcal{L} \Bigr] = \exp\Bigl[ i\int \mathcal{L}_0 \Bigr]\
+    \Bigl[ 1 - ie\int d^4x\ \bar{\psi}\gamma^\mu\psi A_\mu + \cdots \Bigr] .
+\end{equation}
+自由拉格朗日量的两项分别给出本节和上一节推导的 Dirac 传播子和电磁传播子：
+\begin{equation}
+  \psi\bar{\psi}: \quad \frac{i(\slashed{p}+m)}{p^2-m^2+i\epsilon};\qquad
+  A^\mu A^\nu: \quad \frac{-ig^{\mu\nu}}{k^2+i\epsilon}
+    \quad \text{(费曼规范)} .
+\end{equation}
+相互作用项给出 QED 顶点，
+\begin{equation}
+  \text{顶点} = -ie\gamma^\mu .
+\end{equation}
+像第 4 章一样，我们可以重新整理这些规则，对顶点位置积分得到动量守恒 delta 函数，并利用这些 delta 函数完成大多数传播子动量积分。
+
+QED 费曼规则唯一剩下的方面是各种负号的放置。这些负号也内建在泛函积分中；例如，在式~\eqref{eq:9.70} 中交换 $\theta_k$ 和 $\theta_j$ 会引入一个 $-1$ 因子。我们将在接下来的计算中看到费米子负号的另一个例子。
+
+\subsection{泛函行列式}
+
+在整个这一章中，我们遇到了形式上写为泛函行列式的表达式。为了结束本节，让我们更仔细地研究其中一个对象。我们将发现，至少在这种情形下，可以把行列式显式地写为费曼图之和。
+
+考虑对象
+\begin{equation}
+  \int \mathcal{D}\bar{\psi}\,\mathcal{D}\psi\ \exp\Bigl[ i\int d^4x\
+    \bar{\psi}(i\slashed{D}-m)\psi \Bigr],
+  \label{eq:9.77}
+\end{equation}
+其中 $D_\mu = \partial_\mu + ieA_\mu$，$A_\mu(x)$ 是给定的外背景场。形式上，这个表达式是一个泛函行列式：
+\begin{equation}
+  \begin{aligned}
+    \int \mathcal{D}\bar{\psi}\,\mathcal{D}\psi\ \exp\Bigl[ i\int d^4x\
+      \bar{\psi}(i\slashed{D}-m)\psi \Bigr]
+    &= \det(i\slashed{D}-m) = \det(i\slashed{\partial}-m - e\slashed{A})\\
+    &= \det(i\slashed{\partial}-m)\cdot\det\Bigl( 1 -
+      \frac{1}{i\slashed{\partial}-m}(-e\slashed{A}) \Bigr) .
+  \end{aligned}
+\end{equation}
+在最后一种形式中，第一项是无穷大常数。第二项包含行列式对外场 $A$ 的依赖。我们现在将证明这种依赖是良好定义的，事实上恰好等于真空图之和。
+
+为了证明这一点，我们只需要应用线性代数的标准恒等式。首先注意，如果矩阵 $B$ 有本征值 $b_i$，我们可以把它的行列式写为
+\begin{equation}
+  \det B = \prod_i b_i = \exp\Bigl[ \sum_i \log b_i \Bigr]
+  = \exp\Bigl[ \mathrm{Tr}\bigl( \log B \bigr) \Bigr],
+  \label{eq:9.78}
+\end{equation}
+其中矩阵的对数由其幂级数定义。把这个恒等式应用于我们的行列式，并写出对数的幂级数，我们得到
+\begin{equation}
+  \det\Bigl( 1 - \frac{1}{i\slashed{\partial}-m}(-e\slashed{A}) \Bigr)
+  = \exp\Bigl[ -\sum_{n=1}^{\infty} \frac{1}{n}\ \mathrm{Tr}\Bigl(
+    \frac{1}{i\slashed{\partial}-m}(-e\slashed{A}) \Bigr)^n \Bigr] .
+  \label{eq:9.79}
+\end{equation}
+或者，我们可以通过回到表达式 \eqref{eq:9.77} 并使用费曼图来计算这个行列式。展开相互作用项，我们得到顶点规则 $-ie\gamma^\mu$。于是我们的行列式等于费曼图之和，
+\begin{equation}
+  \text{(所有带 } n \text{ 条外光子腿的闭合费米子圈图之和)} .
+  \label{eq:9.80}
+\end{equation}
+级数指数化，因为不连通图是连通部分的乘积（当一个部分重复出现时带有适当的对称因子）。
+
+现在让我们计算 \eqref{eq:9.79} 指数中的第 $n$ 个图。费米子圈给出一个 $-1$ 因子，对称因子为 $1/n$，因为我们可以把相互作用绕图旋转至多 $n$ 次而不改变它。（因子不是 $1/n!$，因为相互作用点的循环顺序是重要的。）因此该图为
+\begin{equation}
+  -\int d^4x_1\cdots d^4x_n\ \mathrm{tr}\bigl( -ie\slashed{A}(x_1) \bigr)\
+    S_F(x_2-x_1)\cdots\ \bigl( -ie\slashed{A}(x_n) \bigr)\ S_F(x_1-x_n)
+  \label{eq:9.81}
+\end{equation}
+与 \eqref{eq:9.79} 精确一致，包括负号和对称因子。
+
+使用费曼图计算泛函行列式是一个重要的工具，我们将在第 11 章看到。
+
+\section{泛函形式中的对称性}
+
+我们现在看到，标量场、矢量场和旋量场的量子场论关联函数可以从泛函积分计算，完全绕过了哈密顿量的构造、态的希尔伯特空间和运动方程。泛函积分形式体系使问题的对称性显现出来；拉格朗日量的任何不变性都将是量子动力学的不变性。\footnote{这一规则有一些微妙的例外，我们将在第 19 章处理。} 然而，我们还希望能够援引来自量子运动方程的守恒律，或者这些运动方程本身。例如，Ward 恒等式——它在我们对 QED 中光子的讨论（第 5.5 节）中起了重要作用——本质上就是电荷的守恒律。正如我们在第 2.2 节看到的，守恒律来自拉格朗日量的对称性，因此人们可能猜想从泛函积分推导这些守恒律并不困难。在本节中，我们将看到如何做到这一点。我们将看到，泛函积分以最直接的方式给出 Noether 定理的量子推广。这个结果将导致一般量子场论任何对称性的沃德-高桥恒等式的类比。
+
+\subsection{运动方程}
+
+为了给这一讨论做准备，我们应该确定量子运动方程如何从泛函积分形式体系得出。作为研究的第一个问题，让我们考察自由标量场的格林函数。具体来说，考虑三点函数：
+\begin{equation}
+  \langle\Omega|T\phi(x_1)\phi(x_2)\phi(x_3)|\Omega\rangle
+  = Z^{-1}\int \mathcal{D}\phi\ e^{i\int d^4x\ \mathcal{L}}\
+    \phi(x_1)\phi(x_2)\phi(x_3) ,
+  \label{eq:9.82}
+\end{equation}
+其中 $\mathcal{L} = \tfrac{1}{2}(\partial_\mu\phi)^2 - \tfrac{1}{2}m^2\phi^2$，$Z$ 是 $Z[J=0]$ 的简写，即对指数的泛函积分。在经典力学中，我们通过坚持作用量在无穷小变分下取驻值来推导运动方程
+\begin{equation}
+  \phi(x) \to \phi'(x) = \phi(x) + \epsilon(x) .
+  \label{eq:9.83}
+\end{equation}
+适当的推广是把 \eqref{eq:9.83} 视为无穷小变量变换。变量变换不改变积分的值。积分变量的平移也不改变测度：$\mathcal{D}\phi' = \mathcal{D}\phi$。因此我们可以写
+\begin{equation}
+  \int \mathcal{D}\phi\ e^{i\int d^4x\ \mathcal{L}}\ \phi(x_1)\phi(x_2)
+    \phi(x_3) = \int \mathcal{D}\phi'\ e^{i\int d^4x\ \mathcal{L}'}\
+    \phi'(x_1)\phi'(x_2)\phi'(x_3) ,
+\end{equation}
+其中 $\phi' = \phi + \epsilon$。把这个方程对 $\epsilon$ 展开到一阶，我们发现
+\begin{equation}
+  \begin{aligned}
+    0 &= \int \mathcal{D}\phi\ e^{i\int d^4x\ \mathcal{L}}\ \Bigl[
+      i\int d^4x\ \epsilon(x)(-\partial^2-m^2)\phi(x)\ \phi(x_1)\phi(x_2)
+        \phi(x_3)\\
+    &\quad + \epsilon(x_1)\phi(x_2)\phi(x_3) + \phi(x_1)\epsilon(x_2)\phi(x_3)
+      + \phi(x_1)\phi(x_2)\epsilon(x_3) \Bigr] .
+  \end{aligned}
+  \label{eq:9.84}
+\end{equation}
+最后三项可以通过写例如 $\epsilon(x_1) = \int d^4x\ \epsilon(x)\,\delta(x-x_1)$ 与第一项合并。注意到右端必须对任何可能的变分 $\epsilon(x)$ 为零，我们于是得到
+\begin{equation}
+  \begin{aligned}
+    0 &= \int \mathcal{D}\phi\ e^{i\int d^4x\ \mathcal{L}}\ \Bigl[
+      i(\partial^2+m^2)\phi(x)\ \phi(x_1)\phi(x_2)\phi(x_3)\\
+    &\quad + i\delta(x-x_1)\phi(x_2)\phi(x_3) + i\phi(x_1)\delta(x-x_2)
+      \phi(x_3) + i\phi(x_1)\phi(x_2)\delta(x-x_3) \Bigr] .
+  \end{aligned}
+  \label{eq:9.85}
+\end{equation}
+对任意数目的场 $\phi(x_i)$ 都有类似的方程成立。
+
+为了看出 \eqref{eq:9.85} 的意义，让我们特化到 \eqref{eq:9.82} 中只有一个场 $\phi(x_1)$ 的情形。注意作用在 $\phi(x)$ 上的导数可以提到泛函积分之外。于是，将 \eqref{eq:9.85} 除以 $Z$ 得到恒等式
+\begin{equation}
+  (\partial^2 + m^2)\ \langle\Omega|T\phi(x)\phi(x_1)|\Omega\rangle
+  = -i\delta(x-x_1) .
+  \label{eq:9.86}
+\end{equation}
+这个关系的左端是 Klein--Gordon 算符作用在 $\phi(x)$ 的关联函数上。右端除非 $x = x_1$ 否则为零；也就是说，关联函数满足 Klein--Gordon 方程，除了两个 $\phi$ 场的自变量重合的那一点。Klein--Gordon 方程在这一点处的修改称为\emph{接触项}。在这个简单情形下，这个修改对我们来说并不陌生；式~\eqref{eq:9.86} 只是说费曼传播子是 Klein--Gordon 算符的格林函数，正如我们最初在第 2.4 节证明的。我们在那里看到，当 $\partial^2$ 中的时间导数作用于时间排序符号时会出现 delta 函数。我们将在下面看到，在量子场论中相当普遍地，场的经典运动方程被那些场的一切量子关联函数满足，直至接触项。
+
+作为例子，考虑由 \eqref{eq:9.85} 对标量场的 $(n+1)$ 点关联函数推出的恒等式：
+\begin{equation}
+  \begin{aligned}
+    (\partial^2+m^2)\ \langle\Omega|T\phi(x)\phi(x_1)\cdots\phi(x_n)
+      |\Omega\rangle
+    &= \sum_{i=1}^{n}\ \langle\Omega|T\phi(x_1)\cdots\bigl(
+      -i\delta(x-x_i) \bigr)\cdots\phi(x_n)|\Omega\rangle .
+  \end{aligned}
+  \label{eq:9.87}
+\end{equation}
+这个恒等式说 $\phi(x)$ 在任何期望值内部都服从 Klein--Gordon 方程，直至与时间排序相联系的接触项。这个结果也可以用第 2.4 节的方法从哈密顿形式体系推导，或者利用自由场论的特殊性质，通过 Wick 定理计算方程两端来得到。
+
+只要泛函测度在积分变量的平移下不变，我们就可以重复这一论证，得到任何由标量场、矢量场和旋量场组成的理论的格林函数量子运动方程。这就是为什么在式~\eqref{eq:9.63} 中我们把平移不变性作为格拉斯曼积分的基本定义性质。
+
+对于由拉格朗日量 $\mathcal{L}[\phi]$ 支配的一般场论，其中场为 $\phi(x)$，导致 \eqref{eq:9.84} 的操作给出恒等式
+\begin{equation}
+  0 = \int \mathcal{D}\phi\ e^{i\int d^4x\ \mathcal{L}}\ \Bigl[
+    i\frac{\delta S}{\delta\phi(x)}\ \phi(x_1)\cdots\phi(x_n)
+    + \sum_{i=1}^{n} i\delta(x-x_i)\ \phi(x_1)\cdots\phi(x_n) \Bigr] ,
+  \label{eq:9.88}
+\end{equation}
+对 $n$ 个场的关联函数也有类似恒等式。根据泛函求导规则 \eqref{eq:9.31}，作用量的导数为
+\begin{equation}
+  \frac{\delta S}{\delta\phi(x)} = \frac{\partial\mathcal{L}}
+    {\partial\phi(x)} - \partial_\mu
+      \frac{\partial\mathcal{L}}{\partial(\partial_\mu\phi)} ;
+\end{equation}
+这个量由 $\phi$ 的欧拉-拉格朗日运动方程 \eqref{eq:2.3} 使其等于零。公式 \eqref{eq:9.88} 及其推广导致一组恒等式
+\begin{equation}
+  \Bigl\langle \frac{\delta S}{\delta\phi(x)}\ \phi(x_1)\cdots\phi(x_n)
+    \Bigr\rangle = -i\sum_{i=1}^{n}\ \delta(x-x_i)\
+    \langle \phi(x_1)\cdots\phi(x_n) \rangle .
+  \label{eq:9.89}
+\end{equation}
+在这个方程中，尖括号表示时间排序关联函数，其中对 $\phi(x)$ 的导数放在时间排序符号之外，如式~\eqref{eq:9.87} 中那样。关系 \eqref{eq:9.89} 说明场的经典欧拉-拉格朗日方程被 $\phi$ 的一切格林函数满足，直至来自场算符非平凡对易关系的接触项。这些格林函数的量子运动方程（包括适当的接触项）称为\emph{施温格-戴森方程}。
+
+\subsection{守恒律}
+
+在经典场论中，Noether 定理说，对局部拉格朗日量的每个对称性，都存在一个相应的守恒流。在第 2.2 节中，我们通过使拉格朗日量经受无穷小对称变分来证明 Noether 定理。本着上述运动方程讨论的精神，我们应该通过使泛函积分沿对称方向经受无穷小变量变换来找到这个定理的量子类比。
+
+同样，从一个例子开始将最有启发意义。让我们考虑自由复值标量场的理论，其拉格朗日量为
+\begin{equation}
+  \mathcal{L} = |\partial_\mu\phi|^2 - m^2|\phi|^2 .
+  \label{eq:9.90}
+\end{equation}
+这个拉格朗日量在变换 $\phi\to e^{i\alpha}\phi$ 下不变。经典 Noether 流为
+\begin{equation}
+  j^\mu = i\bigl[ (\partial^\mu\phi^{*})\phi - \phi^{*}(\partial^\mu\phi) \bigr]
+  = \frac{\partial\mathcal{L}}{\partial(\partial_\mu\phi)}\,\Delta\phi
+    - \mathcal{J}^\mu ,
+  \label{eq:9.96}
+\end{equation}
+它是守恒的，$\partial_\mu j^\mu = 0$。为了找到量子类比，我们做无穷小对称变换
+\begin{equation}
+  \phi \to (1 + i\epsilon(x))\phi,\qquad
+  \phi^{*} \to (1 - i\epsilon(x))\phi^{*},
+\end{equation}
+其中 $\epsilon(x)$ 是时空的函数。由于拉格朗日量对常数 $\epsilon$ 不变，$\mathcal{L}$ 的变分正比于 $\partial_\mu\epsilon$。完成导致 \eqref{eq:9.85} 的各个步骤，我们发现施温格-戴森方程：
+\begin{equation}
+  \begin{aligned}
+    \partial_\mu\ \bigl\langle j^\mu(x)\,\phi(x_1)\phi^{*}(x_2) \bigr\rangle
+    &= -i\Bigl\langle \bigl( \Delta\phi(x_1)\,\delta(x-x_1) \bigr)
+      \phi^{*}(x_2) + \phi(x_1)\bigl( \Delta\phi^{*}(x_2)\,
+        \delta(x-x_2) \bigr) \Bigr\rangle .
+  \end{aligned}
+  \label{eq:9.98}
+\end{equation}
+对 $j^\mu$ 与 $n$ 个场 $\phi(x)$ 的关联函数也可以找到类似的方程。这些给出了与经典 Noether 定理相联系的全套施温格-戴森方程。
+
+作为使用这个变分程序获得 Noether 流的例子，考虑拉格朗日量关于时空平移的对称性。在变换
+\begin{equation}
+  \phi_a \to \phi_a + a^\mu(x)\partial_\mu\phi_a ,
+  \label{eq:9.99}
+\end{equation}
+下拉格朗日量变换为
+\begin{equation}
+  \mathcal{L} \to \mathcal{L} +
+    \frac{\partial\mathcal{L}}{\partial(\partial_\nu\phi_a)}\,
+      \partial_\mu a^\mu\,\partial_\nu\phi_a + a^\mu\partial_\mu\mathcal{L} .
+\end{equation}
+$\int d^4x\ \mathcal{L}$ 关于 $a^\mu$ 的变分于是产生能量-动量张量的守恒方程 $\partial_\nu T^{\mu\nu} = 0$，其中
+\begin{equation}
+  T^{\mu\nu} = \frac{\partial\mathcal{L}}{\partial(\partial_\mu\phi_a)}\,
+    \partial^\nu\phi_a - g^{\mu\nu}\mathcal{L} ,
+  \label{eq:9.100}
+\end{equation}
+与式~\eqref{eq:2.17} 一致。
+
+我们在本节中使用的技巧——考虑参数是时空函数的对称变换——让人想起我们早先引入 QED 拉格朗日量时讨论的一个技术特征。在式~\eqref{eq:4.6} 中，我们指出把光子耦合到带电场的最小耦合规则产生的拉格朗日量不仅在 $\alpha$ 为常数的整体对称变换下不变，而且在对称参数依赖于 $x$ 的变换下也不变。在第 15 章中，我们将把这两个思想放在一起，对具有局域对称性的场论进行一般讨论。
+
+\subsection{沃德-高桥恒等式}
+
+作为本节方法的最后一个应用，让我们推导与 QED 整体对称性相联系的施温格-戴森方程。考虑在 QED 泛函积分中做变量变换
+\begin{equation}
+  \psi(x) \to (1 + ie\alpha(x))\psi(x),
+  \label{eq:9.101}
+\end{equation}
+而不在 $A_\mu$ 的变换律中包含相应的项（那会使拉格朗日量在变换下不变）。于是 QED 拉格朗日量 \eqref{eq:4.3} 按
+\begin{equation}
+  \mathcal{L} \to \mathcal{L} - j^\mu\partial_\mu\alpha ,
+  \label{eq:9.102}
+\end{equation}
+变换，其中 $j^\mu = \bar{\psi}\gamma^\mu\psi$ 是 Dirac 矢量流。于是变换 \eqref{eq:9.101} 对两个费米子场的泛函积分导致下面的恒等式：
+\begin{equation}
+  \begin{aligned}
+    0 &= \int \mathcal{D}\bar{\psi}\,\mathcal{D}\psi\,\mathcal{D}A\
+      e^{i\int d^4x\ \mathcal{L}}\ \Bigl[ -i\int d^4x\ \partial_\mu\alpha\,
+      j^\mu(x)\ \psi(x_1)\bar{\psi}(x_2)\\
+    &\quad + \bigl( ie\alpha(x_1)\psi(x_1) \bigr)\bar{\psi}(x_2)
+      + \psi(x_1)\bigl( -ie\alpha(x_2)\bar{\psi}(x_2) \bigr) \Bigr] ,
+  \end{aligned}
+  \label{eq:9.103}
+\end{equation}
+其中 $j^\mu = \bar{\psi}\gamma^\mu\psi$。与我们其他的例子一样，对任意数目的费米子场都有类似的方程成立。
+
+为了理解这组方程的意义，首先考虑特例 \eqref{eq:9.103}。把这个关系除以 $Z$，我们发现
+\begin{equation}
+  \begin{aligned}
+    \langle 0|T\,\partial_\mu j^\mu(x)\,\psi(x_1)\bar{\psi}(x_2)|0\rangle
+    &= -ie\,\delta(x-x_1)\ \langle 0|T\psi(x_1)\bar{\psi}(x_2)|0\rangle\\
+    &\quad + ie\,\delta(x-x_2)\ \langle 0|T\psi(x_1)\bar{\psi}(x_2)|0\rangle .
+  \end{aligned}
+  \label{eq:9.104}
+\end{equation}
+为了把这个方程放到更熟悉的形式中，通过积分计算其傅里叶变换：
+\begin{equation}
+  \int d^4x\ e^{ik\cdot x}\ \int d^4x_1\,d^4x_2\ e^{-ip\cdot x_1}\
+    e^{iq\cdot x_2}\ \cdots .
+  \label{eq:9.105}
+\end{equation}
+于是 \eqref{eq:9.104} 中的振幅被转换为在 \eqref{eq:7.67} 下面讨论沃德-高桥恒等式时定义的振幅 $\mathcal{M}^\mu(k;p;q)$ 和 $\mathcal{M}_0(p;q)$。事实上，\eqref{eq:9.104} 直接落入
+\begin{equation}
+  -ik_\mu\mathcal{M}^\mu(k;p;q) = -ie\mathcal{M}_0(p;q-k)
+    + ie\mathcal{M}_0(p+k;q) .
+  \label{eq:9.106}
+\end{equation}
+的形式。这正是两个外费米子的沃德-高桥恒等式，我们在第 7.4 节用图方法推导过它。不难检验涉及 $n$ 个费米子场的更一般关系导致 \eqref{eq:7.68} 中给出的一般沃德-高桥恒等式。由于这一关系，与任意对称性式~(9.94) 相联系的公式 \eqref{eq:9.98} 通常也被称为沃德-高桥恒等式，即与该对称性及其 Noether 流相联系的那个恒等式。
+
+我们现在对沃德-高桥恒等式右端的各项有了更一般的理解。这些就是我们现在预期在把经典运动方程转换为量子格林函数的施温格-戴森方程时会遇到的接触项。泛函积分形式体系允许对这些量子力学项进行简单而优雅的推导。
+
+\problems
+
+\textbf{9.1} \emph{标量 QED。} 本题涉及与电磁场 $A^\mu$ 相互作用的复标量场 $\phi$ 的理论。拉格朗日量为
+\begin{equation}
+  \mathcal{L} = -\frac{1}{4}F^2_{\mu\nu} + (D_\mu\phi)^{*}(D^\mu\phi)
+    - m^2\phi^{*}\phi ,
+\end{equation}
+其中 $D_\mu = \partial_\mu + ieA_\mu$ 是通常的规范协变导数。
+\begin{enumerate}[label=(\alph*)]
+  \item 用第 9.2 节的泛函方法证明复标量场的传播子与实场的相同：
+    \begin{equation}
+      \phi(p)\phi^{*}(p') = \frac{i}{p^2-m^2+i\epsilon}\,
+        (2\pi)^4\delta^{(4)}(p-p') .
+    \end{equation}
+    还要推导光子和标量粒子之间相互作用的费曼规则；你应该发现
+    \begin{equation}
+      \text{(三点顶点)} = 2ie(p_1+p_2)^\mu; \qquad
+      \text{(四点顶点)} = 2ie^2g^{\mu\nu} .
+    \end{equation}
+  \item 计算最低阶的 $e^{+}e^{-}\to\phi\phi^{*}$ 微分截面。忽略电子质量（但不忽略标量粒子的质量），并对电子和正电子的极化求平均。求出渐近角依赖关系和总截面。把你的结果与 $e^{+}e^{-}\to\mu^{+}\mu^{-}$ 的相应公式比较。
+  \item 用维数正规化计算带电标量对光子真空极化的贡献。注意有两个图。为了把答案放入预期的形式，
+    \begin{equation}
+      \Pi^{\mu\nu}(q^2) = (g^{\mu\nu}q^2 - q^\mu q^\nu)\,\Pi(q^2) ,
+    \end{equation}
+    在一开始就把两个图加起来是有用的，在引入费曼参数之前把两项放在公分母上。证明对 $-q^2 \gg m^2$，带电玻色子对 $\Pi(q^2)$ 的贡献恰好是虚电子-正电子对贡献的 $1/4$。
+\end{enumerate}
+
+\textbf{9.2} \emph{量子统计力学。}
+\begin{enumerate}[label=(\alph*)]
+  \item 用第 9.1 节计算 $e^{-iHt}$ 矩阵元的泛函积分策略，计算量子统计配分函数
+    \begin{equation}
+      Z = \mathrm{tr}\bigl[ e^{-\beta H} \bigr]
+    \end{equation}
+    （其中 $\beta = 1/k_BT$）。证明你再次得到一个泛函积分，其积分函数定义在长度为 $\beta$ 的域上，并在时间方向周期性地连接起来。注意拉格朗日量的欧几里得形式出现在权重中。通过引入 $x(t)$ 的傅里叶分解，
+    \begin{equation}
+      x(t) = \sum_n x_n\ \frac{1}{\sqrt{\beta}}\ e^{2\pi int/\beta} .
+    \end{equation}
+    对简单谐振子
+    \begin{equation}
+      L = \tfrac{1}{2}\dot{x}^2 + \tfrac{1}{2}\omega^2x^2 ,
+    \end{equation}
+    计算这个积分。结果对 $\beta$ 的依赖有点微妙，难以显式获得，因为对 $x(t)$ 积分的测度在任何离散化中都依赖于 $\beta$。然而，对 $\omega$ 的依赖应当是明确的。证明，至多差一个（可能发散且依赖 $\beta$ 的）常数，这个积分精确重现谐振子量子配分函数的熟悉表达式。[你可能会发现恒等式
+    \begin{equation}
+      \sinh z = z\cdot\prod_{n=1}^{\infty}\Bigl( 1 + \frac{z^2}{n^2\pi^2}
+        \Bigr)
+    \end{equation}
+    有用。]
+  \item 把这个构造推广到场论。证明自由标量场的量子统计配分函数可以用泛函积分写出。这个积分的值形式上由
+    \begin{equation}
+      \bigl[ \det(-\partial^2+m^2) \bigr]^{-1/2} ,
+    \end{equation}
+    给出，其中算符作用在欧几里得空间中的函数上，这些函数在时间方向具有周期性 $\beta$。和以前一样，这个表达式的 $\beta$ 依赖性难以直接计算。然而，对 $m^2$ 的依赖是明确的。（更一般地说，人们通常可以计算泛函行列式对拉格朗日量中任何显式参数的变化。）证明这个行列式确实重现相对论标量粒子的配分函数。
+  \item 现在设 $\psi(t)$，$\bar{\psi}(t)$ 是两个格拉斯曼值坐标，通过写下拉格朗日量
+    \begin{equation}
+      L = \bar{\psi}i\partial_t\psi + \omega\bar{\psi}\psi .
+    \end{equation}
+    来定义费米子谐振子。这个拉格朗日量对应于哈密顿量
+    \begin{equation}
+      H = \omega[\bar{\psi}, \psi] \qquad\text{且 } \{\bar{\psi},\psi\}=1;
+    \end{equation}
+    也就是说，对应于一个简单的二能级系统。计算泛函积分，假设费米子满足反周期边界条件：$\psi(t+\beta) = -\psi(t)$。（为什么这是合理的？）证明结果重现量子力学二能级系统的配分函数，即费米统计量子态的配分函数。
+  \item 把光子场的配分函数定义为规范不变泛函积分
+    \begin{equation}
+      Z = \int \mathcal{D}A\ \exp\Bigl\{ -\int d^4x_E\
+        \tfrac{1}{4}(F_{\mu\nu})^2 \Bigr\}
+    \end{equation}
+    其中矢量场 $A^\mu$ 在时间方向具有周期性 $\beta$。应用第 9.4 节讨论的规范固定程序（例如在费曼规范中计算）。利用第 (c) 部分的结果计算泛函行列式，并证明该泛函积分确实给出正确的量子统计结果（包括极化态数目的正确计数）。
+\end{enumerate}

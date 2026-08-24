@@ -1,0 +1,1320 @@
+% =====================================================================
+%  Chapter 10: More About Lattice Fermions
+%  Gattringer & Lang, "Quantum Chromodynamics on the Lattice" (LNP 788)
+%  Reconstructed from extract/ch10.txt; equations auto-numbered.
+% =====================================================================
+
+\chapter{More About Lattice Fermions}
+
+The implementation of chiral symmetry on the lattice discussed in Chap.~7
+was an unsolved puzzle for many years. The problem has continuously inspired
+the lattice community and led to a variety of formulations for fermions on
+the lattice. So far we have focused on two kinds of fermions in our
+presentation, Wilson-type and overlap fermions. Wilson fermions provide a
+simple robust and easy-to-use discretization, while overlap fermions
+implement chiral symmetry in the most transparent way.
+
+Here we introduce some of the other ideas for discretizing fermions on the
+lattice; most of them rooted in the problem of chiral symmetry. The
+exceptions are heavy quark effective formulations designed for simulations
+with heavy quarks like charm and bottom. We stress that we can only cover the
+basic ideas for the various lattice fermions and refer to the original
+literature for more detailed accounts and the current status of numerical
+simulations.
+
+\section{Staggered Fermions}
+
+Staggered fermions, often referred to as Kogut--Susskind fermions [1], are a
+formulation where the 16-fold degeneracy of the naive discretization is
+reduced to only four quarks, while at the same time a remnant chiral symmetry
+is maintained. This is achieved by a transformation which mixes spinor and
+space--time indices, distributing the quark degrees of freedom on the
+hypercubes of the lattice.
+
+\subsection{The Staggered Transformation}
+
+In order to construct staggered fermions we go back to the naive
+discretization already presented in (2.29). The free naive fermion action
+reads
+\begin{equation}
+  S_F[\bar\psi, \psi] = a^4 \sum_{n\in\Lambda}
+  \left[
+    \sum_{\mu=1}^{4} \bar\psi(n)\, \gamma_\mu \,
+    \frac{\psi(n+\hat\mu) - \psi(n-\hat\mu)}{2a}
+    + m\,\bar\psi(n)\psi(n)
+  \right] .
+\end{equation}
+As we have found in Sect.~5.2, due to the doublers, this action gives rise to
+16 quark flavors. In the Wilson Dirac operator 15 of these are removed by
+adding the Wilson term at the cost of explicitly breaking chiral symmetry.
+
+However, action (10.1) has a symmetry which can be used to reduce the number
+of quark flavors without having to break chiral symmetry. To make explicit
+this symmetry one performs a space--time-dependent variable transformation of
+the fermion fields $\psi(n)$, $\bar\psi(n)$. This so-called staggered
+transformation eliminates the matrices $\gamma_\mu$ in (10.1). To see this we
+define new field variables $\psi'(n)$ and $\bar\psi'(n)$ by setting
+\begin{equation}
+  \psi(n) = \gamma_1^{n_1}\gamma_2^{n_2}\gamma_3^{n_3}\gamma_4^{n_4}
+  \,\psi'(n) , \qquad
+  \bar\psi(n) = \bar\psi'(n)\,
+  \gamma_4^{n_4}\gamma_3^{n_3}\gamma_2^{n_2}\gamma_1^{n_1} .
+\end{equation}
+The transformation matrices are simply products of the $\gamma_\mu$ raised to
+a power given by the corresponding component $n_\mu$ of the site index
+$n = (n_1, n_2, n_3, n_4)$. The staggered transformation thus mixes
+space--time and Dirac indices.
+
+Since the $\gamma$-matrices obey $\gamma_\mu^2 = 1$, it is obvious that the
+mass term is invariant, i.e., $\bar\psi(n)\psi(n) = \bar\psi'(n)\psi'(n)$. In
+the kinetic term of (10.1) the $\psi$-field is shifted by one lattice constant
+with respect to the $\bar\psi$-field. Thus transformations (10.2) for the
+fields on the two sites differ by one power of $\gamma_\mu$. This extra
+$\gamma_\mu$ cancels the one which is explicit in the kinetic term of (10.1).
+Taking into account the necessary reordering of the $\gamma$-matrices one
+finds for the terms of the derivative in, e.g., the 3-direction
+\begin{equation}
+  \bar\psi(n)\, \gamma_3\, \psi(n \pm \hat{3})
+  = (-1)^{n_1 + n_2}\, \bar\psi'(n)\; \mathbf{1} \;
+  \psi(n \pm \hat{3})'
+\end{equation}
+and similar for the terms in the other directions. The action (10.1) turns
+into
+\begin{equation}
+  \begin{split}
+    S_F[\bar\psi', \psi'] = a^4 \sum_{n\in\Lambda}
+    \Bigl[ &\sum_{\mu=1}^{4} \bar\psi'(n)\; \mathbf{1} \;
+      \eta_\mu(n) \frac{\psi'(n+\hat\mu) - \psi'(n-\hat\mu)}{2a}\\
+    &\quad + m\,\bar\psi'(n)\psi'(n)
+    \Bigr] ,
+  \end{split}
+\end{equation}
+where we have introduced the staggered sign functions
+\begin{equation}
+  \begin{aligned}
+    \eta_1(n) &= 1 , \qquad \eta_2(n) = (-1)^{n_1} , \\
+    \eta_3(n) &= (-1)^{n_1 + n_2} , \qquad
+    \eta_4(n) = (-1)^{n_1 + n_2 + n_3} ,
+  \end{aligned}
+\end{equation}
+which take over the role of the matrices $\gamma_\mu$. Obviously action (10.4)
+is diagonal in Dirac space and has the same form for all four Dirac
+components.
+
+The staggered fermion action is obtained by keeping only one of the four
+identical components. Coupling the gauge fields we end up with
+\begin{multline}
+  S_F[\bar\chi, \chi] = a^4 \sum_{n\in\Lambda}
+  \Bigg[
+    \sum_{\mu=1}^{4} \bar\chi(n)\, \eta_\mu(n)
+    \frac{U_\mu(n)\chi(n+\hat\mu) - U_\mu^{\dagger}(n-\hat\mu)\chi(n-\hat\mu)}{2a}
+  \\
+  \qquad\qquad + m\,\bar\chi(n)\chi(n)
+  \Bigg] ,
+\end{multline}
+where $\chi(n)$ and $\bar\chi(n)$ are Grassmann-valued fields with only color
+indices but without Dirac structure. Having discarded 3 of the 4 identical
+copies, we can expect that from the 16 quark degrees of freedom of the naive
+action only 4 have survived. This hypothesis will be analyzed in the next
+section.
+
+We have claimed that the staggered transformation leaves a subset of the
+chiral symmetry intact. In order to see this, we first must identify
+$\gamma_5$ in the new spinor basis obtained by the transformation (10.2). The
+new form of $\gamma_5$ can be read off when transforming a pseudoscalar
+bilinear according to (10.2):
+\begin{equation}
+  \bar\psi(n)\, \gamma_5\, \psi(n) = \eta_5(n)\,
+  \bar\psi'(n)\; \mathbf{1} \; \psi'(n) ,
+\end{equation}
+where we have defined
+\begin{equation}
+  \eta_5(n) = (-1)^{n_1 + n_2 + n_3 + n_4} .
+\end{equation}
+This site-dependent sign plays the role of $\gamma_5$ in the staggered world.
+It is obvious that for vanishing mass $m$ the staggered action (10.6) is
+invariant under the continuous ($\alpha \in \mathbb{R}$) transformation
+\begin{equation}
+  \chi(n) \longrightarrow e^{i\alpha\eta_5(n)}\chi(n) , \qquad
+  \bar\chi(n) \longrightarrow \bar\chi(n)\, e^{i\alpha\eta_5(n)} .
+\end{equation}
+This is the global chiral symmetry for the staggered theory, where the quark
+degrees of freedom are distributed on the hypercube.
+
+\subsection{Tastes of Staggered Fermions}
+
+The staggered transformation mixes lattice and Dirac indices. This raises
+conceptual as well as technical questions. An example for the latter is the
+problem of constructing hadron interpolators with definite spin and parity.
+For details of this construction we refer the reader to the literature (e.g.,
+[2]), although some of the ideas can be found in the subsequent discussion.
+
+In order to understand better the conceptual status of staggered fermions, we
+here address the question of how many quarks the staggered action (10.6)
+describes and which symmetries relate them. For simplicity this study is done
+in the free case ($U_\mu(n) \equiv 1$).
+
+For the analysis of staggered fermions we follow the strategy developed in
+[3, 4]. The idea is to group together the 16 sites of a hypercube and to
+interpret the corresponding degrees of freedom as 4 species of quarks, each of
+them with the familiar 4-spinor structure. Let us assume that the $N_\mu$ are
+even, i.e., we have an even number of sites in all directions. We consider
+the non-intersecting hypercubes with origins separated by multiples of two
+lattice spacings. We write our site labels $n_\mu = 0, 1, \ldots, N_\mu - 1$
+in terms of labels $h_\mu$ for these hypercubes and labels $s_\mu$ for the
+corners of the hypercube as
+\begin{equation}
+  n_\mu = 2\,h_\mu + s_\mu
+  \qquad \text{with} \qquad
+  h_\mu = 0, 1, \ldots N_\mu/2 - 1 , \qquad
+  s_\mu = 0, 1 .
+\end{equation}
+With this labeling of sites, the staggered sign function $\eta_\mu(n)$ defined
+in (10.5) becomes independent of $h$ and is a function of only the vector $s$:
+\begin{equation}
+  \eta_\mu(n) = \eta_\mu(2h + s) = \eta_\mu(s) .
+\end{equation}
+We now want to combine all degrees of freedom, $\chi(2h+s)$, $\bar\chi(2h+s)$
+($s_\mu = 0, 1$), sharing a common hypercube label $h$ into a new set of
+fields $q(h)_{ab}$, $\bar q(h)_{ab}$ with indices $a, b = 1, 2, 3, 4$. In
+order to sneak in the familiar $\gamma$-matrices we define $s$-dependent
+$4\times 4$ matrices $\Gamma^{(s)}$ as products of the $\gamma_\mu$ (compare
+(10.2)),
+\begin{equation}
+  \Gamma^{(s)} = \gamma_1^{s_1}\gamma_2^{s_2}\gamma_3^{s_3}\gamma_4^{s_4} .
+\end{equation}
+It is easy to check that they obey the orthogonality and completeness
+relations familiar from Fierz transformation,
+\begin{equation}
+  \frac{1}{4}\,\tr\left[\Gamma^{(s)\dagger}\Gamma^{(s')}\right]
+  = \delta_{s,s'} , \qquad
+  \frac{1}{4}\sum_s \Gamma^{(s)*}_{ba}\,\Gamma^{(s)}_{b'a'}
+  = \delta_{a,a'}\,\delta_{b,b'} .
+\end{equation}
+We define new quark fields $q(h)$ and $\bar q(h)$ as linear combinations of
+the fields $\chi(2h+s)$, $\bar\chi(2h+s)$:
+\begin{equation}
+  q(h)_{ab} \equiv \frac{1}{8}\sum_s \Gamma^{(s)}_{ab}\,\chi(2h+s) , \qquad
+  \bar q(h)_{ab} \equiv \frac{1}{8}\sum_s
+  \bar\chi(2h+s)\,\Gamma^{(s)*}_{ba} .
+\end{equation}
+Using (10.13), the linear transformations can be inverted to obtain
+\begin{equation}
+  \chi(2h+s) = 2\,\tr\left[\Gamma^{(s)\dagger}q(h)\right] , \qquad
+  \bar\chi(2h+s) = 2\,\tr\left[\bar q(h)\Gamma^{(s)}\right] .
+\end{equation}
+With the help of these equations we can express the mass term of (10.6) in
+terms of the $q$ and $\bar q$ fields:
+\begin{equation}
+  \begin{split}
+    a^4\sum_n \bar\chi(n)\chi(n)
+    &= a^4\sum_h\sum_s \bar\chi(2h+s)\,\chi(2h+s) \\
+    &= 4a^4\sum_h\sum_s
+       \bar q(h)_{ba}\,\Gamma^{(s)}_{ab}\,\Gamma^{(s)*}_{b'a'}\,q(h)_{a'b'} \\
+    &= (2a)^4\sum_h \tr\left[\bar q(h)\,q(h)\right] ,
+  \end{split}
+\end{equation}
+where in the second step the completeness relation of (10.13) was used. The
+kinetic term of (10.6) is somewhat more tricky since the shifted fields
+$\chi(2h + s \pm \hat\mu)$ mix contributions from different hypercubes. We
+first must assign the proper hypercube to the individual fields
+$\chi(2h + s \pm \hat\mu)$ and only after that we can represent them in terms
+of the $q(h)_{ab}$. For the forward shifted field one finds
+\begin{equation}
+  \begin{aligned}
+    \chi(2h + s + \hat\mu)
+    &= 2\,\tr\left[\Gamma^{(s+\hat\mu)\dagger}q(h)\right]
+    && \text{for } s_\mu = 0 , \\
+    \chi(2h + s + \hat\mu)
+    &= \chi(2(h+\hat\mu) + s-\hat\mu)
+    = 2\,\tr\left[\Gamma^{(s-\hat\mu)\dagger}q(h+\hat\mu)\right]
+    && \text{for } s_\mu = 1 .
+  \end{aligned}
+\end{equation}
+From definition (10.12) of the $\Gamma^{(s)}$ follows
+$\Gamma^{(s\pm\hat\mu)} = \eta_\mu(s)\,\gamma_\mu\,\Gamma^{(s)}$, which brings
+(10.17) into the form
+\begin{equation}
+  \chi(2h + s + \hat\mu) =
+  2\eta_\mu(s)\,\tr\left[\Gamma^{(s)\dagger}\gamma_\mu
+  \left(q(h)\delta_{s_\mu,0} + q(h+\hat\mu)\delta_{s_\mu,1}\right)\right] .
+\end{equation}
+Performing the equivalent steps for the field shifted in negative
+$\mu$-direction, $\chi(2h + s - \hat\mu)$, we can write the $\mu$-contribution
+to the kinetic term of (10.6) as
+\begin{multline}
+  4a^4\sum_h\sum_s \frac{1}{2a}
+  \tr\left[\bar q(h)\Gamma^{(s)}\right] \\
+  \times \tr\left[\Gamma^{(s)\dagger}\gamma_\mu
+  \left(q(h)\delta_{s_\mu,0} + q(h+\hat\mu)\delta_{s_\mu,1}
+  - q(h-\hat\mu)\delta_{s_\mu,0} - q(h)\delta_{s_\mu,1}\right)\right] .
+\end{multline}
+Unfortunately we cannot yet sum over $s$ and employ the completeness relation
+of (10.13), since in the second factor $\Gamma^{(s)\dagger}$ is combined with
+$s$-dependent terms. This problem is overcome by realizing that in the
+summation over hypercubes, defined in (10.10), we could have started also at
+$\hat\mu$ instead of the origin. If one writes the sums over $h$ and $s$ in
+(10.16) with this shifted convention, some of the $q$ and $\bar q$ are shifted
+by $\pm\hat\mu$ and the hypercube indices $s_\mu = 0$ and $s_\mu = 1$ are
+interchanged. The latter change provides the $s_\mu$ contributions missing in
+(10.19). Thus we can average the two ways of writing (10.19) and obtain after
+some algebra
+\begin{equation}
+  \begin{split}
+    S_F[\bar q, q] = (2a)^4\sum_h \Big[
+    & m\,\tr\left[\bar q(h)q(h)\right] \\
+    &+ \sum_\mu \tr\left[\bar q(h)\gamma_\mu\nabla_\mu q(h)\right]
+    - a\sum_\mu \tr\left[\bar q(h)\gamma_5\Delta_\mu q(h)\gamma_\mu\gamma_5\right]
+    \Big] ,
+  \end{split}
+\end{equation}
+where we have defined derivative operators on the blocked lattice (note that
+here the sites are separated by $b \equiv 2a$),
+\begin{equation}
+  \nabla_\mu f(h) = \frac{f(h+\hat\mu) - f(h-\hat\mu)}{2b} , \qquad
+  \Delta_\mu f(h) = \frac{f(h+\hat\mu) - 2f(h) + f(h-\hat\mu)}{b^2} .
+\end{equation}
+Guided by the form of the first two terms of (10.20), we identify Dirac
+indices $\alpha$ and quark species labels $t$ for our fermion fields by
+setting
+\begin{equation}
+  \psi^{(t)}(h)_\alpha \equiv q(h)_{\alpha t} , \qquad
+  \bar\psi^{(t)}(h)_\alpha \equiv \bar q(h)_{t\alpha} .
+\end{equation}
+Expressed in terms of these new fields the free staggered action reads
+\begin{multline}
+  S_F[\bar\psi, \psi] = b^4 \sum_h \Bigg[
+  \sum_{t=1}^{4} m\,\bar\psi^{(t)}(h)\psi^{(t)}(h)
+  + \sum_{t=1}^{4}\sum_{\mu=1}^{4}
+  \bar\psi^{(t)}(h)\gamma_\mu\nabla_\mu\psi^{(t)}(h) \\
+  - \frac{b}{2} \sum_{t,t'=1}^{4}\sum_{\mu=1}^{4}
+  \bar\psi^{(t)}(h)\gamma_5(\tau_5\tau_\mu)_{tt'}\,
+  \Delta_\mu\psi^{(t')}(h) \Bigg] .
+\end{multline}
+Here we have introduced the matrices $\tau_\mu = \gamma_\mu^{T}$, $\mu = 1, 2,
+\ldots, 5$, and $b$ is the lattice spacing on the lattice of hypercubes. In
+order to distinguish the $N_t = 4$ different species of quarks labeled by
+$t = 1, 2, 3, 4$ from usual flavor, they are referred to as tastes of
+staggered fermions. The first two terms in (10.23) are diagonal in taste space
+and represent the mass and kinetic terms for the four tastes of fermions
+expected to be described by (10.6). The third term is reminiscent of a Wilson
+term, but mixes the different tastes. This taste symmetry-breaking term
+reduces the symmetry of the kinetic term which is invariant under independent
+vector and axial rotations for each of the four tastes. The taste-breaking
+term is only invariant under the remaining symmetry $U(1) \times U(1)$ given
+by the rotations
+\begin{equation}
+  \begin{split}
+    \psi' &= e^{i\alpha}\psi , \qquad \psi' = e^{i\beta\Gamma_5}\psi , \\
+    \bar\psi' &= \bar\psi\, e^{-i\alpha} , \qquad
+    \bar\psi' = \bar\psi\, e^{i\beta\Gamma_5} ,
+  \end{split}
+\end{equation}
+where we have defined the taste-mixing generator $\Gamma_5 = \gamma_5 \otimes
+\tau_5$. This symmetry may be identified with a subgroup of the axial taste
+symmetry group $SU(N_t)_A$.
+
+\subsection{Developments and Open Questions}
+
+The symmetry of the four tastes, described by the staggered action, is not the
+full symmetry of four independent (massless) flavors of quarks, but instead
+reduced to (10.24). Although the taste-breaking term vanishes in a naive
+continuum limit, its presence in numerical simulations which are necessarily
+done at finite lattice spacing raises several questions.
+
+On a more fundamental level one has to understand whether effects of taste
+breaking survive the continuum limit as it is performed in an actual
+calculation. As we have discussed in Sect.~3.5.4, the ``true continuum
+limit'' is obtained by driving the couplings to a critical point where the
+correlation length diverges. The open question thus is whether the
+taste-breaking terms change the behavior of the theory at the critical point,
+or in more fancy words, whether the taste-breaking terms change the
+universality class of the theory.
+
+Ignoring these more fundamental issues one can try to minimize the effect of
+the taste-breaking terms. In order to come up with a strategy to do so, it is
+important to remember that the different tastes are combinations of the
+staggered field variables $\chi$ and $\bar\chi$ on a hypercube. Thus the
+different tastes see different link variables $U_\mu(n)$. Consequently
+strongly fluctuating gauge links will give rise to large taste
+symmetry-breaking effects. A possible strategy to ameliorate these effects is
+to use gauge actions that suppress such strong fluctuations, see, e.g.,
+[5--7]. An alternative approach, already addressed in Sect.~6.2.6, is to apply
+blocking or smearing to the gauge fields which locally averages out large
+fluctuations [8, 9].
+
+The effect of such blocking or smearing steps can, e.g., be assessed by
+analyzing the spectrum of the Dirac operator for staggered fermions (given
+here for the $\chi$-basis (10.6)):
+\begin{equation}
+  D_{st}(n|m) = m\,\delta_{n,m} +
+  \sum_{\mu=1}^{4} \eta_\mu(n)
+  \frac{U_\mu(n)\delta_{n+\hat\mu,m}
+  - U_\mu(n-\hat\mu)^{\dagger}\delta_{n-\hat\mu,m}}{2a} .
+\end{equation}
+It is easy to see that for the massless case this Dirac operator is
+anti-hermitian and obeys a staggered $\gamma_5$-hermiticity:
+\begin{equation}
+  D_{st}(n|m)^{\dagger} = -D_{st}(n|m) =
+  \eta_5(n)\,D_{st}(n|m)\,\eta_5(m) .
+\end{equation}
+These two properties guarantee that the eigenvalues come in complex conjugate
+pairs and all have the same real part given by the quark mass. Thus
+fluctuations of the real part of the eigenvalues are impossible and no
+exceptional configurations (compare the discussion in Sect.~6.2.5) can occur.
+Consequently the determinant (product of all eigenvalues) is always real and
+nonnegative and, for nonzero quark mass, strictly positive.
+
+Furthermore, if taste symmetry breaking was absent, then each eigenvalue would
+be 4-fold degenerate. In a systematic comparison [10, 11] it was indeed found
+that a sufficient amount of blocking or smearing drives the eigenvalues toward
+4-fold degeneracy.
+
+Staggered fermions are widely used for dynamical simulations. The reason is
+that due to the reduced number of degrees of freedom (no Dirac structure)
+staggered fermions are numerically cheaper to simulate and at the same time
+are chirally symmetric. However, a problem is that the action describes four
+tastes of quarks, while in a realistic QCD simulation one would like to have
+two light mass-degenerate $u$ and $d$ quarks and one heavier strange quark. In
+order to suitably reduce the number of degrees of freedom it has been proposed
+to simulate QCD with an effective action given by
+\begin{equation}
+  \exp(-S_{eff}) = \exp(-S_G)\,
+  \det\left[D_{st}(m_{ud})\right]^{\half}\,
+  \det\left[D_{st}(m_s)\right]^{\frac{1}{4}} ,
+\end{equation}
+where $m_{ud}$ is the average of $u$ and $d$ quark masses and $m_s$ the
+strange quark mass. From a mathematical point of view, taking the square or
+quartic roots of the determinant is unproblematic, since as we have shown it
+is real and positive. However, this procedure is quite nontrivial from a
+conceptual perspective and we must ask ourselves if the universality class
+remains the same in this approach. Probably even more important is the
+question whether the effective action can be expressed in the form of a local
+lattice field theory. For a snapshot of the ongoing debate about these issues
+see [12--16] and references therein. Although the conceptual problems are not
+all resolved, simulations with staggered fermions have found good agreement
+with experimental results. Examples are found in [17--20].
+
+\section{Domain Wall Fermions}
+
+The overlap formulation of lattice QCD, discussed in Sect.~7.4, is related to
+another version of chiral lattice QCD, so-called domain wall fermions. Domain
+wall fermions make use of a 5D lattice and construct chiral Dirac fermions on
+a 4D interface of the 5D lattice. The action of the 5D theory is simple,
+i.e., rather similar to the usual Wilson formulation. This implies that
+already established numerical methods can be applied with only minor
+adaptions.
+
+\subsection[Formulation of Lattice QCD with Domain Wall Fermions]{Formulation of Lattice QCD with\\ Domain Wall Fermions}
+
+The basic concepts for domain wall fermions were outlined in the seminal paper
+[21] by Kaplan. The ideas were developed further in [22--24] giving rise to
+the formulation of domain wall fermions mainly used now.
+
+The idea is to work with a 5D lattice $\Lambda_5 = \Lambda \times
+\mathbb{Z}_{N_5}$, where $\Lambda$ is our 4D lattice and $N_5$ denotes the
+number of lattice points in the auxiliary 5-direction. On this lattice we use
+fermion fields which are described by the 4-component spinors
+\begin{equation}
+  \begin{aligned}
+    &\Psi(n, s)^{\alpha}_c , \quad \bar\Psi(n, s)^{\alpha}_c
+    \qquad \text{with} \quad n \in \Lambda , \quad
+    s = 0, \ldots, N_5 - 1 , \\
+    &\alpha = 1, \ldots, 4 , \quad c = 1, 2, 3 .
+  \end{aligned}
+\end{equation}
+Obviously the Dirac (index $\alpha$) and color (index $c$) structures are
+unchanged and we have simply added an additional direction which we label with
+$s$. The fermion action for the 5D domain wall theory is given by (setting
+$a \equiv 1$)
+\begin{equation}
+  S_F^{dw}[\Psi, \bar\Psi, U] =
+  \sum_{n,m\in\Lambda}\sum_{s,r=0}^{N_5-1}
+  \bar\Psi(n, s)\, D^{dw}(n, s|m, r)\, \Psi(m, r) ,
+\end{equation}
+where we use vector/matrix notation for the Dirac and color indices. The 5D
+domain wall Dirac operator $D^{dw}$ is given by
+\begin{equation}
+  D^{dw}(n, s|m, r) = \delta_{s,r}\, D(n|m) + \delta_{n,m}\, D_5^{dw}(s|r) .
+\end{equation}
+The first term is diagonal in the auxiliary direction and is built with the
+usual 4D Wilson Dirac operator (compare (5.51) where we write explicitly also
+color and Dirac indices)
+\begin{equation}
+  D(n|m) = (4 - M_5)\,\delta_{n,m} -
+  \frac{1}{2}\sum_{\mu=\pm1}^{\pm4}
+  (1 - \gamma_\mu)\, U_\mu(n)\, \delta_{n+\hat\mu,m} .
+\end{equation}
+We have introduced a new mass parameter $M_5$, which is not to be confused
+with the quark mass parameter $m$ of the 4D theory. The avoidance of doublers
+and the positivity of the transfer matrix restrict this parameter to
+$0 < M_5 < 1$. The link variables $U_\mu(n)$, $\mu = 1, 2, 3, 4$ are elements
+of the gauge group as usual. They do not depend on the coordinate in the fifth
+dimension, i.e., identical copies are used for the different 4D slices.
+
+The second contribution to (10.30) is diagonal in $\Lambda$ and the operator
+$D_5^{dw}(s|r)$, acting in the 5-direction, is given by
+\begin{equation}
+  \begin{split}
+    D_5^{dw}(s|r) = \delta_{s,r} &- (1-\delta_{s,N_5-1})\, P_-\, \delta_{s+1,r}
+    - (1-\delta_{s,0})\, P_+\, \delta_{s-1,r} \\
+    &+ m\left(P_-\,\delta_{s,N_5-1}\,\delta_{0,r}
+    + P_+\,\delta_{s,0}\,\delta_{N_5-1,r}\right) .
+  \end{split}
+\end{equation}
+Here $P_\pm = (1\pm\gamma_5)/2$ are the usual chiral projectors acting on the
+Dirac indices. The parameter $m$ will turn out to be the mass parameter of the
+4D target theory. For the fermions at mass $m = 0$ the boundary conditions in
+the 5-direction are fixed, since hopping from $s = N_5 - 1$ in positive
+5-direction is blocked by the factor $(1-\delta_{s,N_5-1})$, and the hopping
+from $s = 0$ in negative direction is eliminated by $(1-\delta_{s,0})$. Only
+the terms containing the mass $m$ connect the slices at $s = 0$ and
+$s = N_5 - 1$. On the 4D lattice $\Lambda$ the conventional boundary
+conditions are used: periodic in the spatial directions 1,2,3 and antiperiodic
+in time (4-direction). The link variables $U_\mu(n)$ are periodic in all four
+directions of $\Lambda$ and, as mentioned, one uses identical copies for all
+values of the 5-coordinate $s$. We stress that in the 5-direction there is no
+component $U_5$.
+
+Having presented the action for the 5D fermion fields $\Psi, \bar\Psi$, we can
+now construct the 4D physical fields $\psi, \bar\psi$ which live on the 4D
+boundary of $\Lambda_5$. These are defined as
+\begin{equation}
+  \psi(n) = P_-\,\Psi(n, 0) + P_+\,\Psi(n, N_5 - 1) , \qquad
+  \bar\psi(n) = \bar\Psi(n, N_5 - 1)\, P_- + \bar\Psi(n, 0)\, P_+ ,
+\end{equation}
+where $n \in \Lambda$. The physical fields $\psi$ and $\bar\psi$ thus are built
+from the degrees of freedom on the first ($s = 0$) and last
+($s = N_5 - 1$) 4D slice. The spinors $\psi, \bar\psi$ inherit their Dirac and
+color indices from $\Psi, \bar\Psi$.
+
+The physical fields $\psi$ and $\bar\psi$ can now be used to construct the
+physical observables of interest. For example the 4D scalar density
+$\bar\psi(n)\psi(n)$ assumes the form
+\begin{equation}
+  \bar\psi(n)\psi(n) = \bar\Psi(n, N_5 - 1)\, P_-\, \Psi(n, 0)
+  + \bar\Psi(n, 0)\, P_+\, \Psi(n, N_5 - 1) ,
+\end{equation}
+when (10.33) is used to express the physical density $\bar\psi(n)\psi(n)$ in
+terms of the 5D fields. We remark that (10.34) corresponds exactly to the term
+in (10.32) which is proportional to $m$. Thus $m$ can be identified as the
+mass parameter of the 4D theory.
+
+The transition to the 4D world can be implemented in a transparent way by
+using generating functionals (compare (5.32)). For our purpose we define the
+generating functional as
+\begin{multline}
+  W[J, \bar J] =
+  \bigg\langle \exp\Big[\sum_{n\in\Lambda}
+  \big(\bar J(n)\psi(n) + \bar\psi(n)J(n)\big)\Big]\bigg\rangle \\
+  = \bigg\langle \exp\Big[\sum_{n\in\Lambda}
+  \bar J(n)\big(P_-\,\Psi(n, 0) + P_+\,\Psi(n, N_5 - 1)\big) \\
+  \qquad
+  + \big(\bar\Psi(n, N_5 - 1)\, P_- + \bar\Psi(n, 0)\, P_+\big) J(n)
+  \Big]\bigg\rangle_5 .
+\end{multline}
+Here $J(n)$ and $\bar J(n)$ are Grassmann-valued source fields which have the
+same indices (Dirac and color) as the physical fields $\psi(n)$, $\bar\psi(n)$
+they couple to. In this equation $\langle\ldots\rangle$ denotes the
+expectation value of the 4D target theory and $\langle\ldots\rangle_5$ denotes
+the vacuum expectation value in the 5D world, which we discuss in detail in
+the next section.
+
+Once the generating functional $W[J, \bar J]$ is defined, one can work with it
+like in the regular 4D formulation. In particular $W[J, \bar J]$ can be
+differentiated with respect to individual components of $J(n)$ or $\bar J(n)$
+which bring the corresponding components of the physical fields $\psi,
+\bar\psi$ down from the exponent. After the physical observables are built
+from these, one sets the sources to $J = \bar J = 0$ (compare Sect.~5.1.6). As
+a result the vacuum expectation values of the 4D target theory are formulated
+as the expectation values in the 5D formulation. The latter is then used to
+evaluate the expressions.
+
+\subsection{The 5D Theory and Its Equivalence to 4D Chiral Fermions}
+
+So far we have introduced the fields $\Psi$ and $\bar\Psi$ which live on our
+5D lattice and their action and discussed how to construct from them the
+fields of the 4D theory. We still need to present the detailed definition of
+the 5D vacuum expectation values $\langle\ldots\rangle_5$ and finally we
+should convince ourselves that for $m = 0$ the 5D theory gives rise to 4D
+chiral fermions.
+
+In order to make connection to a 4D overlap-type theory, in addition to the 5D
+fermion fields $\Psi, \bar\Psi$ the 5D path integral also contains the fields
+$\Phi, \bar\Phi$ which have the same indices as the fermion fields (10.28) but
+are bosonic variables (not Grassmann numbers). Thus they are often referred to
+as pseudofermion fields (see Sect.~8.1.3) or Pauli--Villars fields. From a
+physical point of view their role is the removal of heavy degrees of freedom
+which appear for large $N_5$.
+
+The definition of the 5D path integral for the vacuum expectation value
+$\langle\ldots\rangle_5$, needed for the generating functional $W[J, \bar J]$
+given in (10.35), reads
+\begin{equation}
+  \langle O\rangle_5 = \frac{1}{Z}
+  \int D[\Psi, \bar\Psi, \Phi, \bar\Phi, U]\;
+  e^{-S_F^{dw}[\Psi,\bar\Psi,U] - S_B^{pf}[\Phi,\bar\Phi,U] - S_G[U]}\;
+  O[\Psi, \bar\Psi, U] .
+\end{equation}
+$S_F^{dw}[\Psi, \bar\Psi, U]$ is the domain wall action and $S_G[U]$ is some
+lattice version of the 4D gauge action, e.g., the Wilson action (2.49). The
+path integral is over the 5D fields $\Psi$ and $\bar\Psi$ and the 4D gauge
+fields $U$. We have also introduced the integral over the bosonic
+pseudofermions $\Phi$ and $\bar\Phi$. The action for the pseudofermions is
+given by
+\begin{equation}
+  \begin{split}
+    S_F^{pf}[\Phi, \bar\Phi, U] &=
+    \sum_{n,m\in\Lambda}\sum_{s,r=0}^{N_5-1}
+    \bar\Phi(n, s)\, D^{pf}(n, s|m, r)\, \Phi(m, r) , \\
+    \text{with} \qquad D^{pf}(n, s|m, r) &= \delta_{s,r}\, D(n|m)
+    + \delta_{n,m}\, D_5^{pf}(s|r) .
+  \end{split}
+\end{equation}
+The first part is identical to the term in the Dirac operator (10.30), i.e.,
+given by the Wilson operator (10.31). Concerning the difference operator
+$D_5^{pf}$ for the 5-direction different choices are possible. A variant
+convenient for numerical simulations is [25]
+\begin{equation}
+  D_5^{pf}(s|r) = \left. D_5^{dw}(s|r) \right|_{m=1} .
+\end{equation}
+A direct connection of the 5D theory (10.36) to a variant of the overlap
+formulation was given in [26]. Using an elegant chain of transformations
+Neuberger showed (for a slightly different choice of $D^{pf}$) that (see also
+[27])
+\begin{equation}
+  \det D^{dw} = \det D_{N_5}^{ov}\, \det D^{pf} .
+\end{equation}
+Applying this result to our path integral (10.36) we find
+\begin{equation}
+  \int D[\Psi, \bar\Psi, \Phi, \bar\Phi]\;
+  e^{-S_F^{dw}[\Psi,\bar\Psi,U] - S_B^{pf}[\Phi,\bar\Phi,U]}
+  = \frac{\det[D^{dw}]}{\det[D^{pf}]}
+  = \det\left[D_{N_5}^{ov}\right] .
+\end{equation}
+Here we have used that for the path integral over the bosonic pseudofermions
+the determinant appears in the denominator (compare Sect.~5.1.4). Obviously
+the pseudofermion fields in (10.36) are needed to cancel the factor
+$\det[D^{pf}]$ in (10.39). This step can also be viewed as a transformation of
+the integration variables with $\det[D^{pf}]$ being the corresponding
+Jacobian.
+
+The Dirac operator $D_{N_5}^{ov}$ is often referred to as the truncated
+overlap operator and is given by (we drop an irrelevant overall factor of 1/2
+compared to the notation in [26])
+\begin{equation}
+  D_{N_5}^{ov} = 1 + \gamma_5\, \tanh\left(N_5\, \tilde H\right)
+  \xrightarrow{N_5\to\infty}
+  1 + \gamma_5\, \operatorname{sign}[H] .
+\end{equation}
+The operator $\tilde H$ is a (nonlocal) variant of the operator $H$ which we
+used in Sect.~7.4 to construct the overlap operator (see [26] for the exact
+definition). Equation (10.41) shows that in the limit $N_5 \to \infty$, where
+the tanh approaches the sign function, the operator assumes the form of the
+overlap operator (7.78), and a quick calculation similar to (7.82) shows that
+$D_{\infty}^{ov}$ obeys the Ginsparg--Wilson equation (7.29).
+
+The truncated overlap operator describes the 4D theory and in the limit
+$N_5 \to \infty$ gives rise to massless fermions. For finite $N_5$ the
+chirality-violating effects are exponentially suppressed with an exponent
+$\propto N_5$. In practical simulations typical values used are $N_5 = 10$--$30$.
+The parameter $M_5$ can be tuned to minimize the chirality-violating effects.
+
+Working with domain wall fermions has the big advantage that numerical
+algorithms for 4D Wilson fermions can be easily adapted for the 5D domain wall
+formulation. As the Wilson formulation, the domain wall operator also contains
+only nearest neighbor terms and no evaluation of matrix-valued functions as
+for the overlap operator (see Sect.~7.4.3) is required. For an example of
+dynamical simulations with domain wall fermions, see [28].
+
+\section{Twisted Mass Fermions}
+
+Twisted mass QCD (tmQCD) is a formulation which in its simplest form is for
+QCD with two mass-degenerate quark flavors of Wilson fermions (QCD with
+isospin). The isospin degree of freedom is used to introduce an additional
+mass term with a nontrivial isospin structure. This twisted mass term provides
+a useful infrared regulator and furthermore can be utilized to obtain O(a)
+improvement of the lattice formulation. Twisted mass QCD was first outlined in
+[29--31]. In this section we give a brief introduction. For more detailed
+recent reviews, which cover also the present status of the numerical analysis
+of tmQCD, we recommend [32, 33].
+
+\subsection{The Basic Formulation of Twisted Mass QCD}
+
+We begin our discussion with presenting the defining equations. As already
+stated, tmQCD is a theory for two mass-degenerate quarks.\footnote{For the
+generalization of tmQCD to the case of quarks with different masses we refer
+the reader to [34, 35].} Thus from now on we denote by $\chi$ and $\bar\chi$
+quark fields which in addition to Dirac and color indices carry also a flavor
+index which may assume $N_f = 2$ values. For notational convenience we will
+suppress the indices and use matrix/vector notation instead. The fermion
+action for lattice tmQCD with Wilson fermions then reads
+\begin{equation}
+  S_F^{tw}[\chi, \bar\chi, U] = a^4 \sum_{k,n\in\Lambda}
+  \bar\chi(k)\left[D(k|n)\,\mathbb{1}_2 + m\,\mathbb{1}_2\,\delta_{k,n}
+  + i\mu\gamma_5\tau^3\,\delta_{k,n}\right]\chi(n) .
+\end{equation}
+We display unit matrices $\mathbb{1}_2$ only for flavor space and omit them
+for color and Dirac. $D(k|n)$ denotes the massless Wilson Dirac operator for a
+single flavor (compare (5.51)):
+\begin{equation}
+  D(k|n) = \frac{4}{a}\,\delta_{k,n} -
+  \frac{1}{2a}\sum_{\mu=\pm1}^{\pm4}
+  (1 - \gamma_\mu)\, U_\mu(k)\, \delta_{k+\hat\mu,n} .
+\end{equation}
+Action (10.42) differs from the usual action for two mass-degenerate flavors
+with mass $m$ by adding the term $i\mu\gamma_5\tau^3$ to the Dirac operator.
+The real parameter $\mu$ is called the twisted mass. We stress, however, that
+the conventional mass term is trivial in color, Dirac, and flavor space, while
+the twisted mass term is trivial only in color space, has a $\gamma_5$ in
+Dirac space, and the third Pauli matrix $\tau^3 = \mathrm{diag}(1,-1)$ acts in
+flavor space.
+
+One of the original [29] motivations for introducing the twisted mass
+term\footnote{Another motivation being the simplification of renormalization
+properties (see the following discussion and Chap.~11).} was its use as an
+infrared regulator which removes exceptional configurations (compare
+Sect.~6.2.5). Using just the standard mass these are absent only for
+sufficiently large values of $m$. The fact that the twisted mass term is a
+save remedy against exceptional configurations follows from the following
+chain of identities:
+\begin{equation}
+  \begin{split}
+    \det\left[D\,\mathbb{1}_2 + m\,\mathbb{1}_2 + i\mu\gamma_5\tau^3\right]
+    &= \det[D + m + i\mu\gamma_5]\; \det[D + m - i\mu\gamma_5] \\
+    &= \det[D + m + i\mu\gamma_5]\;
+       \det\left[\gamma_5 (D + m - i\mu\gamma_5)\gamma_5\right] \\
+    &= \det[D + m + i\mu\gamma_5]\;
+       \det[D^{\dagger} + m - i\mu\gamma_5] \\
+    &= \det\left[(D + m + i\mu\gamma_5)(D^{\dagger} + m - i\mu\gamma_5)\right] \\
+    &= \det\left[(D + m)(D + m)^{\dagger} + \mu^2\right] > 0
+       \quad \text{for } \mu \neq 0 .
+  \end{split}
+\end{equation}
+The twisted mass Dirac operator is diagonal in flavor space and thus the
+determinant for the 2-flavor operator was written as a product of two
+determinants for a single flavor. Subsequently the $\gamma_5$-hermiticity
+(5.76) of the Wilson Dirac operator was employed. The inequality in the last
+line holds because the eigenvalues of the product $(D + m)(D + m)^{\dagger}$
+are real and nonnegative. Thus a nonvanishing value of the twisted mass $\mu$
+ensures that the determinant of the twisted mass Dirac operator is strictly
+positive and consequently zero eigenvalues, which cause the exceptional
+configurations, are excluded. In more detail one can show that the spectrum of
+the twisted mass Dirac operator in the complex plane is expelled from a strip
+of width $2\mu$ along the real axis [36]. Equation (10.44) establishes that
+the determinant is real and positive for arbitrary gauge configurations and
+thus standard Monte Carlo techniques are applicable.
+
+The above discussion shows that the twisted mass term may be used as an
+alternative infrared regulator which can be combined with the usual mass term.
+Since it is possible to work with both, nonvanishing $m$ and $\mu$, it is
+convenient to introduce the so-called polar mass $M$ and the twist angle
+$\alpha$:
+\begin{equation}
+  M = \sqrt{m^2 + \mu^2} , \qquad \alpha = \arctan(\mu/m) .
+\end{equation}
+With these definitions the mass terms of tmQCD can be written as
+\begin{equation}
+  m\,\mathbb{1}_2 + i\mu\gamma_5\tau^3 = M\, e^{i\alpha\gamma_5\tau^3}
+  \qquad \text{with} \qquad
+  m = M\cos(\alpha) , \quad \mu = M\sin(\alpha) .
+\end{equation}
+The case of $\alpha = \pi/2$, i.e., $m = 0$, $\mu > 0$, is often referred to
+as maximal or full twist. Below it will be shown that choosing full twist is
+special since it implies O(a) improvement. The value $\alpha = 0$ corresponds
+to zero twist.
+
+It is instructive to perform a simple transformation of the fermion fields to
+new variables $\psi$, $\bar\psi$ defined as
+\begin{equation}
+  \psi = R(\alpha)\,\chi , \qquad \bar\psi = \bar\chi\, R(\alpha) , \qquad
+  R(\alpha) = e^{i\alpha\gamma_5\tau^3/2} .
+\end{equation}
+A few lines of algebra show that the fermion action (10.42) turns into
+\begin{equation}
+  S_F[\bar\psi, \psi, U] = a^4 \sum_{k,n\in\Lambda}
+  \bar\psi(k)\left[D^{tw}(k|n) + M\,\mathbb{1}_2\,\delta_{k,n}\right]\psi(n) .
+\end{equation}
+Obviously the twisted mass term has disappeared and is replaced by a
+conventional mass term with a mass parameter given by the polar mass $M$
+defined in (10.45). The twisted Dirac operator $D^{tw}$ is now a genuine
+2-flavor operator and reads
+\begin{equation}
+  D^{tw}(k|n) = \frac{4\,e^{-i\alpha\gamma_5\tau^3}}{a}\,\delta_{k,n}
+  - \frac{1}{2a}\sum_{\mu=\pm1}^{\pm4}
+  \left(e^{-i\alpha\gamma_5\tau^3} - \gamma_\mu\right)
+  U_\mu(k)\, \delta_{k+\hat\mu,n} .
+\end{equation}
+We observe that the naive parts of the lattice Dirac operator (the terms with
+$\gamma_\mu$) are not affected by the twist and only the Wilson term is
+rotated. Thus in the basis $\psi, \bar\psi$, which is referred to as the
+physical basis, the mass term and the kinetic terms assume their conventional
+form and only the term needed to remove the doublers is introduced in a
+twisted form. In the naive continuum limit this latter term is of O(a) and
+thus vanishes as $a \to 0$. Our old basis $\chi, \bar\chi$, where the twist
+affects the mass term, is known as the twisted basis.
+
+We finally remark that the symmetries of QCD assume a different form in the
+twisted basis. To give an example, it is easy to see that the modified parity
+transformations (the gauge field still transforms as stated in (5.72))
+\begin{equation}
+  \chi(n, n_4) \xrightarrow{P} \gamma_4\tau^{1,2}\,\chi(-n, n_4) , \qquad
+  \bar\chi(n, n_4) \xrightarrow{P} \bar\chi(-n, n_4)\,\gamma_4\tau^{1,2}
+\end{equation}
+leave the action (10.42) invariant. Note that we have two different choices
+and can use either of the two Pauli matrices $\tau^1$ or $\tau^2$. A collection
+of the twisted forms of other symmetries can, e.g., be found in the appendix
+of [33].
+
+\subsection{The Relation Between Twisted and Conventional QCD}
+
+Having introduced a new type of infrared regulator, one of course has to
+establish that in some limit the twisted formulation describes conventional
+QCD. At the end of the last section we have seen that when changing to the
+physical basis $\psi, \bar\psi$, the twist affects only the Wilson term which
+in the naive continuum limit vanishes anyway. This is already a good sign, but
+the equivalence of conventional and tmQCD has to be established also for the
+proper continuum limit (compare Sect.~3.5.4).
+
+We begin with studying the relation between conventional and twisted mass QCD
+by analyzing the situation in the continuum. The conventional action for two
+mass-degenerate fermions in the continuum is given by
+\begin{equation}
+  S_F[\bar\psi, \psi, A] = \int d^4x\;
+  \bar\psi(x)\left(\gamma_\mu D_\mu(x)\,\mathbb{1}_2
+  + M\,\mathbb{1}_2\right)\psi(x) ,
+\end{equation}
+where $D_\mu(x) = \partial_\mu + iA_\mu(x)$. Vacuum expectation values of
+some operator $O$ are computed with the path integral which is formally
+defined as ($S_G[A]$ denotes the action for the gauge fields)
+\begin{equation}
+  \langle O\rangle = \frac{1}{Z}
+  \int D[\bar\psi, \psi, A]\;
+  e^{-S_F[\bar\psi,\psi,A] - S_G[A]}\; O[\bar\psi, \psi, A] .
+\end{equation}
+Relating this conventional form of the vacuum expectation value to the
+corresponding expression in tmQCD is now merely an exercise in changing
+integration variables. The transformation we need is the one given in (10.47).
+Under this transformation the conventional continuum action (10.51) changes
+to the continuum tmQCD action given by
+\begin{equation}
+  S_F^{tw}[\bar\chi, \chi, A] = \int d^4x\;
+  \bar\chi(x)\left(\gamma_\mu D_\mu(x)\,\mathbb{1}_2
+  + m\,\mathbb{1}_2 + i\mu\gamma_5\tau^3\right)\chi(x) ,
+\end{equation}
+where the mass parameters $m$ and $\mu$ are related to the mass parameter $M$
+of the conventional action (10.51) through (10.46). Since transformation
+(10.47) is non-anomalous, the integration measure remains invariant and,
+somewhat formally, we can write $D[\bar\psi, \psi] = D[\bar\chi, \chi]$. Thus
+we define vacuum expectation values in the twisted basis as
+\begin{equation}
+  \langle O\rangle^{tw} = \frac{1}{Z^{tw}}
+  \int D[\bar\chi, \chi, A]\;
+  e^{-S_F^{tw}[\bar\chi,\chi,A] - S_G[A]}\;
+  O^{tw}[\bar\chi, \chi, A] .
+\end{equation}
+We are left with the task of relating an operator $O[\bar\psi, \psi, A]$ in
+the physical basis to its counterpart $O^{tw}[\bar\chi, \chi, A]$ in the
+chiral basis. This is a simple exercise as we illustrate in an example, where
+we choose $O$ to be the nonsinglet axial--pseudoscalar correlator,
+\begin{equation}
+  O[\bar\psi, \psi] = A^1_\mu(x)\,P^1(y)
+  \qquad \text{where} \qquad
+  A^a_\mu = \bar\psi\,\gamma_\mu\gamma_5\,\frac{\tau^a}{2}\,\psi , \qquad
+  P^a = \bar\psi\,\gamma_5\,\frac{\tau^a}{2}\,\psi .
+\end{equation}
+A brief calculation shows that transformation (10.47) gives rise to
+\begin{equation}
+  \begin{aligned}
+    A^{1}_\mu &\to \cos(\alpha)\,A^{1,tw}_\mu - \sin(\alpha)\,V^{2,tw}_\mu ,
+    \qquad P^{1} \to P^{1,tw} \qquad \text{with} \\
+    A^{a,tw}_\mu &= \bar\chi\,\gamma_\mu\gamma_5\,\frac{\tau^a}{2}\,\chi ,
+    \qquad
+    V^{a,tw}_\mu = \bar\chi\,\gamma_\mu\,\frac{\tau^a}{2}\,\chi , \qquad
+    P^{a,tw} = \bar\chi\,\gamma_5\,\frac{\tau^a}{2}\,\chi .
+  \end{aligned}
+\end{equation}
+Inserting these, we find for our correlator the following relation between the
+vacuum expectation value in the conventional and the twisted form:
+\begin{equation}
+  \begin{split}
+    \langle O\rangle
+    &= \left\langle A^1_\mu(x)\,P^1(y)\right\rangle \\
+    &= \cos(\alpha)\left\langle A^{1,tw}_\mu(x)\,P^{1,tw}(y)\right\rangle
+    - \sin(\alpha)\left\langle V^{1,tw}_\mu(x)\,P^{1,tw}(y)\right\rangle \\
+    &= \left\langle O^{tw}\right\rangle^{tw} .
+  \end{split}
+\end{equation}
+In an equivalent way arbitrary $n$-point functions of conventional QCD can be
+mapped onto linear combinations of $n$-point functions of tmQCD.
+
+The above discussion is based on the (formal) expressions in the continuum. To
+carry the arguments for the relation between conventional and tmQCD over to
+the lattice one has to consider the renormalized theory in the continuum limit
+using a mass-independent renormalization scheme [30]. The renormalized mass
+and twisted mass parameters are
+\begin{equation}
+  m^{(r)} = Z_m\,(m - m_c) , \qquad \mu^{(r)} = Z_\mu\,\mu ,
+\end{equation}
+and the twist angle in the renormalized theory must be defined as
+\begin{equation}
+  \alpha = \arctan\left(\mu^{(r)}/m^{(r)}\right) .
+\end{equation}
+Maximal twist, i.e., $\alpha = \pi/2$, corresponds to $m^{(r)} = 0$. This case
+is particularly simple, since setting the bare mass parameter to its critical
+value, $m = m_c$, which can, e.g., be identified by a vanishing PCAC mass (see
+Sect.~11.1.2), already leads to $m^{(r)} = 0$.
+
+In the renormalized theory we can use the arguments given for the continuum
+discussion above and conclude that standard QCD correlation functions can be
+expressed as linear combinations of correlators in tmQCD. This relation
+remains valid for finite lattice spacing up to discretization errors [30].
+
+\subsection{O(a) Improvement at Maximal Twist}
+
+Although an important initial motivation for the introduction of tmQCD was the
+cure for exceptional configurations, today the property of O(a) improvement is
+considered more important. We now briefly address this feature of tmQCD at
+maximal twist [37].
+
+With the introduction of the twisted mass term we now have two parameters $m$,
+$\mu$, which define the physics we want to describe. The relative size of the
+two mass parameters is characterized by the twist angle $\alpha$. We have
+already observed that among the possible values of $\alpha$, the case of
+$\alpha = \pi/2$, i.e., maximal twist is singled out. For maximal twist the
+discretization effects of O(a) vanish and the leading corrections appear only
+at O(a$^2$). This property is referred to as O(a) improvement of tmQCD and
+will be discussed now.
+
+The special role of $\alpha = \pi/2$ can already be seen in the free case. In
+momentum space the twisted mass Dirac operator reads (compare (5.48) for the
+case of Wilson fermions with conventional mass term)
+\begin{equation}
+  \frac{i}{a}\sum_{\mu=1}^{4}\gamma_\mu\sin(p_\mu a)
+  + \frac{1}{a}\sum_{\mu=1}^{4}(1-\cos(p_\mu a))
+  + M\cos(\alpha) + iM\sin(\alpha)\gamma_5\tau^3 ,
+\end{equation}
+where we have dropped all unit matrices. It is straightforward to check that
+the inverse of this matrix, i.e., the propagator in momentum space, is given
+by
+\begin{equation}
+  \frac{-\frac{i}{a}\sum_\mu\gamma_\mu\sin(p_\mu a)
+  + \frac{1}{a}\sum_\mu(1-\cos(p_\mu a)) + M\cos(\alpha)
+  - iM\sin(\alpha)\gamma_5\tau^3}
+  {\left[\frac{1}{a}\sum_\mu\sin(p_\mu a)\right]^2
+  + \left[\frac{1}{a}\sum_\mu(1-\cos(p_\mu a)) + M\cos(\alpha)\right]^2
+  + M^2\sin(\alpha)^2}
+\end{equation}
+The energy of the fermion described by this propagator is given by the
+position of the pole. Expanding the denominator in $a$ gives
+\begin{equation}
+  p^2\left(1 + a\,M\cos(\alpha)\right) + M^2 + O(a^2) ,
+\end{equation}
+and for the two poles we find ($M^2/p^2$ is held fixed)
+\begin{equation}
+  ip_4 = \pm\sqrt{p^2 + M^2}
+  \mp a\cos(\alpha)\,\frac{M^3}{2\sqrt{p^2 + M^2}} + O(a^2) .
+\end{equation}
+It is evident that the O(a) correction to the dispersion relation in the
+continuum, $ip_4 = \pm\sqrt{p^2 + M^2}$, comes with a factor of $\cos(\alpha)$.
+This allows to turn off the O(a) term by choosing maximal twist, i.e., by
+setting $\alpha = \pi/2$. From an algebraic point of view this result can be
+understood by noting that at $\alpha = \pi/2$ the Wilson term and the mass
+term, which now consist of only the twisted part, are orthogonal in isospin
+space. Thus a mixed term, which is of O(a), cannot emerge.
+
+Having illustrated that the spectrum of the free theory is O(a) improved at
+maximal twist is certainly interesting but of course one would like to
+establish O(a) improvement for full tmQCD. This problem can be addressed by
+performing the Symanzik improvement program (compare Sect.~9.1) for tmQCD. In
+order to have maximal twist in the renormalized theory we need a vanishing
+renormalized quark mass parameter $m^{(r)}$. Thus we consider the case where
+the bare standard mass parameter $m$ is tuned to its critical value,
+$m = m_c$, which may be defined by the requirement of a vanishing PCAC quark
+mass (compare Sects.~9.1.4 and 11.1.2). Setting $m = m_c$ implies for the
+renormalized quark mass parameter, $m^{(r)} = 0$, as needed for maximal twist.
+In this case the relevant contribution to the effective continuum action is
+(we show only the leading term -- for a complete list see [31])
+\begin{equation}
+  S_F^{eff} = S_0 + a\,S_1 + \ldots + O(a^2) ,
+\end{equation}
+with
+\begin{equation}
+  S_0 = \int d^4x\;
+  \bar\chi\left(\gamma_\mu D_\mu + i\mu\gamma_5\tau^3\right)\chi , \qquad
+  S_1 = c_{sw}\int d^4x\; \bar\chi\,\sigma_{\mu\nu}F_{\mu\nu}\,\chi .
+\end{equation}
+The correction $S_1$ to the continuum action $S_0$ is treated as an insertion
+in expectation values, such that we obtain for the vacuum expectation value of
+some operator $O$:
+\begin{equation}
+  \langle O\rangle = \langle O\rangle_0 + a\,\langle\Delta O\rangle_0
+  - a\,\langle O\,S_1\rangle_0 + O(a^2) .
+\end{equation}
+The expectation value $\langle\ldots\rangle_0$ is with respect to the action
+$S_0$ and by $\Delta O$ we denote the counterterms for the operator $O$. The
+operators $O$ may be classified according to their symmetry under the discrete
+chirality transformation
+\begin{equation}
+  \chi \longrightarrow i\gamma_5\tau^1\chi , \qquad
+  \bar\chi \longrightarrow i\bar\chi\gamma_5\tau^1 ,
+\end{equation}
+which is one of the symmetries of massless QCD with two flavors (see
+Sect.~7.1.2). Operators can be decomposed into components with definite
+transformation properties under (10.67):
+\begin{equation}
+  O \longrightarrow \pm O \qquad \text{with} \qquad
+  \Delta O \longrightarrow \mp\Delta O .
+\end{equation}
+The terms of the effective action transform as
+\begin{equation}
+  S_0 \longrightarrow S_0 , \qquad S_1 \longrightarrow -S_1 .
+\end{equation}
+Using (10.68) and (10.69) we can analyze the contributions to the expectation
+values (10.66). For chirally even operators we find the symmetries
+\begin{equation}
+  \langle O\,S_1\rangle_0 = -\langle O\,S_1\rangle_0 = 0 , \qquad
+  \langle\Delta O\rangle_0 = -\langle\Delta O\rangle_0 = 0 ,
+\end{equation}
+while for odd operators
+\begin{equation}
+  \langle O\rangle_0 = -\langle O\rangle_0 = 0 , \qquad
+  \langle O\,S_1\rangle_0 = \langle O\,S_1\rangle_0 , \qquad
+  \langle\Delta O\rangle_0 = \langle\Delta O\rangle_0 .
+\end{equation}
+Putting things together we conclude
+\begin{equation}
+  \begin{aligned}
+    \langle O\rangle &= \langle O\rangle_0 + O(a^2)
+    && \text{for } O \text{ even} , \\
+    \langle O\rangle &= a\left(\langle\Delta O\rangle_0
+    - \langle O\,S_1\rangle_0\right) + O(a^2)
+    && \text{for } O \text{ odd} .
+  \end{aligned}
+\end{equation}
+This implies that either only O(a$^2$) terms survive (for even operators) or
+the expectation value $\langle O\rangle$ vanishes in the continuum limit (odd
+operators). Thus we can conclude that the vacuum expectation values of
+nonvanishing operators are O(a) improved at tmQCD with maximal twist. The only
+parameter that has to be tuned to achieve this is the bare quark mass which
+has to be set to its critical value, $m = m_c$.
+
+The ease with which O(a) improvement is obtained and the technical advantages
+which come with the removal of exceptional configurations make tmQCD an
+attractive lattice formulation. From a numerical point of view no new
+techniques are required, which, for example, are needed in the case of
+dynamical overlap calculations. A rich program of numerical simulations with
+tmQCD was conducted in recent years and for a comprehensive recent overview we
+refer to [33].
+
+\section{Effective Theories for Heavy Quarks}
+
+For lattice calculations involving heavy quarks, such as the charm and the
+bottom quark, special techniques are needed. The central idea is to remove the
+dominant scale, the mass $m_h$ of the heavy quark, and to work with an
+effective Lagrangian. This procedure gives rise to two formulations known as
+nonrelativistic QCD (NRQCD) and heavy quark effective theory (HQET).
+
+\subsection{The Need for an Effective Theory}
+
+We begin with a short discussion of the scales involved when working with
+heavy quarks. The masses of the charm and bottom quarks in the
+$\overline{\mathrm{MS}}$ scheme [38] are
+\begin{equation}
+  m_c \approx 1.27(9)\,\mathrm{GeV} , \qquad
+  m_b \approx 4.20(12)\,\mathrm{GeV} .
+\end{equation}
+The masses for typical charmonium or bottomium states are, e.g.,
+\begin{equation}
+  M_{J/\psi} = 3.096\,\mathrm{GeV} , \qquad
+  M_{\Upsilon} = 9.460\,\mathrm{GeV} .
+\end{equation}
+If we want to reliably describe these states on the lattice the cutoff $1/a$
+should be larger than these masses. Using (6.71) for converting MeV to fm, one
+finds that the lattice spacing has to obey
+\begin{equation}
+  a < 0.064\,\mathrm{fm} \quad \text{for charm} , \qquad
+  a < 0.021\,\mathrm{fm} \quad \text{for bottom} .
+\end{equation}
+On the other hand we need a spatial volume that is sufficiently large to
+accommodate the hadrons we want to study and a long enough temporal extent to
+be able to track the Euclidean propagators when we determine their masses. A
+typical value would be a spatial extent of about 2 fm. While for the charm
+quark lattices of sufficient size will be in reach soon, for the bottom quark
+a naive approach to simulations with heavy quarks would require very large
+lattices with typical sizes of at least $\order{100}^4$.
+
+A large part of the mass of the $J/\psi$ and $\Upsilon$ mesons comes from the
+valence quark masses themselves. Thus if one is able to remove this trivial
+contribution to the hadron mass from the theory, the typical energy scales of
+the problem are reduced considerably. Then one can work again with a lattice
+spacing which is large enough such that the required number of lattice points
+is sufficiently small for a numerical simulation.
+
+\subsection{Lattice Action for Heavy Quarks}
+
+The first ideas for treating heavy quarks on the lattice were put forward in
+[39--43]. As for the case of heavy quarks in the continuum (see [44] for a
+standard text), the central idea is to scale out the mass $m_h$ of the heavy
+quark. This is done in a systematic way by the Foldy--Wouthuysen
+transformation well known from quantum mechanics. In the system where the
+heavy quark is at rest it provides an expansion of the action for the heavy
+flavors in terms of $1/m_h$. Following a standard textbook such as [45] (see
+also [42, 44]), the Euclidean continuum action density $L = \bar q\,(\gamma_\mu
+D_\mu + m_h)\,q$ with $D_\mu = \partial_\mu + iA_\mu$ is expanded in the form
+(4 is the time direction)
+\begin{equation}
+  \bar q\,(\gamma_\mu D_\mu + m_h)\,q
+  \longrightarrow \bar\psi_h\left(m_h + D_4
+  - \frac{D^2}{2m_h} - \frac{\boldsymbol{\sigma}\cdot\boldsymbol{B}}{2m_h}
+  \right)\psi_h + \order{1/m_h^2} .
+\end{equation}
+Here, $\boldsymbol{B}$ denotes the chromomagnetic fields and
+$D^2 = \sum_{j=1}^{3}D_j^2$ is the spatial covariant Laplace operator. On the
+right-hand side the original 4-spinors $q, \bar q$ for the relativistic quarks
+are replaced by projected, nonrelativistic spinors $\psi_h, \bar\psi_h$ which
+obey
+\begin{equation}
+  P_+\psi_h = \psi_h , \qquad \bar\psi_h P_+ = \bar\psi_h , \qquad
+  P_+ = \half(1 + \gamma_4) .
+\end{equation}
+It has to be remarked that in expansion (10.76) the usual renormalizability of
+QCD is obtained only by including all orders in $1/m_h$. How vacuum
+expectation values with only a finite number of terms in (10.76) can be
+defined such that they have a finite continuum limit will be described in the
+next section.
+
+Let us now invoke the lattice. Guided by expansion (10.76) of the continuum
+action we write the lattice action up to a given order $N$ in the expansion as
+\begin{equation}
+  \begin{split}
+    S_{h,N} &= S_{stat} + \sum_{\nu=1}^{N}S^{(\nu)} , \\
+    S_{stat} &= \sum_{n\in\Lambda}
+    \bar\psi(n)\left(\bar\nabla_4 + \delta m_h\right)\psi(n) , \\
+    S^{(\nu)} &= \sum_i \omega_i^{(\nu)} S_i^{(\nu)} .
+  \end{split}
+\end{equation}
+Here we have written explicitly the static contribution $S_{stat}$ which does
+not give rise to spatial propagation. In this term the mass $m_h$ was dropped
+to get rid of the unwanted scale $m_h$. For dimensional reasons a mass type of
+term has to be included, which is taken into account by a residual mass
+parameter $\delta m_h$ which is also needed for matching and renormalization
+purposes. By $\bar\nabla_4$ we denote the temporal backward derivative on the
+lattice, $\bar\nabla_4 f(n) \equiv f(n) - U_4(n-\hat 4)\,f(n-\hat 4)$. The
+nonstatic terms are organized in powers of $1/m_h$ labeled by the index
+$\nu$. The leading nonstatic terms are (compare (10.76))
+\begin{equation}
+  \begin{split}
+    S_1^{(1)} &= -\frac{1}{2}\sum_{n\in\Lambda}
+    \bar\psi_h(n)\,\boldsymbol{\sigma}\cdot\boldsymbol{B}\,\psi_h(n) , \\
+    S_2^{(1)} &= -\frac{1}{2}\sum_{n\in\Lambda}
+    \bar\psi_h(n)\,D^2\,\psi_h(n) , \\
+    S_1^{(2)} &= \frac{1}{8}\sum_{n\in\Lambda}
+    \bar\psi_h(n)\,\boldsymbol{\nabla}\cdot\boldsymbol{E}\,\psi_h(n) , \\
+    &\qquad \text{etc.}
+  \end{split}
+\end{equation}
+On the lattice, the chromomagnetic field $\boldsymbol{B}$ and the
+chromoelectric field $\boldsymbol{E}$ are implemented by a suitable
+discretization which expresses these fields through the plaquettes $U_{\mu\nu}$,
+e.g.,
+\begin{equation}
+  E_j = F_{j4} , \qquad B_j = \frac{\epsilon_{j4\mu\nu}}{2}F_{\mu\nu} , \qquad
+  F_{\mu\nu} = i\,\mathrm{Im}\,(1 - U_{\mu\nu}) .
+\end{equation}
+This discretization of the field strength tensor $F_{\mu\nu}$ follows from
+expansion (2.53) of the plaquette $U_{\mu\nu}$ used for the construction of
+the gauge action. The covariant (spatial) Laplace operator $D^2$ is discretized
+as (we set $a \equiv 1$)
+\begin{equation}
+  D^2 f(n) \longrightarrow
+  \sum_{j=1}^{3}\left[U_j(n)f(n+\hat j) - 2f(n)
+  + U_j(n-\hat j)^{\dagger}f(n-\hat j)\right] .
+\end{equation}
+In the classical theory the expansion coefficients $\omega_i^{(\nu)}$ would be
+given by $\omega_i^{(\nu)} = 1/m_h^{\nu}$, as can be seen from comparing
+(10.76), (10.78), and (10.79). Here we are using HQET as an effective theory
+for fully quantized QCD and have to keep the coefficients $\omega_i^{(\nu)}$
+as free parameters which will be fixed later when matching HQET and QCD. It
+is, however, important to keep in mind the power counting of the coefficients
+in expansion (10.78):
+\begin{equation}
+  \omega_i^{(\nu)} = \order{m_h^{-\nu}}
+  \qquad \left(\text{and } \order{a} \equiv \order{1/m}\right) .
+\end{equation}
+We remark that ultimately we are interested in QCD with both light and heavy
+flavors. The action for the light flavors is included in a form discussed in
+the previous chapters and will be added in the next section. We stress that
+also the observables one is interested in may mix heavy and light quarks. A
+typical example would be the study of the heavy--light $D$ and $B$ mesons.
+
+\subsection{General Framework and Expansion Coefficients}
+
+Having discussed the expansion of the action and its discretization, we need
+to address the quantization and renormalization of our effective theory. In
+other words, the coefficients of the effective action have to be determined.
+Several approaches to this problem can be found in the literature. In our
+presentation we follow the nonperturbative strategy outlined [46] for HQET and
+reviewed in great detail in [47]. For a more general presentation of recent
+results in NRQCD and HQET we refer the reader to [48, 49].
+
+We have already pointed out that expanding the action in $1/m_h$ up to a
+fixed-order $N$ spoils the usual renormalizability of QCD. However, it can be
+shown that the static term $S_{stat}$ of the effective action alone gives rise
+to a renormalizable theory. Thus the Boltzmann factor for the heavy quark part
+of the action is expanded as
+\begin{equation}
+  e^{-S_h} = e^{-S_{stat}}
+  \left(1 - S^{(1)} - S^{(2)} + \half\left(S^{(1)}\right)^2 + \ldots\right) ,
+\end{equation}
+and the nonstatic terms appear as insertions in expectation values computed
+with the static action. The expansion is terminated after all terms up to the
+desired order $N$ are included. In (10.83) all terms up to order $N = 2$ are
+displayed.
+
+The form (10.83) of the expansion leads to the formulation usually referred to
+as HQET. An alternative is to keep in the exponent also the $D^2$ contribution,
+the $S_2^{(1)}$ term in (10.79), together with $S_{stat}$. This leads to the
+NRQCD formulation (see, e.g., [50]).
+
+For our final expression we still have to add the action for the light quarks,
+$S_L$, and the action for gauge fields, $S_G$. We obtain for the expectation
+value of some observable $O$ in HQET on the lattice
+\begin{equation}
+  \begin{split}
+    \langle O\rangle_h &= \frac{1}{Z_h}
+    \int D[\Phi]\; e^{-S_G - S_L - S_{stat}}
+    \left(1 - S^{(1)} - S^{(2)}
+    + \half\left(S^{(1)}\right)^2 + \ldots\right)O , \\
+    Z_h &= \int D[\Phi]\; e^{-S_G - S_L - S_{stat}}
+    \left(1 - S^{(1)} - S^{(2)}
+    + \half\left(S^{(1)}\right)^2 + \ldots\right) .
+  \end{split}
+\end{equation}
+The integration is over all fields collectively denoted by $\Phi$, i.e., the
+light and heavy quark fields and the gauge variables. We remark that for many
+applications also the observable $O$ is expanded in $1/m_h$. It can be shown
+that the expanded static vacuum expectation values in (10.84) can be
+renormalized when all local operators with the proper symmetries and dimension
+$\leq N$ are included.
+
+The theory defined by (10.84) is described by the following parameters: From
+the gauge and light quark sectors we have the gauge coupling, the masses of
+the light quarks, and maybe some coefficients of improvement terms. The heavy
+quark part contains $\delta m_h$ and the coefficients $\omega_i^{(\nu)}$,
+$\nu = 1, \ldots, N$, where $N$ is the desired order of the expansion.
+
+The remaining problem is how to set the parameters of HQET such that
+expectation values match their QCD counterparts. In principle it would be
+possible to evaluate a set of observables $\Phi_k(m_h)$ in both theories and
+to require
+\begin{equation}
+  \Phi_k^{HQET}(m_h) = \Phi_k^{QCD}(m_h) + \order{m_h^{-(N+1)}} ,
+\end{equation}
+where the number of observables has to equal the number of parameters.
+However, such a brute force procedure faces exactly the difficulties which we
+outlined in Sect.~10.4.1, i.e., the need for large, very fine lattices.
+
+A nonperturbative strategy to overcome this obstacle was presented in [46]. The
+idea is to start with a sufficiently fine lattice such that the boundaries for
+the cutoff given in (10.75) are obeyed. In order to have a lattice which in
+lattice units is small enough to be accessible to a numerical simulation, one
+is restricted to lattices with a small physical size of
+$L = 0.2$--$0.5$ fm. On the small lattice the matching conditions
+\begin{equation}
+  \Phi_k^{HQET}(m_h, L) = \Phi_k^{QCD}(m_h, L) + \order{m_h^{-(N+1)}}
+\end{equation}
+are imposed. The HQET part of the calculation is repeated now using a lattice
+of extent $2L$. The two results can be used to compute the step-scaling
+functions $F_k$ (see [51]) defined as
+\begin{equation}
+  \Phi_k^{HQET}(m_h, 2L) = F_k\, \Phi_k^{HQET}(m_h, L) .
+\end{equation}
+The dimensionless functions $F_k$ describe the change of the complete set of
+observables under a volume change $L \to 2L$. For the step-scaling functions
+the continuum limit can be performed and subsequently they are used to
+transport the physical observables to sufficiently large volumes where contact
+with experimental results can be made.
+
+We conclude with emphasizing again that, although for the matching we here
+mainly follow the proposal [46], several variants of obtaining effective
+theories for heavy quarks have been discussed. Various applications of HQET,
+e.g., the determination of the mass of the $b$-quark [46, 52], have been
+proposed and more general reviews of the corresponding results can be found in
+[48--50, 54, 55].
+
+\section*{References}
+
+\begin{enumerate}[label={[\arabic*]}]
+  \item J.~Kogut and L.~Susskind: Phys.\ Rev.\ D 11, 395 (1975).
+  \item G.~Kilcup and S.~Sharpe: Nucl.\ Phys.\ B 283, 493 (1987).
+  \item F.~Gliozzi: Nucl.\ Phys.\ B 204, 419 (1982).
+  \item H.~Kluberg-Stern, A.~Morel, O.~Napoly, and B.~Petersson: Nucl.\ Phys.\
+        B 220, 447 (1983).
+  \item T.~Takaishi: Phys.\ Rev.\ D 54, 1052 (1996).
+  \item K.~Orginos, D.~Touissant, and R.~Sugar: Phys.\ Rev.\ D 60, 054503
+        (1999).
+  \item G.~P.~Lepage: Phys.\ Rev.\ D 59, 074502 (1999).
+  \item M.~Albanese et al.: Phys.\ Lett.\ B 192, 163 (1987).
+  \item A.~Hasenfratz and F.~Knechtli: Phys.\ Rev.\ D 64, 034504 (2001).
+  \item E.~Follana, A.~Hart, and C.~Davies: Phys.\ Rev.\ Lett.\ 93, 241601
+        (2004).
+  \item S.~D\"urr, C.~Hoelbling, and U.~Wenger: Phys.\ Rev.\ D 70, 094502
+        (2004).
+  \item S.~D\"urr: PoS LAT2005, 021 (2005).
+  \item S.~R.~Sharpe: Phys.\ Rev.\ D 74, 014512 (2006).
+  \item M.~Creutz: Phys.\ Lett.\ B 649, 230 (2007).
+  \item A.~Kronfeld: PoS LATTICE2007, 016 (2007).
+  \item M.~F.~L.~Golterman (unpublished) arXiv:0812.3110 [hep-lat] (2008).
+  \item C.~T.~H.~Davies et al.: Phys.\ Rev.\ Lett.\ 92, 022001 (2004).
+  \item C.~Aubin et al.: Phys.\ Rev.\ D 70, 114501 (2004).
+  \item C.~W.~Bernard et al.: Phys.\ Rev.\ D 64, 054506 (2001).
+  \item A.~Bazavov et al. (unpublished) arXiv:0903.3598 [hep-lat] (2009).
+  \item D.~B.~Kaplan: Phys.\ Lett.\ B 288, 342 (1992).
+  \item Y.~Shamir: Nucl.\ Phys.\ B 406, 90 (1993).
+  \item Y.~Shamir: Phys.\ Rev.\ Lett.\ 71, 2691 (1993).
+  \item V.~Furman and Y.~Shamir: Nucl.\ Phys.\ B 439, 54 (1995).
+  \item P.~M.~Vranas: Phys.\ Rev.\ D 57, 1415 (1998).
+  \item H.~Neuberger: Phys.\ Rev.\ D 57, 5417 (1998).
+  \item Y.~Kikukawa and T.~Noguchi (unpublished) arXiv:hep-lat/9902022
+        (1999).
+  \item C.~R.~Allton et al.: Phys.\ Rev.\ D 78, 114509 (2008).
+  \item R.~Frezzotti, P.~Grassi, S.~Sint, and P.~Weisz: Nucl.\ Phys.\ (Proc.\
+        Suppl.) 83, 941 (2000).
+  \item R.~Frezzotti, P.~Grassi, S.~Sint, and P.~Weisz: JHEP 0108, 058 (2001).
+  \item R.~Frezzotti, S.~Sint, and P.~Weisz: JHEP 0107, 048 (2001).
+  \item S.~Sint: in \emph{Perspectives in Lattice QCD}, Proceedings of the
+        Workshop in Nara, Japan, 31 Oct--11 Nov 2005, edited by Y.~Kuramashi,
+        p.~169 (World Scientific, Singapore 2007).
+  \item A.~Shindler: Phys.\ Rep.\ 461, 37 (2008).
+  \item R.~Frezzotti and G.~C.~Rossi: Nucl.\ Phys.\ (Proc.\ Suppl.) 128, 193
+        (2004).
+  \item C.~Pena, S.~Sint, and A.~Vladikas: JHEP 09, 069 (2004).
+  \item C.~Gattringer and S.~Solbrig: Phys.\ Lett.\ B 621, 195 (2005).
+  \item R.~Frezzotti and G.~C.~Rossi: JHEP 0408, 007 (2004).
+  \item C.~Amsler et al.\ [Particle Data Group]: Phys.\ Lett.\ B 667, 1
+        (2008).
+  \item E.~Eichten and B.~Hill: Phys.\ Lett.\ B 234, 511 (1990).
+  \item E.~Eichten and B.~Hill: Phys.\ Lett.\ B 240, 193 (1990).
+  \item B.~A.~Thacker and G.~P.~Lepage: Phys.\ Rev.\ D 43, 196 (1991).
+  \item G.~P.~Lepage et al.: Phys.\ Rev.\ D 46, 4052 (1992).
+  \item M.~Neubert: Phys.\ Rept.\ 245, 259 (1994).
+  \item A.~V.~Manohar and M.~B.~Wise: \emph{Heavy Quark Physics} (Cambridge
+        University Press, Cambridge 2000).
+  \item J.~D.~Bjorken and S.~D.~Drell: \emph{Relativistic Quantum Mechanics}\\
+        (McGraw-Hill, New York 1964).
+  \item J.~Heitger and R.~Sommer: JHEP 0402, 022 (2004).
+  \item R.~Sommer: in \emph{Perspectives in Lattice QCD}, Proceedings of the
+        Workshop in Nara, Japan, 31 Oct--11 Nov 2005, edited by Y.~Kuramashi,
+        p.~209 (World Scientific, Singapore 2007).
+  \item A.~Kronfeld: Nucl.\ Phys.\ B (Proc.\ Suppl.) 129, 46 (2004).
+  \item T.~Onogi: PoS LAT2006, 017 (2006).
+  \item A.~X.~El-Khadra, A.~S.~Kronfeld, and P.~B.~Mackenzie: Phys.\ Rev.\ D
+        55, 3933 (1997).
+  \item M.~L\"uscher, P.~Weisz, and U.~Wolff: Nucl.\ Phys.\ B 359, 221 (1991).
+  \item M.~Della Morte, N.~Garron, M.~Papinutto, and R.~Sommer: JHEP 01, 007
+        (2007).
+  \item M.~Della Morte: PoS LATTICE2007, 008 (2007).
+  \item J.~Heitger: Nucl.\ Phys.\ B (Proc.\ Suppl.) 181--182, 156 (2008).
+  \item E.~Gamiz: PoS LATTICE2008, 014 (2009).
+\end{enumerate}

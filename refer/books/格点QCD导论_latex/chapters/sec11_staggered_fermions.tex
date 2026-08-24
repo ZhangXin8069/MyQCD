@@ -1,0 +1,185 @@
+% 第 11 节：交错费米子 (SF)
+% R. Gupta, "Introduction to Lattice QCD", arXiv:hep-lat/9807028
+% 根据第 53-57 页转录。
+\providecommand{\slashed}[1]{{\mathchoice
+  {\ooalign{$\displaystyle#1$\cr\hidewidth$\displaystyle/$\hidewidth}}
+  {\ooalign{$\textstyle#1$\cr\hidewidth$\textstyle/$\hidewidth}}
+  {\ooalign{$\scriptstyle#1$\cr\hidewidth$\scriptstyle/$\hidewidth}}
+  {\ooalign{$\scriptscriptstyle#1$\cr\hidewidth$\scriptscriptstyle/$\hidewidth}}}}
+
+\chapter{交错费米子 (SF)}
+
+式~7.6 中给出的朴素费米子作用量的 16 重加倍问题，可以通过自旋对角化的技巧 [21] 减为 4 重。交错费米子 $\chi$ 由如下变换定义
+\begin{equation}
+\psi(x) = \Gamma_x \chi(x), \qquad \bar{\psi}(x) = \bar{\chi}(x)\Gamma_x^\dagger,
+\qquad \Gamma_x = \gamma_1^{x_1}\gamma_2^{x_2}\gamma_3^{x_3}\gamma_4^{x_4} .
+\label{eq:sf-spin-diag}
+\end{equation}
+
+用 $\chi$ 表示，该作用量可写为 [21]
+\begin{equation}
+\begin{aligned}
+S_S &= m_q\sum_x \bar{\chi}(x)\chi(x)
++ \frac{1}{2}\sum_{x,\mu}\bar{\chi}_x\eta_{x,\mu}
+\left[U_{\mu,x}\chi_{x+\hat{\mu}} - U^\dagger_{\mu,x-\hat{\mu}}\chi_{x-\hat{\mu}}\right] \\
+&\equiv \sum_{x,y} \bar{\chi}(x) M^S_{xy}\chi(y)
+\end{aligned}
+\label{eq:sf-action}
+\end{equation}
+其中矩阵 $M^S$ 由下式给出
+\begin{equation}
+M^S[U]_{x,y} = m_q\delta_{xy}
++ \frac{1}{2}\sum_\mu\eta_{x,\mu}
+\left[U_{x,\mu}\delta_{x,y-\hat{\mu}} - U^\dagger_{x-\hat{\mu},\mu}\delta_{x,y+\hat{\mu}}\right] .
+\label{eq:sf-matrix}
+\end{equation}
+
+$\gamma$ 矩阵被相位因子 $\eta_{x,\mu}$ 所取代。为了方便，定义如下相位因子
+\begin{equation}
+\begin{aligned}
+\eta_{x,\mu} &= (-1)^{\sum_{\nu<\mu}x_\nu} \\
+\zeta_{x,\mu} &= (-1)^{\sum_{\nu>\mu}x_\nu} \\
+\epsilon_x &= (-1)^{x_1+x_2+x_3+x_4} \\
+S_R(x) &= \frac{1}{2}\left(1 + \zeta_\mu\zeta_\nu - \eta_\mu\eta_\nu
++ \zeta_\mu\zeta_\nu\eta_\mu\eta_\nu\right) .
+\end{aligned}
+\label{eq:sf-phases}
+\end{equation}
+
+由式~11.2、11.3 容易看出，$\chi$ 的不同自旋分量是退耦的，因为相位因子 $\eta_{x,\mu}$ 只依赖于格点指标和方向，不带有旋量指标。因此可以略去 $\chi$ 的自旋指标，在每个格点上只保留色自由度。这使得朴素费米子原有的 $2^d$ 重简并度缩小为原来的四分之一。式~11.3 中的质量项是厄米的，而 $\slashed{D}$ 项是反厄米的，正如我前面所讨论的，这是实现手征对称性所必需的。
+
+由于相位因子 $\eta_{x,\mu}$ 的存在，SF 作用量在平移 $2a$ 下具有平移不变性。因此，在连续极限下，一个 $2^4$ 超立方体被映射为一个点，16 个自由度减少为 4 份狄拉克费米子。也就是说，对每一个物理味道，交错离散化都会产生一个 4 重简并，称为交错味道。在有限的 $a$ 下，规范相互作用会破缺这种味道对称性，超立方体中的 16 个自由度是自旋与味道的混合。这是交错费米子的主要缺点之一。算符的构造以及它们在自旋和味道意义上的诠释并非易事，下面我将以双线性算符为例加以说明。我先列出交错费米子的对称性来展开讨论，然后概述双线性算符的构造，最后以沃德恒等式的讨论作结。
+
+\textbf{SF 的对称性：}SF 中 $\gamma_5$ 不变性的类比为
+\begin{equation}
+\epsilon_x M^{S\dagger}(x,y)\epsilon_y = M^S(x,y),
+\qquad \epsilon_x S^{F\dagger}(x,y)\epsilon_y = S^F(y,x) .
+\label{eq:sf-gamma5-analog}
+\end{equation}
+并且该作用量的对称性为 [63]
+\begin{align*}
+\text{平移 } S_\mu &: \chi(x) \to \zeta_\mu(x)\chi(x+\hat{\mu}) \\
+\text{转动 } R_{\mu\nu} &: \chi(x) \to S_R(R^{-1}x)\chi(R^{-1}x) \\
+\text{反演 } I &: \chi(x) \to \eta_4(x)\chi(I^{-1}x) \\
+\text{电荷共轭 } C &: \chi(x) \to \epsilon(x)\bar{\chi}(x),
+\quad \bar{\chi}(x) \to -\epsilon(x)\chi(x) \\
+\text{矢量(重子数) } U(1)_V &: \chi(x) \to e^{i\theta}\chi(x),
+\quad \bar{\chi}(x) \to e^{-i\theta}\bar{\chi}(x) \\
+\text{轴矢 } U(1)_A &: \chi(x) \to e^{i\theta\epsilon(x)}\chi(x),
+\quad \bar{\chi}(x) \to e^{i\theta\epsilon(x)}\bar{\chi}(x)
+\end{align*}
+其中相位 $\eta$、$\zeta$、$\epsilon$ 和 $S_R$ 定义于式~11.4。正是最后的这个不变性，即 $U(1)_A$，也称 $U(1)_\epsilon$ 不变性，在连续极限下变为一个味道非单态的轴矢对称性，这也是交错费米子的主要优点。
+
+\textbf{交错费米子算符：}理解交错费米子味道认定有两种等价的方式：(i) 动量空间 [64]，(ii) 位置空间 [65,66]。这里我回顾位置空间的方法。
+
+为了构造强子算符，方便的做法是用超立方体场 $Q$ 来表示超立方体中的 16 个自由度；$Q$ 在连续极限下代表四个简并味道的四个自旋分量 [67]。具体做法是把格点划分为由 4-矢量 $y$ 标识的超立方体，即 $y$ 定义在格距为 $2a$ 的格点上，而 16 个矢量 $\{A\}$ 指向超立方体内的各点。这些矢量称为超立方体矢量，两个这样的矢量相加定义为模 2 加法，$C_\mu = (A_\mu + B_\mu)\bmod 2$。于是，在自由场极限下（令规范链 $U_{x,\mu} = 1$，并约定在相互作用理论中，非定域算符应通过使其规范不变的路径有序链积相连接，或者这些算符应在固定的规范下求值）
+\begin{equation}
+Q(y) = \frac{1}{N_f}\sum_{\{A\}}\Gamma_A\,\chi(y+A)
+\label{eq:sf-hypercube-field}
+\end{equation}
+其中 $N_f = 4$，且
+\begin{equation}
+\Gamma_A = \gamma_1^{A_1}\gamma_2^{A_2}\gamma_3^{A_3}\gamma_4^{A_4} .
+\label{eq:sf-gamma-A}
+\end{equation}
+
+一般的双线性算符可以写成
+\begin{equation}
+\begin{aligned}
+O_{SF} &= \text{Tr}\left[\bar{Q}\gamma_S Q\gamma_F^\dagger\right] \\
+&= \sum_{A,B}\bar{\chi}(y+A)\,\text{Tr}\left[\Gamma_A^\dagger\gamma_S\Gamma_B\xi_F\right]\chi(y+B) \\
+&= \sum_{A,B}\bar{\chi}(y+A)(\gamma_S\otimes\xi_F)_{AB}\,\chi(y+B) \\
+&= \bar{Q}(\gamma_S\otimes\xi_F)Q .
+\end{aligned}
+\label{eq:sf-bilinear}
+\end{equation}
+其中矩阵 $\gamma_S$ 决定双线性算符的自旋，$\xi_F$ 决定其味道。它们各自都可以是 Clifford 代数标准 16 个元素中的某一个。在最后一个表达式中，场 $Q$ 表示为 16 分量矢量。由式~11.8 容易看出，定域算符由 $\gamma_S = \xi_F$ 给出。介子算符的认定如下 [65,68,69]。
+\begin{equation}
+V_\mu = \bar{Q}(\gamma_\mu\otimes\xi_F)Q, \qquad
+A_\mu = \bar{Q}(\gamma_\mu\gamma_5\otimes\xi_F)Q, \qquad
+P = \bar{Q}(\gamma_5\otimes\xi_F)Q, \qquad
+S = \bar{Q}(1\otimes\xi_F)Q .
+\label{eq:sf-mesons}
+\end{equation}
+
+在连续极限下，介子属于味道 SU(4) 的表示 1 和 15，而在格点上，这些表示分裂为许多更小的表示。例如，连续极限下 $\pi$ 介子的 15 重态分裂为七个格点表示（四个 3 维和三个 1 维）。
+\begin{equation}
+\begin{aligned}
+15 &\to (\gamma_5\otimes\gamma_i) \oplus (\gamma_5\otimes\gamma_i\gamma_4)
+\oplus (\gamma_5\otimes\gamma_i\gamma_5) \oplus (\gamma_5\otimes\gamma_i\gamma_4\gamma_5) \\
+&\quad\oplus (\gamma_5\otimes\gamma_4) \oplus (\gamma_5\otimes\gamma_5) \oplus (\gamma_5\otimes\gamma_4\gamma_5), \\
+1 &\to (\gamma_5\otimes 1) .
+\end{aligned}
+\label{eq:sf-pion-reps}
+\end{equation}
+在第一行中，$i = 1, 2, 3$，因此这些表示是 3 维的。其余表示是 1 维的。类似地，连续极限下的 $\rho$ 介子 15 重态（乘以三个自旋分量）分裂为十一个表示（四个 6 维和七个 3 维）。
+\begin{equation}
+\begin{aligned}
+15 &\to (\gamma_i\otimes\gamma_j) \oplus (\gamma_i\otimes\gamma_j\gamma_4)
+\oplus (\gamma_i\otimes\gamma_j\gamma_5) \oplus (\gamma_i\otimes\gamma_j\gamma_4\gamma_5) \\
+&\quad\oplus (\gamma_i\otimes\gamma_i) \oplus (\gamma_i\otimes\gamma_i\gamma_4)
+\oplus (\gamma_i\otimes\gamma_i\gamma_5) \oplus (\gamma_i\otimes\gamma_i\gamma_4\gamma_5) \\
+&\quad\oplus (\gamma_i\otimes\gamma_4) \oplus (\gamma_i\otimes\gamma_5) \oplus (\gamma_i\otimes\gamma_4\gamma_5), \\
+1 &\to (\gamma_i\otimes 1) .
+\end{aligned}
+\label{eq:sf-rho-reps}
+\end{equation}
+
+在十六个 $\pi$ 介子中，戈德斯通 $\pi$ 介子具有味道 $\xi_5$。其余 15 个 $\pi$ 介子由 Clifford 代数的另外 15 个元素给出，由于交错味道对称性破缺而更重，并且它们的质量在 $m_q = 0$ 时不消失。事实上，每个表示的质量可以不同。交错味道对称性被破缺的程度可以通过例如比较戈德斯通 $\pi$ 介子与其他表示中的质量来量化。
+
+上述例子清楚地表明，自旋与味道的混合使分析变得复杂，这是交错费米子的一个主要缺点。我不打算深入讨论使用交错费米子的计算细节。下面给出一个有用的参考文献列表。重子算符的构造见 [70]。关于能谱的示例性计算，参见 [69]。由有效弱哈密顿量产生的 4 费米子算符的转写及其在强子态内的矩阵元，在 [63,71] 中讨论。
+
+\textbf{手征对称性与沃德恒等式：}交错费米子作用量可以用 16 分量场 $Q$（定义于式~11.6）写成 [4]
+\begin{equation}
+S_S = m_q\sum_y \bar{Q}(y)(1\otimes 1)Q(y)
++ \sum_{y,\mu}\bar{Q}(y)\left[(\gamma_\mu\otimes 1)\partial_\mu
++ (\gamma_5\otimes\xi_\mu\xi_5)\right]_\mu Q(y) .
+\label{eq:sf-action-hypercube}
+\end{equation}
+该作用量在 $m_q = 0$ 时，对如下阿贝尔变换保持不变
+\begin{equation}
+Q(y) \to e^{i\theta(\gamma_5\otimes\xi_5)}Q(y), \qquad
+\bar{Q}(y) \to \bar{Q}(y)e^{i\theta(\gamma_5\otimes\xi_5)} .
+\label{eq:sf-abelian}
+\end{equation}
+这样便保留了原有 $U(4)\times U(4)$ 对称性的一个非平凡部分（称为 $U(1)_\epsilon$ 或 $U(1)_A$），其生成元为 $\gamma_5\otimes\xi_5$，相应的戈德斯通玻色子算符为 $\bar{Q}(\gamma_5\otimes\xi_5)Q$。这个轴矢 $U(1)_A$ 对称性，连同 $U(1)_V$，在对算符做适当的转写后，允许格点振幅具有与连续极限中相似的沃德恒等式。
+
+这方面研究得最透彻的例子是 $K^0\bar{K}^0$ 混合参数 $B_K$ 的格点计算 [72]。
+
+构造沃德恒等式的基本工具可以用如下两个关系来说明，它们涉及夸克传播子以及赝戈德斯通算符 $\bar{\chi}(x)\chi(x)(-1)^x$ 和标量密度 $\bar{\chi}(x)\chi(x)$ 的零 4-动量插入 [63]
+\begin{equation}
+(-1)^{x_f}G_2(x_f,x_i) + G_1(x_f,x_i)(-1)^{x_i}
+= (m_1+m_2)\sum_x G_1(x_f,x)(-1)^x G_2(x,x_i)
+\label{eq:sf-wi-1}
+\end{equation}
+\begin{equation}
+G_2(x_f,x_i) - G_1(x_f,x_i)
+= (m_1-m_2)\sum_x G_1(x_f,x)G_2(x,x_i)
+\label{eq:sf-wi-2}
+\end{equation}
+其中 $G_i(x_f,x_i)$ 是质量为 $m_i$ 的夸克从 $x_i$ 到 $x_f$ 的传播子。这些恒等式利用跳跃参数展开的推导见文献~[63]。注意，这些关系对所有 $a$ 和有限的 $m$ 都成立。这些关系有用性的一个例子如下所示，即用于提取手征凝聚。式~11.14 给出
+\begin{equation}
+\langle\bar{\chi}\chi\rangle = G(x_i,x_i)
+= m\sum_x (-1)^{-x_i}G(x_i,x)(-1)^x G(x,x_i)
+= m\sum_x |G(x_i,x)|^2 ,
+\label{eq:sf-condensate}
+\end{equation}
+其中右端最后一项是 $\pi$ 介子关联函数的零 4-动量求和。类似地，式~11.15 给出
+\begin{equation}
+\frac{\partial\langle\bar{\chi}\chi\rangle}{\partial m}
+= \sum_x G(x_i,x)G(x,x_i)
+= \sum_x |G(x_i,x)|^2(-1)^{x-x_i} .
+\label{eq:sf-condensate-deriv}
+\end{equation}
+综合这两个方程，可以在手征极限下提取凝聚的值
+\begin{equation}
+\langle\bar{\chi}\chi\rangle(m=0)
+= \left(1 - m\frac{\partial}{\partial m}\right)\langle\bar{\chi}\chi\rangle
+= \sum_{\mathrm{even}} |G_1(x_i,x)|^2
+\label{eq:sf-condensate-chiral}
+\end{equation}
+做法是对格点 $(x-x_i)$ 为偶数的戈德斯通 $\pi$ 介子两点函数求和。
+
+\section{小结}
+
+尽管直到最近为止所做的大多数模拟都使用交错费米子或威尔逊费米子表述，但两者都不能令人满意。

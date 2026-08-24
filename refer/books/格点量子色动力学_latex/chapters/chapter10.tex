@@ -1,0 +1,799 @@
+% =====================================================================
+%  第 10 章：关于格点费米子的更多内容
+%  Gattringer & Lang, "Quantum Chromodynamics on the Lattice" (LNP 788)
+%  Reconstructed from extract/ch10.txt; equations auto-numbered.
+% =====================================================================
+
+\chapter{关于格点费米子的更多内容}
+
+第 7 章中讨论的格点上手征对称性的实现多年来一直是一个未解之谜。这一问题不断激发格点领域的研究，并导致了格点上多种费米子公式的提出。到目前为止，我们的讲述只聚焦于两类费米子：Wilson 型费米子和 overlap 费米子。Wilson 费米子提供了一种简单、稳健且易于使用的离散化方案，而 overlap 费米子则以最清晰的方式实现手征对称性。
+
+这里我们介绍格点上费米子离散化的其他一些思想；其中大多数源于手征对称性问题。例外的是为粲夸克和底夸克等重夸克模拟而设计的重夸克有效公式。我们强调，对于各种格点费米子，我们只能介绍基本思想，更详细的论述以及数值模拟的现状请参阅原始文献。
+
+\section{交错费米子}
+
+交错费米子通常也称为 Kogut--Susskind 费米子 [1]，在这种公式中，朴素离散化的 16 重简并减少到只有四个夸克，同时保持了一个剩余的手征对称性。这是通过一个混合旋量与时空指标的变换实现的，该变换将夸克自由度分配到格点的超立方体上。
+
+\subsection{交错变换}
+
+为了构造交错费米子，我们回到 (2.29) 中已经给出的朴素离散化。自由朴素费米子作用量为
+\begin{equation}
+  S_F[\bar\psi, \psi] = a^4 \sum_{n\in\Lambda}
+  \left[
+    \sum_{\mu=1}^{4} \bar\psi(n)\, \gamma_\mu \,
+    \frac{\psi(n+\hat\mu) - \psi(n-\hat\mu)}{2a}
+    + m\,\bar\psi(n)\psi(n)
+  \right] .
+\end{equation}
+正如我们在第 5.2 节中所发现的，由于加倍子，该作用量给出 16 个夸克味。在 Wilson 狄拉克算符中，通过添加 Wilson 项来移除其中 15 个，代价是显式破坏手征对称性。
+
+然而，作用量 (10.1) 具有一个对称性，可以利用它来减少夸克味的数目而无需破坏手征对称性。为了显式化这一对称性，需要对费米子场 $\psi(n)$、$\bar\psi(n)$ 做依赖于时空的变量变换。这一所谓的交错变换消去了 (10.1) 中的矩阵 $\gamma_\mu$。为了看清这一点，我们引入新的场变量 $\psi'(n)$ 和 $\bar\psi'(n)$：
+\begin{equation}
+  \psi(n) = \gamma_1^{n_1}\gamma_2^{n_2}\gamma_3^{n_3}\gamma_4^{n_4}
+  \,\psi'(n) , \qquad
+  \bar\psi(n) = \bar\psi'(n)\,
+  \gamma_4^{n_4}\gamma_3^{n_3}\gamma_2^{n_2}\gamma_1^{n_1} .
+\end{equation}
+变换矩阵不过是 $\gamma_\mu$ 的乘积，其幂指数由格点指标 $n = (n_1, n_2, n_3, n_4)$ 的相应分量 $n_\mu$ 给出。因此交错变换混合了时空指标与狄拉克指标。
+
+\begingroup\emergencystretch=4em 由于 $\gamma$ 矩阵满足 $\gamma_\mu^2 = 1$，质量项显然是不变的，即\linebreak[0] $\bar\psi(n)\psi(n) = \bar\psi'(n)\psi'(n)$。在 (10.1) 的动能项中，$\psi$ 场相对于 $\bar\psi$ 场移动了一个格点常数。因此，两个格点上场的变换 (10.2) 相差一个 $\gamma_\mu$ 的幂。这个多余的 $\gamma_\mu$ 与 (10.1) 动能项中显式出现的那个 $\gamma_\mu$ 相消。考虑 $\gamma$ 矩阵必要的重新排序后，对于导数项（例如 3 方向）我们发现\par\endgroup
+\begin{equation}
+  \bar\psi(n)\, \gamma_3\, \psi(n \pm \hat{3})
+  = (-1)^{n_1 + n_2}\, \bar\psi'(n)\; \mathbf{1} \;
+  \psi(n \pm \hat{3})'
+\end{equation}
+其他方向上的项也有类似结果。作用量 (10.1) 变为
+\begin{equation}
+  \begin{split}
+    S_F[\bar\psi', \psi'] = a^4 \sum_{n\in\Lambda}
+    \Bigl[ &\sum_{\mu=1}^{4} \bar\psi'(n)\; \mathbf{1} \;
+      \eta_\mu(n) \frac{\psi'(n+\hat\mu) - \psi'(n-\hat\mu)}{2a}\\
+    &\quad + m\,\bar\psi'(n)\psi'(n)
+    \Bigr] ,
+  \end{split}
+\end{equation}
+其中我们引入了交错符号函数
+\begin{equation}
+  \begin{aligned}
+    \eta_1(n) &= 1 , \qquad \eta_2(n) = (-1)^{n_1} , \\
+    \eta_3(n) &= (-1)^{n_1 + n_2} , \qquad
+    \eta_4(n) = (-1)^{n_1 + n_2 + n_3} ,
+  \end{aligned}
+\end{equation}
+它们接替了矩阵 $\gamma_\mu$ 的角色。显然，作用量 (10.4) 在狄拉克空间是对角的，并且对所有四个狄拉克分量具有相同的形式。
+
+通过只保留四个全同分量中的一个，就得到了交错费米子作用量。耦合规范场后，我们得到
+\begin{multline}
+  S_F[\bar\chi, \chi] = a^4 \sum_{n\in\Lambda}
+  \Bigg[
+    \sum_{\mu=1}^{4} \bar\chi(n)\, \eta_\mu(n)
+    \frac{U_\mu(n)\chi(n+\hat\mu) - U_\mu^{\dagger}(n-\hat\mu)\chi(n-\hat\mu)}{2a}
+  \\
+  \qquad\qquad + m\,\bar\chi(n)\chi(n)
+  \Bigg] ,
+\end{multline}
+其中 $\chi(n)$ 和 $\bar\chi(n)$ 是仅带色指标、没有狄拉克结构的格拉斯曼值场。由于丢弃了 4 个全同副本中的 3 个，我们可以预期朴素作用量的 16 个夸克自由度中只有 4 个存活下来。这一假设将在下一节中分析。
+
+我们声称交错变换保持了手征对称性的一个子集。为了看清这一点，我们首先必须在通过变换 (10.2) 得到的新旋量基中识别出 $\gamma_5$。当按照 (10.2) 变换一个赝标量双线性时，可以读出 $\gamma_5$ 的新形式：
+\begin{equation}
+  \bar\psi(n)\, \gamma_5\, \psi(n) = \eta_5(n)\,
+  \bar\psi'(n)\; \mathbf{1} \; \psi'(n) ,
+\end{equation}
+其中我们定义了
+\begin{equation}
+  \eta_5(n) = (-1)^{n_1 + n_2 + n_3 + n_4} .
+\end{equation}
+这个依赖格点的符号在交错世界中扮演 $\gamma_5$ 的角色。显然，在质量 $m$ 为零的情况下，交错作用量 (10.6) 在连续（$\alpha \in \mathbb{R}$）变换
+\begin{equation}
+  \chi(n) \longrightarrow e^{i\alpha\eta_5(n)}\chi(n) , \qquad
+  \bar\chi(n) \longrightarrow \bar\chi(n)\, e^{i\alpha\eta_5(n)} .
+\end{equation}
+下不变。这就是交错理论的整体手征对称性，其中夸克自由度分布在整个超立方体上。
+
+\subsection{交错费米子的味道}
+
+交错变换混合了格点指标与狄拉克指标。这引发了概念上和技术上的问题。后者的一个例子是构造具有确定自旋和宇称的强子插值算符的问题。关于这一构造的细节，我们请读者参阅文献（例如 [2]），尽管其中的一些思想可以在后续讨论中找到。
+
+为了更好地理解交错费米子的概念地位，我们在此讨论交错作用量 (10.6) 描述多少个夸克以及它们之间有何种对称性联系的问题。为简单起见，这一研究在自由情形（$U_\mu(n) \equiv 1$）下进行。
+
+对于交错费米子的分析，我们遵循 [3, 4] 中发展的策略。其思想是把一个超立方体的 16 个格点归并在一起，并把相应的自由度解释为 4 种夸克，每种夸克都具有熟悉的 4 旋量结构。我们假设 $N_\mu$ 为偶数，即所有方向上的格点数都是偶数。我们考虑不相交的超立方体，其原点相隔两个格点间距的倍数。我们把格点指标 $n_\mu = 0, 1, \ldots, N_\mu - 1$ 用这些超立方体的指标 $h_\mu$ 和超立方体顶角的指标 $s_\mu$ 表示为
+\begin{equation}
+  n_\mu = 2\,h_\mu + s_\mu
+  \qquad \text{with} \qquad
+  h_\mu = 0, 1, \ldots N_\mu/2 - 1 , \qquad
+  s_\mu = 0, 1 .
+\end{equation}
+采用这种格点标记方式后，(10.5) 中定义的交错符号函数 $\eta_\mu(n)$ 变得与 $h$ 无关，而只是向量 $s$ 的函数：
+\begin{equation}
+  \eta_\mu(n) = \eta_\mu(2h + s) = \eta_\mu(s) .
+\end{equation}
+我们现在要把共享同一个超立方体指标 $h$ 的所有自由度 $\chi(2h+s)$、$\bar\chi(2h+s)$（$s_\mu = 0, 1$）组合成一组带指标 $a, b = 1, 2, 3, 4$ 的新场 $q(h)_{ab}$、$\bar q(h)_{ab}$。为了引入熟悉的 $\gamma$ 矩阵，我们定义依赖 $s$ 的 $4\times 4$ 矩阵 $\Gamma^{(s)}$ 为 $\gamma_\mu$ 的乘积（比较 (10.2)），
+\begin{equation}
+  \Gamma^{(s)} = \gamma_1^{s_1}\gamma_2^{s_2}\gamma_3^{s_3}\gamma_4^{s_4} .
+\end{equation}
+容易验证它们满足 Fierz 变换中熟知的完备性和正交性关系，
+\begin{equation}
+  \frac{1}{4}\,\tr\left[\Gamma^{(s)\dagger}\Gamma^{(s')}\right]
+  = \delta_{s,s'} , \qquad
+  \frac{1}{4}\sum_s \Gamma^{(s)*}_{ba}\,\Gamma^{(s)}_{b'a'}
+  = \delta_{a,a'}\,\delta_{b,b'} .
+\end{equation}
+我们把新的夸克场 $q(h)$ 和 $\bar q(h)$ 定义为场 $\chi(2h+s)$、$\bar\chi(2h+s)$ 的线性组合：
+\begin{equation}
+  q(h)_{ab} \equiv \frac{1}{8}\sum_s \Gamma^{(s)}_{ab}\,\chi(2h+s) , \qquad
+  \bar q(h)_{ab} \equiv \frac{1}{8}\sum_s
+  \bar\chi(2h+s)\,\Gamma^{(s)*}_{ba} .
+\end{equation}
+利用 (10.13)，线性变换可以被求逆，得到
+\begin{equation}
+  \chi(2h+s) = 2\,\tr\left[\Gamma^{(s)\dagger}q(h)\right] , \qquad
+  \bar\chi(2h+s) = 2\,\tr\left[\bar q(h)\Gamma^{(s)}\right] .
+\end{equation}
+借助这些方程，我们可以用 $q$ 和 $\bar q$ 场来表示 (10.6) 的质量项：
+\begin{equation}
+  \begin{split}
+    a^4\sum_n \bar\chi(n)\chi(n)
+    &= a^4\sum_h\sum_s \bar\chi(2h+s)\,\chi(2h+s) \\
+    &= 4a^4\sum_h\sum_s
+       \bar q(h)_{ba}\,\Gamma^{(s)}_{ab}\,\Gamma^{(s)*}_{b'a'}\,q(h)_{a'b'} \\
+    &= (2a)^4\sum_h \tr\left[\bar q(h)\,q(h)\right] ,
+  \end{split}
+\end{equation}
+其中第二步用到了 (10.13) 的完备性关系。(10.6) 的动能项稍微复杂一些，因为平移后的场 $\chi(2h + s \pm \hat\mu)$ 混合了来自不同超立方体的贡献。我们必须首先为单个场 $\chi(2h + s \pm \hat\mu)$ 指定正确的超立方体，然后才能用 $q(h)_{ab}$ 来表示它们。对于向前平移的场，我们发现
+\begin{equation}
+  \begin{aligned}
+    \chi(2h + s + \hat\mu)
+    &= 2\,\tr\left[\Gamma^{(s+\hat\mu)\dagger}q(h)\right]
+    && \text{for } s_\mu = 0 , \\
+    \chi(2h + s + \hat\mu)
+    &= \chi(2(h+\hat\mu) + s-\hat\mu)
+    = 2\,\tr\left[\Gamma^{(s-\hat\mu)\dagger}q(h+\hat\mu)\right]
+    && \text{for } s_\mu = 1 .
+  \end{aligned}
+\end{equation}
+由 $\Gamma^{(s)}$ 的定义 (10.12) 可知 $\Gamma^{(s\pm\hat\mu)} = \eta_\mu(s)\,\gamma_\mu\,\Gamma^{(s)}$，这使 (10.17) 化为
+\begin{equation}
+  \chi(2h + s + \hat\mu) =
+  2\eta_\mu(s)\,\tr\left[\Gamma^{(s)\dagger}\gamma_\mu
+  \left(q(h)\delta_{s_\mu,0} + q(h+\hat\mu)\delta_{s_\mu,1}\right)\right] .
+\end{equation}
+对沿负 $\mu$ 方向平移的场 $\chi(2h + s - \hat\mu)$ 进行等价的操作，我们可以把 (10.6) 动能项的 $\mu$ 贡献写成
+\begin{multline}
+  4a^4\sum_h\sum_s \frac{1}{2a}
+  \tr\left[\bar q(h)\Gamma^{(s)}\right] \\
+  \times \tr\left[\Gamma^{(s)\dagger}\gamma_\mu
+  \left(q(h)\delta_{s_\mu,0} + q(h+\hat\mu)\delta_{s_\mu,1}
+  - q(h-\hat\mu)\delta_{s_\mu,0} - q(h)\delta_{s_\mu,1}\right)\right] .
+\end{multline}
+遗憾的是我们还不能对 $s$ 求和并利用 (10.13) 的完备性关系，因为在第二个因子中 $\Gamma^{(s)\dagger}$ 与依赖 $s$ 的项结合在一起。认识到在 (10.10) 定义的超立方体求和中，我们也可以从 $\hat\mu$ 而不是原点开始，这一问题就迎刃而解。如果用这种平移约定来写出 (10.16) 中对 $h$ 和 $s$ 的求和，则部分 $q$ 和 $\bar q$ 会平移 $\pm\hat\mu$，并且超立方体指标 $s_\mu = 0$ 与 $s_\mu = 1$ 会互换。后一种变化提供了 (10.19) 中所缺失的 $s_\mu$ 贡献。因此，我们可以把 (10.19) 的两种写法取平均，经过一些代数运算得到
+\begin{equation}
+  \begin{split}
+    S_F[\bar q, q] = (2a)^4\sum_h \Big[
+    & m\,\tr\left[\bar q(h)q(h)\right] \\
+    &+ \sum_\mu \tr\left[\bar q(h)\gamma_\mu\nabla_\mu q(h)\right]
+    - a\sum_\mu \tr\left[\bar q(h)\gamma_5\Delta_\mu q(h)\gamma_\mu\gamma_5\right]
+    \Big] ,
+  \end{split}
+\end{equation}
+其中我们在块化后的格点上定义了导数算符（注意这里格点间距为 $b \equiv 2a$），
+\begin{equation}
+  \nabla_\mu f(h) = \frac{f(h+\hat\mu) - f(h-\hat\mu)}{2b} , \qquad
+  \Delta_\mu f(h) = \frac{f(h+\hat\mu) - 2f(h) + f(h-\hat\mu)}{b^2} .
+\end{equation}
+受 (10.20) 前两项形式的启发，我们设定下列关系来为费米子场确定狄拉克指标 $\alpha$ 和夸克种类标记 $t$：
+\begin{equation}
+  \psi^{(t)}(h)_\alpha \equiv q(h)_{\alpha t} , \qquad
+  \bar\psi^{(t)}(h)_\alpha \equiv \bar q(h)_{t\alpha} .
+\end{equation}
+用这些新场来表示，自由交错作用量为
+\begin{multline}
+  S_F[\bar\psi, \psi] = b^4 \sum_h \Bigg[
+  \sum_{t=1}^{4} m\,\bar\psi^{(t)}(h)\psi^{(t)}(h)
+  + \sum_{t=1}^{4}\sum_{\mu=1}^{4}
+  \bar\psi^{(t)}(h)\gamma_\mu\nabla_\mu\psi^{(t)}(h) \\
+  - \frac{b}{2} \sum_{t,t'=1}^{4}\sum_{\mu=1}^{4}
+  \bar\psi^{(t)}(h)\gamma_5(\tau_5\tau_\mu)_{tt'}\,
+  \Delta_\mu\psi^{(t')}(h) \Bigg] .
+\end{multline}
+这里我们引入了矩阵 $\tau_\mu = \gamma_\mu^{T}$，$\mu = 1, 2, \ldots, 5$，$b$ 是超立方体格点上的格点间距。为了把用 $t = 1, 2, 3, 4$ 标记的 $N_t = 4$ 种不同的夸克与通常的味（flavor）相区别，它们被称为交错费米子的味道（taste）。(10.23) 中的前两项在味道空间是对角的，分别表示 (10.6) 所预期描述的四种味道费米子的质量项和动能项。第三项让人联想到 Wilson 项，但它混合了不同的味道。这个味道对称性破缺项降低了动能项的对称性，而动能项对四种味道中每一种独立的矢量和轴旋转都是不变的。味道破缺项只在由下列旋转给出的剩余对称性 $U(1) \times U(1)$ 下不变
+\begin{equation}
+  \begin{split}
+    \psi' &= e^{i\alpha}\psi , \qquad \psi' = e^{i\beta\Gamma_5}\psi , \\
+    \bar\psi' &= \bar\psi\, e^{-i\alpha} , \qquad
+    \bar\psi' = \bar\psi\, e^{i\beta\Gamma_5} ,
+  \end{split}
+\end{equation}
+其中我们定义了味道混合生成元 $\Gamma_5 = \gamma_5 \otimes \tau_5$。这个对称性可以被识别为轴味道对称群 $SU(N_t)_A$ 的一个子群。
+
+\subsection{进展与开放问题}
+
+由交错作用量所描述的四种味道的对称性，并不是四种独立（无质量）夸克味的全部对称性，而是被约化到 (10.24)。尽管味道破缺项在朴素连续极限下消失，但它在必然在有限格点间距下进行的数值模拟中的存在引发了若干问题。
+
+在更基础的层面上，必须理解味道破缺的效应在按实际计算方式实现的连续极限下是否会存留下来。正如我们在第 3.5.4 节所讨论的，“真正的连续极限”是通过把耦合驱动到关联长度发散的临界点而得到的。因此，开放问题是味道破缺项是否会改变理论在临界点的行为，或者用更花哨的话说，味道破缺项是否会改变理论的普适类。
+
+忽略这些更基本的问题，人们可以尝试将味道破缺项的影响降至最低。为了制定这样做的策略，重要的是要记住，不同的味道是超立方体上交错场变量 $\chi$ 和 $\bar\chi$ 的组合。因此，不同的味道看到不同的链接变量 $U_\mu(n)$。结果，剧烈涨落的规范链接将导致大的味道对称性破缺效应。改善这些效应的一个可能策略是使用抑制这种强烈涨落的规范作用量，参见例如 [5--7]。另一种方法（已在第 6.2.6 节中讨论过）是对规范场做块化（blocking）或光滑化（smearing）处理，在局域上平均掉大的涨落 [8, 9]。
+
+这种块化或光滑化步骤的效果例如可以通过分析交错费米子狄拉克算符的谱来评估（这里给出 $\chi$ 基 (10.6) 中的形式）：
+\begin{equation}
+  D_{st}(n|m) = m\,\delta_{n,m} +
+  \sum_{\mu=1}^{4} \eta_\mu(n)
+  \frac{U_\mu(n)\delta_{n+\hat\mu,m}
+  - U_\mu(n-\hat\mu)^{\dagger}\delta_{n-\hat\mu,m}}{2a} .
+\end{equation}
+容易看出，在无质量情形下，这个狄拉克算符是反厄米的，并且满足交错 $\gamma_5$ 厄米性：
+\begin{equation}
+  D_{st}(n|m)^{\dagger} = -D_{st}(n|m) =
+  \eta_5(n)\,D_{st}(n|m)\,\eta_5(m) .
+\end{equation}
+这两个性质保证了本征值成复共轭对出现，并且所有本征值都有由夸克质量给出的相同实部。因此本征值实部的涨落是不可能的，也不会出现例外位形（比较第 6.2.5 节的讨论）。结果，行列式（所有本征值的乘积）总是实数且非负，并且在夸克质量非零时严格为正。
+
+此外，如果不存在味道对称性破缺，那么每个本征值都将是 4 重简并的。在系统性的比较 [10, 11] 中确实发现，足够的块化或光滑化处理会使本征值趋于 4 重简并。
+
+交错费米子被广泛用于动力学模拟。原因在于，由于自由度数目减少（没有狄拉克结构），交错费米子在数值上模拟更便宜，同时又是手征对称的。然而，一个问题是该作用量描述四种味道的夸克，而在现实的 QCD 模拟中人们希望有两个轻的质量简并的 $u$ 和 $d$ 夸克以及一个较重的奇异夸克。为了适当地减少自由度数目，有人提议用如下有效作用量来模拟 QCD
+\begin{equation}
+  \exp(-S_{eff}) = \exp(-S_G)\,
+  \det\left[D_{st}(m_{ud})\right]^{\half}\,
+  \det\left[D_{st}(m_s)\right]^{\frac{1}{4}} ,
+\end{equation}
+其中 $m_{ud}$ 是 $u$ 和 $d$ 夸克质量的平均值，$m_s$ 是奇异夸克质量。从数学的角度看，对行列式开平方根或四次方根是没有问题的，因为正如我们所示，它是实数且为正。然而，从概念的角度看，这一过程相当不平凡，我们必须扪心自问，在这种方法中普适类是否保持不变。也许更重要的是有效作用量能否表示为局域格点场论形式的问题。关于这些问题的持续争论的概况，参见 [12--16] 及其中的参考文献。尽管概念问题尚未全部解决，使用交错费米子的模拟已与实验结果取得了良好一致。例子见 [17--20]。
+
+\section{畴壁费米子}
+
+第 7.4 节讨论的格点 QCD 的 overlap 公式与另一种手征格点 QCD 方案相关，即所谓的畴壁费米子。畴壁费米子利用 5D 格点，在 5D 格点的 4D 界面上构造手征狄拉克费米子。5D 理论的作用量很简单，即与通常的 Wilson 公式相当类似。这意味着已经建立起来的数值方法只需稍作改动即可应用。
+
+\subsection[带畴壁费米子的格点 QCD 公式]{带畴壁费米子的格点 QCD\\ 公式}
+
+畴壁费米子的基本概念在 Kaplan 的开创性论文 [21] 中作了概述。这些思想在 [22--24] 中得到进一步发展，形成了现在主要使用的畴壁费米子公式。
+
+其思想是在 5D 格点 $\Lambda_5 = \Lambda \times \mathbb{Z}_{N_5}$ 上工作，其中 $\Lambda$ 是我们的 4D 格点，$N_5$ 表示辅助 5 方向上的格点数。在这个格点上，我们使用由 4 分量旋量描述的费米子场
+\begin{equation}
+  \begin{aligned}
+    &\Psi(n, s)^{\alpha}_c , \quad \bar\Psi(n, s)^{\alpha}_c
+    \qquad \text{with} \quad n \in \Lambda , \quad
+    s = 0, \ldots, N_5 - 1 , \\
+    &\alpha = 1, \ldots, 4 , \quad c = 1, 2, 3 .
+  \end{aligned}
+\end{equation}
+显然狄拉克（指标 $\alpha$）和色（指标 $c$）结构保持不变，我们只是额外增加了一个用 $s$ 标记的方向。5D 畴壁理论的费米子作用量为（令 $a \equiv 1$）
+\begin{equation}
+  S_F^{dw}[\Psi, \bar\Psi, U] =
+  \sum_{n,m\in\Lambda}\sum_{s,r=0}^{N_5-1}
+  \bar\Psi(n, s)\, D^{dw}(n, s|m, r)\, \Psi(m, r) ,
+\end{equation}
+其中我们对狄拉克和色指标使用向量/矩阵记号。5D 畴壁狄拉克算符 $D^{dw}$ 为
+\begin{equation}
+  D^{dw}(n, s|m, r) = \delta_{s,r}\, D(n|m) + \delta_{n,m}\, D_5^{dw}(s|r) .
+\end{equation}
+第一项在辅助方向是对角的，由通常的 4D Wilson 狄拉克算符构成（比较 (5.51)，那里我们也显式写出了色和狄拉克指标）
+\begin{equation}
+  D(n|m) = (4 - M_5)\,\delta_{n,m} -
+  \frac{1}{2}\sum_{\mu=\pm1}^{\pm4}
+  (1 - \gamma_\mu)\, U_\mu(n)\, \delta_{n+\hat\mu,m} .
+\end{equation}
+我们引入了一个新的质量参数 $M_5$，它不应与 4D 理论的夸克质量参数 $m$ 混淆。避免加倍子和转移矩阵的正性将这个参数限制在 $0 < M_5 < 1$。链接变量 $U_\mu(n)$（$\mu = 1, 2, 3, 4$）与通常一样是规范群的元素。它们不依赖于第五维中的坐标，即对不同的 4D 切片使用相同的副本。
+
+(10.30) 的第二项贡献在 $\Lambda$ 上是对角的，作用在 5 方向上的算符 $D_5^{dw}(s|r)$ 为
+\begin{equation}
+  \begin{split}
+    D_5^{dw}(s|r) = \delta_{s,r} &- (1-\delta_{s,N_5-1})\, P_-\, \delta_{s+1,r}
+    - (1-\delta_{s,0})\, P_+\, \delta_{s-1,r} \\
+    &+ m\left(P_-\,\delta_{s,N_5-1}\,\delta_{0,r}
+    + P_+\,\delta_{s,0}\,\delta_{N_5-1,r}\right) .
+  \end{split}
+\end{equation}
+这里 $P_\pm = (1\pm\gamma_5)/2$ 是作用在狄拉克指标上的通常手征投影算符。参数 $m$ 将证明是 4D 目标理论的质量参数。对于质量 $m = 0$ 的费米子，5 方向上的边界条件是固定的，因为从 $s = N_5 - 1$ 沿正 5 方向的跳跃被因子 $(1-\delta_{s,N_5-1})$ 所阻止，而从 $s = 0$ 沿负方向的跳跃被 $(1-\delta_{s,0})$ 所消除。只有含质量 $m$ 的项才连接 $s = 0$ 和 $s = N_5 - 1$ 处的切片。在 4D 格点 $\Lambda$ 上使用常规的边界条件：在空间方向 1、2、3 上为周期性，在时间方向（4 方向）上为反周期性。链接变量 $U_\mu(n)$ 在 $\Lambda$ 的所有四个方向上都是周期性的，并且如前所述，对所有 5 坐标 $s$ 值使用相同的副本。我们强调，在 5 方向上没有分量 $U_5$。
+
+在给出了 5D 费米子场 $\Psi, \bar\Psi$ 的作用量之后，我们现在可以构造生活在 $\Lambda_5$ 的 4D 边界上的 4D 物理场 $\psi, \bar\psi$。它们定义为
+\begin{equation}
+  \psi(n) = P_-\,\Psi(n, 0) + P_+\,\Psi(n, N_5 - 1) , \qquad
+  \bar\psi(n) = \bar\Psi(n, N_5 - 1)\, P_- + \bar\Psi(n, 0)\, P_+ ,
+\end{equation}
+其中 $n \in \Lambda$。因此，物理场 $\psi$ 和 $\bar\psi$ 由第一个（$s = 0$）和最后一个（$s = N_5 - 1$）4D 切片上的自由度构成。旋量 $\psi, \bar\psi$ 从 $\Psi, \bar\Psi$ 继承它们的狄拉克和色指标。
+
+现在可以用物理场 $\psi$ 和 $\bar\psi$ 来构造感兴趣的物理可观测量。例如，4D 标量密度 $\bar\psi(n)\psi(n)$ 取如下形式
+\begin{equation}
+  \bar\psi(n)\psi(n) = \bar\Psi(n, N_5 - 1)\, P_-\, \Psi(n, 0)
+  + \bar\Psi(n, 0)\, P_+\, \Psi(n, N_5 - 1) ,
+\end{equation}
+这里用 (10.33) 将物理密度 $\bar\psi(n)\psi(n)$ 用 5D 场表示。我们注意到 (10.34) 恰好对应于 (10.32) 中正比于 $m$ 的项。因此，$m$ 可以被确认为 4D 理论的质量参数。
+
+向 4D 世界的过渡可以用生成泛函以透明的方式实现（比较 (5.32)）。为了我们的目的，我们把生成泛函定义为
+\begin{multline}
+  W[J, \bar J] =
+  \bigg\langle \exp\Big[\sum_{n\in\Lambda}
+  \big(\bar J(n)\psi(n) + \bar\psi(n)J(n)\big)\Big]\bigg\rangle \\
+  = \bigg\langle \exp\Big[\sum_{n\in\Lambda}
+  \bar J(n)\big(P_-\,\Psi(n, 0) + P_+\,\Psi(n, N_5 - 1)\big) \\
+  \qquad
+  + \big(\bar\Psi(n, N_5 - 1)\, P_- + \bar\Psi(n, 0)\, P_+\big) J(n)
+  \Big]\bigg\rangle_5 .
+\end{multline}
+这里 $J(n)$ 和 $\bar J(n)$ 是格拉斯曼值源场，它们与所耦合的物理场 $\psi(n)$、$\bar\psi(n)$ 具有相同的指标（狄拉克和色）。在这个方程中，$\langle\ldots\rangle$ 表示 4D 目标理论的期望值，$\langle\ldots\rangle_5$ 表示 5D 世界中的真空期望值，我们将在下一节详细讨论。
+
+一旦定义了生成泛函 $W[J, \bar J]$，就可以像在常规 4D 公式中那样使用它。特别是可以对 $W[J, \bar J]$ 关于 $J(n)$ 或 $\bar J(n)$ 的各个分量求导，从而把物理场 $\psi, \bar\psi$ 的相应分量从指数中拉下来。在由此构造出物理可观测量之后，把源置为零 $J = \bar J = 0$（比较第 5.1.6 节）。其结果是，4D 目标理论的真空期望值被表述为 5D 公式中的期望值，然后用后者来计算这些表达式。
+
+\subsection{5D 理论及其与 4D 手征费米子的等价性}
+
+到目前为止，我们已经介绍了生活在 5D 格点上的场 $\Psi$ 和 $\bar\Psi$ 及其作用量，并讨论了如何从中构造 4D 理论的场。我们还需要给出 5D 真空期望值 $\langle\ldots\rangle_5$ 的详细定义，最后我们应该让自己确信，在 $m = 0$ 时 5D 理论会产生 4D 手征费米子。
+
+为了与 4D overlap 型理论建立联系，除了 5D 费米子场 $\Psi, \bar\Psi$ 之外，5D 路径积分还包含场 $\Phi, \bar\Phi$，它们与费米子场 (10.28) 具有相同的指标，但却是玻色型变量（不是格拉斯曼数）。因此它们常被称为赝费米子场（见第 8.1.3 节）或 Pauli--Villars 场。从物理的观点看，它们的作用是移除在大的 $N_5$ 时出现的重自由度。
+
+(10.35) 给出的生成泛函 $W[J, \bar J]$ 所需的真空期望值 $\langle\ldots\rangle_5$ 的 5D 路径积分定义为
+\begin{equation}
+  \langle O\rangle_5 = \frac{1}{Z}
+  \int D[\Psi, \bar\Psi, \Phi, \bar\Phi, U]\;
+  e^{-S_F^{dw}[\Psi,\bar\Psi,U] - S_B^{pf}[\Phi,\bar\Phi,U] - S_G[U]}\;
+  O[\Psi, \bar\Psi, U] .
+\end{equation}
+$S_F^{dw}[\Psi, \bar\Psi, U]$ 是畴壁作用量，$S_G[U]$ 是 4D 规范作用量的某个格点版本，例如 Wilson 作用量 (2.49)。路径积分是对 5D 场 $\Psi$ 和 $\bar\Psi$ 以及 4D 规范场 $U$ 进行的。我们还引入了对玻色型赝费米子 $\Phi$ 和 $\bar\Phi$ 的积分。赝费米子的作用量为
+\begin{equation}
+  \begin{split}
+    S_F^{pf}[\Phi, \bar\Phi, U] &=
+    \sum_{n,m\in\Lambda}\sum_{s,r=0}^{N_5-1}
+    \bar\Phi(n, s)\, D^{pf}(n, s|m, r)\, \Phi(m, r) , \\
+    \text{with} \qquad D^{pf}(n, s|m, r) &= \delta_{s,r}\, D(n|m)
+    + \delta_{n,m}\, D_5^{pf}(s|r) .
+  \end{split}
+\end{equation}
+第一部分与狄拉克算符 (10.30) 中的项相同，即由 Wilson 算符 (10.31) 给出。对于 5 方向的差分算符 $D_5^{pf}$，可以有多种不同的选择。一种便于数值模拟的变体是 [25]
+\begin{equation}
+  D_5^{pf}(s|r) = \left. D_5^{dw}(s|r) \right|_{m=1} .
+\end{equation}
+[26] 给出了 5D 理论 (10.36) 与 overlap 公式的一个变体之间的直接联系。Neuberger 用一条优雅的变换链证明了（对 $D^{pf}$ 稍有不同的选择）（另见 [27]）
+\begin{equation}
+  \det D^{dw} = \det D_{N_5}^{ov}\, \det D^{pf} .
+\end{equation}
+把这个结果应用到我们的路径积分 (10.36) 上，我们发现
+\begin{equation}
+  \int D[\Psi, \bar\Psi, \Phi, \bar\Phi]\;
+  e^{-S_F^{dw}[\Psi,\bar\Psi,U] - S_B^{pf}[\Phi,\bar\Phi,U]}
+  = \frac{\det[D^{dw}]}{\det[D^{pf}]}
+  = \det\left[D_{N_5}^{ov}\right] .
+\end{equation}
+这里我们用到，对于玻色型赝费米子的路径积分，行列式出现在分母中（比较第 5.1.4 节）。显然，(10.36) 中的赝费米子场是用来消去 (10.39) 中的因子 $\det[D^{pf}]$ 的。这一步也可以看作积分变量的变换，其中 $\det[D^{pf}]$ 是相应的雅可比行列式。
+
+狄拉克算符 $D_{N_5}^{ov}$ 通常被称为截断 overlap 算符，它由下式给出（与 [26] 中的记号相比，我们略去了一个无关的整体因子 1/2）
+\begin{equation}
+  D_{N_5}^{ov} = 1 + \gamma_5\, \tanh\left(N_5\, \tilde H\right)
+  \xrightarrow{N_5\to\infty}
+  1 + \gamma_5\, \operatorname{sign}[H] .
+\end{equation}
+算符 $\tilde H$ 是第 7.4 节中我们用来构造 overlap 算符的算符 $H$ 的一个（非局域）变体（精确定义见 [26]）。方程 (10.41) 表明，在 $N_5 \to \infty$ 极限下（此时 tanh 趋于符号函数），该算符取 overlap 算符 (7.78) 的形式，并且一个与 (7.82) 类似的快速计算表明 $D_{\infty}^{ov}$ 满足 Ginsparg--Wilson 方程 (7.29)。
+
+截断 overlap 算符描述 4D 理论，并在 $N_5 \to \infty$ 极限下产生无质量费米子。对于有限的 $N_5$，破坏手征性的效应按指数 $\propto N_5$ 被指数压低。在实际模拟中，通常使用的典型值 $N_5 = 10$--$30$。参数 $M_5$ 可以被调节以最小化破坏手征性的效应。
+
+使用畴壁费米子的一大优势是，针对 4D Wilson 费米子的数值算法可以很容易地改写适用于 5D 畴壁公式。与 Wilson 公式一样，畴壁算符也只包含最近邻项，不需要像 overlap 算符那样求矩阵值函数（见第 7.4.3 节）。关于畴壁费米子动力学模拟的例子，参见 [28]。
+
+\section{扭曲质量费米子}
+
+扭曲质量QCD（tmQCD）是一种公式，其最简单的形式是针对具有两个质量简并夸克味的 Wilson 费米子的 QCD（即具有同位旋的 QCD）。同位旋自由度被用来引入一个具有非平凡同位旋结构的额外质量项。这个扭曲质量项提供了有用的红外正则化子，此外还可以用来实现格点公式的 O(a) 改进。扭曲质量QCD 首先在 [29--31] 中作了概述。在本节中我们给出一个简短的介绍。关于更详细的近期综述（也涵盖了 tmQCD 数值分析的现状），我们推荐 [32, 33]。
+
+\subsection{扭曲质量QCD 的基本公式}
+
+我们首先给出定义方程。如前所述，tmQCD 是描述两个质量简并夸克的理论。\footnote{关于 tmQCD 推广到不同质量夸克的情形，我们请读者参阅 [34, 35]。}因此，从现在起我们用 $\chi$ 和 $\bar\chi$ 表示夸克场，它们除了狄拉克和色指标外还携带一个可取 $N_f = 2$ 个值的味指标。为记号方便，我们将省略这些指标而改用矩阵/向量记号。于是，Wilson 费米子的格点 tmQCD 费米子作用量为
+\begin{equation}
+  S_F^{tw}[\chi, \bar\chi, U] = a^4 \sum_{k,n\in\Lambda}
+  \bar\chi(k)\left[D(k|n)\,\mathbb{1}_2 + m\,\mathbb{1}_2\,\delta_{k,n}
+  + i\mu\gamma_5\tau^3\,\delta_{k,n}\right]\chi(n) .
+\end{equation}
+我们只在味空间显式写出单位矩阵 $\mathbb{1}_2$，而在色和狄拉克空间中省略。$D(k|n)$ 表示单味的无质量 Wilson 狄拉克算符（比较 (5.51)）：
+\begin{equation}
+  D(k|n) = \frac{4}{a}\,\delta_{k,n} -
+  \frac{1}{2a}\sum_{\mu=\pm1}^{\pm4}
+  (1 - \gamma_\mu)\, U_\mu(k)\, \delta_{k+\hat\mu,n} .
+\end{equation}
+作用量 (10.42) 与质量为 $m$ 的两个质量简并味的通常作用量的区别在于，它在狄拉克算符中增加了项 $i\mu\gamma_5\tau^3$。实参数 $\mu$ 被称为扭曲质量。然而，我们强调，常规质量项在色、狄拉克和味空间中都是平凡的，而扭曲质量项只在色空间中是平凡的，它在狄拉克空间中有一个 $\gamma_5$，第三个泡利矩阵 $\tau^3 = \mathrm{diag}(1,-1)$ 作用在味空间中。
+
+引入扭曲质量项的最初动机之一 [29] 是把它用作移除例外位形的红外正则化子（比较第 6.2.5 节）。\footnote{另一个动机是简化重整化性质（见后面的讨论和第 11 章）。}如果只用标准质量，那么只有当 $m$ 足够大时例外位形才会消失。扭曲质量项是消除例外位形的稳妥对策这一事实，由下面这一串恒等式得出：
+\begin{equation}
+  \begin{split}
+    \det\left[D\,\mathbb{1}_2 + m\,\mathbb{1}_2 + i\mu\gamma_5\tau^3\right]
+    &= \det[D + m + i\mu\gamma_5]\; \det[D + m - i\mu\gamma_5] \\
+    &= \det[D + m + i\mu\gamma_5]\;
+       \det\left[\gamma_5 (D + m - i\mu\gamma_5)\gamma_5\right] \\
+    &= \det[D + m + i\mu\gamma_5]\;
+       \det[D^{\dagger} + m - i\mu\gamma_5] \\
+    &= \det\left[(D + m + i\mu\gamma_5)(D^{\dagger} + m - i\mu\gamma_5)\right] \\
+    &= \det\left[(D + m)(D + m)^{\dagger} + \mu^2\right] > 0
+       \quad \text{for } \mu \neq 0 .
+  \end{split}
+\end{equation}
+扭曲质量狄拉克算符在味空间是对角的，因此 2 味算符的行列式被写成两个单味行列式的乘积。随后用到了 Wilson 狄拉克算符的 $\gamma_5$ 厄米性 (5.76)。最后一行的不等式成立，是因为乘积 $(D + m)(D + m)^{\dagger}$ 的本征值是实数且非负的。因此，扭曲质量 $\mu$ 的非零值保证了扭曲质量狄拉克算符的行列式严格为正，从而排除了导致例外位形的零本征值。更详细地说，可以证明扭曲质量狄拉克算符在复平面上的谱被排斥出沿实轴宽为 $2\mu$ 的条带 [36]。方程 (10.44) 确立了行列式对任意规范位形都是实数且为正，因此标准的蒙特卡罗技术都可以应用。
+
+上述讨论表明，扭曲质量项可以用作可与通常质量项相结合的替代红外正则化子。由于可以同时使用非零的 $m$ 和 $\mu$，引入所谓的极质量 $M$ 和扭曲角 $\alpha$ 是很方便的：
+\begin{equation}
+  M = \sqrt{m^2 + \mu^2} , \qquad \alpha = \arctan(\mu/m) .
+\end{equation}
+利用这些定义，tmQCD 的质量项可以写成
+\begin{equation}
+  m\,\mathbb{1}_2 + i\mu\gamma_5\tau^3 = M\, e^{i\alpha\gamma_5\tau^3}
+  \qquad \text{with} \qquad
+  m = M\cos(\alpha) , \quad \mu = M\sin(\alpha) .
+\end{equation}
+$\alpha = \pi/2$（即 $m = 0$、$\mu > 0$）的情形通常被称为最大扭曲或完全扭曲。下面将证明选择完全扭曲是特殊的，因为它意味着 O(a) 改进。$\alpha = 0$ 的值对应于零扭曲。
+
+对费米子场做一个简单的变换到新变量 $\psi$、$\bar\psi$ 是很有启发性的，其定义为
+\begin{equation}
+  \psi = R(\alpha)\,\chi , \qquad \bar\psi = \bar\chi\, R(\alpha) , \qquad
+  R(\alpha) = e^{i\alpha\gamma_5\tau^3/2} .
+\end{equation}
+几行代数运算表明费米子作用量 (10.42) 变为
+\begin{equation}
+  S_F[\bar\psi, \psi, U] = a^4 \sum_{k,n\in\Lambda}
+  \bar\psi(k)\left[D^{tw}(k|n) + M\,\mathbb{1}_2\,\delta_{k,n}\right]\psi(n) .
+\end{equation}
+显然扭曲质量项已经消失，被一个质量参数为 (10.45) 中定义的极质量 $M$ 的常规质量项所取代。扭曲狄拉克算符 $D^{tw}$ 现在是一个真正的 2 味算符，为
+\begin{equation}
+  D^{tw}(k|n) = \frac{4\,e^{-i\alpha\gamma_5\tau^3}}{a}\,\delta_{k,n}
+  - \frac{1}{2a}\sum_{\mu=\pm1}^{\pm4}
+  \left(e^{-i\alpha\gamma_5\tau^3} - \gamma_\mu\right)
+  U_\mu(k)\, \delta_{k+\hat\mu,n} .
+\end{equation}
+我们观察到，格点狄拉克算符的朴素部分（含 $\gamma_\mu$ 的项）不受扭曲的影响，只有 Wilson 项被旋转。因此，在被称为物理基的基 $\psi, \bar\psi$ 中，质量项和动能项呈现其常规形式，只有用于移除加倍子的项以扭曲形式引入。在朴素连续极限下，后一项是 O(a) 量级，因此在 $a \to 0$ 时消失。我们原来的基 $\chi, \bar\chi$（其中扭曲影响质量项）被称为扭曲基。
+
+最后我们注意到，QCD 的对称性在扭曲基中呈现不同的形式。举个例子，容易看出修改后的宇称变换（规范场仍按 (5.72) 所述方式变换）
+\begin{equation}
+  \chi(n, n_4) \xrightarrow{P} \gamma_4\tau^{1,2}\,\chi(-n, n_4) , \qquad
+  \bar\chi(n, n_4) \xrightarrow{P} \bar\chi(-n, n_4)\,\gamma_4\tau^{1,2}
+\end{equation}
+使作用量 (10.42) 不变。注意我们有两种不同的选择，可以使用两个泡利矩阵 $\tau^1$ 或 $\tau^2$ 中的任意一个。其他对称性的扭曲形式的汇编例如可以在 [33] 的附录中找到。
+
+\subsection{扭曲 QCD 与常规 QCD 之间的关系}
+
+在引入了新类型的红外正则化子之后，当然必须确立扭曲公式在某个极限下描述常规 QCD。在上一节的末尾我们已经看到，当换到物理基 $\psi, \bar\psi$ 时，扭曲只影响 Wilson 项，而它在朴素连续极限下无论如何都会消失。这已经是一个好迹象，但常规 QCD 与 tmQCD 的等价性还必须在正确的连续极限（比较第 3.5.4 节）下确立。
+
+我们首先通过分析连续情形来研究常规 QCD 与扭曲质量QCD 之间的关系。连续情形下两个质量简并费米子的常规作用量为
+\begin{equation}
+  S_F[\bar\psi, \psi, A] = \int d^4x\;
+  \bar\psi(x)\left(\gamma_\mu D_\mu(x)\,\mathbb{1}_2
+  + M\,\mathbb{1}_2\right)\psi(x) ,
+\end{equation}
+其中 $D_\mu(x) = \partial_\mu + iA_\mu(x)$。某个算符 $O$ 的真空期望值用路径积分计算，其形式定义如下（$S_G[A]$ 表示规范场的作用量）
+\begin{equation}
+  \langle O\rangle = \frac{1}{Z}
+  \int D[\bar\psi, \psi, A]\;
+  e^{-S_F[\bar\psi,\psi,A] - S_G[A]}\; O[\bar\psi, \psi, A] .
+\end{equation}
+把真空期望值的这种常规形式与 tmQCD 中相应的表达式联系起来，现在只是换积分变量的练习。我们需要的变换就是 (10.47) 中给出的变换。在这个变换下，常规连续作用量 (10.51) 变为由下式给出的连续 tmQCD 作用量
+\begin{equation}
+  S_F^{tw}[\bar\chi, \chi, A] = \int d^4x\;
+  \bar\chi(x)\left(\gamma_\mu D_\mu(x)\,\mathbb{1}_2
+  + m\,\mathbb{1}_2 + i\mu\gamma_5\tau^3\right)\chi(x) ,
+\end{equation}
+其中质量参数 $m$ 和 $\mu$ 通过 (10.46) 与常规作用量 (10.51) 的质量参数 $M$ 相联系。由于变换 (10.47) 是无反常的，积分测度保持不变，并且可以说（略显形式化）$D[\bar\psi, \psi] = D[\bar\chi, \chi]$。因此我们把扭曲基中的真空期望值定义为
+\begin{equation}
+  \langle O\rangle^{tw} = \frac{1}{Z^{tw}}
+  \int D[\bar\chi, \chi, A]\;
+  e^{-S_F^{tw}[\bar\chi,\chi,A] - S_G[A]}\;
+  O^{tw}[\bar\chi, \chi, A] .
+\end{equation}
+\begingroup\emergencystretch=4em 剩下的任务是把物理基中的算符\linebreak[0] $O[\bar\psi, \psi, A]$ 与其在手征基中的对应算符 $O^{tw}[\bar\chi, \chi, A]$ 联系起来。这是一个简单的练习，我们用例子来说明，其中我们选择 $O$ 为非单态轴--赝标关联子，\par\endgroup
+\begin{equation}
+  O[\bar\psi, \psi] = A^1_\mu(x)\,P^1(y)
+  \qquad \text{where} \qquad
+  A^a_\mu = \bar\psi\,\gamma_\mu\gamma_5\,\frac{\tau^a}{2}\,\psi , \qquad
+  P^a = \bar\psi\,\gamma_5\,\frac{\tau^a}{2}\,\psi .
+\end{equation}
+一个简短的运算表明变换 (10.47) 给出
+\begin{equation}
+  \begin{aligned}
+    A^{1}_\mu &\to \cos(\alpha)\,A^{1,tw}_\mu - \sin(\alpha)\,V^{2,tw}_\mu ,
+    \qquad P^{1} \to P^{1,tw} \qquad \text{with} \\
+    A^{a,tw}_\mu &= \bar\chi\,\gamma_\mu\gamma_5\,\frac{\tau^a}{2}\,\chi ,
+    \qquad
+    V^{a,tw}_\mu = \bar\chi\,\gamma_\mu\,\frac{\tau^a}{2}\,\chi , \qquad
+    P^{a,tw} = \bar\chi\,\gamma_5\,\frac{\tau^a}{2}\,\chi .
+  \end{aligned}
+\end{equation}
+把这些代入，对于我们的关联子，我们找到常规形式与扭曲形式的真空期望值之间的如下关系：
+\begin{equation}
+  \begin{split}
+    \langle O\rangle
+    &= \left\langle A^1_\mu(x)\,P^1(y)\right\rangle \\
+    &= \cos(\alpha)\left\langle A^{1,tw}_\mu(x)\,P^{1,tw}(y)\right\rangle
+    - \sin(\alpha)\left\langle V^{1,tw}_\mu(x)\,P^{1,tw}(y)\right\rangle \\
+    &= \left\langle O^{tw}\right\rangle^{tw} .
+  \end{split}
+\end{equation}
+以等价的方式，常规 QCD 的任意 $n$ 点函数都可以映射到 tmQCD 的 $n$ 点函数的线性组合上。
+
+上述讨论基于连续情形中的（形式）表达式。为了把常规 QCD 与 tmQCD 之间关系的论证推广到格点上，必须使用与质量无关的重整化方案 [30] 来考虑连续极限中的重整化理论。重整化的质量和扭曲质量参数为
+\begin{equation}
+  m^{(r)} = Z_m\,(m - m_c) , \qquad \mu^{(r)} = Z_\mu\,\mu ,
+\end{equation}
+而重整化理论中的扭曲角必须定义为
+\begin{equation}
+  \alpha = \arctan\left(\mu^{(r)}/m^{(r)}\right) .
+\end{equation}
+最大扭曲，即 $\alpha = \pi/2$，对应于 $m^{(r)} = 0$。这种情形特别简单，因为把裸质量参数设到其临界值 $m = m_c$（这例如可以通过 PCAC 质量为零来识别，见第 11.1.2 节）就已经导致 $m^{(r)} = 0$。
+
+在重整化理论中，我们可以使用上面连续讨论中给出的论证，并得出结论：标准 QCD 关联函数可以表示为 tmQCD 中关联子的线性组合。这个关系在有限格点间距下一直到离散化误差内都保持有效 [30]。
+
+\subsection{最大扭曲下的 O(a) 改进}
+
+尽管引入 tmQCD 的一个重要初始动机是解决例外位形问题，但今天 O(a) 改进的性质被认为更为重要。我们现在简要讨论 tmQCD 在最大扭曲下的这一特征 [37]。
+
+随着扭曲质量项的引入，我们现在有了两个参数 $m$、$\mu$，它们定义了我们想要描述的物理。两个质量参数的相对大小由扭曲角 $\alpha$ 表征。我们已经观察到，在 $\alpha$ 的所有可能取值中，$\alpha = \pi/2$（即最大扭曲）的情形被单独挑出。对于最大扭曲，O(a) 的离散化效应消失，领先的修正只出现在 O(a$^2$) 量级。这个性质被称为 tmQCD 的 O(a) 改进，现在就来讨论它。
+
+$\alpha = \pi/2$ 的特殊角色在自由情形中已经可以看到。在动量空间中，扭曲质量狄拉克算符为（比较具有常规质量项的 Wilson 费米子情形 (5.48)）
+\begin{equation}
+  \frac{i}{a}\sum_{\mu=1}^{4}\gamma_\mu\sin(p_\mu a)
+  + \frac{1}{a}\sum_{\mu=1}^{4}(1-\cos(p_\mu a))
+  + M\cos(\alpha) + iM\sin(\alpha)\gamma_5\tau^3 ,
+\end{equation}
+其中我们省略了所有单位矩阵。可以直接验证，这个矩阵的逆，即动量空间中的传播子，为
+\begin{equation}
+  \frac{-\frac{i}{a}\sum_\mu\gamma_\mu\sin(p_\mu a)
+  + \frac{1}{a}\sum_\mu(1-\cos(p_\mu a)) + M\cos(\alpha)
+  - iM\sin(\alpha)\gamma_5\tau^3}
+  {\left[\frac{1}{a}\sum_\mu\sin(p_\mu a)\right]^2
+  + \left[\frac{1}{a}\sum_\mu(1-\cos(p_\mu a)) + M\cos(\alpha)\right]^2
+  + M^2\sin(\alpha)^2}
+\end{equation}
+由这个传播子描述的费米子的能量由极点的位置给出。把分母按 $a$ 展开给出
+\begin{equation}
+  p^2\left(1 + a\,M\cos(\alpha)\right) + M^2 + O(a^2) ,
+\end{equation}
+对于两个极点我们发现（$M^2/p^2$ 保持固定）
+\begin{equation}
+  ip_4 = \pm\sqrt{p^2 + M^2}
+  \mp a\cos(\alpha)\,\frac{M^3}{2\sqrt{p^2 + M^2}} + O(a^2) .
+\end{equation}
+显然，连续情形色散关系 $ip_4 = \pm\sqrt{p^2 + M^2}$ 的 O(a) 修正带有一个 $\cos(\alpha)$ 因子。这使得可以通过选择最大扭曲（即令 $\alpha = \pi/2$）来关掉 O(a) 项。从代数的观点看，这个结果可以这样理解：在 $\alpha = \pi/2$ 时，Wilson 项和质量项（现在只由扭曲部分组成）在同位旋空间中是正交的。因此，O(a) 量级的混合项不会出现。
+
+证明了自由理论的谱在最大扭曲下是 O(a) 改进的当然很有趣，但人们当然希望为完整的 tmQCD 确立 O(a) 改进。这个问题可以通过对 tmQCD 实施 Symanzik 改进方案（比较第 9.1 节）来处理。为了在重整化理论中实现最大扭曲，我们需要重整化夸克质量参数 $m^{(r)}$ 为零。因此我们考虑裸标准质量参数 $m$ 被调到其临界值 $m = m_c$ 的情形，这可以由 PCAC 夸克质量为零的要求来定义（比较第 9.1.4 和 11.1.2 节）。令 $m = m_c$ 意味着重整化夸克质量参数 $m^{(r)} = 0$，这正是最大扭曲所需要的。在这种情况下，对有效连续作用量的相关贡献为（我们只给出领头项——完整列表见 [31]）
+\begin{equation}
+  S_F^{eff} = S_0 + a\,S_1 + \ldots + O(a^2) ,
+\end{equation}
+其中
+\begin{equation}
+  S_0 = \int d^4x\;
+  \bar\chi\left(\gamma_\mu D_\mu + i\mu\gamma_5\tau^3\right)\chi , \qquad
+  S_1 = c_{sw}\int d^4x\; \bar\chi\,\sigma_{\mu\nu}F_{\mu\nu}\,\chi .
+\end{equation}
+对连续作用量 $S_0$ 的修正 $S_1$ 被当作期望值中的插入项来处理，这样对某个算符 $O$ 的真空期望值我们得到：
+\begin{equation}
+  \langle O\rangle = \langle O\rangle_0 + a\,\langle\Delta O\rangle_0
+  - a\,\langle O\,S_1\rangle_0 + O(a^2) .
+\end{equation}
+期望值 $\langle\ldots\rangle_0$ 是相对于作用量 $S_0$ 的，我们用 $\Delta O$ 表示算符 $O$ 的逆项。算符 $O$ 可以根据它们在离散手征变换
+\begin{equation}
+  \chi \longrightarrow i\gamma_5\tau^1\chi , \qquad
+  \bar\chi \longrightarrow i\bar\chi\gamma_5\tau^1 ,
+\end{equation}
+下的对称性来分类，它是两味无质量 QCD 的对称性之一（见第 7.1.2 节）。算符可以分解为在 (10.67) 下具有确定变换性质的分量：
+\begin{equation}
+  O \longrightarrow \pm O \qquad \text{with} \qquad
+  \Delta O \longrightarrow \mp\Delta O .
+\end{equation}
+有效作用量的各项按如下方式变换
+\begin{equation}
+  S_0 \longrightarrow S_0 , \qquad S_1 \longrightarrow -S_1 .
+\end{equation}
+利用 (10.68) 和 (10.69)，我们可以分析期望值 (10.66) 中的各项贡献。对于手征偶算符，我们发现这些对称性
+\begin{equation}
+  \langle O\,S_1\rangle_0 = -\langle O\,S_1\rangle_0 = 0 , \qquad
+  \langle\Delta O\rangle_0 = -\langle\Delta O\rangle_0 = 0 ,
+\end{equation}
+而对于奇算符
+\begin{equation}
+  \langle O\rangle_0 = -\langle O\rangle_0 = 0 , \qquad
+  \langle O\,S_1\rangle_0 = \langle O\,S_1\rangle_0 , \qquad
+  \langle\Delta O\rangle_0 = \langle\Delta O\rangle_0 .
+\end{equation}
+把各方面放在一起，我们得出结论
+\begin{equation}
+  \begin{aligned}
+    \langle O\rangle &= \langle O\rangle_0 + O(a^2)
+    && \text{for } O \text{ even} , \\
+    \langle O\rangle &= a\left(\langle\Delta O\rangle_0
+    - \langle O\,S_1\rangle_0\right) + O(a^2)
+    && \text{for } O \text{ odd} .
+  \end{aligned}
+\end{equation}
+这意味着要么只有 O(a$^2$) 的项存留下来（对于偶算符），要么期望值 $\langle O\rangle$ 在连续极限下消失（奇算符）。因此我们可以得出结论：非零算符的真空期望值在最大扭曲的 tmQCD 下是 O(a) 改进的。要实现这一点唯一需要调节的参数是裸夸克质量，它必须被设到其临界值 $m = m_c$。
+
+获得 O(a) 改进的便利性以及消除例外位形带来的技术优势使 tmQCD 成为一种有吸引力的格点公式。从数值的观点看，不需要新的技术，而这些技术例如在动力学 overlap 计算的情形中是需要的。近年来开展了大量 tmQCD 的数值模拟工作，关于全面的近期综述，我们请读者参阅 [33]。
+
+\section{重夸克的有效理论}
+
+对于涉及重夸克（如粲夸克和底夸克）的格点计算，需要特殊的技术。其核心思想是移除主导标度——重夸克的质量 $m_h$——并使用有效拉格朗日量。这一过程产生了两种公式，即所谓的非相对论QCD（NRQCD）和重夸克有效理论（HQET）。
+
+\subsection{有效理论的必要性}
+
+我们首先简短讨论一下处理重夸克时所涉及的标度。粲夸克和底夸克在 $\overline{\mathrm{MS}}$ 方案 [38] 中的质量为
+\begin{equation}
+  m_c \approx 1.27(9)\,\mathrm{GeV} , \qquad
+  m_b \approx 4.20(12)\,\mathrm{GeV} .
+\end{equation}
+典型的粲偶素或底偶素态的质量例如为
+\begin{equation}
+  M_{J/\psi} = 3.096\,\mathrm{GeV} , \qquad
+  M_{\Upsilon} = 9.460\,\mathrm{GeV} .
+\end{equation}
+如果我们想在格点上可靠地描述这些态，截断 $1/a$ 应该大于这些质量。利用 (6.71) 把 MeV 换算成 fm，可以发现格点间距必须满足
+\begin{equation}
+  a < 0.064\,\mathrm{fm} \quad \text{for charm} , \qquad
+  a < 0.021\,\mathrm{fm} \quad \text{for bottom} .
+\end{equation}
+另一方面，我们需要足够大的空间体积来容纳我们想要研究的强子，以及足够长的时间方向范围，以便在确定它们的质量时能够追踪欧几里得传播子。一个典型值是空间范围约为 2 fm。虽然对于粲夸克来说，足够大小的格点很快就能达到，但对于底夸克，重夸克模拟的朴素方法将需要非常大的格点，典型大小至少为 $\order{100}^4$。
+
+$J/\psi$ 和 $\Upsilon$ 介子质量的一大部分来自价夸克质量本身。因此，如果能够从理论中移除对强子质量的这一平凡贡献，问题的典型能量标度就会显著降低。这样我们就可以再次使用足够大的格点间距，使得数值模拟所需的格点数足够小。
+
+\subsection{重夸克的格点作用量}
+
+在格点上处理重夸克的初步思想在 [39--43] 中提出。与连续情形中处理重夸克的情况一样（标准教材见 [44]），核心思想是标度掉重夸克的质量 $m_h$。这是通过量子力学中熟知的 Foldy--Wouthuysen 变换以系统的方式完成的。在重夸克静止的参考系中，它为重的味的相互作用给出了按 $1/m_h$ 展开的作用量。遵循 [45] 这样的标准教材（另见 [42, 44]），欧氏连续作用量密度 $L = \bar q\,(\gamma_\mu D_\mu + m_h)\,q$（其中 $D_\mu = \partial_\mu + iA_\mu$）展开为如下形式（4 是时间方向）
+\begin{equation}
+  \bar q\,(\gamma_\mu D_\mu + m_h)\,q
+  \longrightarrow \bar\psi_h\left(m_h + D_4
+  - \frac{D^2}{2m_h} - \frac{\boldsymbol{\sigma}\cdot\boldsymbol{B}}{2m_h}
+  \right)\psi_h + \order{1/m_h^2} .
+\end{equation}
+这里，$\boldsymbol{B}$ 表示色磁场，$D^2 = \sum_{j=1}^{3}D_j^2$ 是空间协变拉普拉斯算符。在右边，相对论夸克原来的 4 旋量 $q, \bar q$ 被满足下式的投影后的非相对论旋量 $\psi_h, \bar\psi_h$ 所取代
+\begin{equation}
+  P_+\psi_h = \psi_h , \qquad \bar\psi_h P_+ = \bar\psi_h , \qquad
+  P_+ = \half(1 + \gamma_4) .
+\end{equation}
+必须指出，在展开式 (10.76) 中，QCD 的通常可重整性只有通过包含 $1/m_h$ 的所有阶才能获得。如何定义只含 (10.76) 中有穷项的真空期望值，使其具有有穷的连续极限，将在下一节中描述。
+
+现在让我们引入格点。受连续作用量展开式 (10.76) 的启发，我们把展开到给定阶 $N$ 的格点作用量写成
+\begin{equation}
+  \begin{split}
+    S_{h,N} &= S_{stat} + \sum_{\nu=1}^{N}S^{(\nu)} , \\
+    S_{stat} &= \sum_{n\in\Lambda}
+    \bar\psi(n)\left(\bar\nabla_4 + \delta m_h\right)\psi(n) , \\
+    S^{(\nu)} &= \sum_i \omega_i^{(\nu)} S_i^{(\nu)} .
+  \end{split}
+\end{equation}
+这里我们显式写出了不产生空间传播的静态贡献 $S_{stat}$。在这一项中，为了去掉不需要的标度 $m_h$，质量 $m_h$ 被丢弃了。由于量纲原因，必须包含一个质量型的项，这由剩余质量参数 $\delta m_h$ 来考虑，它也是匹配和重整化所需要的。我们用 $\bar\nabla_4$ 表示格点上的时间方向后向导数，$\bar\nabla_4 f(n) \equiv f(n) - U_4(n-\hat 4)\,f(n-\hat 4)$。非静态项按 $1/m_h$ 的幂次组织，用指标 $\nu$ 标记。领先的非静态项为（比较 (10.76)）
+\begin{equation}
+  \begin{split}
+    S_1^{(1)} &= -\frac{1}{2}\sum_{n\in\Lambda}
+    \bar\psi_h(n)\,\boldsymbol{\sigma}\cdot\boldsymbol{B}\,\psi_h(n) , \\
+    S_2^{(1)} &= -\frac{1}{2}\sum_{n\in\Lambda}
+    \bar\psi_h(n)\,D^2\,\psi_h(n) , \\
+    S_1^{(2)} &= \frac{1}{8}\sum_{n\in\Lambda}
+    \bar\psi_h(n)\,\boldsymbol{\nabla}\cdot\boldsymbol{E}\,\psi_h(n) , \\
+    &\qquad \text{etc.}
+  \end{split}
+\end{equation}
+在格点上，色磁场 $\boldsymbol{B}$ 和色电场 $\boldsymbol{E}$ 通过合适的离散化来实现，这种离散化用基本方格 $U_{\mu\nu}$ 来表示这些场，例如
+\begin{equation}
+  E_j = F_{j4} , \qquad B_j = \frac{\epsilon_{j4\mu\nu}}{2}F_{\mu\nu} , \qquad
+  F_{\mu\nu} = i\,\mathrm{Im}\,(1 - U_{\mu\nu}) .
+\end{equation}
+场强张量 $F_{\mu\nu}$ 的这种离散化来自用于构造规范作用量的基本方格 $U_{\mu\nu}$ 的展开式 (2.53)。协变（空间）拉普拉斯算符 $D^2$ 的离散化为（我们令 $a \equiv 1$）
+\begin{equation}
+  D^2 f(n) \longrightarrow
+  \sum_{j=1}^{3}\left[U_j(n)f(n+\hat j) - 2f(n)
+  + U_j(n-\hat j)^{\dagger}f(n-\hat j)\right] .
+\end{equation}
+在经典理论中，展开系数 $\omega_i^{(\nu)}$ 将由 $\omega_i^{(\nu)} = 1/m_h^{\nu}$ 给出，这可以通过比较 (10.76)、(10.78) 和 (10.79) 看出。这里我们把 HQET 用作完全量子化的 QCD 的有效理论，因此必须把系数 $\omega_i^{(\nu)}$ 保留为自由参数，它们将在后面匹配 HQET 和 QCD 时被确定。然而，记住展开式 (10.78) 中系数的幂次计数是很重要的：
+\begin{equation}
+  \omega_i^{(\nu)} = \order{m_h^{-\nu}}
+  \qquad \left(\text{and } \order{a} \equiv \order{1/m}\right) .
+\end{equation}
+我们注意到，最终我们感兴趣的是同时具有轻味和重味的 QCD。轻味的作用量以前面各章讨论的形式包含进来，并将在下一节中加入。我们强调，人们感兴趣的观测量也可能混合重夸克和轻夸克。一个典型的例子是重--轻 $D$ 和 $B$ 介子的研究。
+
+\subsection{一般框架与展开系数}
+
+在讨论了作用量的展开及其离散化之后，我们需要处理有效理论的量子化和重整化。换句话说，必须确定有效作用量的系数。在文献中可以找到处理这个问题的几种方法。在我们的讲述中，我们遵循 [46] 中为 HQET 概述并经 [47] 非常详细综述的非微扰策略。关于 NRQCD 和 HQET 近期结果更一般的介绍，我们请读者参阅 [48, 49]。
+
+我们已经指出，把作用量在 $1/m_h$ 中展开到固定阶 $N$ 会破坏 QCD 的通常可重整性。然而，可以证明，仅有效作用量的静态项 $S_{stat}$ 就会产生一个可重整的理论。因此，作用量重夸克部分的玻尔兹曼因子按如下方式展开
+\begin{equation}
+  e^{-S_h} = e^{-S_{stat}}
+  \left(1 - S^{(1)} - S^{(2)} + \half\left(S^{(1)}\right)^2 + \ldots\right) ,
+\end{equation}
+非静态项作为插入项出现在用静态作用量计算的期望值中。在包含了直到所期望阶 $N$ 的所有项之后，展开即终止。在 (10.83) 中显示了直到阶 $N = 2$ 的所有项。
+
+展开式的形式 (10.83) 导致通常被称为 HQET 的公式。另一种选择是在指数中也保留 $D^2$ 贡献，即 (10.79) 中的 $S_2^{(1)}$ 项，与 $S_{stat}$ 一起。这导致 NRQCD 公式（参见例如 [50]）。
+
+对于我们的最终表达式，还需要加上轻夸克的作用量 $S_L$ 和规范场的作用量 $S_G$。对于格点上 HQET 中某个可观测量 $O$ 的期望值，我们得到
+\begin{equation}
+  \begin{split}
+    \langle O\rangle_h &= \frac{1}{Z_h}
+    \int D[\Phi]\; e^{-S_G - S_L - S_{stat}}
+    \left(1 - S^{(1)} - S^{(2)}
+    + \half\left(S^{(1)}\right)^2 + \ldots\right)O , \\
+    Z_h &= \int D[\Phi]\; e^{-S_G - S_L - S_{stat}}
+    \left(1 - S^{(1)} - S^{(2)}
+    + \half\left(S^{(1)}\right)^2 + \ldots\right) .
+  \end{split}
+\end{equation}
+积分是对所有统称为 $\Phi$ 的场进行的，即轻夸克场、重夸克场和规范变量。我们注意到，对于许多应用，可观测量 $O$ 也在 $1/m_h$ 中展开。可以证明，当包含所有具有适当对称性和维度 $\leq N$ 的局域算符时，(10.84) 中展开后的静态真空期望值可以被重整化。
+
+由 (10.84) 定义的理论由以下参数描述：从规范场和轻夸克部分，我们有规范耦合常数、轻夸克的质量，以及可能的一些改进项的系数。重夸克部分包含 $\delta m_h$ 和系数 $\omega_i^{(\nu)}$（$\nu = 1, \ldots, N$），其中 $N$ 是展开的期望阶数。
+
+剩下的问题是如何设定 HQET 的参数，使期望值与它们的 QCD 对应量相匹配。原则上，可以在两种理论中评估一组可观测量 $\Phi_k(m_h)$，并要求
+\begin{equation}
+  \Phi_k^{HQET}(m_h) = \Phi_k^{QCD}(m_h) + \order{m_h^{-(N+1)}} ,
+\end{equation}
+其中可观测量的数目必须等于参数的数目。然而，这种暴力过程恰恰面临我们在第 10.4.1 节概述的困难，即需要大而非常精细的格点。
+
+[46] 提出了克服这一障碍的非微扰策略。其思想是从一个足够精细的格点开始，使得 (10.75) 中给出的截断边界得到满足。为了得到一个在格点单位下足够小、可以进行数值模拟的格点，人们被限制在物理大小 $L = 0.2$--$0.5$ fm 的小格点上。在小格点上施加匹配条件
+\begin{equation}
+  \Phi_k^{HQET}(m_h, L) = \Phi_k^{QCD}(m_h, L) + \order{m_h^{-(N+1)}}
+\end{equation}
+HQET 部分的计算现在改用大小为 $2L$ 的格点重复进行。这两个结果可以用来计算步进标度函数 $F_k$（见 [51]），其定义为
+\begin{equation}
+  \Phi_k^{HQET}(m_h, 2L) = F_k\, \Phi_k^{HQET}(m_h, L) .
+\end{equation}
+无量纲函数 $F_k$ 描述完整可观测量集合在体积变化 $L \to 2L$ 下的变化。对于步进标度函数可以执行连续极限，随后它们被用来把物理可观测量输运到足够大的体积，在那里可以与实验结果建立联系。
+
+最后我们再次强调，尽管对于匹配我们这里主要遵循建议 [46]，但关于如何获得重夸克有效理论已经讨论了多种变体。HQET 的各种应用（例如 $b$ 夸克质量的确定 [46, 52]）已被提出，相应结果的更一般综述可以在 [48--50, 54, 55] 中找到。
+
+\section*{参考文献}
+
+\begin{enumerate}[label={[\arabic*]}]
+  \item J.~Kogut and L.~Susskind: Phys.\ Rev.\ D 11, 395 (1975).
+  \item G.~Kilcup and S.~Sharpe: Nucl.\ Phys.\ B 283, 493 (1987).
+  \item F.~Gliozzi: Nucl.\ Phys.\ B 204, 419 (1982).
+  \item H.~Kluberg-Stern, A.~Morel, O.~Napoly, and B.~Petersson: Nucl.\ Phys.\
+        B 220, 447 (1983).
+  \item T.~Takaishi: Phys.\ Rev.\ D 54, 1052 (1996).
+  \item K.~Orginos, D.~Touissant, and R.~Sugar: Phys.\ Rev.\ D 60, 054503
+        (1999).
+  \item G.~P.~Lepage: Phys.\ Rev.\ D 59, 074502 (1999).
+  \item M.~Albanese et al.: Phys.\ Lett.\ B 192, 163 (1987).
+  \item A.~Hasenfratz and F.~Knechtli: Phys.\ Rev.\ D 64, 034504 (2001).
+  \item E.~Follana, A.~Hart, and C.~Davies: Phys.\ Rev.\ Lett.\ 93, 241601
+        (2004).
+  \item S.~D\"urr, C.~Hoelbling, and U.~Wenger: Phys.\ Rev.\ D 70, 094502
+        (2004).
+  \item S.~D\"urr: PoS LAT2005, 021 (2005).
+  \item S.~R.~Sharpe: Phys.\ Rev.\ D 74, 014512 (2006).
+  \item M.~Creutz: Phys.\ Lett.\ B 649, 230 (2007).
+  \item A.~Kronfeld: PoS LATTICE2007, 016 (2007).
+  \item M.~F.~L.~Golterman (unpublished) arXiv:0812.3110 [hep-lat] (2008).
+  \item C.~T.~H.~Davies et al.: Phys.\ Rev.\ Lett.\ 92, 022001 (2004).
+  \item C.~Aubin et al.: Phys.\ Rev.\ D 70, 114501 (2004).
+  \item C.~W.~Bernard et al.: Phys.\ Rev.\ D 64, 054506 (2001).
+  \item A.~Bazavov et al. (unpublished) arXiv:0903.3598 [hep-lat] (2009).
+  \item D.~B.~Kaplan: Phys.\ Lett.\ B 288, 342 (1992).
+  \item Y.~Shamir: Nucl.\ Phys.\ B 406, 90 (1993).
+  \item Y.~Shamir: Phys.\ Rev.\ Lett.\ 71, 2691 (1993).
+  \item V.~Furman and Y.~Shamir: Nucl.\ Phys.\ B 439, 54 (1995).
+  \item P.~M.~Vranas: Phys.\ Rev.\ D 57, 1415 (1998).
+  \item H.~Neuberger: Phys.\ Rev.\ D 57, 5417 (1998).
+  \item Y.~Kikukawa and T.~Noguchi (unpublished) arXiv:hep-lat/9902022
+        (1999).
+  \item C.~R.~Allton et al.: Phys.\ Rev.\ D 78, 114509 (2008).
+  \item R.~Frezzotti, P.~Grassi, S.~Sint, and P.~Weisz: Nucl.\ Phys.\ (Proc.\
+        Suppl.) 83, 941 (2000).
+  \item R.~Frezzotti, P.~Grassi, S.~Sint, and P.~Weisz: JHEP 0108, 058 (2001).
+  \item R.~Frezzotti, S.~Sint, and P.~Weisz: JHEP 0107, 048 (2001).
+  \item S.~Sint: in \emph{Perspectives in Lattice QCD}, Proceedings of the
+        Workshop in Nara, Japan, 31 Oct--11 Nov 2005, edited by Y.~Kuramashi,
+        p.~169 (World Scientific, Singapore 2007).
+  \item A.~Shindler: Phys.\ Rep.\ 461, 37 (2008).
+  \item R.~Frezzotti and G.~C.~Rossi: Nucl.\ Phys.\ (Proc.\ Suppl.) 128, 193
+        (2004).
+  \item C.~Pena, S.~Sint, and A.~Vladikas: JHEP 09, 069 (2004).
+  \item C.~Gattringer and S.~Solbrig: Phys.\ Lett.\ B 621, 195 (2005).
+  \item R.~Frezzotti and G.~C.~Rossi: JHEP 0408, 007 (2004).
+  \item C.~Amsler et al.\ [Particle Data Group]: Phys.\ Lett.\ B 667, 1
+        (2008).
+  \item E.~Eichten and B.~Hill: Phys.\ Lett.\ B 234, 511 (1990).
+  \item E.~Eichten and B.~Hill: Phys.\ Lett.\ B 240, 193 (1990).
+  \item B.~A.~Thacker and G.~P.~Lepage: Phys.\ Rev.\ D 43, 196 (1991).
+  \item G.~P.~Lepage et al.: Phys.\ Rev.\ D 46, 4052 (1992).
+  \item M.~Neubert: Phys.\ Rept.\ 245, 259 (1994).
+  \item A.~V.~Manohar and M.~B.~Wise: \emph{Heavy Quark Physics} (Cambridge
+        University Press, Cambridge 2000).
+  \item J.~D.~Bjorken and S.~D.~Drell: \emph{Relativistic Quantum Mechanics}\\
+        (McGraw-Hill, New York 1964).
+  \item J.~Heitger and R.~Sommer: JHEP 0402, 022 (2004).
+  \item R.~Sommer: in \emph{Perspectives in Lattice QCD}, Proceedings of the
+        Workshop in Nara, Japan, 31 Oct--11 Nov 2005, edited by Y.~Kuramashi,
+        p.~209 (World Scientific, Singapore 2007).
+  \item A.~Kronfeld: Nucl.\ Phys.\ B (Proc.\ Suppl.) 129, 46 (2004).
+  \item T.~Onogi: PoS LAT2006, 017 (2006).
+  \item A.~X.~El-Khadra, A.~S.~Kronfeld, and P.~B.~Mackenzie: Phys.\ Rev.\ D
+        55, 3933 (1997).
+  \item M.~L\"uscher, P.~Weisz, and U.~Wolff: Nucl.\ Phys.\ B 359, 221 (1991).
+  \item M.~Della Morte, N.~Garron, M.~Papinutto, and R.~Sommer: JHEP 01, 007
+        (2007).
+  \item M.~Della Morte: PoS LATTICE2007, 008 (2007).
+  \item J.~Heitger: Nucl.\ Phys.\ B (Proc.\ Suppl.) 181--182, 156 (2008).
+  \item E.~Gamiz: PoS LATTICE2008, 014 (2009).
+\end{enumerate}

@@ -1,0 +1,973 @@
+% ======================================================================
+% Chapter 16: Quantization of Non-Abelian Gauge Theories
+% (book pages 505-543; PDF pages 528-567)
+% ======================================================================
+\chapter{非阿贝尔规范理论的量子化}
+
+上一章展示了如何构造具有非阿贝尔规范对称性的拉格朗日量。然而，这只是把非阿贝尔规范不变性的观念与粒子物理的真实相互作用联系起来的漫长过程的第一步。我们接下来必须推导出计算包含非阿贝尔规范矢量粒子的费曼图的规则，然后用这些规则来计算散射振幅和截面。本章将发展进行此类计算所需的技术。
+
+在技术讨论的同时，我们还将研究规范对称性如何影响费曼振幅。在任何具有局域对称性的理论中，出现在拉格朗日量中的场的一些自由度是\emph{非物理的}，即它们可以通过规范变换被任意调整。在电动力学中，场 $A^\mu(k)$ 正比于 $k^\mu$ 的分量位于对称方向上。我们在第~9.4 节看到这一事实有两个重要后果。第一，场 $A^\mu$ 的传播子是有歧义的；存在多种同样好地由 QED 拉格朗日量推出的传播子表达式。第二，电动力学的顶点使得这种歧义在截面的计算中不产生影响。例如，式~\eqref{eq:9.58} 展示了一个连续的光子传播子族，连续参数 $\xi$ 的每一个值对应其中一个；但我们马上看到，$S$ 矩阵元对 $\xi$ 的一切依赖都被 Ward 恒等式消去。非阿贝尔规范理论含有类似的歧义与抵消，但是，正如我们将在本章看到的，抵消的结构更为精巧。
+
+本章的另一个目标是计算非阿贝尔规范理论的 Callan-Symanzik $\beta$ 函数，从而确定跑动耦合常数的行为。正如在第~14 章所讨论的，这些理论事实上是\emph{渐近自由}的：耦合常数在大动量处变弱。这一结果表明非阿贝尔规范理论可以用来模拟强相互作用。一旦我们确定了非阿贝尔规范理论的正确费曼规则，就能推导出这一结果。
+
+\section{非阿贝尔规范玻色子的相互作用}
+
+非阿贝尔规范理论的大部分费曼规则都可以按照第~9.2 节的方法直接从 Yang-Mills 拉格朗日量读出。然而，当我们在第~9.4 节量子化电磁场时，我们看到规范场上的泛函积分必须仔细定义，并且这一构造的微妙之处会给量子理论引入新的要素。在本节中，我们将看到在忽略这些微妙之处的情况下，非阿贝尔理论能走多远。在第~16.2 节中，我们将通过对泛函积分的仔细分析，对费曼规则做更严格的推导。
+
+\subsection{费米子与规范玻色子的费曼规则}
+
+如上一章所推导的，Yang-Mills 拉格朗日量为
+\begin{equation}
+  \mathcal{L} = -\frac{1}{4}(F^a_{\mu\nu})^2 + \bar{\psi}(i\slashed{D}
+    - m)\psi ,
+  \label{eq:16.1}
+\end{equation}
+其中指标 $a$ 对规范群 $G$ 的生成元求和，费米子多重态 $\psi$ 属于 $G$ 的一个不可约表示 $r$。场强为
+\begin{equation}
+  F^a_{\mu\nu} = \partial_\mu A^a_\nu - \partial_\nu A^a_\mu
+    + gf^{abc}A^b_\mu A^c_\nu ,
+  \label{eq:16.2}
+\end{equation}
+其中 $f^{abc}$ 是 $G$ 的结构常数。协变导数用表示矩阵 $t^a$ 定义为
+\begin{equation}
+  D_\mu = \partial_\mu - igA^a_\mu t^a .
+  \label{eq:16.3}
+\end{equation}
+从现在起，我们将略去下标 $r$，除非为了清晰而需要它。
+
+该拉格朗日量的费曼规则可以从对场 $\psi$、$\bar{\psi}$ 和 $A^a_\mu$ 的泛函积分推导出来。设想在 $g = 0$ 处从自由拉格朗日量出发，把泛函积分按微扰论展开。自由理论包含数目等于表示 $r$ 的维数 $d(r)$ 的自由费米子，以及数目等于 $G$ 的生成元个数 $d(G)$ 的自由矢量玻色子。利用第~9.5 节的方法，可以直接推导出费米子传播子
+\begin{equation}
+  \langle\psi(x)\bar{\psi}(y)\rangle = S_F(x-y)\,\delta^{ij}
+  = \int \frac{d^4p}{(2\pi)^4}\ \frac{i(\slashed{p}+m)}{p^2-m^2+i\epsilon}\
+    e^{-ip\cdot(x-y)}\,\delta^{ij} ,
+  \label{eq:16.4}
+\end{equation}
+其中 $\alpha$、$\beta$ 是 Dirac 指标，$i$、$j$ 是对称群的指标：$i, j = 1, \ldots, d(r)$。与电动力学类比，我们会猜测矢量场的传播子为
+\begin{equation}
+  \langle A^a_\mu(x)A^b_\nu(y)\rangle
+  = \int \frac{d^4p}{(2\pi)^4}\ \frac{-ig_{\mu\nu}}{p^2+i\epsilon}\
+    e^{-ip\cdot(x-y)}\,\delta^{ab} .
+  \label{eq:16.5}
+\end{equation}
+其中 $a, b = 1, \ldots, d(G)$。我们将在下一节推导这个公式。
+
+为了求出顶点，我们把 \eqref{eq:16.1} 中的非线性项写出来。若 $\mathcal{L}_0$ 是自由场拉格朗日量，则
+\begin{equation}
+  \mathcal{L} = \mathcal{L}_0 + g\bar{\psi}\gamma^\mu t^a\psi\,A^a_\mu
+    - gf^{abc}(\partial_\mu A^a_\nu)A^{b\mu}A^{c\nu}
+    - \frac{1}{4}g^2\bigl( f^{eab}A^a_\mu A^b_\nu \bigr)\bigl(
+      f^{ecd}A^{c\mu}A^{d\nu} \bigr) .
+  \label{eq:16.6}
+\end{equation}
+三个非线性项中的第一项给出费米子-规范玻色子顶点
+\begin{equation}
+  ig\gamma^\mu t^a ;
+  \label{eq:16.7}
+\end{equation}
+这是一个作用在费米子的 Dirac 指标和规范指标上的矩阵。第二个非线性项给出一个三规范玻色子顶点。为了推导出这个顶点，我们首先为外动量以及 Lorentz 指标和规范指标选定一个确定的约定。一个合适的约定如图~\ref{fig:16.1} 所示，其中所有动量都指向图内。首先考虑把动量为 $k$ 的外规范粒子收缩到 $A^a_\nu$ 的第一个因子，动量为 $p$ 的规范粒子收缩到第二个因子，动量为 $q$ 的规范粒子收缩到第三个因子。若动量指向图内，导数贡献一个因子 $(-ik_\mu)$。于是这一贡献为
+\begin{equation}
+  -igf^{abc}(-ik_\mu)g_{\nu\rho} .
+  \label{eq:16.8}
+\end{equation}
+总共有 $3!$ 种可能的收缩，它们根据 $f^{abc}$ 的全反对称性交替变号。这些收缩之和展示在图~\ref{fig:16.1} 中。最后，\eqref{eq:16.6} 的最后一项给出一个四规范玻色子顶点。按照图~\ref{fig:16.1} 的约定，一种可能的收缩给出贡献
+\begin{equation}
+  -ig^2f^{eab}f^{ecd}g^{\mu\nu}g^{\rho\sigma} .
+  \label{eq:16.9}
+\end{equation}
+总共有 $4!$ 种可能的收缩，其中每 4 个一组彼此相等。这些贡献之和展示在图~\ref{fig:16.1} 中。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.65\textwidth]{fig16.1.png}
+  \caption{非阿贝尔规范理论的费米子与规范玻色子顶点的费曼规则。}
+  \label{fig:16.1}
+\end{figure}
+
+注意所有这些顶点都涉及同一个耦合常数 $g$。我们推导出这些顶点，从而也推导出耦合常数的相等性，这是我们根据非阿贝尔规范不变性原理构造拉格朗日量的一部分。然而，也可以事后从费曼振幅的性质看出这一相等性的必要性。
+
+\subsection{耦合常数的相等性}
+
+我们对非阿贝尔规范理论中的费曼振幅期望的一个性质是，它们应当满足与 QED 类似的 Ward 恒等式。这些 Ward 恒等式表达了对称流的守恒，而这已经由理论的整体对称性所蕴含。在 QED 中，Ward 恒等式的最简单形式是通过把外电子和外正电子放在质壳上得到的。在非阿贝尔规范理论中，规范玻色子也携带电荷，因此它们也必须放在质壳上以消去接触项。在所有外粒子都在质壳上的情形下，产生一个规范玻色子的振幅应当满足
+\begin{equation}
+  \epsilon^{*\nu}(k)\ \mathcal{M}^\nu(k) = 0
+  \qquad\text{其中 } k^\mu\epsilon_\mu = 0 ,
+  \label{eq:16.10}
+\end{equation}
+其中所产生的玻色子的极化矢量满足在壳条件。这个恒等式不仅表明局域规范对称性，而且其本身就具有重要的物理意义。与光子一样，非阿贝尔规范玻色子只有两个物理极化态。在 QED 中，在壳 Ward 恒等式表达了正交的、非物理的极化态在散射过程中不被产生这一事实。在壳 Ward 恒等式将在非阿贝尔情形中扮演类似的角色。
+
+让我们在一个简单情形中检验 Ward 恒等式，即贡献于费米子-反费米子湮灭为一对规范玻色子的最低阶图。在 $g^2$ 阶有三个图，如图~\ref{fig:16.2} 所示。前两个图类似于我们在第~5.5 节研究过的 QED 图；它们之和为
+\begin{equation}
+  \mathcal{M} = (ig)^2\ \bar{v}(p_+)\ \Bigl[ \gamma^\mu t^a\ \frac{i}{
+    \slashed{p}_+ - \slashed{k}_1 - m}\ \gamma^\nu t^b
+    + \gamma^\nu t^b\ \frac{i}{\slashed{p}_+ - \slashed{k}_2 - m}\
+      \gamma^\mu t^a \Bigr]\ u(p_-)\ \epsilon^{*}_\mu(k_1)
+        \epsilon^{*}_\nu(k_2) .
+  \label{eq:16.11}
+\end{equation}
+矢量 $\epsilon(k_i)$ 是规范玻色子极化矢量；对物理极化，它们满足 $k^\mu_i\epsilon_\mu(k_i) = 0$。为了检验 Ward 恒等式 \eqref{eq:16.10}，我们把 \eqref{eq:16.11} 中的 $\epsilon^{*}_\nu(k_2)$ 替换为 $k_{2\nu}$。这给出
+\begin{equation}
+  \begin{aligned}
+    \mathcal{M} &= (ig)^2\ \bar{v}(p_+)\ \Bigl[ \gamma^\mu t^a\ \frac{\slashed{k}_2}
+      {\slashed{p}_+ - \slashed{k}_1 - m}\ \gamma^\nu t^b
+      + \gamma^\nu t^b\ \frac{\slashed{k}_2}{\slashed{p}_+ - \slashed{k}_2 - m}\
+        \gamma^\mu t^a \Bigr]\ u(p_-)\ \epsilon^{*}_\mu(k_1) .
+  \end{aligned}
+  \label{eq:16.12}
+\end{equation}
+由于
+\begin{equation}
+  (\slashed{p}_- - m)u(p_-) = 0
+  \qquad\text{以及}\qquad
+  \bar{v}(p_+)(\slashed{p}_+ - m) = 0 ,
+  \label{eq:16.13}
+\end{equation}
+我们可以在 \eqref{eq:16.12} 的第一项和第二项中把这些量加到 $\slashed{k}_2$ 上，以消去分母。这给出
+\begin{equation}
+  \mathcal{M} = (ig)^2\ \bar{v}(p_+)\ \Bigl[ -\frac{i}{-i}\ \gamma^\mu\,
+    \frac{1}{2}\bigl[ t^a, t^b \bigr] \Bigr]\ u(p_-)\ \epsilon^{*}_\mu(k_1) .
+  \label{eq:16.14}
+\end{equation}
+在阿贝尔情形中，这个表达式将为零。然而在非阿贝尔情形中，剩余项非零，并且依赖于规范群生成元的对易子：
+\begin{equation}
+  \mathcal{M} = -\frac{g^2}{2}\ \bar{v}(p_+)\gamma^\mu u(p_-)\ \epsilon^{*}_\mu(k_1)
+    \cdot f^{abc}t^c .
+  \label{eq:16.15}
+\end{equation}
+我们需要找到另一项贡献来抵消这一项。然而注意，这一项具有费米子-规范玻色子顶点 $(g\bar{\psi}\gamma^\mu t^c\psi)$ 乘以三规范玻色子顶点 $(gf^{abc})$ 的群指标结构。这正是图~\ref{fig:16.2} 中第三个图的结构。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6\textwidth]{fig16.2.png}
+  \caption{贡献于费米子-反费米子湮灭为两个规范玻色子的图。}
+  \label{fig:16.2}
+\end{figure}
+
+为了检验抵消确实成立，让我们计算第三个图：
+\begin{equation}
+  \mathcal{M} = ig\ \bar{v}(p_+)\gamma^\rho t^c u(p_-)\ \frac{1}{k_3^2}\
+    \epsilon^{*}_\mu(k_1)\epsilon^{*}_\nu(k_2)\ gf^{abc}\ \bigl[
+      g^{\mu\nu}(k_2-k_1)^\rho + g^{\nu\rho}(k_3-k_2)^\mu
+        + g^{\rho\mu}(k_1-k_3)^\nu \bigr] ,
+  \label{eq:16.16}
+\end{equation}
+其中 $k_3 = -k_1 - k_2$。如果我们将 $\epsilon^{*}_\nu(k_2)$ 替换为 $k_{2\nu}$，然后利用动量守恒消去 $k_2$，方括号中的表达式化简如下：
+\begin{equation}
+  \epsilon^{*}_\mu(k_1)\ \bigl[ g^{\mu\nu}(k_2-k_1)^\rho + g^{\nu\rho}
+    (k_3-k_2)^\mu + g^{\rho\mu}(k_1-k_3)^\nu \bigr]
+  \to \epsilon^{*}_\mu(k_1)\ \bigl[ k_2^\mu(k_2-k_1)^\rho + k_2^\rho
+    (k_3-k_2)^\mu + g^{\rho\mu}(k_1-k_3)\cdot k_2 \bigr] ,
+  \label{eq:16.17}
+\end{equation}
+它与 \eqref{eq:16.15} 结合给出零。因此，只有当三规范玻色子顶点中的耦合常数等于费米子顶点中的耦合常数时，Ward 恒等式才被满足。这个论证可以推广以证明非阿贝尔规范理论的所有顶点共享同一个耦合常数 $g$。
+
+\section{Faddeev-Popov 拉格朗日量}
+
+我们发现非阿贝尔规范理论的费曼规则出了问题，这并不令人意外，因为我们推导它们时并不十分仔细。特别是，我们实际上并没有推导出规范场传播子的表达式 \eqref{eq:16.5}。在本节中，我们将通过对这一表达式做形式推导来弥补这一点。我们将发现，虽然表达式 \eqref{eq:16.5} 确实是正确的，但它并不完备：它必须补充一套全新的额外规则。
+
+为了定义具有非阿贝尔规范不变性的理论的泛函积分，我们将使用 Faddeev-Popov 方法，即第~9.4 节为量子化电磁场而引入的方法。我们目前的讨论将紧密遵循第~9.4 节。然而，正如我们迄今已经习以为常的，非阿贝尔局域对称性的情形会带来新的技巧和惊奇。
+
+首先考虑不含费米子的纯规范理论的量子化。为了推导费曼规则，我们必须定义泛函积分
+\begin{equation}
+  Z = \int \mathcal{D}A\ e^{iS[A]} .
+  \label{eq:16.22}
+\end{equation}
+与阿贝尔情形一样，在对应于局域规范变换的场位形空间中，沿着无穷多个方向拉格朗日量不变。为了计算泛函积分，我们必须分离出沿这些方向的积分，把剩余的积分约束到一个小得多的空间上。
+
+与电动力学一样，我们将通过在每一点 $x$ 施加规范固定条件 $G^a(A) = 0$ 来约束规范方向。按照 Faddeev 和 Popov 的做法，我们可以通过在泛函积分中插入恒等式 \eqref{eq:9.53} 来引入这一约束：
+\begin{equation}
+  1 = \Delta[A]\ \int \mathcal{D}\alpha\ \prod_{x,a} \delta\bigl( G^a(A^\alpha)
+    \bigr) ,
+  \label{eq:16.23}
+\end{equation}
+其中 $A^\alpha$ 是场 $A$ 经过如 \eqref{eq:15.47} 那样的有限规范变换后得到的规范场：
+\begin{equation}
+  A^{a\alpha}_\mu = A^a_\mu + \frac{1}{g}\partial_\mu\alpha^a
+    + f^{abc}A^b_\mu\alpha^c .
+  \label{eq:16.24}
+\end{equation}
+在计算行列式时，这个变换的无穷小形式将更有用：
+\begin{equation}
+  (A^\alpha)^a_\mu = A^a_\mu + \partial_\mu\alpha^a + f^{abc}A^b_\mu\alpha^c
+  = A^a_\mu + D_\mu\alpha^a ,
+  \label{eq:16.25}
+\end{equation}
+其中 $D_\mu$ 是作用在伴随表示场上的协变导数 \eqref{eq:15.86}。注意，只要规范固定函数 $G^a(A)$ 是线性的，泛函导数 $\delta G^a(A^\alpha)/\delta\alpha$ 就与 $\alpha$ 无关。
+
+由于拉格朗日量是规范不变的，我们可以在 \eqref{eq:16.22} 的指数中用 $A^\alpha$ 替换 $A$。然后，与阿贝尔情形一样，我们可以交换对 $A$ 和对 $\alpha$ 的泛函积分的顺序，然后在内层积分中把变量从 $A$ 换成 $A' = A^\alpha$。变换 \eqref{eq:16.24} 看起来比阿贝尔情形更复杂，但它只不过是对 $A^a_\mu$ 做一次线性平移，再在每一点对对称性多重态 $A^a_\mu(x)$ 的各个分量做一次幺正转动。这两种操作都保持测度
+\begin{equation}
+  \mathcal{D}A = \prod_{x,a,\mu} dA^a_\mu .
+  \label{eq:16.26}
+\end{equation}
+因此在对 $\alpha$ 的积分下 $\mathcal{D}A = \mathcal{D}A'$。与阿贝尔情形一样，对规范运动 $\alpha$ 的积分可以从泛函积分中分离出来，成为一个总体归一化因子，给我们留下
+\begin{equation}
+  \int \mathcal{D}A\ e^{iS[A]} = \Bigl( \int \mathcal{D}\alpha \Bigr)\
+    \int \mathcal{D}A\ e^{iS[A]}\ \delta\bigl( G(A) \bigr)\ \det\Bigl(
+      \frac{\delta G}{\delta\alpha} \Bigr) .
+  \label{eq:16.27}
+\end{equation}
+这个归一化因子在计算规范不变算符的关联函数时相互抵消。
+
+从这一点开始，规范玻色子传播子的推导与光子传播子的推导相同。我们选择广义 Lorentz 规范条件
+\begin{equation}
+  G^a(A) = \partial^\mu A^a_\mu(x) - \omega^a(x) ,
+  \label{eq:16.28}
+\end{equation}
+并对 $\omega^a$ 加上如式~\eqref{eq:9.56} 那样的 Gauss 权重。第~9.4 节的运算随后给出这一类规范场传播子
+\begin{equation}
+  \langle A^a_\mu(x)A^b_\nu(y)\rangle = \int \frac{d^4p}{(2\pi)^4}\
+    \frac{-i}{p^2+i\epsilon}\ \Bigl[ g_{\mu\nu} - (1-\xi)\frac{p_\mu p_\nu}
+      {p^2} \Bigr]\ e^{-ip\cdot(x-y)}\,\delta^{ab} ,
+  \label{eq:16.29}
+\end{equation}
+其中 $\xi$ 是可自由调节的规范参数。我们的猜测 \eqref{eq:16.5} 对应于选择 $\xi = 1$，称为\emph{费曼-'t Hooft 规范}。
+
+到目前为止，整个推导与电动力学的情形平行。然而这里还有一个不平凡的要素。在 QED 中，式~\eqref{eq:16.23} 中的行列式与 $A$ 无关，因此这个量可以当作归一化因子的又一项贡献来处理。在非阿贝尔情形中，情况不再如此。利用规范变换的无穷小形式 \eqref{eq:16.25}，我们可以计算
+\begin{equation}
+  \frac{\delta G^a(A^\alpha)}{\delta\alpha^b} = \frac{1}{g}\partial^2\delta^{ab}
+    - \frac{1}{g}\partial^\mu f^{abc}A^c_\mu ,
+  \label{eq:16.30}
+\end{equation}
+它作用在伴随表示中的场上；这个算符依赖于 $A$。因此 \eqref{eq:16.30} 的泛函行列式给拉格朗日量贡献新的项。
+
+Faddeev 和 Popov 选择把这个行列式表示为对一组属于伴随表示的新的反交换场的泛函积分：
+\begin{equation}
+  \det\Bigl( -\frac{1}{g}\partial^\mu D_\mu \Bigr)
+  = \int \mathcal{D}c\,\mathcal{D}\bar{c}\ \exp\Bigl[ i\int d^4x\
+    \bar{c}^a\Bigl( -\frac{1}{g}\partial^\mu D_\mu \Bigr)^{ab}c^b \Bigr] .
+  \label{eq:16.31}
+\end{equation}
+我们在式~(9.69) 中利用费米子泛函积分的规则推导了这个形式恒等式。（因子 $1/g$ 被吸收到场 $c$ 和 $\bar{c}$ 的归一化中。）但为了给出正确的恒等式，$c$ 和 $\bar{c}$ 必须是反交换场，并且是 Lorentz 变换下的标量。这些场的量子激发具有错误的自旋-统计关系，不可能是物理粒子。然而，在费曼图的计算中，我们仍然可以把这些激发当作额外的粒子来处理。这些新场及其粒子激发称为\emph{Faddeev-Popov 鬼场}。
+
+如果我们暂时抑制对鬼场物理诠释的好奇心，就可以推导出它们的费曼规则。我们把鬼场拉格朗日量更明确地写成
+\begin{equation}
+  \mathcal{L}_{\mathrm{ghost}} = \bar{c}^a\bigl( -\partial^2\delta^{ac}
+    - g\partial^\mu f^{abc}A^b_\mu \bigr)c^c .
+  \label{eq:16.32}
+\end{equation}
+第一项给出鬼场传播子，
+\begin{equation}
+  \langle c^a(x)\bar{c}^b(y)\rangle = \int \frac{d^4p}{(2\pi)^4}\
+    \frac{i\delta^{ab}}{p^2+i\epsilon}\ e^{-ip\cdot(x-y)} .
+  \label{eq:16.33}
+\end{equation}
+在图中，这个传播子带有一个箭头，表示鬼数的流向，如图~\ref{fig:16.5} 所示。在 \eqref{eq:16.32} 的相互作用项中，导数位于规范场的左侧；这意味着该导数用沿鬼线离开顶点的动量来计算。具体的费曼规则展示在图~\ref{fig:16.5} 中。与我们遇到的其他顶点一样，为了避免破坏 Ward 恒等式，出现在这个顶点中的耦合常数 $g$ 必须等于三玻色子顶点中的耦合常数 $g$。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.5\textwidth]{fig16.5.png}
+  \caption{Faddeev-Popov 鬼场的费曼规则。}
+  \label{fig:16.5}
+\end{figure}
+
+在构造非阿贝尔规范理论的微扰论时没有更多的微妙之处。特别是，把费米子包含进来是直截了当的。包含了 Faddeev-Popov 规范固定的全部效应的最终拉格朗日量为
+\begin{equation}
+  \mathcal{L} = -\frac{1}{4}(F^a_{\mu\nu})^2 - \frac{1}{2\xi}
+    (\partial^\mu A^a_\mu)^2 + \bar{\psi}(i\slashed{D} - m)\psi
+    + \bar{c}^a(-\partial^\mu D_\mu)^{ab}c^b .
+  \label{eq:16.34}
+\end{equation}
+这个拉格朗日量给出传播子 \eqref{eq:16.29}，以及图~\ref{fig:16.1} 和图~\ref{fig:16.5} 所示的那一组顶点费曼规则。
+
+我们刚刚完成的论证足以推导出非阿贝尔规范理论中任意规范不变算符关联函数的费曼图展开。在第~9.4 节末尾，我们说明了 Faddeev-Popov 规范固定技术也能给出 $S$ 矩阵元的正确规范不变表达式。这在非阿贝尔情形中仍然成立。然而，第~9.4 节给出的论证依赖于 QED 中类时和纵向光子的发射概率的抵消，而我们已经发现这种抵消在非阿贝尔情形中并不成立。在第~16.4 节中，我们将构造一个更精细的论证，其中 Faddeev-Popov 鬼场起根本作用，这个论证将把我们之前的论证正确地推广到非阿贝尔规范理论。
+
+\section{鬼场与幺正性}
+
+我们现在也许会问，我们在上一节发现的新要素，即 Faddeev-Popov 鬼场，能否解决我们在第~16.1 节末尾遇到的悖论。在那里我们看到图~\ref{fig:16.6} 中的第一个图对其虚部有一个非零贡献，而这个贡献并不对应于具有物理规范玻色子极化的可能末态。我们现在将更仔细地计算这一贡献。然后我们必须加上来自鬼场的新的可能贡献，即图~\ref{fig:16.6} 中所示的第二个图。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.55\textwidth]{fig16.6.png}
+  \caption{左边的图——其中每个圆圈代表图~\ref{fig:16.2} 中三个贡献之和——对光学定理构成一个可能的问题。右边的鬼场图抵消了反常项。}
+  \label{fig:16.6}
+\end{figure}
+
+让我们把我们在第~16.1 节研究过的费米子-费米子湮灭为规范玻色子的振幅称为
+\begin{equation}
+  \mathcal{M}(p_+, p_-; k_1, k_2) ,
+  \label{eq:16.35}
+\end{equation}
+两个规范玻色子转换为费米子-反费米子对的振幅将相应地是 $\mathcal{M}'$。然后，按照第~7.3 节的 Cutkosky 规则，我们把动量为 $k_i$ 的被切割规范玻色子传播子替换为
+\begin{equation}
+  (-ig_{\mu\nu}\delta^{ab})\cdot(-2\pi i)\delta(k_i^2) .
+  \label{eq:16.36}
+\end{equation}
+从而得到图~\ref{fig:16.6} 中第一个图的虚部。替换两个传播子给出两个 $\delta$ 函数，把对规范玻色子动量的四维积分变成三维相空间积分，正如第~7.3 节例子中那样。因此我们得到表达式
+\begin{equation}
+  \frac{1}{2}\ \int d\Pi_2\ \mathcal{M}\ \mathcal{M}' ,
+  \label{eq:16.37}
+\end{equation}
+对两个无质量粒子的相空间积分。因子 $1/2$ 是费曼图的对称因子，或者等价地说，是对全同粒子相空间积分的修正。
+
+现在引入式~(16.20) 对 $g_{\mu\rho}$ 和 $g_{\nu\sigma}$ 的表示。只涉及横极化的部分对应于满足光学定理所必需的、预期中的虚部。我们无需进一步考虑这些项。物理与非物理极化之间的交叉项为零：我们在第~16.1 节证明了
+\begin{equation}
+  i\mathcal{M}^\mu\,\epsilon^{*}_{\mu}(k_1)\,\epsilon^{*}_{\nu}(k_2)
+    \cdot\cdots = 0 .
+  \label{eq:16.38}
+\end{equation}
+若把 $\mathcal{M}$ 换成 $\mathcal{M}'$，把 $\epsilon^{+}$ 换成 $\epsilon^{-}$，同样的恒等式也成立。此外，如果两个极化矢量都是向前的或都是向后的，振幅为零。唯一存活的项是前向与后向极化之间的交叉项，它们给出表达式
+\begin{equation}
+  \int d\Pi_2\ \mathcal{M}^\mu\epsilon^{+}_{\mu}\ \mathcal{M}'^\nu
+    \epsilon^{-}_{\nu}\ \cdots ,
+  \label{eq:16.39}
+\end{equation}
+对相空间积分。我们在式~(16.21) 中计算了第一个因子的值，与 $\mathcal{M}'$ 的收缩非常类似。把这些结果代入，表达式 \eqref{eq:16.39} 变为
+\begin{equation}
+  \int d\Pi_2\ (ig\bar{v}(p_+)\gamma^\rho t^c u(p_-))\cdot g f^{abd}\ \cdots .
+  \label{eq:16.40}
+\end{equation}
+利用恒等式
+\begin{equation}
+  \bar{v}(p_+)\slashed{k}_1(\slashed{k}_1+\slashed{k}_2)u(p_-)
+  = \bar{v}(p_+)\slashed{k}_1(\slashed{p}_+ + \slashed{p}_-)u(p_-) = 0 ,
+  \label{eq:16.41}
+\end{equation}
+我们看到 \eqref{eq:16.40} 中相加的两项相等。
+
+现在加上来自 Faddeev-Popov 鬼场的贡献。利用图~\ref{fig:16.5} 中的费曼规则，我们可以组装出费米子-反费米子湮灭为一对鬼场的振幅：
+\begin{equation}
+  i\mathcal{M}_{\mathrm{ghost}} = ig\bar{v}(p_+)\gamma^\mu t^c u(p_-)\
+    \frac{1}{(k_1+k_2)^2}\ \cdot\ gf^{abc}k^5_2\ \cdots .
+  \label{eq:16.42}
+\end{equation}
+把鬼场贡献与 \eqref{eq:16.40} 结合，人们发现非物理贡献精确抵消，从而恢复了光学定理。这是 Faddeev-Popov 鬼场在非阿贝尔规范理论的幺正性中起根本作用的第一个迹象。在下一节中，我们将发展一个基于 BRST 对称性的更一般的形式体系，它使这种抵消在所有阶都变得显然。
+
+\section{BRST 对称性}
+
+第~16.2 节的规范固定程序在理论中引入了新场：鬼场 $c^a$、反鬼场 $\bar{c}^a$ 和辅助场 $B^a$（在 Faddeev-Popov 构造中，规范固定函数引入一个场 $B^a$，它是强制规范条件的拉格朗日乘子）。完整的规范固定拉格朗日量在一个新的整体对称性下不变，这个对称性以 Becchi、Rouet、Stora 和 Tyutin 命名，称为\emph{BRST 对称性}。这个对称性以非平凡的方式把鬼场、规范场和费米子联系起来。它由一个幂零荷 $Q$ 生成，$Q$ 在幺正性的证明中起核心作用。
+
+BRST 变换对场的作用如下：
+\begin{equation}
+  \begin{aligned}
+    \delta A^a_\mu &= \epsilon D_\mu c^a;\\
+    \delta\psi &= ig\epsilon\,c^a t^a\psi;\\
+    \delta c^a &= -\frac{1}{2}g\epsilon f^{abc}c^b c^c;\\
+    \delta\bar{c}^a &= -i\epsilon B^a;\\
+    \delta B^a &= 0 .
+  \end{aligned}
+  \label{eq:16.45}
+\end{equation}
+这里 $\epsilon$ 是取 Grassmann 值的变换参数。变换是幂零的，意思是把它作用两次给出零：
+\begin{equation}
+  \delta(\delta\Phi) = 0
+  \label{eq:16.48}
+\end{equation}
+对每个场 $\Phi$ 都成立。对应于这个连续对称性，有一个与哈密顿量对易的守恒荷 $Q$。关系 \eqref{eq:16.48} 等价于算符恒等式
+\begin{equation}
+  Q^2 = 0 .
+  \label{eq:16.50}
+\end{equation}
+我们说 BRST 算符 $Q$ 是\emph{幂零}的。
+
+一个与 $H$ 对易的幂零算符把 $H$ 的本征态分成三个子空间。$H$ 的许多本征态必须被 $Q$ 消灭，\eqref{eq:16.50} 才能成立。设 $\mathcal{H}_1$ 为不被 $Q$ 消灭的态的子空间。设 $\mathcal{H}_2$ 为具有如下形式的态的子空间
+\begin{equation}
+  |\psi_2\rangle = Q|\psi_1\rangle ,
+  \label{eq:16.51}
+\end{equation}
+其中 $|\psi_1\rangle$ 在 $\mathcal{H}_1$ 中。根据 \eqref{eq:16.50}，在这些态上再作用一次 $Q$ 给出零。最后，设 $\mathcal{H}_0$ 为满足 $Q|\psi_0\rangle = 0$ 但不能写成 \eqref{eq:16.51} 形式的态 $|\psi_0\rangle$ 的子空间。子空间 $\mathcal{H}_2$ 相当奇特，因为这个子空间中的任意两个态的内积都为零：
+\begin{equation}
+  \langle\psi_{2a}|\psi_{2b}\rangle = \langle\psi_{1a}|Q|\psi_{2b}\rangle
+  = 0
+  \label{eq:16.52}
+\end{equation}
+这是由 \eqref{eq:16.50} 得到的。由同样的论证，$\mathcal{H}_2$ 中的态与 $\mathcal{H}_0$ 中的态的内积为零。
+
+这些考虑看起来极其抽象，但它们有直接的物理对应。%
+\footnote{以下论证仅在直觉层面给出。严格的讨论见 T.~Kugo 和 I.~Ojima, \emph{Suppl.\ Prog.\ Theor.\ Phys.} \textbf{66}, 1 (1979)。} 为了看到这一点，考虑零耦合极限下非阿贝尔规范理论的单粒子态。根据变换 \eqref{eq:16.45}，$Q$ 把 $A^a_\mu$ 的向前分量变成一个鬼场；等价地说，$Q$ 把一个前向极化的规范玻色子变成一个鬼场。在 $g = 0$ 时，$Q$ 消灭单鬼场态。同时，$Q$ 把反鬼场态变成 $B^a$ 的一个量子。为了识别这个态，注意拉格朗日量 \eqref{eq:16.34} 蕴含经典场方程
+\begin{equation}
+  \frac{1}{\xi}\partial^\mu A^a_\mu = -B^a .
+  \label{eq:16.53}
+\end{equation}
+因此场 $B^a$ 的量子正是 $A^a_\mu$ 中极化矢量满足 $k^\mu\epsilon_\mu(k) \neq 0$ 的那些量子；它们就是后向极化的规范玻色子。
+
+我们现在已经看到，在规范理论的单粒子态中，前向规范玻色子和反鬼场属于 $\mathcal{H}_1$，鬼场和后向规范玻色子属于 $\mathcal{H}_2$，而横规范玻色子属于 $\mathcal{H}_0$。更一般地，可以证明含有鬼场、反鬼场或非物理极化规范玻色子的渐近态总是属于 $\mathcal{H}_1$ 或 $\mathcal{H}_2$，而 $\mathcal{H}_0$ 中的渐近态是那些只含横极化规范玻色子的态。因此 BRST 算符把非物理的规范玻色子极化态与鬼场和反鬼场作为正负自由度精确地联系起来。
+
+在第~9.4 节中，我们论证了 Faddeev-Popov 处方对某一类 $S$ 矩阵元给出正确的、规范不变的结果，从中我们可以计算横极化规范玻色子的物理散射截面。这些 $S$ 矩阵元的构造方式是：在遥远的过去放置算符来产生横极化规范玻色子，绝热地打开规范耦合，再绝热地关闭规范耦合，然后在遥远的未来放置算符来消灭横极化的规范玻色子。然而，这个论证有一个可能的问题：如果遥远过去产生的、作为横极化玻色子集合的态，在遥远的未来可以演化成含有其他极化规范玻色子的态，那么在横规范玻色子态之间投影的 $S$ 矩阵就不是幺正的。这个问题还会导致上一节讨论的技术问题：对贡献于 $S$ 矩阵元的图做 Cutkosky 切割时，非物理极化会有非零贡献。在第~9.4 节中，我们用了一个阿贝尔情形特有的论证来表明这些问题不会在 QED 中出现。在非阿贝尔情形中，对非物理规范玻色子极化的移除更为微妙，我们已经看到它本质地涉及鬼场。
+
+为了解决这个微妙的问题，我们运用 BRST 对称性原理。设 $|A;\mathrm{tr}\rangle$ 是一个不含鬼场或反鬼场、只含横极化规范玻色子的外态。我们希望证明投影到这类态上的 $S$ 矩阵是幺正的：
+\begin{equation}
+  \sum_C \langle A;\mathrm{tr}|S^{\dagger}|C;\mathrm{tr}\rangle\,
+    \langle C;\mathrm{tr}|S|B;\mathrm{tr}\rangle
+  = \langle A;\mathrm{tr}|1|B;\mathrm{tr}\rangle .
+  \label{eq:16.54}
+\end{equation}
+如我们上面所说明的，物理态 $|A;\mathrm{tr}\rangle$ 属于——事实上张成——由 BRST 算符定义的子空间 $\mathcal{H}_0$。特别是，所有这些态都被 $Q$ 消灭。由于 $Q$ 与哈密顿量对易，任何这类态的时间演化也必定产生一个被 $Q$ 消灭的态。因此，
+\begin{equation}
+  Q\cdot S|A;\mathrm{tr}\rangle = 0 .
+  \label{eq:16.55}
+\end{equation}
+这意味着态 $S|A;\mathrm{tr}\rangle$ 必定是 $\mathcal{H}_0$ 和 $\mathcal{H}_2$ 中态的线性组合。然而，$\mathcal{H}_2$ 中的态彼此之间以及它们与 $\mathcal{H}_0$ 中的态之间的内积为零。因此任意两个 $S|A;\mathrm{tr}\rangle$ 形式的态的内积只来自 $\mathcal{H}_0$ 中分量的重叠，所以我们可以写
+\begin{equation}
+  \langle A;\mathrm{tr}|S^{\dagger}\cdot S|B;\mathrm{tr}\rangle
+  = \sum_C \langle A;\mathrm{tr}|S^{\dagger}|C;\mathrm{tr}\rangle\,
+    \langle C;\mathrm{tr}|S|B;\mathrm{tr}\rangle .
+  \label{eq:16.56}
+\end{equation}
+由于完整的 $S$ 矩阵是幺正的，这个关系意味着受限制的 $S$ 矩阵也是幺正的，即式~\eqref{eq:16.54}。此外，\eqref{eq:16.56} 意味着在给定阶数下，对贡献于 $S$ 矩阵的图所做的全部 Cutkosky 切割之和，等于只涉及横规范玻色子的切割之和。因此，产生具有非物理极化的规范玻色子对的图与产生鬼场的图之间的抵消，是一个在微扰论的所有阶都持续成立的一般性质。
+
+由于 BRST 变换生成一个连续对称性，它生成一组 Ward 恒等式。这些恒等式在结构上与非阿贝尔规范对称性的 Ward 恒等式类似，因为 BRST 对称性包含一个参数为鬼场的规范变换。然而，由 BRST 对称性得出的恒等式更简单。我们不在本书中进一步研究非阿贝尔规范理论的 Ward 恒等式。不过，当在更高的层次上讨论规范理论的重整化时，由 Ward 恒等式得出的重整化常数之间的核心恒等式最容易用 BRST 对称性来推导。%
+\footnote{BRST 对称性 Ward 恒等式的引论由 Taylor (1976) 给出。}
+
+\section{非阿贝尔规范理论的单圈发散}
+
+既然我们已经讨论了非阿贝尔规范理论中树级图的一般性质，现在我们把注意力转向含圈的图。与量子场论中一贯的情况一样，这些圈图中有些是发散的，我们必须小心地正确处理发散积分。
+
+非阿贝尔规范理论的拉格朗日量 \eqref{eq:15.39} 不含维数高于 4 的相互作用。因此，根据第~10 章的一般论证，这个拉格朗日量是可重整化的，意思是发散可以通过有限数目的抵消项来移除。然而，在非阿贝尔规范理论中，与 QED 中一样，理论的规范对称性对发散的结构施加了更强的限制。在 QED 中，只要我们使用规范不变的调节子，就只有四个可能的发散系数，它们被电磁顶角（$\delta_1$）、电子和光子场强（$\delta_2$ 和 $\delta_3$）以及电子质量（$\delta_m$）的抵消项减去。特别是，光子质量重整化的可能性被规范不变性排除。此外，两个抵消项 $\delta_1$ 和 $\delta_2$ 彼此相等，作为 Ward 恒等式的结果，在电子-光子顶角函数的计算中相互抵消。非阿贝尔规范对称性对费曼图的发散施加类似的限制。在本节中，我们将通过单圈图的例子来阐明其中一些限制。
+
+\subsection{规范玻色子自能}
+
+在 QED 中，规范不变性最强的约束出现在光子自能的计算中。Ward 恒等式蕴含关系
+\begin{equation}
+  q_\mu\Pi^{\mu\nu}(q) = 0 ,
+  \label{eq:16.57}
+\end{equation}
+它进而蕴含光子自能图具有如下结构
+\begin{equation}
+  \Pi^{\mu\nu}(q) = (g^{\mu\nu}q^2 - q^\mu q^\nu)\,\Pi(q^2) .
+  \label{eq:16.58}
+\end{equation}
+唯一可能的发散是 $\Pi(q^2)$ 的对数发散贡献。在非阿贝尔规范理论中，\eqref{eq:16.57} 仍然成立，因此自能同样具有 Lorentz 结构 \eqref{eq:16.58}。然而，导致这种结构的抵消更为复杂。在此我们将通过在单圈级别详细计算规范玻色子自能来展示这些抵消。为了保持规范不变性，我们将使用维数正规化。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6\textwidth]{fig16.7.png}
+  \caption{$g^2$ 阶对规范玻色子自能的贡献。}
+  \label{fig:16.7}
+\end{figure}
+
+$g^2$ 阶对规范玻色子自能的贡献如图~\ref{fig:16.7} 所示。（除了这些 1PI 图之外，还有三个「蝌蚪」图；但如 QED 中一样，根据式~\eqref{eq:10.5} 下面的论证，它们自动消失。）费米子圈图可以与其他图分开考虑，因为原则上我们可以在理论中包含任意数目的费米子。我们将在下面看到，其余三个图的贡献以本质的方式互相咬合。
+
+让我们首先计算费米子圈图。这个图中顶点的费曼规则与 QED 费曼规则相同，只是增加了一个作用在费米子规范群指标上的群矩阵 $t^a$。因此这个图的值与 QED 中式~(7.90) 相同，再乘以对群矩阵的迹：
+\begin{equation}
+  \text{(费米子圈)} \propto \mathrm{tr}[t^at^b]\,\Pi^{\mu\nu}_{\mathrm{QED}} .
+\end{equation}
+迹的值由式~\eqref{eq:15.78} 给出：$\mathrm{tr}[t^at^b] = C(r)\delta^{ab}$。在具有多种费米子的理论中，每一种费米子都有一个这种类型的图。我们主要感兴趣的是这个图的发散部分，它与费米子质量无关。如果有 $n_f$ 种费米子，都在同一个表示 $r$ 中，那么费米子圈图的总贡献具有如下形式
+\begin{equation}
+  \Bigl( \sum_{\text{费米子}} \Bigr)^{\mu\nu}(q)
+  = i(g^{\mu\nu}q^2 - q^\mu q^\nu)\ \frac{g^2}{(4\pi)^2}\ n_f\,C(r)\,
+    \Gamma(2-d/2)\ +\ \cdots .
+  \label{eq:16.59}
+\end{equation}
+
+现在考虑纯规范部分的三个图。这些图的贡献依赖于规范；我们将使用费曼-'t Hooft 规范，$\xi = 1$。利用图~\ref{fig:16.1} 中的三规范玻色子顶点，我们可以把三个图中的第一个写为
+\begin{equation}
+  \begin{aligned}
+    \Pi^{\mu\nu}_{(1)}(q) &= -\frac{1}{2}\int \frac{d^dp}{(2\pi)^d}\
+      \frac{1}{p^2}\frac{1}{(p+q)^2}\ g^2\ f^{acd}f^{bcd}\ N^{\mu\nu}(p,q)\\
+    &= -\frac{1}{2}g^2C_2(G)\delta^{ab}\ \int \frac{d^dp}{(2\pi)^d}\
+      \frac{N^{\mu\nu}(p,q)}{p^2(p+q)^2} ,
+  \end{aligned}
+  \label{eq:16.60}
+\end{equation}
+其中分子结构为
+\begin{equation}
+  \begin{aligned}
+    N^{\mu\nu}(p,q) &= \bigl[ g^{\mu\rho}(q-p)^\sigma + g^{\rho\sigma}(2p+q)^\mu
+      + g^{\sigma\mu}(-p-2q)^\rho \bigr]\\
+    &\quad \times \bigl[ g^{\nu}_{\ \rho}(p-q)_\sigma + g_{\rho\sigma}(-2p-q)^\nu
+      + g^\nu_{\ \sigma}(p+2q)_\rho \bigr] .
+  \end{aligned}
+\end{equation}
+总体的因子 $1/2$ 是对称因子。结构常数的收缩可以利用式~\eqref{eq:15.93} 计算：$f^{acd}f^{bcd} = C_2(G)\delta^{ab}$。
+
+为了进一步化简表达式，按标准方式合并分母：
+\begin{equation}
+  \frac{1}{p^2(p+q)^2} = \int_0^1 dx\ \frac{1}{\bigl( (1-x)p^2 + x(p+q)^2
+    \bigr)^2} = \int_0^1 dx\ \frac{1}{(P^2-\Delta)^2} ,
+  \label{eq:16.61}
+\end{equation}
+其中 $P = p + xq$，$\Delta = -x(1-x)q^2$。于是 \eqref{eq:16.60} 可以改写为
+\begin{equation}
+  \Pi^{\mu\nu}_{(1)}(q) = -\frac{1}{2}g^2C_2(G)\delta^{ab}\ \int_0^1 dx\
+    \int \frac{d^dP}{(2\pi)^d}\ \frac{N^{\mu\nu}(P,q)}{(P^2-\Delta)^2} .
+  \label{eq:16.62}
+\end{equation}
+分子结构可以通过消去 $p$ 改用 $P$、舍弃 $P$ 的线性项（它们对称地积分为零）以及使用标准积分恒等式来化简。完成代数运算后，三个纯规范图之和化简为一个显然横的表达式：
+\begin{equation}
+  \Pi^{\mu\nu}_{\mathrm{gauge}}(q) = (g^{\mu\nu}q^2 - q^\mu q^\nu)\,
+    \Pi_{\mathrm{gauge}}(q^2) ,
+  \label{eq:16.70}
+\end{equation}
+这正是非阿贝尔规范理论的 Ward 恒等式所要求的。为了将来参考，我们记下 \eqref{eq:16.70} 的紫外发散部分：
+\begin{equation}
+  \Pi^{\mu\nu}_{\mathrm{gauge}}(q) \supset (g^{\mu\nu}q^2 - q^\mu q^\nu)\,
+    \frac{g^2}{(4\pi)^2}\ \frac{10}{3}\,C_2(G)\ \Gamma(2-d/2) .
+  \label{eq:16.71}
+\end{equation}
+
+正如我们上面所指出的，结果 \eqref{eq:16.70} 依赖于计算中所用的规范。在任何规范中，玻色子自能都是横的，并且没有二次发散。然而，横 Lorentz 结构的系数可能依赖于 $\xi$。结果发现，对一般的 $\xi$ 值，\eqref{eq:16.71} 中紫外发散的系数按如下方式修正：
+\begin{equation}
+  \Pi_{\mathrm{gauge}}(q^2) \sim \frac{g^2}{(4\pi)^2}\ \Bigl( \frac{10}{3}
+    - \frac{\xi-1}{2} \Bigr)\,C_2(G)\ \Gamma(2-d/2) .
+  \label{eq:16.72}
+\end{equation}
+玻色子自能依赖于规范这一事实，并不与 $S$ 矩阵元与 $\xi$ 无关的一般定理相矛盾。规范理论 $S$ 矩阵元的全部单圈修正总是涉及对顶点和传播子的若干不同辐射修正；规范依赖性以精巧的方式在这些不同的项之间抵消。
+
+\subsection{$\beta$ 函数}
+
+涉及辐射修正的规范不变组合的最简单计算，是非阿贝尔规范理论 Callan-Symanzik $\beta$ 函数领头项的计算。$\beta$ 领头项的不变性可以直观地论证：规范理论的耦合常数不应该在一种计算方案中演化到大值，而在另一种方案中保持小值。在第~17.2 节中，我们将通过表明 $\beta$ 函数的领头系数可以从物理截面中提取出来、因而必定与规范无关，来更干净地证明这一结果。（令人惊讶的是，这个结论实际上适用于写成 $g$ 的幂级数时 $\beta$ 函数的前两个系数。）
+
+回顾第~12.2 节，$\beta$ 函数给出重整化耦合常数随重整化标度 $M$ 增大而变化的速率。由于 Green 函数通过抵消紫外发散的抵消项依赖于 $M$，$\beta$ 可以从进入一个恰当选择的 Green 函数的抵消项来计算。例如，在式~\eqref{eq:12.58} 中，我们看到 QED 的 $\beta$ 函数可以从电子-光子顶角、电子自能和光子自能的抵消项来计算。同样的推导在非阿贝尔规范理论的情形中也成立。因此，到最低阶，
+\begin{equation}
+  \beta(g) = gM\frac{\partial}{\partial M}\Bigl( -\delta_1 + \delta_2
+    + \frac{1}{2}\delta_3 \Bigr) ,
+  \label{eq:16.73}
+\end{equation}
+其中抵消顶角的约定如图~\ref{fig:16.8} 所示。在 QED 中，前两项由 Ward 恒等式抵消，因此 $\beta$ 只依赖于 $\delta_3$。在非阿贝尔情形中，三项都有贡献。最难计算的是 $\delta_3$，但通过计算规范玻色子自能图，我们几乎已经完成它了。现在让我们完成非阿贝尔规范理论 $\beta$ 函数的这一计算。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6\textwidth]{fig16.8.png}
+  \caption{计算非阿贝尔规范理论中费米子相互作用所需的抵消项。}
+  \label{fig:16.8}
+\end{figure}
+
+为了使抵消项 $\delta_3$ 抵消式~\eqref{eq:16.59} 和 \eqref{eq:16.71} 的发散，它必须具有如下形式
+\begin{equation}
+  \delta_3 = \frac{g^2}{(4\pi)^2}\ \frac{\Gamma(2-d/2)}{(M^2)^{2-d/2}}\
+    \Bigl( \frac{10}{3}C_2(G) - \frac{2}{3}n_fC(r) \Bigr) ,
+  \label{eq:16.74}
+\end{equation}
+其中 $M$ 是重整化标度。根据所用的精确重整化条件，$\delta_3$ 可能还有额外的有限贡献，但这些不贡献给 $\beta$ 函数（在单圈阶）。类似地，$\delta_2$ 和 $\delta_1$ 的有限部分将依赖于重整化方案的细节。然而，正如我们在第~12.2 节看到的，在任何一个在所有动量不变量都具有同一量级 $M^2$ 的点上对振幅做重整化的方案中，$\beta$ 函数的单圈贡献是相同的。在维数正规化中，对数发散总是取 $\Gamma(2-d/2)/\Delta^{2-d/2}$ 的形式，其中 $\Delta$ 是动量不变量的某种组合。因此，为了计算 $\beta$ 函数，我们只需在这样一些表达式中令 $\Delta = M^2$。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.55\textwidth]{fig16.9.png}
+  \caption{其发散被抵消项 $\delta_2$ 和 $\delta_1$ 减去的图。}
+  \label{fig:16.9}
+\end{figure}
+
+为了完成 $\beta$ 函数的计算，我们必须把 $\delta_2$ 和 $\delta_1$ 计算到同样的近似级别。费米子自能抵消项 $\delta_2$ 抵消图~\ref{fig:16.9} 中第一个图正比于 $\slashed{k}$ 的发散。在费曼-'t Hooft 规范中，这个图的值是
+\begin{equation}
+  \Sigma(k) = g^2C_2(r)\ \int_0^1 dx\ \int \frac{d^dp}{(2\pi)^d}\
+    \frac{(d-2)\slashed{k}}{(p+k)^2p^2}\ \cdots
+  = g^2C_2(r)\ \frac{\slashed{k}}{(4\pi)^2}\ \Gamma(2-d/2)\ \cdots .
+  \label{eq:16.76}
+\end{equation}
+由于场强重整化中的发散与费米子质量无关，我们通过把质量设为零来化简式~(16.75)。群矩阵的乘积按定义 \eqref{eq:15.92} 等于二次 Casimir 算符。Dirac 矩阵结构可以利用收缩恒等式式~(7.89) 化简。计算的其余部分与玻色子自能图遵循相同的步骤。
+
+这个表达式的发散部分必须由图~\ref{fig:16.8} 中的第二个抵消图抵消。因此，如果重整化标度是 $M$，抵消项必须为
+\begin{equation}
+  \delta_2 = \frac{g^2}{(4\pi)^2}\ \frac{\Gamma(2-d/2)}{(M^2)^{2-d/2}}\
+    C_2(r) ,
+  \label{eq:16.77}
+\end{equation}
+再加上有限项。我们注意到，与 $\delta_3$ 一样，$\delta_2$ 依赖于规范；例如，$\delta_2$ 在朗道规范（$\xi = 0$）中没有单圈发散。
+
+为了确定 $\delta_1$，我们必须计算图~\ref{fig:16.9} 中的第二个和第三个图。第二个图在费曼-'t Hooft 规范中并针对无质量费米子计算，为
+\begin{equation}
+  \Lambda^\mu = g^3\ \int \frac{d^dp}{(2\pi)^d}\ \frac{
+    \gamma^\rho\slashed{k}\gamma^\sigma\ \gamma^\mu\ \gamma^\tau
+    \slashed{k}\gamma^\upsilon }{(p+k')^2(p+k)^2p^2}\ \bigl[ C_2(r)
+    - \tfrac{1}{2}C_2(G) \bigr]t^a\ \cdots ,
+  \label{eq:16.78}
+\end{equation}
+其中规范群矩阵可以按如下方式化简
+\begin{equation}
+  \begin{aligned}
+    t^bt^at^b &= t^bt^bt^a + t^b[t^a, t^b]\\
+    &= C_2(r)t^a + it^bf^{abc}t^c\\
+    &= C_2(r)t^a + \frac{1}{2}if^{abc}\cdot if^{bcd}t^d\\
+    &= \bigl[ C_2(r) - \frac{1}{2}C_2(G) \bigr]t^a .
+  \end{aligned}
+  \label{eq:16.79}
+\end{equation}
+在第三行中，我们利用 $f^{abc}$ 的反对称性把矩阵乘积改写为对易子；在最后一行中，我们使用了式~\eqref{eq:15.93}。
+
+本节前面计算的图具有正的表面发散度，因此我们需要小心地提取它们的对数发散。然而，\eqref{eq:16.78} 中的积分是表面上的对数发散，因此这个发散的系数可以通过考虑积分变量 $p$ 远大于任何外动量的极限而容易地提取出来。在这个极限下，图的估计如下：
+\begin{equation}
+  \Lambda^\mu \approx g^3\bigl[ C_2(r) - \tfrac{1}{2}C_2(G) \bigr]t^a\ \int
+    \frac{d^dp}{(2\pi)^d}\ \frac{\gamma^\rho\slashed{k}\gamma^\sigma\,
+      \gamma^\mu\,\gamma^\tau\slashed{k}\gamma^\upsilon}{(p^2)^3}\ \cdots .
+  \label{eq:16.80}
+\end{equation}
+如果在 \eqref{eq:16.80} 的分子中用 $g^{\rho\sigma}p^2/d$ 替换 $p^\rho p^\sigma$，这个表达式给出
+\begin{equation}
+  \Lambda^\mu = g^3\bigl[ C_2(r) - \tfrac{1}{2}C_2(G) \bigr]t^a\ \gamma^\mu\,
+    \frac{3}{(4\pi)^2}\ \Gamma(2-d/2)\ \cdots .
+  \label{eq:16.81}
+\end{equation}
+这个估计给出发散项的正确系数。它完全丢弃了顶角函数中的有限项，但为了计算 $\beta$ 函数我们不需要这些项。
+
+图~\ref{fig:16.9} 中的第三个图可以用同样的方式分析。它在费曼-'t Hooft 规范中并针对无质量费米子的值为
+\begin{equation}
+  \Lambda^\mu = g^3\ \int \frac{d^dp}{(2\pi)^d}\ \frac{\gamma^\rho
+    \slashed{k}\gamma^\sigma\ \gamma^\mu }{(k'-p)^2(k-p)^2p^2}\ \cdot\
+    \frac{1}{2}C_2(G)t^a\ \cdots ,
+  \label{eq:16.82}
+\end{equation}
+其中规范矩阵乘积可以按如下方式化简
+\begin{equation}
+  f^{abc}t^bt^c = if^{abc}\cdot if^{bcd}t^d = C_2(G)t^a .
+\end{equation}
+同样，我们可以通过忽略与 $p$ 相比的所有外动量来确定这个图的对数发散。直接的运算随后给出发散部分。把三个抵消项的发散部分合并起来，我们发现
+\begin{equation}
+  \delta_1 = \delta_2 + \frac{1}{2}\delta_3\ \cdots ,
+  \label{eq:16.89}
+\end{equation}
+其中忽略与规范相关的项和有限项。把它代入 \eqref{eq:16.73}，我们得到非阿贝尔规范理论单圈 $\beta$ 函数的著名结果：
+\begin{equation}
+  \beta(g) = -\frac{g^3}{16\pi^2}\ \Bigl( \frac{11}{3}C_2(G)
+    - \frac{4}{3}n_fC(r) \Bigr) .
+  \label{eq:16.90}
+\end{equation}
+
+在第~10.3 节末尾我们讨论 QED 抵消项时，我们曾指出 $\delta_1$ 与 $\delta_2$ 之间的关系保证了所有带电的物种都看到耦合常数 $e$ 的共同普适值。在非阿贝尔规范理论中，关系 \eqref{eq:16.89} 及其高阶圈推广保持了非阿贝尔耦合的普适性。在 QED 中，我们从矢量流矩阵元的绝对归一化能够得到一个更强的关系，$\delta_1 = \delta_2$ 或 $Z_1 = Z_2$。然而，在非阿贝尔规范理论中，相应的矢量流 $j^{\mu a} = \bar{\psi}\gamma^\mu t^a\psi$ 在伴随表示下做局域规范变换。因此 Faddeev-Popov 处方不能无歧义地用来计算这个流的矩阵元，因而这些矩阵元的归一化不被微扰论保持。
+
+\section{渐近自由：背景场方法}
+
+在上一节中，我们看到费米子数目足够小的非阿贝尔规范理论的 $\beta$ 函数是负的。这一结果十分重要，值得推导两次。前面的推导直截了当，但不太有启发性。在本节中，我们给出同一结果的第二个推导，它更抽象，但干净得多、也更透明。
+
+本节的方法体现了 Wilson 关于积分掉高动量自由度这一思想的精髓，同时适当地注意保持规范不变性。我们将计算非阿贝尔规范理论对一个固定的、缓慢变化的经典背景规范场 $\bar{A}^a_\mu(x)$ 的有效作用。通过对这个场采用规范的归一化，我们可以把有效作用的系数解释为跑动耦合常数。这个方法类似于 Polyakov 计算非线性 sigma 模型 $\beta$ 函数的方法，如第~13.3 节所介绍的。
+
+\subsection{背景场微扰论}
+
+为了建立计算，把规范场重新标度 $gA^a_\mu \to A^a_\mu$。在这种归一化中，规范耦合从协变导数中移除，移到规范场动能项的系数上。因此我们从拉格朗日量
+\begin{equation}
+  \mathcal{L} = -\frac{1}{4g^2}(F^a_{\mu\nu})^2 + \bar{\psi}(i\slashed{D})\psi
+    + \bar{c}^a(-\partial^\mu D_\mu)^{ab}c^b ,
+  \label{eq:16.90}
+\end{equation}
+出发，其中
+\begin{equation}
+  D_\mu = \partial_\mu - iA^a_\mu t^a,\qquad
+  F^a_{\mu\nu} = \partial_\mu A^a_\nu - \partial_\nu A^a_\mu
+    + f^{abc}A^b_\mu A^c_\nu ,
+  \label{eq:16.91}
+\end{equation}
+为简单起见，费米子质量设为零。$A^a_\mu$ 和 $\psi$ 的变换律也与耦合常数无关：
+\begin{equation}
+  \delta A^a_\mu = \partial_\mu\alpha^a + f^{abc}A^b_\mu\alpha^c,\qquad
+  \delta\psi = i\alpha^a t^a\psi .
+  \label{eq:16.92}
+\end{equation}
+另一方面，耦合常数 $g$ 将出现在规范场传播子中。
+
+接下来，把规范场分成一个经典背景场和一个涨落的量子场：
+\begin{equation}
+  A^a_\mu \to \bar{A}^a_\mu + A^a_\mu .
+  \label{eq:16.93}
+\end{equation}
+我们将把经典部分 $\bar{A}^a_\mu$ 当作一个固定的场位形，把涨落部分 $A^a_\mu$ 当作泛函积分的积分变量。从现在起，我们将用符号 $D_\mu$ 表示关于背景场的协变导数：$D_\mu = \partial_\mu - i\bar{A}^a_\mu t^a$。于是
+\begin{equation}
+  \bar{\psi}(i\slashed{D})\psi \to \bar{\psi}(i\slashed{\partial})\psi
+    + \bar{\psi}\slashed{A}^a t^a\psi .
+  \label{eq:16.94}
+\end{equation}
+Yang-Mills 场强分解如下：
+\begin{equation}
+  \begin{aligned}
+    F^a_{\mu\nu} &\to \partial_\mu\bar{A}^a_\nu - \partial_\nu\bar{A}^a_\mu
+      + f^{abc}\bar{A}^b_\mu\bar{A}^c_\nu\\
+    &\quad + \partial_\mu A^a_\nu - \partial_\nu A^a_\mu + f^{abc}\bigl(
+      \bar{A}^b_\mu A^c_\nu - A^b_\nu\bar{A}^c_\mu \bigr) + f^{abc}A^b_\mu A^c_\nu\\
+    &= \bar{F}^a_{\mu\nu} + D_\mu A^a_\nu - D_\nu A^a_\mu + f^{abc}A^b_\mu
+      A^c_\nu ,
+  \end{aligned}
+  \label{eq:16.95}
+\end{equation}
+其中，在最后一行，$\bar{F}^a_{\mu\nu}$ 是经典场的场强，$D_\mu$ 是伴随表示中的协变导数，式~\eqref{eq:15.86}。注意，在 \eqref{eq:16.94} 和 \eqref{eq:16.95} 中，导数 $\partial_\mu$ 都只作为关于背景场的协变导数的一部分出现。
+
+如果把背景场 $\bar{A}^a_\mu$ 视为固定的，拉格朗日量具有由对 $A^a_\mu$ 的变换实现的一个局域规范对称性：
+\begin{equation}
+  A^a_\mu \to A^a_\mu + D_\mu\alpha^a + f^{abc}A^b_\mu\alpha^c .
+  \label{eq:16.96}
+\end{equation}
+为了定义泛函积分，我们必须使用 Faddeev-Popov 程序做规范固定。我们选择一个关于背景规范场协变的规范固定条件：
+\begin{equation}
+  G^a(A) = D^\mu A^a_\mu - \omega^a ,
+  \label{eq:16.97}
+\end{equation}
+而不是 \eqref{eq:16.28}。Faddeev-Popov 行列式涉及这个算符对规范变换 \eqref{eq:16.96} 的变分。与第~16.2 节一样，我们可以把规范固定项提升到指数中，在费曼-'t Hooft 规范的背景场类比下来量子化这个理论。于是规范固定的拉格朗日量为
+\begin{equation}
+  \begin{aligned}
+    \mathcal{L} &= -\frac{1}{4g^2}\bigl( \bar{F}^a_{\mu\nu} + D_\mu A^a_\nu
+      - D_\nu A^a_\mu + f^{abc}A^b_\mu A^c_\nu \bigr)^2
+      - \frac{1}{2}(D^\mu A^a_\mu)^2\\
+    &\quad + \bar{\psi}(i\slashed{\partial} + \slashed{A}^a t^a)\psi
+      - \bar{c}^a(D^2)^{ac}c^c - \bar{c}^a D^\mu\bigl( f^{abc}A^b_\mu c^c
+        \bigr) .
+  \end{aligned}
+  \label{eq:16.98}
+\end{equation}
+拉格朗日量 \eqref{eq:16.98} 是规范固定的，但它在同时变换 $A^a_\mu$ 和背景场 $\bar{A}^a$ 的一个局域对称性下不变：
+\begin{equation}
+  \begin{aligned}
+    A^a_\mu &\to A^a_\mu - f^{abc}\beta^b A^c_\mu,\\
+    \bar{A}^a_\mu &\to \bar{A}^a_\mu + D_\mu\beta^a,\\
+    \psi &\to \psi + i\beta^a t^a\psi,\\
+    c^a &\to c^a - f^{abc}\beta^b c^c .
+  \end{aligned}
+  \label{eq:16.99}
+\end{equation}
+在这个变换下，$A^a_\mu$ 作为伴随表示中的物质场变换，而 $\bar{A}^a_\mu$ 携带局域规范变换中正比于 $\partial_\mu\beta^a$ 的部分。为了证明 \eqref{eq:16.99} 是 \eqref{eq:16.98} 的一个对称性，我们只需注意 \eqref{eq:16.98} 是整体不变的，并且 $\bar{A}^a_\mu$ 在 \eqref{eq:16.98} 中只作为协变导数和场强的一部分出现。变换 \eqref{eq:16.99} 也是泛函测度的一个对称性。因此，如果我们对 $A^a_\mu$、$\psi$ 和 $c^a$ 做泛函积分来计算有效作用，结果必定在 $\bar{A}^a_\mu$ 的局域规范变换下不变。这一观察极大地简化了有效作用的分析。
+
+\subsection{有效作用的单圈修正}
+
+现在让我们利用第~11.4 节的方法计算有效作用。为了把 $\Gamma[\bar{A}^a_\mu]$ 计算到单圈阶，我们丢弃涨落场 $A^a_\mu$ 的线性项，然后对 $A^a_\mu$ 以及费米子和鬼场中的二次项做积分。这产生泛函行列式，我们可以把它们计算成适合有效作用的形式。
+
+为了实现这个方案，我们必须推导出 \eqref{eq:16.98} 中关于各个场的二次项。关于 $A^a_\mu$ 的二次项为：
+\begin{equation}
+  \mathcal{L}_A = -\frac{1}{4}\Bigl( \frac{1}{2}(D_\mu A^a_\nu - D_\nu
+    A^a_\mu)^2 + \bar{F}^a_{\mu\nu}f^{abc}A^b_\mu A^c_\nu + (D^\mu A^a_\mu)^2
+    \Bigr) .
+  \label{eq:16.100}
+\end{equation}
+分部积分后，我们可以把它改写为
+\begin{equation}
+  \mathcal{L}_A = -\frac{1}{2g^2}\Bigl\{ A^a_\mu\bigl[ -(D^2)^{ab}g^{\mu\nu}
+    + (D^\nu D^\mu)^{ab} - (D^\mu D^\nu)^{ab} \bigr]A^b_\nu
+    - A^a_\mu f^{abc}\bar{F}^{b\mu\nu}A^c_\nu \Bigr\} .
+  \label{eq:16.101}
+\end{equation}
+方括号中的项含有协变导数的对易子。这可以利用 \eqref{eq:15.48} 化简；结果与最后一项结合给出
+\begin{equation}
+  \mathcal{L}_A = -\frac{1}{2g^2}\Bigl\{ A^a_\mu\bigl[ -(D^2)^{ac}g^{\mu\nu}
+    + 2f^{abc}\bar{F}^{b\mu\nu} \bigr]A^c_\nu \Bigr\} .
+  \label{eq:16.102}
+\end{equation}
+第一项是协变 d'Alembert 算符的一部分。第二项看起来相当特殊，但我们可以按如下方式把它放到一个以后方便的形式中：首先，我们认识到 $\bar{F}^{b\mu\nu}$ 与伴随表示中的一个群生成元收缩。接下来，我们引入矩阵 \eqref{eq:3.18}，它是 4-矢量上 Lorentz 变换的生成元：
+\begin{equation}
+  (\mathcal{J}^{\rho\sigma})^\mu_{\ \nu} = i\bigl( \delta^{\rho\mu}
+    \delta^{\sigma}_{\ \nu} - \delta^{\sigma\mu}\delta^{\rho}_{\ \nu}
+    \bigr) .
+  \label{eq:16.103}
+\end{equation}
+做了这些替换之后，我们可以把 \eqref{eq:16.102} 写成如下形式
+\begin{equation}
+  \mathcal{L}_A = -\frac{1}{2g^2}\Bigl\{ A^a_\mu\bigl[ -(D^2)^{ab}
+    \delta^{\mu\nu} + 2\bigl( \tfrac{1}{2}\bar{F}^{b}_{\rho\sigma}
+      \mathcal{J}^{\rho\sigma} \bigr)^{\mu\nu}(t^b_G)^{ac} \bigr]A^c_\nu
+    \Bigr\} .
+  \label{eq:16.104}
+\end{equation}
+方括号中的对象可以看作是背景场上涨落的广义 d'Alembert 算符。
+
+接下来，我们用类似的方式化简费米子场的二次项。费米子场的二次拉格朗日量为
+\begin{equation}
+  \mathcal{L}_\psi = \bar{\psi}(i\slashed{D})\psi .
+  \label{eq:16.105}
+\end{equation}
+对费米子场做积分，我们得到算符 $(i\slashed{D})$ 的行列式。这方便地表示为如下算符行列式的平方根
+\begin{equation}
+  \begin{aligned}
+    (i\slashed{D})^2 &= \Bigl( -\frac{1}{2}\{ \gamma^\mu, \gamma^\nu \}
+      - \frac{1}{2}[\gamma^\mu, \gamma^\nu] \Bigr)D_\mu D_\nu\\
+    &= -D^2 + 2i\Bigl( -\frac{1}{2}[\gamma^\mu, \gamma^\nu] \Bigr)D_\mu D_\nu .
+  \end{aligned}
+  \label{eq:16.106}
+\end{equation}
+在最后一行，Dirac 矩阵的对易子构成旋量表示中 Lorentz 变换的生成元 $S^{\mu\nu}$ \eqref{eq:3.23}。由于这个对象在指标上反对称，与它收缩的乘积 $D_\mu D_\nu$ 可以替换为它们对易子的一半。于是 \eqref{eq:16.106} 取如下形式
+\begin{equation}
+  (i\slashed{D})^2 = -D^2 + 2\bigl( \tfrac{1}{2}\bar{F}^{b}_{\rho\sigma}
+    S^{\rho\sigma} \bigr)t^b ,
+  \label{eq:16.107}
+\end{equation}
+其中 $t^a$ 现在取费米子的表示。这正是 \eqref{eq:16.104} 中的 d'Alembert 算符，针对新的一组自旋和规范量子数改写。如果理论包含 $n_f$ 种费米子，费米子泛函积分给出 \eqref{eq:16.107} 的行列式的 $n_f/2$ 次幂。
+
+鬼场的二次项很简单，为
+\begin{equation}
+  \mathcal{L}_c = \bar{c}^a\bigl[ -(D^2)^{ab} \bigr]c^b ,
+  \label{eq:16.108}
+\end{equation}
+它含有对自旋为零情形写出的同一个 d'Alembert 算符。
+
+为了总结所有这些结果，我们定义一般的协变背景场 d'Alembert 算符为
+\begin{equation}
+  \Delta_{r,j} = -D^2 + 2\bigl( \tfrac{1}{2}F^b_{\rho\sigma}
+    \mathcal{J}^{\rho\sigma}_j \bigr)t^b ,
+  \label{eq:16.109}
+\end{equation}
+它作用在表示 $r$、自旋 $j$ 的场上。协变导数的平方给出由 $\Delta_{r,j}$ 描述的粒子与规范场的正常的、对流的、最小耦合。额外的项是与规范场的磁矩相互作用，其强度对应于 $g$ 因子 $g = 2$。利用这个一般表达式，我们可以把经典场 $\bar{A}^a_\mu$ 的单圈阶有效作用写为
+\begin{equation}
+  e^{i\Gamma[\bar{A}]} = \det(\Delta_{G,1})^{1/2}\ \cdot\
+    \bigl( \det\Delta_{r,1/2} \bigr)^{n_f/2}\ \cdot\
+    \bigl( \det\Delta_{G,0} \bigr)^{-1}\ \cdot\ e^{i\int d^4x\
+      \mathcal{L}_{c.t.}} ,
+  \label{eq:16.110}
+\end{equation}
+其中 $\mathcal{L}_{c.t.}$ 是抵消项拉格朗日量，三个行列式是计算规范场、费米子和鬼场泛函积分的结果。对有效作用的额外圈修正被另一个 $g^2$ 因子压低。
+
+由于贡献给 \eqref{eq:16.110} 的每个积分都在 \eqref{eq:16.99} 下不变，每个行列式都将是 $\bar{A}^a_\mu$ 的规范不变泛函。如果我们把行列式按背景场的幂展开，我们应当会发现一个以如下项开头的级数
+\begin{equation}
+  \log\det\Delta_{r,j} = i\int d^4x\ \Bigl( \frac{1}{4}C_{r,j}(F^a_{\mu\nu})^2
+    + \cdots \Bigr) ,
+  \label{eq:16.111}
+\end{equation}
+其中随后的各项含有更高维数的规范不变算符。系数 $C_{r,j}$ 可以依赖于表示 $r$ 和自旋 $j$。展开式的这第一项按如下方式修正零阶有效作用
+\begin{equation}
+  \frac{1}{4g^2} \to \frac{1}{4g^2} + C_{r,j}\ \cdots .
+  \label{eq:16.117}
+\end{equation}
+因子 $C_{r,j}$ 是无量纲的，但由于它们来自单圈计算，我们应当预期它们是对数发散的：
+\begin{equation}
+  C_{r,j} = \bar{C}_{r,j}\ \log\frac{\Lambda^2}{M^2} + \cdots .
+\end{equation}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.55\textwidth]{fig16.10.png}
+  \caption{$\log\det\Delta_{r,j}$ 展开式中外场的二次项。特殊顶点来自 $F^{\rho\sigma}\mathcal{J}_{\rho\sigma}$ 耦合。}
+  \label{fig:16.10}
+\end{figure}
+
+\eqref{eq:16.111} 中关于 $\bar{A}^a_\mu$ 的二次项可以在 Fourier 空间中写成
+\begin{equation}
+  \log\det\Delta_{r,j} = \frac{1}{2}\int \frac{d^4k}{(2\pi)^4}\
+    \bar{A}^a_\mu(-k)\bar{A}^b_\nu(k)\ \bigl( k^2g^{\mu\nu} - k^\mu k^\nu
+      \bigr)\ \cdot\ \bigl[ C_{r,j}\ \cdots \bigr] .
+  \label{eq:16.121}
+\end{equation}
+我们现在将直接从式~(16.120) 计算这些项，并把它们化成 \eqref{eq:16.121} 的形式。在展开式式~(16.120) 中，含有 $A^a_\mu$ 两次幂的项是那些含一次 $\bar{A}^{(2)}$ 或两次 $\bar{A}^{(1)}$ 或 $\bar{A}^{(0)}$ 的项。进一步，$\bar{A}^{(0)}$ 的线性项正比于 $\mathrm{tr}[\mathcal{J}^{\rho\sigma}] = 0$，因此这两种结构之间的交叉项为零。其余三个贡献对应于图~\ref{fig:16.10} 中所示的费曼图。
+
+含有两次 $\bar{A}^{(1)}$ 的项为
+\begin{equation}
+  \frac{1}{2}\mathrm{tr}\bigl[ (-\partial^2)^{-1}\bar{A}^{(1)}
+    (-\partial^2)^{-1}\bar{A}^{(1)} \bigr] = \cdots ,
+  \label{eq:16.122}
+\end{equation}
+其中迹现在只是对规范指标和自旋指标的迹。因子 $1/2$ 来自对数的展开。含有一次 $\bar{A}^{(2)}$ 的项为
+\begin{equation}
+  \mathrm{tr}\bigl[ (-\partial^2)^{-1}\bar{A}^{(2)} \bigr] = \cdots .
+  \label{eq:16.123}
+\end{equation}
+如图~\ref{fig:16.10} 所暗示的，这两个贡献精确正比于一个标量粒子对 QED 真空极化的贡献，再乘以因子
+\begin{equation}
+  \mathrm{tr}[t^at^b] = C(r)d(j)\delta^{ab} ,
+  \label{eq:16.124}
+\end{equation}
+其中 $d(j)$ 是自旋分量的数目。这些图的值可以利用上一节的方法计算出来（或者直接从习题~9.1 回想起）。人们发现两个图一起求和得到规范不变形式 \eqref{eq:16.121}，给出
+\begin{equation}
+  \frac{1}{2}\int \frac{d^4k}{(2\pi)^4}\ \bar{A}^a_\mu(-k)\bar{A}^b_\nu(k)\
+    \bigl( k^2g^{\mu\nu} - k^\mu k^\nu \bigr)\ \cdot\
+    \Bigl[ \frac{1}{3}d(j)C(r)\ \Gamma(2-d/2) + \cdots \Bigr] .
+  \label{eq:16.125}
+\end{equation}
+
+含有两次 $\bar{A}^{(0)}$ 的项为
+\begin{equation}
+  -\frac{1}{2}\mathrm{tr}\bigl[ (-\partial^2)^{-1}\bar{A}^{(0)}
+    (-\partial^2)^{-1}\bar{A}^{(0)} \bigr] = \cdots .
+  \label{eq:16.126}
+\end{equation}
+为了计算它，把 $C(j)$ 定义为对自旋指标的迹
+\begin{equation}
+  \mathrm{tr}\bigl[ \mathcal{J}^{\rho\sigma}\mathcal{J}^{\alpha\beta} \bigr]
+  = \bigl( g^{\rho\alpha}g^{\sigma\beta} - g^{\rho\beta}g^{\sigma\alpha}
+    \bigr)C(j) .
+  \label{eq:16.127}
+\end{equation}
+从显式表达式直接可以推出
+\begin{equation}
+  C(j) = \begin{cases}
+    0 & \text{标量};\\
+    1 & \text{Dirac 旋量};\\
+    2 & \text{4-矢量}.
+  \end{cases}
+  \label{eq:16.128}
+\end{equation}
+于是 \eqref{eq:16.126} 可以计算为
+\begin{equation}
+  \frac{1}{2}\int \frac{d^4k}{(2\pi)^4}\ \bar{A}^a_\mu(-k)\bar{A}^b_\nu(k)\
+    \bigl( k^2g^{\mu\nu} - k^\mu k^\nu \bigr)\ \cdot\
+    \Bigl[ -4C(j)C(r)\ \Gamma(2-d/2) + \cdots \Bigr] .
+  \label{eq:16.129}
+\end{equation}
+把 \eqref{eq:16.125} 和 \eqref{eq:16.129} 相加，我们发现 \eqref{eq:16.111} 中的系数 $C_{r,j}$ 由下式给出
+\begin{equation}
+  C_{r,j} = \Bigl( \frac{1}{3}d(j) - 4C(j) \Bigr)C(r)\ \Gamma(2-d/2) .
+  \label{eq:16.131}
+\end{equation}
+因此，
+\begin{equation}
+  C_{r,j} = \begin{cases}
+    +\frac{1}{3}C(r) & \text{标量};\\
+    -\frac{8}{3}C(r) & \text{Dirac 旋量};\\
+    -\frac{20}{3}C(r) & \text{4-矢量}.
+  \end{cases}
+  \label{eq:16.132}
+\end{equation}
+注意，每当磁矩项非零时，它就占主导，而且它的系数与对流项的系数符号相反。
+
+把 \eqref{eq:16.132} 中的值代入 \eqref{eq:16.117}，我们发现
+\begin{equation}
+  \beta(g) = -\frac{g^3}{16\pi^2}\ \Bigl( \frac{11}{3}C_2(G)
+    - \frac{4}{3}n_fC(r) \Bigr) .
+  \label{eq:16.133}
+\end{equation}
+因此我们确认了上一节的结论：费米子数目足够少的非阿贝尔规范理论是渐近自由的。
+
+\section{渐近自由：定性解释}
+
+在上一节两节中\footnote{第~16.7 节借鉴了 16.5 和 16.6 节的主要结果，但并不依赖于前面的这些节。不过，即使你没有读过第~16.5 节，你也可以浏览第 522 至 531 页，以了解 $\beta$ 函数可以如何计算的概貌。}，我们两次计算了非阿贝尔规范理论中的 $\beta$ 函数：
+\begin{equation}
+  \beta(g) = -\frac{g^3}{16\pi^2}\ \Bigl( \frac{11}{3}C_2(G)
+    - \frac{4}{3}n_fC(r) \Bigr) .
+  \label{eq:16.134}
+\end{equation}
+这里 $n_f$ 是表示 $r$ 中费米子种类的数目，$C(r)$ 是表示矩阵的正交性关系 \eqref{eq:15.78} 中出现的常数，$C_2(G)$ 是群的伴随表示的二次 Casimir 算符，定义于式~\eqref{eq:15.92}。在费米子处于基本表示的 $SU(N)$ 规范理论中，这一结果变为
+\begin{equation}
+  \beta(g) = -\frac{g^3}{16\pi^2}\ \Bigl( \frac{11}{3}N
+    - \frac{2}{3}n_f \Bigr) .
+  \label{eq:16.135}
+\end{equation}
+总体的负号意味着，对足够小的 $n_f$，非阿贝尔规范理论是渐近自由的。在这种情况下，跑动耦合常数在大动量处趋于零，根据式~(12.92)：
+\begin{equation}
+  \bar{g}^2(k) = \frac{\bar{g}^2(M)}{1 +
+    \frac{\bar{g}^2(M)}{8\pi^2}\bigl( \frac{11}{3}N - \frac{2}{3}n_f
+      \bigr)\log(k^2/M^2)} .
+  \label{eq:16.136}
+\end{equation}
+
+非阿贝尔规范理论的渐近自由是一个令人惊讶的结论。当我们在第~7.5 节第一次遇到电磁耦合的跑动时，我们发现很容易理解耦合常数流动的方向：由于虚电子-正电子对的产生，真空获得介电性质，导致有效电荷在大距离处减小。在非阿贝尔规范理论中，根据式~\eqref{eq:16.134}，费米子仍然产生这样的效应。此外，由于非阿贝尔规范玻色子带电，它们应当产生额外的屏蔽效应。但根据式~\eqref{eq:16.134}，非阿贝尔规范玻色子的净效应符号相反。显然必定存在其他的、相互竞争的效应，它们克服屏蔽效应并改变 $\beta$ 函数的符号。
+
+这些效应的精确形式依赖于规范。它们最便于在库仑规范中描述，其规范固定条件为
+\begin{equation}
+  \partial^i A^{ai} = 0 .
+  \label{eq:16.137}
+\end{equation}
+我们不在这个规范中完整地推导量子化；而只是描述它的定性特征。与电动力学一样，库仑规范中的场量子以非 Lorentz 协变的方式描述为横极化光子。没有类时或纵向光子，也没有传播的鬼场。然而，存在一个由场 $A^{a0}$ 描述的库仑势，它满足一个类似于高斯定律的约束方程。毫不奇怪，在非阿贝尔情形中，高斯定律取规范协变的形式
+\begin{equation}
+  D^iE^{ai} = g\rho^a ,
+  \label{eq:16.138}
+\end{equation}
+其中 $E^{ai} = F^{a0i}$，$\rho^a$ 是费米子整体对称流的电荷密度。回顾式~\eqref{eq:15.86}，作用在伴随表示场上的协变导数为
+\begin{equation}
+  (D^i\phi)^a = \partial^i\phi^a + gf^{abc}A^{bi}\phi^c .
+\end{equation}
+
+为了分析式~\eqref{eq:16.138} 的后果，我们将选择一个尽可能简单和显式的例子。设规范群为 $SU(2)$，从而 $a = 1, 2, 3$，$f^{abc} = \epsilon^{abc}$。让我们计算大小为 $+1$、取向 $a = 1$ 的点电荷的库仑势。我们将用迭代过程求解 $E^{ai}$，把协变导数的规范场项放到方程的右边：
+\begin{equation}
+  \partial^iE^{ai} = g\delta^{(3)}(\mathbf{x})\delta^{a1}
+    + g\epsilon^{abc}A^{bi}E^{ci} .
+  \label{eq:16.139}
+\end{equation}
+右边的第二项表明，在非阿贝尔规范理论中，一个同时含有在物理空间中平行、在群空间中垂直的矢势和电场的区域是电场的源。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.55\textwidth]{fig16.11.png}
+  \caption{真空涨落对 $SU(2)$ 规范理论库仑场的影响。在 (a) 中，涨落 $A^2$ 叠加在 $1/r^2$ 场 $E^1$ 上。这些组合场产生场 $E^3$ 的一个汇，如图 (b) 所示。场 $E^3$ 反过来又与 $A^2$ 结合，产生一个有效的 $E^1$ 偶极子，如图 (c) 所示。偶极子指向原来的电荷，从而在远处增强其场。}
+  \label{fig:16.11}
+\end{figure}
+
+式~\eqref{eq:16.139} 的含义用图解的方式在图~\ref{fig:16.11} 中阐明。\eqref{eq:16.139} 右边的领头项意味着一个从 $\mathbf{x} = 0$ 辐射出来的、类型 $a = 1$ 的 $1/r^2$ 电场。在空间中某处，这个电场会与一小段作为真空涨落出现的矢势 $A^{ai}$ 相交。为具体起见，让我们假设这个涨落具有 $a = 2$，并指向某个对角方向，如图~\ref{fig:16.11}(a) 所示。于是式~\eqref{eq:16.139} 右边的第二项对 $a = 3$ 是负的：在这个位置存在场 $E^{3i}$ 的一个汇，如图~\ref{fig:16.11}(b) 所示。这些新场在两个位置与原来的 $A^{ai}$ 场涨落平行或反平行。再看式~\eqref{eq:16.139} 的第二项，我们看到在靠近原点处有一个 $a = 1$ 的电场源，在更远处有一个 $a = 1$ 的电场汇。这是真空中一个感应出的电偶极子，如图~\ref{fig:16.11}(c) 所示。但请看符号：这个偶极子指向原来的电荷，因此起放大而不是屏蔽它的作用！因此原来的电荷的效应在更大距离处变得更强。
+
+这个反屏蔽效应与由虚规范玻色子对引起的屏蔽之间的竞争必须定量地计算出来。完成这一计算时，\footnote{T.~Appelquist, M.~Dine 和 I.~Muzinich, \emph{Phys.\ Lett.} \textbf{69B}, 231 (1977)。}人们发现反屏蔽效应要大 12 倍。
+
+在这个论证中，正是非阿贝尔规范理论特有的一组动力学特征使得耦合常数在大距离处被放大而不是被屏蔽。这提示渐近自由可能是非阿贝尔规范理论的一个特殊性质。虽然这一陈述只能通过穷尽其他情形来证明，但它实际上确实为真：在四维时空中的可重整化量子场论中，只有非阿贝尔规范理论是渐近自由的。在接下来的两章中我们将大量使用这个性质，届时我们将研究量子色动力学，即强相互作用的非阿贝尔规范理论。
+
+\problems
+
+\textbf{16.1} 在本习题中，我们将证明完整的拉格朗日量 \eqref{eq:16.34} 在 BRST 变换 \eqref{eq:16.45} 下不变。
+\begin{enumerate}[label=(\alph*)]
+  \item 证明该变换是幂零的，即把它作用两次对每个场都给出零。
+  \item 证明规范固定项与鬼场项组合成一个 BRST 不变的组合。
+\end{enumerate}
+
+\textbf{16.2} 在第~16.5 节中，我们计算了非阿贝尔规范理论的单圈 $\beta$ 函数。通过显式地完成 \eqref{eq:16.62} 中的积分，验证规范玻色子自能的计算。
+
+\textbf{16.3} \emph{背景场方法中的 $\beta$ 函数。}完成背景场方法中单圈有效作用的推导，并验证 \eqref{eq:16.132} 中的系数 $C_{r,j}$ 给出 $\beta$ 函数 \eqref{eq:16.133}。
+
+\textbf{16.4} \emph{鬼场部分的单圈发散。}计算单圈鬼场自能和单圈鬼-鬼-矢量顶点，并证明这些发散被 BRST 对称性所要求的抵消项抵消。
+
+\textbf{16.5} 在第~16.7 节中，我们在库仑规范中给出了渐近自由的定性论证。在本习题中，推导纯 $SU(2)$ 规范理论的库仑规范量子化，并计算两个电荷在大距离处的库仑势。

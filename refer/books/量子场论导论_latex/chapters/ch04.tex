@@ -1,0 +1,1297 @@
+% ======================================================================
+% 第 4 章：相互作用场与费曼图
+% （原书第 77-130 页；PDF 第 100-153 页）
+% ======================================================================
+\chapter{相互作用场与费曼图}
+
+\section{微扰理论——原理与实例}
+
+我们已在前文中相当详细地讨论了两种自由场理论的量子化，它们对自然界中发现的许多粒子给出了近似描述。然而，迄今为止，自由粒子态都是哈密顿量的本征态；我们还没有见到相互作用，也没有见到散射。为了对真实世界作出更精确的描述，我们必须在哈密顿量（或拉格朗日量）中加入新的非线性项，这些项将把不同的傅里叶模式（以及占据这些模式的粒子）彼此耦合起来。为了保持因果性，我们坚持新的项只能包含同一时空点上场之积：$[\phi(x)]^4$ 是允许的，但 $\phi(x)\phi(y)$ 不允许。因此，描述相互作用的项将具有如下形式
+\begin{equation}
+  H_{\mathrm{int}} = \int d^3x\ \mathcal{H}_{\mathrm{int}}[\phi(x)]
+  = -\int d^3x\ \mathcal{L}_{\mathrm{int}}[\phi(x)] .
+\end{equation}
+目前我们把自己限制在 $\mathcal{H}_{\mathrm{int}}$（$= -\mathcal{L}_{\mathrm{int}}$）仅仅是场的函数、而非它们的导数的函数这类理论中。
+
+在本章中，我们将讨论三个重要的相互作用场论例子。第一个是"四次方"理论，
+\begin{equation}
+  \mathcal{L} = \tfrac{1}{2}(\partial_\mu\phi)^2 - \tfrac{1}{2}m^2\phi^2
+    - \frac{\lambda}{4!}\phi^4 ,
+  \label{eq:4.1}
+\end{equation}
+其中 $\lambda$ 是无量纲的耦合常数。（$\lambda\phi^3$ 相互作用会稍微简单一些，但那样的话，除非我们再加入 $\phi$ 的更高偶次幂，否则能量将不是正定的。）尽管我们现在引入这一理论纯粹是出于教学上的原因（因为它是所有相互作用量子理论中最简单的一个），但真实世界的模型中确实包含 $\phi^4$ 相互作用；在粒子物理中最重要的例子是标准电弱理论中希格斯场的自相互作用。在第二编中，我们将看到 $\phi^4$ 理论也出现在统计力学中。$\phi^4$ 理论的运动方程为
+\begin{equation}
+  (\partial^2 + m^2)\phi = -\frac{\lambda}{3!}\phi^3,
+  \label{eq:4.2}
+\end{equation}
+它不能像自由 Klein--Gordon 方程那样通过傅里叶分析求解。在量子理论中，我们施加等时对易关系
+\begin{equation}
+  [\phi(\mathbf{x}), \pi(\mathbf{y})] = i\delta^{(3)}(\mathbf{x}-\mathbf{y}),
+\end{equation}
+这些关系不受 $\mathcal{L}_{\mathrm{int}}$ 的影响。（但请注意，如果 $\mathcal{L}_{\mathrm{int}}$ 包含 $\partial_\mu\phi$，那么 $\pi(\mathbf{x})$ 的定义就会改变。）写出这一理论的哈密顿量并求出算符 $\phi(x)$ 的海森堡运动方程是一个容易的练习；其结果与经典运动方程 \eqref{eq:4.2} 相同，正如在自由理论中那样。
+
+我们的第二个相互作用场论例子是量子电动力学：
+\begin{equation}
+  \mathcal{L}_{\mathrm{QED}} = \mathcal{L}_{\mathrm{Dirac}}
+    + \mathcal{L}_{\mathrm{Maxwell}} + \mathcal{L}_{\mathrm{int}}
+  = \bar{\psi}(i\gamma^\mu\partial_\mu - m)\psi
+    - \tfrac{1}{4}(F_{\mu\nu})^2 - e\bar{\psi}\gamma^\mu\psi A_\mu ,
+  \label{eq:4.3}
+\end{equation}
+其中 $A^\mu$ 是电磁矢势，$F_{\mu\nu} = \partial_\mu A_\nu - \partial_\nu A_\mu$ 是电磁场张量，而 $e = -|e|$ 是电子电荷。（要描述电荷为 $Q$ 的费米子，只需把 $e$ 换成 $Q$。如果我们想同时考虑多种带电粒子，只需对每一种额外的粒子重复 $\mathcal{L}_{\mathrm{Dirac}}$ 和 $\mathcal{L}_{\mathrm{int}}$。）这样一个简单的拉格朗日量竟能解释从宏观尺度一直到 $10^{-13}\ \mathrm{cm}$ 的几乎所有观测现象，实在令人惊叹。事实上，QED 拉格朗日量还可以写得更简单：
+\begin{equation}
+  \mathcal{L}_{\mathrm{QED}} = \bar{\psi}(i\slashed{D} - m)\psi
+    - \tfrac{1}{4}(F_{\mu\nu})^2 ,
+  \label{eq:4.4}
+\end{equation}
+其中 $D_\mu$ 是规范协变导数，
+\begin{equation}
+  D_\mu = \partial_\mu + ieA_\mu(x) .
+  \label{eq:4.5}
+\end{equation}
+QED 拉格朗日量的一个关键性质是它在规范变换下不变：
+\begin{equation}
+  \psi(x) \to e^{i\alpha(x)}\psi(x),\qquad
+  A_\mu \to A_\mu - \frac{1}{e}\partial_\mu\alpha(x),
+  \label{eq:4.6}
+\end{equation}
+该变换在狄拉克场上实现为局域相位转动。这种局域相位转动下的不变性具有根本性的几何意义，这正是"协变导数"这一名称的由来。不过，就我们目前的目的而言，只要认识到 \eqref{eq:4.6} 是理论的一个对称性就足够了。
+
+运动方程由 \eqref{eq:4.3} 通过正则程序得出。$\bar{\psi}$ 的欧拉-拉格朗日方程为
+\begin{equation}
+  (i\slashed{\partial} - m)\psi(x) = e\slashed{A}\psi(x),
+  \label{eq:4.7}
+\end{equation}
+这正是通过最小耦合方案 $\partial_\mu \to D_\mu$ 与电磁场耦合的狄拉克方程。$A_\mu$ 的欧拉-拉格朗日方程为
+\begin{equation}
+  \partial_\mu F^{\mu\nu} = e\bar{\psi}\gamma^\nu\psi = e j^\nu .
+  \label{eq:4.8}
+\end{equation}
+这些是非齐次麦克斯韦方程组，其中电流密度 $j^\nu = \bar{\psi}\gamma^\nu\psi$ 由守恒的狄拉克矢量流 \eqref{eq:3.78} 给出。与 $\phi^4$ 理论一样，这些运动方程也可以作为算符 $\psi(x)$ 和 $A^\mu(x)$ 的海森堡运动方程而得到。对 $\psi(x)$ 而言这很容易验证；我们尚未讨论电磁场的量子化。
+
+事实上，本书将完全不讨论电磁场的正则量子化。这是一个棘手的话题，本质上是因为规范不变性。注意到由于 $A^0$ 不出现在拉格朗日量 \eqref{eq:4.3} 中，$A^0$ 的共轭动量恒为零。这与正则对易关系 $[A^0(\mathbf{x}), \pi^0(\mathbf{y})] = i\delta(\mathbf{x}-\mathbf{y})$ 相矛盾。一种解决办法是在库仑规范中量子化，其中 $\nabla\cdot\mathbf{A} = 0$，$A^0$ 是受约束变量而非动力学变量；但那样就牺牲了明显的洛伦兹不变性。另一种办法是在洛伦兹规范 $\partial_\mu A^\mu = 0$ 中量子化场。此时可以修改拉格朗日量，加入 $A^0$ 项。于是得到对易关系
+\begin{equation}
+  [A^\mu(\mathbf{x}), A^\nu(\mathbf{y})] = -ig^{\mu\nu}\delta(\mathbf{x}-\mathbf{y}),
+\end{equation}
+本质上与四个 Klein--Gordon 场相同。但 $[A^0, A^0]$ 中多出的负号导致了另一个（可以克服的）困难：由 $a_{\mathbf{p}}^{0\dagger}$ 产生的态具有负的模方。%
+\footnote{关于这两种量子化程序的优秀论述随处可得。关于库仑规范量子化，参见 Bjorken and Drell (1965) 第 14 章；关于洛伦兹规范量子化，参见 Mandl and Shaw (1984) 第 5 章。}
+
+计算涉及光子的散射振幅的费曼规则，在将在第 9 章讨论的场论泛函积分表述中更容易导出。该方法还有一个优点，即可以方便地推广到非阿贝尔规范场的情形，我们将在第三编中看到。在本章中，我们将只是猜测光子的费曼规则。在我们导出一个类似但更简单的理论——汤川理论——的规则之后，这实际上将相当容易：
+\begin{equation}
+  \mathcal{L}_{\mathrm{Yukawa}} = \mathcal{L}_{\mathrm{Dirac}}
+    + \mathcal{L}_{\mathrm{Klein--Gordon}} - g\bar{\psi}\psi\phi .
+  \label{eq:4.9}
+\end{equation}
+这将是我们的第三个例子。它与 QED 类似，只是把光子换成标量粒子 $\phi$。相互作用项包含一个无量纲的耦合常数 $g$，类似于电子电荷 $e$。Yukawa 最初发明这个理论是为了描述核子（$\psi$）和 $\pi$ 介子（$\phi$）。在现代粒子理论中，标准模型含有将标量希格斯场与夸克和轻子耦合起来的汤川相互作用项；标准模型中大多数自由参数都是汤川耦合常数。
+
+在写下我们的三个范式相互作用之后，让我们稍停片刻，讨论自然界中还能找到哪些其他相互作用。起初看起来这个清单似乎是无限的；即使对于标量理论，我们也可以对任意 $n$ 写下 $\phi^n$ 形式的相互作用。但值得注意的是，一个简单而合理的公理就排除了几乎所有可能的相互作用，只留下少数几个。这个公理就是理论应是\emph{可重整化的}，它的由来如下。正如第 1 章中提到的，微扰理论中的高阶项将涉及对中间（"虚"）粒子 4-动量的积分。这些积分通常形式上是发散的，因此一般必须施加某种截断程序；最简单的办法就是把积分截断在某个很大但有限的动量 $\Lambda$ 处。在计算结束时取极限 $\Lambda\to\infty$，并希望物理量最终与 $\Lambda$ 无关。如果事实确实如此，就说该理论是可重整化的。
+
+然而，假设理论包含的相互作用的耦合常数具有质量的某个负幂次量纲。那么为了得到无量纲的散射振幅，这个耦合常数就必须乘以某个具有正质量量纲的量，而这个量恰恰就是 $\Lambda$。这样的项在 $\Lambda\to\infty$ 时发散，因此该理论不可重整化。
+
+我们将在第 10 章详细讨论这些问题。目前我们只需注意到，任何含有负质量量纲耦合常数的理论都不可重整化。稍加量纲分析就能让我们排除几乎所有候选相互作用。由于作用量 $S = \int\mathcal{L}\,d^4x$ 是无量纲的，$\mathcal{L}$ 必须具有量纲 $(\mathrm{mass})^4$（或者说量纲 4）。从各种自由拉格朗日量的动能项可以看出，标量场和矢量场 $\phi$ 与 $A^\mu$ 的量纲为 1，而旋量场 $\psi$ 的量纲为 $3/2$。现在我们就可以把所有允许的可重整化相互作用列成表格。
+
+对于只涉及标量的理论，允许的相互作用项为
+\begin{equation}
+  \mu\phi^3 \qquad\text{和}\qquad \lambda\phi^4 .
+\end{equation}
+耦合常数 $\mu$ 的量纲为 1，而 $\lambda$ 是无量纲的。$n>4$ 的 $\phi^n$ 形式的项是不允许的，因为它们的耦合常数量纲将是 $4-n$。当然，通过引入多个标量场（实的或复的）可以得到更有趣的理论（见习题 4.3）。
+
+接下来我们可以加入旋量场。旋量自相互作用是不允许的，因为 $\bar{\psi}\psi^3$（除了违反洛伦兹不变性之外）已经具有量纲 $9/2$。因此唯一允许的新相互作用是汤川项，
+\begin{equation}
+  g\bar{\psi}\psi\phi,
+\end{equation}
+尽管类似的相互作用也可以用 Weyl 旋量和 Majorana 旋量来构造。
+
+当我们加入矢量场时，会出现许多新的相互作用。最熟悉的是 QED 的矢量-旋量相互作用，
+\begin{equation}
+  e\bar{\psi}\gamma^\mu\psi A_\mu .
+\end{equation}
+同样，用 Weyl 旋量和 Majorana 旋量也很容易构造类似的项。次要的是标量 QED 拉格朗日量，
+\begin{equation}
+  \mathcal{L} = |D_\mu\phi|^2 - m^2|\phi|^2,
+\end{equation}
+它包含
+\begin{equation}
+  eA^\mu\phi^{*}\partial_\mu\phi,\qquad e^2|\phi|^2A^2 .
+\end{equation}
+这是我们遇到的第一个导数相互作用的例子；用泛函积分形式量子化这个理论会容易得多，所以我们将它的讨论推迟到第 9 章。涉及矢量的其他可能的洛伦兹不变项有
+\begin{equation}
+  A^2(\partial_\mu A^\mu) \qquad\text{和}\qquad A^4 .
+\end{equation}
+虽然这一点远非显而易见，但除非它们的耦合常数是基于一种特殊的对称性而精心选取的（这种对称性必须涉及多个矢量场），否则这些项会导致不一致性。这种对称性是非阿贝尔规范理论的基础，将成为第三编的主要课题。矢量场的质量项 $\tfrac{1}{2}m^2A^2$ 也是不一致的，除非在把它加到 QED 上的特殊情形；无论如何，它都会破坏（阿贝尔或非阿贝尔）规范不变性。
+
+这就穷尽了涉及标量、旋量和矢量粒子的可能拉格朗日量的清单。有趣的是，目前公认的强、弱和电磁相互作用模型包含了上面列出的所有类型的相互作用。本章将要研究的三个范式相互作用几乎覆盖了这些可能性的二分之一；本书后面将详细研究其余的相互作用。
+
+真实的理论必须可重整化这一假设当然是方便的，因为一个不可重整化的理论几乎没有预言能力。然而，人们或许仍会问，为什么自然界如此仁慈，只使用可重整化的相互作用。人们或许会预期，自然界真正的理论应该是更一般类型的量子理论。但可以证明，无论一个基本理论在很高能量下看起来多么复杂，我们在实验中看到的这一理论的低能近似都应该是可重整化的量子场论。我们将在第 12.1 节证明这一点。
+
+在更实际的层面上，上述分析凸显了非相对论量子力学与相对论量子场论在方法论上的巨大差异。由于薛定谔方程中出现的势 $V(\mathbf{r})$ 完全任意，非相对论量子力学对真实世界中可能存在的相互作用不作任何限制。但我们刚刚看到，量子场论对自然界施加了非常严格的约束（反之亦然）。从字面上看，我们的讨论意味着留给粒子物理学家的任务只剩下清点存在的基本粒子并测量它们的质量和耦合常数。虽然这种观点也许过于傲慢，但事实是它竟然可以被设想，这无疑是粒子物理学家正走在通往基本理论的正确轨道上的一个迹象。
+
+给定一组粒子和耦合，我们仍必须研究出实验后果。我们如何分析一个相互作用场论的量子力学？如果我们能显式地求解至少少数几个例子（也就是说，像我们在自由理论中所做的那样求出精确的本征值和本征矢）来感受相互作用理论的性质，那将是很不错的。不幸的是，说来容易做来难。在超过两个时空维度中，还没有已知的精确可解的相互作用场论，即使在那里，可解模型也涉及特殊的对称性和相当大的技术复杂性。%
+\footnote{这些被称为共形场论的理论是当前大量文献的主题。参见例如 Ginsparg (1988) 和 Cardy (1987) 的综述。}
+研究这些理论会很有意思，但在现阶段恐怕不值得花这样的力气。相反，我们将退回到一个更简单、更具普遍适用性的方法：把相互作用项 $H_{\mathrm{int}}$ 当作微扰，在可行的范围内尽可能深入地计算它在微扰理论中的效应，并希望耦合常数足够小，使得这能给出对精确答案的合理近似。事实上，我们得到的微扰级数在结构上将非常简单；通过使用费曼图，至少可以把相互作用的效应可视化到任意高阶。
+
+相对论场论微扰级数的这种简化是 Tomonaga、Schwinger 和 Feynman 的伟大贡献。为了达到这种简化，他们每个人都独立地找到了一种重新表述量子力学以消除时间的特殊作用的方法，然后把各自的新形式应用于电动力学。我们将在这里使用的相互作用绘景形式是 Tomonaga 和 Schwinger 的；Feynman 的方法——我们将在第 9 章讨论——是用路径积分表述的。
+
+\section{关联函数的微扰展开}
+
+场论的微扰论方法建立在量子力学的少数几个假设和结果之上，我们将以适合我们目的的方式在这里陈述它们。在粒子处于与时间无关的势中的量子力学里，人们常常使用薛定谔绘景，其中算符与时间无关，态服从薛定谔方程。这种绘景不太适合场论，因为出现在像 \eqref{eq:4.1} 这样的哈密顿量中的场即使在海森堡绘景中也具有显式的时间依赖自变量。\emph{相互作用绘景}是一种混合绘景：我们可以写
+\begin{equation}
+  \phi(x) = U^{\dagger}(t,t_0)\ \phi_I(x)\ U(t,t_0),
+  \label{eq:4.10}
+\end{equation}
+其中 $t$ 是时空点 $x$ 的时间坐标，且
+\begin{equation}
+  \phi_I(x) = e^{iH_0(t-t_0)}\phi(\mathbf{x},t_0)e^{-iH_0(t-t_0)}
+\end{equation}
+是该场在\emph{自由}哈密顿量 $H_0$ 下演化而来的，而 $H_0$ 是薛定谔绘景中的相互作用哈密顿量。相互作用绘景场 $\phi_I$ 服从自由场的运动方程，因此它具有我们在第 2 章导出的显式傅里叶分解。相互作用绘景哈密顿量为
+\begin{equation}
+  H_I = e^{iH_0(t-t_0)}H_{\mathrm{int}}e^{-iH_0(t-t_0)} .
+  \label{eq:4.11}
+\end{equation}
+
+我们还需要下面的结果，我们不加以证明地陈述它：全哈密顿量 $H$ 的相互作用场基态 $|\Omega\rangle$ 可以通过时序指数用自由真空 $|0\rangle$ 来表示。具体地说，海森堡绘景场 $\phi(x)$ 与相互作用绘景场 $\phi_I(x)$ 的关系为
+\begin{equation}
+  \phi(x) = U^{\dagger}(t, t_0)\,\phi_I(x)\,U(t, t_0),
+  \label{eq:4.12}
+\end{equation}
+其中 $U$ 是时间演化算符。如果 $t_0 = -\infty(1-i\epsilon)$ 且 $t = +\infty(1-i\epsilon)$，则两个真空之间的关系为
+\begin{equation}
+  |\Omega\rangle = \lim_{T\to\infty(1-i\epsilon)}
+    \bigl( e^{-iE_0T}\langle\Omega|0\rangle \bigr)^{-1}\ e^{-iHT}\ |0\rangle ,
+  \label{eq:4.13}
+\end{equation}
+其中 $E_0 = \langle\Omega|H|\Omega\rangle$。因子 $e^{-iE_0T}$ 是一个 c 数，它将与我们最终表达式分母中一个类似的因子相消。
+
+我们现在要计算两点关联函数
+\begin{equation}
+  \langle\Omega|T\phi(x)\phi(y)|\Omega\rangle .
+  \label{eq:4.14}
+\end{equation}
+利用 \eqref{eq:4.12}--\eqref{eq:4.13}，这可以改写为
+\begin{equation}
+  \langle\Omega|T\phi(x)\phi(y)|\Omega\rangle
+  = \lim_{T\to\infty(1-i\epsilon)}
+    \frac{\langle 0|T\bigl\{ \phi_I(x)\phi_I(y)
+      \exp\bigl[-i\int_{-T}^{T}dt\ H_I(t)\bigr]\bigr\}|0\rangle}
+      {\langle 0|T\bigl\{ \exp\bigl[-i\int_{-T}^{T}dt\ H_I(t)\bigr]\bigr\}|0\rangle} .
+  \label{eq:4.15}
+\end{equation}
+这就是盖尔曼-洛公式。将指数按相互作用哈密顿量的幂次展开就给出微扰级数。
+
+现在的问题是把完整的海森堡场 $\phi$ 用 $\phi_I$ 表示出来。形式上，它只是
+\begin{equation}
+  \phi(x) = U^{\dagger}(t, t_0)\,\phi_I(x)\,U(t, t_0),
+  \label{eq:4.16}
+\end{equation}
+其中我们定义了幺正算符
+\begin{equation}
+  U(t, t_0) = e^{iH_0(t-t_0)}e^{-iH(t-t_0)},
+  \label{eq:4.17}
+\end{equation}
+称为相互作用绘景传播子或时间演化算符。我们希望完全用 $\phi_I$ 来表示 $U(t, t_0)$，因为对 $\phi_I$ 我们有它在阶梯算符下的显式表达式。要做到这一点，我们注意到 $U(t, t_0)$ 是某个简单微分方程（薛定谔方程）的、具有初始条件 $U(t_0, t_0) = 1$ 的唯一解：
+\begin{equation}
+  i\frac{\partial}{\partial t}U(t, t_0)
+    = e^{iH_0(t-t_0)}(H-H_0)e^{-iH(t-t_0)}
+    = H_I(t)U(t, t_0),
+  \label{eq:4.18}
+\end{equation}
+其中
+\begin{equation}
+  H_I(t) = e^{iH_0(t-t_0)}H_{\mathrm{int}}e^{-iH_0(t-t_0)}
+  = \int d^3x\ \mathcal{H}_I(x)
+  \label{eq:4.19}
+\end{equation}
+是写在相互作用绘景中的相互作用哈密顿量。这个关于 $U(t, t_0)$ 的微分方程的解应该具有类似 $U \sim \exp(-iH_It)$ 的形式；这正是我们想要的、把 $U$ 用 $\phi_I$ 表示的公式。更仔细地做这件事，我们将证明实际的解是下面这个关于 $\lambda$ 的幂级数：
+\begin{equation}
+  \begin{aligned}
+    U(t, t_0) = 1 &+ (-i)\int_{t_0}^{t}dt_1\ H_I(t_1)
+      + (-i)^2\int_{t_0}^{t}dt_1\int_{t_0}^{t_1}dt_2\ H_I(t_1)H_I(t_2)\\
+    &+ (-i)^3\int_{t_0}^{t}dt_1\int_{t_0}^{t_1}dt_2\int_{t_0}^{t_2}dt_3\
+      H_I(t_1)H_I(t_2)H_I(t_3) + \cdots .
+  \end{aligned}
+  \label{eq:4.20}
+\end{equation}
+要验证这一点，只需对它求导：每一项都给出前一项乘以 $-iH_I(t)$。当 $t=t_0$ 时初始条件 $U(t_0, t_0) = 1$ 显然被满足。注意 \eqref{eq:4.20} 中各个 $H_I$ 因子按时间顺序排列，时间较晚的在左边。这使得我们能够利用时序符号 $T$ 大大简化这个表达式。例如，$H_I^2$ 项可以写成
+\begin{equation}
+  \int_{t_0}^{t}dt_1\int_{t_0}^{t_1}dt_2\ H_I(t_1)H_I(t_2)
+    = \frac{1}{2}\int_{t_0}^{t}dt_1\int_{t_0}^{t}dt_2\
+      T\{H_I(t_1)H_I(t_2)\} .
+  \label{eq:4.21}
+\end{equation}
+右边的二重积分只是把一切数了两遍，因为在 $t_1$--$t_2$ 平面中，被积函数 $T\{H_I(t_1)H_I(t_2)\}$ 关于直线 $t_1 = t_2$ 对称（见图~\ref{fig:4.1}）。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.4\textwidth]{fig4.1.png}
+  \caption{式~\eqref{eq:4.21} 的几何解释。}
+  \label{fig:4.1}
+\end{figure}
+
+一个类似的恒等式对更高阶的项也成立：
+\begin{equation}
+  \int_{t_0}^{t}dt_1\int_{t_0}^{t_1}dt_2\cdots\int_{t_0}^{t_{n-1}}dt_n\
+    H_I(t_1)\cdots H_I(t_n)
+    = \frac{1}{n!}\int_{t_0}^{t}dt_1\cdots\int_{t_0}^{t}dt_n\
+      T\{H_I(t_1)\cdots H_I(t_n)\} .
+\end{equation}
+这个情形稍微难以直观理解，但说服自己相信它是真的并不难。利用这个恒等式，我们现在可以把 $U(t, t_0)$ 写成一个极其紧凑的形式：
+\begin{equation}
+  U(t, t_0) = 1 + (-i)\int_{t_0}^{t}dt_1\ H_I(t_1)
+    + \frac{(-i)^2}{2}\int_{t_0}^{t}dt_1\int_{t_0}^{t}dt_2\
+      T\{H_I(t_1)H_I(t_2)\} + \cdots
+  = T\Bigl\{ \exp\Bigl[ -i\int_{t_0}^{t}dt_1\ H_I(t_1) \Bigr] \Bigr\},
+  \label{eq:4.22}
+\end{equation}
+其中指数的时序只是定义为每一项都按时间排序的泰勒级数。当我们做实际计算时，将只保留级数的前几项；时序指数只是书写和记忆正确表达式的一种紧凑方式。
+
+我们现在已经完全掌握了 $\phi(t,\mathbf{x})$；正如所愿，我们已经把它完全用 $\phi_I$ 表示出来。然而，在继续考虑 $|\Omega\rangle$ 之前，方便起见我们先推广 $U$ 的定义，允许它的第二个自变量取除了我们的"参考时间" $t_0$ 之外的值。正确的定义很自然：
+\begin{equation}
+  U(t, t') = T\Bigl\{ \exp\Bigl[ -i\int_{t'}^{t}dt''\ H_I(t'') \Bigr] \Bigr\},
+  \qquad (t > t') .
+  \label{eq:4.23}
+\end{equation}
+从这个定义可以推出若干性质，有必要对它们加以验证。首先，$U(t, t')$ 满足同样的微分方程 \eqref{eq:4.18}，
+\begin{equation}
+  i\frac{\partial}{\partial t}U(t, t') = H_I(t)U(t, t'),
+  \label{eq:4.24}
+\end{equation}
+但现在初始条件为当 $t = t'$ 时 $U = 1$。由这个方程你可以证明
+\begin{equation}
+  U^{\dagger}(t, t') = U^{-1}(t, t'),
+  \label{eq:4.25}
+\end{equation}
+这证明 $U$ 是幺正的。最后，$U(t, t')$ 满足下列恒等式（对 $t_1 > t_2 > t_3$）：
+\begin{equation}
+  U(t_1, t_2)U(t_2, t_3) = U(t_1, t_3);
+  \qquad U(t_1, t_3)\bigl[U(t_2, t_3)\bigr]^{-1} = U(t_1, t_2) .
+  \label{eq:4.26}
+\end{equation}
+
+现在我们接着讨论 $|\Omega\rangle$。由于 $|\Omega\rangle$ 是 $H$ 的基态，我们可以通过下面的程序把它分离出来。设想从 $H_0$ 的基态 $|0\rangle$ 出发，用 $H$ 随时间演化：
+\begin{equation}
+  e^{-iHT}|0\rangle = \sum_n e^{-iE_nT}|n\rangle\langle n|0\rangle,
+\end{equation}
+其中 $E_n$ 是 $H$ 的本征值。我们必须假设 $|\Omega\rangle$ 与 $|0\rangle$ 有某种重叠，即 $\langle\Omega|0\rangle\neq 0$（如果不是这样，$H_I$ 就绝不可能是一个小微扰）。于是上述级数包含 $|\Omega\rangle$，我们可以写
+\begin{equation}
+  e^{-iHT}|0\rangle = e^{-iE_0T}|\Omega\rangle\langle\Omega|0\rangle
+    + \sum_{n\neq 0}e^{-iE_nT}|n\rangle\langle n|0\rangle .
+\end{equation}
+由于对所有 $n\neq 0$ 都有 $E_n > E_0$，我们可以让 $T$ 沿略带虚部的方向趋于 $\infty$：$T\to\infty(1-i\epsilon)$，从而消去级数中所有 $n\neq 0$ 的项。此时指数因子 $e^{-iE_nT}$ 对 $n=0$ 衰减得最慢，于是我们得到
+\begin{equation}
+  |\Omega\rangle = \lim_{T\to\infty(1-i\epsilon)}
+    \bigl( e^{-iE_0T}\langle\Omega|0\rangle \bigr)^{-1}\ e^{-iHT}\ |0\rangle .
+  \label{eq:4.27}
+\end{equation}
+由于现在 $T$ 非常大，我们可以把它平移一个小常数：
+\begin{equation}
+  \begin{aligned}
+    |\Omega\rangle &= \lim_{T\to\infty(1-i\epsilon)}
+      \bigl( e^{-iE_0(t_0-(-T))}\langle\Omega|0\rangle \bigr)^{-1}
+      \ e^{-iH(t_0-(-T))}\ |0\rangle\\
+    &= \lim_{T\to\infty(1-i\epsilon)}
+      \bigl( e^{-iE_0(t_0-(-T))}\langle\Omega|0\rangle \bigr)^{-1}
+      \ e^{-iH(t_0-(-T))}e^{-iH_0(-T-t_0)}\ |0\rangle\\
+    &= \lim_{T\to\infty(1-i\epsilon)}
+      \bigl( e^{-iE_0(t_0-(-T))}\langle\Omega|0\rangle \bigr)^{-1}
+      \ U(t_0, -T)\ |0\rangle .
+  \end{aligned}
+  \label{eq:4.28}
+\end{equation}
+在第二行我们用了 $H_0|0\rangle = 0$。忽略前面的 c 数因子，这个表达式告诉我们，只要用算符 $U$ 把 $|0\rangle$ 从时间 $-T$ 演化到时间 $t_0$ 就能得到 $|\Omega\rangle$。类似地，我们可以把 $\langle\Omega|$ 表示为
+\begin{equation}
+  \langle\Omega| = \lim_{T\to\infty(1-i\epsilon)}
+    \frac{\langle 0|\,U(T, t_0)}
+      {e^{-iE_0(T-t_0)}\langle 0|\Omega\rangle} .
+\end{equation}
+
+现在我们可以来求 \eqref{eq:4.15} 的分子了。最有效的方法是通过\emph{威克定理}，我们现在就来介绍它。威克定理把场的时序乘积表示成带所有可能收缩的正规乘积之和。我们把两个场的\emph{收缩}定义为
+\begin{equation}
+  \begin{array}{c}
+    \overbrace{\phi_I(x)\phi_I(y)}
+  \end{array}
+  = \begin{cases}
+    [\phi_I^+(x), \phi_I^-(y)] & \text{若 } x^0 > y^0,\\
+    [\phi_I^-(y), \phi_I^+(x)] & \text{若 } y^0 > x^0,
+  \end{cases}
+  = D_F(x-y) ,
+  \label{eq:4.29}
+\end{equation}
+其中 $\phi_I^+$ 和 $\phi_I^-$ 是场的产生部分和湮灭部分。威克定理说，时序乘积可以展开为
+\begin{equation}
+  T\{\phi(x_1)\cdots\phi(x_m)\} = N\{
+    \phi(x_1)\cdots\phi(x_m) + \text{所有可能的收缩} \},
+  \label{eq:4.30}
+\end{equation}
+其中记号"所有可能的收缩"表示我们对把场两两收缩的所有方式求和（每对被收缩的场用它的收缩 $D_F$ 代替），同时保持场的原有顺序。
+
+让我们来证明威克定理。自然地，证明是对场的数目 $m$ 作归纳。我们已经证明了 $m=2$ 的情形。所以假设定理对 $m-1$ 个场成立，并尝试对 $m$ 个场证明它。不失一般性，我们可以把自己限制在 $x^0_1 > x^0_2 > \cdots > x^0_m$ 的情形；如果不是这样，我们只需重新标记这些点，而不影响 \eqref{eq:4.30} 的任何一边。于是对 $\phi_2\cdots\phi_m$ 应用威克定理，我们得到
+\begin{equation}
+  \begin{aligned}
+    T\{\phi_1\cdots\phi_m\} &= \phi_1\cdots\phi_m\\
+    &= \phi_1\,N\Bigl\{ \phi_2\cdots\phi_m + \bigl(\text{所有不涉及 }
+      \phi_1 \text{ 的收缩}\bigr) \Bigr\}\\
+    &= \phi_1^+N\Bigl\{ \cdots \Bigr\}
+      + \phi_1^-N\Bigl\{ \cdots \Bigr\} .
+  \end{aligned}
+  \label{eq:4.31}
+\end{equation}
+我们想把 $\phi_1^+$ 和 $\phi_1^-$ 移入 $N\{\}$ 内部。对 $\phi_1^+$ 项这很容易：直接把它移进去即可，因为（它位于左边）它已经在正规序中了。含 $\phi_1^-$ 的项必须通过与右边所有其他 $\phi$ 对易来化成正规序。例如，考虑没有收缩的项：
+\begin{equation}
+  \begin{aligned}
+    \phi_1^-N(\phi_2\cdots\phi_m) &= N(\phi_2\cdots\phi_m)\phi_1^-
+      + N\Bigl\{ [\phi_1^-, \phi_2]\phi_3\cdots\phi_m
+        + \phi_2[\phi_1^-, \phi_3]\phi_4\cdots\phi_m + \cdots \Bigr\}\\
+    &= N\bigl\{ \phi_1^-\phi_2\cdots\phi_m
+      + \phi_1\phi_2\phi_3\cdots\phi_m + \cdots \bigr\} .
+  \end{aligned}
+  \label{eq:4.32}
+\end{equation}
+最后一行的第一项与来自 \eqref{eq:4.31} 的 $\phi_1^+$ 项的一部分合并，给出 $N\{\phi_1\phi_2\cdots\phi_m\}$，于是我们现在得到了威克定理右边的第一项，以及所有涉及 $\phi_1$ 与另一个场单次收缩的项。类似地，\eqref{eq:4.31} 中包含一次收缩的项将产生所有同时包含该收缩以及 $\phi_1$ 与另一个场之间收缩的项。对 \eqref{eq:4.31} 的所有项都这样做，我们最终得到所有场的所有可能收缩，包括 $\phi_1$。这样归纳步骤就完成了，威克定理得证。
+
+\section{费曼图}
+
+威克定理允许我们把任何如下形式的表达式
+\begin{equation}
+  \langle 0|T\{\phi_I(x_1)\phi_I(x_2)\cdots\phi_I(x_n)\}|0\rangle
+\end{equation}
+变成费曼传播子乘积之和。现在我们准备为这样的表达式建立一种图解式的诠释。首先考虑四个场、全部位于不同时空点的情形，这我们在式~\eqref{eq:4.30} 中已经处理过。让我们用点来代表 $x_1$ 到 $x_4$ 中的每一个点，用连接 $x$ 与 $y$ 的线来代表每一个因子 $D_F(x-y)$。于是式~\eqref{eq:4.30} 可以表示成三个图（称为费曼图）之和：
+\begin{equation}
+  \langle 0|T\phi_1\phi_2\phi_3\phi_4|0\rangle = D_F(x_1-x_2)D_F(x_3-x_4)
+    + D_F(x_1-x_3)D_F(x_2-x_4)
+    + D_F(x_1-x_4)D_F(x_2-x_3) .
+  \label{eq:4.42}
+\end{equation}
+虽然这并非严格意义上的可测量量，但这些图确实提示了一种诠释：粒子在两个时空点产生，每一个传播到另一个点，然后它们被湮灭。这可以通过三种方式发生，对应于把点两两连接的三种方式，如这三个图所示。这一过程的总振幅是三个图之和。
+
+当表达式在同一时空点包含不止一个场时，事情变得更有趣了。因此让我们现在回到两点函数 $\langle\Omega|T\{\phi(x)\phi(y)\}|\Omega\rangle$ 的计算，并利用公式 \eqref{eq:4.15}。在本节结束之前我们将忽略分母。把指数展开成幂级数后，分子为
+\begin{equation}
+  \langle 0|T\Bigl\{ \phi(x)\phi(y)
+    \Bigl[ 1 + (-i)\int dt\ H_I(t) + \cdots \Bigr] \Bigr\}|0\rangle .
+  \label{eq:4.43}
+\end{equation}
+第一项给出自由场的结果 $\langle 0|T\{\phi(x)\phi(y)\}|0\rangle = D_F(x-y)$。在 $\phi^4$ 理论中，第二项为
+\begin{equation}
+  \langle 0|T\Bigl\{ \phi(x)\phi(y)(-i)\int dt\int d^3z\
+    \frac{\lambda}{4!}\phi^4 \Bigr\}|0\rangle
+  = \langle 0|T\Bigl\{ \phi(x)\phi(y)
+    \Bigl( -\frac{i\lambda}{4!} \Bigr)\int d^4z\
+      \phi(z)\phi(z)\phi(z)\phi(z) \Bigr\}|0\rangle .
+\end{equation}
+现在应用威克定理。把六个 $\phi$ 算符两两收缩的每一种方式都给出一个项。共有 15 种做法，但（幸运的是）其中只有两种真正不同。如果我们把 $\phi(x)$ 与 $\phi(y)$ 收缩，那么把四个 $\phi(z)$ 彼此收缩有三种方式，这三种给出完全相同的表达式。另一种可能是把 $\phi(x)$ 与某一个 $\phi(z)$ 收缩（四种选择），把 $\phi(y)$ 与另一个收缩（三种选择），剩下的两个 $\phi(z)$ 彼此收缩（一种选择）。这样做有十二种方式，它们也都给出相同的表达式。于是我们得到
+\begin{equation}
+  \begin{aligned}
+    \langle 0|T\Bigl\{ \phi(x)\phi(y)(-i)\int dt\int d^3z\
+      \frac{\lambda}{4!}\phi^4 \Bigr\}|0\rangle
+    &= 3\cdot\Bigl( -\frac{i\lambda}{4!} \Bigr)\ D_F(x-y)\
+      \int d^4z\ D_F(z-z)D_F(z-z)\\
+    &\quad + 12\cdot\Bigl( -\frac{i\lambda}{4!} \Bigr)\
+      \int d^4z\ D_F(x-z)D_F(y-z)D_F(z-z) .
+  \end{aligned}
+  \label{eq:4.44}
+\end{equation}
+如果我们把每一项表示成费曼图，就能更好地理解这个表达式。同样，我们把每一个收缩 $D_F$ 画成一条线，把每一个点画成一个点。但这一次我们必须区分"外"点 $x$ 和 $y$ 与"内"点 $z$；每一个内点与一个因子 $(-i\lambda)\int d^4z$ 相关联。常数因子我们一会儿再担心。利用这些规则，我们看到上面的表达式 \eqref{eq:4.44} 等于两个图之和：
+\begin{equation}
+  \begin{aligned}
+    &\underbrace{---\!(x)---\!\bigcirc\!---(y)---}_{\text{不连通的}}
+      \qquad + \qquad
+    \underbrace{(x)\!-\!-\!\cdot\!-\!-\!-\!\bigcirc\!-\!-\!-\!\cdot\!-\!-\!(y)}
+      {\text{连通的}} .
+  \end{aligned}
+\end{equation}
+我们把图中间的这些线称为\emph{传播子}，因为它们代表传播振幅 $D_F$。四条线相交的内点称为\emph{顶点}。由于 $D_F(x-y)$ 是自由 Klein--Gordon 粒子在 $x$ 与 $y$ 之间传播的振幅，这些图实际上把解析公式诠释为发生在时空中的粒子产生、传播和湮灭过程。
+
+现在让我们尝试一个更复杂的收缩，来自关联函数展开中的 $\lambda^3$ 项：
+\begin{equation}
+  \begin{aligned}
+    &\langle 0|\ \phi(x)\phi(y)\ \frac{1}{3!}\Bigl( -\frac{i\lambda}{4!}
+      \Bigr)^3 \int d^4z\,d^4w\,d^4u\ \phi^4(z)\phi^4(w)\phi^4(u)\ |0\rangle\\
+    &= \int d^4z\,d^4w\,d^4u\ D_F(x-z)D_F(z-z)D_F(z-w)
+      \times D_F(w-y)D_F^2(w-u)D_F(u-u) .
+  \end{aligned}
+  \label{eq:4.45}
+\end{equation}
+给出这同一表达式的"不同"收缩数目很大：
+\begin{equation}
+  \underbrace{3!}_{\substack{\text{顶点的}\\ \text{交换}}}
+  \times \underbrace{\frac{4\cdot 3}{2}}_{\substack{\text{收缩在 }z\text{ 中的}\\ \text{放置}}}
+  \times \underbrace{\frac{4\cdot 3\cdot 2}{2!}}_{\substack{\text{收缩在 }w\text{ 中的}\\ \text{放置}}}
+  \times \underbrace{\frac{4\cdot 3\cdot 2}{2!}}_{\substack{\text{收缩在 }u\text{ 中的}\\ \text{放置}}}
+  \times \underbrace{\frac{1}{2}}_{\substack{w-u\text{ 收缩的}\\ \text{交换}}} .
+\end{equation}
+这些组合因子的乘积是 10,368，约为 14 个算符全部可能收缩总数 135,135 的 $1/13$。这个特定收缩的结构可以用下面的"仙人掌"图来表示：
+\begin{equation}
+  (x)\!-\!-\!\bigcirc_{z}\!-\!-\!\bigcirc_{w}\!-\!-\!(y)
+  \qquad\text{在 } z \text{ 和 } u \text{ 处带有自收缩} .
+\end{equation}
+出于显而易见的原因，通常让这一个图代表全部 10,368 个相同项之和。
+
+在实践中，人们总是先画图，把它当作写出解析表达式的助记手段。但随即出现一个问题：总的常数是多少？当然，我们可以像上面那样把它算出来：我们可以把因子 $\int d^4z\,(-i\lambda/4!)$ 与每个顶点相关联，放入来自泰勒级数的 $1/n!$，然后通过像 \eqref{eq:4.45} 那样写出场的乘积并计数来做组合分析。但来自泰勒级数的 $1/n!$ 几乎总是会与来自交换顶点的 $n!$ 相消，所以我们可以干脆忘掉这两个因子。此外，一般的顶点有来自四个不同地方的四条线，因此这些收缩在 $\phi\phi\phi\phi$ 中的各种放置方式产生一个 $4!$ 因子（如上文 $w$ 顶点处），它消掉了 $(-i\lambda/4!)$ 中的分母。因此通常把表达式 $\int d^4z\,(-i\lambda)$ 与每个顶点相关联。（这就是 $\phi^4$ 耦合中 $4!$ 因子的由来。）
+
+在上述图中，这个方案给出的常数偏大一个因子 $8 = 2\cdot2\cdot2$，即该图的\emph{对称因子}。两个 2 因子来自在同一条顶点上起始并结束的线：图在交换这样一条线的两端时是对称的。另一个 2 因子来自连接 $w$ 与 $u$ 的两个传播子：图在交换这两条线彼此的位置时是对称的。第三种可能的对称类型是两个顶点等价。要得到图正确的总常数，我们除以它的对称因子，它一般是交换分量而不改变图的数目。
+
+大多数人从来不需要计算对称因子大于 2 的图，所以没有必要过分担心这些技术细节。但这里有几个例子，以帮助理解上述规则：
+\begin{equation}
+  \begin{array}{ccc}
+    \text{图 } (x)\!-\!-\!(y) & \text{在 } x \text{ 和 } y \text{ 处的自圈} &
+      \text{在 } x \text{ 和 } y \text{ 之间的两个传播子}\\
+    S = 2 & S = 2\cdot2\cdot2 = 8 & S = 2
+  \end{array}
+\end{equation}
+当有疑问时，你总是可以通过像我们上面那样计数等价收缩来确定对称因子。
+
+现在我们准备总结计算分子的规则
+\begin{equation}
+  \lim_{T\to\infty(1-i\epsilon)}
+    \langle 0|T\Bigl\{ \phi_I(x)\phi_I(y)\exp\Bigl[ -i\int_{-T}^{T}dt\ H_I(t)
+      \Bigr] \Bigr\}|0\rangle .
+\end{equation}
+按照下列规则，画出所有具有两个外点的可能的图：
+\begin{enumerate}
+  \item 对每一个传播子，
+    \begin{equation}
+      \begin{array}{c}
+        \overbrace{\phi_I(x)\phi_I(y)}
+      \end{array} = D_F(x-y),
+    \end{equation}
+    画一条连接 $x$ 与 $y$ 的线。
+  \item 对每一个顶点，
+    \begin{equation}
+      (-i\lambda)\int d^4z,
+    \end{equation}
+    画一个点 $z$，从它引出四条线。
+  \item 对每一个外点，画一个点。
+  \item 除以图的对称因子。
+\end{enumerate}
+
+当我们对前一个方程取极限 $T\to\infty$ 时，对 $T$ 的显式依赖似乎消失了。但考虑图
+\begin{equation}
+  (x)\!-\!-\!\bigcirc
+\end{equation}
+左边顶点的 $\delta$ 函数是 $(2\pi)^4\delta^{(4)}(p_1+p_2)$，因此右边顶点的动量守恒自动得到满足，于是我们在那里得到 $(2\pi)^4\delta^{(4)}(0)$。这个棘手的因子只要回到位置空间就很容易理解。它只不过是一个常数对 $d^4w$ 的积分：
+\begin{equation}
+  \int d^4w\ (\text{const}) \propto (2T)\cdot(\text{空间的体积})
+  \label{eq:4.49}
+\end{equation}
+这不过告诉我们，时空过程 \eqref{eq:4.48} 可以发生在空间的任何地方、$-T$ 与 $T$ 之间的任何时刻。图的每一个不连通部分，即每一个不与外点相连的部分，都有一个这样的 $(2\pi)^4\delta^{(4)}(0) = 2TV$ 因子。
+
+来自这类图的对关联函数的贡献，可以借助一个非常漂亮的恒等式——\emph{不连通图的指数化}——来更好地理解。它的运作方式如下。一个典型的图具有如下形式
+\begin{equation}
+  (x)\!-\!\text{(连通的)}\!-\!(y) \quad\text{再加上若干不连通部分} .
+  \label{eq:4.50}
+\end{equation}
+其中有一部分与 $x$ 和 $y$ 相连，还有若干不连通部分。（由于每个顶点进入的线数是偶数，$x$ 和 $y$ 必须彼此相连。）用 $V_i$ 标记各种可能的不连通部分：
+\begin{equation}
+  V_i \equiv \text{不连通部分 } \mathcal{V}_i \text{ 的值} .
+  \label{eq:4.51}
+\end{equation}
+元素 $\mathcal{V}_i$ 内部连通，但与外点不连通。假设一个图（如 \eqref{eq:4.50}）除了它那一个与 $x$ 和 $y$ 相连的部分之外，对每个 $i$ 还有 $n_i$ 个 $\mathcal{V}_i$ 形式的部分。（在任何给定的图中，只有有限多个 $n_i$ 非零。）如果我们还用 $V_i$ 表示部分 $\mathcal{V}_i$ 的值，那么这个图的值是
+\begin{equation}
+  (\text{连通部分的值}) \cdot \prod_i \frac{V_i^{n_i}}{n_i!} .
+\end{equation}
+$1/n_i!$ 是来自交换 $n_i$ 份 $\mathcal{V}_i$ 的对称因子。代表我们两点关联函数公式分子的所有图之和则为
+\begin{equation}
+  \begin{aligned}
+    \Bigl( \sum_{\text{连通的}} \Bigr)
+      &\times \sum_{\text{所有 } \{n_i\}} \prod_i \frac{V_i^{n_i}}{n_i!}\\
+    &= \Bigl( \sum_{\text{连通的}} \Bigr)
+      \times \prod_i \exp(V_i)
+    = \Bigl( \sum_{\text{连通的}} \Bigr)
+      \times \exp\Bigl( \sum_i V_i \Bigr) .
+  \end{aligned}
+  \label{eq:4.52}
+\end{equation}
+其中"所有 $\{n_i\}$"是指"非负整数的所有有序集 $\{n_1, n_2, n_3, \ldots\}$"。连通部分之和从该表达式中因子化出来。我们刚刚证明了所有图之和等于所有连通图之和乘以所有不连通图之和的指数。（在等式右边我们本当说"部分"而不是"图"，但从现在起我们常常把单独一部分叫作一个"图"。）图示地，该恒等式为
+\begin{equation}
+  \lim_{T\to\infty(1-i\epsilon)}
+    \langle 0|T\Bigl\{ \phi_I(x)\phi_I(y)\exp\Bigl[ -i\int_{-T}^{T}dt\ H_I(t)
+      \Bigr]\Bigr\}|0\rangle
+  = \Bigl( \sum_{\text{连通的}} \Bigr)\times
+    \exp\Bigl( \sum_i V_i \Bigr) .
+  \label{eq:4.53}
+\end{equation}
+
+现在考虑我们两点函数公式 \eqref{eq:4.15} 的分母。通过与上面完全相同的论证，它就是
+\begin{equation}
+  \langle 0|T\Bigl\{ \exp\Bigl[ -i\int_{-T}^{T}dt\ H_I(t) \Bigr]
+    \Bigr\}|0\rangle = \exp\Bigl( \sum_i V_i \Bigr) ,
+\end{equation}
+它与分子中不连通图的指数相消。这就是公式的最终简化，现在它读作
+\begin{equation}
+  \langle\Omega|T\{\phi(x)\phi(y)\}|\Omega\rangle
+  = \text{所有具有两个外点的连通图之和} .
+  \label{eq:4.54}
+\end{equation}
+与我们的原始公式式~\eqref{eq:4.15} 相比，我们已经走了很长的路。
+
+既然已经在我们关联函数的公式中去掉了不连通图，我们不妨稍停片刻，回过头去对它们作物理解释。要看的地方是式~\eqref{eq:4.30}，它可以写成
+\begin{equation}
+  \lim_{T\to\infty(1-i\epsilon)}
+    \frac{\langle 0|T\bigl\{ \phi_I(x)\phi_I(y)
+      \exp[-i\int_{-T}^{T}dt\,H_I(t)]\bigr\}|0\rangle}
+      {\langle 0|\Omega\rangle e^{-iE_0(2T)}\langle\Omega|0\rangle}
+  = \langle\Omega|T\phi(x)\phi(y)|\Omega\rangle .
+\end{equation}
+只看两边的 $T$ 依赖部分，这意味着
+\begin{equation}
+  \exp\Bigl[ \sum_i V_i \Bigr] \propto \exp\bigl\{ -iE_0(2T) \bigr\} .
+  \label{eq:4.55}
+\end{equation}
+由于每一个不连通图 $V_i$ 都包含一个 $(2\pi)^4\delta^{(4)}(0) = 2TV$ 因子，这就给了我们一个真空能量密度（相对于由 $H_0|0\rangle = 0$ 设定的能量零点）的公式：
+\begin{equation}
+  \frac{E_0}{V} = -\frac{i}{2T}\sum_i V_i
+    \Big|_{\text{提出因子 } (2\pi)^4\delta^{(4)}(0)}
+  \label{eq:4.56}
+\end{equation}
+我们应该强调，右边与 $T$ 及（体积）无关；特别是，看到 $E_0$ 正比于空间体积是令人放心的。在第 11 章我们将发现这个公式实际上很有用。
+
+这完成了我们目前对两点关联函数的分析。推广到更高的关联函数很容易：
+\begin{equation}
+  \langle\Omega|T\phi(x_1)\cdots\phi(x_n)|\Omega\rangle
+  = \text{所有具有 } n \text{ 个外点的连通图之和} .
+  \label{eq:4.57}
+\end{equation}
+不连通图像之前一样，通过同样的论证而指数化、因子化并相消。然而，在术语上现在可能存在混淆。所谓"不连通"，我们指的是"与所有外点都不连通"——与 \eqref{eq:4.51} 中完全相同的那些图。（它们有时被称为"真空泡"或"真空到真空跃迁"。）在更高的关联函数中，图也可以在另一种意义上是不连通的。例如，考虑四点函数：
+\begin{equation}
+  \langle\Omega|T\phi_1\phi_2\phi_3\phi_4|\Omega\rangle
+  = \text{所有具有 4 个外点的图之和},
+  \label{eq:4.58}
+\end{equation}
+其中包括外点彼此不连通的图。这类图不指数化也不因子化；它们与完全连通的图（其中从任何一点出发沿线都可以到达任何其他点）一样对振幅有贡献。
+
+注意在 $\phi^4$ 理论中，所有奇数个场的关联函数都为零，因为不可能画出具有奇数个外点的允许图。我们也可以通过回到威克定理来看这一点：相互作用哈密顿量 $H_I$ 含有偶数个场，所以奇数关联函数微扰展开中的所有项都含有奇数个场。但把奇数个场两两完全收缩是不可能的，而只有完全收缩的项才具有非零的真空期望值。
+
+\section{截面与$S$矩阵}
+
+我们现在有了一个极其优美的公式，式~\eqref{eq:4.57}，用来计算一个极其抽象的量：$n$ 点关联函数。我们的下一个任务是寻找同样优美的、用来计算实际可测量量——截面与衰变率——的方法。在本节中，在简要回顾这些量的定义之后，我们将把它们（通过一个相当技术性但也相当仔细的推导）与一个更原始的量——$S$ 矩阵——联系起来。在下一节中，我们将学习如何用费曼图计算 $S$ 矩阵的矩阵元。
+
+\subsection{截面}
+
+探测基本粒子行为（尤其是在高能下）的实验可以分为两类：散射实验和衰变实验。在散射实验中，我们使具有确定动量的粒子相互碰撞，并测量末态粒子的动量和角分布。核心观测量是\emph{截面} $\sigma$，它本质上是某一特定散射过程的概率，归一化到单位入射流强和单位靶密度。对两体初态 $A+B$，截面定义为
+\begin{equation}
+  \sigma = \frac{1}{N_A N_B}\ \times\ \text{(每单位时间每单位体积内的散射事件数)} ,
+  \label{eq:4.59}
+\end{equation}
+其中 $N_A$ 和 $N_B$ 是粒子 $A$ 和 $B$ 的数密度。
+
+要在场论中计算 $\sigma$，我们需要把它与理论的跃迁振幅联系起来。物理图像如下。我们设想在时间 $t\to-\infty$ 时系统处于自由粒子态，这些粒子彼此充分分离，我们称之为"入"态。随着时间增加，粒子发生相互作用，在 $t\to+\infty$ 时系统演化为自由粒子"出"态的叠加。入态与出态之间的跃迁振幅定义了 $S$ 矩阵。要在微扰理论中计算它们，我们使用相互作用绘景：入态与出态由 $S$ 矩阵联系起来，
+\begin{equation}
+  \langle \text{出}|S|\text{入}\rangle .
+  \label{eq:4.60}
+\end{equation}
+$S$ 矩阵定义为
+\begin{equation}
+  S = \lim_{T\to\infty} U(T, -T)
+    = T\Bigl\{ \exp\Bigl[ -i\int_{-\infty}^{\infty}dt\ H_I(t) \Bigr] \Bigr\} .
+  \label{eq:4.61}
+\end{equation}
+在相互作用绘景中，初态是具有确定动量的自由粒子态的叠加。为了计算散射振幅，我们考虑由态 $|\mathbf{k}_A\rangle$ 和 $|\mathbf{k}_B\rangle$ 构造的波包初态：
+\begin{equation}
+  |\phi_A\phi_B\rangle_{\mathrm{in}} = \int
+    \frac{d^3k_A}{(2\pi)^3}\ \frac{\phi_A(\mathbf{k}_A)e^{-ib\cdot\mathbf{k}_A}}
+      {\sqrt{2E_A}}
+    \int \frac{d^3k_B}{(2\pi)^3}\ \frac{\phi_B(\mathbf{k}_B)}
+      {\sqrt{2E_B}}\ |\mathbf{k}_A\mathbf{k}_B\rangle_{\mathrm{in}} .
+  \label{eq:4.68}
+\end{equation}
+其中 $b$ 是碰撞参数。我们本来可以把 $\langle\phi_1\phi_2\cdots|$ 用渐近未来中形成的、类似定义的确定动量出态来展开。%
+\footnote{在此及下文中，乘积符号（象征性地）既作用于积分，也作用于括号中的其他因子；积分也同样作用于括号外的部分。}
+然而，更简单得多的做法是，在概率振幅中把确定动量的出态当作末态，并在对振幅平方之后再乘以各种归一化因子。只要末态粒子探测器主要测量动量——也就是说，它们不分辨到德布罗意波长量级的位置——这在物理上就是合理的。
+
+现在我们可以在真实实验中散射的概率与渐近定义的确定动量入态和出态之间一组理想化的跃迁振幅之间建立联系，
+\begin{equation}
+  {}_{\mathrm{out}}\langle \mathbf{p}_1\mathbf{p}_2\cdots
+    |\mathbf{k}_A\mathbf{k}_B\rangle_{\mathrm{in}} .
+  \label{eq:4.69}
+\end{equation}
+为了计算入态与出态的重叠，我们注意到定义这两组态的约定之间由时间平移相联系：
+\begin{equation}
+  \begin{aligned}
+    {}_{\mathrm{out}}\langle \mathbf{p}_1\mathbf{p}_2\cdots
+      |\mathbf{k}_A\mathbf{k}_B\rangle_{\mathrm{in}}
+    &= \lim_{T\to\infty}\ \langle \mathbf{p}_1\mathbf{p}_2\cdots|
+      \ e^{-iH(2T)}\ |\mathbf{k}_A\mathbf{k}_B\rangle
+    = \lim_{T\to\infty}\ \langle \mathbf{p}_1\mathbf{p}_2\cdots|
+      \ U(-T,T)\ |\mathbf{k}_A\mathbf{k}_B\rangle .
+  \end{aligned}
+  \label{eq:4.70}
+\end{equation}
+在最后一行，态在任意共同的参考时刻定义。因此，入态与出态由一列幺正算符的极限相联系。这个极限幺正算符被称为 $S$ 矩阵：
+\begin{equation}
+  {}_{\mathrm{out}}\langle \mathbf{p}_1\mathbf{p}_2\cdots
+    |\mathbf{k}_A\mathbf{k}_B\rangle_{\mathrm{in}}
+  \equiv \langle \mathbf{p}_1\mathbf{p}_2\cdots|S|\mathbf{k}_A\mathbf{k}_B\rangle .
+  \label{eq:4.71}
+\end{equation}
+$S$ 矩阵具有如下结构：如果所讨论的粒子根本不相互作用，那么 $S$ 就是单位算符。即使理论包含相互作用，粒子也有一定概率只是相互错过。为了把 $S$ 矩阵中有趣的部分——即由相互作用引起的部分——分离出来，我们定义 $T$ 矩阵
+\begin{equation}
+  S = 1 + iT .
+  \label{eq:4.72}
+\end{equation}
+接下来我们注意到，$S$ 的矩阵元应当体现 4-动量守恒。因此 $S$ 或 $T$ 应当总是包含一个因子 $(2\pi)^4\delta^{(4)}(\sum p)$。把这个因子提取出来，我们定义不变矩阵元 $\mathcal{M}$：
+\begin{equation}
+  \langle \mathbf{p}_1\mathbf{p}_2\cdots|iT|\mathbf{k}_A\mathbf{k}_B\rangle
+    = (2\pi)^4\delta^{(4)}(k_A+k_B-\textstyle\sum p_f)
+      \cdot i\mathcal{M}(k_A, k_B \to \{p_f\}) .
+  \label{eq:4.73}
+\end{equation}
+我们用 4-动量 $p$ 和 $k$ 写出了这个表达式，但当然所有 4-动量都在质量壳上：$p^0 = E_{\mathbf{p}}$，$k^0 = E_{\mathbf{k}}$。（注意我们的整个处理都专门针对初态只含两个粒子的情形。对于 $3\to$多 或多$\to$多相互作用，人们可以发明类似的构造，但本书将不考虑如此复杂的实验。）
+
+矩阵元 $\mathcal{M}$ 类似于单粒子量子力学中的散射振幅 $f$。它的用处在于允许我们把依赖于相互作用哈密顿量细节的所有物理（"动力学"）与不依赖于此的所有物理（"运动学"）分离开。在下一节中，我们将讨论如何用费曼图计算 $\mathcal{M}$。但首先，我们必须弄清楚如何从 $\mathcal{M}$ 重建截面 $\sigma$。
+
+为此，让我们用 $\mathcal{M}$ 来计算初态 $|\phi_A\phi_B\rangle$ 散射并变成 $n$ 个粒子、其动量位于一个小区域 $d^3p_1\cdots d^3p_n$ 内的末态的概率。在我们的归一化下，这个概率为
+\begin{equation}
+  \mathcal{P}(AB \to 12\cdots n)
+    = \Bigl( \prod_f \frac{d^3p_f}{(2\pi)^3}\frac{1}{2E_f} \Bigr)
+      \Bigl| {}_{\mathrm{out}}\langle \mathbf{p}_1\cdots\mathbf{p}_n
+        |\phi_A\phi_B\rangle_{\mathrm{in}} \Bigr|^2 .
+  \label{eq:4.74}
+\end{equation}
+对单个靶（$A$）粒子和许多具有不同碰撞参数 $b$ 的入射（$B$）粒子，散射事件数为
+\begin{equation}
+  N = \sum_{\text{所有入射粒子 } i}
+    \mathcal{P}_i = \int d^2b\ n_B\,\mathcal{P}(b),
+\end{equation}
+其中 $n_B$ 是 $B$ 粒子的数密度（单位面积上的粒子数）。由于我们假设这个数密度在相互作用范围内是常数，$n_B$ 可以提到积分号外。于是截面为
+\begin{equation}
+  \sigma = \frac{N}{n_BN_A} = \frac{n_B}{n_B}\int d^2b\ \mathcal{P}(b)
+    = \int d^2b\ \mathcal{P}(b) .
+  \label{eq:4.75}
+\end{equation}
+现在，用 $\mathcal{M}$ 导出 $\sigma$ 的简单表达式是一个相当直接的运算。把 \eqref{eq:4.75}、\eqref{eq:4.74} 和 \eqref{eq:4.68} 结合起来，我们得到（由于这是无穷小量，写 $d\sigma$ 而不是 $\sigma$）
+\begin{equation}
+  \begin{aligned}
+    d\sigma &= \int d^2b\ \prod_f \frac{d^3p_f}{(2\pi)^3}\frac{1}{2E_f}\
+      \prod_{i=A,B}\frac{d^3k_i}{(2\pi)^3}\ \frac{\phi_i(\mathbf{k}_i)
+        e^{-ib\cdot\mathbf{k}_i}}{\sqrt{2E_i}}\\
+    &\quad \times e^{ib\cdot(\mathbf{k}_A'-\mathbf{k}_B')}\
+      \bigl( {}_{\mathrm{out}}\langle\{p_f\}|\{k_i\}\rangle_{\mathrm{in}} \bigr)
+      \bigl( {}_{\mathrm{out}}\langle\{p_f\}|\{k_i'\}\rangle_{\mathrm{in}}
+        \bigr)^{*} ,
+  \end{aligned}
+  \label{eq:4.76}
+\end{equation}
+在平方振幅的后半部分，我们用了 $k_A'$ 和 $k_B'$ 作为哑积分变量。$d^2b$ 积分可以积出，给出因子 $(2\pi)^2\delta^{(2)}(\mathbf{k}_B-\mathbf{k}_B')$。通过把 \eqref{eq:4.76} 的最后两个因子用 $\mathcal{M}$ 写出来，我们得到更多的 $\delta$ 函数。假设我们并不关心不发生相互作用的平凡前向散射情形，我们可以丢掉式~\eqref{eq:4.72} 中的 1，把这两个因子写成
+\begin{align}
+  {}_{\mathrm{out}}\langle\{p_f\}|\{k_i\}\rangle_{\mathrm{in}}
+    &= i\mathcal{M}(k_A, k_B \to \{p_f\})\,
+      (2\pi)^4\delta^{(4)}(\textstyle\sum k - \sum p_f);\\
+  \bigl( {}_{\mathrm{out}}\langle\{p_f\}|\{k_i'\}\rangle_{\mathrm{in}} \bigr)^{*}
+    &= -i\mathcal{M}^{*}(k_A', k_B' \to \{p_f\})\,
+      (2\pi)^4\delta^{(4)}(\textstyle\sum k' - \sum p_f) .
+\end{align}
+我们可以利用这两个 $\delta$ 函数中的第二个，连同 $(2\pi)^2\delta^{(2)}(\mathbf{k}_B-\mathbf{k}_B')$，来完成 \eqref{eq:4.76} 中全部六个 $k$ 积分。在这六个积分中，只有对 $k_A^z$ 和 $k_B^z$ 的积分需要费些功夫：
+\begin{equation}
+  \int dk_A^z\,dk_B^z\ \delta(k_A^z+k_B^z-\textstyle\sum p_f^z)\,
+    \delta(E_A+E_B-\textstyle\sum E_f)
+  = \int dk_A^z\ \delta\Bigl(
+    \sqrt{k_A^2+m_A^2} + \sqrt{k_B^2+m_B^2} - \textstyle\sum E_f \Bigr)
+    \frac{E_B}{k_B^z}\ \frac{E_A}{k_A^z}
+    \frac{1}{|v_A - v_B|} .
+  \label{eq:4.77}
+\end{equation}
+在最后一行以及式~\eqref{eq:4.76} 的其余部分中，约定现在约束 $k_A^z+k_B^z = \sum p_f^z$ 和 $E_A+E_B = \sum E_f$ 成立（此外还有来自其余四个积分的约束 $k_A = k_A'$ 和 $k_B = k_B'$）。差值 $|v_A - v_B|$ 是实验室系中看到的束流的相对速度。
+
+现在回顾一下，初态波包在动量空间中局域，中心位于 $\mathbf{p}_A$ 和 $\mathbf{p}_B$。这意味着我们可以把作为 $k_A$ 和 $k_B$ 光滑函数的所有因子在 $\mathbf{p}_A$ 和 $\mathbf{p}_B$ 处求值，把它们提到积分号外。这些因子包括 $E_AE_B$、$|v_A-v_B|$ 和 $\mathcal{M}$——除剩下的 $\delta$ 函数之外的一切。做完这些之后，我们得到表达式
+\begin{equation}
+  \begin{aligned}
+    d\sigma &= \frac{1}{2E_A\,2E_B\,|v_A-v_B|}\
+      \prod_f \frac{d^3p_f}{(2\pi)^3}\frac{1}{2E_f}\
+      |\mathcal{M}(p_A,p_B\to\{p_f\})|^2\\
+    &\quad \times \int \frac{d^3k_A}{(2\pi)^3}\ \frac{d^3k_B}{(2\pi)^3}\
+      |\phi_A(\mathbf{k}_A)|^2|\phi_B(\mathbf{k}_B)|^2\
+      (2\pi)^4\delta^{(4)}(k_A+k_B-\textstyle\sum p_f) .
+  \end{aligned}
+  \label{eq:4.78}
+\end{equation}
+为了进一步简化这个公式，我们应该多思考一下真实粒子探测器的性质。我们已经注意到，真实探测器主要投影到动量本征态上。但真实探测器具有有限的分辨率；也就是说，它们对有限大小的动量区段进行非相干求和。通常，对末态动量的测量质量并不高到足以分辨初态波包 $\phi_A$、$\phi_B$ 的动量展宽所导致的这一动量的微小变化。在这种情况下，我们甚至可以把 $\delta$ 函数内的动量矢量 $k_A+k_B$ 也视为由其中心值 $p_A+p_B$ 很好地近似。在这个进一步的近似下，我们可以利用归一化条件 \eqref{eq:4.66} 完成对 $k_A$ 和 $k_B$ 的积分。这就给出了 $S$ 矩阵元与截面之间关系的最终形式，
+\begin{equation}
+  d\sigma = \frac{1}{2E_A\,2E_B\,|v_A-v_B|}\
+    \Bigl( \prod_f \frac{d^3p_f}{(2\pi)^3}\frac{1}{2E_f} \Bigr)\
+    |\mathcal{M}(p_A,p_B\to\{p_f\})|^2\
+    (2\pi)^4\delta^{(4)}\bigl( p_A+p_B-\textstyle\sum p_f \bigr) .
+  \label{eq:4.79}
+\end{equation}
+对波包形状的一切依赖都消失了。
+
+\eqref{eq:4.79} 中对末态动量的积分具有如下结构
+\begin{equation}
+  \int d\Pi_n = \Bigl( \prod_f \int \frac{d^3p_f}{(2\pi)^3}\frac{1}{2E_f}
+    \Bigr)\ (2\pi)^4\delta^{(4)}\bigl( p_A+p_B-\textstyle\sum p_f \bigr),
+  \label{eq:4.80}
+\end{equation}
+其中 $P$ 是总初态 4-动量。这个积分显然是洛伦兹不变的，因为它是由受 4-动量 $\delta$ 函数约束的不变 3-动量积分构造起来的。这个积分被称为相对论不变的 $n$ 体相空间。在 \eqref{eq:4.79} 的其他要素中，矩阵元 $\mathcal{M}$ 也是洛伦兹不变的。因此 \eqref{eq:4.79} 的洛伦兹变换性质完全来自前置因子
+\begin{equation}
+  \frac{1}{E_AE_B|v_A-v_B|} .
+  \label{eq:4.81}
+\end{equation}
+这个因子\emph{不}是洛伦兹不变的。但截面本身应当对沿束流方向的助推不变。这个表面悖论的解答是，截面一般不是洛伦兹标量量；不变的是量 $E_AE_B|v_A-v_B|\, d\sigma$。在实践中，人们在一个截面与不变矩阵元关系简单的坐标系中工作，最常见的是质心系。在质心系中，当两个粒子都无质量或具有相等质量时，有 $E_A = E_B = E_{\mathrm{cm}}/2$ 和 $|v_A-v_B| = 2$，于是得到熟知的公式
+\begin{equation}
+  \Bigl( \frac{d\sigma}{d\Omega} \Bigr)_{\mathrm{CM}}
+    = \frac{1}{64\pi^2E_{\mathrm{cm}}^2}\ |\mathcal{M}|^2 ,
+  \label{eq:4.82}
+\end{equation}
+它在无质量情形下退化为式~\eqref{eq:1.1}。
+
+\section{用费曼图计算$S$矩阵元}
+
+我们现在希望计算矩阵元
+\begin{equation}
+  \langle \mathbf{p}_1\cdots\mathbf{p}_n|S|\mathbf{k}_A\mathbf{k}_B\rangle
+  \label{eq:4.83}
+\end{equation}
+即用费曼图来计算 $S$ 矩阵的矩阵元。最直接的方法是回到 $S$ 的定义 \eqref{eq:4.61}，用威克定理计算相互作用哈密顿量的时序乘积，再加上一步：把这些场与外态的产生和湮灭算符收缩。
+
+通常的工作对象是 $T$ 矩阵元 $\langle\{p_f\}|iT|\{k_i\}\rangle$ 和 \eqref{eq:4.73} 中定义的不变振幅 $\mathcal{M}$。为了计算 $\mathcal{M}$，我们求关联函数
+\begin{equation}
+  \langle \Omega|T\phi(x_1)\cdots\phi(x_n)|\Omega\rangle ,
+\end{equation}
+提取携带外动量的外传播子，并把它们切肢；等价地，我们直接使用下面导出的动量空间费曼规则。
+
+例如，考虑 $\phi^4$ 理论。两个粒子 $A, B \to 1, 2$ 散射的最低阶贡献来自项
+\begin{equation}
+  \langle \mathbf{p}_1\mathbf{p}_2|S|\mathbf{p}_A\mathbf{p}_B\rangle
+  \supset \langle \mathbf{p}_1\mathbf{p}_2|T\Bigl\{ \frac{(-i\lambda)}{4!}
+    \int d^4x\ \phi_I^4(x) \Bigr\}|\mathbf{p}_A\mathbf{p}_B\rangle .
+  \label{eq:4.91}
+\end{equation}
+我们用威克定理把场的乘积化为正规序形式，然后把剩下的场与外态收缩。$\langle \mathbf{p}_1\mathbf{p}_2|S|\mathbf{p}_A\mathbf{p}_B\rangle$ 中的下一项为
+\begin{equation}
+  \begin{aligned}
+    \langle \mathbf{p}_1\mathbf{p}_2|&T\Bigl\{ \frac{(-i\lambda)}{4!}
+      \int d^4x\ \phi_I(x) \Bigr\}|\mathbf{p}_A\mathbf{p}_B\rangle_0\\
+    &= \langle \mathbf{p}_1\mathbf{p}_2|\frac{(-i\lambda)}{4!}
+      \int d^4x\ \bigl( \phi_I(x) + \text{收缩} \bigr)
+      |\mathbf{p}_A\mathbf{p}_B\rangle_0 ,
+  \end{aligned}
+  \label{eq:4.92}
+\end{equation}
+这里用了威克定理。由于外态不是 $|0\rangle$，没有完全收缩的项不一定为零；我们可以用来自 $\phi_I(x)$ 的湮灭算符湮灭一个初态粒子，或用来自 $\phi_I(x)$ 的产生算符产生一个末态粒子。例如，
+\begin{equation}
+  \phi_I(x)|\mathbf{p}\rangle = e^{-ip\cdot x}|0\rangle .
+  \label{eq:4.93}
+\end{equation}
+在 \eqref{eq:4.92} 的 $T$-乘积内部，一个未收缩的 $\phi_I$ 算符有两项：最右边的 $\phi_I^+$ 和最左边的 $\phi_I^-$。把 $\phi_I^-$ 中的 $a$ 与一个初态 $a^\dagger$ 对易的每一种方式，都对 $S$ 矩阵元给出一个贡献；把 $\phi_I^+$ 中的 $a^\dagger$ 与一个末态 $a$ 对易的每一种方式也给出一个贡献。因此，自然地把场算符与外态的收缩定义如下：
+\begin{equation}
+  \begin{aligned}
+    \phi_I(x)|\mathbf{p}\rangle &= e^{-ip\cdot x}|0\rangle;\qquad
+    \langle\mathbf{p}|\phi_I(x) = \langle 0|e^{+ip\cdot x} .
+  \end{aligned}
+  \label{eq:4.94}
+\end{equation}
+要计算像 \eqref{eq:4.92} 这样的 $S$ 矩阵元，我们只需写下 $\phi_I$ 算符与外态动量之间所有可能的完全收缩。
+
+为了看到这个处方是正确的，让我们详细计算 \eqref{eq:4.92}。$T$-乘积包含如下形式的项
+\begin{equation}
+  \phi\phi\phi\phi;\qquad \phi\phi\phi\phi \text{ 带一次收缩};
+  \qquad \phi\phi\phi\phi \text{ 带两次收缩} .
+  \label{eq:4.95}
+\end{equation}
+最后一项中 $\phi$ 算符彼此完全收缩，它等于一个真空泡图乘以上面算出的 \eqref{eq:4.91} 的值：
+\begin{equation}
+  \frac{(-i\lambda)}{4!}\int d^4x\ \langle \mathbf{p}_1\mathbf{p}_2|
+    \phi^4|\mathbf{p}_A\mathbf{p}_B\rangle_0\ \Bigl|_{\text{完全收缩}}
+  = (\text{真空泡})\times \langle \mathbf{p}_1\mathbf{p}_2|
+    S|\mathbf{p}_A\mathbf{p}_B\rangle_0 .
+  \label{eq:4.96}
+\end{equation}
+这只是 $S$ 矩阵平凡部分的又一个贡献，所以我们忽略它。
+
+接下来考虑 \eqref{eq:4.95} 的第二项，其中四个 $\phi$ 算符有两个被收缩。剩下的两个场的正规乘积看起来像 $(a^\dagger a^\dagger + 2a^\dagger a + aa)$。当我们把这些算符与初态和末态的 $a$ 和 $a^\dagger$ 对易时，我们发现只有 $a$ 与 $a^\dagger$ 数目相等的项才能存活。用收缩的语言来说，这意味着其中一个 $\phi$ 必须与初态 $|\mathbf{p}\rangle$ 收缩，另一个必须与末态 $\langle\mathbf{p}|$ 收缩。未收缩的 $|\mathbf{p}\rangle$ 和 $\langle\mathbf{p}|$ 给出如 \eqref{eq:4.91} 中的 $\delta$ 函数。为了图示地表示这些量，我们向费曼规则引入外线：
+\begin{equation}
+  \begin{aligned}
+    \phi_I(x)|\mathbf{p}\rangle &=
+      \underbrace{-\!-\!-\!-\!-\!\bullet}_{p}\; ;
+    \qquad
+    \langle\mathbf{p}|\phi_I(x) =
+      \underbrace{\bullet\!-\!-\!-\!-\!-\!}_{p}\; .
+  \end{aligned}
+  \label{eq:4.97}
+\end{equation}
+$S$ 矩阵元的费曼图总是包含外线，而不是关联函数图的外点。因此 \eqref{eq:4.95} 的第二项给出四个图，对应于把两个未收缩算符指派给两条外线的四种方式。积分 $\int d^4x$ 在每一个顶点（包括外动量）处产生一个动量守恒 $\delta$ 函数，所以这些图再次描述初态与末态相同的平凡过程。这阐明了一条一般原理：只有所有外线彼此相连的完全连通图才对 $T$ 矩阵有贡献。
+
+最后，考虑 \eqref{eq:4.95} 中没有算符彼此收缩的项。我们的处方告诉我们，把其中两个 $\phi$ 与 $|\mathbf{p}_A\mathbf{p}_B\rangle$ 收缩，另外两个与 $\langle \mathbf{p}_1\mathbf{p}_2|$ 收缩。有 $4!$ 种做法。于是我们得到图
+\begin{equation}
+  \mathcal{M} \supset (4!)\cdot \frac{(-i\lambda)}{4!}\
+    \int d^4x\ e^{-i(p_A+p_B-p_1-p_2)\cdot x}
+  = -i\lambda\,(2\pi)^4\delta^{(4)}(p_A+p_B-p_1-p_2) .
+  \label{eq:4.98}
+\end{equation}
+这恰好具有 $i\mathcal{M}(2\pi)^4\delta^{(4)}(p_A+p_B-p_1-p_2)$ 的形式，其中 $\mathcal{M} = -\lambda$。
+
+在继续讨论 $S$ 矩阵元的费曼图之前，我们当然应该稍停片刻，把这个结果转变成截面。对于质心系中的散射，我们只需把 $|\mathcal{M}|^2 = \lambda^2$ 代入式~\eqref{eq:4.82} 即可得到
+\begin{equation}
+  \Bigl( \frac{d\sigma}{d\Omega} \Bigr)_{\mathrm{CM}}
+    = \frac{\lambda^2}{64\pi^2E_{\mathrm{cm}}^2} .
+  \label{eq:4.99}
+\end{equation}
+我们刚刚计算了我们的第一个量子场论截面。这是一个相当平淡的结果，完全没有角度依赖。（当我们下一节考虑费米子时，这种情况将得到改善。）对 $d\Omega$ 积分，并由于末态有两个全同粒子而除以 2，我们得到总截面，
+\begin{equation}
+  \sigma_{\mathrm{total}} = \frac{\lambda^2}{32\pi E_{\mathrm{cm}}^2} .
+  \label{eq:4.100}
+\end{equation}
+在实践中，人们很可能会用这个结果来测量 $\lambda$ 的值。
+
+回到我们的一般讨论，让我们考虑过程 $A, B \to 1, 2$ 的 $T$ 矩阵的一些高阶贡献。如果我们暂且忽略"连通且切肢"的处方，我们有公式
+\begin{equation}
+  i\mathcal{M} \sim \text{(最低阶)} + \text{单圈图}
+    + \text{双圈图} + \cdots ,
+  \label{eq:4.101}
+\end{equation}
+再加上四条外线并未全部彼此相连的图。我们已经看到，最后一类图对 $T$ 矩阵没有贡献。\eqref{eq:4.101} 中所示的第一个图给出 $T$ 的最低阶贡献，即我们上面算出的那个。接下来三个图给出这一振幅的预期修正，涉及额外"虚"粒子的产生和湮灭。
+
+\eqref{eq:4.101} 第二行中的图包含不连通的"真空泡"。根据与第 4.4 节末尾相同的论证，不连通部分指数化为一个总相因子，给出发生散射所依托的相互作用真空态的能量移动。因此它们与 $S$ 无关。我们现在已经看到，只有完全连通的图才给出对 $S$ 矩阵元的合理贡献。
+
+最后一个图问题更大；让我们计算它。在对两个顶点位置积分之后，我们得到
+\begin{equation}
+  \begin{aligned}
+    \mathcal{M} &\supset \frac{(-i\lambda)^2}{2}\
+      \int \frac{d^4p'}{(2\pi)^4}\ \frac{i}{p'^2-m^2}\
+      \int \frac{d^4k}{(2\pi)^4}\ \frac{i}{k^2-m^2}\\
+    &\quad \times (-i\lambda)(2\pi)^4\delta^{(4)}(p_A+p'-p_1-p_2)\
+      (-i\lambda)(2\pi)^4\delta^{(4)}(p_B-p') .
+  \end{aligned}
+  \label{eq:4.102}
+\end{equation}
+我们可以利用第二个 $\delta$ 函数对 $p'$ 积分。它告诉我们求值
+\begin{equation}
+  \frac{i}{p'^2-m^2}\Big|_{p'=p_B} = \frac{i}{p_B^2-m^2} .
+\end{equation}
+我们得到无穷大，因为 $p_B$ 作为外粒子的动量是在壳的：$p_B^2 = m^2$。这是一场灾难。显然，我们计算 $S$ 的公式只有当排除这种形式的图——即圈只连到一个外腿上的图——时才有意义。幸运的是，这在物理上是合理的：正如真空泡图代表 $|0\rangle$ 演化成 $|\Omega\rangle$，这些外腿修正，
+\begin{equation}
+  \underbrace{-\!-\!\bigcirc\!-\!-}_{p},
+\end{equation}
+代表 $|\mathbf{p}\rangle_0$ 演化成 $|\mathbf{p}\rangle$——相互作用理论的单粒子态。由于这些修正与散射过程毫无关系，我们应该把它们从 $S$ 的计算中排除。
+
+对于带外腿的一般图，我们按如下方式定义\emph{切肢（截肢）}。从每条外腿的尖端开始，找到这样一个最后的位置：在此处通过移去一个传播子即可把图切断，使得该操作把这条腿与图的其余部分分离开。在那里切断。例如：
+\begin{equation}
+  \text{在每条外腿与图的其余部分的最后一个"连接点"处将其切断} .
+\end{equation}
+
+让我们总结计算散射振幅的处方。我们计算 $S$ 矩阵元的公式，式~\eqref{eq:4.90}，可以改写为
+\begin{equation}
+  i\mathcal{M}\cdot(2\pi)^4\delta^{(4)}(p_A+p_B-\textstyle\sum p_f)
+    = \sum \text{所有连通的、已切肢的图} .
+  \label{eq:4.103}
+\end{equation}
+现在"连通"一词我们指的是完全连通，即没有真空泡，且所有外腿彼此相连。$\phi^4$ 理论中散射振幅的费曼规则，在位置空间中为：
+\begin{enumerate}
+  \item 对每一个传播子，
+    \begin{equation}
+      x\!-\!-\!y = D_F(x-y);
+    \end{equation}
+  \item 对每一个顶点，一个因子 $-i\lambda\int d^4z$；
+  \item 对每一条外线，波函数因子 $e^{-ip\cdot x}$（或 $e^{ip\cdot x}$）；
+  \item 除以对称因子。
+\end{enumerate}
+注意，入线的因子正是该粒子出现在它所连接的顶点处的振幅，即粒子的波函数。类似地，出线的因子是在顶点处产生的粒子具有所期望末动量的振幅。
+
+正如关联函数的费曼规则一样，通常更简单的是引入传播子的动量空间表示，完成顶点积分以得到动量守恒 $\delta$ 函数，并利用这些 $\delta$ 函数尽可能多地计算动量积分。然而，在散射振幅中总有一个总体的 $\delta$ 函数，它可以用与式~\eqref{eq:4.103} 左边的那个相消。于是我们剩下
+\begin{equation}
+  i\mathcal{M} = \text{所有连通的、已切肢的图之和},
+  \label{eq:4.104}
+\end{equation}
+其中图按照下列规则计算：
+\begin{enumerate}
+  \item 对每一个传播子，
+    \begin{equation}
+      \frac{i}{p^2-m^2+i\epsilon} ;
+    \end{equation}
+  \item 对每一个顶点，$-i\lambda$；
+  \item 对每一条外线，因子 1；
+  \item 在每一个顶点处施加动量守恒；
+  \item 对每个未确定的圈动量积分 $\int d^4k/(2\pi)^4$；
+  \item 除以对称因子。
+\end{enumerate}
+
+\section{费米子的费曼规则}
+
+费米子的费曼规则比标量场的费曼规则更复杂，因为费米子场反对易。我们将在汤川理论的框架内推导这些规则，汤川理论把一个狄拉克费米子与一个实标量场耦合起来：
+\begin{equation}
+  \mathcal{L} = \bar{\psi}(i\slashed{\partial} - m)\psi
+    + \tfrac{1}{2}(\partial_\mu\phi)^2 - \tfrac{1}{2}m^2\phi^2
+    - g\bar{\psi}\psi\phi .
+  \label{eq:4.112}
+\end{equation}
+这是量子电动力学的一个简化模型。在本节中，我们将仔细推导汤川理论的计算规则，以便下一节我们能够不太费力地猜出 QED 的规则。
+
+为了更具体起见，考虑两粒子散射反应
+\begin{equation}
+  \text{费米子}(p) + \text{费米子}(k) \to \text{费米子}(p')
+    + \text{费米子}(k') .
+  \label{eq:4.113}
+\end{equation}
+领头贡献来自 $S$ 矩阵的 $H_I^2$ 项：
+\begin{equation}
+  \langle \mathbf{p}',\mathbf{k}'|T\Bigl\{ (-ig)\int d^4x\
+    \bar{\psi}_I\psi_I\phi_I\ (-ig)\int d^4y\
+    \bar{\psi}_I\psi_I\phi_I \Bigr\}|\mathbf{p},\mathbf{k}\rangle_0 .
+  \label{eq:4.114}
+\end{equation}
+为了计算这个表达式，用威克定理把 $T$-乘积化为收缩的 $N$-乘积，然后让未收缩的场作用在初态和末态粒子上。把后一个过程表示为收缩
+\begin{equation}
+  \begin{aligned}
+    \psi_I(x)|\mathbf{p}, s\rangle &=
+      \int \frac{d^3p'}{(2\pi)^3}\ \frac{1}{\sqrt{2E_{\mathbf{p}'}}}\
+        \sum_{s'} a_{\mathbf{p}'}^{s'}\,u^{s'}(p')e^{-ip'\cdot x}\
+      \sqrt{2E_{\mathbf{p}}}\,a_{\mathbf{p}}^{s\dagger}|0\rangle
+    = e^{-ip\cdot x}u^s(p)|0\rangle .
+  \end{aligned}
+  \label{eq:4.115}
+\end{equation}
+对于 $\psi_I$ 与末态费米子的收缩，以及 $\psi_I$ 和 $\bar{\psi}_I$ 与反费米子态的收缩，也有类似的表达式。注意，$\psi_I$ 可以与右边的费米子或左边的反费米子收缩；对 $\bar{\psi}_I$ 则相反。
+
+我们可以把矩阵元 \eqref{eq:4.114} 的一个典型贡献写成收缩
+\begin{equation}
+  \langle \mathbf{p}',\mathbf{k}'|\ \frac{(-ig)^2}{2}\
+    \int d^4x\,d^4y\ \bar{\psi}\psi\phi\ \bar{\psi}\psi\phi\
+    |\mathbf{p},\mathbf{k}\rangle .
+  \label{eq:4.115b}
+\end{equation}
+除去可能出现的负号，这个量的值为
+\begin{equation}
+  (-ig)^2\ \int \frac{d^4q}{(2\pi)^4}\ \frac{i}{q^2-m^2}\
+    (2\pi)^4\delta^{(4)}(p'-p-q)\ (2\pi)^4\delta^{(4)}(k'-k+q)
+    \ \bar{u}(p')u(p)\,\bar{u}(k')u(k) .
+  \label{eq:4.115c}
+\end{equation}
+（我们去掉了因子 $1/2!$，因为在 \eqref{eq:4.115b} 中交换 $x$ 和 $y$ 会出现第二个相同的项。）利用两个 $\delta$ 函数中的任一个完成积分，我们发现这个表达式具有 $i\mathcal{M}(2\pi)^4\delta^{(4)}(\sum p)$ 的形式，其中
+\begin{equation}
+  i\mathcal{M} = \frac{-ig^2}{q^2-m^2}\,
+    \bar{u}(p')u(p)\,\bar{u}(k')u(k) .
+  \label{eq:4.116}
+\end{equation}
+以这种方式书写时，我们必须记得施加约束 $p - p' = q = k' - k$。
+
+我们不从 \eqref{eq:4.115b} 出发，而是可以画一个费曼图：我们用虚线表示标量粒子，用实线表示费米子。$S$ 矩阵元于是可以直接从下列动量空间费曼规则得到。
+\begin{enumerate}
+  \item 传播子：
+    \begin{align}
+      \phi(x)\phi(y) &= \frac{i}{q^2-m^2+i\epsilon};\label{eq:4.117a}\\
+      \psi(x)\bar{\psi}(y) &= \frac{i(\slashed{p}+m)}{p^2-m^2+i\epsilon}
+        .\label{eq:4.117b}
+    \end{align}
+  \item 顶点：$-ig$。
+  \item 外腿收缩：
+    \begin{align}
+      \psi(x)|p, s\rangle &= u^s(p);\qquad
+      \langle p, s|\bar{\psi}(x) = \bar{u}^s(p);\nonumber\\
+      \bar{\psi}(x)|k, s\rangle &= \bar{v}^s(k);\qquad
+      \langle k, s|\psi(x) = v^s(k) .
+    \end{align}
+  \item 在每一个顶点处施加动量守恒。
+  \item 对每个未确定的圈动量积分。
+  \item 确定图的总符号。
+\end{enumerate}
+关于这些规则，有几点需要说明。
+
+首先，注意时序指数泰勒级数中的 $1/n!$ 总是被交换顶点以得到同一收缩的 $n!$ 种方式所抵消。汤川理论的图从没有对称因子，因为 $H_I$ 中的三个场 $(\psi\bar{\psi}\phi)$ 在收缩中不能相互替代。
+
+其次，费米子线上的动量方向总是重要的。在外线上，与玻色子一样，动量方向对初态粒子总是入射的、对末态粒子总是出射的。这直接从 $\psi$ 和 $\bar{\psi}$ 的展开式得出，其中湮灭算符 $a_{\mathbf{p}}$ 和 $b_{\mathbf{p}}$ 都乘以 $e^{-ip\cdot x}$，产生算符 $a_{\mathbf{p}}^\dagger$ 和 $b_{\mathbf{p}}^\dagger$ 都乘以 $e^{+ip\cdot x}$。在内部费米子线（传播子）上，动量必须按粒子数流的方向指派（对电子，这是负电荷流的方向）。这个要求通过从第一性原理算一个例子最容易看清楚。考虑一个费米子和一个反费米子湮灭成两个玻色子：
+\begin{equation}
+  \langle \mathbf{k}\mathbf{k}'|S|\mathbf{p}\mathbf{p}'\rangle
+    = \int d^4x\int d^4y\ e^{ik'\cdot x}\ \bar{v}(p')\,e^{-ip'\cdot x}\
+      \Bigl[ \frac{i}{q^2-m^2} \Bigr]\ u(p)e^{-ip\cdot y}\ e^{ik\cdot y} .
+  \label{eq:4.118}
+\end{equation}
+对 $x$ 和 $y$ 的积分给出 $\delta$ 函数，迫使 $q$ 从 $y$ 流向 $x$，如图所示。在内部玻色子线上，动量的方向无关紧要，可以为了方便而选取，因为 $D_F(x-y) = D_F(y-x)$。
+
+习惯上在费米子线上画箭头（如图所示）来表示粒子数流的方向。指派给费米子传播子的动量于是沿此箭头方向流动。然而，对于外部反粒子，动量与箭头方向相反；在线的旁边再画一个箭头有助于明确地显示出这一点。
+
+第三，注意在我们的例子中，狄拉克指标沿着费米子线收缩在一起。在更复杂的图中也会发生同样的情况：
+\begin{equation}
+  \bar{u}(p_3)\ \frac{i(\slashed{p}_2+m)}{p_2^2-m^2}\
+    \frac{i(\slashed{p}_1+m)}{p_1^2-m^2}\ u(p_0) ,
+  \label{eq:4.119}
+\end{equation}
+其中狄拉克指标按场沿线出现的顺序收缩。
+
+最后，让我们花点时间担心一下费米子负号问题。回到费米子-费米子散射过程的例子。我们对初态和末态采用一种符号约定：
+\begin{equation}
+  |\mathbf{p}\mathbf{k}\rangle \equiv a_{\mathbf{p}}^\dagger
+    a_{\mathbf{k}}^\dagger|0\rangle;\qquad
+  \langle \mathbf{p}',\mathbf{k}'| \equiv \langle 0|a_{\mathbf{k}'}
+    a_{\mathbf{p}'} ,
+  \label{eq:4.120}
+\end{equation}
+使得 $(\langle\mathbf{p},\mathbf{k}|)^\dagger = |\mathbf{p},\mathbf{k}\rangle$。于是收缩
+\begin{equation}
+  \langle \mathbf{p}',\mathbf{k}'|(\bar{\psi}\psi)_x(\bar{\psi}\psi)_y
+    |\mathbf{p},\mathbf{k}\rangle
+  = \langle 0|a_{\mathbf{k}'}a_{\mathbf{p}'}\ a^\dagger a\ a^\dagger a\
+    a_{\mathbf{p}}^\dagger a_{\mathbf{k}}^\dagger|0\rangle
+\end{equation}
+可以通过把 $a_{\mathbf{p}'}$ 向左移动两个位置来解开，因此得到一个因子 $(-1)^2 = +1$。但注意，在收缩
+\begin{equation}
+  \langle 0|a_{\mathbf{k}'}a_{\mathbf{p}'}\ a_{\mathbf{p}}^\dagger a\ a^\dagger
+    a_{\mathbf{k}}^\dagger|0\rangle ,
+\end{equation}
+只需把 $\bar{\psi}_y$ 向左移动一个位置即可，给出因子 $-1$。这个收缩对应于两条费米子线交叉的图。
+
+因此，这一过程 $S$ 矩阵元到最低阶的完整结果为
+\begin{equation}
+  i\mathcal{M} = \frac{-ig^2}{(p-p')^2-m^2}\,
+    \bar{u}(p')u(p)\,\bar{u}(k')u(k)
+    - \frac{-ig^2}{(p-k')^2-m^2}\,
+    \bar{u}(p')u(k)\,\bar{u}(k')u(p) .
+  \label{eq:4.121}
+\end{equation}
+这两个图之间负号的差异是费米统计的反映。把这个表达式转变成显式的截面需要一些额外的工作；我们把这类计算推迟到第 5 章，那时我们可以处理 QED 而不是不太有意思的汤川理论。
+
+在复杂的图中，人们常常可以通过注意到乘积 $(\bar{\psi}\psi)$ 或任何其他费米子对与任何算符对易，来简化负号的确定。因此，反对易关系只用来确定那些费米子对顺序被交换的项之间的相对符号。
+
+\section{量子电动力学的费曼规则}
+
+现在我们准备写下 QED 的费曼规则。相互作用哈密顿量为
+\begin{equation}
+  H_{\mathrm{int}} = \int d^3x\ e\bar{\psi}\gamma^\mu\psi A_\mu ,
+  \label{eq:4.129}
+\end{equation}
+所以顶点因子为 $-ie\gamma^\mu$。传播子如下。对于费米子，我们已经导出了费曼传播子
+\begin{equation}
+  S_F(p) = \frac{i(\slashed{p}+m)}{p^2-m^2+i\epsilon}
+    = \frac{i}{\slashed{p}-m+i\epsilon} .
+  \label{eq:4.130}
+\end{equation}
+对于光子，外线因子从自由电磁场的展开式得出，
+\begin{equation}
+  A^\mu(x) = \int \frac{d^3p}{(2\pi)^3}\ \frac{1}{\sqrt{2E_{\mathbf{p}}}}
+    \sum_{r=0}^{3} \Bigl( \epsilon^{r\mu}(p)\,a_{\mathbf{p}}^r e^{-ip\cdot x}
+      + \epsilon^{r\mu*}(p)\,a_{\mathbf{p}}^{r\dagger}e^{ip\cdot x} \Bigr),
+  \label{eq:4.131}
+\end{equation}
+其中 $r = 0, 1, 2, 3$ 标记极化矢量的一组基。上面费曼规则中的外线因子直接从这一展开式得出，正如我们得到作为狄拉克粒子外线因子的 $u^s$ 和 $v$ 一样。唯一微妙之处是，我们必须把初态和末态光子限制为横向极化的：它们的极化矢量总是具有 $\epsilon^\mu = (0, \bm{\epsilon})$ 的形式，其中 $\mathbf{p}\cdot\bm{\epsilon} = 0$。当 $\mathbf{p}$ 沿 $z$ 轴时，右旋和左旋极化矢量为
+\begin{equation}
+  \epsilon^{\mu}_{L/R} = (0, 1, \pm i, 0)/\sqrt{2} .
+  \label{eq:4.132}
+\end{equation}
+
+QED 顶点因子的形式也很容易证明，只需看看相互作用哈密顿量 \eqref{eq:4.129} 即可。注意，QED 振幅中的 $\gamma^\mu$ 矩阵将位于旋量或其他 $\gamma$ 矩阵之间，狄拉克指标沿费米子线收缩。还要注意，这一相互作用项是专门针对电子（及其反粒子正电子）的情形的。一般地，对于电荷为 $Q|e|$ 的狄拉克粒子，
+\begin{equation}
+  \text{顶点} = -iQ|e|\gamma^\mu .
+  \label{eq:4.133}
+\end{equation}
+例如，电子有 $Q = -1$，上夸克有 $Q = +2/3$，下夸克有 $Q_d = -1/3$。
+
+没有简单的方法来推导光子传播子的形式，所以目前我们将满足于一个合理性论证。由于洛伦兹规范中的电磁场服从无质量 Klein--Gordon 方程，光子传播子与无质量 Klein--Gordon 传播子几乎相同也就不足为奇了。然而，$-g^{\mu\nu}$ 这个因子需要解释。洛伦兹不变性要求光子传播子是一个各向同性的二阶张量，它可以与两端顶点处的 $\gamma^\mu$ 和 $\gamma^\nu$ 点乘。最简单的候选是 $g^{\mu\nu}$。为了理解传播子的整体符号，计算它的傅里叶变换：
+\begin{equation}
+  \int \frac{d^4q}{(2\pi)^4}\ \frac{-ig^{\mu\nu}}{q^2+i\epsilon}\
+    e^{iq\cdot(x-y)}
+  = \int \frac{d^3q}{(2\pi)^3}\ \frac{1}{2|\mathbf{q}|}\
+    \Bigl( -g^{\mu\nu} \Bigr)\ \cdots ,
+  \label{eq:4.132b}
+\end{equation}
+大概这等于 $\langle 0|T[A^\mu(x)A^\nu(y)]|0\rangle$。现在令 $\mu = \nu$，并从正方向取极限 $x^0\to y^0$。于是这个量变成态 $A^\mu(x)|0\rangle$ 的模方，它应当是正的。我们看到，传播子中符号的选择意味着由 $A^i$（$i = 1, 2, 3$）产生的三个态确实具有正模方。这些态包括所有真实（非虚）光子，它们总是具有类空极化。不幸的是，由于 $g^{\mu\nu}$ 不是正定的，由 $A^0$ 产生的态不可避免地具有负模方。这对任何含矢量粒子的理论都是一个潜在的严重问题。对于量子电动力学，我们将在第 5.5 节证明，由 $A^0$ 产生的负模方态在物理过程中从不会产生。在第 9.4 节中，我们将给出光子传播子的仔细推导。
+
+QED 的完整费曼规则为：
+\begin{enumerate}
+  \item 对每一条费米子线（动量 $p$ 沿箭头流动），
+    \begin{equation}
+      \frac{i(\slashed{p}+m)}{p^2-m^2+i\epsilon} ;
+    \end{equation}
+  \item 对每一条光子线，
+    \begin{equation}
+      \frac{-ig_{\mu\nu}}{q^2+i\epsilon} ;
+    \end{equation}
+  \item 对每一个顶点，$-ie\gamma^\mu$；
+  \item 外部费米子：初态费米子 $u^s(p)$，初态反费米子 $\bar{v}^s(p)$，末态费米子 $\bar{u}^s(p)$，末态反费米子 $v^s(p)$；
+  \item 外部光子：$\epsilon^\mu(p)$（初态），$\epsilon^{\mu*}(p)$（末态）；
+  \item 在每一个顶点处施加动量守恒，对未确定的圈动量积分，并确定总符号。
+\end{enumerate}
+
+\subsection{库仑势}
+
+作为这些费曼规则的一个简单应用，并为了更好地理解传播子的符号，让我们重复上一节的非相对论散射计算，这一次是针对 QED 的。领头阶贡献为
+\begin{equation}
+  i\mathcal{M} = (-ie)^2\ \bar{u}(p')\gamma^\mu u(p)\
+    \frac{-ig_{\mu\nu}}{q^2}\ \bar{u}(k')\gamma^\nu u(k) .
+  \label{eq:4.133b}
+\end{equation}
+在非相对论极限下，
+\begin{equation}
+  \bar{u}(p')\gamma^0 u(p) = u^{\dagger}(p')u(p) \approx +2m\,\xi'^{\dagger}\xi .
+\end{equation}
+你可以容易地验证，其他项 $\bar{u}(p')\gamma^i u(p)$ 在 $\mathbf{p} = \mathbf{p}' = 0$ 时为零；因此在非相对论极限下，与 $\bar{u}(p')\gamma^0 u(p)$ 相比，它们可以被忽略。于是我们得到
+\begin{equation}
+  \begin{aligned}
+    i\mathcal{M} &\approx -e^2\ \frac{1}{|\mathbf{p}-\mathbf{p}'|^2}\
+      (2m\,\xi'^{\dagger}\xi)_p\ (2m\,\xi'^{\dagger}\xi)_k\ \delta_{00}\\
+    &= \frac{-e^2}{|\mathbf{p}-\mathbf{p}'|^2}\ 4m^2\ \cdots .
+  \end{aligned}
+  \label{eq:4.134}
+\end{equation}
+把它与汤川情形比较，我们看到多了一个 $-1$ 因子；这个势是 $m=0$ 的排斥汤川势，即排斥库仑势：
+\begin{equation}
+  V(\mathbf{r}) = \frac{e^2}{4\pi r} = \frac{\alpha}{r},
+  \label{eq:4.135}
+\end{equation}
+其中 $\alpha = e^2/4\pi \approx 1/137$ 是精细结构常数。
+
+对于粒子-反粒子散射，首先注意
+\begin{equation}
+  \bar{v}(k)\gamma^0 v(k') = v^{\dagger}(k)v(k') \approx +2m\,\eta'^{\dagger}\eta .
+\end{equation}
+$\gamma^0$ 的出现消除了我们在汤川情形中发现的负号。因此非相对论散射振幅为
+\begin{equation}
+  i\mathcal{M} = \frac{+e^2}{|\mathbf{p}-\mathbf{p}'|^2}\ \cdots ,
+\end{equation}
+其中 $(-1)$ 就是我们在汤川情形中看到的那个费米子负号。这是一个吸引势。类似地，对于反费米子-反费米子散射，人们发现是排斥势。我们刚刚验证了，在量子场论中，当交换一个矢量粒子时，同号电荷相斥而异号电荷相吸。
+
+注意，费米子-费米子散射中的排斥完全来自矢量玻色子传播子中多出的因子 $-g_{00} = -1$。张量玻色子，如引力子，其传播子将是
+\begin{equation}
+  \frac{i}{q^2+i\epsilon}\ \Bigl[
+    \tfrac{1}{2}(-g_{\mu\rho})(-g_{\nu\sigma}) + \tfrac{1}{2}(-g_{\mu\sigma})
+      (-g_{\nu\rho}) - \tfrac{1}{3}(-g_{\mu\nu})(-g_{\rho\sigma}) \Bigr] ,
+  \label{eq:4.136}
+\end{equation}
+它在非相对论碰撞中给出因子 $(-g_{00})^2 = +1$；这将导致一个普遍吸引的势。看到量子场论确实重现了电力和引力的明显特征，是令人放心的：
+\begin{equation}
+  \begin{array}{ccc}
+    \text{交换的粒子} & f\bar{f}\text{ 与 }\bar{f}\bar{f} & ff\\
+    \hline
+    \text{标量（汤川）} & \text{吸引} & \text{吸引}\\
+    \text{矢量（电）} & \text{排斥} & \text{吸引}\\
+    \text{张量（引力）} & \text{吸引} & \text{吸引}
+  \end{array}
+  \label{eq:4.137}
+\end{equation}
+
+\problems
+
+\textbf{4.1} 让我们回到经典源产生 Klein--Gordon 粒子的问题上。回顾第 2 章，这一过程可以用哈密顿量描述
+\begin{equation}
+  H = H_0 + \int d^3x\ j(x)\phi(x) ,
+\end{equation}
+其中 $H_0$ 是自由 Klein--Gordon 哈密顿量，$\phi(x)$ 是 Klein--Gordon 场，$j(x)$ 是一个 c 数标量函数。我们发现，如果在源开启之前系统处于真空态，源将产生平均粒子数
+\begin{equation}
+  \langle N\rangle = \int \frac{d^3p}{(2\pi)^3}\
+    \frac{|\tilde{j}(p)|^2}{2E_{\mathbf{p}}} .
+\end{equation}
+在本问题中，我们将通过按源强度的微扰展开来验证这一陈述，并提取更详细的信息。
+\begin{enumerate}[label=(\alph*)]
+  \item 证明源不产生粒子的概率由下式给出
+    \begin{equation}
+      P(0) = \Bigl| \langle 0|T\Bigl\{ \exp\Bigl[ i\int d^4x\
+        j(x)\phi_I(x) \Bigr] \Bigr\}|0\rangle \Bigr|^2 .
+    \end{equation}
+  \item 计算 $P(0)$ 中 $j^2$ 阶的项，并证明 $P(0) = 1 - \lambda + \mathcal{O}(j^4)$，其中 $\lambda$ 等于上面给出的 $\langle N\rangle$ 的表达式。
+  \item 把第 (b) 部分算出的项表示成费曼图。现在把 $P(0)$ 的整个微扰级数用费曼图表示出来。证明这个级数指数化，从而可以精确求和：$P(0) = \exp(-\lambda)$。
+  \item 计算源产生一个动量为 $\mathbf{k}$ 的粒子的概率。先用 $\mathcal{O}(j)$ 阶计算，然后利用第 (c) 部分求和级数的技巧计算到所有阶。
+  \item 证明产生 $n$ 个粒子的概率由下式给出
+    \begin{equation}
+      P(n) = (1/n!)\,\lambda^n\exp(-\lambda) .
+    \end{equation}
+    这是一个泊松分布。
+  \item 证明关于泊松分布的下列事实：
+    \begin{equation}
+      \sum_{n=0}^{\infty}P(n) = 1;\qquad
+      \langle N\rangle = \sum_{n=0}^{\infty} n\,P(n) = \lambda .
+    \end{equation}
+    第一个恒等式说明 $P(n)$ 是正确归一化的概率，第二个则证实了我们关于 $\langle N\rangle$ 的提议。计算均方涨落 $\bigl( \Delta N \bigr)^2 = \langle (N - \langle N\rangle)^2 \rangle$。
+\end{enumerate}
+
+\textbf{4.2} \emph{标量粒子的衰变。} 考虑下面的拉格朗日量，它涉及两个实标量场 $\Phi$ 和 $\phi$：
+\begin{equation}
+  \mathcal{L} = \tfrac{1}{2}(\partial_\mu\Phi)^2 - \tfrac{1}{2}M^2\Phi^2
+    + \tfrac{1}{2}(\partial_\mu\phi)^2 - \tfrac{1}{2}m^2\phi^2
+    - \mu\Phi\phi\phi .
+\end{equation}
+最后一项是一个相互作用，它允许 $\Phi$ 粒子衰变成两个 $\phi$ 粒子，只要 $M > 2m$。假设这一条件满足，计算 $\Phi$ 到 $\mu$ 最低阶的寿命。
+
+\textbf{4.3} \emph{线性西格马模型。} 低能下 $\pi$ 介子的相互作用可以用一个称为线性西格马模型的现象学模型来描述。本质上，这个模型由 $N$ 个实标量场组成，它们通过一个在 $N$ 个场的转动下对称的 $\phi^4$ 相互作用耦合。更具体地说，令 $\Phi^i(x)$（$i = 1, \ldots, N$）为一组 $N$ 个场，由哈密顿量支配
+\begin{equation}
+  H = \int d^3x\ \Bigl[ \tfrac{1}{2}\pi^i\pi^i
+    + \tfrac{1}{2}\nabla\Phi^i\cdot\nabla\Phi^i
+    + V(\Phi^2) \Bigr],
+\end{equation}
+其中 $(\Phi^2) = \Phi\cdot\Phi$，且
+\begin{equation}
+  V(\Phi^2) = \tfrac{1}{2}m^2(\Phi^2) + \tfrac{\lambda}{4!}(\Phi^2)^2
+\end{equation}
+是 $\Phi$ 的转动下对称的函数。对于在空间和时间上都恒定的（经典）场构型 $\Phi^2(x)$，这一项给出对 $H$ 的唯一贡献；因此 $V$ 是场的势能。
+
+（这个哈密顿量与强相互作用有什么关系？有两种类型的轻夸克 $u$ 和 $d$。这些夸克具有相同的强相互作用，但质量不同。如果这些夸克无质量，强相互作用的哈密顿量对二分量对象 $(u,d)$ 的幺正变换不变：
+\begin{equation}
+  \begin{pmatrix}u\\ d\end{pmatrix} \to U\begin{pmatrix}u\\ d\end{pmatrix} .
+\end{equation}
+这个变换称为同位旋转动。此外，如果强相互作用由矢量"胶子"场描述（正如 QCD 中的情形），那么强相互作用哈密顿量对分别作用在夸克场左手和右手分量上的同位旋转动不变。因此，具有两个无质量夸克的 QCD 的完整对称性是 $SU(2)\times SU(2)$。碰巧 $SO(4)$——4 维转动群——与 $SU(2)\times SU(2)$ 同构，所以对 $N=4$，线性西格马模型具有与强相互作用相同的对称群。）
+\begin{enumerate}[label=(\alph*)]
+  \item 对 $m^2>0$ 分析线性西格马模型，注意当 $\lambda=0$ 时，上面给出的哈密顿量恰好是 $N$ 份 Klein--Gordon 哈密顿量的复制品。于是我们可以把散射振幅作为参数 $\lambda$ 的微扰级数来计算。证明传播子为
+    \begin{equation}
+      \Phi^i(x)\Phi^j(y) = \delta^{ij}D_F(x-y) ,
+    \end{equation}
+    其中 $D_F$ 是质量为 $m$ 的标准 Klein--Gordon 传播子，并且有一种类型的顶点由下式给出
+    \begin{equation}
+      -2i\lambda\bigl( \delta^{ij}\delta^{kl} + \delta^{il}\delta^{jk}
+        + \delta^{ik}\delta^{jl} \bigr) .
+      \label{eq:4.vertex}
+    \end{equation}
+    （也就是说，两个 $\Phi^1$ 与两个 $\Phi^2$ 之间的顶点值为 $(-2i\lambda)$；四个 $\Phi^1$ 之间的顶点值为 $(-6i\lambda)$。）计算到 $\lambda$ 的领头阶，在质心系中，下列散射过程的微分散面 $d\sigma/d\Omega$：
+    \begin{equation}
+      \Phi^1\Phi^2 \to \Phi^1\Phi^2,
+      \qquad \Phi^1\Phi^1 \to \Phi^2\Phi^2,
+      \qquad \Phi^1\Phi^1 \to \Phi^1\Phi^1 .
+    \end{equation}
+    用曼德尔施塔姆变量 $s$、$t$、$u$ 写出你的答案。
+  \item 对 $m^2<0$，势 $V$ 在非零的 $|\Phi|$ 值处有一个极小值，由下式给出
+    \begin{equation}
+      |\Phi_0|^2 = v^2 = -\frac{6m^2}{\lambda} .
+    \end{equation}
+    在这个场值处，$SO(N)$ 对称性自发破缺到 $SO(N-1)$。为了研究这个理论，让 $\Phi$ 只在极小值附近变化，并定义一个新场 $\pi^i(x)$：
+    \begin{equation}
+      \Phi^i(x) = \begin{cases}
+        v + \sigma(x) & i = N\\
+        \pi^i(x) & i \neq N
+      \end{cases}
+    \end{equation}
+    用 $\pi$ 和 $\sigma$ 重写拉格朗日量。（将会有 $\sigma\pi\pi$、$\sigma\sigma\sigma$、$\sigma\sigma\sigma\sigma$、$\sigma\sigma\pi\pi$ 和 $\sigma\pi\pi\pi$ 顶点。）
+  \item 对 $m^2 < 0$，分析 $V$ 的极小值附近的理论。证明 $N-1$ 个场 $\pi^i$ 是无质量的（这些是南部-戈德斯通玻色子，我们将在第 11 章讨论），而 $\sigma$ 场具有质量
+    \begin{equation}
+      m_\sigma^2 = -\frac{2}{3}m^2 .
+    \end{equation}
+    计算到 $\lambda$ 的领头阶，在质心系中，散射过程
+    \begin{equation}
+      \pi^1\pi^2 \to \pi^1\pi^2 .
+    \end{equation}
+    的微分散面 $d\sigma/d\Omega$。现在有四个费曼图有贡献。证明在阈值（$p^\mu = 0$）处，这些图之和为零。（\emph{提示}：先考虑具体过程 $\pi^1\pi^1\to\pi^2\pi^2$ 也许最容易，因为对该过程只有第一个和第四个图非零，然后再处理一般情形。）证明在特殊情形 $N=2$（1 种 $\pi$ 介子）下，$\mathcal{O}(p^2)$ 项也相消。
+  \item 在 $V$ 中加入一个对称性破缺项，
+    \begin{equation}
+      \Delta V = -a\Phi^N ,
+    \end{equation}
+    其中 $a$ 是一个（小的）常数。（在 QCD 中，如果 $u$ 和 $d$ 夸克具有相同的非零质量，就会产生这种形式的项。）求使 $V$ 极小的 $v$ 的新值，并研究理论在该点附近的内容。证明 $\pi$ 介子获得一个质量，使得 $m_\pi \sim a$，并证明 $\pi$ 介子散射振幅在阈值处现在非零，且也正比于 $a$。
+\end{enumerate}
+
+\textbf{4.4} \emph{卢瑟福散射。} 电子被原子核库仑场散射的截面可以在不量子化电磁场的情况下计算到最低阶。而是把该场当作一个给定的经典势 $A^\mu(x)$。相互作用哈密顿量为
+\begin{equation}
+  H_{\mathrm{int}} = -e\int d^3x\ \bar{\psi}\gamma^\mu\psi\,A_\mu ,
+\end{equation}
+其中 $\psi(x)$ 是通常的量子化狄拉克场。
+\begin{enumerate}[label=(\alph*)]
+  \item 证明电子被局域经典势散射的 $T$ 矩阵元到最低阶为
+    \begin{equation}
+      \langle \mathbf{p}'|iT|\mathbf{p}\rangle
+        = -ie\ \bar{u}(p')\gamma^\mu u(p)\ \tilde{A}_\mu(p'-p) ,
+    \end{equation}
+    其中 $\tilde{A}_\mu(q)$ 是 $A_\mu(x)$ 的四维傅里叶变换。
+  \item 如果 $A_\mu(x)$ 与时间无关，它的傅里叶变换含有一个能量的 $\delta$ 函数。于是自然可以定义
+    \begin{equation}
+      \langle \mathbf{p}'|iT|\mathbf{p}\rangle
+        = i\mathcal{M}\cdot(2\pi)\,\delta(E_f - E_i) ,
+    \end{equation}
+    其中 $E_i$ 和 $E_f$ 是粒子的初能量和末能量，并采用一条计算 $\mathcal{M}$ 的新费曼规则：
+    \begin{equation}
+      \text{顶点} = -ie\gamma^\mu\ \tilde{A}_\mu(\mathbf{q}),
+    \end{equation}
+    其中 $\tilde{A}_\mu(\mathbf{q})$ 是 $A_\mu(\mathbf{x})$ 的三维傅里叶变换。给定 $\mathcal{M}$ 的这个定义，证明被与时间无关的局域势散射的截面为
+    \begin{equation}
+      \frac{d\sigma}{d\Omega} = \frac{1}{4\pi^2}\ |\mathcal{M}
+        (\mathbf{p}'\to\mathbf{p})|^2\ \frac{p'^2\,dp'/dE'}{(2\pi)^3\,E'}
+        \cdots ,
+    \end{equation}
+    这是 \eqref{eq:4.79} 的一个自然修改。对 $|p_f|$ 积分，求出 $d\sigma/d\Omega$ 的一个简单表达式。
+  \item 具体化到电子被库仑势（$A^0 = Ze/4\pi r$）散射的情形。在非相对论极限下工作，导出卢瑟福公式，
+    \begin{equation}
+      \frac{d\sigma}{d\Omega} = \frac{\alpha^2Z^2}
+        {4m^2v^4\sin^4(\theta/2)} .
+    \end{equation}
+    （借助第 5.1 节的几个计算技巧，你将毫无困难地计算相对论情形下的一般截面；见习题 5.1。）
+\end{enumerate}

@@ -1,0 +1,244 @@
+\chapter{Overview of the Lattice Approach}
+
+LQCD calculations are a non-perturbative implementation of field theory
+using the Feynman path integral approach. The calculations proceed exactly as if the field theory was being solved analytically had we the ability
+to do the calculations. The starting point is the partition function in Euclidean space-time
+\begin{equation}
+  Z = \int \mathcal{D}A_\mu\, \mathcal{D}\bar{\psi}\, \mathcal{D}\psi\, e^{-S}
+  \label{eq:partition}
+\end{equation}
+where $S$ is the QCD action
+\begin{equation}
+  S = \int d^4x \left( \frac{1}{4} F_{\mu\nu}F^{\mu\nu} - \bar{\psi} M \psi \right).
+  \label{eq:qcd_action}
+\end{equation}
+and $M$ is the Dirac operator. The fermions are represented by Grassmann
+variables $\psi$ and $\bar{\psi}$. These can be integrated out exactly with
+the result
+\begin{equation}
+  Z = \int \mathcal{D}A_\mu\, \det M\, e^{\int d^4x \left(-\frac{1}{4} F_{\mu\nu}F^{\mu\nu}\right)}.
+  \label{eq:partition_det}
+\end{equation}
+The fermionic contribution is now contained in the highly non-local term
+$\det M$, and the partition function is an integral over only background
+gauge configurations. One can write the action, after integration over the
+fermions, as $S = S_\mathrm{gauge} + S_\mathrm{quarks} = \int d^4x ( \frac{1}{4} F_{\mu\nu}F^{\mu\nu} - i \sum_i \log(\mathrm{Det}\,M_i) )$
+where the sum is over the quark flavors, distinguished by the value of the
+bare quark mass.
+
+It is expedient to define the ``quenched'' approximation (QQCD) from
+the very start due to the central role it has played in simulations. It consists of setting $\mathrm{Det}\,M = \mathrm{constant}$ which corresponds to removing vacuum
+polarization effects from the QCD vacuum. Details and some consequences
+of this approximation are discussed in Section 16.8.
+
+Results for physical observables are obtained by calculating expectation
+values
+\begin{equation}
+  \langle O \rangle = \frac{1}{Z} \int \mathcal{D}A_\mu\, O\, e^{-S}.
+  \label{eq:expectation}
+\end{equation}
+where $O$ is any given combination of operators expressed in terms of timeordered products of gauge and quark fields. (Expectation values in the
+path integral approach correspond to time-ordered correlation functions.)
+The quarks fields in $O$ are, in practice, re-expressed in terms of quark
+propagators using Wick's theorem for contracting fields. In this way all
+dependence on quarks as dynamical fields is removed. The basic building
+block for fermionic quantities is the Feynman propagator,
+\begin{equation}
+  S_F(y, j, b; x, i, a) = \left( M^{-1} \right)^{y,j,b}_{x,i,a},
+  \label{eq:feynman_propagator}
+\end{equation}
+where $M^{-1}$ is the inverse of the Dirac operator calculated on a given background field. A given element of this matrix $\left( M^{-1} \right)^{y,j,b}_{x,i,a}$ is the amplitude for
+the propagation of a quark from site $x$ with spin-color $i, a$ to site-spin-color
+$y, j, b$.
+
+So far all of the above is standard field theory. The problem we face
+in QCD is how to actually calculate these expectation values and how to
+extract physical observables from these. I will illustrate the second part
+first by using as an example the mass and decay constant of the pion.
+
+Consider the 2-point correlation function, $\langle 0| T \left[ \sum_x O_f(x, t) O_i(0, 0) \right] |0\rangle$
+with $t > 0$, where the operators $O$ are chosen to be the fourth component of
+the axial current $O_f = O_i = A_4 = \bar{\psi}\gamma_4\gamma_5\psi$ as these have a large coupling to
+the pion. This 2-point correlation function gives the amplitude for creating
+a state with the quantum numbers of the pion out of the vacuum at spacetime point $0$ by the ``source'' operator $O_i$; the evolution of this state to
+the point $(x, t)$ via the QCD Hamiltonian (or more precisely the transfer
+matrix to be discussed in Section 5); and finally the annihilation by the
+``sink'' operator $O_f$ at $(x, t)$. The rules of quantum mechanics tell us that
+$O_i$ will create a state that is a linear combination of all possible eigenstates
+of the Hamiltonian that have the same quantum numbers as the pion, i.e.\
+the pion, radial excitations of the pion, three pions in $J = 0$ state, \ldots.
+The second rule is that on propagating for Euclidean time $t$, a given eigenstate
+with energy $E$ picks up a weight $e^{-Et}$. Thus, the 2-point function can be
+written in terms of a sum over all possible intermediate states
+\begin{equation}
+  \langle 0| \sum_x O_f(x, t) O_i(0) |0\rangle
+  = \sum_n \frac{\langle 0|O_f|n\rangle\langle n|O_i|0\rangle}{2E_n} e^{-E_n t}.
+  \label{eq:2pt_spectral}
+\end{equation}
+To study the properties of the pion at rest we need to isolate this state from
+the sum over $n$. To do this, the first simplification is to use the Fourier
+projection $\sum_x$ as it restricts the sum over states to just zero-momentum
+states, so $E_n \to M_n$. (Note that it is sufficient to make the Fourier projection over either $O_i$ or $O_f$.) The second step to isolate the pion, i.e.\
+project in the energy, consists of a combination of two strategies. One,
+make a clever choice of the operators $O$ to limit the sum over states to a
+single state (the ideal choice is to set $O$ equal to the quantum mechanical
+wave-functional of the pion), and two, examine the large $t$ behavior of the
+2-point function where only the contribution of the lowest energy state that
+couples to $O_i$ is significant due to the exponential damping. Then
+\begin{equation}
+  \langle 0| \sum_x O_f(x, t) O_i(0) |0\rangle
+  \xrightarrow[t\to\infty]{}
+  \frac{\langle 0|O_f|\pi\rangle\langle\pi|O_i|0\rangle}{2M_\pi} e^{-M_\pi t}.
+  \label{eq:2pt_pion}
+\end{equation}
+The right hand side is now a function of the two quantities we want since
+$\langle 0|A_4(p = 0)|\pi\rangle = M_\pi f_\pi$. In this way, the mass and the decay constant
+are extracted from the rate of exponential fall-off in time and from the
+amplitude.
+
+Let me now illustrate how the left hand side of Eq.~\eqref{eq:2pt_pion} is expressed in
+terms of the two basic quantities we control in the path integral --- the gauge
+fields and the quark propagator. Using Wick contractions, the correlation
+function can be written in terms of a product of two quark propagators $S_F$,
+\begin{equation}
+  \begin{aligned}
+    -&\langle 0| \sum_x \bar{\psi}(x, t)\gamma_4\gamma_5\psi(x, t)\ \bar{\psi}(0, 0)\gamma_4\gamma_5\psi(0, 0)|0\rangle \\
+    &\equiv \langle 0| \sum_x S_F(0; x, t)\gamma_4\gamma_5 S_F(x, t; 0)\gamma_4\gamma_5|0\rangle.
+  \end{aligned}
+  \label{eq:wick_local}
+\end{equation}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/fig4.png}
+  \caption{A schematic of the pion 2-point correlation function for (A) local and (B) nonlocal interpolating operators.}
+  \label{fig:4}
+\end{figure}
+
+This correlation function is shown in Fig.~\ref{fig:4}A. To illustrate this Wick contraction procedure further consider using gauge
+invariant non-local operators, for example take $O = \bar{\psi}(x, t)\gamma_4\gamma_5 \left( P e^{i g \int_x^y dz\, A_\mu(z)} \right)\psi(y, t)$ where $P$
+stands for path-ordered. After Wick contraction the correlation function
+reads
+\begin{equation}
+  \langle 0| \sum_x S_F(0; x, t)\gamma_4\gamma_5 \left( P e^{i g \int_z^x A_\mu} \right) S_F(z, t; y, 0)\gamma_4\gamma_5 \left( P e^{i g \int_0^y A_\mu} \right)|0\rangle.
+  \label{eq:wick_extended}
+\end{equation}
+and involves both the gauge fields and quark propagators. This correlation function would have the same long $t$ behavior as shown in Eq.~\eqref{eq:2pt_spectral},
+however, the amplitude will be different and consequently its relation to
+$f_\pi$ will no longer be simple. The idea behind strategies for improving
+the projection of $O$ on to the pion is to construct a suitable combination of such operators that approximates the pion wave-function. For example, if $\phi(x)$ is the pion wave-functional,
+then the ``smeared'' operator $O = \bar{\psi}(0)\gamma_4\gamma_5 \int d^3x\, \phi(x)\psi(x)$ is the ideal choice.
+
+Finally, it is important to note that to get the 2-point function corresponding to the propagation of the physical pion we have to average the
+correlation function over gauge configurations as defined in Eq.~\eqref{eq:expectation}, i.e.\ do
+the functional integral.
+
+An overview of how such calculations of expectation values can be done
+consists of the following steps.
+\begin{itemize}
+  \item \textbf{Defining a finite dimensional system:} The Yang-Mills action for gauge
+    fields and the Dirac operator for fermions have to be transcribed onto a discrete space-time lattice in such a way as to preserve all the key properties
+    of QCD --- gauge invariance, chiral symmetry, topology, and a one-to-one
+    relation between continuum and lattice fields. This step is the most difficult, and even today we do not have a really satisfactory lattice formulation
+    that is chirally symmetric in the $m_q = 0$ limit and preserves a one-to-one
+    relation between continuum and lattice fields, i.e.\ no doublers. In fact, the
+    Nielson-Ninomiya theorem states that for a translationally invariant, local,
+    hermitian formulation of the lattice theory one cannot simultaneously have
+    chiral symmetry and no doublers [14]. One important consequence of this
+    theorem is that, in spite of tremendous effort, there is no practical formulation of chiral fermions on the lattice. For a review of the problems and
+    attempts to solve them see [15--17] and [18].
+  \item \textbf{Discretization Errors:} This problem is encountered when approximating
+    derivatives in the action by finite differences,
+    \begin{equation}
+      \partial_x \phi(x) \to \Delta_x \phi(x)
+      = \frac{1}{2a}\left( \phi(x + a) - \phi(x - a) \right)
+      = \frac{1}{2a}\left( e^{a\partial_x} - e^{-a\partial_x} \right)\phi(x).
+      \label{eq:derivative}
+    \end{equation}
+    As is obvious this introduces discretization errors proportional to the square
+    of the lattice spacing $a$. These errors can be reduced by either using higher
+    order difference schemes with coefficients adjusted to take into account
+    effects of renormalization, or equivalently, by adding appropriate combinations of irrelevant operators to the action that cancel the errors order by order in $a$. The various approaches to improving the gauge and Dirac actions
+    are discussed in Sections 12 and 13. In my lectures I will concentrate on
+    the three most frequently used discretizations of the Dirac action --- Wilson
+    [19], Sheikholeslami-Wohlert (clover) [20], and staggered [21], which have
+    errors of $O(a)$, $O(\alpha_s a) - O(a^2)$ depending on the value of the coefficient
+    of the clover term, and $O(a^2)$ respectively. Reducing the discretization errors by improving the action and operators increases the reliability of the
+    results, and for dynamical simulations may even prove necessary due to
+    limitations of computer power. At the same time it is important to note
+    that there exists a well defined procedure for obtaining continuum results
+    with even the simplest formulation, Wilson's original gauge and fermion
+    action [19]. In this case, however, it is necessary to quantify and remove
+    the discretization errors by a reliable extrapolation to $a = 0$.
+  \item \textbf{Generating background gauge fields:} The Euclidean action $S = \int d^4x ( \frac{1}{4} F_{\mu\nu}F^{\mu\nu} - \mathrm{Tr}\log M )$ for QCD at zero chemical potential is real
+    and bounded from below. Thus $e^{-S}$ in the path integral is analogous to
+    the Boltzmann factor in the partition function for statistical mechanics
+    systems, i.e.\ it can be regarded as a probability weight for generating configurations. Since $S$ is an extensive quantity the range of $S$ is enormous,
+    however, the distribution is very highly peaked about configurations that
+    minimize the free energy. Configurations close to the peak dominate the
+    functional integral. Such important configurations can be generated by
+    setting up a Markov chain in exact analogy to, say, simulations of the Ising
+    model. They are called ``importance sampled'' as they are generated with
+    probability of occurrence given by the weight $e^{-S}$. For a discussion of the
+    methods used to update the configurations see [1] or the lectures by Creutz
+    and Sokal in [2].
+  \item \textbf{Calculation of the quark propagator on a given background gauge field:} For
+    a given background gauge configuration, the Feynman quark propagator $S_F$
+    is a matrix labeled by three indices --- site, spin, and color. A given element
+    of this matrix gives the amplitude for the propagation of a quark with
+    some spin, color, and space-time point to another space-time point, spin,
+    and color. Operationally, $S_F$ is simply the inverse of the Dirac operator
+    $M$. Once space-time is made discrete and finite, the Dirac matrix is also
+    finite and its inverse can be calculated numerically. Inverting the Dirac
+    operator is the key computational step in LQCD and consumes over 90\%
+    of the CPU cycles. To construct the correlation functions requires $S_F$ only
+    from a given source point to all other sites of the lattice. This corresponds
+    to 12 columns (or rows) of $M^{-1}$, one each for the 12 spin and color degrees
+    of freedom.
+  \item \textbf{Correlation functions:} The correlation functions are expressed as path
+    ordered products of quark propagators and gauge fields using Wick contraction of the operator fields. There are two kinds of correlation functions that
+    are calculated --- gauge invariant correlation functions as discussed above
+    for the case of the pion, or those in a fixed gauge.
+  \item \textbf{Expectation values:} The expectation value is simply an average of the
+    correlation function evaluated over the set of ``importance sampled'' configurations. Even on a finite lattice the set of background gauge configurations is infinite as the variables are continuous valued. Thus, while it
+    is possible to calculate the correlation functions on specified background
+    gauge configurations, doing the functional integral exactly is not feasible.
+    It is, therefore, done numerically using monte carlo methods.
+\end{itemize}
+
+My recommendation for the simplest way to understand the computational aspects of LQCD calculations is to first gain familiarity with the
+numerical treatment of any simple statistical mechanics system, for example the Ising model. The differences are: (i) the degrees of freedom in
+LQCD are much more complicated --- SU(3) link matrices rather than Ising
+spins, and quark propagators on these background configurations evaluated
+by inverting the Dirac operator; (ii) The action involves the highly nonlocal
+term Ln Det $M$ which makes the update of the gauge configurations very
+expensive; and (iii) the correlation functions are not simple products of spin
+variables like the specific heat or magnetic susceptibility, but complicated
+functions of the link variables and quark propagators.
+
+The subtleties arising due to the fact that LQCD is a renormalizable
+quantum field theory and not a classical statistical mechanics system come
+into play when analyzing the behavior of the correlation functions as a
+function of the lattice spacing $a$, and in the quantum corrections that renormalize the input parameters (quark and gluon fields and their masses) and
+the composite operators used in the correlation functions. At first glance
+it might seem that we have introduced an additional parameter, the lattice
+spacing $a$, in LQCD, however, as will be shown in Section 14, the coupling
+$g$ and the cutoff $a$ are not independent quantities but are related by the
+renormalization group as
+\begin{equation}
+  \Lambda_\mathrm{QCD} = \lim_{a\to 0} \frac{1}{a} e^{-1/(2\beta_0 g^2(a))} \left( \beta_0 g^2(a) \right)^{-\beta_1/(2\beta_0^2)},
+  \label{eq:lambdacd}
+\end{equation}
+where $\Lambda_\mathrm{QCD}$ is the non-perturbative scale of QCD, and $\beta_0$ and $\beta_1$ are the
+first two, scheme independent, coefficients of the $\beta$-function. In statistical
+mechanics systems, the lattice spacing $a$ is a physical quantity --- the intermolecular separation. In a quantum field theory, it is simply the ultraviolet
+regulator that must eventually be taken to zero keeping physical quantities,
+like the renormalized couplings ($\Lambda_\mathrm{QCD}$ and quark masses), spectrum, etc,
+fixed.
+
+The reason that lattice results are not exact is because in numerical
+simulations we have to make a number of approximations as discussed in
+Section 16. The size of the associated uncertainties is dictated by the
+computer power at hand. They are being improved steadily with computer
+technology, better numerical algorithms, and better theoretical understanding. I shall return to the issue of errors after discussing the formulation of
+LQCD.
