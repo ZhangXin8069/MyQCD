@@ -1,0 +1,1202 @@
+% =====================================================================
+%  Chapter 1: The path integral on the lattice
+%  Gattringer & Lang, "Quantum Chromodynamics on the Lattice" (LNP 788)
+%  Reconstructed from extract/ch01.txt; equations auto-numbered.
+% =====================================================================
+
+\chapter{The path integral on the lattice}
+
+The basic tool for quantizing fields on the lattice is the Euclidean path
+integral. Our first chapter is dedicated to the introduction of the path
+integral formalism and to its interpretation. In order to develop the idea
+without getting lost in technicalities we introduce the path integral for the
+simplest case, a scalar field theory. We derive and discuss the two key
+equations of lattice field theory. The first key equation is
+\begin{equation}
+  \begin{split}
+    \ev{O_2(t)\,O_1(0)}
+    &= \lim_{T\to\infty}\frac{1}{Z_T}\tr\!\big[e^{-(T-t)H}O_2\,e^{-tH}O_1\big]\\
+    &= \sum_n \bbraket{0}{O_2}{n}\,\bbraket{n}{O_1}{0}\,e^{-tE_n},
+  \end{split}
+\end{equation}
+where $Z_T$ is a normalization factor given by $Z_T = \tr[e^{-TH}]$. The
+left-hand side of (1.1) is the Euclidean correlation function of two operators
+$O_1$ and $O_2$, $H$ is the Hamiltonian of the system. On the right-hand side
+the Euclidean correlator is expressed as a sum over eigenstates of the
+Hamiltonian operator labeled by $n$. The terms in the sum contain matrix
+elements of the operators $O_i$ taken between the vacuum $\ket{0}$ and the
+physical states $\ket{n}$. These matrix elements are weighted with exponentials
+containing the energy eigenvalues $E_n$ of the system. The right-hand side of
+(1.1) can thus be used to extract matrix elements of operators as well as the
+energy spectrum of the theory.
+
+In the second key equation
+\begin{equation}
+  \frac{1}{Z_T}\tr\!\big[e^{-(T-t)H}O_2\,e^{-tH}O_1\big]
+  = \frac{1}{Z_T}\int D[\Phi]\,e^{-S_E[\Phi]}\,O_2[\Phi(\cdot,t)]\,O_1[\Phi(\cdot,0)],
+\end{equation}
+the Euclidean correlator on the left-hand side is expressed as a path integral,
+which is an integral over all possible configurations of the field $\Phi$. This
+is a crucial point. The left-hand side is formulated in the operator language
+of quantum field theory. The right-hand side knows nothing about field
+operators. In the integrand the two operators $O_i$ are translated to
+functionals $O_i$ of the fields and then weighted with the Boltzmann factor
+containing the classical Euclidean action $S_E[\Phi]$. The right-hand side of
+(1.2) can be evaluated numerically on the lattice.
+
+\section{Hilbert space and propagation in Euclidean time}
+
+This first section is dedicated to a detailed discussion of the Euclidean
+correlators (1.1). Before we actually introduce the Euclidean correlators we
+prepare the ground with a brief summary of the definition and properties of
+Hilbert spaces (see, e.g., [1--4] for introductory texts).
+
+\subsection{Hilbert spaces}
+
+A Hilbert space $\mathcal{H}$ is an infinite dimensional vector space. Its
+elements can be added and multiplied with scalars and $\mathcal{H}$ is closed
+under these operations, i.e., for vectors $\ket{u}, \ket{v} \in
+\mathcal{H}$ and complex numbers $\alpha$, $\beta$ we find
+\begin{equation}
+  \alpha\ket{u} + \beta\ket{v} \in \mathcal{H}.
+\end{equation}
+We will often refer to vectors in Hilbert space as states. In addition, a
+Hilbert space is equipped with a scalar product, i.e., a sesquilinear
+functional $\braket{u}{v}$ which maps a vector $\ket{v}$ and a dual vector
+$\bra{u}$ into the complex numbers. The scalar product obeys the properties
+(the $*$ denotes complex conjugation)
+\begin{align}
+  \braket{u}{v} &= \braket{v}{u}^*, \\
+  \braket{w}{\alpha u + \beta v} &= \alpha\braket{w}{u} + \beta\braket{w}{v}.
+\end{align}
+The Hilbert spaces we are interested in here have a complete, countable basis,
+i.e., a set of linearly independent vectors $\ket{e_n}$ such that every vector
+$\ket{u} \in \mathcal{H}$ can be written as a linear combination of the basis
+elements,
+\begin{equation}
+  \ket{u} = \sum_n \alpha_n \ket{e_n},
+\end{equation}
+where the coefficients $\alpha_n$ are complex numbers. If the basis vectors
+$\ket{e_n}$ obey $\braket{e_m}{e_n} = \delta_{mn}$ the basis is called
+orthonormal.
+
+An operator $\hat{O}$ acting on the Hilbert space $\mathcal{H}$ maps vectors
+onto other vectors in the Hilbert space,
+\begin{equation}
+  \ket{u}\in\mathcal{H} \;\longrightarrow\; \hat{O}\ket{u}\in\mathcal{H}.
+\end{equation}
+The corresponding adjoint operator $\hat{O}^\dagger$ is defined by
+\begin{equation}
+  \bra{u}\hat{O}\ket{v} = \bra{v}\hat{O}^\dagger\ket{u}^*.
+\end{equation}
+If the operator obeys $\hat{O}^\dagger = \hat{O}$ for all $\mathcal{H}$ it is
+called self-adjoint or hermitian. An eigenvector or eigenstate $\ket{u}$ of an
+operator $\hat{O}$ is a vector obeying the equation
+\begin{equation}
+  \hat{O}\ket{u} = \lambda\ket{u},
+\end{equation}
+for some complex number $\lambda$, the so-called eigenvalue. The eigenvalues of
+self-adjoint operators are real and eigenvectors with different eigenvalues are
+orthogonal to each other. Eigenvectors with equal eigenvalues can be made
+orthogonal and after normalization the eigenvectors of a self-adjoint operator
+form an orthonormal set. For a large class of operators the corresponding set
+of eigenvectors provides an orthonormal basis for the Hilbert space.\footnote{We
+remark that our short summary of Hilbert spaces focuses on the algebraic
+properties we actually need in subsequent calculations. For more subtle aspects
+such as the completeness of an eigensystem or the discussion of eigenvectors of
+the continuous spectrum we refer the reader to the more mathematical literature
+[5, 6].}
+
+The unit operator $\mathbb{1}$ can be written in terms of the vectors of a
+complete orthonormal basis as
+\begin{equation}
+  \mathbb{1} = \sum_n \ket{e_n}\bra{e_n}.
+\end{equation}
+This is also called the completeness relation. Finally, we define the trace
+$\tr[\hat{O}]$ of an operator as
+\begin{equation}
+  \tr[\hat{O}] = \sum_n \bra{e_n}\hat{O}\ket{e_n},
+\end{equation}
+where the sum runs over the vectors of an orthonormal basis. Operators in which
+the trace exists are called trace class. We stress that the trace is invariant
+under a change of the basis used for its evaluation since different orthonormal
+bases are related by unitary transformations.
+
+In some of the calculations in this book we will use non-countable complete
+sets of states, such as momentum eigenstates. For these sets the sums in (1.6),
+(1.10), and (1.11) are replaced by integrals.
+
+\subsection{Remarks on Hilbert spaces in particle physics}
+
+Let us add a few remarks about the Hilbert spaces relevant to particle physics.
+We do not attempt a systematic construction of these Hilbert spaces (see, e.g.,
+[4]) but concentrate on discussing some properties needed here.
+
+An important feature of Hilbert spaces in particle physics is the fact that
+their vectors can be multiparticle states. The underlying physical reason is
+that, when relativistic field theories are used to describe a physical system,
+particle creation and annihilation processes take place. In order to
+incorporate this feature, the Hilbert space is a direct sum of 0-particle,
+1-particle, 2-particle, etc., Hilbert spaces. Such a Hilbert space is known as
+a Fock space.
+
+A typical example of a vector in a Fock space is a state with a pion at some
+position $x$ and a proton at some other position $y$ (a 2-particle state). An
+example of a 1-particle state is a state with a single $\Delta$-baryon at the
+origin. States of particles may be described by their quantum numbers and their
+position, but also the particle momentum can be used to characterize the state.
+An example of such a case would be a state consisting of two pions with momenta
+$p$ and $-p$.
+
+The 0-particle state is referred to as the vacuum and is denoted by $\ket{0}$.
+We remark that in some situations, such as spontaneous breaking of symmetries,
+the vacuum state is not necessarily unique.
+
+An important class of operators are field operators creating and annihilating
+particles. In many cases the adjoint of a field operator is the field operator
+for the corresponding antiparticle. An example which illustrates this feature
+is the pion system: Let $O_{\pi^+}^\dagger$ be the operator that creates a
+state with the quantum numbers of the $\pi^+$ meson (actually this operator is
+constructed as a product of quark and antiquark field operators). The adjoint
+$O_{\pi^+}$ of this operator either annihilates that state or creates a state
+with the quantum numbers of its antiparticle, the $\pi^-$ meson. We will
+discuss the construction of hadron operators and their properties in more
+detail in Chap. 6.
+
+We remark that all the states and operators we have discussed so far are time
+independent. Their evolution in Euclidean time will be discussed now.
+
+\subsection{Euclidean correlators}
+
+Having prepared the ground we can now start to discuss Euclidean correlators.
+Let us begin with defining the Euclidean correlator
+$\ev{O_2(t)\,O_1(0)}_T$ by
+\begin{equation}
+  \ev{O_2(t)\,O_1(0)}_T
+  = \frac{1}{Z_T}\tr\!\big[e^{-(T-t)H}O_2\,e^{-tH}O_1\big],
+\end{equation}
+where the normalization factor $Z_T$ is given by
+\begin{equation}
+  Z_T = \tr\big[e^{-TH}\big].
+\end{equation}
+Later we will show that in the Euclidean path integral formalism the
+normalization factor $Z_T$ is a partition function of a system of statistical
+mechanics. Here $O_1$ and $O_2$ can be operators that create or annihilate
+states, or operators that measure observables or combinations of all of these.
+The self-adjoint operator $\hat{H}$ is the Hamiltonian operator of the system
+which measures the energy in the system and also governs the time evolution.
+The parameters $T$ and $t$ are real, non-negative numbers denoting Euclidean
+time distances of propagation. Whereas $t$ is the actual distance of interest
+to us, $T$ is a formal maximal distance, which will eventually be taken to
+infinity. The exponentials of the Hamiltonian operator can in most cases
+(bounded operators) be defined through their power series expansion
+\begin{equation}
+  e^{-tH} = \sum_{j=0}^{\infty}\frac{(-t)^j}{j!}\,H^j.
+\end{equation}
+
+Let us evaluate the partition function $Z_T$. According to the definition (1.11)
+of the trace we need to sandwich the operator between vectors of an orthonormal
+basis and then sum over all basis vectors. The result is independent of which
+particular orthonormal basis one uses. For the trace in (1.13) a natural choice
+is the basis of the eigenstates of $\hat{H}$. Denoting the eigenstates of
+$\hat{H}$ as $\ket{n}$, the corresponding eigenvalue equation reads
+\begin{equation}
+  \hat{H}\ket{n} = E_n\ket{n}.
+\end{equation}
+The energy eigenvalues $E_n$ are real numbers and, assuming discrete spectrum,
+we order the states such that
+\begin{equation}
+  E_0 \leq E_1 \leq E_2 \leq E_3 \cdots
+\end{equation}
+The index $n$ labels all the combinations of quantum numbers describing the
+states such that their energies are ordered according to (1.16).
+
+When using the basis $\ket{n}$ for evaluating the trace in (1.13) one finds
+\begin{equation}
+  Z_T = \sum_n \bra{n}e^{-TH}\ket{n} = \sum_n e^{-TE_n},
+\end{equation}
+where in the second step we used (1.15) and the normalization of the
+eigenstates, $\braket{n}{n} = 1$. The partition function $Z_T$ is simply a sum
+over the exponentials of all energy eigenvalues $E_n$.
+
+The Euclidean correlator $\ev{O_2(t)\,O_1(0)}_T$ can be evaluated in a similar
+way. When computing the trace as before and inserting the unit operator in the
+form (1.10) to the right of $O_2$ we obtain
+\begin{align}
+  \ev{O_2(t)\,O_1(0)}_T
+  &= \frac{1}{Z_T}\sum_{m,n}\bra{m}e^{-(T-t)H}O_2\ket{n}\bra{n}e^{-tH}O_1\ket{m} \notag\\
+  &= \frac{1}{Z_T}\sum_{m,n} e^{-(T-t)E_m}\,\bbraket{m}{O_2}{n}\,e^{-tE_n}\,\bbraket{n}{O_1}{m}.
+\end{align}
+The next step is to insert the expression (1.17) for $Z_T$ into the last
+equation and to pull out a factor of $e^{-TE_0}$ both in the numerator and in
+the denominator. This leads to
+\begin{equation}
+  \ev{O_2(t)\,O_1(0)}_T
+  = \frac{\displaystyle\sum_{m,n}\bbraket{m}{O_2}{n}\,\bbraket{n}{O_1}{m}\,
+       e^{-t\Delta E_n}\,e^{-(T-t)\Delta E_m}}
+         {1 + e^{-T\Delta E_1} + e^{-T\Delta E_2} + \cdots},
+\end{equation}
+where we defined
+\begin{equation}
+  \Delta E_n = E_n - E_0.
+\end{equation}
+Thus, the Euclidean correlator $\ev{O_1(0)\,O_2(t)}_T$ depends only on the
+energies normalized relative to the energy $E_0$ of the vacuum. It is exactly
+these energy differences that can be measured in an experiment. For convenience
+from now on we use $E_n$ to denote the energy differences relative to the
+vacuum, i.e., we use $E_n$ instead of $\Delta E_n$. This implies that the
+energy $E_0$ of the vacuum $\ket{0}$ is normalized to zero.
+
+We now analyze (1.19) in the limit $T \to \infty$. In this limit (assuming
+that the vacuum is unique and $E_1 > 0$) the denominator is equal to 1.
+Similarly, in the numerator only those terms where $E_m = 0$ survive, i.e.,
+only the contributions where $\ket{m} = \ket{0}$. We thus obtain
+\begin{equation}
+  \lim_{T\to\infty}\ev{O_2(t)\,O_1(0)}_T
+  = \sum_n \bbraket{0}{O_2}{n}\,\bbraket{n}{O_1}{0}\,e^{-tE_n}.
+\end{equation}
+The expression which we have derived here will be central for the
+interpretation of lattice field theory. It is a sum of exponentials and each
+exponent corresponds to an energy level. These energies can be calculated as
+follows: Let us assume that one wants to compute the energy of a proton $p$.
+For $O_1$ one chooses an operator $O_p^\dagger$ which creates from the vacuum a
+state with the quantum numbers of the proton and for $O_2$ the adjoint of that
+operator, the operator $O_p$ that annihilates the proton. Then the matrix
+element $\bra{n}O_p^\dagger\ket{0}$ vanishes for all states $\bra{n}$ that do
+not have the quantum numbers of the proton. The first state $\bra{n}$ where we
+find a contribution is the state describing a proton, i.e., $\bra{n} = \bra{p}$.
+Further up in the ladder of states one finds excited proton states $\bra{p'}$,
+$\bra{p''}$, \dots, which also have nonvanishing overlap with
+$O_p^\dagger\ket{0}$. We thus obtain
+\begin{equation}
+  \lim_{T\to\infty}\ev{O_p(t)\,O_p(0)^\dagger}_T
+  = \big|\bra{p}O_p^\dagger\ket{0}\big|^2 e^{-tE_p}
+    + \big|\bra{p'}O_p^\dagger\ket{0}\big|^2 e^{-tE_{p'}} + \cdots,
+\end{equation}
+where we made use of (1.8) to simplify the coefficients in front of the
+exponentials. For sufficiently large $t$ the sub-leading terms are strongly
+suppressed since $E_{p'} > E_p$. Therefore, at sufficiently large $t$ we obtain
+$E_p$ from the exponential decay of the Euclidean correlator. When using other
+operators $O_1$, $O_2$ that create other states from the vacuum, we can extract
+the ground state energies for all particles in the spectrum of the theory in a
+way similar to what we have just demonstrated for the proton. Furthermore, one
+can also study the matrix elements $\bra{n}\hat{O}\ket{0}$. Since $\hat{O}$ can
+be a product of several operators, a wide range of matrix elements is
+accessible. Such techniques will be discussed in great detail in Chaps. 6
+and 11.
+
+This completes our discussion of the properties of Euclidean correlators. In
+the next section we introduce the path integral as a technique for calculating
+the correlators (1.12).
+
+Let us conclude this section with a short remark on the relation of our
+Euclidean correlators to real time, Minkowski quantum mechanics. In the
+Heisenberg picture, where the operators are time dependent, an operator at time
+$\tau$ is given by (note that we use $\hbar \equiv 1$)
+\begin{equation}
+  \hat{O}(\tau) = e^{i\tau H}\,\hat{O}\,e^{-i\tau H}.
+\end{equation}
+Thus, the Euclidean correlator (1.12) can be seen as the correlator of operator
+$O_1$ at time 0 with operator $O_2$ at imaginary time $t = i\tau$ times an
+extra time transporter $\exp(-TH)$ which projects to the vacuum for
+$T \to \infty$. Four-vectors with real-time $\tau$ correspond to Minkowski
+metric. When one switches to imaginary time $t = i\tau$, the relative minus
+sign between time- and space-components vanishes and the metric becomes
+Euclidean; thus, the name Euclidean correlators for the objects defined in
+(1.12).
+
+In the next section, where we discuss the path integral representation of the
+Euclidean correlator, we will encounter a similar transformation of the metric.
+The change from real to imaginary time is often referred to as Wick rotation.
+We stress, however, that it is not essential to interpret $t$ as time at all.
+The expression (1.12) can be simply viewed as a convenient mathematical tool
+which allows one to extract energy levels and matrix elements of operators.
+
+\section{The path integral for a quantum mechanical system}
+
+The Euclidean correlators (1.12) which we have introduced and analyzed in
+Hilbert space in the last section are now rewritten as path integrals -- a
+concept introduced by Feynman. In Sect. 1.3 we will derive the second key
+equation of lattice field theory, (1.2). However, as a preparatory step, in
+this section we first derive the path integral for a simple quantum mechanical
+system. This allows us to focus on the essential steps of the construction
+without too much technicalities. In Sect. 1.3 we will repeat the derivation of
+the path integral for a scalar field theory.
+
+The quantum mechanical system we use in our initial presentation of the path
+integral is a single particle in a potential $U$. To simplify things further we
+restrict the motion of the particle to the $x$-axis only. The system is
+described by the Hamiltonian
+\begin{equation}
+  \hat{H} = \frac{\hat{p}^2}{2m} + U.
+\end{equation}
+The canonical quantization condition is given by the commutator
+\begin{equation}
+  [\hat{x}, \hat{p}] = i,
+\end{equation}
+(we use $\hbar \equiv 1$) and implies that the momentum operator is given by
+\begin{equation}
+  \hat{p} = -i\frac{d}{dx}.
+\end{equation}
+
+For this system we want to compute the partition function according to (1.13)
+\begin{equation}
+  Z_T = \tr\big[e^{-TH}\big] = \int dx\,\bra{x}e^{-TH}\ket{x}.
+\end{equation}
+The second step in this equation already expresses our intent to use position
+states $\ket{x}$ to compute the trace.
+
+Let us begin with the evaluation of the necessary matrix elements for the free
+case:
+\begin{equation}
+  \bra{x}e^{-t\hat{p}^2/2m}\ket{y}
+  = \int dp\,\bbraket{x}{e^{-t\hat{p}^2/2m}}{p}\braket{p}{y}
+  = \int dp\,\braket{x}{p}\,\braket{p}{y}\,e^{-tp^2/2m}.
+\end{equation}
+In the first step we have inserted the unit operator according to (1.10) using
+the momentum eigenstates $\ket{p}$. In the second step we have used
+$\hat{p}\ket{p} = p\ket{p}$. Note that in the exponent on the right-hand side
+of (1.28), $p$ is no longer an operator but a number -- the momentum.
+
+Using the real space representation of the momentum eigenstates, i.e., the
+plane waves
+\begin{equation}
+  \braket{x}{p} = \frac{1}{\sqrt{2\pi}}\,e^{ipx},
+\end{equation}
+we find for our matrix element
+\begin{equation}
+  \bra{x}e^{-t\hat{p}^2/2m}\ket{y}
+  = \frac{1}{2\pi}\int dp\,e^{ip(x-y)}e^{-tp^2/2m}
+  = \sqrt{\frac{m}{2\pi t}}\,e^{-(x-y)^2m/(2t)}.
+\end{equation}
+In the last step we used the well-known Gaussian integral ($c$, $b$ real,
+$c > 0$)
+\begin{equation}
+  \int_{-\infty}^{\infty}dx\,e^{-cx^2}\,e^{\pm ibx}
+  = \sqrt{\frac{\pi}{c}}\,e^{-b^2/4c}.
+\end{equation}
+
+Let us now look at the general case with nonvanishing potential $U$. The
+problem here is that the two terms in the Hamiltonian (1.24) do not commute
+with each other, making the evaluation of the exponential of $\hat{H}$
+somewhat involved. We split the potential $U$ symmetrically, and for an
+infinitesimal Euclidean timestep $\varepsilon$ we write
+\begin{equation}
+  e^{-\varepsilon H} = e^{-\varepsilon U/2}\,e^{-\varepsilon\hat{p}^2/2m}\,
+  e^{-\varepsilon U/2}\,\big(1 + \order{\varepsilon}\big).
+\end{equation}
+This formula can be obtained from expanding both sides in $\varepsilon$. We
+abbreviate the leading term as
+\begin{equation}
+  W_\varepsilon = e^{-\varepsilon U/2}\,e^{-\varepsilon\hat{p}^2/2m}\,
+  e^{-\varepsilon U/2},
+\end{equation}
+and find
+\begin{equation}
+  \begin{split}
+    \bra{x}W_\varepsilon\ket{y}
+    &= e^{-\varepsilon U(x)/2}\,\bra{x}e^{-\varepsilon\hat{p}^2/2m}\ket{y}\,
+       e^{-\varepsilon U(y)/2}\\
+    &= \sqrt{\frac{m}{2\pi\varepsilon}}\,
+       e^{-\varepsilon U(x)/2}\,e^{-\varepsilon U(y)/2}\,e^{-(x-y)^2m/(2\varepsilon)}.
+  \end{split}
+\end{equation}
+In the first step we have used $\hat{U}\ket{x} = U(x)\ket{x}$, where $U(x)$ is
+a real number -- the value of the potential at $x$. In the second step we
+inserted (1.30).
+
+We can build up a finite Euclidean timestep $T$ from infinitesimal steps
+$\varepsilon$ using the Trotter formula (see, e.g., [7] for a proof),
+\begin{equation}
+  e^{-TH} = \lim_{N_T\to\infty} W_\varepsilon^{N_T}
+  \qquad \text{with} \quad \varepsilon = \frac{T}{N_T}.
+\end{equation}
+
+We obtain
+\begin{align}
+  Z_T &= \int dx_0\,\bra{x_0}e^{-TH}\ket{x_0}
+        = \lim_{N_T\to\infty}\int dx_0\,\bra{x_0}W_\varepsilon^{N_T}\ket{x_0} \notag\\
+      &= \lim_{N_T\to\infty}\int dx_0\cdots dx_{N_T-1}\,
+         \bra{x_0}W_\varepsilon\ket{x_1}\cdots \notag\\
+      &\qquad \bra{x_{N_T-2}}W_\varepsilon\ket{x_{N_T-1}}
+         \bra{x_{N_T-1}}W_\varepsilon\ket{x_0} \notag\\
+      &= \lim_{N_T\to\infty} C^{N_T}\int dx_0\cdots dx_{N_T-1}\, \notag\\
+      &\quad \exp\!\Big(-\varepsilon\sum_{j=0}^{N_T-1}
+           \Big[\frac{m}{2}\Big(\frac{x_j - x_{j+1}}{\varepsilon}\Big)^2 + U(x_j)\Big]\Big).
+\end{align}
+In this derivation we have inserted unit operators in the form
+$\int dx_i \ket{x_i}\bra{x_i}$ and then used the result (1.34) with the
+abbreviation $C = \sqrt{m/(2\pi\varepsilon)}$.
+
+Our expression (1.36) contains the limit $N_T \to \infty$. Since we are aiming
+at a numerical evaluation of our path integral with a computer, the number of
+steps $N_T$ we can use has to be finite. Hence we define an approximation of
+the partition function (we periodically identify $x_{N_T} \equiv x_0$)
+\begin{equation}
+  Z_T^\varepsilon = C^{N_T}\int dx_0\cdots dx_{N_T-1}\,
+  \exp\!\Big(-\varepsilon\sum_{j=0}^{N_T-1}
+    \Big[\frac{m}{2}\Big(\frac{x_{j+1} - x_j}{\varepsilon}\Big)^2 + U(x_j)\Big]\Big),
+\end{equation}
+where the stepsize $\varepsilon$ and the Euclidean time are related by
+$T = \varepsilon N_T$.
+
+The sum in the exponent has an interesting interpretation. Obviously, for
+smooth paths
+\begin{align}
+  \frac{x_{j+1} - x_j}{\varepsilon} &= \dot{x}(t) + \order{\varepsilon}
+    \qquad \text{with} \quad t = j\varepsilon, \notag\\
+  \sum_{j=0}^{N_T-1}\varepsilon\;\cdots\; &= \int_0^T dt\;\cdots\;
+    + \order{\varepsilon} \qquad \text{with} \quad T = N_T\varepsilon.
+\end{align}
+Thus we can identify
+\begin{equation}
+  \sum_{j=0}^{N_T-1}\varepsilon
+  \Big[\frac{m}{2}\Big(\frac{x_{j+1} - x_j}{\varepsilon}\Big)^2 + U(x_j)\Big]
+  = \int_0^T dt\;\Big[\frac{m}{2}\dot{x}(t)^2 + U(x(t))\Big] + \order{\varepsilon}.
+\end{equation}
+The expression on the right-hand side is called the Euclidean action $S_E$. It
+is obtained from the usual action $S$ when switching from real-time $\tau$ to
+imaginary-time $t = i\tau$ and rotating the contour of integration:
+\begin{equation}
+  \begin{split}
+    S[x,\dot{x}] &= \int_0^T d\tau\,
+      \Big[\frac{m}{2}\dot{x}(\tau)^2 - U(x(\tau))\Big]\\
+    &\;\to\; i\int_0^T dt\,
+      \Big[\frac{m}{2}\dot{x}(t)^2 + U(x(t))\Big] = i\,S_E[x,\dot{x}].
+  \end{split}
+\end{equation}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{fig11.png}
+  \caption*{Fig. 1.1. \emph{A discretized path contributing in (1.37)}.}
+  \label{fig:11}
+\end{figure}
+
+Let us summarize: We have found that we can construct an approximation
+$Z_T^\varepsilon$ of the partition function in the form of (1.37). In this
+approximation we divide the Euclidean time interval $T$ into $N_T$ steps of
+size $\varepsilon$ (using periodic boundary conditions). At each step we insert
+a variable $x_j$ which we integrate from $-\infty$ to $+\infty$. The collection
+of values $x_j$ can be interpreted as a path (compare Fig. 1.1) and the
+integral is over all possible paths. The integrand is the exponential (1.37)
+of the Euclidean action for the discretized path.
+
+In the next section we will develop a path integral representation for a system
+much closer to our target theory QCD. We will consider a scalar field theory.
+The technical steps of the construction -- free case, infinitesimal timesteps,
+Trotter formula -- will be the same. However, since we are dealing with a
+quantum field theory with many degrees of freedom, the calculation, in
+particular the corresponding notation, will be a little bit more involved.
+
+\section{The path integral for a scalar field theory}
+
+We now derive the key equation (1.2) for a scalar field theory. Although this
+is already a field theory, it has a simpler structure than QCD. This allows us
+to focus on the central points of the derivation of the path integral for a
+field theory without having to worry too much about technicalities. Although
+our presentation is self contained we recommend [8, 9] for an introductory
+reading about the canonical quantization of the scalar field, which is our
+starting point.
+
+\subsection{The Klein--Gordon field}
+
+Let us begin by recalling the classical action and equations of motion of the
+scalar field in Minkowski space. We consider a real scalar field
+$\Phi(t,x)$. The corresponding action $S$ is an integral over space-time
+\begin{equation}
+  S = \int dt\,d^3x\;\mathcal{L}\big(\Phi(t,x), \partial_\mu\Phi(t,x)\big),
+\end{equation}
+with the Lagrangian density $\mathcal{L}$ given by
+\begin{align}
+  \mathcal{L}(\Phi, \partial_\mu\Phi)
+  &= \frac{1}{2}(\partial_\mu\Phi)(\partial^\mu\Phi) - \frac{m^2}{2}\Phi^2 - V(\Phi) \notag\\
+  &= \frac{1}{2}\dot{\Phi}^2 - \frac{1}{2}(\nabla\Phi)^2 - \frac{m^2}{2}\Phi^2 - V(\Phi).
+\end{align}
+This is a system of coupled oscillators. We stress again that this expression
+is in Minkowski space, i.e., in the second step we used the metric
+$g_{\mu\nu} = \mathrm{diag}(1,-1,-1,-1)$ to rewrite the kinetic term. In the action we
+also allow for a potential term $V(\Phi)$. A standard example is
+$V(\Phi(t,x)) = \lambda\,\Phi(t,x)^4$.
+
+Using the Euler--Lagrange equations
+\begin{equation}
+  \partial_\mu\frac{\partial\mathcal{L}}{\partial(\partial_\mu\Phi)}
+  - \frac{\partial\mathcal{L}}{\partial\Phi} = 0,
+\end{equation}
+we can derive the classical equation of motion
+\begin{equation}
+  \partial_\mu(\partial^\mu\Phi) + m^2\Phi + V'(\Phi) = 0.
+\end{equation}
+In the absence of a potential this is the Klein--Gordon equation.
+
+As a next step we quantize the system using the canonical formalism. For this
+purpose we need the Hamiltonian which we obtain from the Lagrangian density.
+The canonical momentum $\Pi(t,x)$ is defined by
+\begin{equation}
+  \Pi(t,x) = \frac{\partial}{\partial\dot{\Phi}(t,x)}
+    \mathcal{L}\big(\Phi(t,x), \partial_\mu\Phi(t,x)\big) = \dot{\Phi}(t,x),
+\end{equation}
+and the Hamiltonian function $H$ is obtained as the Legendre transform
+\begin{align}
+  H &= \int d^3x\,\Pi(t,x)\,\dot{\Phi}(t,x)
+      - \int d^3x\;\mathcal{L}\big(\Phi(t,x), \partial_\mu\Phi(t,x)\big) \notag\\
+    &= \int d^3x\;\Big[\frac{1}{2}\Pi(t,x)^2
+       + \frac{1}{2}\big(\nabla\Phi(t,x)\big)^2
+       + \frac{m^2}{2}\Phi(t,x)^2 + V\big(\Phi(t,x)\big)\Big].
+\end{align}
+The Hamiltonian function is the starting point for the quantization of the
+system in the continuum. Upon quantization, the Hamiltonian function $H$ and
+the fields $\Phi(t,x)$ and $\Pi(t,x)$ turn into Schr\"odinger operators
+$\hat{H}$, $\hat{\Phi}(x)$, $\hat{\Pi}(x)$. The Hamiltonian operator reads (up
+to normal ordering)
+\begin{equation}
+  \hat{H} = \int d^3x\;\Big[\frac{1}{2}\hat{\Pi}(x)^2
+    + \frac{1}{2}\big(\nabla\hat{\Phi}(x)\big)^2
+    + \frac{m^2}{2}\hat{\Phi}(x)^2 + V\big(\hat{\Phi}(x)\big)\Big].
+\end{equation}
+All time arguments are gone, and the time evolution of operators is given by
+(1.23). The operators $\hat{\Phi}$, $\hat{\Pi}$ obey the canonical equal time
+commutation relations ($\hbar \equiv 1$)
+\begin{equation}
+  \big[\hat{\Phi}(x), \hat{\Pi}(y)\big] = i\,\delta(x-y), \qquad
+  \big[\hat{\Phi}(x), \hat{\Phi}(y)\big] = 0, \qquad
+  \big[\hat{\Pi}(x), \hat{\Pi}(y)\big] = 0.
+\end{equation}
+We now leave the canonical path and follow a different strategy by introducing
+the lattice as a cutoff before we quantize the system.
+
+\subsection{Lattice regularization of the Klein--Gordon Hamiltonian}
+
+In order to calculate something from a quantum field theory in a mathematically
+well-defined way, an ultraviolet regulator must be introduced. Such a regulator
+is necessary to make the expressions finite. In continuum perturbation theory
+the regulator can, e.g., be introduced by using dimensional regularization,
+Pauli--Villars regularization or a momentum cutoff. A different approach is
+chosen in lattice field theory.
+
+The central idea is to replace the continuous space by a 3D finite lattice
+$\Lambda^3$:
+\begin{equation}
+  x \;\Rightarrow\; an, \qquad n_i = 0, 1, \ldots, N-1
+  \quad \text{for} \quad i = 1, 2, 3.
+\end{equation}
+The lattice constant $a$ has the physical dimension of length. The vector $n$
+with integer-valued components, $n_1$, $n_2$, $n_3$, labels the lattice sites.
+The operators $\hat{\Phi}(n)$ and $\hat{\Pi}(n)$ now live only on the lattice
+sites and we stress this fact by replacing the space argument $x$ by the label
+of the lattice site $n$. Since each component $n_i$ runs from 0 to $N-1$, we
+have a total of $N^3$ lattice sites and the lattice system thus has $2N^3$
+degrees of freedom ($\hat{\Phi}$ and $\hat{\Pi}$ on each lattice site). For any
+finite system one has to decide what to do at the boundary. We choose periodic
+boundary conditions, i.e., we identify $n_j = N$ with $n_j = 0$.
+
+For a lattice regularization of the Hamiltonian operator (1.47) we also need
+to discretize the derivatives $\nabla\hat{\Phi}(x)$. Using the Taylor series
+expansion of $\hat{\Phi}(x)$, it is easy to see that for small lattice constant
+$a$ the derivative may be approximated as
+\begin{equation}
+  \partial_j\hat{\Phi}(x)
+  = \frac{\hat{\Phi}(n+\hat{\jmath}) - \hat{\Phi}(n-\hat{\jmath})}{2a}
+    + \order{a^2},
+\end{equation}
+where $\hat{\jmath}$ denotes the unit vector in the $j$-direction. Using this
+definition for the derivative, we obtain a lattice version of the Hamiltonian
+operator (1.47):
+\begin{equation}
+  \hat{H} = a^3\sum_{n\in\Lambda^3}\Big[
+    \frac{1}{2}\hat{\Pi}(n)^2
+    + \frac{1}{2}\sum_{j=1}^3
+      \Big(\frac{\hat{\Phi}(n+\hat{\jmath}) - \hat{\Phi}(n-\hat{\jmath})}{2a}\Big)^2
+    + \frac{m^2}{2}\hat{\Phi}(n)^2 + V\big(\hat{\Phi}(n)\big)\Big].
+\end{equation}
+The integral $\int d^3x$ has been replaced by the sum
+$a^3\sum_{n\in\Lambda^3}$. The Hamiltonian describes a system with a finite
+number of degrees of freedom $\hat{\Phi}(n)$ and their corresponding conjugate
+momenta $\hat{\Pi}(n)$. The canonical quantization condition is given by the
+commutators
+\begin{equation}
+  \big[\hat{\Phi}(n), \hat{\Pi}(m)\big] = i\,a^{-3}\delta_{nm},
+\end{equation}
+\begin{equation}
+  \big[\hat{\Phi}(n), \hat{\Phi}(m)\big] = 0, \qquad
+  \big[\hat{\Pi}(n), \hat{\Pi}(m)\big] = 0.
+\end{equation}
+When comparing the new quantization conditions (1.52) and (1.53) to their
+continuum counterparts one sees that the Dirac-delta in (1.48) is replaced by
+Kronecker deltas $\delta_{nm} = \delta_{n_1 m_1}\delta_{n_2 m_2}\delta_{n_3 m_3}$,
+as is usual for discrete degrees of freedom. The factor $a^{-3}$ on the
+right-hand side of (1.52) is needed for getting the dimensions right. When
+denoting the dimension of length by $\ell$ we find for the dimensions
+$[\,\cdot\,]$ of the quantities involved (using $\hbar \equiv 1$):
+\begin{equation}
+  [S] = 1, \qquad [H] = \frac{1}{\ell}, \qquad [a] = \ell, \qquad
+  [\hat{\Phi}] = \frac{1}{\ell}, \qquad [\hat{\Pi}] = \frac{1}{\ell^2}, \qquad
+  [m] = \frac{1}{\ell}.
+\end{equation}
+Thus the factor $a^{-3}$ in (1.52) is necessary in order to have objects of
+equal dimensions on both sides. This factor also matches the dimensions in the
+continuum formula (1.48) since the Dirac-delta there also has dimension
+$\ell^{-3}$.
+
+The commutators (1.52) and (1.53) are obeyed when the momentum operators are
+represented as derivatives
+\begin{equation}
+  \hat{\Pi}(n) = -\frac{i}{a^3}\frac{\partial}{\partial\Phi(n)}.
+\end{equation}
+
+Using this representation we can write the Hamiltonian operator for the
+Klein--Gordon field on the lattice in its final form as
+\begin{align}
+  \hat{H} &= \hat{H}_0 + \hat{U}, \notag\\
+  \hat{H}_0 &= a^3\sum_{n\in\Lambda^3}\frac{1}{2}
+    \Big(-\frac{i}{a^3}\frac{\partial}{\partial\Phi(n)}\Big)^2
+    = -\sum_{n\in\Lambda^3}\frac{1}{2a^3}\frac{\partial^2}{\partial\Phi(n)^2}, \notag\\
+  \hat{U} &= a^3\sum_{n\in\Lambda^3}\Big[
+    \frac{1}{2}\sum_{j=1}^3
+      \Big(\frac{\hat{\Phi}(n+\hat{\jmath}) - \hat{\Phi}(n-\hat{\jmath})}{2a}\Big)^2
+    + \frac{m^2}{2}\hat{\Phi}(n)^2 + V\big(\hat{\Phi}(n)\big)\Big].
+\end{align}
+We have split the Hamilton operator into two parts: the free part $\hat{H}_0$,
+which contains the derivatives, and the interaction part $\hat{U}$. This
+splitting is useful for the calculation of the Euclidean correlators.
+
+It is convenient to introduce a set of eigenstates of the field operators
+$\hat{\Phi}(n)$, equivalent to the position states $\ket{x}$ of quantum
+mechanics. The condition (1.52) is a generalization of the condition
+$[\hat{x}, \hat{p}] = i\hbar$ in ordinary quantum mechanics. In a similar way
+the states $\ket{\Phi}$ are a generalization of the position states $\ket{x}$.
+The action of the operators $\hat{\Phi}(n)$ on $\ket{\Phi}$ is defined as
+\begin{equation}
+  \hat{\Phi}(n)\ket{\Phi} = \Phi(n)\ket{\Phi}.
+\end{equation}
+The application of the operator $\hat{\Phi}(n)$ on an eigenstate $\ket{\Phi}$
+thus gives as the eigenvalue the value $\Phi(n)$ of the field at the lattice
+point $n$. Consequently, the state $\ket{\Phi}$ is labeled by the values of the
+field at all lattice points, i.e., by the set $\{\Phi(n), n \in \Lambda^3\}$.
+The states $\ket{\Phi}$ are orthogonal and complete:
+\begin{equation}
+  \braket{\Phi'}{\Phi} = \delta(\Phi' - \Phi)
+  \equiv \prod_{n\in\Lambda^3}\delta\big(\Phi'(n) - \Phi(n)\big),
+\end{equation}
+\begin{equation}
+  \mathbb{1} = \int_{-\infty}^{\infty}D\Phi\;\ket{\Phi}\bra{\Phi}
+  \qquad \text{with} \quad D\Phi = \prod_{n\in\Lambda^3}d\Phi(n).
+\end{equation}
+
+\subsection{The Euclidean time transporter for the free case}
+
+Having discussed the Hamiltonian of the scalar field and its lattice
+discretization, we can now return to our original problem, the calculation of
+the Euclidean correlators (1.12) and the partition function (1.13). In both
+these expressions we encounter Euclidean time transporters $\exp(-tH)$. For the
+full Hamiltonian operator $\hat{H}$ the calculation of matrix elements of the
+time transporter is not possible in closed form. However, for the free part
+$\hat{H}_0$ this is an easy exercise which we perform using the eigenstates of
+$\hat{H}_0$.
+
+The free Hamiltonian operator $\hat{H}_0$, as represented in (1.56), is a sum
+over second derivatives, i.e., a sum over squares of momentum operators. It is
+well-known from quantum mechanics that the eigenstates of a derivative operator
+are the momentum eigenstates $\ket{\Pi}$: plane waves.\footnote{These are not
+plane waves in real space, but plane waves of the fields $\Phi(n)$.} Since
+$\hat{H}_0$ is a sum over $N^3$ derivatives, the eigenstate is a product over
+$N^3$ plane waves, one for each field component $\Phi(n)$. Each plane wave is
+characterized by a wave number $\Pi(n)$. The whole eigenstate is then labeled
+by the set of all these wave numbers and we denote the eigenstate as
+$\ket{\Pi}$, which in field representation is given by
+\begin{equation}
+  \braket{\Phi}{\Pi}
+  = \prod_{n\in\Lambda^3}\sqrt{\frac{a^3}{2\pi}}\;e^{i a^3\Pi(n)\Phi(n)}.
+\end{equation}
+The eigenstates in (1.60) are normalized such that the unit operator reads
+\begin{equation}
+  \mathbb{1} = \int_{-\infty}^{\infty}D\Pi\;\ket{\Pi}\bra{\Pi}
+  \qquad \text{with} \quad D\Pi = \prod_{n\in\Lambda^3}d\Pi(n).
+\end{equation}
+
+The action of the free Hamiltonian $\hat{H}_0$ on $\ket{\Pi}$ gives rise to
+\begin{equation}
+  \bra{\Phi}\hat{H}_0\ket{\Pi}
+  = -\frac{1}{2a^3}\sum_{n\in\Lambda^3}
+    \frac{\partial^2}{\partial\Phi(n)^2}\braket{\Phi}{\Pi}
+  = \frac{a^3}{2}\sum_{n\in\Lambda^3}\Pi(n)^2\braket{\Phi}{\Pi}.
+\end{equation}
+Thus the eigenvalues of $\hat{H}_0$ are given by
+$(a^3/2)\sum_n\Pi(n)^2$. It is important to realize that in both Eqs. (1.60)
+and (1.62) the quantities $\Phi(n)$ and $\Pi(n)$ are no longer operators, but
+real numbers. They are the values of the field and the wave number at the
+lattice site $n$.
+
+With the help of the eigenstates (1.60) we can now compute matrix elements of
+the Euclidean time transporter of the free theory
+\begin{align}
+  \bra{\Phi'}e^{-t\hat{H}_0}\ket{\Phi}
+  &= \int D\Pi\;\bra{\Phi'}e^{-t\hat{H}_0}\ket{\Pi}\braket{\Pi}{\Phi} \notag\\
+  &= \int D\Pi\;\braket{\Phi'}{\Pi}\,\braket{\Pi}{\Phi}\,
+     e^{-t\frac{a^3}{2}\sum_n \Pi(n)^2},
+\end{align}
+where in the first step we have inserted the unit operator written in the form
+(1.61) and in the second step the eigenvalue equation (1.62) was used.
+Inserting (1.60) into the last expression, we have a product of Gaussian
+integrals that can be solved:
+\begin{align}
+  \bra{\Phi'}e^{-t\hat{H}_0}\ket{\Phi}
+  &= \prod_{n\in\Lambda^3}\frac{a^3}{2\pi}
+     \int d\Pi(n)\;e^{i a^3\Pi(n)(\Phi'(n)-\Phi(n))}
+     e^{-t a^3\Pi(n)^2/2} \notag\\
+  &= \prod_{n\in\Lambda^3}\sqrt{\frac{a^3}{2\pi t}}\;
+     e^{-a^3/(2t)(\Phi'(n)-\Phi(n))^2} \notag\\
+  &= \Big(\frac{a^3}{2\pi t}\Big)^{N^3/2}
+     e^{-a^3/(2t)\sum_n(\Phi'(n)-\Phi(n))^2},
+\end{align}
+where in the last step we used the Gaussian integral (1.31).
+
+\subsection{Treating the interaction term with the Trotter formula}
+
+When we switch from the free case to including the potential $\hat{U}$ we again
+have to build up a finite step $t$ in Euclidean time from infinitesimal steps
+using the Trotter formula (1.35). Like for the quantum mechanical system of the
+last section we define
+\begin{equation}
+  W_\varepsilon = e^{-\varepsilon\hat{U}/2}\,e^{-\varepsilon\hat{H}_0}\,
+  e^{-\varepsilon\hat{U}/2}.
+\end{equation}
+Using the Trotter formula (1.35) we find
+\begin{align}
+  \bra{\Phi'}e^{-t\hat{H}}\ket{\Phi}
+  &= \lim_{n_t\to\infty}\bra{\Phi'}W_\varepsilon^{n_t}\ket{\Phi} \notag\\
+  &= \lim_{n_t\to\infty}\int D\Phi_1 D\Phi_2\cdots D\Phi_{n_t-1}\,
+     \bra{\Phi'}W_\varepsilon\ket{\Phi_{n_t-1}} \notag\\
+  &\qquad \bra{\Phi_{n_t-1}}W_\varepsilon\ket{\Phi_{n_t-2}}\cdots
+     \bra{\Phi_1}W_\varepsilon\ket{\Phi}.
+\end{align}
+In last step we have inserted the unit operator $n_t - 1$ times in the form
+(1.59).
+
+What remains to be done is the calculation of the matrix elements appearing
+in (1.66), i.e., $\bra{\Phi_{i+1}}W_\varepsilon\ket{\Phi_i}$. We first note
+that, due to (1.56) and (1.57),
+\begin{equation}
+  \hat{U}\ket{\Phi} = U[\Phi]\ket{\Phi},
+\end{equation}
+with
+\begin{equation}
+  U[\Phi] = a^3\sum_{n\in\Lambda^3}\Big[
+    \frac{1}{2}\sum_{j=1}^3
+      \Big(\frac{\Phi(n+\hat{\jmath}) - \Phi(n-\hat{\jmath})}{2a}\Big)^2
+    + \frac{m^2}{2}\Phi(n)^2 + V(\Phi(n))\Big].
+\end{equation}
+We stress that $U[\Phi]$ is a number, i.e., the classical interaction term
+evaluated for the classical fields $\Phi(n)$. Using (1.64) and (1.67) we obtain
+\begin{align}
+  \bra{\Phi_{i+1}}W_\varepsilon\ket{\Phi_i}
+  &= \bra{\Phi_{i+1}}e^{-\varepsilon\hat{U}/2}\,e^{-\varepsilon\hat{H}_0}\,
+     e^{-\varepsilon\hat{U}/2}\ket{\Phi_i} \notag\\
+  &= e^{-\varepsilon U[\Phi_{i+1}]/2}\,
+     \bra{\Phi_{i+1}}e^{-\varepsilon\hat{H}_0}\ket{\Phi_i}\,
+     e^{-\varepsilon U[\Phi_i]/2} \notag\\
+  &= C^N\,e^{-\varepsilon U[\Phi_i]/2}\,
+     e^{-a^3/(2\varepsilon)\sum_n(\Phi(n)_i - \Phi(n)_{i+1})^2}\,
+     e^{-\varepsilon U[\Phi_{i+1}]/2}.
+\end{align}
+We have introduced the abbreviation $C$ for the factor $\sqrt{a^3/(2\pi
+\varepsilon)}$. Again we emphasize that the right-hand side of (1.69) is a real
+number. It is the matrix element of the Euclidean time transporter for
+infinitesimal time $W_\varepsilon$. These matrix elements may be combined in
+(1.66) to obtain the matrix element for a transport by a finite amount of
+Euclidean time.
+
+\subsection{Path integral representation for the partition function}
+
+Let us now use the two Eqs. (1.66) and (1.69) to compute the partition function
+$Z_T$ defined in (1.13). When the trace in this equation is evaluated using
+states $\ket{\Phi_0}$, we find
+\begin{equation}
+  Z_T = \int D\Phi_0\;\bra{\Phi_0}e^{-TH}\ket{\Phi_0}
+  = \lim_{N_T\to\infty}\int D\Phi_0\;\bra{\Phi_0}W_\varepsilon^{N_T}\ket{\Phi_0},
+\end{equation}
+with $T = N_T\varepsilon$. We have already remarked that we are aiming at
+implementing the path integral in a numerical simulation and thus we cannot
+perform the limit $N_T \to \infty$, since a computer can only cope with a
+finite number of degrees of freedom. Therefore, we have to work with a finite
+resolution $\varepsilon$ and thus obtain only an approximation of the exact
+partition function. We denote this approximation by $Z_T^\varepsilon$. Inserting
+again $N_T - 1$ sets of complete states and using the expression (1.69) for the
+matrix elements $\bra{\Phi_{i+1}}W_\varepsilon\ket{\Phi_i}$ we obtain
+\begin{align}
+  Z_T^\varepsilon &= \int D\Phi_0\;\bra{\Phi_0}W_\varepsilon^{N_T}\ket{\Phi_0} \notag\\
+  &= \int D\Phi_0\cdots D\Phi_{N_T-1}\,
+     \bra{\Phi_0}W_\varepsilon\ket{\Phi_{N_T-1}}
+     \bra{\Phi_{N_T-1}}W_\varepsilon\ket{\Phi_{N_T-2}}\cdots
+     \bra{\Phi_1}W_\varepsilon\ket{\Phi_0} \notag\\
+  &= C^{N^3N_T}\int D\Phi_0\cdots D\Phi_{N_T-1}\;e^{-S_E[\Phi]},
+\end{align}
+with
+\begin{equation}
+  S_E[\Phi] = \frac{a^3}{2\varepsilon}\sum_{n\in\Lambda^3}
+    \sum_{j=0}^{N_T-1}\big(\Phi(n)_{j+1} - \Phi(n)_j\big)^2
+    + \varepsilon\sum_{j=0}^{N_T-1}U[\Phi_j].
+\end{equation}
+We remark that in the first sum we have continued the index $j$ periodically by
+identifying $j = N_T$ with $j = 0$.
+
+The expression for $S_E$ in (1.72) can be simplified by introducing a more
+compact notation $\Phi(n, n_4) \equiv \Phi(n)_{n_4}$. This corresponds to
+introducing a 4D lattice $\Lambda$ defined as
+\begin{equation}
+  \Lambda = \big\{(n, n_4)\;\big|\; n\in\Lambda^3,\;
+    n_4 = 0, 1, \ldots, N_T - 1\big\},
+\end{equation}
+where we have also relabeled $j$ to $n_4$. Note that the lattice $\Lambda$ is
+periodic in all four directions since it inherits the spatial periodicity of
+the spatial components of $\Lambda^3$. With this notation $S_E$ reads
+\begin{equation}
+  \begin{split}
+    S_E[\Phi] = \varepsilon a^3\sum_{(n,n_4)\in\Lambda}\Big[
+    &\frac{1}{2}\Big(\frac{\Phi(n,n_4+1) - \Phi(n,n_4)}{\varepsilon}\Big)^2\\
+    &+ \frac{1}{2}\sum_{j=1}^3
+      \Big(\frac{\Phi(n+\hat{\jmath},n_4) - \Phi(n-\hat{\jmath},n_4)}{2a}\Big)^2\\
+    &+ \frac{m^2}{2}\Phi(n,n_4)^2 + V\big(\Phi(n,n_4)\big)\Big].
+  \end{split}
+\end{equation}
+As in the quantum mechanical problem of the last section, the expression (1.74)
+for $S_E$ again is a discretization of the Euclidean action: The first term on
+the right-hand side can be interpreted as the square of a discretized
+derivative in 4-direction. The sum over $\Lambda$ together with the factor
+$\varepsilon a^3$ is a discretization of an integral over space and Euclidean
+time. With these two identifications the expression (1.74) is very similar to
+the action of the Klein--Gordon field given in (1.41) and (1.42). The only
+differences are an overall minus sign and a relative sign between the time
+derivative in (1.42) and the rest of the terms. If one rotates the time in
+(1.42) into the imaginary axis, i.e., one replaces $t$ by $i\tau$, then this
+relative minus sign is gone. Thus $S_E[\Phi]$ is the action of the system for
+Euclidean time -- the Euclidean action.
+
+Also the measure in (1.71) can be written in simpler form as
+\begin{equation}
+  D[\Phi] = \prod_{(n,n_4)\in\Lambda}d\Phi(n,n_4),
+\end{equation}
+and the expression for the partition function turns into
+\begin{equation}
+  Z_T^\varepsilon = C^{N^3N_T}\int D[\Phi]\;e^{-S_E[\Phi]}.
+\end{equation}
+
+\subsection{Including operators in the path integral}
+
+We may evaluate the right-hand side of (1.2) analogously to the method used for
+the partition function $Z_T$. In particular, we again use the Trotter formula
+to write the numerator of the Euclidean correlator as
+\begin{equation}
+  \tr\big[e^{-(T-t)H}O_2\,e^{-tH}O_1\big]
+  = \lim_{N_T\to\infty}\tr\big[W_\varepsilon^{N_T-n_t}O_2\,W_\varepsilon^{n_t}O_1\big],
+\end{equation}
+where the number of steps $N_T$ and $n_t$ are related to $T$ and $t$ by
+$T = \varepsilon N_T$ and $t = \varepsilon n_t$. Similar to the approximation
+$Z_T^\varepsilon$ we also introduce a Euclidean correlator with a finite
+temporal resolution $\varepsilon$. It reads
+\begin{align}
+  \ev{O_2(t)\,O_1(0)}_T^\varepsilon
+  &= \frac{1}{Z_T^\varepsilon}\tr\big[W_\varepsilon^{N_T-n_t}O_2\,W_\varepsilon^{n_t}O_1\big] \notag\\
+  &= \frac{1}{Z_T^\varepsilon}\int D\Phi_0\cdots D\Phi_{N_T-1}
+     D\tilde{\Phi}_0\,D\tilde{\Phi}_{n_t}\, \notag\\
+  &\qquad \bra{\Phi_0}W_\varepsilon\ket{\Phi_{N_T-1}}
+     \bra{\Phi_{N_T-1}}W_\varepsilon\ket{\Phi_{N_T-2}}\cdots \notag\\
+  &\qquad \times \bra{\Phi_{n_t+1}}W_\varepsilon\ket{\tilde{\Phi}_{n_t}}\,
+     \bra{\tilde{\Phi}_{n_t}}O_2\ket{\Phi_{n_t}} \notag\\
+  &\qquad\quad \bra{\Phi_{n_t}}W_\varepsilon\ket{\Phi_{n_t-1}}\cdots
+     \bra{\Phi_1}W_\varepsilon\ket{\tilde{\Phi}_0}\,
+     \bra{\tilde{\Phi}_0}O_1\ket{\Phi_0}.
+\end{align}
+This structure differs from the equivalent expression (1.71) for the
+normalization constant $Z_T^\varepsilon$ only by the two insertions of the
+matrix elements
+\begin{equation}
+  \bra{\tilde{\Phi}_0}O_1\ket{\Phi_0}
+  \qquad \text{and} \qquad
+  \bra{\tilde{\Phi}_{n_t}}O_2\ket{\Phi_{n_t}}.
+\end{equation}
+
+The operators $O_1$ and $O_2$ are expressions built from field operators and
+their conjugate momenta. Two typical examples are
+\begin{equation}
+  O_A = \hat{\Phi}(n_0)^\dagger, \qquad
+  O_B = \sum_{n\in\Lambda^3}\hat{\Phi}(n)\,e^{-ianp},
+\end{equation}
+where the first operator $O_A$ creates from the vacuum a field quantum at some
+position $n_0$, and the operator $O_B$ annihilates a quantum projected to
+momentum $p$. All operators $O_1$ and $O_2$ that can appear in (1.78) can be
+written as expressions of field operators and conjugate momenta (1.55). Thus,
+we obtain for matrix elements (1.79) of combinations of field operators
+\begin{equation}
+  \bra{\tilde{\Phi}}O\ket{\Phi} = O[\Phi]\,\delta(\tilde{\Phi} - \Phi),
+\end{equation}
+where we have made use of (1.57) and (1.58). The object $O[\Phi]$ is no longer
+an operator but a functional of the classical field variables $\Phi$. A
+functional maps a field configuration $\Phi$, specified by the set of all field
+values $\Phi(n)$, $n \in \Lambda^3$, into the complex numbers. For the two
+operators $O_A$ and $O_B$ in the example of (1.80) above, these functionals
+read ($*$ denotes complex conjugation)
+\begin{equation}
+  O_A[\Phi] = \Phi(n_0)^*, \qquad
+  O_B[\Phi] = \sum_{n\in\Lambda^3}\Phi(n)\,e^{-ianp}.
+\end{equation}
+
+Inserting the expression (1.81) for the matrix elements of the operators into
+(1.78) and integrating out the fields $\tilde{\Phi}_0$ and $\tilde{\Phi}_{n_t}$
+we find
+\begin{equation}
+  \ev{O_2(t)\,O_1(0)}_T^\varepsilon
+  = \frac{C^{N^3N_T}}{Z_T^\varepsilon}\int D[\Phi]\;e^{-S_E[\Phi]}\,
+    O_2[\Phi(\cdot,n_t)]\,O_1[\Phi(\cdot,0)].
+\end{equation}
+In the last step we have collected and combined the different terms, just as we
+did for the partition function. In particular, we obtain the same expression
+for the action $S_E$ as given in (1.74) and use again the measure $D[\Phi]$ as
+defined in (1.75). The functionals $O_1[\Phi(\cdot,0)]$ and $O_2[\Phi(\cdot,n_t)]$
+are the lattice transcriptions of the original operators $O_1$ and $O_2$ acting
+in Hilbert space. The functional $O_1[\Phi(\cdot,0)]$ is evaluated for the
+fields $\Phi(\cdot,0)$ with time argument 0, while the functional
+$O_2[\Phi(\cdot,n_t)]$ is evaluated for the fields $\Phi(\cdot,n_t)$ with time
+argument $n_t$, connected to the Euclidean time $t$ via $t = \varepsilon n_t$.
+The spatial arguments of the fields, used for evaluating the functionals, were
+replaced by a dot, since the functionals map the whole field configuration,
+defined by the set of all field values at the given time, into the complex
+numbers. We stress that the functionals $O_1[\Phi(\cdot,0)]$ and
+$O_2[\Phi(\cdot,n_t)]$ as well as the Boltzmann factor $\exp(-S_E[\Phi])$ are
+numbers, not operators, and therefore their relative order is no longer
+crucial. Let us finally remark that the factor $C^{N^3N_T}$ in (1.83) is the
+same factor that also shows up in the expression (1.76) for the partition
+function. The two factors in the denominator and the numerator cancel and we
+can omit them from now on.
+
+\section{Quantization with the path integral}
+
+In the last section we completed the derivation of the path integral
+representation of the Euclidean correlators $\ev{O_2(t)\,O_1(0)}_T^\varepsilon$.
+In this section we now discuss several aspects of the equations we have derived
+and present some general concepts and strategies of lattice field theory. In
+particular, we present the idea of directly using the path integral as a method
+for quantizing a system. For further reading on this subject we recommend
+[7, 10, 11].
+
+\subsection{Different discretizations of the Euclidean action}
+
+Let us begin our discussion of the path integral with a closer look at the
+expression (1.74) for the Euclidean action. When inspecting the derivative
+terms -- the first two terms on the right-hand side of (1.74) -- one notes a
+difference between the two discretizations of the derivatives. The
+discretization for the temporal derivative uses forward differences, whereas
+for the spatial derivatives central differences are used. While the
+discretization of the spatial derivative was chosen in (1.50), the temporal
+derivative is a result of the stepwise transport in Euclidean time with the
+Trotter formula. Thus it contains only nearest neighbors. Such a discretization
+has, however, larger discretization errors than using central differences. From
+the Taylor expansion $f(x \pm \varepsilon) = f(x) \pm \varepsilon f'(x)
++ \varepsilon^2 f''(x)/2 \pm \varepsilon^3 f'''(x)/6 + \cdots$ one finds that
+for the forward differences
+\begin{equation}
+  \frac{f(x+\varepsilon) - f(x)}{\varepsilon} = f'(x) + \order{\varepsilon},
+\end{equation}
+while for the discretization with central differences
+\begin{equation}
+  \frac{f(x+\varepsilon) - f(x-\varepsilon)}{2\varepsilon}
+  = f'(x) + \order{\varepsilon^2}.
+\end{equation}
+Due to the smaller discretization errors it is more advantageous to use the
+central difference formula also for the temporal derivative.
+
+A second change that is usually implemented is to use the same temporal and
+spatial lattice constant, and to set
+\begin{equation}
+  \varepsilon = a.
+\end{equation}
+Although $\varepsilon$ and $a$ have a different origin, both of them should be
+small: The spatial lattice constant determines down to which length scale we
+can resolve the system, while the temporal constant determines how well the
+Trotter formula approximates the Euclidean time transporter. When using the
+central differences for time and implementing (1.86), the Euclidean action
+reads
+\begin{equation}
+  S_E[\Phi] = a^4\sum_{n\in\Lambda}\Big[
+    \frac{1}{2}\sum_{\mu=1}^4
+      \Big(\frac{\Phi(n+\hat{\mu}) - \Phi(n-\hat{\mu})}{2a}\Big)^2
+    + \frac{m^2}{2}\Phi(n)^2 + V(\Phi(n))\Big].
+\end{equation}
+It is obvious that in this form the action treats the spatial directions and
+Euclidean time equally. Up to the fact that for Euclidean space we have no
+relative sign between temporal and spatial components of the metric tensor, the
+equal footing of space and time in (1.87) is the same as in the action (1.41)
+and (1.42) with the Minkowski metric. The metric tensor which is used in (1.42)
+to transform between covariant and contravariant indices is replaced by a
+Kronecker delta.
+
+We finally remark that in Minkowski space the components run from $\mu = 0$ to
+3, where $\mu = 0$ refers to time. To stress that Euclidean metric is used the
+index $\mu$ in (1.87) runs from 1 to 4, and $\mu = 4$ refers to Euclidean time.
+
+\subsection{The path integral as a quantization prescription}
+
+The action with central differences for time is not derived from first
+principles in the way presented above. The changes we performed in the action
+signals that we now change the philosophy for the quantization of the system.
+Let us discuss this new quantization prescription.
+
+In the derivation of the last section the quantization of the system entered by
+enforcing the canonical commutation rules (1.52) and (1.53) for the fields and
+their conjugate momenta. Subsequently, the expression
+\begin{equation}
+  \ev{O_2(t)\,O_1(0)}_T = \frac{1}{Z_T}\int D[\Phi]\;e^{-S_E[\Phi]}\,
+    O_2[\Phi(\cdot,n_t)]\,O_1[\Phi(\cdot,0)],
+\end{equation}
+for the Euclidean correlators as path integrals was derived (from now on we
+drop the superscripts $\varepsilon$ that indicate the discretization of time).
+Also the partition function is given as a path integral
+\begin{equation}
+  Z_T = \int D[\Phi]\;e^{-S_E[\Phi]}.
+\end{equation}
+The measure
+\begin{equation}
+  D[\Phi] = \prod_{n\in\Lambda}d\Phi(n),
+\end{equation}
+is a product measure of integration measures for the classical field variables
+at all points $n$ of the 4D lattice $\Lambda$.
+
+Our new quantization prescription, which we introduce now, is based directly on
+Eqs. (1.88), (1.89), and (1.90). It states that the quantization is no longer
+implemented by enforcing canonical commutation rules for the commutators, but
+instead by a path integral over classical field variables. The steps involved
+in the quantization of a system are
+\begin{itemize}
+  \item \textbf{Step 1:} The continuous space-time is replaced by a 4D
+        Euclidean lattice with lattice constant $a$. The degrees of freedom are
+        classical field variables $\Phi$ living on the lattice.
+  \item \textbf{Step 2:} The Euclidean action $S_E[\Phi]$ of the system is
+        discretized on the lattice such that in the limit $a \to 0$ the
+        Euclidean continuum action is obtained. The Boltzmann weight factor is
+        $\exp(-S_E[\Phi])$.
+  \item \textbf{Step 3:} The operators that appear in the Euclidean correlator
+        one wants to study are translated to functionals by replacing the field
+        operators with the classical lattice field variables.
+  \item \textbf{Step 4:} Euclidean correlation functions are computed by
+        evaluating these functionals on some lattice field configuration,
+        weighting them with the Boltzmann factor and integrating over all
+        possible field configurations.
+\end{itemize}
+
+In the next chapters we will implement this prescription for QCD. In this
+approach there are, however, several different possibilities from which one can
+choose. We have already seen that various discretizations of derivatives can be
+used which differ in their discretization errors. An important question is
+whether different discretizations of a system all lead to a theory where the
+corresponding Euclidean correlators $\ev{O_2(t)\,O_1(0)}_T$ can be interpreted
+according to our first key equation
+\begin{equation}
+  \lim_{T\to\infty}\ev{O_2(t)\,O_1(0)}_T
+  = \sum_n \bbraket{0}{O_2}{n}\,\bbraket{n}{O_1}{0}\,e^{-tE_n},
+\end{equation}
+such that energy levels and physical matrix elements can be extracted. In other
+words: Does a given lattice discretization of the Euclidean action used in a
+path integral give rise to a proper quantum mechanical Hilbert space? If yes,
+how can the $n$-point functions with Minkowski metric be reconstructed from the
+Euclidean correlators? A very general answer to these questions is given by the
+so-called Osterwalder--Schrader reconstruction (see, e.g., [12] for a textbook
+presentation). If the Euclidean correlators calculated from the path integral
+obey a certain set of axioms, then the Hilbert space for the Minkowski theory
+can be obtained in a constructive way. For the Wilson formulation of lattice
+QCD, which we will present in Chaps. 2 and 5, this construction was generalized
+to lattice QCD in [13] (see also [14]). For an alternative construction on the
+lattice, based on the transfer matrix, the interested reader is referred to
+[15]. For our presentation here it is sufficient to conclude that we have some
+freedom in the discretization of QCD, and when the axioms are obeyed the
+physical Hilbert space can be constructed.
+
+Once physical observables are calculated on the lattice one is interested in
+their values in the limit $a \to 0$, the so-called continuum limit. This limit
+can be understood in several ways. We have already encountered the so-called
+naive or classical continuum limit when we required the lattice discretization
+of the action to approach its continuum counterpart for $a \to 0$. However, the
+naive continuum limit for the action is only used as a guiding principle in the
+construction of the lattice theory. The fully quantized theory requires the
+evaluation of the path integral, giving rise to results for observables which
+are involved functions of $a$. In actual numerical calculations the continuum
+limit is approached in a different way: The couplings of the theory are driven
+to their critical values, i.e., to the values where the system undergoes a
+phase transition. When doing so, physical scales (e.g., the proton size) become
+large in lattice units. In other words, the resolution of our lattice becomes
+finer and finer. Certainly these few remarks are too short to understand this
+procedure which we will discuss in great detail in Sect. 3.5. This true
+continuum limit is based on concepts from statistical mechanics and we conclude
+this chapter by discussing the relation of lattice field theory to statistical
+mechanics.
+
+\subsection{The relation to statistical mechanics}
+
+As announced, there is a structural equivalence between our field theory on the
+lattice and statistical mechanics. A prototype system of statistical mechanics
+is a spin system. The degrees of freedom are classical spin variables $s_n$
+located on some lattice which is typically 3D. The energy of the system is a
+functional $H[s]$ of the spins. In the canonical ensemble, i.e., for the system
+in a heat bath with temperature $T$, the probability $P[s]$ of finding the
+system in a particular configuration $s$ is given by
+\begin{equation}
+  P[s] = \frac{1}{Z}\,e^{-\beta H[s]},
+\end{equation}
+where $\beta$ is the inverse temperature $\beta = 1/k_B T$, with $k_B$ denoting
+the Boltzmann constant. The partition function $Z$ is given by
+\begin{equation}
+  Z = \sum_{\{s\}}e^{-\beta H[s]},
+\end{equation}
+where the sum runs over all possible spin configurations $\{s\}$. The
+expectation value of some observable $O$ is given by
+\begin{equation}
+  \ev{O} = \frac{1}{Z}\sum_{\{s\}}e^{-\beta H[s]}\,O[s].
+\end{equation}
+
+The similarity between (1.88) and (1.94) is obvious. The Boltzmann factor
+$\exp(-\beta H)$ is replaced by the weight factor $\exp(-S_E)$ and the
+summation over all spin configurations by the integral over configurations of
+the classical field $\Phi$. Thus, the name ``partition function'' for the
+normalization factor of the path integral now appears natural. The structural
+equivalence between lattice field theory and statistical mechanics is an
+important observation also from a technical point of view: It allows one to
+apply analytical and numerical methods, originally developed in statistical
+mechanics, to lattice field theory. Some of these techniques will be discussed
+in subsequent chapters.
+
+\section*{References}
+
+\begin{enumerate}[label={[\arabic*]}]
+  \item C.~Cohen-Tannoudji, B.~Diu, and F.~Lalo\"e: \emph{Quantum Mechanics}
+        (John Wiley and Sons, New York, London, Sidney, Toronto 1977).
+  \item J.~J.~Sakurai: \emph{Modern Quantum Physics} (Addison-Wesley, Reading,
+        Massachusetts 1994).
+  \item A.~Messiah: \emph{Quantum Mechanics}, Vols.~1 and 2 (Dover
+        Publications, Mineola, New York 1958).
+  \item J.~W.~Negele and H.~Orland: \emph{Quantum Many Particle Systems}
+        (Westview Press -- Advanced Book Classics, Boulder 1998).
+  \item E.~Prugove\v{c}ki: \emph{Quantum Mechanics in Hilbert Space}, 2nd ed.
+        (Academic Press, New York, London, Toronto, Sydney, San Francisco
+        1981).
+  \item M.~Reed and B.~Simon: \emph{Methods of Modern Mathematical Physics},
+        revised and enlarged ed., Vol.~1: Functional Analysis (Academic Press,
+        Boston, San Diego, New York, London, Sydney, Tokyo, Toronto 1980).
+  \item G.~Roepstorff: \emph{Path Integral Approach to Quantum Physics}
+        (Springer, Berlin, Heidelberg, New York 1996).
+  \item C.~Itzykson and J.-B.~Zuber: \emph{Quantum Field Theory} (McGraw-Hill,
+        New York 1985).
+  \item M.~E.~Peskin and D.~V.~Schroeder: \emph{An Introduction to Quantum
+        Field Theory} (Addison-Wesley, Reading, Massachusetts 1995).
+  \item R.~P.~Feynman and A.~Hibbs: \emph{Quantum Mechanics and Path
+        Integrals} (McGraw-Hill, New York 1965).
+  \item R.~J.~Rivers: \emph{Path Integral Methods in Quantum Field Theory},
+        Cambridge Monographs on Mathematical Physics (Cambridge University
+        Press, Cambridge, New York 1990).
+  \item J.~Glimm and A.~Jaffe: \emph{Quantum Physics. A Functional Integral
+        Point of View}, 2nd ed. (Springer, New York 1987).
+  \item K.~Osterwalder and E.~Seiler: Ann.\ Phys.\ 110, 440 (1978).
+  \item E.~Seiler: \emph{Gauge Theories as a Problem of Constructive Quantum
+        Field Theory and Statistical Mechanics}, Lect.\ Notes Phys.\ 159.
+        Springer, Berlin, Heidelberg, New York (1982).
+  \item M.~L\"uscher: Commun.\ Math.\ Phys.\ 54, 283 (1977).
+\end{enumerate}

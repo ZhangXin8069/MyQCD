@@ -1,0 +1,759 @@
+% =====================================================================
+%  第 4 章：纯规范理论的数值模拟
+%  Gattringer & Lang, "Quantum Chromodynamics on the Lattice" (LNP 788)
+%  Reconstructed from extract/ch04.txt; equations auto-numbered.
+% =====================================================================
+
+\chapter{纯规范理论的数值模拟}
+
+如今，对纯 SU(3) 规范理论进行基本模拟已经可以在现代个人电脑上完成，这无疑是一项很有教学价值的练习。本节将提供进行此类计算所需的技术。本节同时也可作为蒙特卡罗模拟的入门介绍，不过为了使讲解易于理解，我们只集中讨论最简单的算法。
+
+量子化欧几里得规范场论中可观测量的真空期望值，在形式上由泛函积分给出（参见第 3 章中的 (3.1) 和 (3.2)）
+\begin{equation}
+  \ev{O} = \frac{1}{Z}\int D[U]\,e^{-S_G[U]}\,O[U]
+  \qquad\text{with}\qquad
+  Z = \int D[U]\,e^{-S_G[U]}.
+\end{equation}
+然而，除了非常小的格点外，这一表达式无法解析求值。蒙特卡罗模拟用可观测量在 $N$ 个样本规范场构型 $U_n$ 上的平均值来近似该积分，这些构型按正比于 $\exp(-S[U_n])$ 的概率分布。该求和\footnote{在本章其余部分，我们省略下标 $G$，并用 $S[U]$ 表示规范作用量。}
+\begin{equation}
+  \ev{O} \approx \frac{1}{N}
+  \sum_{\substack{U_n \;\mathrm{with}\\ \mathrm{probability}\\ \propto\; e^{-S[U_n]}}} O[U_n]
+\end{equation}
+对由蒙特卡罗算法生成的足够多的构型进行计算。在本章中，我们讨论如何将这样一个构型序列 $U_n$ 作为所谓的马尔可夫链来获得。通常，相继产生的规范场构型并非完全不相关，我们将讨论处理这一问题的办法，并说明对数据的统计分析。本章将重点考虑威尔逊圈和波利亚科夫圈两类可观测量。学完本章后，读者将能够带误差棒地数值计算静态势。
+
+\section{蒙特卡罗方法}
+
+\subsection{简单抽样与重要性抽样}
+
+有限格点上的欧几里得路径积分是关于场变量的高维积分：这些场变量包括位于格点上的标量场或费米子，以及附着在连接相邻格点的链接上的规范场。
+
+让我们暂时考虑一个类似但更简单的情形。统计物理中的伊辛自旋系统的 4 维版本在其格点上具有可取两个值 $+1$ 或 $-1$ 的自旋变量（比较 (1.92)、(1.93) 和 (1.94)）。该系统是铁磁性的一个模型，其中变量表示向上或向下的微观磁矩。也可以把它看成标量量子场论的简化，其中对每个格点连续变量的积分被对两个值的求和所取代。具有 $N^4$ 个格点的格子有 $N^4$ 个这样的自旋变量。若对所有 $\pm 1$ 取值的可能组合计数，我们得到 $2^{N^4}$ 个自旋构型。对于一个中等大小的格子，我们可能取 $N = 16$，因此有 $2^{65536} \approx 10^{19728}$ 个可能的自旋构型。对 (1.94) 的精确求值相当于对所有这些构型求和，这显然是一项不可能完成的任务。我们必须找到一种为这个求和提供估计的方法。
+
+概率论告诉我们，可以通过在按均匀分布 $\rho_u(x_n) = 1/(b-a)$ 随机选取的值 $x_n$ 处对函数值 $f(x_n)$ 求平均来近似对函数的积分：
+\begin{equation}
+  \frac{1}{b-a}\int_a^b dx\,f(x) = \ev{f}_{\rho_u} = \lim_{N\to\infty}\frac{1}{N}\sum_{n=1}^{N} f(x_n).
+\end{equation}
+该方法用样本平均值代替精确平均值，正如民意调查那样。与民意调查一样，在实际计算中人们局限于一个子样本和一个有限的数目 $N$。可以证明，对正确平均值的这一估计的不确定度按 $\order{1/\sqrt{N}}$ 变化。实际上，即使这也只是一个概率性的陈述，因为这个误差本身又有统计误差，如此等等。尽管乍一看这似乎令人怀疑，但在实际计算中该方法的效果出奇地好。
+
+蒙特卡罗抽样很容易应用于更高维的积分。所改变的一切只是 $x_n$ 现在表示随机变量的向量，并且在这个多维空间中选取随机点。在通常的数值求积方法中，工作量随所要求的精度呈指数增长。而对于蒙特卡罗积分，估计误差始终 $\propto 1/\sqrt{N}$：为了将精度提高 2 倍，需要取 4 倍多的随机点。比较表明，当维数超过三维时，蒙特卡罗方法比求积法更有效。
+
+然而，在我们的路径积分中，必须考虑玻尔兹曼因子 $\exp(-S)$。根据作用量 $S$ 的不同，它会赋予不同的场构型不同的重要性。因此在对构型求和时，考虑权重较大的构型比考虑权重较小的构型更重要。所谓重要性抽样蒙特卡罗方法的核心思想是，用按权重因子抽样的一个相对较小的构型子集来近似这个巨大的求和。
+
+某个函数 $f(x)$ 关于具有密度 $\rho(x)$ 的概率分布的期望值由下式给出
+\begin{equation}
+  \ev{f}_\rho = \frac{\int_a^b dx\,\rho(x)\,f(x)}{\int_a^b dx\,\rho(x)}.
+\end{equation}
+在重要性抽样蒙特卡罗积分中，该期望值用 $N$ 个值的平均来近似，
+\begin{equation}
+  \ev{f}_\rho = \lim_{N\to\infty}\frac{1}{N}\sum_{n=1}^{N} f(x_n),
+\end{equation}
+其中每个 $x_n \in (a,b)$ 都按归一化概率密度随机抽样
+\begin{equation}
+  dP(x) = \frac{\rho(x)\,dx}{\int_a^b dx\,\rho(x)}.
+\end{equation}
+我们的路径积分具有 (4.4) 的形式，因此适合进行重要性抽样。于是我们可以将算符 $O$ 的期望值写成
+\begin{equation}
+  \ev{O} = \lim_{N\to\infty}\frac{1}{N}\sum_{n=1}^{N} O[U_n],
+\end{equation}
+其中每个 $U_n$ 都按概率分布密度抽样
+\begin{equation}
+  dP(U) = \frac{e^{-S[U]}\,D[U]}{\int D[U]\,e^{-S[U]}},
+\end{equation}
+即所谓的吉布斯测度。规范场构型 $U_n$ 就是我们的随机变量。我们用 $N$ 个这样的构型组成的样本去近似积分。在实际计算中，这个数目可能从几百到几百万不等，取决于可用的计算机资源和问题的复杂程度。结果的统计误差将正比于 $1/\sqrt{N}$，并且在 $N \to \infty$ 时得到精确值。不过，结果是对有限大小格点而言的。对统计误差的控制属于蒙特卡罗计算的核心问题之一。
+
+\subsection{马尔可夫链}
+
+我们如何找到服从概率分布 (4.8) 的场构型 $U_n$ 呢？思路是从某个任意构型出发，然后构造一个随机构型序列，该序列最终服从某个平衡分布 $P(U)$。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\textwidth]{fig41.png}
+  \caption*{Fig. 4.1. \emph{在所有构型空间中马尔可夫链的示意图}.}
+  \label{fig:41}
+\end{figure}
+
+这是通过所谓的齐次马尔可夫链或马尔可夫过程来实现的
+\begin{equation}
+  U_0 \longrightarrow U_1 \longrightarrow U_2 \longrightarrow \ldots .
+\end{equation}
+在这条马尔可夫链中，构型 $U_n$ 被相继地产生。指标 $n$ 按构型在链中出现的次序来标记它们；它常被称为计算机时间，不要与 4 维时空的欧氏时间相混淆。把场构型改变为新构型的操作称为一次更新或一个蒙特卡罗步。
+
+我们在图 4.1 中展示了马尔可夫链的示意图。边界围出了全体构型的空间。圆点表示马尔可夫链访问过的构型，我们用直线把它们连接起来，表示它们是相继被访问的。图中的马尔可夫链从左上角出发，然后迅速移向云团的中心，在那里我们看到圆点的密度很大。这对应于玻尔兹曼因子 $\exp(-S)$ 较大、因而概率较高的构型区域。马尔可夫过程的构造使得概率较大的构型被访问得更多。一个马尔可夫过程由条件转移概率来刻画（即：从 $U$ 出发得到 $U'$ 的概率）
+\begin{equation}
+  P(U_n = U' \,|\, U_{n-1} = U) = T(U'|U).
+\end{equation}
+该概率只依赖于构型 $U$ 和 $U'$，而不依赖于指标 $n$。转移概率 $T(U'|U)$ 满足
+\begin{equation}
+  0 \leq T(U'|U) \leq 1, \qquad \sum_{U'} T(U'|U) = 1 .
+\end{equation}
+不等式只是界定了概率的取值范围。求和式表明，从某个构型 $U$ 跳到任意目标构型 $U'$ 的总概率等于 1（注意这也包含了 $U' = U$ 的情形）。
+
+现在让我们讨论对 $T(U'|U)$ 的一个重要限制。一旦处于平衡，我们的马尔可夫过程就不能有概率的汇或源。因此，在 $U_{n-1} \to U_n$ 这一步跳入构型 $U'$ 的概率必须等于在这一步跳出 $U'$ 的概率。相应的平衡方程为
+\begin{equation}
+  \sum_{U} T(U'|U)\,P(U) = \sum_{U} T(U|U')\,P(U').
+\end{equation}
+在左边，我们将导向最终构型 $U'$ 的转移概率 $T(U'|U)$ 对所有起始构型 $U$ 求和，并用系统实际处于构型 $U$ 的概率 $P(U)$ 加权。这一表达式给出最终处于 $U'$ 的总概率，它必须等于我们在右边计算的跳出 $U'$ 的概率。后者等于找到系统处于构型 $U'$ 的概率 $P(U')$ 乘以转移概率 $T(U|U')$ 对系统可能跳入的所有终态构型 $U$ 的求和。注意两边都包含了 $U' = U$ 的情形，即没有实际转移的情形。
+
+在讨论平衡方程 (4.12) 的解之前，让我们注意一个重要性质。利用归一化性质 (4.11)，右边对 $U$ 的求和可以显式计算。我们得到
+\begin{equation}
+  \sum_{U} T(U'|U)\,P(U) = P(U'),
+\end{equation}
+这表明平衡分布 $P(U)$ 是马尔可夫过程的不动点。一旦得到平衡分布，系统在施加 $T$ 之后便停留在那里。从具有初始分布 $P^{(0)}(U) = \delta(U - U_0)$ 的任意起始构型 $U_0$ 出发，通过迭代地施加转移矩阵，最终得到平衡分布 $P(U)$：
+\begin{equation}
+  P^{(0)} \xrightarrow{T} P^{(1)} \xrightarrow{T} P^{(2)} \xrightarrow{T} \ldots \xrightarrow{T} P
+  \quad (= \text{equilibrium distribution}).
+\end{equation}
+这一性质的基本证明可参见，例如，文献 [1]。
+
+让我们谈一个重要的问题。为了得到正确的结果，马尔可夫链必须能够访问所有构型。换言之，必须在有限步内能够到达图 4.1 云团内的所有点。如果转移矩阵 $T(U'|U)$ 对所有的对 $U, U'$ 都严格为正，那么过程是非周期的，并且最终可以到达每一个构型。这一性质称为强遍历性。在真实的模拟中，遍历性以及与之相关的弛豫问题是重要的问题。特别是，如果构型空间中存在拓扑上不同的扇区，某些蒙特卡罗更新算法在连接它们时可能会有困难。
+
+在实际计算中，只有在进行了足够多次热化的蒙特卡罗步之后，才开始按 (4.7) 计算可观测量。微妙的问题在于，何时可以认为所考虑构型的分布已经足够接近平衡分布。这一判断通常基于对某些可观测量和关联量的测量。我们将在本章后面更详细地讨论这个问题。
+
+现在我们给出平衡方程 (4.12) 的解的一个充分条件。两边都是对所有构型 $U$ 的求和，这些求和必须相等。可以通过要求等式逐项成立来得到一个解，
+\begin{equation}
+  T(U'|U)\,P(U) = T(U|U')\,P(U').
+\end{equation}
+这一充分条件称为细致平衡条件。尽管也存在其他解，但大多数算法都使用细致平衡条件。在下一节中，我们将讨论基于 (4.15) 的“一切蒙特卡罗算法之母”——Metropolis 算法。
+
+\subsection{Metropolis 算法——基本思想}
+
+Metropolis 算法 [2] 将马尔可夫链从构型 $U_{n-1}$ 推进到某个新构型 $U_n$，它由以下步骤组成（我们使用 $P(U) \propto \exp(-S[U])$）：
+
+\textbf{步骤 1：} 根据某个先验选择概率 $T_0(U'|U)$ 选取某个候选构型 $U'$，其中 $U = U_{n-1}$。
+
+\textbf{步骤 2：} 以接受概率将候选构型 $U'$ 接受为新构型 $U_n$
+\begin{equation}
+  T_A(U'|U) = \min\!\left(1, \frac{T_0(U|U')\,\exp(-S[U'])}{T_0(U'|U)\,\exp(-S[U])}\right).
+\end{equation}
+如果建议的改变未被接受，未改变的构型会在马尔可夫链中再次被考虑，并与其他构型一样被计入测量。
+
+\textbf{步骤 3：} 从头重复这些步骤。
+
+很容易看出，总转移概率 $T = T_0 T_A$ 满足细致平衡条件
+\begin{equation}
+  \begin{split}
+    T(U'|U)\,e^{-S[U]}
+    &= T_0(U'|U)\,e^{-S[U]}\,
+       \min\!\left(1, \frac{T_0(U|U')\,e^{-S[U']}}{T_0(U'|U)\,e^{-S[U]}}\right) \\
+    &= \min\!\big(T_0(U'|U)\,e^{-S[U]},\; T_0(U|U')\,e^{-S[U']}\big) \\
+    &= T(U|U')\,e^{-S[U']}
+  \end{split}
+\end{equation}
+这是因为所有因子都是正的，且 $\min$ 运算是对称的。在许多情况下，人们使用满足下式的对称选择概率
+\begin{equation}
+  T_0(U|U') = T_0(U'|U).
+\end{equation}
+在这种情况下，(4.16) 简化为
+\begin{equation}
+  T_A(U'|U) = \min\!\big(1, \exp(-\Delta S)\big)
+  \qquad\text{with}\qquad
+  \Delta S = S[U'] - S[U].
+\end{equation}
+特别是对于对称的 $T_0$，决定接受或拒绝所需的信息只来自作用量的改变 $\Delta S$ 相对于构型的改变。如果这种改变是局部的，例如只涉及单个链接变量 $U_\mu(n)$，那么 $\Delta S$ 可以由局部邻域内的场值来确定。
+
+\subsection{Wilson 规范作用量的 Metropolis 算法}
+
+\begingroup\emergencystretch=4em 让我们通过讨论 Metropolis 算法在四维 SU($N$) Wilson 规范作用量 (2.49) 中的应用，使这一算法的思想更加清晰。从某个构型 $U$ 出发，我们用于\linebreak[0] Metropolis 更新的候选构型 $U'$ 与构型 $U$ 的不同之处仅在于单个链接变量 $U_\mu(n)'$ 的值。在四维中，该链接被六个基本方格共享，当 $U_\mu(n) \to U_\mu(n)'$ 改变时，只有这六个基本方格受到影响。它们对作用量的局域贡献为（比较 (3.93)）\par\endgroup
+\begin{equation}
+  \begin{split}
+    S[U_\mu(n)']_{\mathrm{loc}}
+    &= \frac{\beta}{N}\sum_{i=1}^{6}\Re\,\tr\!\big[1 - U_\mu(n)' P_i\big]
+     = \frac{\beta}{N}\,\Re\,\tr\!\big[6\,\mathbb{1} - U_\mu(n)' A\big], \\
+    \text{with}\qquad
+    A &= \sum_{i=1}^{6} P_i
+     = \sum_{\nu\neq\mu}\Big(U_\nu(n+\hat{\mu})\,U_{-\mu}(n+\hat{\mu}+\hat{\nu})\,U_{-\nu}(n+\hat{\nu}) \\
+    &\qquad + U_{-\nu}(n+\hat{\mu})\,U_{-\mu}(n+\hat{\mu}-\hat{\nu})\,U_\nu(n-\hat{\nu})\Big).
+  \end{split}
+\end{equation}
+这里的 $P_i$ 是其他三个规范链接变量的乘积，它们与 $U_\mu(n)'$ 一起构成基本方格。这些乘积称为 staple（钉状项），我们已显式写出了对所有 staple 的求和 $A$。
+
+对于作用量的改变，我们得到
+\begin{equation}
+  \Delta S = S[U_\mu(n)']_{\mathrm{loc}} - S[U_\mu(n)]_{\mathrm{loc}} = -\frac{\beta}{N}\,\Re\,\tr\!\big[(U_\mu(n)' - U_\mu(n))\,A\big],
+\end{equation}
+其中 $A$ 不受 $U_\mu(n)$ 改变的影响。
+
+算法的一个重要部分是候选链接 $U_\mu(n)'$ 的选取。它应当是 SU($N$) 中一个离旧链接 $U_\mu(n)$ 不太远的元素，使得候选的平均接受概率 (4.16) 不会变得太小。一种标准技巧是使用
+\begin{equation}
+  U_\mu(n)' = X\,U_\mu(n),
+\end{equation}
+其中 $X$ 是规范群 SU($N$) 中在 1 附近的随机元素。为了实现对称的选择概率 $T_0$，$X$ 和 $X^{-1}$ 必须以相等的概率选取。这些矩阵 $X$ 在实践中如何构造，将在第 4.2 节中讨论。
+
+基于方程 (4.20)、(4.21) 和 (4.22)，采用单链接变量更新和对称选择概率 $T_0$ 的 Metropolis 算法的一种实现可以简要总结如下：
+
+\textbf{步骤 1：} 给定某个规范场构型，选取一个格点 $n$ 和一个方向 $\mu$，并根据某个对称选择概率 $T_0$（例如使用 (4.22)）选取一个候选值 $U_\mu(n)'$。
+
+\textbf{步骤 2：} 计算对 staple 的求和，并由此按 (4.21) 计算作用量的改变 $\Delta S$。计算一个在区间 $[0,1)$ 上均匀分布的随机数 $r$。如果 $r \leq \exp(-\Delta S)$ 则接受新变量 $U_\mu(n)'$，否则拒绝。
+
+\textbf{步骤 3：} 从头重复这些步骤。
+
+我们指出，如果作用量减小或保持不变，即 $\exp(-\Delta S) \geq 1$，步骤 2 中的改变总是被接受的。仅凭这一点就会导致构型空间中的作用量取极小值，对应于经典场方程的一个解。然而，由于随机变量 $r$ 的存在，作用量增大的构型偶尔也会被接受。可以说，这一特征重现了系统的量子涨落。
+
+访问链接 $(n, \mu)$ 以更新相应链接变量 $U_\mu(n)$ 的次序可以自行选择。不过，有些实现偏爱某种特定次序，并系统地访问所有格点，例如为了利用计算机的向量计算能力。
+
+此外，对已访问的变量重复数次更新步骤在计算上是经济的，因为计算 staple 之和 $A$ 的代价很高。因此，一旦计算出 $A$，就可以反复向系统提供候选链接 $U_\mu(n)'$，并按步骤 2 接受它们。这种改进称为多击（multi-hit）Metropolis 算法。候选链接的数目可以根据效率来调节。理论上，无限次重复会得到一种与热浴算法等价的方法，我们将在第 4.3 节中讨论热浴算法。
+
+\section{SU(3) 蒙特卡罗算法的实现}
+
+在上一节中，我们把单链接 Metropolis 更新作为蒙特卡罗算法的第一种途径作了介绍。然而，到目前为止，实际实现的所有细节都被略去了。本节将给出这些细节，特别是变量的表示、边界条件、候选链接的产生以及随机数的产生。一旦我们介绍了这些工具，就能够讨论另外两种蒙特卡罗算法，即热浴方法和过松弛方法。
+
+本节中的部分内容针对规范群 U(1) 和 SU(2) 讨论。阿贝尔群 U(1) 是一个简单的自行演练的例子，而 SU(2) 子群的更新是更新 SU(3) 的构件。
+
+\subsection{链接变量的表示}
+
+在 Metropolis 算法的讨论中我们已经看到，矩阵乘法是更新的核心运算（比较 (4.20)、(4.21) 和 (4.22)）。因此，为链接变量找到合适而高效的表示很重要。
+
+规范场变量的定义表示分别是：规范群 U(1) 为复数，SU(2) 为复 $2\times2$ 矩阵，SU(3) 为复 $3\times3$ 矩阵。然而，由于群元素的幺正性，还必须遵守进一步的限制。这三个群的最少参数数目等于生成元的数目，分别为 1、3 和 8。尽管可以设想恰好只有这些最少参数集的群元素表示，但在实际计算中，使用冗余表示往往更方便。这会加快群元素乘法的求值。这一运算是计算中最耗时的部分，因为它必须被如此频繁地执行。对于 U(1)，使用模长为 1（$|z| = 1$）的复数 $z$。这意味着要存储两个实数而不是一个相位。
+
+对于 SU(2)，存储矩阵的第一行 $(a,b)$ 很方便
+\begin{equation}
+  U = \begin{pmatrix} a & b \\ -b^* & a^* \end{pmatrix}
+  \qquad\text{with}\qquad
+  |a|^2 + |b|^2 = 1 .
+\end{equation}
+这相当于存储两个复数（四个实数，而最少需要三个）。利用 $a = x_0 + i x_4$ 和 $b = x_3 + i x_2$，这等价于在表示中使用四个实系数的向量 $x = (x_0, \mathbf{x})$
+\begin{equation}
+  U = x_0\,\mathbb{1} + i\,\mathbf{x}\cdot\boldsymbol{\sigma}
+  \qquad\text{with}\qquad
+  \det[U] = |x|^2 = x_0^2 + |\mathbf{x}|^2 = \sum_{i=0}^{3}x_i^2 = 1,
+\end{equation}
+其中 $\boldsymbol{\sigma}$ 表示三个泡利矩阵组成的向量（见 (A.8)）。
+
+SU(3) 的群元素既可以用完整的复矩阵表示（9 个复数 = 18 个实数，而最少需要 8 个），也可以用前两行表示，对应于复 3 向量 $u$ 和 $v$（6 个复数 = 12 个实数）。必须把这些向量限制为单位长度，并且它们必须彼此正交：
+\begin{equation}
+  \begin{split}
+    |u|^2 &= u^*\cdot u = |u_1|^2 + |u_2|^2 + |u_3|^2 = 1, \\
+    |v|^2 &= v^*\cdot v = |v_1|^2 + |v_2|^2 + |v_3|^2 = 1, \\
+    (u,v) &= u^*\cdot v = u_1^*v_1 + u_2^*v_2 + u_3^*v_3 = 0 .
+  \end{split}
+\end{equation}
+由于 SU(3) 矩阵的性质，矩阵的第三行可以由前两行重构：
+\begin{equation}
+  U = \begin{pmatrix} u \\ v \\ u^* \times v^* \end{pmatrix}.
+\end{equation}
+因此原则上只存储两行就足够了。然而，由于磁盘空间和内存的充裕，如今主要使用群元素的冗余表示。在计算机程序中，规范场于是成为一个数组，其下标对应格点的空间和时间位置，还有一个表示链接变量方向的下标。对于非阿贝尔理论，根据所用表示的类型，还会有颜色指标（例如，如果使用矩阵形式则有两个）。
+
+无论选择哪种表示，由于群元素乘法中舍入误差的累积，矩阵必须定期投影回幺正矩阵。这一周期取决于所选用的位数，必须根据观测来确定。对于 U(1)，重新幺正化通过除以模长来完成。对于 SU(2)，将第一行归一化，然后（如果在所选表示中有必要）由第一行重构第二行。类似地，对于 SU(3)，基本上是遵循众所周知的在向量空间中构造标准正交基元素的 Gram--Schmidt 方法。将第一行归一化，第二行由当前值构造并与第一行正交化，
+\begin{equation}
+  u^{\mathrm{new}} = u/|u|, \qquad
+  v^{\mathrm{new}} = v' / |v'|
+  \quad\text{where}\quad
+  v' = v - u^{\mathrm{new}}(v\cdot u^{*\mathrm{new}}),
+\end{equation}
+第三行则按 (4.26) 由前两行构造。
+
+\subsection{边界条件}
+
+由于数值模拟在有限格点上进行，因此必须实现边界条件。对于规范场，通常使用周期性边界条件（格点的定义参见 (A.27)）
+\begin{equation}
+  \begin{split}
+    U_\mu(N, n_2, n_3, n_4) &= U_\mu(0, n_2, n_3, n_4), \\
+    U_\mu(n_1, N, n_3, n_4) &= U_\mu(n_1, 0, n_3, n_4), \\
+    U_\mu(n_1, n_2, N, n_4) &= U_\mu(n_1, n_2, 0, n_4), \\
+    U_\mu(n_1, n_2, n_3, N_T) &= U_\mu(n_1, n_2, n_3, 0).
+  \end{split}
+\end{equation}
+对于费米子，通常在一个方向上选择反周期性边界条件，这将在第 5 章中讨论。边界条件定义了底层流形的拓扑。周期性边界条件和反周期性边界条件对应于四维环面——每个方向都像一个圆那样。选择环形边界条件（与例如狄利克雷边界条件相反）的优点在于保持格点的离散平移对称性。其他边界条件和其他格点离散化也是可能的并且已被研究，但绝大多数计算都是在超立方格点上采用（反）周期性边界条件进行的。
+
+在计算蒙特卡罗步的作用量改变 $\Delta S$ 时，需要四个时空方向上最近邻的地址。这看起来似乎微不足道，但在实际计算中会耗费一定的计算机时间。为此，人们开发了各种加速技术。其中大多数使用预先算好的指标数组来同时实现近邻计算和边界条件。
+
+\subsection{为 Metropolis 更新生成候选链接}
+
+我们还需要说明如何为上一节介绍的 Metropolis 算法生成候选链接。
+
+在 Metropolis 算法中，必须在旧值 $U_\mu(n)$ 附近建议一个候选链接变量 $U_\mu(n)'$。正如 (4.22) 中已指出的，这可以通过以下方式完成
+\begin{equation}
+  U_\mu(n)' = X\,U_\mu(n),
+\end{equation}
+其中 $X$ 是规范群中一个靠近单位元的随机选取的元素。通过调节矩阵 $X$ 在单位元周围的散布程度，可以把接受率调到合理的数值。高接受率可能看起来很理想，但通常意味着改变太小、在构型空间中的运动缓慢。较低的接受率代价高昂，因为产生了很多候选构型却没有被接受。按照经验法则，接受率取 0.5 是合理的，这样在蒙特卡罗步中平均两个建议的候选构型里有一个被接受。
+
+对 U(1) 而言，为 Metropolis 步选取候选很简单，可以选择 $X = e^{i\phi}$，其中 $\phi \in (-\varepsilon, \varepsilon)$ 按均匀分布随机选取。然后可以调节 $\varepsilon$ 以获得良好的接受率。然而，这需要计算正弦函数，而在程序的核心部分我们希望避免代价高昂的计算。因此，只要 $\varepsilon$ 不太大（小于 1），更有效的做法是取 $X = (1 + i\phi)/\sqrt{1 + \phi^2}$。还可以探索其他可能性。可以看到，这个话题已经从科学滑向了艺术 [3]。
+
+对于规范群 SU(2) 和 SU(3)，随机群元素的确定代价更高。可以使用各种方法在单位元附近建议元素。对于 SU(2)，可以选择四个在 $(-1/2, 1/2)$ 上均匀分布的随机数 $r_i$。然后按照 (4.24) 构造 SU(2) 矩阵 $X$，其中 $x_0$ 和 $\mathbf{x}$ 由下式给出
+\begin{equation}
+  \mathbf{x} = \varepsilon\,r/|r|, \qquad
+  x_0 = \mathrm{sign}(r_0)\,\sqrt{1 - \varepsilon^2},
+\end{equation}
+其中 $\varepsilon$ 再次是控制 $X$ 在 1 周围散布的参数。
+
+对于 SU(3)，更新矩阵 $X$ 可以由嵌入 $3\times3$ 矩阵中的这样的 SU(2) 矩阵按下式构造
+\begin{equation}
+  \begin{split}
+    R &= \begin{pmatrix} r_{11} & r_{12} & 0 \\ r_{21} & r_{22} & 0 \\ 0 & 0 & 1 \end{pmatrix}, \qquad
+    S = \begin{pmatrix} 1 & 0 & 0 \\ 0 & s_{11} & s_{12} \\ 0 & s_{21} & s_{22} \end{pmatrix}, \\
+    T &= \begin{pmatrix} t_{11} & 0 & t_{12} \\ 0 & 1 & 0 \\ t_{21} & 0 & t_{22} \end{pmatrix}.
+  \end{split}
+\end{equation}
+于是 $X$ 的一个可能选择由乘积给出
+\begin{equation}
+  X = R\,S\,T .
+\end{equation}
+由于矩阵 $R$、$S$、$T$ 都接近 1，乘积 $X$ 也接近 1。
+
+为了保持先验选择概率 $T_0(U'|U)$ 的对称性，$X$ 和 $X^{-1} = X^\dagger$ 应以相等的概率选取。一种简单的做法是构造一组接近单位元的随机 SU(3) 矩阵（例如利用 (4.32)），并且在这组矩阵中也包含每个矩阵的厄米共轭。根据 (4.29) 构造候选链接所用的矩阵 $X$ 从这组矩阵中随机选取。这组矩阵会不时地用新的群元素重建。
+
+\subsection{关于随机数的几点说明}
+
+蒙特卡罗过程的核心步骤需要随机数。在计算机程序中，这些是所谓的伪随机数，由算法可重现地生成。伪随机数的统计性质与真实随机数的性质非常接近。典型的蒙特卡罗运行可能需要 $\order{10^{12}}$ 个随机数。因此，在选择合适的生成器时必须极其小心。随机数生成器的标准实现往往不够可靠，会产生相关性隐蔽且周期过短的数列。高质量的生成器使用所谓的滞后斐波那契方法，并且存在具有极长保证周期 $\order{10^{171}}$ 的生成器 [4]。
+
+伪随机数通常按区间 $[0,1)$ 上的均匀分布生成。存在各种算法可以从这些均匀分布数生成其他分布 [3, 5]。这在计算机时间上可能代价高昂，而寻找高效且（在统计意义上）“表现良好”的生成器是蒙特卡罗方法的一项重要任务。事实上，整个规范场构型可以被视为一个服从某种分布的随机数向量：该分布就是玻尔兹曼分布。
+
+任何生成器都必须被初始化。如果继续一次长时间的运行，还应当保存生成器的最终状态，以便能够从那个位置重新启动它。
+
+\section{更多蒙特卡罗算法}
+
+如今已经存在一整套更新算法。如果像简单的 Metropolis 那样，一个蒙特卡罗步的改变只局部地影响少数变量，就称其为局域算法。不幸的是，局域算法在马尔可夫链中只允许非常小的步长，因此效率不高。为了得到不相关的构型，必须执行许多更新步。对于非局域算法，情况要好一些，它们一次性改变场变量的大子集。虽然对自旋模型和标量场论存在出色的非局域（例如簇）算法，但对规范场却并非如此，迄今为止还没有已知的高效非局域更新方法。以下算法已被应用于规范场：
+
+\begin{itemize}
+  \item \textbf{热浴：} 等价于迭代的 Metropolis 更新，它优化局域接受率 [6]。
+  \item \textbf{过松弛：} 一种有时非常有效的改善马尔可夫链中步长的方法，它利用作用量的对称性质 [7, 8]。为了获得遍历性，必须与其他算法结合使用。
+  \item \textbf{微正则：} 将更新重新表述为确定性的离散哈密顿量演化，使用双倍数量的变量 $(U, \Pi)$。一种变体方法引入了微正则妖 [9]。
+  \item \textbf{混合蒙特卡罗（Hybrid Monte Carlo）：} 将若干次微正则更新（一条轨迹）与最后的蒙特卡罗接受步相结合 [10]。
+  \item \textbf{朗之万：} 利用随机微分方程来构造构型 [11--13]；在一定的极限下可以证明它与微正则方法和混合方法等价。
+\end{itemize}
+
+不同的更新算法在所需计算量和马尔可夫链中得到的步长方面可能有不同的表现。这里我们更详细地介绍热浴算法和过松弛。在第 4.4 节中，我们将概述基于这些算法对纯规范理论进行模拟所必需的步骤。
+
+\subsection{热浴算法}
+
+在热浴方法中，将单链接 Metropolis 更新的步骤 1 和步骤 2 合并为一步，并按由周围 staple 定义的局域概率分布选取新值 $U_\mu(n)'$，
+\begin{equation}
+  dP(U) = dU\,\exp\!\left(\frac{\beta}{N}\,\Re\,\tr[U A]\right).
+\end{equation}
+staple 之和 $A$ 按 (4.20) 计算，除 $U = U_\mu(n)'$ 外的所有链接都保持固定，因此 $A$ 是常数。注意 $dU$ 表示规范群的 Haar 积分测度。这在计算上可能相当费事。然而，它的优点在于链接变量总是会改变。具体实现取决于规范群和作用量的细节。
+
+我们首先较详细地介绍规范群 SU(2) 在 Wilson 作用量下的热浴方法，并在下一段将该方法推广到 SU(3)。对于 SU(2) 的情形，存在一种寻找新链接元素的有效方法。这个群很特别，因为两个 SU(2) 元素之和正比于另一个 SU(2) 矩阵。我们利用这一性质，将 (4.21) 中的 staple 之和 $A$ 写成如下形式
+\begin{equation}
+  A = a\,V \qquad \text{with}\qquad a = \sqrt{\det[A]},
+\end{equation}
+其中可以证明 $\det[A] \geq 0$。如果 $\det[A]$ 为零，就为 $U$ 选取一个随机 SU(2) 矩阵。否则我们发现 $V = A/a$ 是一个恰当归一化的 SU(2) 矩阵。将 (4.34) 代入我们的概率分布 (4.33)，我们得到（对于 SU(2)，在此方程中我们已取 $N = 2$）
+\begin{equation}
+  dP(U) = dU\,\exp\!\left(\frac{1}{2}\,a\,\beta\,\Re\,\tr[U V]\right).
+\end{equation}
+Haar 测度 $dU$ 在群空间中原点的变换下不变（参见第 3 章），我们也可以把它写成 $d(U V)$。如果用乘积 $X = U V$ 定义矩阵 $X$，则 $X$ 的局域概率分布为
+\begin{equation}
+  dP(X) = dX\,\exp\!\left(\frac{1}{2}\,a\,\beta\,\Re\,\tr[X]\right).
+\end{equation}
+如果我们按此分布生成矩阵 $X$，则候选链接由下式得到
+\begin{equation}
+  U_\mu(n)' = U = X\,V^\dagger = \frac{1}{a}\,X\,A^\dagger .
+\end{equation}
+因此我们已把问题归结为生成按 (4.36) 分布的矩阵 $X$。该方程中的 Haar 测度可以用群元素表示 (4.24) 中使用的实参数来写出。对于表示 (4.24) 中满足 $x \in \mathbb{R}^4$、$|x| = 1$ 的 $X$，Haar 测度为
+\begin{equation}
+  \begin{split}
+    dX &= \frac{1}{\pi^2}\,d^4x\;\delta\!\big(x_0^2 + |\mathbf{x}|^2 - 1\big) \\
+    &= \frac{1}{\pi^2}\,d^4x\;\frac{1}{2\sqrt{1-x_0^2}}\;\theta(1-x_0^2)
+       \Big[\delta\!\Big(|\mathbf{x}| + \sqrt{1-x_0^2}\Big) + \delta\!\Big(|\mathbf{x}| - \sqrt{1-x_0^2}\Big)\Big],
+  \end{split}
+\end{equation}
+其中在第二行我们使用了关于函数之狄拉克 $\delta$ 的一个众所周知公式。我们将体积元改写为
+\begin{equation}
+  d^4x = d|\mathbf{x}|\,|\mathbf{x}|^2\,d^2\Omega\,dx_0,
+\end{equation}
+其中 $d^2\Omega$ 表示对 3 向量 $\mathbf{x}$ 积分中的球面角元。我们可以利用狄拉克 $\delta$ 去掉对 $|\mathbf{x}|$ 的积分。只有 (4.38) 中第一个狄拉克 $\delta$ 有贡献，从此 $|\mathbf{x}|$ 被固定为 $\sqrt{1-x_0^2}$。Haar 测度取如下形式
+\begin{equation}
+  \begin{split}
+    dX &= \frac{1}{\pi^2}\,\frac{(1-x_0^2)\,\theta(1-x_0^2)}{2\sqrt{1-x_0^2}}\;d^2\Omega\,dx_0 \\
+    &= \frac{1}{2\pi^2}\,d^2\Omega\,dx_0\;\sqrt{1-x_0^2}\;\theta(1-x_0^2).
+  \end{split}
+\end{equation}
+注意在为 $X$ 选择的矩阵表示中，我们有 $|x_0| \leq 1$，因此本可以省略阶梯函数 $\theta$。由于 $\tr[X] = 2x_0$，我们最终得到 $X$ 的分布（利用 $d^2\Omega = d\cos\vartheta\,d\phi$）
+\begin{equation}
+  dP(X) = \frac{1}{2\pi^2}\,d\cos\vartheta\,d\phi\,dx_0\;\sqrt{1-x_0^2}\;e^{a\beta x_0},
+\end{equation}
+其中 $x_0 \in [-1,1]$，$\cos\vartheta \in [-1,1]$，$\phi \in [0,2\pi)$。为了找到随机矩阵 $X$，我们必须按此分布确定随机变量 $x_0$、$\vartheta$ 和 $\phi$。由于这三个变量的分布可以分解因子，我们可以独立地生成它们：
+
+\textbf{随机变量 $x_0$：} 任务是找到按 $\sqrt{1-x_0^2}\,e^{a\beta x_0}$ 分布的值 $x_0$。参照 [14, 15]，我们引入变量 $\lambda$
+\begin{equation}
+  \begin{split}
+    x_0 &= 1 - 2\lambda^2 \qquad \text{with}\quad x_0 \in [-1,1] \\
+    &\Rightarrow\quad dx_0\,\sqrt{1-x_0^2}\,e^{a\beta x_0}
+    \propto d\lambda\;\lambda^2\sqrt{1-\lambda^2}\,e^{-2a\beta\lambda^2}
+  \end{split}
+\end{equation}
+其中 $\lambda \in [0,1]$。经过这一变换，我们需要按多项式修正的高斯分布密度生成 $\lambda$
+\begin{equation}
+  p_1(\lambda) = \lambda^2\,e^{-2a\beta\lambda^2}
+\end{equation}
+并用基于平方根函数的接受/拒绝步骤接受它
+\begin{equation}
+  p_2(\lambda) = \sqrt{1-\lambda^2}.
+\end{equation}
+计算高斯分布随机数的算法是众所周知的 [3, 5]。我们按如下方式进行 [15]：
+
+\textbf{步骤 1：} 从三个在 $(0,1]$ 上均匀分布的随机数 $r_i$（$i = 1, 2, 3$）开始（必须避免取到 0；由于通常的随机数生成器覆盖区间 $[0,1)$，只需改用 $(1-r_i)$ 即可）。然后
+\begin{equation}
+  \lambda^2 = -\frac{1}{2a\beta}\Big[\ln(r_1) + \cos^2(2\pi r_2)\,\ln(r_3)\Big]
+\end{equation}
+服从所要求的分布。
+
+\textbf{步骤 2：} 我们修正因子 $p_2(\lambda)$，因而只接受满足下式的 $\lambda$ 值
+\begin{equation}
+  r \leq \sqrt{1-\lambda^2} \qquad \text{or, better} \qquad r^2 \leq 1-\lambda^2,
+\end{equation}
+其中 $r$ 是在 $[0,1)$ 上均匀分布的随机变量。被接受的值给出 $x_0 = 1 - 2\lambda^2$，服从所要求的分布。
+
+\textbf{随机变量 $|\mathbf{x}|$：} 实际上，当我们利用 (4.38) 的狄拉克 $\delta$ 将其积分掉时，这个随机变量就被去掉了。不过在这一步，长度被固定为 $|\mathbf{x}| = \sqrt{1-x_0^2}$，我们现在可以由上一步确定的 $x_0$ 计算它。
+
+\textbf{随机变量 $\cos\vartheta$ 和 $\phi$：} 这些角度变量对应于 $\mathbf{x}$ 的方向，是均匀分布的。一种可能的方法是选取三个在 $[-1,1)$ 上均匀分布的随机数 $r_1$、$r_2$ 和 $r_3$，并在 $r_1^2+r_2^2+r_3^2 \leq 1$ 时接受它们。然后把这个 3 向量归一化到长度 $|\mathbf{x}| = \sqrt{1-x_0^2}$。
+
+完成这些步骤后，我们得到一个向量 $(x_0, \mathbf{x})$，由此可以利用表示 (4.24) 计算矩阵 $X$。我们总结用热浴算法更新 SU(2) 链接变量的步骤：
+\begin{enumerate}
+  \item 求出 staple 之和 $A$，计算 $a = \sqrt{\det[A]}$，并令 $V = A/a$。
+  \item 按上面讨论的分布 (4.41) 求出群元素 $X$。
+  \item 新的链接变量为 $U = X V^\dagger$。
+\end{enumerate}
+
+不存在直接产生 SU(3) 链接变量的热浴算法。然而，可以通过对 SU(3) 的 SU(2) 子群迭代热浴来应用一种伪热浴方法 [16]。两个这样的 SU(2) 子群就足以覆盖整个群空间。不过，出于对称性考虑，人们按 (4.31) 选取三个这样的群。这三个矩阵中的每一个都用上面讨论的 SU(2) 热浴来确定。
+
+为此，让我们再次考虑 (4.33)。假设我们想通过与例如 (4.31) 中的第一个矩阵 $R$ 左乘来修改链接变量 $U$。那么局域玻尔兹曼权重 (4.33) 中的指数将为（现在是 $N = 3$，因为这是针对 SU(3) 的）
+\begin{equation}
+  \frac{\beta}{3}\,\Re\,\tr[R\,U\,A].
+\end{equation}
+记 $W = U A$，则迹中包含如下各项
+\begin{equation}
+  \tr[R\,W] = r_{11}w_{11} + r_{12}w_{21} + r_{21}w_{12} + r_{22}w_{22}
+  + \text{terms without } r_{ij}.
+\end{equation}
+因此，对 $R$ 的热浴算法只受 $W$ 中与 $R$ 的四个非平凡项相乘的那些项影响，即 $W$ 中对应于 $R$ 相关子矩阵的子块。我们发现，在 SU(2) 热浴算法的讨论中，$W$ 扮演了 (4.33) 中 $A$ 的角色。它不是 SU(2) 的群元素，但正比于 $\mathbb{1}$。因此可以像以前一样，在 $W$ 的“热浴”中求出 $R$ 的元素。
+
+我们将得到的 $R$ 与 $W$ 相乘，得到新的 $W = R\,U\,A$，它现在为 $S$ 提供 SU(2) 热浴因子。得到的 $S$ 再次与 $W$ 相乘，得到 $T$。这三个 SU(2) 热浴因子矩阵给出链接变量的新值：
+\begin{equation}
+  U \;\Rightarrow\; U' = T\,S\,R\,U .
+\end{equation}
+对 SU(2) 子群的这种伪热浴更新也可以与下一节讨论的过松弛步骤结合使用。
+
+\subsection{过松弛}
+
+这种方法试图尽可能大地改变变量，以加快在构型空间中的运动。它利用的性质是：在 Metropolis 算法中，不改变作用量的新构型总是被接受。与热浴算法一样，出发点是单个链接变量 $U_\mu(n) = U$ 在其邻居背景下的概率分布 (4.33)，这些邻居保持固定，staple 之和 $A$ 按 (4.21) 计算。过松弛方法的想法是找到一个新的值 $U'$，它与 $U$ 具有相同的概率权重，因而自动被接受。
+
+让我们首先针对规范群 U(1) 说明这一思想。在这种情况下，可以写 $U = \exp(i\phi)$，而对 staple 之和得到 $A = a\exp(i\alpha)$。局域概率 (4.33) 的指数，即局域作用量，可以写成（对于 U(1)，迹消失且 $N = 1$；比较 (3.94)）
+\begin{equation}
+  \beta\,\Re(U A) = \beta\,a\,\Re\,e^{i\phi}e^{i\alpha} = \beta\,a\,\cos(\phi + \alpha).
+\end{equation}
+显然，反射 $(\phi + \alpha) \to -(\phi + \alpha)$，或等价地改变 $\phi \to (2\pi - 2\alpha - \phi)$，保持局域作用量不变，因此总是被接受。
+
+对于非阿贝尔群，按照如下假设建议一种改变
+\begin{equation}
+  U \to U' = V^\dagger\,U^\dagger\,V^\dagger,
+\end{equation}
+其中规范群元素 $V$ 的选择使作用量不变。
+
+在一般情况下，$V$ 的选择并不平凡。然而，正如结合 (4.34) 讨论的那样，对于规范群 SU(2)，staple 之和 $A$ 正比于一个群矩阵，可以用实数 $a = \sqrt{\det[A]}$ 构造 $V = A/a$。矩阵 $V$ 现在是幺正的，即 $V^{-1} = V^\dagger$。我们得到
+\begin{equation}
+  \tr[U' A] = \tr[V^\dagger\,U^\dagger\,V^\dagger\,A] = a\,\tr[V^\dagger\,U^\dagger]
+  = \tr[A^\dagger\,U^\dagger] = \tr[U A].
+\end{equation}
+在最后一步中，我们使用了 SU(2) 矩阵迹的实性。对 $U'$ 的这一选择确实保持作用量不变。选择概率 $T_0$ 也是对称的，因为 $U' = V^\dagger U^\dagger V^\dagger$ 意味着 $U = V^\dagger U'^\dagger V^\dagger$。在 $\det A$ 为零的罕见情形下，任何随机链接变量都会被接受。
+
+为其他规范群（如 SU(3)）实现过松弛可能更为复杂，最终也未必高效。通常只有规范群 U(1) 和 SU(2) 的更新程序使用这种方法。对于 SU(3) 的过松弛，已在 [17] 中研究过。
+
+单独的过松弛算法不是遍历的。它在作用量恒定的子空间上对构型空间抽样。这被称为微正则系综。由于人们想按正则系综确定构型，即按玻尔兹曼权重分布，就必须把过松弛步骤与其他更新算法（如 Metropolis 或热浴步骤）结合起来。
+
+\section{运行模拟}
+
+在介绍了更新的技术和算法之后，我们现在可以讨论如何组织一次实际的模拟。格点规范理论的蒙特卡罗模拟由以下几个基本步骤组成：
+
+\begin{itemize}
+  \item \textbf{初始化：} 必须初始化场构型。
+  \item \textbf{热化更新：} 必须进行足够多的更新，直到随后生成的构型代表（近似的）平衡分布。
+  \item \textbf{可观测量的计算与中间更新：} 一旦系统处于平衡，就可以开始在蒙特卡罗构型上计算可观测量。用于计算可观测量的构型之间应当隔开若干次中间更新。
+\end{itemize}
+
+以下将对这些步骤作较详细的讨论。数据产生之后，必须对其统计性质进行分析（见第 4.5 节）。只有到那时，才能研究所得数据中的物理内涵。表 4.1 给出了一个示意性的清单，演示蒙特卡罗程序的各个部分如何在计算机代码中组合在一起。
+
+\begin{table}[htbp]
+  \centering
+  \caption*{Table 4.1. Structure of a Monte Carlo program for pure gauge theory}
+  \label{tab:41}
+  \begin{tabular}{@{}p{0.86\textwidth}@{}}
+    \ttfamily
+    程序开始\\
+    参数与变量的声明：\\
+    \quad 初始化随机数生成器。\\
+    \quad 初始化数据表（例如邻居指标、因子、耦合常数）。\\
+    \quad 初始化规范场构型。\\
+    循环执行“热化”迭代：\\
+    \quad 对 $n = 1$ 直到 $n_\mathrm{equi}$：\\
+    \quad\quad 更新构型。\\
+    \quad 结束循环\\
+    循环执行带更新与测量的迭代：\\
+    \quad 对 $n = 1$ 直到 $n_\mathrm{measure}$：\\
+    \quad\quad 对 $i = 1$ 直到 $n_\mathrm{discarded}$：\\
+    \quad\quad\quad 更新构型。\\
+    \quad\quad 结束循环\\
+    \quad\quad 对这些构型中的最后一个测量可观测量。\\
+    \quad\quad 将这些值写入某个数据文件。（也许同时将\\
+    \quad\quad\quad 当前构型以及随机数生成器的状态保存到\\
+    \quad\quad\quad 某个文件中。）\\
+    \quad 结束循环\\
+    将最终构型及随机数生成器的状态写入\\
+    \quad 某个文件以便将来重新启动。\\
+    将最终输出写入数据文件。\\
+    关闭所有打开的文件。\\
+    程序结束
+  \end{tabular}
+\end{table}
+
+\subsection{初始化}
+
+任何场构型都可以选作初始构型。经过足够多次更新后，由于马尔可夫链的性质 (4.14)，最终将产生按平衡分布分布的构型。两种典型的起始构型是所谓的冷启动和热启动构型。
+
+\textbf{冷启动：} 所有链接变量都被设为单位元（$U_\mu(n) = 1$）。这对应于平凡的基本方格变量和最小的规范作用量，这是小规范耦合 $g$（大 $\beta$）情形下大致预期的情况。在统计模型中，弱耦合区域对应于低温，故有此名。
+
+\textbf{热启动：} 规范场矩阵在群空间中随机选取。通常人们不太在意均匀分布，只是为此选取合适的归一化随机向量。然后按上面讨论的幺正化过程 (4.26) 和 (4.27) 由这些向量构造矩阵的各行。
+
+有人喜欢热的，有人喜欢冷的，也有人使用混合起始构型，例如一半变量取冷的、另一半取热的。这样一来，几乎可以模拟总作用量的任何数值，尽管没有任何内部结构。无论哪种方式，在计算可观测量之前都必须对系统进行热化。
+
+很长的更新序列必须分割成蒙特卡罗程序的若干次相继运行。在这种情况下，从最后保存的构型以及随机数生成器的相应状态开始。
+
+\subsection{热化更新}
+
+程序的核心部分是更新子程序。给定一个构型，人们系统地更新所有规范链接，建议新值并按所讨论的方法之一接受它们。把所有链接访问一遍通常称为对格点的一次扫描（sweep）。为了优化性能，即为了在马尔可夫链中迈出大步，常常把采用不同算法的扫描组合起来。这样的组合扫描可以由一次热浴扫描后接两三次过松弛扫描组成。
+
+一个重要的问题是是否已经进行了足够多次热化扫描。只有在这样的热化阶段之后，算法才产生具有正确分布的构型（比较 (4.14)）。判断是否充分热化的一个简单初步测试是比较一组可观测量如何随扫描次数变化。特别是可以比较从冷启动得到的一组数据序列与从热启动得到的数据序列。一旦热启动和冷启动运行的可观测量曲线相互靠近，系统就正在接近平衡。
+
+一般来说，系统趋近平衡的速度将取决于更新算法，也取决于规范耦合 $\beta$、格点的大小以及所用作用量的类型。大的系统和大的 $\beta$ 比小的格点和小的 $\beta$ 需要更多的热化步骤。不同的可观测量也会以不同的速率趋近其平衡值。
+
+在第 4.5 节中，我们将在更坚实的基础上确定热化步骤的充分数目。在那里我们将讨论自关联时间，它衡量马尔可夫链中两个相继构型之间的相关程度。
+
+\subsection{可观测量的计算}
+
+一旦系统处于平衡，构型就可以用于计算可观测量。根据更新算法的不同，随后生成的构型将具有或多或少的关联。因此，在计算可观测量之间应当进行若干次扫描。我们指出，可观测量的计算常常被称为测量。
+
+对统计参数（特别是第 4.5 节讨论的上述自关联时间）的仔细分析，可以指示两次测量之间应当丢弃多少个中间构型。在实践中，这一决定还取决于测量可观测量的代价。如果可观测量的测量代价高昂（例如在规范场背景上计算夸克传播子就是这样），人们就试图减少相继测量构型之间的关联。无论如何，最终分析都应考虑到构型可能并非统计独立。
+
+纯规范理论模拟的两个关键可观测量是威尔逊圈和波利亚科夫圈（比较 (3.50) 和 (3.60)）。进行测量时，人们通常利用平移不变性（对于周期性边界条件），并平均所有可能的可观测量实现，以改善统计。这意味着对于威尔逊圈，要对圈可以起始的所有位置求平均。此外，还可以把圈放在不同的平面内（对应于超立方格点的对称操作），对于方形圈这给出对 $6|\Lambda|$ 项的求平均（其中 $|\Lambda|$ 表示格点数），对于矩形圈则给出对 $12|\Lambda|$ 个贡献的求平均。对于波利亚科夫圈，要对所有空间位置 $n$ 求平均，或者如果考虑乘积，则对每个距离 $|n - m|$ 的所有组合 $n, m$ 求平均。这涉及对非常多项的求和，此时舍入误差的累积就成了问题，特别是当必须从彼此中减去大贡献时。因此，建议对这些可观测量使用更高的精度。
+
+通常，可观测量的最终平均值可以“即时”计算。然而，尽可能多地存储中间结果是有益的，以便能够对统计性质进行仔细的事后分析。
+
+\section{数据分析}
+
+对测量到的可观测量进行统计分析是蒙特卡罗模拟的重要的最后一步。这一分析还应当为人们提供如下信息：在产生处于平衡的构型之前必须丢弃多少次更新扫描，以及两次测量之间需要多少次扫描。统计分析的最终产物是人们对某个可观测量给出的平均值，以及相应统计误差的估计。
+
+\subsection{不相关数据的统计分析}
+
+我们假设已经对处于平衡的蒙特卡罗生成构型的马尔可夫序列计算了某个可观测量的值 $(x_1, x_2, \ldots, x_N)$。样本中的每一个值都对应一个随机变量 $X_i$。所有这些变量具有相同的期望值和方差：
+\begin{equation}
+  \ev{X_i} = \ev{X}, \qquad
+  \sigma_{X_i}^2 = \big\langle (X_i - \ev{X_i})^2\big\rangle = \sigma_X^2 .
+\end{equation}
+这些值的无偏估计量的候选为
+\begin{equation}
+  \bar{X} = \frac{1}{N}\sum_{i=1}^{N} X_i, \qquad
+  \bar{\sigma}_X^2 = \frac{1}{N-1}\sum_{i=1}^{N}\big(X_i - \bar{X}\big)^2 .
+\end{equation}
+如果 $X_i$ 不相关，则对 $i \neq j$ 有
+\begin{equation}
+  \ev{X_i X_j} = \ev{X_i}\,\ev{X_j} = \ev{X}^2
+\end{equation}
+方差 $\bar{\sigma}_X^2$ 使人们能够确定 $\bar{X}$ 的统计误差。要理解这一点，首先注意到样本平均值 $\bar{X}$ 是正确平均值的估计量：$\ev{\bar{X}} = \ev{X}$。然而，它本身是一个随机变量，因为它的值可能随一组 $N$ 个构型到另一组而变化。该估计量的方差为
+\begin{equation}
+  \begin{split}
+    \sigma_{\bar{X}}^2 &= \Big\langle\big(\bar{X} - \ev{X}\big)^2\Big\rangle
+    = \Big\langle\Big(\frac{1}{N}\sum_{i=1}^{N}\big(X_i - \ev{X}\big)\Big)^2\Big\rangle \\
+    &= \frac{1}{N^2}\sum_{i,j=1}^{N}\big\langle (X_i - \ev{X})(X_j - \ev{X})\big\rangle \\
+    &= \frac{1}{N}\big(\ev{X^2} - \ev{X}^2\big) + \frac{1}{N^2}\sum_{i\neq j}\ev{X_i X_j}.
+  \end{split}
+\end{equation}
+对于不相关的 $X_i$，来自 $i \neq j$ 的贡献由于 (4.55) 而分解因子，于是
+\begin{equation}
+  \sigma_{\bar{X}}^2 = \frac{1}{N}\,\sigma_X^2 .
+\end{equation}
+这是不相关测量的众所周知的结果。因此，对于基于 $N$ 次测量的可观测量，统计误差，即标准差（s.d.），为 $\sigma_{\bar{X}}$。(4.57) 右边的 $\sigma_X$ 用 (4.54) 中的 $\bar{\sigma}_X$ 来近似。对于 $N$ 次不相关测量的情形，给出的最终结果为
+\begin{equation}
+  \bar{X} \pm \sigma \qquad \text{with}\qquad \sigma = \frac{\bar{\sigma}_X}{\sqrt{N}} .
+\end{equation}
+该方程的重要信息是：统计误差随不相关构型的数目 $N$ 按 $1/\sqrt{N}$ 减小。
+
+\subsection{自关联}
+
+由于在我们的情形下数据样本是蒙特卡罗模拟中（计算机）时间序列的结果，因此可观测量实际上很可能相关。这种所谓的自关联导致一个非零的自关联函数，我们将其定义为
+\begin{equation}
+  C_X(X_i, X_{i+t}) = \big\langle (X_i - \ev{X_i})(X_{i+t} - \ev{X_{i+t}})\big\rangle
+  = \ev{X_i X_{i+t}} - \ev{X_i}\,\ev{X_{i+t}} .
+\end{equation}
+对于处于平衡的马尔可夫链，自关联函数只依赖于（计算机时间的）间隔 $t$，我们写为
+\begin{equation}
+  C_X(t) = C_X(X_i, X_{i+t}) .
+\end{equation}
+注意 $C_X(0) = \sigma_X^2$。在典型情形下，归一化关联函数 $\Gamma_X$ 在大 $t$ 时渐近地表现为指数行为：
+\begin{equation}
+  \Gamma_X(t) \equiv \frac{C_X(t)}{C_X(0)} \sim \exp\!\left(-\frac{t}{\tau_{X,\mathrm{exp}}}\right),
+\end{equation}
+人们称 $\tau_{X,\mathrm{exp}}$ 为 $X$ 的指数自关联时间。$\Gamma_X(t)$ 的完整表达式涉及对若干这样的项的求和。在 (4.61) 中，我们只考虑具有最大自关联时间的渐近领头项。这个数提供关于后续测量之间相关强度的信息。指数自关联时间 $\tau_\mathrm{exp}$ 是所有可能可观测量 $X$ 的 $\tau_{X,\mathrm{exp}}$ 值的上确界：
+\begin{equation}
+  \tau_\mathrm{exp} = \sup_{X}\,\tau_{X,\mathrm{exp}} .
+\end{equation}
+\begingroup\emergencystretch=4em 如果两次相继测量之间的计算机时间为 $t$，则自关联导致的系统误差为\linebreak[0] $\order{\exp(-t/\tau_\mathrm{exp})}$。\par\endgroup
+
+对于相关的随机变量 $X_i$，(4.56) 第二行中 $i \neq j$ 的项不消失，可以继续推导该方程，得到相关情形下的结果
+\begin{equation}
+  \begin{split}
+    \sigma_{\bar{X}}^2 &= \frac{1}{N^2}\sum_{i,j=1}^{N} C_X(|i-j|)
+    = \frac{1}{N^2}\sum_{t=-(N-1)}^{N-1}\sum_{k=1}^{N-|t|} C_X(|t|) \\
+    &= \frac{1}{N}\sum_{t=-N}^{N}\Big(1-\frac{|t|}{N}\Big)C_X(|t|)
+    = \frac{C_X(0)}{N}\sum_{t=-N}^{N}\Big(1-\frac{|t|}{N}\Big)\Gamma_X(|t|) \\
+    &\approx \frac{\sigma_X^2}{N}\Big(1 + 2\sum_{t=1}^{N}\Gamma_X(|t|)\Big)
+    \equiv \frac{\sigma_X^2}{N}\,2\,\tau_{X,\mathrm{int}},
+  \end{split}
+\end{equation}
+其中我们引入了积分自关联时间
+\begin{equation}
+  \tau_{X,\mathrm{int}} = \frac{1}{2} + \sum_{t=1}^{N}\Gamma_X(t) .
+\end{equation}
+这一定义由以下观察所激发：对于指数行为
+\begin{equation}
+  \tau_{X,\mathrm{int}} = \frac{1}{2} + \sum_{t=1}^{N}\Gamma_X(|t|)
+  \approx \int_0^{\infty} dt\,e^{-t/\tau} = \tau \qquad (\text{for large } \tau) .
+\end{equation}
+在 (4.63) 的最后一步中，我们忽略了因子 $1 - |t|/N$，对于足够大的 $N$，由于 $\Gamma_X(|t|)$ 的指数压低，这样做是合理的。在实际情况中计算 $\tau_{X,\mathrm{int}}$ 时，必须在 $\Gamma(t)$ 的值变得不可靠的 $t$ 值处截断求和 (4.64)。通常随后对求和中没有显式考虑的部分假设指数行为。尽管如此，确定 $\tau_\mathrm{exp}$ 乃至 $\tau_\mathrm{int}$ 仍然是一件微妙的事情。通常，对 $\tau$ 本身的估计至少需要 $1000\,\tau$ 个数据值。为了判断测量到的自关联时间是否可靠，人们因此应当从较小尺寸的格点和较高的统计量开始，逐步推进到更大的尺寸，并仔细检查 $C(t)$ 的行为和可靠性。
+
+以这种方式计算的方差 $\sigma_{\bar{X}}^2$ 大于由 (4.57) 计算的方差，后者假设样本不相关。因此，$N$ 个值中有效独立的数据数目为
+\begin{equation}
+  N_\mathrm{indep} = \frac{N}{2\,\tau_{X,\mathrm{int}}}
+\end{equation}
+或者
+\begin{equation}
+  \sigma_{X,\mathrm{corrected}}^2 = 2\,\tau_{X,\mathrm{int}}\,\sigma_{\bar{X}}^2 .
+\end{equation}
+为了从某个起始构型热化，至少应当丢弃 $20\,\tau$ 个构型，为了良好的统计精度也许需要 $1000\,\tau$ 个构型。当产生误差为 1\% 的数据时，通常需要 $> 10{,}000\,\tau$ 个值。更详细的讨论参见 [18--20]。
+
+总结我们的结果，我们发现对于相关情形，给出的结果由下式给出
+\begin{equation}
+  \bar{X} \pm \sigma \qquad \text{with}\qquad
+  \sigma = \sqrt{\frac{1}{N}\,2\,\tau_{X,\mathrm{int}}\,\bar{\sigma}_X^2} .
+\end{equation}
+
+最后让我们简要提及临界慢化的问题。自关联时间依赖于更新算法，也依赖于格点系统的参数。对于格点场系统，人们预期
+\begin{equation}
+  \tau_{X,\mathrm{int}} \sim (\xi_X)^z, \qquad \tau_\mathrm{exp} \sim \xi^z,
+\end{equation}
+其中 $\xi_X$ 是可观测量 $X$ 的关联长度，$\xi$ 是系统内最长的关联长度。关联长度由格点不同点处测量的局域可观测量之间关联函数的指数衰减来定义，即在大 $|x-y|$ 时 $\ev{X(x)X(y)} \sim e^{-|x-y|/\xi_X}$。动力学临界指数 $z \geq 0$ 依赖于更新算法。在临界点处 $\xi$ 趋于无穷，然而，在线性大小为 $L$ 的有限格点上，有 $\xi \leq L$。因此，在临界点附近，计算量随格点尺度按幂次增长：
+\begin{equation}
+  \text{numerical cost} \propto L^z .
+\end{equation}
+这种行为称为临界慢化。对于一阶相变，系统可能在不同相之间隧穿，在 $D$ 维格点上自关联时间按 $\exp(c\,L^{D-1})$ 增长。
+
+我们总结如下：必须从数据中得到自关联时间的估计。这提供 (a) 关于两次测量之间应丢弃的更新扫描次数的信息，以及 (b) 对像统计独立数据那样朴素导出的统计误差的修正因子。
+
+\subsection{小数据集的技巧}
+
+如果计算自关联时间的代价过高——不幸的是，在量子场论问题的蒙特卡罗计算中这常常是实情——还有一些更简单的统计方法，至少可以对数据的关联得到某种估计。
+
+\textbf{数据分组（blocking）方法：} 把数据划分为大小为 $K$ 的数据子块，计算子块的平均值，并把它们看作新的变量 $X_i$。如果原始数据是独立的，那么这些分组后的 $X_i$ 的方差应当按 $1/K$ 减小。对一系列不同的 $K$ 值重复这一过程。一旦对足够大的 $K$ 观察到 $1/K$ 行为，就可以把这些分组变量视为统计独立的。
+
+一旦数据（或分组结果）可以被视为独立的，就可以确定所感兴趣可观测量的期望值及其误差。然而，数据数目常常太少，无法对计算出的期望值的方差作出可靠的估计。另一个障碍可能是误差传播不可靠或无法确定。有两种高效且易于使用的方法可以同时处理这两个问题。两者都假设数据不相关。
+
+\textbf{统计自助法（bootstrap）：} 给定一组 $N$ 个数据，假设我们对某个可由该组数据估计的可观测量 $\theta$ 感兴趣。这个可观测量也可以是，例如，基于全部 $N$ 个原始数据的拟合结果。我们把从原始数据集得到的可观测量的值记为 $\hat{\theta}$。人们从样本中反复生成其他样本，即从原始集合中随机选取 $N$ 个数据。这几乎不耗费什么，因为我们只是循环利用原始数据集来构造新集合。假设我们这样做了 $K$ 次，于是有 $K$ 组数据，每组 $N$ 个数据值。当然，有些值会不止一次进入新的集合。对每一组集合计算可观测量 $\theta$，得到值 $\theta_k$，其中 $k = 1, \ldots, K$。然后确定
+\begin{equation}
+  \bar{\theta} \equiv \frac{1}{K}\sum_{k=1}^{K}\theta_k, \qquad
+  \sigma_{\bar{\theta}}^2 \equiv \frac{1}{K}\sum_{k=1}^{K}\big(\theta_k - \bar{\theta}\big)^2 .
+\end{equation}
+这些是 $\ev{\theta}$ 和 $\sigma_\theta^2$ 的估计量。它们不是无偏的，因此对有限的 $K$，$\bar{\theta} \neq \hat{\theta}$。这一差值称为偏差，它给出结果离真正的 $\ev{\theta}$ 可能有多远的概念。作为可观测量的最终结果，给出 $\ev{\theta} = \bar{\theta} \pm \sigma_{\bar{\theta}}$。
+
+\textbf{刀切法（jackknife）：} 与统计自助法一样，我们从大小为 $N$ 的数据集和一个可观测量 $\theta$ 开始。对原始集合计算出的可观测量的值仍记为 $\hat{\theta}$。现在通过删除原始集合的第 $n$ 个元素（$n = 1, \ldots, N$）构造 $N$ 个子集，并对每个集合确定值 $\theta_n$。然后
+\begin{equation}
+  \sigma_{\bar{\theta}}^2 \equiv \frac{N-1}{N}\sum_{n=1}^{N}\big(\theta_n - \bar{\theta}\big)^2 .
+\end{equation}
+方差的平方根给出 $\hat{\theta}$ 标准差的估计。作为最终结果，要么给出 $\ev{\theta} = \hat{\theta} \pm \sigma_{\hat{\theta}}$，要么用无偏估计量代替 $\hat{\theta}$。偏差可以由下式确定
+\begin{equation}
+  \bar{\theta} \equiv \frac{1}{N}\sum_{n=1}^{N}\theta_n,
+\end{equation}
+由此得到 $\hat{\theta} - (N-1)\big(\bar{\theta} - \hat{\theta}\big)$ 作为 $\ev{\theta}$ 的无偏估计量。
+
+在实际实现中，统计自助法和刀切法都可以与分组结合使用，即把数据组织成块，并通过删除块而不是只删除单个值来构造子集。
+
+蒙特卡罗模拟的另一个典型特征是：人们感兴趣的可观测量往往不是简单的平均值，而是由拟合得到的量。一个例子是从欧几里得关联函数的指数拟合得到的能级（见 (1.1)）。单次关联函数测量涨落太大，无法进行合理的拟合。因此，必须首先对关联函数的多次测量求平均，然后才能进行拟合。然而，为了朴素地确定误差，需要许多组这样的关联函数数据。
+
+统计自助法和刀切方法的一个强大特点是，它们可以用于确定拟合量的统计误差。此外，自助法随机选取的样本和刀切法缩减后的样本都足够大，可以进行拟合。因此，这两种方法可以在不需要额外数据或考虑复杂误差传播的情况下，用于确定拟合量的误差。
+
+\subsection{一些数值练习}
+
+数据已经由蒙特卡罗生成的规范场构型确定。现在可以开始探索其中的物理了。在最后一节中，我们简要讨论两个简单的可观测量——平均基本方格（plaquette）以及由波利亚科夫圈的关联函数得到的静态势。这些可观测量很简单，容易计算，很适合作为入门课程中格点规范理论的第一次模拟。我们强调，这里给出的数据和方法并非先进水平，而是说明在基础模拟中能够做到什么。
+
+对不同规范耦合和格点大小重复进行蒙特卡罗运行，可以了解可观测量的函数行为。作为第一个例子，让我们考虑进入规范群 SU($N$) 的 Wilson 规范作用量 (3.93) 的基本方格变量之和，
+\begin{equation}
+  S_P[U] = \frac{1}{N}\sum_{P}\Re\,\tr[U_P],
+\end{equation}
+其中求和遍及所有基本方格，但只计及一种取向。其期望值为
+\begin{equation}
+  \ev{S_P} = \frac{\int D[U]\,\exp(\beta S_P[U])\,S_P[U]}{\int D[U]\,\exp(\beta S_P[U])} .
+\end{equation}
+这里我们使用了作用量 $S$ 与 $S_P$ 的关系 $S[U] = \beta\,(6|\Lambda| - S_P[U])$（见 (3.93)）。这一关系使人们可以把分子中玻尔兹曼因子的常数项与归一化 $1/Z$ 中出现的相同因子相消。作为逆规范耦合 $\beta$ 的函数，$\ev{S_P}$ 在小 $\beta$ 处由强耦合展开已知，在大 $\beta$ 处由弱耦合展开已知。通常人们画出归一化量 $E_P \equiv \ev{S_P}/(6|\Lambda|)$，它取值在 0 与 1 之间，如图 4.2 所示。导数 $dE_P/d\beta$ 与 $S_P$ 的二阶和一阶矩有关，因为由 (4.75) 可得
+\begin{equation}
+  \frac{d\ev{S_P}}{d\beta} = \ev{S_P^2} - \ev{S_P}^2 .
+\end{equation}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig42.png}
+  \caption*{Fig. 4.2. \emph{在 $12^4$ 超立方格点上采用 Wilson 规范作用量的 SU(3) 规范理论中，基本方格期望值 $E_P \equiv \ev{S_P}/(6|\Lambda|)$ 作为 $\beta$ 的函数。数据按文中讨论的方式产生，$\beta$ 以小步长递增。对每一步都进行了 50 次热化迭代，随后是 200 组“一次丢弃更新加一次测量更新”。尽管在 $\beta \approx 5.7$ 附近斜率似乎有最大值，但进一步分析表明这并非相变的信号。就数值结果所能显示的而言，纯 SU(3) 格点规范理论的禁闭相从 $\beta = 0$ 一直延伸到所研究的最高值，并可能一直延伸到无穷大}.}
+  \label{fig:42}
+\end{figure}
+
+在类比统计自旋系统时，这个量被称为比热。从这些系统我们知道，比热随系统的关联长度增长。因此这个量是判断在相图景观中是否接近临界点的一个指标。对 U(1) 规范理论研究 (4.75) 和 (4.76) 会显示在 $\beta \approx 1$ 附近存在（一阶）相变（对于 Wilson 作用量）。对于 SU(2) 和 SU(3)，虽然确实在中等耦合值处观察到最大值，但没有看到这样的信号。这表明在作用量的多维耦合空间中存在邻近的奇点。
+
+波利亚科夫圈的关联函数与静态夸克势有关（比较 (3.61)），
+\begin{equation}
+  \ev{P(m)P(n)^\dagger} \propto e^{-N_T a V(r)}\,\big(1 + \order{e^{-N_T a \Delta E}}\big),
+\end{equation}
+其中 $r = |m - n|$。略去一个无关的总体常数，势为
+\begin{equation}
+  aV(r) = -\frac{1}{N_T}\,\ln\ev{P(m)P(n)^\dagger} .
+\end{equation}
+基于这一关系确定 $aV$ 的结果显示在图 4.3 左侧的图中。我们展示的是对波利亚科夫圈关联函数以相对较低的统计量直接求值的结果，它可以在个人电脑上几小时内重现。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig43.png}
+  \caption*{Fig. 4.3. \emph{采用 Wilson 作用量的纯规范场模拟中 SU(3) 规范理论的静态势 $V$。左侧：由 $16^3 \times 6$ 格点在 $\beta = 5.7$ 下经 50{,}000 次相继迭代得到的波利亚科夫圈关联值；这里展示它只是为了说明，即使在这样的非常简单的分析中也能看到主要特征。人们已经使用了更好、更精细的方法。右侧图中给出了一个例子，其中的值由威尔逊圈的期望值导出 [21]。$r$ 和 $V$ 都利用 Sommer 参数 $r_0$ 化为无量纲量（比较第 3 章）。（右侧图经 Silvia Necco 友好许可转载自 [21]）。}}
+  \label{fig:43}
+\end{figure}
+
+我们强调，先进的计算基于威尔逊圈的期望值。存在统计量高得多、分析方法更精细的结果（例如 [22, 23]）[21, 24, 25]。作为这类计算的一个例子，我们在右侧图中展示了 [21] 的结果，其中使用了不同的格点大小和规范耦合。不同规范耦合结果之间的关系由数据导出，并提供关于标度性质的信息（见第 3.5 节和第 9 章）。
+
+此外，利用非平面威尔逊圈（比较图 3.3），可以查明格点系统——虽然处于超立方网格上——在趋近连续极限（小格点间距，对应于大 $\beta$）时是否如预期那样恢复转动不变性。图 4.3 表明事实确实如此：来自非轴向距离向量的点也与整体形状一致。在那里，人们选择了足够大的格点大小和 $\beta$ 值的数据。选择更小的格点和更小的 $\beta$ 会产生明显的偏差。
+
+\section*{参考文献}
+
+\begin{enumerate}[label={[\arabic*]}]
+  \item H.~J.~Rothe: \emph{Lattice Gauge Theories -- An Introduction} (World
+        Scientific, Singapore 1992).
+  \item N.~Metropolis et al.: J.~Chem.~Phys.~21, 1087 (1953).
+  \item D.~E.~Knuth: \emph{The Art of Computer Programming}, 2nd ed., Vol.~2
+        (Addison-Wesley, Reading, Massachusetts 1981).
+  \item M.~L\"uscher: Comput.~Phys.~Commun.~79, 100 (1994).
+  \item W.~H.~Press, S.~A.~Teukolsky, W.~T.~Vetterling, and B.~P.~Flannery:
+        \emph{Numerical Recipes in C}, 2nd ed. (Cambridge University Press,
+        Cambridge, New York 1999).
+  \item M.~Creutz: Phys.~Rev.~D 21, 2308 (1980).
+  \item S.~L.~Adler: Phys.~Rev.~D 23, 2901 (1981).
+  \item C.~Whitmer: Phys.~Rev.~D 29, 306 (1984).
+  \item M.~Creutz: Phys.~Rev.~Lett.~50, 1412 (1983).
+  \item D.~J.~E.~Callaway and A.~Rahman: Phys.~Rev.~D 28, 1506 (1983).
+  \item G.~Parisi and Y.-S.~Wu: Sci.~Sin.~24, 483 (1981).
+  \item J.~R.~Klauder: in \emph{Recent Developments in High-Energy Physics};
+        Acta Phys.~Austriaca Suppl.~25, edited by H.~Mitter and C.~B.~Lang,
+        p.~251 (Springer, Wien, New York 1983).
+  \item P.~H.~Damgaard and H.~H\"uffel: Phys.~Rep.~152, 227 (1987).
+  \item K.~Fabricius and O.~Haan: Phys.~Lett.~B 143, 459 (1984).
+  \item A.~D.~Kennedy and B.~J.~Pendleton: Phys.~Lett.~B 156, 393 (1985).
+  \item N.~Cabibbo and E.~Marinari: Phys.~Lett.~B 119, 387 (1982).
+  \item R.~Petronzio and E.~Vicari: Phys.~Lett.~B 248, 159 (1990).
+  \item B.~A.~Berg: \emph{Introduction to Markov Chain Monte Carlo Simulations and
+        Their Statistical Analysis} (World Scientific, Singapore 2004).
+  \item A.~D.~Sokal: \emph{Monte Carlo Methods in Statistical Physics: Foundations
+        and New Algorithms}, Lecture Notes Cours de Troisieme Cycle de la
+        Physique en Suisse Romande, Lausanne, Switzerland (unpublished,
+        1989).
+  \item U.~Wolff: In: H.~Gausterer, C.~B.~Lang (eds.) \emph{Computational Methods
+        in Field Theory}, Lect.~Notes Phys.~409, 127. Springer, Berlin,
+        Heidelberg, New York (1992).
+  \item S.~Necco: Ph.D.~thesis, Humboldt Universit\"at zu Berlin, Germany,
+        arXiv:hep-lat/0306005 (2003).
+  \item M.~L\"uscher and P.~Weisz: JHEP 0109, 010 (2001).
+  \item M.~L\"uscher and P.~Weisz: JHEP 0207, 049 (2002).
+  \item G.~Bali: Phys.~Rep.~343, 1 (2001).
+  \item P.~Majumdar: Nucl.~Phys.~B 664, 213 (2003).
+\end{enumerate}

@@ -1,0 +1,832 @@
+% =====================================================================
+%  第 7 章：格点上的手征对称性
+%  Gattringer & Lang, "Quantum Chromodynamics on the Lattice" (LNP 788)
+%  Reconstructed from extract/ch07.txt; equations auto-numbered.
+% =====================================================================
+
+\chapter{格点上的手征对称性}
+
+手征对称性及其自发破缺是 QCD 的核心性质，具有重要的唯象意义。它们解释了为什么 $\pi$ 介子具有出乎意料的小质量，以及为什么在重子扇区中我们看不到宇称伙伴具有简并质量。手征对称性的这一重要作用及其破缺机制要求，一个合理的格点 QCD 版本必须恰当地实现手征对称性。
+
+然而，将手征对称性放到格点上被证明是一个艰巨的挑战。其根本原因在于加倍问题。在第 5 章中，为了消除加倍费米子，我们在朴素费米子作用量上加上了 Wilson 项。然而，这一项显式地破缺了手征对称性。直到 Wilson 引入格点规范理论 20 多年之后，格点上的手征对称性问题才通过对格点 Dirac 算符的所谓``Ginsparg--Wilson 方程''来推广手征对称性而得到解决。借助这一新概念，手征对称性在格点上得以干净地实现。
+
+本章专门讨论格点上的手征对称性。在简要回顾连续 QCD 中的手征对称性之后，我们讨论为什么 Wilson 费米子不能体现手征对称性。随后我们介绍 Ginsparg--Wilson 方程，并探讨其在轴反常和指标定理方面的推论。最后我们讨论 Ginsparg--Wilson 方程的一个显式解，即所谓的重叠算符。
+
+\section{连续 QCD 中的手征对称性}
+
+\subsection{单味夸克的手征对称性}
+
+作为热身，让我们首先讨论连续情形下只有单味夸克时的手征对称性。无质量费米子的作用量写作（为记号方便，下面我们略去时空变量 $x$）
+\begin{equation}
+  S_F[\psi,\bar\psi,A] = \int d^4x\;\mathcal{L}(\psi,\bar\psi,A),
+  \qquad
+  \mathcal{L}(\psi,\bar\psi,A) = \bar\psi\,\gamma_\mu(\partial_\mu + iA_\mu)\,\psi
+  = \bar\psi D\psi,
+\end{equation}
+其中 $D$ 表示无质量 Dirac 算符。
+
+现在我们对手征性费米子场进行手征旋转
+\begin{equation}
+  \psi \to \psi' = e^{i\alpha\gamma_5}\psi,
+  \qquad
+  \bar\psi \to \bar\psi' = \bar\psi\,e^{i\alpha\gamma_5},
+\end{equation}
+其中 $\gamma_5$ 是作用在 Dirac 空间的手征性矩阵，$\alpha$ 是常数实参数。拉格朗日密度在手征旋转下不变，
+\begin{align}
+  \mathcal{L}(\psi',\bar\psi',A)
+  &= \bar\psi'\,\gamma_\mu(\partial_\mu + iA_\mu)\,\psi'
+  = \bar\psi\,e^{i\alpha\gamma_5}\,\gamma_\mu(\partial_\mu + iA_\mu)\,e^{i\alpha\gamma_5}\,\psi \notag\\
+  &= \bar\psi\,e^{i\alpha\gamma_5}\,e^{-i\alpha\gamma_5}\,\gamma_\mu(\partial_\mu + iA_\mu)\,\psi
+  = \mathcal{L}(\psi,\bar\psi,A),
+\end{align}
+其中在第二步中我们使用了 $\gamma_\mu\gamma_5 = -\gamma_5\gamma_\mu$。质量项破缺了这一不变性，因为它的变换是非平凡的：
+\begin{equation}
+  m\,\bar\psi'\psi' = m\,\bar\psi\,e^{i2\alpha\gamma_5}\psi.
+\end{equation}
+
+手征对称性使左、右手无质量费米子的作用量彼此解耦。为了看清楚这一点，我们引入右手和左手投影子
+\begin{equation}
+  P_R = \frac{1+\gamma_5}{2},
+  \qquad
+  P_L = \frac{1-\gamma_5}{2},
+\end{equation}
+它们满足
+\begin{align}
+  P_R^2 = P_R,\qquad P_L^2 = P_L, \qquad P_R P_L = P_L P_R = 0, \qquad P_R + P_L = 1,
+  \notag\\
+  \gamma_\mu P_L = P_R\gamma_\mu, \qquad \gamma_\mu P_R = P_L\gamma_\mu .
+\end{align}
+借助这些投影子，我们可以定义右手和左手费米子场
+\begin{equation}
+  \psi_R = P_R\psi, \qquad \psi_L = P_L\psi,
+  \qquad
+  \bar\psi_R = \bar\psi P_L, \qquad \bar\psi_L = \bar\psi P_R .
+\end{equation}
+经过简单的代数运算，可以得出左手和右手分量的解耦
+\begin{equation}
+  \mathcal{L}(\psi,\bar\psi,A) = \bar\psi_L D\psi_L + \bar\psi_R D\psi_R .
+\end{equation}
+因此我们发现左手和右手分量``互不沟通''。然而，质量项会将这两个分量混合起来：
+\begin{equation}
+  m\,\bar\psi\psi = m\left(\bar\psi_R\psi_L + \bar\psi_L\psi_R\right).
+\end{equation}
+由于作用量的手征对称性只对无质量夸克成立，夸克质量趋于零的极限通常被称为手征极限。
+
+可以把手征对称性的精髓总结为一个简单的方程
+\begin{equation}
+  D\gamma_5 + \gamma_5 D = 0 .
+\end{equation}
+它表达了无质量 Dirac 算符 $D = \gamma_\mu(\partial_\mu + iA_\mu)$ 与 $\gamma_5$ 反对易这一事实。
+
+\subsection{多味夸克}
+
+现在让我们更深入地探究 QCD 作用量的对称性质，考虑具有 $\Nf$ 味夸克的理论。此时费米子场 $\psi$、$\bar\psi$ 还带有味指标。不过，为了记号方便，我们也对味指标使用矢量记号。在这种记号下，费米子作用量写作
+\begin{equation}
+  S_F[\psi,\bar\psi,A] = \int d^4x\;\bar\psi\left(\gamma_\mu(\partial_\mu + iA_\mu) + M\right)\psi,
+\end{equation}
+其中我们引入一个质量矩阵
+\begin{equation}
+  M = \mathrm{diag}(m_1, m_2, \ldots, m_{\Nf})
+\end{equation}
+它作用在味空间上（在现实世界中 $m_1 = m_u$，$m_2 = m_d$ 等）。为了推广上一节的手征变换，我们使用能混合不同味的矩阵。特别地，我们用 $T_i$（$i = 1, 2, \ldots, \Nf^2 - 1$）表示 $SU(\Nf)$ 的生成元（见附录 A.1）。
+
+在讨论手征旋转之前，让我们先指出，无质量夸克的作用量在 $\Nf^2$ 个矢量变换下也是不变的\footnote{``矢量变换''这一名称源于对应的诺特流是矢量流。}
+\begin{equation}
+  \psi' = e^{i\alpha T_i}\psi,
+  \qquad
+  \bar\psi' = \bar\psi\,e^{-i\alpha T_i},
+\end{equation}
+\begin{equation}
+  \psi' = e^{i\alpha\,\mathbb{1}}\psi,
+  \qquad
+  \bar\psi' = \bar\psi\,e^{-i\alpha\,\mathbb{1}},
+\end{equation}
+其中 $\mathbb{1}$ 表示 $\Nf \times \Nf$ 单位矩阵。(7.11) 在 $M = 0$ 时于变换 (7.13) 和 (7.14) 下的不变性是显然的。不过，(7.13) 下的不变性也推广到简并质量 $M = \mathrm{diag}(m, m, \ldots, m)$ 的情形。这一对称性就是推广到 $\Nf$ 味的同位旋对称性。对称性 (7.14) 甚至对任意质量都成立，相应的守恒量是重子数。
+
+手征旋转或轴矢量旋转定义为
+\begin{equation}
+  \psi' = e^{i\alpha\gamma_5 T_i}\psi,
+  \qquad
+  \bar\psi' = \bar\psi\,e^{i\alpha\gamma_5 T_i},
+\end{equation}
+\begin{equation}
+  \psi' = e^{i\alpha\gamma_5\,\mathbb{1}}\psi,
+  \qquad
+  \bar\psi' = \bar\psi\,e^{i\alpha\gamma_5\,\mathbb{1}},
+\end{equation}
+此时不同味的左手和右手分量也会混合。与单味情形类似，可以发现作用量 (7.11) 在 $M = 0$ 时于 (7.15) 和 (7.16) 下不变。
+
+综合起来，无质量作用量具有对称性
+\begin{equation}
+  SU(\Nf)_L \times SU(\Nf)_R \times U(1)_V \times U(1)_A .
+\end{equation}
+对两个 $SU(\Nf)$ 因子所用的记号强调了左手和右手分量各项在相互独立的 $SU(\Nf)$ 旋转下是对称的。
+
+然而，当考虑完全量子化的理论时，人们发现费米子行列式在 (7.16) 下并不不变，相应的所谓 $U(1)_A$ 轴对称性被费米子积分测度的非不变性所显式破缺（我们将在第 7.3 节中证明这一点）。考虑到这一所谓的轴反常 [1, 2]，我们发现对于量子化的无质量理论，对称性被显式破缺到剩余的对称性
+\begin{equation}
+  SU(\Nf)_L \times SU(\Nf)_R \times U(1)_V .
+\end{equation}
+引入非零的简并质量 $M = \mathrm{diag}(m, m \ldots m)$，会把对称性 $SU(\Nf)_L \times SU(\Nf)_R$ 显式破缺到其子群 $SU(\Nf)_V$，
+\begin{equation}
+  SU(\Nf)_V \times U(1)_V,
+\end{equation}
+而允许非简并质量则进一步将对称性约化为
+\begin{equation}
+  U(1)_V \times U(1)_V \times \ldots \times U(1)_V
+  \qquad (\Nf \text{ factors}) .
+\end{equation}
+
+重新审视由夸克质量引起的显式破缺是很有意义的。最轻的夸克具有相对较小的质量，与 1\,GeV 的典型 QCD 标度相比很小，该标度由例如质子质量（$\approx$\,940\,MeV）给出。特别地，我们有（在 $\overline{MS}$ 重整化方案中）
+\begin{equation}
+  m_u \approx m_d \approx 5\,\mathrm{MeV}, \qquad m_s \approx 100\,\mathrm{MeV},
+\end{equation}
+因此手征对称性的显式破缺对 $u$ 和 $d$ 夸克来说非常小，对 $s$ 夸克则有 10\% 的效应。因此我们预期 (7.18) 对 $\Nf = 2$ 是很好的近似对称性，对 $\Nf = 3$ 也在一定程度上近似成立。
+
+\subsection{手征对称性的自发破缺}
+
+如果 $u$ 和 $d$ 夸克是无质量的，那么 $SU(2)_L \times SU(2)_R \times U(1)_V$ 将是 QCD 的精确对称性（对 $\Nf = 2$ 而言），至少在拉格朗日量层次上是如此。由于 $u$ 和 $d$ 夸克质量很小，显式破缺非常小，对称性的痕迹应当可见。其推论之一是，预期核子及其负宇称伙伴（所谓的 $N^*$）具有简并质量。
+
+我们简要勾勒这类质量简并的论证：在上一章中我们已经证明，核子及其负宇称伙伴的质量由零动量关联函数的指数衰减得到
+\begin{equation}
+  C_\pm(t) = -\int d^3x\,
+  \left\langle
+    \varepsilon_{abc}\,u(0)^T_a C\gamma_5 d(0)_b u(0)_c\,
+    \tfrac{1\pm\gamma_4}{2}\,
+    \varepsilon_{efg}\,\bar{u}_e(x) u(x)^T_f C\gamma_5 d(x)_g
+  \right\rangle,
+\end{equation}
+其中 $x = (\vec{x}, t)$。该方程给出格点关联函数 (6.21) 在投影到零动量之后的连续版本。$C_+(t)$ 的指数衰减给出核子质量（对正向传播的 $t$），而 $C_-(t)$ 对应于 $N^*$。现在考虑变换
+\begin{equation}
+  \psi \to \exp\left(i\alpha\gamma_5 T_3\right)\psi,
+  \qquad
+  \bar\psi \to \bar\psi\exp\left(i\alpha\gamma_5 T_3\right),
+\end{equation}
+其中 $\psi$ 和 $\bar\psi$ 是味空间中的矢量：$\psi = (u, d)^T$，$\bar\psi = (\bar{u}, \bar{d})$。利用 $T_3 = \sigma_3/2 = \mathrm{diag}(1/2, -1/2)$，我们发现各味夸克按如下方式变换
+\begin{align}
+  u &\to \exp\left(+i\,\frac{\alpha}{2}\gamma_5\right)u, \qquad
+  \bar{u} \to \bar{u}\exp\left(+i\,\frac{\alpha}{2}\gamma_5\right), \notag\\
+  d &\to \exp\left(-i\,\frac{\alpha}{2}\gamma_5\right)d, \qquad
+  \bar{d} \to \bar{d}\exp\left(-i\,\frac{\alpha}{2}\gamma_5\right).
+\end{align}
+当取 $\alpha = \pi$ 时，上式简化为
+\begin{equation}
+  u \to i\gamma_5 u, \qquad
+  \bar{u} \to i\bar{u}\gamma_5, \qquad
+  d \to -i\gamma_5 d, \qquad
+  \bar{d} \to -i\bar{d}\gamma_5 .
+\end{equation}
+将这个变换代入 (7.22)，可以发现关联函数在 (7.25) 下按如下方式变换
+\begin{equation}
+  C_\pm(t) \to -C_\mp(t) .
+\end{equation}
+因此，除去一个整体负号之外，核子的关联函数 $C_+(t)$ 与 $N^*$ 的关联函数 $C_-(t)$ 相互变换。由于整体负号不会改变关联函数的指数衰减性质，(7.23) 下的不变性意味着核子及其宇称伙伴 $N^*$ 具有相等的质量。
+
+然而，没有观察到核子与 $N^*$ 质量的这种简并。核子（质子或中子）的质量为 940\,MeV，而 $N^*$ 的质量为 1535\,MeV。近 600\,MeV 的质量差太大了，无法用 $u$ 和 $d$ 夸克质量引起的手征对称性的微小显式破缺来解释。因此，一定有另一种机制在破缺 (7.23) 下的对称性。由于作用量本身是不变的（除夸克质量引起的微小显式破缺之外），自然界中观察到的强烈破缺效应必定来自手征对称性的自发破缺，$U(1)_A$ 除外，它被反常显式破缺。
+
+对称性的自发破缺是一个众所周知的物理概念，例如描述铁磁体的自旋系统就是如此。虽然系统的哈密顿量在自旋的整体旋转下不变，但在系统的基态中，所有自旋都指向同一方向，从而产生系统的宏观磁化。
+
+在 QCD 中也发生着类似的效应。虽然作用量在手征旋转下不变，但基态并非如此。手征对称性破缺的一个序参量是
+\begin{equation}
+  \ev{u(x)\bar{u}(x)},
+\end{equation}
+即所谓的手征凝聚。手征凝聚的变换行为像一个质量项，在手征旋转下不是不变的。因此，当理论具有非零的手征凝聚时，就意味着手征对称性被自发破缺。在第 7.3 节中，我们将讨论格点上手征凝聚的计算，并证明它具有非零的值。
+
+自发破缺的连续对称性的另一个重要推论是出现所谓的戈德斯通模或戈德斯通玻色子（参见量子场论的标准教材，如 [3, 4]）。戈德斯通模是无质量的玻色型激发。对于具有连续对称群的自旋系统，它们就是自旋波。在 QCD 的情形中，$\pi$ 介子被解释为手征对称性破缺的``准''戈德斯通玻色子。对于无质量夸克，QCD 的自发对称性破缺机制可以解释无质量的 $\pi$ 介子。$\pi$ 介子约 140\,MeV 的相对较小质量可以理解为 $u$ 和 $d$ 夸克质量引起的显式破缺的结果。
+
+总之，我们发现对于轻夸克味，作用量在手征变换下基本上是不变的——除了手征 $U(1)$ 变换对称性，它被轴反常显式破缺。然而，实验结果并不反映手征对称性，我们必须得出结论：由于 QCD 的动力学，手征对称性被自发破缺。经典层次的手征对称性及其自发破缺为若干现象提供了解释，例如重子宇称伙伴的非简并质量，或 $\pi$ 介子的小质量。
+
+\section{手征对称性与格点}
+
+在确信手征对称性及其破缺对 QCD 唯象学具有至关重要的地位之后，现在让我们回到格点。我们从分析 Wilson 费米子的手征性质开始。
+
+\subsection{Wilson 费米子与 Nielsen--Ninomiya 定理}
+
+审视 Wilson Dirac 算符 (5.51) 后我们发现，即使夸克质量为零，(7.10) 也被破坏。罪魁祸首是 Wilson 项 (5.50)，为了消除加倍费米子，我们必须把它加到朴素作用量上。这一项带有 Dirac 空间中的单位矩阵 $\mathbb{1}$，它与 $\gamma_5$ 不对易，因此破坏了 (7.10)。这样，即使对于无质量夸克，我们也显式地破缺了手征对称性。因此，我们不能指望用 Wilson 费米子捕捉到诸如手征对称性自发破缺这样微妙的效应。
+
+这种状况不能简单地通过以另一种方式添加消除加倍费米子的项来克服。Nielsen 和 Ninomiya 有一个基本定理 [5--7]，它指出在格点上不可能同时实现 (7.10) 形式的手征对称性和一个没有加倍费米子的理论。更明确地说 [8]，考虑自由费米子的欧几里得作用量，其形式为
+\begin{equation}
+  S = \sum_{n,m,\mu} \bar\psi(n)\,i\gamma_\mu\,F_\mu(n|m)\,P_R\,\psi(m) .
+\end{equation}
+假定核 $F(n|m)$ 是平移不变的，$F_\mu(n|m) = F_\mu(n-m)$，并且应当给出一个厄米哈密顿算符，这蕴含 $F_\mu(-n) = F_\mu(n)^*$。此外，$F_\mu(n)$ 必须是局域的，即衰减得足够快，使得其傅里叶变换 $\hat{F}_\mu(p)$ 存在且其所有导数都连续。由于右手投影子 $P_R$ 的存在，人们朴素地预期作用量 (7.28) 只描述右手费米子。然而，[8] 中基于 $\hat{F}_\mu(p)$ 在其零点（传播子的极点）附近展开的论证表明，形如 (7.28) 的作用量描述的是数目相等的左手和右手费米子。
+
+多年来，Nielsen--Ninomiya 定理似乎界定了格点 QCD 进一步发展的最终局限。直到 Ginsparg--Wilson 方程被重新发现之后，人们才得以深刻理解格点上的手征对称性。
+
+\subsection{Ginsparg--Wilson 方程}
+
+在其开创性的论文 [9] 中，Ginsparg 和 Wilson 提出了格点上手征对称性的关键方程。基于重整化群变换（我们将在第 9 章讨论），他们建议将连续表达式 (7.10) 替换为
+\begin{equation}
+  D\gamma_5 + \gamma_5 D = a\,D\gamma_5 D .
+\end{equation}
+在这个方程中，反对易子 (7.10) 被加上了一个非零的右端。由于量纲上的原因——Dirac 算符 $D$ 具有 1/长度 的量纲——在 $D$ 的二次项上会出现格点常数 $a$ 的一个额外因子。因此右端在 $a \to 0$ 时消失，在朴素的连续极限中恢复手征对称性的连续形式。然而，(7.29) 允许在有限的 $a$ 下也在格点上定义手征对称性。我们将在下面详细讨论这一构造以及 Ginsparg--Wilson 方程的推论。
+
+分析这个额外项对夸克传播子 $D^{-1}$ 的影响是很有意思的。假设 $D$ 没有零模且可逆，我们可以从两边用 $D^{-1}$ 乘 (7.29)，得到
+\begin{equation}
+  \gamma_5 D^{-1}(n|m) + D^{-1}(n|m)\,\gamma_5 = a\,\gamma_5\,\delta(n-m),
+\end{equation}
+其中我们显式写出了传播子的时空变量 $n$、$m$。Ginsparg 和 Wilson 引入的这一项只是一个接触项，即传播子与 $\gamma_5$ 的反对易子只在 $n = m$ 处被修改。
+
+在探索 Ginsparg--Wilson 方程的推论之前，我们应该指出，1982 年的原始论文 [9] 当时并没有产生直接的成果，并且被``遗忘''了，因为当时人们想象不出非线性方程 (7.29) 在相互作用情形（非平凡规范链）下会有解。直到 1997 年和 1998 年人们才意识到 [10, 11]，此前引入的两种独立的格点手征对称性方案，即重叠费米子和不动点费米子，给出的 Dirac 算符 $D$ 满足 (7.29)。我们将在第 7.4 节和第 9 章讨论它们。
+
+\subsection{格点上的手征对称性}
+
+我们已经预告过，基于 Ginsparg--Wilson 方程，可以定义一个修正的手征旋转，它使无质量夸克的格点作用量保持不变 [12]。设 $D$ 是满足 Ginsparg--Wilson 方程 (7.29) 的格点 Dirac 算符。利用 $D$ 我们可以定义手征旋转，它在 $a \to 0$ 时约化为连续变换 (7.2)，
+\begin{equation}
+  \psi' = \exp\!\left(i\alpha\gamma_5\left(1-\frac{aD}{2}\right)\right)\psi,
+  \qquad
+  \bar\psi' = \bar\psi\exp\!\left(i\alpha\left(1-\frac{aD}{2}\right)\gamma_5\right).
+\end{equation}
+在这个方程中，Dirac 算符的作用按如下方式理解
+\begin{equation}
+  (D\psi)(n)^a_\alpha = \sum_{m,\beta,b} D(n|m)^{ab}_{\alpha\beta}\,\psi(m)^b_\beta,
+  \qquad
+  (\bar\psi D)(m)^b_\beta = \sum_{n,\alpha,a} \bar\psi(n)^a_\alpha\,D(n|m)^{ab}_{\alpha\beta}.
+\end{equation}
+在随后的方程中我们都沿用这一约定，但对所有指标（时空、Dirac 和色指标）使用矩阵/矢量记号。
+
+对这种 Dirac 算符，无质量费米子的拉格朗日密度在变换 (7.31) 下不变：
+\begin{align}
+  \mathcal{L}(\psi',\bar\psi') &= \bar\psi'\,D\,\psi' \notag\\
+  &= \bar\psi\exp\!\left(i\alpha\left(1-\frac{aD}{2}\right)\gamma_5\right)D
+     \exp\!\left(i\alpha\gamma_5\left(1-\frac{aD}{2}\right)\right)\psi \notag\\
+  &= \bar\psi\exp\!\left(i\alpha\left(1-\frac{aD}{2}\right)\gamma_5\right)
+     \exp\!\left(-i\alpha\left(1-\frac{aD}{2}\right)\gamma_5\right)D\,\psi \notag\\
+  &= \bar\psi\,D\,\psi = \mathcal{L}(\psi,\bar\psi) .
+\end{align}
+在从第二行到第三行的步骤中我们使用了
+\begin{equation}
+  D\,\gamma_5\left(1-\frac{aD}{2}\right) + \left(1-\frac{aD}{2}\right)\gamma_5\,D = 0,
+\end{equation}
+这不过是 Ginsparg--Wilson 方程 (7.29) 的另一种写法。
+
+分解 (7.7) 为左手和右手分量可以推广到格点。我们定义一类新的投影子
+\begin{equation}
+  \hat P_R = \frac{1+\hat\gamma_5}{2}, \qquad
+  \hat P_L = \frac{1-\hat\gamma_5}{2}, \qquad
+  \hat\gamma_5 = \gamma_5(1 - aD) .
+\end{equation}
+由 Ginsparg--Wilson 方程 (7.29) 可得 $\hat\gamma_5^2 = 1$，这意味着
+\begin{equation}
+  \hat P_R^2 = \hat P_R, \qquad
+  \hat P_L^2 = \hat P_L, \qquad
+  \hat P_R\hat P_L = \hat P_L\hat P_R = 0, \qquad
+  \hat P_R + \hat P_L = 1 .
+\end{equation}
+再次利用 Ginsparg--Wilson 方程，可以证明
+\begin{equation}
+  D\hat P_R = P_L D, \qquad
+  D\hat P_L = P_R D .
+\end{equation}
+基于这最后一个方程，推广连续形式 (7.7) 的左手和右手分量的合理定义是
+\begin{equation}
+  \psi_R = \hat P_R\psi, \qquad \psi_L = \hat P_L\psi,
+  \qquad
+  \bar\psi_R = \bar\psi P_L, \qquad \bar\psi_L = \bar\psi P_R .
+\end{equation}
+这一定义连同 (7.37) 蕴含诸如 $\bar\psi_L D\psi_R$ 和 $\bar\psi_R D\psi_L$ 这样的项为零。因此作用量可以像连续作用量 (7.8) 那样分解为左手和右手部分：
+\begin{equation}
+  \bar\psi D\psi = \bar\psi_L D\psi_L + \bar\psi_R D\psi_R .
+\end{equation}
+因此我们可以把连续场 $\psi_L$、$\psi_R$ 与格点量 (7.38) 等同起来。破缺对称性的质量项 (7.9) 被等同为格点项
+\begin{equation}
+  m\left(\bar\psi_R\psi_L + \bar\psi_L\psi_R\right)
+  = m\,\bar\psi\left(P_L\hat P_L + P_R\hat P_R\right)\psi
+  = m\,\bar\psi\left(1-\frac{aD}{2}\right)\psi .
+\end{equation}
+因此，具有质量的 Ginsparg--Wilson 费米子由算符 [13] 描述
+\begin{equation}
+  D_m = D + m\left(1-\frac{aD}{2}\right) = \omega D + m\,\mathbb{1},
+\end{equation}
+其中缩写为
+\begin{equation}
+  \omega \equiv 1-\frac{am}{2} .
+\end{equation}
+借助手征旋转 (7.31) 和分解 (7.39)，我们成功地在格点上实现了相应的连续结构 (7.2) 和 (7.8)。推广到多味夸克的过程与连续情形的步骤相同。
+
+让我们强调连续情形与格点上手征性概念之间最重要的区别。在连续情形中，手征性是一个严格的局域概念，与规范场无关。旋转 (7.2) 以及投影 (7.7) 只涉及给定时空点 $x$ 处的旋量，即只需要 $\psi(x)$ 或 $\bar\psi(x)$。在格点上则不同。手征旋转 (7.31) 和投影 (7.38) 都需要应用格点 Dirac 算符 $D$。因此，手征旋转以及分解为分量的过程会涉及邻近格点并依赖于规范场。于是，格点费米子的手征性是借助来自规范场和邻近格点的信息来确定的。
+
+\section{Ginsparg--Wilson 方程的推论}
+
+在本节中，我们讨论 Ginsparg--Wilson 方程 (7.29) 的一些最重要的推论，而不指定具体的解。实际的解将在第 7.4 节给出，即所谓的重叠作用量；不动点费米子将在第 9.2 节和第 9.3 节讨论。我们指出，当我们在第 11 章讨论 Ward 恒等式时，手征对称性也将扮演重要角色。这个问题在此不予讨论。
+
+\subsection{Dirac 算符的谱}
+
+在讨论 Ginsparg--Wilson 方程的推论时，我们首先分析有限格点上 Dirac 算符的本征值谱。相应的本征值方程记作
+\begin{equation}
+  D\,v_\lambda = \lambda\,v_\lambda .
+\end{equation}
+目前我们不使用 Ginsparg--Wilson 方程，只要求 Dirac 算符 $D$ 是 $\gamma_5$-厄米的（比较第 5.4.3 节），
+\begin{equation}
+  \gamma_5 D\gamma_5 = D^\dagger .
+\end{equation}
+大多数常用的 Dirac 算符都满足这一性质。\footnote{除非引入化学势、$\theta$-角或扭曲质量项。} 例如对 Wilson Dirac 算符，这只需几行代数运算即可证明；而下面将要讨论的重叠算符，则从其构造所用的核 Dirac 算符继承了 $\gamma_5$-厄米性。
+
+仅 $\gamma_5$-厄米性这一要求就已经对本征系统产生有趣的推论。对 $D$ 的特征多项式 $P(\lambda)$，可以发现（星号表示复共轭）
+\begin{align}
+  P(\lambda) &= \det[D - \lambda\,\mathbb{1}]
+  = \det[\gamma_5^2(D-\lambda\,\mathbb{1})]
+  = \det[\gamma_5(D-\lambda\,\mathbb{1})\gamma_5] \notag\\
+  &= \det[D^\dagger - \lambda\,\mathbb{1}]
+  = \det[D - \lambda^*\,\mathbb{1}]^*
+  = P(\lambda^*)^*,
+\end{align}
+其中我们使用了 $\gamma_5^2 = 1$ 和 (7.44)。本征值 $\lambda$ 是 $P(\lambda)$ 的零点，而 (7.45) 意味着如果 $\lambda$ 是零点，那么 $\lambda^*$ 也是。因此，对于 $\gamma_5$-厄米 Dirac 算符，本征值要么是实数，要么成复共轭对出现。
+
+方程 (7.44) 对本征向量的 $\gamma_5$ 矩阵元也有一个有趣的推论。把两个矢量 $u$、$v$ 的内积写成 $u^\dagger v = (u, v)$，我们发现
+\begin{align}
+  \lambda\,(v_\lambda, \gamma_5 v_\lambda)
+  &= (v_\lambda, \gamma_5 D v_\lambda)
+  = (v_\lambda, D^\dagger\gamma_5 v_\lambda)
+  = (D v_\lambda, \gamma_5 v_\lambda) \notag\\
+  &= \lambda^*\,(v_\lambda, \gamma_5 v_\lambda),
+\end{align}
+因此 $(\mathrm{Im}\,\lambda)\,(v_\lambda, \gamma_5 v_\lambda) = 0$。这意味着
+\begin{equation}
+  (v_\lambda, \gamma_5 v_\lambda) = 0, \qquad \text{除非} \quad \lambda \in \mathbb{R} .
+\end{equation}
+\begingroup\emergencystretch=4em 因此，只有具有实本征值 $r$ 的本征向量 $v_r$ 才可能有非零的手征性，即\linebreak[0] $(v_r, \gamma_5 v_r) \neq 0$。\par\endgroup
+
+在 $\gamma_5$-厄米之外，现在我们进一步要求 Dirac 算符 $D$ 满足 Ginsparg--Wilson 方程 (7.29)。从左边或右边用 $\gamma_5$ 乘这个方程并利用 (7.44)，我们得到
+\begin{equation}
+  D^\dagger + D = a\,D^\dagger D, \qquad
+  D + D^\dagger = a\,D D^\dagger .
+\end{equation}
+这两个方程的第一个推论是，$\gamma_5$-厄米的 Ginsparg--Wilson Dirac 算符 $D$ 是正规算符，即 $D$ 与 $D^\dagger$ 对易，因为方程 (7.48) 中两个等式的左端相等。正规性意味着本征向量构成一组正交基（见附录 A.5）。此外，用归一化的本征向量 $v_\lambda$ 从右边、用 $v_\lambda^\dagger$ 从左边乘 (7.48) 中的第一个方程，可以发现
+\begin{equation}
+  \lambda^* + \lambda = a\,\lambda^*\lambda .
+\end{equation}
+把本征值写成 $\lambda = x + iy$，这个方程变为
+\begin{equation}
+  \left(x-\frac{1}{a}\right)^2 + y^2 = \frac{1}{a^2},
+\end{equation}
+这表明 $\gamma_5$-厄米 Ginsparg--Wilson Dirac 算符的本征值被限制在复平面上的一个圆上（比较图 7.1 的左侧图）。这个所谓的 Ginsparg--Wilson 圆圆心在实轴上的 $1/a$ 处，半径为 $1/a$。我们指出，加倍模，即在自由情形下至少一个动量分量等于 $\pi/a$ 的那些模，最终落在复平面上 $2/a$ 附近，并在 $a \to 0$ 时退耦。
+
+Ginsparg--Wilson Dirac 算符本征值 $\lambda$ 的一个方便的参量化由下式给出
+\begin{equation}
+  \lambda = \frac{1}{a}\left(1 - e^{i\phi}\right), \qquad
+  \phi \in (-\pi, \pi] .
+\end{equation}
+利用这个参量化，可以发现夸克传播子 $D^{-1}$ 的本征值 $1/\lambda$ 落在平行于虚轴的直线上（见图 7.1），
+\begin{equation}
+  \frac{1}{\lambda} = \frac{a}{2} + i\,\frac{a\sin(\phi)}{2\,(1-\cos(\phi))} .
+\end{equation}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig71.png}
+  \caption*{Fig. 7.1. \emph{复平面上 Ginsparg--Wilson Dirac 算符本征值 $\lambda$ 的允许区域（左侧图）以及相应传播子本征值 $\lambda^{-1}$ 的允许区域（右侧图）}.}
+  \label{fig:71}
+\end{figure}
+
+由于 Ginsparg--Wilson 圆与复平面的原点相切，$D$ 可能有精确为零的本征值。设 $v_0$ 是一个零模，那么
+\begin{equation}
+  D v_0 = 0 \;\Rightarrow\; \gamma_5 D v_0 = 0 \;\Rightarrow\; D\gamma_5 v_0 = 0,
+\end{equation}
+其中最后一步使用了 Ginsparg--Wilson 方程。因此，在零模的子空间上，Dirac 算符与 $\gamma_5$ 对易，零模可以选为 $\gamma_5$ 的本征态。由于 $\gamma_5^2 = 1$，$\gamma_5$ 的本征值为 $+1$ 和 $-1$，我们得出结论
+\begin{equation}
+  \gamma_5 v_0 = \pm v_0,
+\end{equation}
+这意味着零模是手征的。手征性为正的零模称为右手，而手征性为负的零模称为左手。
+
+从图 7.1 的左侧图可以明显看出，Ginsparg--Wilson Dirac 算符在 $2/a$ 处也可以有实本征值。沿用与零模相同的步骤，可以发现具有实本征值 $2/a$ 的本征模也是手征的。这些本征模是零模的加倍伙伴，被移到 Ginsparg--Wilson 圆的另一侧，在 $a \to 0$ 的极限下退耦。
+
+\subsection{指标定理}
+
+在连续情形中，著名的 Atiyah--Singer 指标定理 [14] 把无质量 Dirac 算符的左手和右手零模数目与一个量 $Q_{\mathrm{top}}$ 联系起来，后者是规范场的性质，即所谓的拓扑荷。为了推导指标定理的格点对应形式 [15]，我们考虑
+\begin{align}
+  Q_{\mathrm{top}} &\equiv \frac{1}{2}\tr[\gamma_5 D]
+  = -\frac{1}{2}\tr[\gamma_5(2-aD)]
+  = -\frac{1}{2}\sum_\lambda (v_\lambda, \gamma_5(2-aD)v_\lambda) \notag\\
+  &= -\frac{1}{2}\sum_\lambda (2-a\lambda)\,(v_\lambda, \gamma_5 v_\lambda)
+  = n_- - n_+,
+\end{align}
+其中 $n_-$、$n_+$ 分别表示左手和右手零模的数目。在第二步中我们使用了 $\tr[\gamma_5] = 0$，在第三步中我们把迹表示为对 $D$ 的本征向量 $v_\lambda$ 的求和。如上所述，$D$ 是正规的，因此其归一化的本征向量构成适合计算迹的正交归一基。在最后一步中我们使用了 (7.47)，它意味着只有具有实本征值的本征向量才有非零的手征性，并且因子 $(2-a\lambda)$ 消去了 $\lambda = 2/a$ 的加倍模的贡献。幸存下来的零模的 $\gamma_5$ 矩阵元由 (7.54) 给出为 $\pm 1$。
+
+如果在 (7.55) 中省去第二步（正是这一步偷偷引入了额外的 $\gamma_5$），就会得到 $Q_{\mathrm{top}} = n'_+ - n'_-$，其中 $n'_\pm$ 是本征值为 $2/a$ 的左手和右手本征向量的数目。这会给出相同的结果，因为加倍费米子以相反的手征性进入。
+
+拓扑荷 $Q_{\mathrm{top}}$ 可以写成所谓的拓扑荷密度 $q(n)$ 的时空求和。这样我们得到
+\begin{equation}
+  Q_{\mathrm{top}} = a^4\sum_{n\in\Lambda} q(n), \qquad
+  q(n) = \frac{1}{2a^3}\,\tr_{CD}[\gamma_5 D(n|n)], \qquad
+  Q_{\mathrm{top}} = n_- - n_+,
+\end{equation}
+其中 $\tr_{CD}$ 表示对色指标和 Dirac 指标求迹。
+
+格点指标定理 (7.56) 是一个真正了不起的结果：Dirac 算符依赖于规范场变量 $U_\mu(n)$。因此拓扑荷 $Q_{\mathrm{top}}$ 是规范场的泛函，而这个泛函是一个整数，这是一个高度非平凡的说法。正如``拓扑荷''这一名称所表明的，其根本原因具有拓扑性质。
+
+在此我们指出，在实际的格点计算中，对于单个规范位形，人们从来不会同时发现两种手征性的零模，即 $n_+$ 和 $n_-$ 不会同时非零。可以说其根本原因在于，只有非常精巧的规范场排列才会同时产生 $n_+ \neq 0$ 和 $n_- \neq 0$。这样的排列在路径积分中的测度为零，而 $n_+$、$n_-$ 中至少有一个为零这一事实意味着 $Q_{\mathrm{top}} = n_-$ 或 $Q_{\mathrm{top}} = -n_+$。这一事实有时被称为微调的不存在性。
+
+在连续情形中，指标定理取如下形式 $Q^{\mathrm{cont}}_{\mathrm{top}} = n_- - n_+$，其中拓扑荷由下式给出
+\begin{equation}
+  Q^{\mathrm{cont}}_{\mathrm{top}} = \int d^4x\;q(x)^{\mathrm{cont}}, \qquad
+  q(x)^{\mathrm{cont}} = \frac{1}{32\pi^2}\,\varepsilon_{\mu\nu\rho\sigma}
+  \tr_C[F_{\mu\nu}(x)F_{\rho\sigma}(x)],
+\end{equation}
+其中 $\varepsilon_{\mu\nu\rho\sigma}$ 是完全反对称的四阶列维-奇维塔张量，$F_{\mu\nu}$ 是场强张量 (2.15)。泛函 $Q^{\mathrm{cont}}_{\mathrm{top}}$ 是所谓的 Pontryagin 指标的一种表达式。
+
+具有非零 $Q^{\mathrm{cont}}_{\mathrm{top}}$ 的连续规范场位形的一个实例是所谓的瞬子 [16]。在那篇文章中还证明了瞬子是规范作用量的局部极小值。因此它们在路径积分的鞍点求值中会给出贡献。这一洞见催生了大量分析拓扑对象在 QCD 中作用的论文（综述见 [17, 18] 及其中的参考文献）。关于拓扑场位形的入门教材，以及 (7.57) 的 $Q^{\mathrm{cont}}_{\mathrm{top}}$ 确实取整数值的基本证明，我们推荐 [19]。
+
+在格点上，拓扑荷 (7.55) 是一个整数，因为它是通过手征 Dirac 算符的零模数目来定义的。因此剩下的问题是：拓扑荷密度 $q(n)$ 的格点定义 (7.56) 是否在 $a \to 0$ 的极限下趋近其连续对应量 (7.57) 的 $q(x)^{\mathrm{cont}}$。可以证明，在规范场满足某些（光滑性）条件的情况下，当 $a \to 0$ 时有 $q(n) = q(x)^{\mathrm{cont}} + \order{a^2}$。针对各种设定和规范场条件，这一事实已有多种推导，最早的结果见 [15, 20, 21]。
+
+QCD 路径积分对正、负拓扑荷的位形是对称的，因此期望值 $\ev{Q_{\mathrm{top}}}$ 为零。不过，可以考虑定义如下的拓扑磁化率
+\begin{equation}
+  \chi_{\mathrm{top}} = \frac{1}{V}\ev{Q_{\mathrm{top}}^2}
+  = \frac{1}{a^8|\Lambda|}\sum_{m,n}\ev{q(m)q(n)}
+  = a^4\sum_n \ev{q(0)q(n)},
+\end{equation}
+其中在最后一步我们利用关联函数的平移不变性消去了对 $m$ 的求和。我们指出，$\chi_{\mathrm{top}}$ 依赖体积。在无穷体积极限下考虑的拓扑磁化率提供了拓扑荷随 $\Nf$ 和 $m$ 分布的信息 [22]。利用拓扑荷的费米型定义 (7.55)，它已在若干淬火计算 [23--25]（及其中的参考文献）中被确定，结果为 $\chi_{\mathrm{top}} \approx (190\,\mathrm{MeV})^4$。由于在淬火情形中不考虑费米子行列式，这一结果不依赖 $m$。对于动力学情形，模拟还没有那么深入，$\chi_{\mathrm{top}}$ 对 $\Nf$ 和 $m$ 的依赖也尚未最终确定。从唯象学上讲，拓扑磁化率在所谓的 Witten--Veneziano 公式中扮演着有趣的角色，我们将在下一节末尾简要讨论它。
+
+\subsection{轴反常}
+
+既然已经在格点上实现了手征对称性，我们现在就可以给出轴反常的（格点）推导 [12]，这个反常我们在第 7.1 节已经提到过。在那里我们指出，费米子的积分测度在味对角旋转 (7.16) 下不是不变的。
+
+为了在格点上推导反常，我们考虑具有 $\Nf$ 个无质量味的格点 QCD，其 Dirac 算符满足 Ginsparg--Wilson 方程。描述我们 $\Nf$ 个味的旋量 $\psi$、$\bar\psi$ 按如下形式的无穷小手征旋转变换
+\begin{equation}
+  \psi' = \left(1 + i\varepsilon M\gamma_5\left(1-\frac{aD}{2}\right)\right)\psi,
+  \qquad
+  \bar\psi' = \bar\psi\left(1 + i\varepsilon M\left(1-\frac{aD}{2}\right)\gamma_5\right).
+\end{equation}
+这个变换是 (7.31) 的无穷小版本，通过在 (7.31) 中令 $\alpha = \varepsilon$ 并只保留指数对 $\varepsilon$ 展开中的首项得到。此外，我们通过允许一个混合矩阵 $M$ 来考虑多味夸克，$M$ 既可以是单位矩阵 $M = \mathbb{1}_{\Nf}$，也可以是 $SU(\Nf)$ 的生成元之一 $M = T_i$。根据格拉斯曼变量积分测度变换的 (5.26)，我们得到
+\begin{align}
+  \mathcal{D}[\psi,\bar\psi] &= \mathcal{D}[\psi',\bar\psi']\,
+  \det\!\left[1 + i\varepsilon M\gamma_5\left(1-\frac{aD}{2}\right)\right]
+  \det\!\left[1 + i\varepsilon M\left(1-\frac{aD}{2}\right)\gamma_5\right] \notag\\
+  &= \mathcal{D}[\psi',\bar\psi']\,
+  \det\!\left[1 + i\varepsilon M\gamma_5\left(1-\frac{aD}{2}\right)\right]^2,
+\end{align}
+其中在第二步中我们使用了行列式在 $\gamma_5$ 的循环置换下的不变性。对 $\varepsilon$ 展开得到
+\begin{align}
+  \det\Bigl[1 + i\varepsilon M\gamma_5\Bigl(1-\tfrac{aD}{2}\Bigr)\Bigr]^2
+  &= \exp\Bigl[2\tr\ln\Bigl(1 + i\varepsilon M\gamma_5\Bigl(1-\tfrac{aD}{2}\Bigr)\Bigr)\Bigr] \notag\\
+  &= \exp\Bigl[-2\sum_{j=1}^\infty \frac{(-i\varepsilon)^j}{j}\,
+     \tr M\Bigl(\gamma_5\Bigl(1-\tfrac{aD}{2}\Bigr)\Bigr)^j\Bigr] \notag\\
+  &= 1 + 2i\varepsilon\,\tr\Bigl[M\gamma_5\Bigl(1-\tfrac{aD}{2}\Bigr)\Bigr] + \order{\varepsilon^2} \notag\\
+  &= 1 + 2i\varepsilon\,\tr_F[M]\sum_{n\in\Lambda}\tfrac{a}{2}\Bigl(3\,\tr_D[\gamma_5] \notag\\
+  &\qquad - \tr_{CD}[\gamma_5 D(n|n)]\Bigr) + \order{\varepsilon^2}.
+\end{align}
+在这个方程的第一行我们使用了行列式的一个著名公式（见附录 A.5），第二行中对对数做了幂级数展开。在最后一行中我们把迹分解为其各个分量，其中 $\tr_F$、$\tr_C$ 和 $\tr_D$ 分别表示对味、色和 Dirac 指标求迹。求和遍历格点 $\Lambda$ 的所有格点。由于 $\gamma_5$ 是无迹的，$\order{\varepsilon}$ 项中的第一项为零。
+
+如果味矩阵 $M$ 选为 $SU(\Nf)$ 生成元之一，那么由于对味指标的迹为零，反常被抵消。只有当味单态选择 $M = \mathbb{1}_{\Nf}$ 时，这个迹才是非平凡的，即 $\tr_F[M] = \Nf$。综合 (7.60) 和 (7.61)，对这种情形我们得到
+\begin{equation}
+  \mathcal{D}[\psi,\bar\psi]
+  = \mathcal{D}[\psi',\bar\psi']\left(1 - 2i\varepsilon\,\Nf\,Q_{\mathrm{top}}
+     + \order{\varepsilon^2}\right),
+\end{equation}
+其中我们使用了拓扑荷 $Q_{\mathrm{top}}$ 的定义 (7.56)。
+
+我们得出结论：手征的味单态旋转确实不是 QCD 的对称性，尽管作用量本身是不变的（对无质量夸克）。非不变性来自测度，而破缺对称性的项正是拓扑荷。这一结果再次强调了我们讨论指标定理时已经提到的手征对称性与拓扑规范场位形之间的紧密联系。
+
+轴反常具有重要的物理后果。最重要的是，它意味着手征味单态对称性不能被自发破缺，也不存在味单态戈德斯通粒子。这就解释了为什么在考虑 $\Nf = 2$ 的近似手征对称性时，$\eta$ 介子比 $\pi$ 介子重得多。对于 $\Nf = 3$ 的近似手征对称性，这一角色由 $\eta'$ 介子承担。前面提到的 Witten--Veneziano 公式 [26--28] 把 $\eta'$ 的质量与拓扑磁化率 $\chi_{\mathrm{top}}$ 联系起来，从而揭示了 QCD 真空性质与质量谱之间的深刻联系。Witten--Veneziano 公式的数学微妙之处已在若干近期文章 [29--33] 中讨论，部分基于 Ginsparg--Wilson 费米子所提供的严格框架。
+
+\subsection{手征凝聚}
+
+在第 7.1 节中我们已经讨论过，在连续情形中真空期望值 $\ev{u(x)\bar{u}(x)}$ 在 (7.15) 和 (7.16) 的任何手征旋转下都不是不变的。因此它可以作为手征对称性自发破缺的序参量，非零的凝聚标志着手征对称性的自发破缺。我们再次强调，这种自发破缺只发生在 $\Nf \geq 2$ 的情形，因为对于 $\Nf = 1$，唯一的轴对称性不是被自发破缺，而是被反常显式破缺。
+
+在讨论手征对称性时，我们已经在 (7.40) 中确定了格点上正确的质量项，即最大化混合左手和右手分量的标量双线性。据此，我们考虑 Ginsparg--Wilson 费米子格点 QCD 的标量期望值
+\begin{equation}
+  \Sigma^{\mathrm{lat}}(a, m, |\Lambda|) \equiv
+  -\left\langle \bar{u}(n)\left(1-\frac{aD}{2}\right)u(n)\right\rangle .
+\end{equation}
+右端的期望值在一个具有 $|\Lambda|$ 个格点、格点间距为 $a$ 的格点 $\Lambda$ 上求值。我们考虑 $\Nf$ 味费米子，它们的质量均为 $m$，相应的 Dirac 算符 $D_m$ 由 (7.41) 给出。(7.63) 中的项 $aD/2$ 抵消了无质量传播子本征值 (7.52) 的实部，从而像连续情形一样把它的谱移到虚轴上（见图 7.1 的右侧图）。
+
+由于我们的表述是平移不变的，(7.63) 与 $n$ 无关，我们可以对所有格点取平均。这样做并根据 (5.54) 进行格拉斯曼积分，我们发现
+\begin{equation}
+  \Sigma^{\mathrm{lat}}(a, m, |\Lambda|) =
+  \frac{1}{a^4|\Lambda|}\left\langle
+    \tr\left[\left(1-\frac{aD}{2}\right)D_m^{-1}\right]
+  \right\rangle_G,
+\end{equation}
+其中迹遍历时空、色和 Dirac 指标，并且
+\begin{equation}
+  \ev{X}_G = \frac{1}{Z}\int \mathcal{D}[U]\,e^{-S_G[U]}\,\det[D_m]^{\Nf}\,X
+\end{equation}
+是剩余的规范场积分。利用缩写 (7.42)，传播子，即 (7.41) 中所定义的 $D_m$ 的逆，写作 $D_m^{-1} = (\omega D + m\,\mathbb{1})^{-1}$，$\omega = 1 - am/2$，经过一些代数运算，(7.64) 变为
+\begin{equation}
+  \Sigma^{\mathrm{lat}}(a, m, |\Lambda|) =
+  \frac{1}{\omega\, a^4|\Lambda|}\left\langle
+    \tr\left[(\omega D + m\,\mathbb{1})^{-1}\left(1-\frac{aD}{2}\right)\right]
+  \right\rangle_G .
+\end{equation}
+这个表达式现在可以用于对手征凝聚进行数值或解析的研究。
+
+此时有必要对必需的极限作几点说明。对称性的自发破缺要求一个无穷系统，因此必须取极限 $|\Lambda| \to \infty$。随后必须去除由质量项引起的显式破缺，即必须执行极限 $m \to 0$。与其他自发对称性破缺的情形一样，这些极限不能互换。在这些极限之后，(7.66) 变成在固定紫外截断 $1/a$ 下的裸凝聚。物理凝聚的定义依赖正则化方案，其值必须通过用标量重整化因子 $Z_S$ 进行重整化转换到其他方案（如连续 $\overline{MS}$ 方案），我们将在第 11 章讨论这一点。随后可以分析随 $a$ 的标度行为并执行连续极限。
+
+显然，在数值方法中，上述极限序列很难实现。不过，在 [22] 中，手征凝聚已经在体积为 $V$ 的四维盒子中、在有限质量 $m$ 下使用低能有效理论进行了研究。人们得到了作为 $m$ 和 $V$ 的函数的手征凝聚 $\Sigma(m, V)$ 的表达式，其中包含物理手征凝聚
+\begin{equation}
+  \Sigma \equiv \lim_{m \to 0}\;\lim_{V \to \infty} \Sigma(m, V)
+\end{equation}
+作为参数。这里 $\Sigma$ 和 $\Sigma(m, V)$ 都被理解为在有限截断下取值。由于这不一定是格点截断，我们不显式标出它。一旦函数形式 $\Sigma(m, V)$ 已知，就可以用格点模拟在有限体积 $V = a^4|\Lambda|$ 和有限质量 $m$ 下计算凝聚 $\Sigma^{\mathrm{lat}}(a, m, |\Lambda|)$，并把数据拟合到函数 $\Sigma(m, V)$ 上，从而把真正的裸凝聚 $\Sigma$ 作为拟合参数提取出来。这一程序首先在淬火情形中实施，我们在此讨论的就是这种情形。一如既往，研究淬火情形的动机是希望 $\Sigma$ 的淬火结果会接近它在 $\Nf = 3$ 时的值。
+
+在部分淬火手征微扰理论框架内，可以推导不同拓扑扇区中手征凝聚作为体积 $V$ 和质量参数 $m$ 的函数形式 [34, 35]。当路径积分中只考虑拓扑荷 $Q_{\mathrm{top}} = \nu$ 的规范位形时，我们就说处在拓扑扇区 $\nu$。在格点上，这一概念可以通过例如把蒙特卡罗系综的所有位形按由指标定理 (7.56) 确定的 $Q_{\mathrm{top}}$ 分类来实现。手征微扰理论的结果与随机矩阵理论的一个发现相呼应，后者给出了某些对称类的随机矩阵谱的普适性质。拓扑扇区 $\nu$ 中凝聚的淬火结果由下式给出
+\begin{equation}
+  \Sigma(m, V)_\nu = \Sigma\left[
+    z\Bigl(I_{|\nu|}(z)K_{|\nu|}(z) + I_{|\nu|+1}(z)K_{|\nu|-1}(z)\Bigr)
+    + \frac{|\nu|}{mV}\right],
+\end{equation}
+其中 $z = m V \Sigma$ 是无量纲的标度变量，$\Sigma$ 是在 (7.67) 中定义的裸凝聚。然后对每个扇区 $\nu$ 分别计算格点凝聚 $\Sigma^{\mathrm{lat}}(a, m, |\Lambda|)$，并拟合到函数形式 (7.68)。
+
+让我们更详细地讨论数值确定 $\Sigma$ 的策略 [36]。对 (7.68) 中的贝塞尔函数做展开，可以发现当 $m \to 0$ 时：
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig72.png}
+  \caption*{Fig. 7.2. \emph{不同体积和不同拓扑扇区下裸凝聚的格点结果 [37]}.（转载自 Hasenfratz 等人，版权 (2002) 归 Elsevier 所有，经许可使用）}
+  \label{fig:72}
+\end{figure}
+\begin{equation}
+  \frac{\Sigma(m, V)_\nu}{m}
+  \xrightarrow{m \to 0}
+  \begin{cases}
+    \displaystyle \Sigma^2 V\left(\frac{1}{2} - \ln(z/2) - \gamma\right),
+      & \nu = 0,\\[3mm]
+    \displaystyle \frac{\Sigma^2 V}{2|\nu|} + \frac{|\nu|}{2\,mV},
+      & \nu \neq 0 .
+  \end{cases}
+\end{equation}
+拓扑平凡的情形（$\nu = 0$）在小 $m$（$=$ 小 $z$）处含有一个对数发散，因此被发现不太适合在小 $m$ 处进行数值研究。对于 $\nu \neq 0$，会出现来自零模的额外项，其发散更加强烈。\footnote{对于动力学费米子的情形，零模被费米子行列式所抑制，因为该行列式在 $m = 0$ 处为零，因此不会出现这样的发散项。}不过，为了改善信号，可以干净地手工去除这一贡献。这是通过利用零模的手征性 (7.54)、并且在传播子乘以 $(1 \pm \gamma_5)/2$ 之后再取 (7.66) 中的迹来实现的。对每个单独的规范位形，符号都选成与零模的手征性相反。经过这一修改之后，迹可以用第 8 章讨论的随机估计子技术来计算。
+
+由于我们是在有限的 $V$ 和 $m$ 下计算裸凝聚，截断效应可能会改变行为 (7.69)。在 $m$ 的首阶，这会产生一个额外的依赖截断的常数 $c$。因此，对于非平凡拓扑扇区并扣除零模贡献之后，人们得到最终形式
+\begin{equation}
+  \frac{\Sigma(m, V)'_\nu}{m}
+  \xrightarrow{m \to 0}
+  \frac{\Sigma^2 V}{2|\nu|} + c
+  \qquad (\nu \neq 0) .
+\end{equation}
+因此，比值 $\Sigma^{\mathrm{lat}}(a, m, |\Lambda|)/m$ 预期在 $m \to 0$ 时趋近一个常数，而比较不同的体积和拓扑扇区就可以提取裸凝聚 $\Sigma$。图 7.2 中的数据就是在 [37] 中沿这些思路计算得到的，很好地说明了 (7.70) 所描述的行为。
+
+最后一步是用 $Z_S$ 进行重整化以得到物理淬火凝聚 $\Sigma_{\mathrm{phys}} = Z_S \Sigma$，我们将在第 11 章详细讨论。若干独立计算 [36--39] 确定了淬火手征凝聚，重整化之后得到 $\Sigma_{\mathrm{phys}} \approx (270\,\mathrm{MeV})^3$（在重整化标度 2\,GeV 下的 $\overline{MS}$ 方案中）。
+
+\subsection{Banks--Casher 关系}
+
+到目前为止，我们讨论了有限夸克质量 $m$ 下有限系统手征凝聚的数值分析。不过，至少可以在形式上执行热力学极限和手征极限，并用 Dirac 算符在原点附近的本征值密度来参量化未知的非微扰信息。这就引出一个重要的关系，即所谓的 Banks--Casher 关系 [40]，我们现在就来推导它。
+
+我们推导的出发点是 (7.66)。第一步，我们把迹表示为对 $D$ 的所有本征值 $\lambda_i$ 的求和：
+\begin{align}
+  \tr\left[(\omega D + m\,\mathbb{1})^{-1}\left(1-\frac{aD}{2}\right)\right]
+  &= \sum_{\lambda_i}\left(\frac{1}{\omega\lambda_i + m} - \frac{a}{2}\right) \notag\\
+  &= (n_+ + n_-)\left(\frac{1}{m} - \frac{a}{2}\right) \notag\\
+  &\quad + (n'_+ + n'_-)\left(\frac{1}{2\omega/a + m} - \frac{a}{2}\right) \notag\\
+  &\qquad + \sum_{\lambda_i \neq 0,\,2/a}\left(\frac{1}{\omega\lambda_i + m} - \frac{a}{2}\right),
+\end{align}
+其中在第二行中我们把对所有本征值的求和分成 $n_+ + n_-$ 个本征值 $0$ 的贡献、$n'_+ + n'_-$ 个本征值 $2/a$ 的贡献以及对复本征值的求和。回顾 $\omega$ 的定义 (7.42)，可以发现本征值 $0$ 的贡献因子约化为 $\omega/m$，而本征值 $2/a$ 的贡献为零。利用 (7.51) 引入的相位 $\phi_i$ 来表示本征值 $\lambda_i$，并把复共轭的本征值对合并起来，最后一个表达式变为
+\begin{equation}
+  \frac{\omega}{m}(n_+ + n_-) + \sum_{\phi_i \neq 0,\pi}
+  \frac{\omega\,(1+\cos\phi_i)\,m}{(2-2\cos\phi_i)(1-a^2m^2/4)/a^2 + m^2} .
+\end{equation}
+由于上述``微调的不存在性''，对于给定的规范位形，$n_+$、$n_-$ 中只能有一个非零，我们可以把 $(n_+ + n_-)$ 替换为 $|Q_{\mathrm{top}}|$，即零模的数目。把 (7.72) 作为 (7.66) 中的迹代入，可以得到
+\begin{align}
+  \Sigma^{\mathrm{lat}}(a) &\equiv \lim_{m\to 0}\;\lim_{|\Lambda|\to\infty}
+  \Sigma^{\mathrm{lat}}(a,m,|\Lambda|) \notag\\
+  &= \lim_{|\Lambda|\to\infty}\frac{1}{a^4|\Lambda|}\,\frac{\ev{|Q_{\mathrm{top}}|}_G}{m}
+   \notag\\
+  &\qquad + \frac{1}{2a^4}\int_{-\pi}^{\pi}d\phi\,\rho_A(\phi)\,
+     \frac{(1+\cos\phi)\,m}{(2-2\cos\phi)(1-a^2m^2/4)/a^2 + m^2},
+\end{align}
+其中我们为 Ginsparg--Wilson 圆上本征值的角度 $\phi$ 定义了角度密度 $\rho_A(\phi)$：
+\begin{equation}
+  \rho_A(\phi) = \left\langle \lim_{|\Lambda|\to\infty}\frac{1}{|\Lambda|}
+  \sum_{\phi_i \neq 0,\pi}\delta(\phi-\phi_i)\right\rangle_G .
+\end{equation}
+在密度 $\rho_A(\phi)$ 的定义中，我们已经执行了连续对称性自发破缺所必需的极限 $|\Lambda| \to \infty$（在固定的 $a$ 下）。在这个极限下，本征值在 Ginsparg--Wilson 圆上变得稠密，(7.74) 所定义的 $\rho_A(\phi)$ 确实成为一个密度。
+
+第一个贡献 (7.73) 在 $|\Lambda| \to \infty$ 时为零，因为 $\ev{|Q_{\mathrm{top}}|}_G$ 的增长速度不超过 $\sqrt{V}$。这由 $\chi_{\mathrm{top}} = \ev{Q^2_{\mathrm{top}}}/V$ 的有限性得出。对 (7.73) 中的第二项，可以利用
+\begin{equation}
+  \delta_m(X) = \frac{1}{\pi}\,\frac{m}{X^2 + m^2}\left(1 + \order{m^2}\right)
+\end{equation}
+是一个 $\delta$ 序列，即当 $m \to 0$ 时 $\delta_m(X) \to \delta(X)$（例如参见 [41]）。因此，对 (7.73) 的第二部分（它在 $m \to 0$ 时保持有限），我们得到：
+\begin{align}
+  &\frac{1}{2a^4}\int_{-\pi}^{\pi}d\phi\,\rho_A(\phi)\,
+    \frac{(1+\cos\phi)\,m}{(2-2\cos\phi)(1-a^2m^2/4)/a^2 + m^2} \notag\\
+  &= \frac{\pi}{2a^3}\int_{-\pi}^{\pi}d\phi\,(1+\cos\phi)\,
+     \delta\!\bigl(a^{-1}(2-2\cos\phi)\bigr)\,\rho_A(\phi) \notag\\
+  &= \frac{\pi}{2a^3}\int_{-\pi}^{\pi}d\phi\,(1+\cos\phi)\,
+     \delta(\phi)\,\rho_A(\phi) = \frac{\pi}{a^3}\,\rho_A(0),
+\end{align}
+其中我们对以函数为自变量的 Dirac-$\delta$ 使用了标准处理方法。方程 (7.76) 表明，在取无穷体积极限之后，手征凝聚正比于 $\phi = 0$ 处的角度密度 $\rho_A(\phi)$。我们强调，在密度的定义中，精确为零的本征值被排除在外。
+
+\begingroup\emergencystretch=4em 通常人们不使用角度密度 $\rho_A$，而是使用虚轴上本征值的密度\linebreak[0] $\rho_\lambda = \Delta n/\Delta y$，其中 $\Delta n$ 是虚轴上每个区间 $\Delta y$ 内的本征值数目。对小角度 $\phi$，有 $\Delta y = \Delta\phi/a$（比较图 7.1），这意味着 $\rho_\lambda = a\,\rho_A$。因此我们得出结论\par\endgroup
+\begin{equation}
+  \frac{\pi}{a^3}\,\rho_A(0) = \frac{\pi}{a^4}\,\rho_\lambda(0)
+  = \pi\,\rho(0),
+\end{equation}
+其中 $\rho$ 是单位体积内虚轴上的本征值密度。
+
+虽然上一节给出的数值计算从第一性原理展示了非零手征凝聚的存在性，但它无法提供对手征对称性破缺背后物理机制的洞见。然而，Banks--Casher 关系 (7.77) 至少为理解这样的机制打开了一扇门。
+
+一个很有影响力的想法是，手征凝聚是通过弱相互作用的拓扑场位形（如瞬子）构成的``流体''形成的（综述见 [17, 18]）。通常情况下，例如在瞬子的情形中，拓扑位形是局域的，这样的结构被昵称为拓扑团块。携带拓扑荷的规范场位形根据指标定理 (7.56) 会产生零本征值。对于不同荷的拓扑团块的混合，不能假设零本征值不受扰动地保留下来。相反，人们预期本征值会沿虚方向移动。弱相互作用拓扑团块的流体会在虚轴上产生本征值的累积，从而在原点附近建立起本征值密度 $\rho(0)$。这又通过 Banks--Casher 关系 (7.77) 产生非零的手征凝聚。这一机制以及拓扑团块可能的结构已在格点上得到广泛研究，综述 [42--46] 可以作为进一步阅读的指南。
+
+本征值密度可以在随机矩阵理论中作较详细的研究，我们在上一节已经简要提到它。像最小本征值、次小本征值的分布密度等精细细节，似乎是具有 Dirac 算符对称性质的随机矩阵谱的普适性质。有大量工具可以用这种方式分析谱，从而把``普适''特征与理论动力学特有的性质（如凝聚值）区分开来。关于这些问题的更多内容可见 [47, 48]。
+
+\section{重叠算符}
+
+到目前为止，我们对格点手征对称性的阐述没有涉及 Ginsparg--Wilson 方程的某个具体解。在本节中，我们填补这一空白，引入重叠算符。我们分析重叠算符的局域性并讨论它的数值计算。Ginsparg--Wilson 方程的第二个解，即不动点 Dirac 算符，将在第 9 章给出。此外，在第 10.2 节中我们将讨论与重叠表述密切相关的畴壁费米子。
+
+\subsection{重叠算符的定义}
+
+在重叠表述的早期论文 [49--52] 的基础上，Neuberger 在 [53] 中给出了重叠 Dirac 算符的现代形式，并在 [11] 中证明它是 Ginsparg--Wilson 方程 (7.29) 的一个解。重叠 Dirac 算符的显式形式由下式给出
+\begin{equation}
+  D_{\mathrm{ov}} = \frac{1}{a}\left(1 + \gamma_5\,\mathrm{sign}[H]\right),
+  \qquad
+  H = \gamma_5 A,
+\end{equation}
+其中 $A$ 表示某个合适的 $\gamma_5$-厄米``核''Dirac 算符，因此 $H$ 是厄米的，其本征值为实数。算符符号函数可以通过算符的谱表示 (A.51) 来定义。或者，也可以把重叠算符写成如下形式
+\begin{equation}
+  D_{\mathrm{ov}} = \frac{1}{a}\left(1 + \gamma_5 H\left(H^2\right)^{-1/2}\right).
+\end{equation}
+最简单的选择是使用 Wilson Dirac 算符作为核，
+\begin{equation}
+  A = a\,D_W - \mathbb{1}(1+s), \qquad
+  \text{使得} \qquad
+  D_{\mathrm{ov}} = \frac{1}{a}\left(1 + A\left(\gamma_5 A\gamma_5 A\right)^{-1/2}\right),
+\end{equation}
+其中 $s$ 是满足 $|s| < 1$ 的实参数，可用于优化局域性（见下文）。$D_W$ 是无质量 Wilson Dirac 算符（比较 (5.51)）
+\begin{equation}
+  D_W(n|m)^{ab}_{\alpha\beta} = \frac{1}{a}\,\delta_{\alpha\beta}\,\delta_{ab}\,
+  \delta_{n,m}
+  - \frac{1}{2a}\sum_{\mu=\pm1}^{\pm4}(1-\gamma_\mu)_{\alpha\beta}\,
+    U_\mu(n)_{ab}\,\delta_{n+\hat\mu,m} .
+\end{equation}
+由于 Wilson Dirac 算符是 $\gamma_5$-厄米的（比较 (5.76)），$A$ 也是，即 $\gamma_5 A\gamma_5 = A^\dagger$。因此我们有 $\gamma_5 A\gamma_5 A = A^\dagger A$，而 (7.80) 中的平方根通过谱定理得以良好定义。
+
+为了看清重叠算符满足 Ginsparg--Wilson 方程，我们把 $D_{\mathrm{ov}}$ 代入 (7.29)。利用表示 (7.78)，我们发现
+\begin{align}
+  a\,D_{\mathrm{ov}}D_{\mathrm{ov}}^\dagger
+  &= \frac{1}{a}\left(1+\gamma_5\,\mathrm{sign}[H]\right)
+     \left(1+\mathrm{sign}[H]\,\gamma_5\right) \notag\\
+  &= \frac{1}{a}\left(1+\gamma_5\,\mathrm{sign}[H] + \mathrm{sign}[H]\,\gamma_5 + 1\right)
+  = D_{\mathrm{ov}} + D_{\mathrm{ov}}^\dagger .
+\end{align}
+\begingroup\emergencystretch=4em 我们考虑了厄米性 $\mathrm{sign}\,H = \mathrm{sign}\,H^\dagger$，以及符号函数的平方为单位算符：\linebreak[0] $(\mathrm{sign}\,H)^2 = 1$。类似于对朴素 Dirac 算符进行的步骤 (2.40)、(2.41) 和 (2.42)，可以对重叠算符 (7.80) 在小 $a$ 下展开，并证明它趋近连续的 Dirac 算符（相差一个无关的乘法常数：$\hat{D}^{\mathrm{ov}} \approx i\gamma_\mu p_\mu/(1+s) + \order{p^2}$）。\par\endgroup
+
+在重叠算符构造中使用的 Wilson 算符 $D_W$ 可以替换为其他没有加倍费米子的格点 Dirac 算符 [54]。这可以改善重叠算符的局域性（见下一节），并可能加快重叠算符数值计算（第 7.4.3 节）的收敛 [38]。在这个意义上，重叠构造也可以被视为把非手征的格点 Dirac 算符投影到 Ginsparg--Wilson 方程的一个解上。
+
+\subsection{手征 Dirac 算符的局域性}
+
+虽然 Wilson Dirac 算符 (7.81) 从而 $A$ 只包含最近邻项，因而是稀疏矩阵，但逆平方根 $(\gamma_5 A\gamma_5 A)^{-1/2}$ 导出的矩阵对所有格点对 $n$、$m$ 都有非零的矩阵元。因此对所有 $n$、$m$ 都有 $D_{\mathrm{ov}}(n|m) \neq 0$，重叠算符不是超局域算符。在 [55] 中给出了这一结论对所有 Ginsparg--Wilson 方程解都成立的普适性论证。
+
+然而，局域性是量子场论的一个基本概念，对它的破坏会以非因果相互作用为代价。因此，必须理解格点场论的局域性应当在何种意义下体现。一个自然的要求是，Dirac 算符 $D$ 独立于 $\beta$ 地指数衰减，即 $D$ 满足如下界
+\begin{equation}
+  \left|D(n|m)^{ab}_{\alpha\beta}\right| \leq C\,\exp\left(-\gamma\,\|n-m\|\right),
+\end{equation}
+其中常数 $C$ 和 $\gamma$ 与规范场无关。如果这样的界成立，那么相互作用范围 $1/\gamma$ 就是以格点单位计的固定距离。然而，当用物理单位表示时，这个距离会随着我们令 $a \to 0$ 以趋近连续极限而减小。因此，以物理单位计的相互作用范围 $a/\gamma$ 会缩小到零，在连续极限中我们恢复一个局域场论。对重叠算符，(7.83) 意义上的局域性已在 [56] 中通过解析论证和数值研究两方面确立。在那篇文章中还证明了可以调节 (7.80) 中的参数 $s$ 以优化局域性。
+
+\subsection{重叠算符的数值计算}
+
+数值上，主要问题在于计算算符 $H$ 的符号函数。形式上，它可以通过谱定理得到良好定义：
+\begin{equation}
+  \mathrm{sign}[H] = \mathrm{sign}\left[\sum_i \lambda_i \ket{i}\bra{i}\right]
+  = \sum_i \mathrm{sign}(\lambda_i)\,\ket{i}\bra{i} .
+\end{equation}
+只有当 $H$ 有精确为零的本征值时——这是一种数值上极不可能出现的情形——才需要引入``裁决机制''，例如用一个随机选取的 $\pm 1$ 来代替符号 $\lambda$。然而，对于巨大的 Dirac 矩阵，完全的精确对角化代价高得令人望而却步，因此基于 (7.84) 的方法除了少数测试情形外并不使用。
+
+在大多数计算中，人们转而利用
+\begin{equation}
+  \mathrm{sign}[H] = H\,|H|^{-1} = H\left(H^2\right)^{-1/2}
+\end{equation}
+并用 $H^2$ 的多项式或多项式之比来逼近 $(H^2)^{-1/2}$。这种逼近的收敛性取决于实际的矩阵 $H$，特别是其本征值，因此也取决于当前的规范场位形。一般而言，$H$ 较小的本征值会导致较差的收敛。如第 6.2.5 节所讨论的，Wilson Dirac 算符实本征值的涨落不可忽略。$D_W$ 在 $(1+s)/a$ 附近的实本征值会产生 $H$ 的小本征值，从而带来数值问题。这种情况可以通过应用涂抹技术（比较第 6.2.6 节）或对重叠投影使用一个已经逼近 Ginsparg--Wilson 方程解的不同核算符来改善。
+
+对于符号函数的数值计算，我们在此讨论两种最流行的逼近方法以及所谓的约化小本征模技术。比较研究可见例如 [57--59]。
+
+\textbf{多项式逼近：} 切比雪夫多项式 $T_n(x)$ 是关于如下标量积的正交多项式
+\begin{equation}
+  (f, g) \equiv \int_{-1}^{1} dx\,\frac{f(x)g(x)}{\sqrt{1-x^2}},
+\end{equation}
+归一化使得 $(T_n, T_m) = \delta_{nm}$。给定函数 $r(x)$ 有级数展开
+\begin{equation}
+  r(x) = \sum_{n=0}^{\infty} c_n\,T_n(x) \qquad \text{其中} \qquad
+  c_n = (r, T_n) .
+\end{equation}
+对于在 $[-1, 1]$ 中连续、至多在该区间内有有限个间断点的函数，该级数逐点收敛。对于截断级数
+\begin{equation}
+  r(x) \approx \sum_{n=0}^{N-1} c_n\,T_n(x),
+\end{equation}
+误差平滑地散布在区间 $-1 \leq x \leq 1$ 上。截断级数的系数可以通过下式逼近
+\begin{equation}
+  c_n = \frac{\pi}{N}\sum_{k=1}^{N} r(x_k)\,T_n(x_k),
+  \qquad \text{其中} \qquad
+  x_k = \cos\!\left(\frac{\pi}{N}\left(k-\frac{1}{2}\right)\right) .
+\end{equation}
+按照 [36, 60]，我们把这个方法应用于计算 $H^2$ 的逆平方根。可以证明，对于 $|s| \leq 1$，$\|H\| \leq 8$（以格点单位计）。我们用 $\alpha$ 和 $\beta$ 表示 $H$ 的（按大小）最小和最大本征值。因此 $H^2$ 的本征值 $\lambda$ 位于区间 $[\alpha^2, \beta^2] \subset [0, 64]$ 内。一般区间 $\lambda \in [\alpha^2, \beta^2]$ 可以通过下式映射到标准区域 $x \in [-1, 1]$：
+\begin{equation}
+  x = \frac{2\lambda - (\beta^2 + \alpha^2)}{\beta^2 - \alpha^2} .
+\end{equation}
+对所需的逆平方根函数，我们于是得到
+\begin{equation}
+  r(x) = \left[\frac{1}{2}(\beta^2+\alpha^2) + \frac{1}{2}(\beta^2-\alpha^2)x\right]^{-1/2}
+  = \frac{1}{\sqrt{\lambda(x)}},
+\end{equation}
+用这个函数就可以按 (7.89) 计算系数。然后通过与 $H$ 相乘得到符号函数的逼近：
+\begin{align}
+  \mathrm{sign}[H] &= \frac{H}{\sqrt{H^2}}
+  = H\sum_{n=0}^{N-1} c_n\,T_n(X)
+    + \order{\exp(-2N|\alpha/\beta|)}, \notag\\
+  \text{其中} \qquad
+  X &\equiv \frac{2H^2 - (\beta^2+\alpha^2)\,\mathbb{1}}{\beta^2-\alpha^2} .
+\end{align}
+逼近级数的误差按 $\propto \exp(-2N|\alpha/\beta|)$ 减小，即达到所需精度需要的项数正比于 $|\beta/\alpha|$ 增长。这个比值正是 $H$ 的条件数：$|\lambda_{\max}/\lambda_{\min}|$。为了改善条件数，该方法通常与``移除''$H$ 的小本征模相结合，这一点我们将在下面讨论。级数可能有数百项，因此应该使用诸如 Clenshaw 递推关系之类的误差缩减技术来求和 [61]。
+
+多项式逼近技术上简单且相当稳健，可以直接应用于引入动力学费米子时所需的力计算（参见第 8 章）。然而，理论论证表明，多项式逼近的效率低于有理逼近方法，而且它对条件数确实更敏感。在 [58] 对测试例子的比较中，多项式逼近通常需要的算符 $H$ 矩阵-矢量乘法次数是基于 Zolotarev 方法的有理逼近的 1.5 到 4 倍。
+
+\textbf{Zolotarev 型部分分式：} 在 [57, 62] 中建议用多项式之比来逼近 $1/\sqrt{x^2}$。与此同时，人们已经清楚 [58, 59, 63]，在区间 $x^2 \in [1, \beta^2/\alpha^2]$ 上对平方根最好的此类逼近是 Zolotarev 逼近 [64]。特别地，
+\begin{equation}
+  \frac{1}{\sqrt{x^2}} \approx Q(x^2) = d\prod_{n=1}^{m}
+  \frac{x^2 + c_{2n}}{x^2 + c_{2n-1}},
+  \qquad
+  c_n = \frac{\mathrm{sn}^2\left(nK(k')/(2m+1); k'\right)}
+              {1 - \mathrm{sn}^2\left(nK(k')/(2m+1); k'\right)},
+\end{equation}
+其中 $k' = \sqrt{1-\alpha/\beta}$，$K(k')$ 是所谓的完全椭圆积分，$\mathrm{sn}(u; k)$ 表示雅可比椭圆函数 [65]。
+
+归一化常数 $d$ 可以通过要求 $Q(1) = 1$ 来确定。这样得到的符号函数逼近在（正支上）从下方以 1 为界。如果转而要求逼近在 1 附近对称地涨落，则相当于令
+\begin{equation}
+  Q(1) + \frac{\beta^2}{\alpha^2}\,Q\!\left(\frac{\beta^2}{\alpha^2}\right) = 2 .
+\end{equation}
+这个有理函数可以分解为部分分式，使得
+\begin{equation}
+  Q(x^2) = d\,(x^2 + c_{2m})\sum_{n=1}^{m}\frac{b_n}{x^2 + c_{2n-1}},
+\end{equation}
+其中参数 $b_n$ 可以由 (7.93) 计算，给出
+\begin{equation}
+  b_n = \frac{\prod_{k=1}^{m-1}(c_{2k} - c_{2n-1})}
+             {\prod_{k=1,\,k\neq n}^{m}(c_{2k-1} - c_{2n-1})} .
+\end{equation}
+为了把它应用到矩阵 $H$ 上，我们必须通过除以最小本征值的绝对值 $|\alpha|$ 来对它进行标度。因此，通过与 $H$ 相乘得到的符号函数最终公式为
+\begin{equation}
+  \mathrm{sign}[H] \approx d\,\frac{H}{|\alpha|}\left[\left(\frac{H}{\alpha}\right)^2 + c_{2m}\right]
+  \sum_{n=1}^{m} b_n\left[\left(\frac{H}{\alpha}\right)^2 + c_{2n-1}\right]^{-1} .
+\end{equation}
+这里 $\alpha$ 和 $\beta$ 表示 $H$ 的最小和最大本征值，因此矩阵 $(H/\alpha)^2$ 的谱位于 $[1, \beta^2/\alpha^2]$ 内，正如展开 (7.93) 所假定的那样。
+
+由于在应用 (7.97) 时总是需要计算重叠矩阵与某个矢量的乘积，因此可以通过多移位共轭梯度求解器 [66--68] 同时计算 (7.97) 的各项，正如第 6 章在同时计算多个质量的夸克传播子的背景下已经讨论过的那样。所需的额外开销很小，因此计算量基本上由最小的 $|c_{2n-1}|$ 决定。
+
+与其他有理逼近相比，在给定精度下，Zolotarev 方法可以大幅减少 (7.97) 中所需的项数。
+
+\textbf{小本征模约化：} 特别是多项式逼近对 $H$ 的条件数相当敏感。对于 $|s| < 1$，$H$ 的本征值有上界 $|\lambda_{\max}| \leq 8$（格点单位），因此如前所述，真正麻烦的来源是最小本征值。不过，有一种方法可以处理 $|\lambda_{\min}|$ 非常小的情形。我们从谱定理（见附录 A.5）知道
+\begin{align}
+  f[H] &= \sum_i f(\lambda_i)\,v_i v_i^\dagger \notag\\
+  &= \sum_{\lambda_i \geq \lambda_c} f(\lambda_i)\,v_i v_i^\dagger
+    + \sum_{\lambda_i < \lambda_c} f(\lambda_i)\,v_i v_i^\dagger \notag\\
+  &\equiv \sum_{\lambda_i < \lambda_c} f(\lambda_i)\,v_i v_i^\dagger
+    + f\left[H^{\mathrm{(red)}}\right].
+\end{align}
+这里 $v_i$ 表示本征值 $\lambda_i$ 的本征向量。因此我们可以把问题分成两部分。首先确定所有低于某个值 $\lambda_c$ 的本征值及其本征向量。然后通过显式移除小本征值扇区来定义一个约化矩阵：
+\begin{equation}
+  H^{\mathrm{(red)}} \equiv H - \sum_{\lambda_i < \lambda_c}
+  \lambda_i\,v_i v_i^\dagger .
+\end{equation}
+我们用某种逼近方案计算这个条件数已得到改善的约化算符的 $\mathrm{sign}\,H^{\mathrm{(red)}}$，并借助 (7.98) 重构
+\begin{equation}
+  \mathrm{sign}[H] = \mathrm{sign}\left[H^{\mathrm{(red)}}\right]
+  + \sum_{\lambda_i < \lambda_c}\mathrm{sign}(\lambda_i)\,v_i v_i^\dagger .
+\end{equation}
+由于必须计算低本征值扇区而带来的额外开销并不像看上去那么严重。对给定的规范位形，这只需要做一次。然而，重叠 Dirac 算符（对该规范位形）与矢量的乘法需要频繁计算，因为它通常嵌入在例如用于计算夸克传播子的共轭梯度求解器中。因此，在大多数情况下，计算（比如说）最低的 20 个本征值所需的工作量与总成本相比是很小的。
+
+\section*{参考文献}
+
+\begin{enumerate}[label={[\arabic*]}]
+  \item J.~S.~Bell and R.~Jackiw: Nuovo Cimento 60A, 47 (1969).
+  \item S.~L.~Adler: Phys.~Rev.~177, 2426 (1969).
+  \item C.~Itzykson and J.-B.~Zuber: \emph{Quantum Field Theory} (McGraw-Hill,
+        New York 1985).
+  \item M.~E.~Peskin and D.~V.~Schroeder: \emph{An Introduction to Quantum
+        Field Theory} (Addison-Wesley, Reading, Massachusetts 1995).
+  \item H.~B.~Nielsen and M.~Ninomiya: Phys.~Lett.~B 105, 219 (1981).
+  \item H.~B.~Nielsen and M.~Ninomiya: Nucl.~Phys.~B 185, 20 (1981).
+  \item H.~B.~Nielsen and M.~Ninomiya: Nucl.~Phys.~B 193, 173 (1981).
+  \item L.~H.~Karsten: Phys.~Lett.~B 192, 315 (1981).
+  \item P.~H.~Ginsparg and K.~G.~Wilson: Phys.~Rev.~D 25, 2649 (1982).
+  \item P.~Hasenfratz: Nucl.~Phys.~B (Proc.~Suppl.) 63A--C, 53 (1998).
+  \item H.~Neuberger: Phys.~Lett.~B 427, 353 (1998).
+  \item M.~L\"uscher: Phys.~Lett.~B 428, 342 (1998).
+  \item S.~Chandrasekharan: Phys.~Rev.~D 60, 074503 (1999).
+  \item M.~Atiyah and I.~M.~Singer: Ann.~Math.~93, 139 (1971).
+  \item P.~Hasenfratz, V.~Laliena, and F.~Niedermayer: Phys.~Lett.~B 427, 125 (1998).
+  \item A.~A.~Belavin, A.~M.~Polyakov, A.~S.~Schwartz, and Y.~S.~Tyupkin:
+        Phys.~Lett.~B 59, 85 (1975).
+  \item T.~Sch\"afer and E.~Shuryak: Rev.~Mod.~Phys.~70, 323 (1998).
+  \item D.~Diakonov: Prog.~Part.~Nucl.~Phys.~51, 173 (2003).
+  \item R.~Rajaraman: \emph{Solitons and Instantons} (North Holland Publishers,
+        Amsterdam 1982).
+  \item Y.~Kikukawa and A.~Yamada: Phys.~Lett.~B 448, 265 (1999).
+  \item K.~Fujikawa: Nucl.~Phys.~B 546, 480 (1999).
+  \item H.~Leutwyler and A.~Smilga: Phys.~Rev.~D 46, 5607 (1992).
+  \item C.~Gattringer, R.~Hoffmann, and S.~Schaefer: Phys.~Lett.~B 535, 358 (2002).
+  \item L.~Del Debbio and C.~Pica: JHEP 0402, 003 (2004).
+  \item L.~Del Debbio, L.~Giusti, and C.~Pica: Phys.~Rev.~Lett.~94, 032003 (2005).
+  \item E.~Witten: Nucl.~Phys.~B 156, 269 (1979).
+  \item G.~Veneziano: Nucl.~Phys.~B 159, 213 (1979).
+  \item G.~Veneziano: Phys.~Lett.~B 95, 90 (1980).
+  \item L.~Giusti, G.~Rossi, M.~Testa, and G.~Veneziano: Nucl.~Phys.~B 628, 234 (2002).
+  \item E.~Seiler: Phys.~Lett.~B 525, 355 (2002).
+  \item L.~Giusti, G.~Rossi, and M.~Testa: Phys.~Lett.~B 587, 157 (2004).
+  \item M.~L\"uscher: Phys.~Lett.~B 593, 296 (2004).
+  \item M.~Aguado and E.~Seiler: Phys.~Rev.~D 72, 094502 (2005).
+  \item J.~Osborn, D.~Toublan, and J.~Verbaarschot: Nucl.~Phys.~B 540, 317 (1999).
+  \item P.~H.~Damgaard, J.~C.~Osborn, D.~Toublan, and J.~J.~Verbaarschot:
+        Nucl.~Phys.~B 547, 305 (1999).
+  \item P.~Hern\'andez, K.~Jansen, and L.~Lellouch: Phys.~Lett.~B 469, 198 (1999).
+  \item P.~Hasenfratz et al.: Nucl.~Phys.~B 643, 280 (2002).
+  \item T.~DeGrand: Phys.~Rev.~D 63, 034503 (2000).
+  \item L.~Giusti, C.~Hoelbling, and C.~Rebbi: Phys.~Rev.~D 64, 114508 (2001).
+  \item T.~Banks and A.~Casher: Nucl.~Phys.~B 169, 103 (1980).
+  \item F.~Constantinescu: \emph{Distributions and Their Applications in
+        Physics} (Pergamon Press, Oxford 1980).
+\end{enumerate}

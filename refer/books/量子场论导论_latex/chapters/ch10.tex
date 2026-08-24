@@ -1,0 +1,668 @@
+% ======================================================================
+% 第 10 章：重整化系统学
+% （原书页码 315-345；PDF 页码 338-369）
+% ======================================================================
+\chapter{重整化系统学}
+
+在第~6 章和第~7 章中计算辐射修正时，我们遇到了三个具有紫外发散的 QED 图：电子自能、顶点修正和真空极化。在每一种情形中，我们都看到发散可以被正规化并抵消，从而对可测量量给出有限表达式。在第~8 章中，我们指出，这类紫外发散在量子场论计算中是普遍存在且事实上自然出现的。我们勾勒了这些发散的物理解释，其意义既涉及量子场论，也涉及相变的统计理论。在接下来的几章中，我们将把这个粗略的图景发展成一种能够进行精确计算的定量理论。
+
+在本章中，我们开始这一研究，对量子场论中可能出现的紫外发散发展出一套分类。我们不再一个一个地碰到这些发散并逐案修补，而是要一劳永逸地确定哪些图是发散的，以及在哪些理论中这些发散可以被系统地消除。作为例子，我们将同时考虑 QED 和标量场理论。
+
+\section{紫外发散计数}
+
+在本节中，我们将用初等的论证来确定（暂定地）费曼图何时含有紫外发散。我们从分析量子电动力学开始。
+
+首先我们引入下列记号，来刻画 QED 中的一个典型图：
+\begin{equation}
+  \begin{aligned}
+    N_e &= \text{外电子线数};\\
+    N_\gamma &= \text{外光子线数};\\
+    P_e &= \text{电子传播子数};\\
+    P_\gamma &= \text{光子传播子数};\\
+    V &= \text{顶点数};\\
+    L &= \text{圈数}.
+  \end{aligned}
+\end{equation}
+（这一分析既适用于散射振幅，也适用于关联函数。在前一种情形中，连接到外部点的传播子应被计为外线，而不是传播子。）
+
+与一个典型图对应的表达式形如：
+\begin{equation}
+  \int d^4k_1\,d^4k_2\cdots d^4k_L\
+    \frac{(\slashed{k}_i\cdots)(\cdots)}{(k_i^2-m^2)\cdots(k_j^2)\cdots}
+    \cdots .
+\end{equation}
+对每一个圈，都有一个潜在发散的 4-动量积分，但每一个传播子都通过把一个或两个动量幂次放入分母来帮助该积分的收敛。粗略地说，除非分母中的动量幂次多于分子中的动量幂次，否则图就是发散的。因此让我们定义\emph{表观发散度} $D$ 为如下之差：
+\begin{equation}
+  D = (\text{分子中 }k\text{ 的幂次}) - (\text{分母中 }k
+    \text{ 的幂次}) = 4L - P_e - 2P_\gamma .
+  \label{eq:10.1}
+\end{equation}
+天真地，我们预期当 $D > 0$ 时，一个图具有正比于 $\Lambda^D$ 的发散，其中 $\Lambda$ 是动量截断。当 $D = 0$ 时，我们预期具有 $\log\Lambda$ 形式的发散，而当 $D < 0$ 时没有发散。
+
+这个天真的预期往往是错误的，其原因有三种（见图~\ref{fig:10.1}）。当一个图含有发散子图时，它的实际发散可能比 $D$ 所指示的更严重。当对称性（如 Ward 恒等式）导致某些项相消时，一个图的发散可能会减小甚至被消除。最后，一个没有传播子也没有圈的无足轻重的图具有 $D = 0$ 但没有发散。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6\textwidth]{fig10.1.png}
+  \caption{一些说明表观发散度的简单 QED 图。第一个图是有限的，尽管 $D = 0$。第三个图有 $D = 2$，但由于 Ward 恒等式（见第~7.5 节）而只具有对数发散。第四个图是发散的，尽管 $D < 0$，因为它含有一个发散子图。只有在第二个和第五个图中，表观发散度才与实际发散度一致。}
+  \label{fig:10.1}
+\end{figure}
+
+尽管存在所有这些复杂性，$D$ 仍然是一个有用的量。要明白为什么，让我们用外线数（$N_e$、$N_\gamma$）和顶点数（$V$）来改写它。注意，一个图中的圈积分数是
+\begin{equation}
+  L = P_e + P_\gamma - V + 1,
+  \label{eq:10.2}
+\end{equation}
+因为在我们的原始费曼规则中，每个传播子有一个动量积分，每个顶点有一个 $\delta$ 函数，而一个 $\delta$ 函数仅用来实施总体动量守恒。此外，顶点数为
+\begin{equation}
+  V = 2P_\gamma + N_\gamma = \tfrac{1}{2}(2P_e + N_e),
+  \label{eq:10.3}
+\end{equation}
+因为每个顶点恰好涉及一条光子线和两条电子线。（传播子计两次，因为它们在顶点上有两个端点。）把这些关系合在一起，我们发现 $D$ 可以表示为
+\begin{equation}
+  D = 4L - P_e - 2P_\gamma = 4 - \frac{3}{2}N_e - N_\gamma ,
+  \label{eq:10.4}
+\end{equation}
+与顶点数无关。QED 图的表观发散度只依赖于每种类型的外腿数。
+
+根据结果 \eqref{eq:10.4}，只有外腿数很少的图才有 $D \ge 0$；这七种类型的图显示在图~\ref{fig:10.2} 中。由于外腿不进入潜在发散的积分，我们可以把注意力限制在缩并（amputated）图上。我们也可以把注意力限制在单粒子不可约（one-particle-irreducible）图上，因为可约图是其不可约部分所对应积分的简单乘积。因此，列举所有发散 QED 图的任务就归结为分析图~\ref{fig:10.2} 中所示的七种类型的缩并、单粒子不可约振幅。其他图可能发散，但只有当它们含有这七种图之一作为子图时才如此。因此让我们逐一考虑这七种振幅。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6\textwidth]{fig10.2.png}
+  \caption{表观发散度（$D$）$\ge 0$ 的七个 QED 振幅。（每个圆圈代表所有可能的 QED 图之和。）如正文所解释，振幅 (a) 与散射过程无关，而振幅 (b) 和 (d) 由于对称性而为零。振幅 (e) 非零，但它的发散部分由于 Ward 恒等式而相消。其余的振幅 (c、f 和 g) 都是对数发散的，尽管 (c) 和 (f) 有 $D > 0$。}
+  \label{fig:10.2}
+\end{figure}
+
+零点点函数，图~\ref{fig:10.2}(a)，发散得非常严重。但这个对象仅仅引起真空能的不可观测移动；它从不贡献给 $S$-矩阵元。
+
+为了分析光子单点点函数（图~\ref{fig:10.2}b），注意到外光子必须连接到一个 QED 顶点。忽略外光子传播子，这个振幅因此为
+\begin{equation}
+  \mathcal{M}^\mu(q) = -ie\int d^4x\ e^{-iq\cdot x}\
+    \langle\Omega|T j^\mu(x)|\Omega\rangle ,
+  \label{eq:10.5}
+\end{equation}
+其中 $j^\mu = \bar{\psi}\gamma^\mu\psi$ 是电磁流算符。但 $j^\mu$ 的真空期望值必由洛伦兹不变性而为零，否则它将是一个选定的 4-矢量。
+
+光子单点点函数还因第二个原因而为零：电荷共轭不变性。回忆 $C$ 是 QED 的一个对称性，所以 $C|\Omega\rangle = |\Omega\rangle$。但 $j^\mu(x)$ 在电荷共轭下改变符号，$Cj^\mu(x)C^{\dagger} = -j^\mu(x)$，所以它的真空期望值必为零：
+\begin{equation}
+  \langle\Omega|T j^\mu(x)|\Omega\rangle
+  = \langle\Omega|C^{\dagger}Cj^\mu(x)C^{\dagger}C|\Omega\rangle
+  = -\langle\Omega|T j^\mu(x)|\Omega\rangle = 0 .
+\end{equation}
+同样的论证适用于任意奇数个电磁流的真空期望值。特别地，光子三点函数，图~\ref{fig:10.2}(d)，为零。（这个结果被称为\emph{Furry 定理}。）不难显式验证光子单点和三点函数在微扰论的领先阶为零（见习题~10.1）。
+
+图~\ref{fig:10.2} 中其余的振幅都非零，所以我们必须更详细地分析它们的结构。例如，考虑电子自能（图~\ref{fig:10.2}f）。这个振幅是电子动量 $p$ 的函数，因此让我们把它在 $p = 0$ 处作 Taylor 级数展开：
+\begin{equation}
+  \Sigma(\slashed{p}) = A_0 + A_1\slashed{p} + A_2\slashed{p}^2 + \cdots ,
+\end{equation}
+其中每个系数都与 $p$ 无关：
+\begin{equation}
+  A_n = \frac{1}{n!}\ \frac{d^n}{d\slashed{p}^n}\ \Sigma(\slashed{p})
+    \Big|_{\slashed{p}=0} .
+\end{equation}
+（这些系数是红外发散的；为了显式计算它们，我们将需要一个红外正规化子，如第~6 章那样。）对电子自能有贡献的图通过传播子的分母依赖于 $p$。为了计算系数 $A_n$，我们对这些传播子求导，给出如下表达式：
+\begin{equation}
+  \frac{d}{dp_\mu}\ \frac{1}{\slashed{p}-m} = -\frac{1}{\slashed{p}-m}\,
+    \gamma^\mu\ \frac{1}{\slashed{p}-m} .
+\end{equation}
+也就是说，对外动量 $p$ 的每一个导数都把表观发散度降低 1。由于常数项 $A_0$（表观上）具有线性发散，$A_1$ 只能具有对数发散；所有其余的 $A_n$ 都是有限的。（当发散位于子图中时，这个论证会失效，因为那时并非所有传播子都涉及大动量 $k$。我们将在第~10.4 节面对这个问题。）
+
+电子自能振幅还有一个额外的微妙之处。如果常数项 $A_0$ 正比于 $\Lambda$（紫外截断），那么根据第~7.1 节的分析，电子质量移动也将含有一个正比于 $\Lambda$ 的项。但电子质量移动实际上必须正比于 $m$，因为若 $m_0$ 为零，手征对称性将禁止质量移动。至多，常数项可以正比于 $m\log\Lambda$。因此我们预期整个自能振幅具有如下形式
+\begin{equation}
+  -a_0\,m\log\Lambda + a_1\slashed{p}\log\Lambda + (\text{有限项}),
+  \label{eq:10.6}
+\end{equation}
+这正是我们在式~\eqref{eq:7.19} 中为 $\alpha$ 阶项所发现的。
+
+让我们用同样的方式分析精确的电子-光子顶点，图~\ref{fig:10.2}(g)。（同样，我们隐含地假定红外发散已被正规化。）按三个外动量幂次展开，我们立即看到只有常数项是发散的，因为对任何外动量求导都会把发散度降低到 $-1$。因此这个振幅只含有一个发散常数：
+\begin{equation}
+  \propto -ie\log\Lambda + \text{有限项} .
+  \label{eq:10.7}
+\end{equation}
+如第~7.5 节所讨论的，光子自能（图~\ref{fig:10.2}c）受 Ward 恒等式约束，具有如下形式
+\begin{equation}
+  \Pi^{\mu\nu}(q) = (g^{\mu\nu}q^2 - q^\mu q^\nu)\,\Pi(q^2) .
+  \label{eq:10.8}
+\end{equation}
+把这个表达式视为 $q$ 的 Taylor 级数，我们看到常数项和线性项都为零，把表观发散度从 2 降低到 0。因此，唯一的发散在 $\Pi(q^2)$ 的常数项中，而且这个发散只是对数的。这个结果正是我们在式~(7.90) 中对 $\Pi(q^2)$ 的最低阶贡献所发现的。
+
+最后，考虑光子-光子散射振幅，图~\ref{fig:10.2}(e)。Ward 恒等式要求，如果我们把任何一个外光子替换为它的动量矢量，振幅就为零：
+\begin{equation}
+  k_{\mu_1}\mathcal{M}^{\mu_1\mu_2\mu_3\mu_4}(k_1,k_2,k_3,k_4) = 0 .
+  \label{eq:10.9}
+\end{equation}
+通过穷举可以证明，只有当振幅正比于 $(g^{\mu_1\mu_3}k^{\mu_2} - g^{\mu_1\mu_2}k^{\mu_3})$ 时，这个条件才被满足，对其余三条腿各有一个类似的因子。这些因子中每一个都含有一个动量幂次，所以这个振幅 Taylor 级数中所有少于四个动量幂次的项都必为零。第一个非零项具有 $D = 0 - 4 = -4$，因此这个振幅是有限的。
+
+总之，我们发现在 QED 中只有三个``原始''发散振幅：就是我们已经在第~6 章和第~7 章中发现的三个。（其他振幅也可能发散，但那只是因为含有这些原始振幅作为组成部分的图。）此外，这些发散振幅对外动量的依赖极为简单。如果我们把每个振幅按外动量的幂级数展开，展开式中总共有只有四个发散系数。换句话说，QED 只含有四个发散的数。在下一节中，我们将看到这些数如何被吸收进不可观测的拉格朗日量参数中，从而使可观测的散射振幅总是有限的。
+
+在本节的剩余部分，让我们尝试从更一般的观点来理解表观发散度。四维时空中的 QED 理论相当特殊，因此让我们首先推广到 $d$ 维中的 QED。在这种情况下，$D$ 由下式给出
+\begin{equation}
+  D = dL - P_e - 2P_\gamma ,
+  \label{eq:10.10}
+\end{equation}
+因为每个圈贡献一个 $d$ 维动量积分。关系式 \eqref{eq:10.2} 和 \eqref{eq:10.3} 仍然成立，所以我们可以再次用 $V$、$N_e$ 和 $N_\gamma$ 改写 $D$：
+\begin{equation}
+  D = d - \frac{d-1}{2}N_e - \frac{d-2}{2}N_\gamma .
+\end{equation}
+对于 $d = 4$，这归结为 \eqref{eq:10.4}。对于 $d > 4$，发散变得更严重；对于 $d < 4$，它们更温和。
+
+现在让我们对 $d$ 维时空中具有 $\phi^n$ 相互作用的实标量场理论进行类似的分析。拉格朗日量为
+\begin{equation}
+  \mathcal{L} = \tfrac{1}{2}(\partial_\mu\phi)^2 - \tfrac{1}{2}m^2\phi^2
+    - \frac{\lambda}{n!}\phi^n .
+  \label{eq:10.12}
+\end{equation}
+具有 $N$ 条外线的图的表观发散度为
+\begin{equation}
+  D = dL - 2P ,
+  \label{eq:10.13}
+\end{equation}
+其中 $P$ 是标量传播子数。利用 $L = P - V + 1$ 和 $N = nV - 2P$，我们可以把 $D$ 改写为
+\begin{equation}
+  D = d + V\Bigl[ \frac{n(d-2)}{2} - d \Bigr] - \frac{d-2}{2}N .
+  \label{eq:10.13b}
+\end{equation}
+如果 $V$ 的系数为零，即如果
+\begin{equation}
+  n = \frac{2d}{d-2} ,
+\end{equation}
+则理论是可重整化的。对于 $d = 4$，这给出 $n = 4$：在四维中 $\phi^4$ 耦合是可重整化的，而 $\phi$ 的更高幂次是不可重整化的。在三维中 $\phi^6$ 耦合变为可重整化的，而 $\phi^4$ 是超可重整化的。在二维时空中，任何 $\phi^n$ 形式的耦合都是超可重整化的。
+
+表达式 \eqref{eq:10.13} 也可以用一种稍为不同的方式，通过量纲分析推导出来。在任何量子场论中，作用量 $S = \int d^dx\ \mathcal{L}$ 必须是无量纲的，因为我们工作在以 $\hbar = 1$ 的单位制中。在这种单位制中，积分 $d^dx$ 具有 $(\mathrm{mass})^{-d}$ 的单位，所以拉格朗日量具有 $(\mathrm{mass})^d$ 的单位。由于所有单位都可以表示为质量的幂次，简单地说拉格朗日量具有``维度 $d$''是明确的。利用这个结果，我们可以从 \eqref{eq:10.12} 的显式形式推断出场 $\phi$ 和耦合常数 $\lambda$ 的维度。从 $\mathcal{L}$ 中的动能项我们看到 $\phi$ 具有维度 $(d-2)/2$。注意参数 $m$ 一致地具有质量的维度。从相互作用项和 $\phi$ 的维度，我们推断出 $\lambda$ 具有维度
+\begin{equation}
+  [\lambda] = d - n\frac{d-2}{2} .
+\end{equation}
+现在考虑具有 $N$ 条外线的任意图。这样一个图可能出现的方式之一来自拉格朗日量中的相互作用项 $\eta\phi^N$。$\eta$ 的维度于是将为 $d - N(d-2)/2$，因此我们得出结论，任何具有 $N$ 条外线的（缩并）图具有维度 $d - N(d-2)/2$。在我们只有 $\lambda\phi^n$ 顶点的理论中，如果图有 $V$ 个顶点，它的发散部分正比于 $\lambda^V\Lambda^D$，其中 $\Lambda$ 是高动量截断，$D$ 是表观发散度。（这是``一般的''情形；上面指出的所有例外在这里也都适用。）运用量纲分析，我们得到
+\begin{equation}
+  [\lambda^V\Lambda^D] = V\Bigl[ d - \frac{n(d-2)}{2} \Bigr] + D
+  = d - \frac{N(d-2)}{2},
+\end{equation}
+与 \eqref{eq:10.13} 一致。
+
+注意，在这个表达式中乘在 $V$ 前面的量正好就是耦合常数 $\lambda$ 的维度。这一分析可以推广到 QED 和其他场论，结果相同。因此我们可以用第二种方式来刻画可重整化的三个层次：
+\begin{equation}
+  \begin{aligned}
+    \text{超可重整化：}\quad & \text{耦合常数具有正的质量维度。}\\
+    \text{可重整化：}\quad & \text{耦合常数是无量纲的。}\\
+    \text{不可重整化：}\quad & \text{耦合常数具有负的质量维度。}
+  \end{aligned}
+\end{equation}
+这正是我们在第~4.1 节中不加证明地陈述的结论。在 QED 中，耦合常数 $e$ 是无量纲的；因此 QED（至少表观上）是可重整化的。
+
+\section{重整化微扰论}
+
+在上一节中我们看到，一个可重整化的量子场论只含有少数几个表观发散的振幅。例如在 QED 中，有三个这样的振幅，含有四个无穷大常数。在第~6 章和第~7 章中，这些无穷大在我们计算的结尾消失了：顶点修正图中的无穷大被电子场强重整化抵消，而真空极化图中的无穷大只引起电子电荷的不可观测移动。事实上，普遍成立的是，可重整化量子场论中的发散从不出现在可观测量的结果中。
+
+为了对涉及发散图的振幅获得有限结果，到目前为止我们使用了如下步骤：用正规化子计算这些图，得到一个依赖于裸质量（$m_0$）、裸耦合常数（$e_0$）和某个紫外截断（$\Lambda$）的表达式。然后计算物理质量（$m$）和物理耦合常数（$e$），到与计算其余部分一致的所有阶；这些量也将依赖于 $m_0$、$e_0$ 和 $\Lambda$。为了计算 $S$-矩阵元（而不是关联函数），还必须计算场强重整化因子 $Z$（根据式~\eqref{eq:7.45}）。把所有这些表达式结合起来，消去 $m_0$ 和 $e_0$ 以改用 $m$ 和 $e$；这一步就是``重整化''。得到的振幅表达式在极限 $\Lambda\to\infty$ 下应当是有限的。
+
+上述步骤在可重整化量子场论中总是有效的。然而，它往往很笨拙，尤其是在微扰论的更高阶。在本节中，我们将发展一种能更自动地起作用的替代步骤。我们将首先对 $\phi^4$ 理论来做，在下一节回到 QED。
+
+$\phi^4$ 理论的拉格朗日量为
+\begin{equation}
+  \mathcal{L} = \tfrac{1}{2}(\partial_\mu\phi)^2 - \tfrac{1}{2}m_0^2\phi^2
+    - \frac{\lambda_0}{4!}\phi^4 .
+\end{equation}
+我们现在写 $m_0$ 和 $\lambda_0$，以强调这些是质量和耦合常数的裸值，而不是在实验中测量的值。
+
+根据 \eqref{eq:10.13}，具有 $N$ 条外腿的图的表观发散度为
+\begin{equation}
+  D = 4 - N .
+\end{equation}
+由于理论在 $\phi\to-\phi$ 下不变，所有具有奇数条外腿的振幅都为零。因此唯一发散的振幅是二点点函数，
+\begin{equation}
+  \sim \Lambda^2 + p^2\log\Lambda + (\text{有限项}) ;
+\end{equation}
+四点点函数，
+\begin{equation}
+  \sim \log\Lambda + (\text{有限项}) ;
+\end{equation}
+以及真空能，
+\begin{equation}
+  \text{(不可观测的真空能移动)} .
+\end{equation}
+忽略真空图，这些振幅含有三个无穷大常数。我们的目标是把这些常数吸收进理论的三个不可观测参数中：裸质量、裸耦合常数和场强。为了实现这一目标，方便的做法是重新表述微扰展开，使这些不可观测的量不出现在费曼规则中。
+
+首先我们将消除场强移动。回忆第~7.1 节，精确二点点函数具有如下形式
+\begin{equation}
+  \int d^4x\ \langle\Omega|T\phi(x)\phi(0)|\Omega\rangle\ e^{ip\cdot x}
+  = \frac{iZ}{p^2-m^2} + (\text{在 } p^2 = m^2 \text{ 处正则的项}),
+  \label{eq:10.14}
+\end{equation}
+其中 $m$ 是物理质量。我们可以通过重新标度场来消除这个方程中尴尬的留数 $Z$：
+\begin{equation}
+  \phi = Z^{1/2}\phi_r .
+  \label{eq:10.15}
+\end{equation}
+这个变换对每个场把关联函数的值改变一个因子 $Z^{-1/2}$。因此，在计算 $S$-矩阵元时，我们不再需要式~\eqref{eq:7.45} 中的 $Z$ 因子；散射振幅就是所有连通、缩并图之和，正如我们最初在式~\eqref{eq:4.103} 中所猜测的那样。
+
+重新标度之后拉格朗日量变得丑陋得多：
+\begin{equation}
+  \mathcal{L} = \tfrac{1}{2}Z(\partial_\mu\phi_r)^2
+    - \tfrac{1}{2}m_0^2Z\phi_r^2 - \frac{\lambda_0}{4!}Z^2\phi_r^4 .
+  \label{eq:10.16}
+\end{equation}
+裸质量和裸耦合常数仍然出现在 $\mathcal{L}$ 中，但它们可以按如下方式被消除。定义
+\begin{equation}
+  \delta_Z = Z - 1,\qquad
+  \delta_m = m_0^2Z - m^2,\qquad
+  \delta_\lambda = \lambda_0Z^2 - \lambda,
+  \label{eq:10.17}
+\end{equation}
+其中 $m$ 和 $\lambda$ 是物理上测量的质量和耦合常数。于是拉格朗日量变为
+\begin{equation}
+  \mathcal{L} = \tfrac{1}{2}(\partial_\mu\phi_r)^2
+    - \tfrac{1}{2}m^2\phi_r^2 - \frac{\lambda}{4!}\phi_r^4
+    + \tfrac{1}{2}\delta_Z(\partial_\mu\phi_r)^2
+      - \tfrac{1}{2}\delta_m\phi_r^2 - \frac{\delta_\lambda}{4!}\phi_r^4 .
+  \label{eq:10.18}
+\end{equation}
+第一行现在看起来像熟悉的 $\phi^4$ 理论拉格朗日量，但它是用物理质量和耦合写出的。第二行中的项称为\emph{抵消项}，它们吸收了裸参数与物理参数之间的无穷大但不可观测的移动。人们或许想说我们把``加上''了这些抵消项到拉格朗日量中，但实际上我们只是把 \eqref{eq:10.16} 中的每一项分裂成了两块。
+
+除非我们给出物理质量和耦合常数的精确定义，\eqref{eq:10.17} 中的定义才是没有用的。式 \eqref{eq:10.14} 把 $m^2$ 定义为传播子中极点的位置。对于 $\lambda$ 没有明显最好的定义，但一个完全好的定义可以这样得到：把 $\lambda$ 设为散射振幅在零动量处的大小。于是我们有两个定义关系，
+\begin{equation}
+  \frac{i}{p^2-m^2} + (\text{在 } p^2 = m^2 \text{ 处正则的项}) ;
+  \qquad -i\lambda = \text{(在 } s = 4m^2,\
+    t = u = 0 \text{ 处的缩并振幅)} .
+  \label{eq:10.19}
+\end{equation}
+这些方程称为\emph{重整化条件}。（第一个方程实际上包含两个条件，同时规定极点的位置和它的留数。）
+
+我们的新拉格朗日量，式~\eqref{eq:10.18}，给出了一组新的费曼规则，显示在图~\ref{fig:10.3} 中。传播子和第一个顶点来自 \eqref{eq:10.18} 的第一行，除了用物理质量和耦合取代裸值之外，与旧的规则完全相同。\eqref{eq:10.18} 第二行中的抵消项给出两个新的顶点（也称为抵消项）：
+\begin{equation}
+  \text{(传播子抵消项)} = i(p^2\delta_Z - \delta_m);
+  \qquad \text{(四点抵消项)} = -i\delta_\lambda .
+  \label{eq:10.20}
+\end{equation}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6\textwidth]{fig10.3.png}
+  \caption{重整化微扰论中 $\phi^4$ 理论的费曼规则。}
+  \label{fig:10.3}
+\end{figure}
+
+我们可以用这些新的费曼规则来计算 $\phi^4$ 理论中的任何振幅。步骤如下。把所求振幅计算为由图~\ref{fig:10.3} 中所示的传播子和顶点构成的所有可能图之和。图中的圈积分往往会发散，所以必须引入正规化子。这个计算的结果将是三个未知参数 $\delta_Z$、$\delta_m$ 和 $\delta_\lambda$ 的函数。按需要调整（或``重整化''）这三个参数，以保持重整化条件 \eqref{eq:10.19}。调整之后，振幅的表达式应当是有限的并且与正规化子无关。
+
+这个使用带抵消项的费曼规则的步骤称为\emph{重整化微扰论}。它应当与我们在第~I 部分中使用、在本节开头概述的步骤相对照，后者称为\emph{裸微扰论}（因为费曼规则涉及裸质量和裸耦合常数）。这两种方法完全等价。它们之间的差别纯粹是记账问题。用任一方法都会得到同样的答案，所以你可以选择你发现更方便的那种。一般来说，重整化微扰论在技术上更易使用，尤其是对多圈图；然而，对于复杂的一圈计算，裸微扰论有时更容易。在本书其余部分的大部分内容中，我们将使用重整化微扰论。
+
+\subsection{$\phi^4$ 理论的一圈结构}
+
+为了更深入地理解重整化步骤，让我们在一圈层次上显式地实施它。
+
+首先考虑基本的两粒子散射振幅，
+\begin{equation}
+  i\mathcal{M}(p_1p_2\to p_3p_4) = \text{(树图)} + \text{(一圈)}
+    + \cdots .
+\end{equation}
+如果我们定义 $p = p_1+p_2$，那么第二个图是
+\begin{equation}
+  = (-i\lambda)^2\cdot iV(p^2) ,
+  \label{eq:10.21}
+\end{equation}
+其中
+\begin{equation}
+  V(p^2) = \frac{1}{2}\int \frac{d^dk}{(2\pi)^d}\ \frac{1}{k^2-m^2+i\epsilon}\
+    \frac{1}{(k+p)^2-m^2+i\epsilon} .
+  \label{eq:10.22}
+\end{equation}
+注意 $p^2$ 等于 Mandelstam 变量 $s$。接下来的两个图是相同的，只是 $s$ 将被替换为 $t$ 和 $u$。因此整个振幅为
+\begin{equation}
+  i\mathcal{M} = -i\lambda + (-i\lambda)^2\bigl[ iV(s) + iV(t) + iV(u) \bigr]
+    - i\delta_\lambda .
+  \label{eq:10.23}
+\end{equation}
+根据我们的重整化条件 \eqref{eq:10.19}，当 $s = 4m^2$、$t = u = 0$ 时，这个振幅应当等于 $-i\lambda$。这固定了 $\delta_\lambda$：
+\begin{equation}
+  \delta_\lambda = (-\lambda)^2\bigl[ V(4m^2) + 2V(0) \bigr] .
+  \label{eq:10.24}
+\end{equation}
+把它代回 \eqref{eq:10.23}，我们得到有限的结果
+\begin{equation}
+  i\mathcal{M} = -i\lambda + (-i\lambda)^2\bigl[ iV(s) - iV(4m^2)
+    + iV(t) - iV(0) + iV(u) - iV(0) \bigr] ,
+\end{equation}
+其中差值 $V(s) - V(4m^2)$ 和 $V(t) - V(0)$ 是有限的，因为发散与外动量无关。
+
+接下来考虑一圈处的二点点函数。传播子的一圈修正为
+\begin{equation}
+  = (-i\lambda)\ \frac{1}{2}\int \frac{d^dk}{(2\pi)^d}\ \frac{1}{k^2-m^2}
+  = -i\lambda\,V_0 ,
+\end{equation}
+其中 $V_0$ 是两个外动量均为零时圈积分的值。这个图是二次发散的。连同抵消项，精确二点点函数为
+\begin{equation}
+  = \frac{i}{p^2-m^2} + \frac{i}{p^2-m^2}\ \bigl[
+    i(p^2\delta_Z - \delta_m) - i\lambda V_0 \bigr]\ \frac{i}{p^2-m^2}
+    + \cdots .
+  \label{eq:10.28}
+\end{equation}
+重整化条件 \eqref{eq:10.19} 要求极点保持在 $p^2 = m^2$ 处且留数为 $i$。这固定了抵消项
+\begin{equation}
+  \delta_m = -\lambda V_0,\qquad \delta_Z = 0 .
+  \label{eq:10.29}
+\end{equation}
+因此，在一圈处的 $\phi^4$ 理论中，场强重整化抵消项 $\delta_Z$ 为零。（这是 $\phi^4$ 理论的一个特殊性质；$\delta_Z$ 在一圈阶为零这一事实在更一般的标量场理论中并不成立。）
+
+第~4.7 节描述的 Yukawa 理论给出了需要这个抵消项的一圈修正的显式例子。在 Yukawa 理论中，标量场传播子从费米子圈图和两个传播子抵消项处接收 $g^2$ 阶的修正。用费曼规则计算圈图，我们得到
+\begin{equation}
+  \begin{aligned}
+    -iM^2(p^2) &= (-ig)^2\ \int \frac{d^dk}{(2\pi)^d}\ \mathrm{tr}\Bigl[
+      \frac{i(\slashed{k}+m_f)}{k^2-m_f^2}\ \frac{i(\slashed{k}+\slashed{p}
+        +m_f)}{(k+p)^2-m_f^2} \Bigr]\\
+    &\quad + i(p^2\delta_Z - \delta_m) ,
+  \end{aligned}
+  \label{eq:10.32}
+\end{equation}
+其中 $m_f$ 是与 Yukawa 场耦合的费米子的质量。为了求值这个积分，如式~\eqref{eq:10.23} 那样合并分母并移位。于是最后一行中的第一项变为
+\begin{equation}
+  \begin{aligned}
+    &= 4g^2\int_0^1 dx\ \int \frac{d^d\ell}{(2\pi)^d}\
+      \frac{\ell^2 - x(1-x)p^2 + m_f^2}{(\ell^2 + x(1-x)p^2 - m_f^2)^2}\\
+    &= -4g^2\int_0^1 dx\ \frac{i}{(4\pi)^{d/2}}\ \frac{\Gamma(1-d/2)}
+      {\Delta^{1-d/2}} + 4g^2\int_0^1 dx\ \frac{i(d-1)}{(4\pi)^{d/2}}\
+      \frac{\Gamma(2-d/2)}{\Delta^{2-d/2}} ,
+  \end{aligned}
+  \label{eq:10.33}
+\end{equation}
+其中 $\Delta = m_f^2 - x(1-x)p^2$。
+
+现在我们可以看到，为了满足重整化条件 \eqref{eq:10.28}，两个抵消项 $\delta_m$ 和 $\delta_Z$ 都必须取非零值。为了确定 $\delta_m$，我们像以前那样减去圈图在 $p^2 = m^2$ 处的值，使得
+\begin{equation}
+  \delta_m = -4g^2\int_0^1 dx\ \frac{i}{(4\pi)^{d/2}}\ \frac{\Gamma(2-d/2)}
+    {\bigl[ m_f^2 - x(1-x)m^2 \bigr]^{2-d/2}} .
+  \label{eq:10.34}
+\end{equation}
+为了确定 $\delta_Z$，我们还消去圈积分 \eqref{eq:10.33} 对 $p^2$ 的一阶导数。这给出
+\begin{equation}
+  \delta_Z = -\frac{4g^2(d-1)}{(4\pi)^{d/2}}\ \int_0^1 dx\ x(1-x)\
+    \frac{\Gamma(2-d/2)}{\bigl[ m_f^2 - x(1-x)m^2 \bigr]^{2-d/2}} .
+  \label{eq:10.35}
+\end{equation}
+因此，在 Yukawa 理论中，一圈阶的传播子修正需要一个二次发散的质量重整化和一个对数发散的场强重整化。这是标量场理论中的通常情形。
+
+\section{量子电动力学的重整化}
+
+我们在上一节中遵循的步骤，产生了一个用物理可测量参数表述的``重整化''微扰论，可以总结如下：
+\begin{enumerate}
+  \item 通过重新标度场，把场强重整化吸收进拉格朗日量。
+  \item 把拉格朗日量的每一项分裂成两块，把无穷大且不可观测的移动吸收进抵消项。
+  \item 规定重整化条件，这些条件定义物理质量和耦合常数，并保持场强重整化等于 1。
+  \item 用新的费曼规则计算振幅，按需要调整抵消项以保持重整化条件。
+\end{enumerate}
+现在让我们用这个步骤来为量子电动力学构造一个重整化微扰论。
+
+原始的 QED 拉格朗日量为
+\begin{equation}
+  \mathcal{L} = -\frac{1}{4}(F_{\mu\nu})^2
+    + \bar{\psi}(i\slashed{\partial} - m_0)\psi - e_0\bar{\psi}\gamma^\mu\psi
+      A_\mu .
+\end{equation}
+用这个拉格朗日量计算电子和光子传播子，我们会发现如下一般形式的表达式
+\begin{equation}
+  \frac{iZ_2}{\slashed{p}-m},\qquad \frac{-ig_{\mu\nu}Z_3}{q^2} .
+\end{equation}
+（我们在第~7 章的显式一圈计算中恰好发现了这样的表达式。）为了把 $Z_2$ 和 $Z_3$ 吸收进 $\mathcal{L}$，从而把它们从 $S$-矩阵的公式 \eqref{eq:7.45} 中消除，我们代换 $\psi = Z_2^{1/2}\psi_r$ 和 $A^\mu = Z_3^{1/2}A_r^\mu$。于是拉格朗日量变为
+\begin{equation}
+  \mathcal{L} = -\frac{1}{4}Z_3(F_{\mu\nu}^r)^2 + Z_2\bar{\psi}_r
+    (i\slashed{\partial} - m_0)\psi_r - e_0Z_2Z_3^{1/2}\bar{\psi}_r\gamma^\mu
+      \psi_r A_r^\mu .
+  \label{eq:10.36}
+\end{equation}
+我们可以通过定义一个标度因子 $Z_1$ 来引入物理电荷 $e$（在长距离即 $q = 0$ 处测量）：%
+\footnote{由于我们通过重整化条件 $\Gamma^\mu(q=0) = \gamma^\mu$ 来定义 $e$，拉格朗日量中的 $Z_1$ 因子必须抵消由圈修正产生的相乘修正因子。因此，$Z_1$ 的这个定义等价于式~(7.47) 中给出的定义。}
+\begin{equation}
+  e_0Z_2Z_3^{1/2} = eZ_1 .
+  \label{eq:10.37}
+\end{equation}
+如果我们让 $m$ 为物理质量（电子传播子中极点的位置），那么我们可以把拉格朗日量的每一项分裂成两块，如下所示：
+\begin{equation}
+  \begin{aligned}
+    \mathcal{L} &= -\frac{1}{4}(F_{\mu\nu}^r)^2 + \bar{\psi}_r(i\slashed{\partial}
+      - m)\psi_r - e\bar{\psi}_r\gamma^\mu\psi_r A_r^\mu\\
+    &\quad - \frac{1}{4}\delta_3(F_{\mu\nu}^r)^2 + \bar{\psi}_r(i\delta_2\slashed{\partial}
+      - \delta_m)\psi_r - e\delta_1\bar{\psi}_r\gamma^\mu\psi_r A_r^\mu ,
+  \end{aligned}
+  \label{eq:10.38}
+\end{equation}
+其中
+\begin{equation}
+  \delta_3 = Z_3 - 1,\qquad
+  \delta_m = Z_2m_0 - m,\qquad
+  \delta_2 = Z_2 - 1,\qquad
+  \delta_1 = Z_1 - 1 = (e_0/e)Z_2Z_3^{1/2} - 1 .
+\end{equation}
+重整化 QED 的费曼规则显示在图~\ref{fig:10.4} 中。除了熟悉的传播子和顶点之外，还有三个抵消项顶点。$\bar{e}e$ 和 $\bar{e}e\gamma$ 抵消项顶点可以直接从拉格朗日量 \eqref{eq:10.38} 读出。为了推导双光子抵消项，对 $-\tfrac{1}{4}\delta_3(F_{\mu\nu})^2$ 分部积分，得到 $\tfrac{1}{2}A^\mu\delta_3(g_{\mu\nu}\partial^2 - \partial_\mu\partial_\nu)A^\nu$；这给出图中所示的表达式。在本书的剩余部分，当我们建立重整化微扰论时，我们将省略这里用来区分重新标度场的下标 $r$。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.6\textwidth]{fig10.4.png}
+  \caption{重整化微扰论中量子电动力学的费曼规则。}
+  \label{fig:10.4}
+\end{figure}
+
+四个抵消项系数中的每一个都必须由一个重整化条件来固定。我们要求的四个条件已经隐含地陈述过：其中两个把电子和光子场强重整化固定为 1，另外两个定义物理电子质量和电荷。为了更明确地写出这些条件，回忆我们在第~6 章和第~7 章中的记号：
+\begin{equation}
+  \begin{aligned}
+    \frac{}{} &= i\Pi^{\mu\nu}(q) = i(g^{\mu\nu}q^2 - q^\mu q^\nu)\Pi(q^2),
+      \qquad \Sigma(\slashed{p}) = i(\slashed{p}\delta_2 - \delta_m)
+      + \cdots ,\\
+    -ie\Gamma^\mu(p',p) &= \text{(缩并顶点)},
+  \end{aligned}
+  \label{eq:10.39}
+\end{equation}
+这些振幅现在要在重整化微扰论中计算；也就是说，我们现在重新定义 $\Pi(q^2)$、$\Sigma(\slashed{p})$ 和 $\Gamma^\mu(p',p)$ 以包含抵消项顶点。此外，$\Gamma$ 的新定义涉及物理电子电荷。利用这些记号，四个条件是
+\begin{equation}
+  \Sigma(\slashed{p}=m) = 0;\qquad
+  \Pi(q^2=0) = 0;\qquad
+  \frac{d\Sigma}{d\slashed{p}}\Big|_{\slashed{p}=m} = 0;\qquad
+  -ie\Gamma^\mu(p'-p = 0) = -ie\gamma^\mu .
+  \label{eq:10.40}
+\end{equation}
+第一个条件把电子质量固定在 $m$，而接下来的两个条件把电子和光子传播子的留数固定为 1。在这些条件下，最后一个条件把电子电荷固定为 $e$。
+
+\subsection{QED 的一圈结构}
+
+四个条件 \eqref{eq:10.40} 允许我们用圈图的值来确定 \eqref{eq:10.38} 中的四个抵消项。在第~6 章和第~7 章中，我们计算了在一圈阶实施这一确定所需的全部图。我们现在来收集这些结果，找出 QED 重整化常数到 $\alpha$ 阶的显式表达式。为了整体一致性，我们将始终使用保持 Ward 恒等式的维数正规化。结果是：
+\begin{equation}
+  \delta_2 = \frac{-\alpha}{2\pi}\int_0^1 dx\ (1-x)\ \Bigl[
+    \frac{2}{\epsilon} - \gamma_E + \log 4\pi - \log(m^2-x(1-x)m^2) \Bigr]
+    + \cdots ,
+  \label{eq:10.41}
+\end{equation}
+\begin{equation}
+  \delta_m = m\ \frac{-\alpha}{2\pi}\int_0^1 dx\ 2\ \Bigl[
+    \frac{2}{\epsilon} - \gamma_E + \log 4\pi - \log(m^2-x(1-x)m^2) \Bigr]
+    + \cdots ,
+  \label{eq:10.42}
+\end{equation}
+\begin{equation}
+  \delta_1 = \delta_2 \qquad \text{(由 Ward 恒等式)},
+  \label{eq:10.43}
+\end{equation}
+\begin{equation}
+  \delta_3 = \frac{-\alpha}{3\pi}\ \Bigl[ \frac{2}{\epsilon} - \gamma_E
+    + \log 4\pi - \log m^2 \Bigr] + \cdots .
+  \label{eq:10.44}
+\end{equation}
+由 Ward 恒等式推出的等式 $\delta_1 = \delta_2$，陈述的是电子电荷重整化完全由场强重整化决定。正是这一关系保证了理论只含有三个独立的重整化常数。
+
+\section{领先阶之外的重整化}
+
+在第~10.1 节中，我们计算了 QED 和 $\phi^4$ 理论的紫外发散，只发现了少数几个表观发散的振幅。那一节的分析依赖于对发散的单圈理解。我们现在必须面对在走向微扰论更高阶时出现的问题：图可以含有发散子图，而基于整个图表观发散度的天真计数可能失效。
+
+让我们考虑 $\phi^4$ 理论中四点点函数的双圈贡献。双圈图可以分类为含有发散子图的那些（例如一圈自能或顶点修正）和那些不含有发散子图的。对于含有发散子图的图，天真计数给出发散，但子发散被局限在可以收缩为一个点的子图中。重整化微扰论的哲学是，这些子发散应当由与发散子图相关联的抵消项来消除。
+
+当我们有\emph{嵌套}或\emph{重叠}发散时，即当两个发散圈共享一个传播子时，会出现更困难的情形。具有重叠发散的图的一些例子是
+\begin{equation}
+  \text{(在 } \phi^4 \text{ 理论中)}:\quad \text{(日落图)};\qquad
+  \text{(在 QED 中)}:\quad \text{(双圈真空极化)} .
+\end{equation}
+为了看清困难，考虑光子自能图。这个图的一个贡献来自 $k_2$ 非常大的动量空间区域。这意味着在位置空间中，$x$、$y$ 和 $z$ 彼此非常接近，而 $w$ 可以更远。在这个区域中，我们可以把虚光子看作是在 $x$ 处对顶点给出一个修正。我们在第~6.3 节中看到，这个顶点修正是对数发散的，形式为
+\begin{equation}
+  \sim a\log\Lambda ,
+\end{equation}
+在极限 $\Lambda\to\infty$ 下。把这个顶点插入图的其余部分并对 $k_1$ 积分，我们得到一个与一圈光子自能修正 $\Pi_2(q^2)$（显示在式~(7.90) 中）全同的表达式，乘以额外的对数发散：
+\begin{equation}
+  \sim \alpha(g^{\mu\nu}q^2 - q^\mu q^\nu)\bigl( \log\Lambda^2
+    + \log q^2 \bigr)\cdot\alpha\log\Lambda^2 .
+  \label{eq:10.50}
+\end{equation}
+$\log^2\Lambda^2$ 项来自 $k_1$ 和 $k_2$ 都大的区域，而 $\log q^2\log\Lambda^2$ 项来自 $k_2$ 大但 $k_1$ 小的区域。另一个这样的项将来自 $k_1$ 大但 $k_2$ 小的区域。
+
+在双圈真空极化图中出现正比于 $\Pi_2(q^2)\cdot\log\Lambda^2$ 的项，与我们的天真论证相矛盾；基于表观发散度判据，费曼积分的发散项总是 $q^2$ 的简单多项式。我们将只乘 $q^2$ 多项式的发散称为\emph{局域发散}，因为它们的 Fourier 变换回到位置空间是 $\delta$ 函数或 $\delta$ 函数的导数。我们将把新的、非多项式的项称为\emph{非局域发散}。幸运的是，我们对非局域发散项的推导给了这个项一个物理解释：它是一个被普通的、不发散的量子场论过程包围的局域发散。
+
+如果这个图景准确地描述了双圈图的所有发散项，我们应当预期这些发散被两类抵消项图抵消。首先，我们可以通过把 $\alpha$ 阶抵消项顶点插入一圈真空极化图来构造 $\alpha^2$ 阶的图。这些图应当抵消 \eqref{eq:10.50} 中的非局域发散以及来自 $k_1$ 大而 $k_2$ 小区域的相应贡献。事实上，详细分析表明，原始图与这两个抵消项图之和只含有局域发散。一旦加上这些图，剩下的唯一发散就是局域性的，它可以被给 $\delta_3$ 增加一个 $\alpha^2$ 阶项的图抵消。
+
+我们可以把这个例子的教训推广到高圈费曼图的发散及其抵消的一般图景。一个给定的图可能含有局域发散，正如第~10.1 节的分析所预言的那样。它也可能含有由嵌入在携带小动量圈中的发散子图引起的非局域发散。这些发散被那些把发散子图替换为其抵消项顶点的图抵消。人们可能还要问两个问题：第一，这个步骤是否消除了所有非局域发散？第二，这个步骤是否保持了那些按第~10.1 节表观判据预期不发散的振幅（如式~(10.49)）的有限性？回答这些问题需要对嵌套费曼积分作细致研究。一般的分析由 Bogoliubov 和 Parasiuk 开始，由 Hepp 完成，并由 Zimmermann 作了优雅的改进；%
+\footnote{N.~N.~Bogoliubov and O.~S.~Parasiuk, \emph{Acta Math.} \textbf{97},
+227 (1957); K.~Hepp, \emph{Comm.\ Math.\ Phys.} \textbf{2}, 301 (1966);
+W.~Zimmermann, in Deser, et.\ al.\ (1970).} 他们证明两个问题的答案都是肯定的。他们的结果称为\emph{BPHZ 定理}，它陈述：对一般的可重整化量子场论，在微扰论的任何阶，所有发散都被对应于表观发散振幅的抵消项顶点消除。换句话说，任何表观上可重整化的量子场论，当人们用完整的抵消项集进行重整化微扰论时，事实上都被化为有限的。
+
+BPHZ 定理的证明相当技术性，我们不会把它包含在本书中。相反，我们将研究一个双圈计算的详细例子，它显式地展示了非局域发散的出现和抵消。
+
+\section{双圈例子}
+
+为了说明上一节讨论的问题，让我们考虑 $\phi^4$ 理论中四点点函数的双圈贡献。有 16 个相关的图，显示在图~\ref{fig:10.5} 中。（还有几个涉及传播子一圈修正的图。但其中每一个都恰好被它的抵消项抵消，如我们在式~\eqref{eq:10.29} 中所见，所以我们可以忽略它们。）幸运的是，许多图彼此简单地相关。交叉对称性把不同图的数量减少到只有六个：
+\begin{equation}
+  \text{(六个不同的双圈图)} .
+  \label{eq:10.51}
+\end{equation}
+如果这些图之和是有限的，那么简单地用 $t$ 或 $u$ 替换 $s$ 就给其余图以有限的结果。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.65\textwidth]{fig10.5.png}
+  \caption{$\phi^4$ 理论中四点点函数的双圈贡献。注意前三行中的图分别位于 $s$、$t$ 和 $u$ 道，通过交叉对称性彼此相关。这些行中的最后两个图涉及 $\mathcal{O}(\lambda^2)$ 顶点抵消项，而最后一个图是 $\mathcal{O}(\lambda^3)$ 对顶点抵消项的贡献。}
+  \label{fig:10.5}
+\end{figure}
+
+\eqref{eq:10.51} 中最后一个图的值只是一个常数，我们可以自由地调整它来吸收任何与外动量无关的发散项。因此，我们的目标是证明所有依赖于动量的发散项都在其余五个图中相消。
+
+\eqref{eq:10.51} 中的第四个和第五个图涉及一圈顶点抵消项，我们在式~\eqref{eq:10.24} 中计算了它。让我们简要回忆一下那个计算。我们定义 $iV(p^2)$ 为基本圈积分，
+\begin{equation}
+  iV(p^2) = \frac{1}{2}\int \frac{d^dk}{(2\pi)^d}\ \frac{1}{k^2-m^2+i\epsilon}\
+    \frac{1}{(k+p)^2-m^2+i\epsilon} .
+  \label{eq:10.52}
+\end{equation}
+根据重整化条件 \eqref{eq:10.19}，抵消项必须在阈（$s = 4m^2$，$t = u = 0$）处抵消三个一圈图（每个道一个）；于是我们得到
+\begin{equation}
+  -i\delta_\lambda = (-i\lambda)^2\bigl[ -iV(4m^2) - 2iV(0) \bigr] .
+\end{equation}
+为了我们目前的目的，方便的做法是把这一表达式的两项分开。因此让我们定义
+\begin{equation}
+  V_s = (-i\lambda)^2\cdot(-iV(4m^2));\qquad
+  V_u = (-i\lambda)^2\cdot(-2iV(0)) .
+\end{equation}
+我们现在可以把 \eqref{eq:10.51} 中前五个图分成三组：
+\begin{equation}
+  \text{第 I 组}:\quad \text{(两个 } s\text{ 道气泡)};\qquad
+  \text{第 II 组}:\quad \text{(一个气泡 + 一个抵消项)};\qquad
+  \text{第 III 组}:\quad \text{(第 II 组的交叉版本)} .
+\end{equation}
+我们将发现，所有依赖于动量的发散项都在每组内部分别相消。由于第 II 组和第 III 组由初态和末态动量的简单互换相关，只需对第 I 组和第 II 组证明这种相消就足够了。
+
+第 I 组其实相当容易，因为每个图都分解为我们已经计算过的对象的乘积。参照式~\eqref{eq:10.52}，我们有
+\begin{equation}
+  \text{(气泡)}^2 = (-i\lambda)^3\bigl[ iV(p^2) \bigr]^2;
+  \qquad \text{(气泡 $\times$ 抵消项)} = (-i\lambda)^3\
+    \bigl[ -2iV(p^2)\,iV(4m^2) \bigr] .
+\end{equation}
+因此所有三个图之和为
+\begin{equation}
+  (-i\lambda)^3\Bigl( \bigl[ iV(p^2) \bigr]^2 - 2iV(p^2)\,iV(4m^2)
+    \Bigr)
+  = (-i\lambda)^3\Bigl( -\bigl[ V(p^2) - V(4m^2) \bigr]^2
+    + \bigl[ V(4m^2) \bigr]^2 \Bigr) .
+  \label{eq:10.53}
+\end{equation}
+但差值 $V(p^2) - V(4m^2)$ 是有限的，正如一圈计算中发散相消所要求的那样：
+\begin{equation}
+  V(p^2) - V(4m^2) = \frac{1}{2}\int_0^1 dx\ \log\Bigl(
+    \frac{m^2 - x(1-x)p^2}{m^2 - x(1-x)4m^2} \Bigr) .
+\end{equation}
+唯一剩下的发散在项 $[V(4m^2)]^2$ 中，它与动量无关，因此可以被吸收进 \eqref{eq:10.51} 中的二阶抵消项。
+
+结果 \eqref{eq:10.53} 有两个一般性质值得一提。第一，发散部分（因而 $\mathcal{O}(\lambda^3)$ 顶点抵消项）正比于
+\begin{equation}
+  \bigl[ V(4m^2) \bigr]^2 \propto \bigl[ \Gamma(2-d/2) \bigr]^2
+  \qquad \text{对于 } d = 4-\epsilon .
+\end{equation}
+这是一个\emph{二重极点}，与我们在单圈抵消项中发现的单极点形成对照。更高圈的图将类似地具有更高阶的极点，但在所有情形中发散项都是与动量无关的常数。第二，考虑大动量极限，
+\begin{equation}
+  V(p^2) - V(4m^2) \xrightarrow{p^2\to\infty}
+    \frac{1}{2}\log^2\Bigl( \frac{p^2}{m^2} \Bigr) .
+\end{equation}
+双圈顶点正比于 $\log^2(p^2/m^2)$。具有这种结构的 $n$ 圈图将具有如下形式
+\begin{equation}
+  \lambda^{n+1}\ \frac{1}{n!}\ \Bigl[ \log\Bigl( \frac{p^2}{m^2} \Bigr)
+    \Bigr]^n .
+\end{equation}
+这个渐近行为实际上是多圈图的一个一般性质，我们将在第~12 章中更详细地探讨。
+
+现在考虑更困难的图，来自第 II 组：
+\begin{equation}
+  \text{(插入顶点修正的气泡)} .
+  \label{eq:10.54}
+\end{equation}
+在求值这个图时，我们将以最直接提取发散项的方式合并分母，代价是使有限部分的求值变得复杂。这个图计算的另一种方法在习题~10.4 中讨论。
+
+为了开始求值 \eqref{eq:10.54}，合并显式显示的那对分母，并代入 $V(p^2)$ 的表达式 \eqref{eq:10.52}。这给出表达式
+\begin{equation}
+  \frac{(-i\lambda)^3}{2(4\pi)^{d/2}}\ \Gamma(2-d/2)\ \int_0^1 dx\ \int
+    \frac{d^dk}{(2\pi)^d}\ \frac{1}{k^2-m^2}\ \frac{1}{(k+p)^2-m^2}\
+    \frac{1}{\bigl[ m^2 - x(1-x)(k+p)^2 \bigr]^{2-d/2}} .
+  \label{eq:10.55}
+\end{equation}
+有可能用如下恒等式合并这对分母
+\begin{equation}
+  \frac{1}{A^\alpha B^\beta} = \frac{\Gamma(\alpha+\beta)}
+    {\Gamma(\alpha)\Gamma(\beta)}\ \int_0^1 dw\ \frac{w^{\alpha-1}(1-w)^{\beta-1}}
+      {\bigl[ wA + (1-w)B \bigr]^{\alpha+\beta}} .
+  \label{eq:10.56}
+\end{equation}
+这是第~6.3 节、式~\eqref{eq:6.42} 中引用的公式的一个特例。为了证明它，在积分中改变变量：$w = x/(x+y)$，并利用 beta 函数的定义。
+
+完成代数运算后，人们发现第 II 组图的发散部分含有二重极点和非局域对数，它们与交叉图的对应项精确相消。其余项要么是有限的，要么是发散但与动量无关。这完成了对四点点函数双圈贡献是有限的证明。
+
+第 I 组图的这两个特征在这里也出现在第 II 组中。双圈图的发散部分含有不相消的二重极点，所以我们再次发现二阶顶点抵消项必须含有一个二重极点。有限部分含有双对数，所以我们再次发现双圈振幅在 $p\to\infty$ 时表现为 $\lambda^3\log^2 p^2$。
+
+\problems
+
+\textbf{10.1} \emph{QED 的一圈结构。}在第~10.1 节中，我们从一般原理论证了光子单点和三点函数为零，而四点函数是有限的。
+\begin{enumerate}[label=(\alph*)]
+  \item 直接验证对单点点函数有贡献的一圈图为零。有两个费曼图对一圈阶的三点点函数有贡献。证明它们相消。证明对任何 $n$ 为奇数的 $n$ 点光子振幅有贡献的图成对相消。
+  \item 光子四点振幅是六个图之和。显式证明这些图的潜在对数发散相消。
+\end{enumerate}
+
+\textbf{10.2} \emph{Yukawa 理论的重整化。}考虑赝标量 Yukawa 拉格朗日量，
+\begin{equation}
+  \mathcal{L} = \tfrac{1}{2}(\partial_\mu\phi)^2 - \tfrac{1}{2}m^2\phi^2
+    + \bar{\psi}(i\slashed{\partial} - M)\psi - ig\bar{\psi}\gamma^5\psi\phi ,
+\end{equation}
+其中 $\phi$ 是实标量场，$\psi$ 是 Dirac 费米子。注意这个拉格朗日量在宇称变换
+\begin{equation}
+  \psi(t,\mathbf{x}) \to \gamma^0\psi(t,-\mathbf{x}),\qquad
+  \phi(t,\mathbf{x}) \to -\phi(t,-\mathbf{x}),
+\end{equation}
+下不变，其中场 $\phi$ 携带奇宇称。
+\begin{enumerate}[label=(\alph*)]
+  \item 确定表观发散的振幅，并为这个拉格朗日量写出重整化微扰论的费曼规则。包含所有必需的抵消项顶点。证明该理论含有一个表观发散的 $4\phi$ 振幅。这意味着除非人们包含一个标量自相互作用，
+    \begin{equation}
+      -\frac{\lambda}{4!}\phi^4 ,
+    \end{equation}
+    以及一个同形式的抵消项，否则该理论无法重整化。当然可以把该耦合的重整化值设为零，但这不是一个自然的选择，因为抵消项仍将非零。是否还需要任何进一步的相互作用？
+  \item 实施一组充分的重整化条件，计算每个抵消项的发散部分（$d\to 4$ 时的极点）到微扰论的一圈阶。你不必担心抵消项的有限部分。由于发散部分必定对外动量有固定的依赖关系，你可以通过以最简单的方式选择动量来简化这个计算。
+\end{enumerate}
+
+\textbf{10.3} \emph{$\phi^4$ 理论中的场强重整化。}$\phi^4$ 理论中传播子的双圈贡献涉及式~(10.31) 中所示的三个图。在标量场质量为零的极限下，用维数正规化计算这些图中的第一个。证明在 $d = 4$ 附近，这个图具有如下形式：
+\begin{equation}
+  \sim \frac{\lambda^2}{16\pi^4}\ \frac{1}{4\epsilon}\ p^2 ,
+\end{equation}
+其中 $\epsilon = 4-d$。这个方程中的系数涉及一个可以通过令 $d = 4$ 来求值的 Feynman 参数积分。验证式~(10.31) 中的第二个图在 $d = 4$ 附近为零。因此第一个图应当只在 $\epsilon = 0$ 处含有一个极点，它可以被一个场强重整化抵消项抵消。
+
+\textbf{10.4} \emph{$\phi^4$ 理论中图的渐近行为。}计算 $\phi^4$ 理论中玻色子-玻色子散射的 $S$-矩阵元在极限 $s\to\infty$、$t$ 固定下的领先项。忽略内线上的所有质量，只在需要的地方保持外质量非零作为红外正规化子。证明
+\begin{equation}
+  i\mathcal{M} \sim -i\lambda - \frac{i\lambda^2}{32\pi^2}\ \log\Bigl(
+    \frac{-s}{m^2} \Bigr) + \cdots .
+\end{equation}
+注意，忽略内质量允许对 Feynman 参数积分作一些令人愉快的简化。

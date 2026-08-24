@@ -1,0 +1,758 @@
+% ======================================================================
+% 第 2 章：克莱因-戈登场
+% （原书页码 13-34；PDF 页码 36-57）
+% ======================================================================
+\chapter{克莱因-戈登场}
+
+\section{场观点的必要性}
+
+量子场论是把量子力学应用于场的动力学系统，正如量子力学基础课程主要关心粒子动力学系统的量子化一样。它是理解当前基本粒子物理状况所绝对必需的学科。稍加修改后，我们将要讨论的方法在原子物理、核物理和凝聚态物理最活跃的领域中也起着关键作用。然而，在本书的第一部分，我们的主要关注对象是基本粒子，因而也是相对论性场。
+
+既然我们希望理解发生在很小（量子力学）尺度和很大（相对论性）能量下的过程，人们仍会问：为什么我们必须研究场的量子化？为什么我们不能像量子化非相对论粒子那样直接量子化相对论粒子？这个问题可以在多个层面上回答。也许最好的方法是写下一个单粒子相对论波动方程（如克莱因-戈登方程或 Dirac 方程），然后看它如何导致负能量态以及其他不自洽之处。由于这种讨论通常出现在研究生量子力学课程的末尾，我们在此不再重复。然而，很容易理解为什么这种途径行不通。我们没有权利假设任何相对论性过程都可以用单个粒子来解释，因为 Einstein 关系式 $E=mc^2$ 允许产生粒子-反粒子对。即使能量不足以产生粒子对，多粒子态也会出现，例如作为二阶微扰论中的中间态。按照不确定关系 $\Delta E\cdot\Delta t = \hbar$，我们可以认为这样的态只存在极短的时间。当我们在微扰论中走向更高阶时，任意多的这类``虚''粒子都可以被产生。
+
+多粒子理论的必要性还以一种不那么明显的方式产生，即从因果性的考虑出发。考虑一个自由粒子从 $\mathbf{x}_0$ 传播到 $\mathbf{x}$ 的振幅：
+\begin{equation}
+  U(t) = \langle \mathbf{x}|\ e^{-iHt}\ |\mathbf{x}_0\rangle .
+\end{equation}
+在非相对论量子力学中我们有 $E = \mathbf{p}^2/2m$，因此
+\begin{equation}
+  U(t) = \langle \mathbf{x}|\ e^{-i(\mathbf{p}^2/2m)t}\ |\mathbf{x}_0\rangle
+  = \int \frac{d^3p}{(2\pi)^3}\ \langle \mathbf{x}|
+    e^{-i(\mathbf{p}^2/2m)t}|\mathbf{p}\rangle\langle \mathbf{p}|\mathbf{x}_0\rangle
+  = \frac{1}{(2\pi)^3} \int d^3p\ e^{-i(\mathbf{p}^2/2m)t}
+    e^{i\mathbf{p}\cdot(\mathbf{x}-\mathbf{x}_0)}
+  = \Bigl( \frac{m}{2\pi it} \Bigr)^{3/2}
+    e^{im(\mathbf{x}-\mathbf{x}_0)^2/2t}.
+\end{equation}
+这个表达式对所有 $x$ 和 $t$ 都非零，表明粒子可以在任意短的时间内传播到任意两点之间。在相对论性理论中，这一结论将意味着违反因果性。人们或许希望采用相对论性表达式 $E=\sqrt{\mathbf{p}^2+m^2}$ 会有所帮助，但事实并非如此。与非相对论情形类比，我们有
+\begin{align}
+  U(t) &= \langle \mathbf{x}|\ e^{-i\sqrt{\mathbf{p}^2+m^2}\,t}
+    |\mathbf{x}_0\rangle
+  = \frac{1}{(2\pi)^3} \int d^3p\
+    e^{-i\sqrt{\mathbf{p}^2+m^2}\,t}\ e^{i\mathbf{p}\cdot(\mathbf{x}-\mathbf{x}_0)}\\
+  &= \frac{1}{2\pi^2|\mathbf{x}-\mathbf{x}_0|}
+    \int_0^\infty dp\ p\sin\bigl(p|\mathbf{x}-\mathbf{x}_0|\bigr)\
+    e^{-i\sqrt{p^2+m^2}\,t}.
+\end{align}
+这个积分可以用 Bessel 函数显式地求值。%
+\footnote{参见 Gradshteyn 和 Ryzhik（1980），\#3.914。} 我们只需用稳相法考察它在 $x^2 > t^2$（远在光锥之外）情形下的渐近行为。相位函数 $px - t\sqrt{p^2+m^2}$ 在 $p = imx/\sqrt{x^2-t^2}$ 处有一个驻点。我们可以自由地把围道向上推移，使其经过该点。把 $p$ 的这个值代回，我们发现，在 $x$ 和 $t$ 的有理函数因子范围内，
+\begin{equation}
+  U(t) \sim e^{-m\sqrt{x^2-t^2}} .
+\end{equation}
+因此，传播振幅在光锥之外虽小但非零，因果性仍然被违反。
+
+量子场论以一种奇妙的方式解决了因果性问题，我们将在第 2.4 节讨论这一点。我们将发现，在多粒子场论中，粒子跨越类空间隔的传播与反粒子沿相反方向的传播不可区分（见图 \ref{fig:2.1}）。当我们问在 $\mathbf{x}_0$ 点所作的观测能否影响在 $\mathbf{x}$ 点所作的观测时，我们将发现粒子和反粒子传播的振幅精确相消——从而保持了因果性。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.5\textwidth]{fig2.1.png}
+  \caption{在一个参考系中从 $x_0$ 到 $x$ 的传播，在另一个参考系中看起来是从 $x$ 到 $x_0$ 的传播。}
+  \label{fig:2.1}
+\end{figure}
+
+量子场论不仅为处理多粒子态提供了自然的方式，也为处理不同粒子数态之间的跃迁提供了自然的方式。它通过引入反粒子解决了因果性问题，进而解释了自旋与统计的关系。但最重要的是，它提供了计算无数散射截面、粒子寿命以及其他可观测量所必需的工具。对这些预言（其精确度往往达到前所未有的水平）的实验证实，才是我们学习量子场论的真实理由。
+
+\section{经典场论要素}
+
+在本节中，我们回顾经典场论的一些形式体系，这些内容在随后讨论量子场论时是必需的。
+
+\subsection*{拉格朗日场论}
+
+经典力学的基本量是作用量 $S$，即拉格朗日量 $L$ 的时间积分。在局域场论中，拉格朗日量可以写成拉格朗日密度（记为 $\mathcal{L}$）的空间积分，它是若干个场 $\phi(x)$ 及其导数 $\partial_\mu\phi$ 的函数。于是我们有
+\begin{equation}
+  S = \int L\ dt = \int \mathcal{L}(\phi, \partial_\mu\phi)\ d^4x .
+  \label{eq:2.1}
+\end{equation}
+由于这是一本关于场论的书，我们将把 $\mathcal{L}$ 简称为拉格朗日量。
+
+最小作用量原理指出：当系统在 $t_1$ 和 $t_2$ 之间从给定的一个组态演化到另一个组态时，它是沿组态空间中使 $S$ 取极值（通常是极小值）的``路径''进行的。我们可以把这个条件写成
+\begin{equation}
+  0 = \delta S = \int d^4x\ \Bigl\{
+    \frac{\partial\mathcal{L}}{\partial\phi}\delta\phi
+    + \frac{\partial\mathcal{L}}{\partial(\partial_\mu\phi)}
+      \partial_\mu(\delta\phi) \Bigr\}.
+  \label{eq:2.2}
+\end{equation}
+最后一项可以化为对四维时空积分区域边界的面积分。由于初始和最终的场组态假定为给定，$\delta\phi$ 在该区域的时间起点和终点处为零。如果我们把考虑范围限制在空间边界上也同样为零的形变 $\delta\phi$，那么面积项为零。从前两项中提取出 $\delta\phi$，我们注意到，由于积分必须对任意的 $\delta\phi$ 为零，乘以 $\delta\phi$ 的量必须在所有点为零。于是我们得到场的欧拉-拉格朗日运动方程：
+\begin{equation}
+  \partial_\mu \frac{\partial\mathcal{L}}{\partial(\partial_\mu\phi)}
+  - \frac{\partial\mathcal{L}}{\partial\phi} = 0 .
+  \label{eq:2.3}
+\end{equation}
+如果拉格朗日量含有多于一个场，则每个场都有一个这样的方程。
+
+\subsection*{哈密顿场论}
+
+场论的拉格朗日表述特别适合相对论性动力学，因为所有表达式都显式地洛伦兹不变。尽管如此，在本书的第一部分我们将使用哈密顿表述，因为它会使向量子力学的过渡更容易。回顾对离散系统，我们可以为每个动力学变量 $q$ 定义共轭动量 $p = \partial L/\partial\dot{q}$（其中 $\dot{q} = dq/dt$）。于是哈密顿量为 $H = \sum p\dot{q} - L$。向连续系统的推广，最好通过假想空间点 $\mathbf{x}$ 是离散排列来理解。我们可以定义
+\begin{equation}
+  \pi(\mathbf{x}) \equiv \frac{\partial\mathcal{L}}
+    {\partial\dot{\phi}(\mathbf{x})}
+  = \frac{\delta}{\delta\dot{\phi}(\mathbf{x})}
+    \int d^3y\ \mathcal{L}(\phi(y), \dot{\phi}(y))
+  \approx \frac{\partial}{\partial\dot{\phi}(\mathbf{x})}
+    \sum_{\mathbf{y}} \mathcal{L}(\phi(\mathbf{y}), \dot{\phi}(\mathbf{y}))
+    \ d^3y = \frac{\partial\mathcal{L}}{\partial\dot{\phi}(\mathbf{x})}\ d^3x,
+  \label{eq:2.4}
+\end{equation}
+其中
+\begin{equation}
+  \pi(x) = \frac{\partial\mathcal{L}}{\partial\dot{\phi}(x)}
+\end{equation}
+称为与 $\phi(x)$ 共轭的\emph{动量密度}。于是哈密顿量可以写成
+\begin{equation}
+  H = \sum_{\mathbf{x}} \pi(\mathbf{x})\dot{\phi}(\mathbf{x}) - L .
+\end{equation}
+过渡到连续情形，上式变为
+\begin{equation}
+  H = \int d^3x\ \bigl[ \pi(x)\dot{\phi}(x) - \mathcal{L} \bigr]
+    = \int d^3x\ \mathcal{H} .
+  \label{eq:2.5}
+\end{equation}
+我们将用另一种方法，在本节末尾重新推导哈密顿密度 $\mathcal{H}$ 的这个表达式。
+
+作为一个简单的例子，考虑由拉格朗日量
+\begin{equation}
+  \mathcal{L} = \tfrac{1}{2}\dot{\phi}^2 - \tfrac{1}{2}(\nabla\phi)^2
+    - \tfrac{1}{2}m^2\phi^2 .
+  \label{eq:2.6}
+\end{equation}
+支配的单一场 $\phi(x)$ 的理论。目前我们取 $\phi$ 为实值场。量 $m$ 将在第 2.3 节中被解释为质量，但现在只需把它想成一个参数。由这个拉格朗日量，通常的步骤给出运动方程
+\begin{equation}
+  \Bigl( \frac{\partial^2}{\partial t^2} - \nabla^2 + m^2 \Bigr)\phi = 0
+  \qquad\text{or}\qquad (\partial_\mu\partial^\mu + m^2)\phi = 0,
+  \label{eq:2.7}
+\end{equation}
+这就是著名的克莱因-戈登方程。（在此语境下它是一个经典场方程，像 Maxwell 方程组一样——而不是量子力学波动方程。）注意到与 $\phi(x)$ 共轭的典则动量密度为 $\pi(x) = \dot{\phi}(x)$，我们还可以构造哈密顿量：
+\begin{equation}
+  H = \int d^3x\ \mathcal{H}
+    = \int d^3x\ \bigl[ \tfrac{1}{2}\pi^2 + \tfrac{1}{2}(\nabla\phi)^2
+      + \tfrac{1}{2}m^2\phi^2 \bigr].
+  \label{eq:2.8}
+\end{equation}
+我们可以分别把这三项想成在时间上``运动''的能量代价、在空间中``剪切''的能量代价，以及让场存在于此的能量代价。我们将在第 2.3 节和第 2.4 节中更深入地研究这个哈密顿量。
+
+\subsection*{诺特定理}
+
+接下来我们讨论经典场论中对称性与守恒律之间的关系，它由诺特定理概括。该定理涉及对场 $\phi$ 的连续变换，其无穷小形式可以写成
+\begin{equation}
+  \phi(x) \to \phi'(x) = \phi(x) + \alpha\Delta\phi(x),
+  \label{eq:2.9}
+\end{equation}
+其中 $\alpha$ 是无穷小参数，$\Delta\phi$ 是场组态的某种形变。如果这一变换使运动方程保持不变，我们就称它为\emph{对称性}。只要作用量在 \eqref{eq:2.9} 下不变，这一点就有保证。更一般地，我们可以允许作用量改变一个面积项，因为这样的项不会影响我们对欧拉-拉格朗日运动方程 \eqref{eq:2.3} 的推导。因此，拉格朗日量在 \eqref{eq:2.9} 下必须不变，至多差一个 4-散度：
+\begin{equation}
+  \mathcal{L}(x) \to \mathcal{L}(x) + \alpha\partial_\mu\mathcal{J}^\mu(x),
+  \label{eq:2.10}
+\end{equation}
+对某个 $\mathcal{J}^\mu$ 成立。让我们把对 $\Delta\mathcal{L}$ 的这一预期与通过变分场得到的结果相比较：
+\begin{equation}
+  \Delta\mathcal{L}
+  = \frac{\partial\mathcal{L}}{\partial\phi}\Delta\phi
+    + \frac{\partial\mathcal{L}}{\partial(\partial_\mu\phi)}
+      \partial_\mu(\Delta\phi)
+  = \partial_\mu\Bigl(
+      \frac{\partial\mathcal{L}}{\partial(\partial_\mu\phi)}
+      \Delta\phi \Bigr).
+  \label{eq:2.11}
+\end{equation}
+第二项由欧拉-拉格朗日方程 \eqref{eq:2.3} 为零。我们令剩余项等于 $\alpha\partial_\mu\mathcal{J}^\mu$，得到
+\begin{equation}
+  \partial_\mu j^\mu(x) = 0,
+  \qquad\text{for}\qquad
+  j^\mu(x) = \frac{\partial\mathcal{L}}{\partial(\partial_\mu\phi)}
+    \Delta\phi - \mathcal{J}^\mu .
+  \label{eq:2.12}
+\end{equation}
+（如果对称性涉及多于一个场，则这个 $j^\mu(x)$ 表达式的第一项应替换为诸如此类项之和，每个场一项。）这一结果表明流 $j^\mu(x)$ 是守恒的。对于 $\mathcal{L}$ 的每一个连续对称性，我们都有这样一条守恒律。
+
+守恒律也可以用如下说法表达：电荷
+\begin{equation}
+  Q = \int_{\text{all space}} j^0\ d^3x
+  \label{eq:2.13}
+\end{equation}
+随时间保持为常数。不过请注意，用局域拉格朗日密度表述的场论直接导出了守恒律的局域形式，即式 \eqref{eq:2.12}。
+
+这类守恒律最简单的例子来自只含动能项的拉格朗日量：$\mathcal{L} = \tfrac{1}{2}(\partial_\mu\phi)^2$。变换 $\phi\to\phi+\alpha$（其中 $\alpha$ 为常数）使 $\mathcal{L}$ 不变，因此我们断定流 $j^\mu = \partial^\mu\phi$ 是守恒的。作为一个不太平凡的例子，考虑拉格朗日量
+\begin{equation}
+  \mathcal{L} = |\partial_\mu\phi|^2 - m^2|\phi|^2,
+  \label{eq:2.14}
+\end{equation}
+其中 $\phi$ 现在是复值场。你可以容易地证明这个拉格朗日量的运动方程仍然是克莱因-戈登方程 \eqref{eq:2.7}。该拉格朗日量在变换 $\phi \to e^{i\alpha}\phi$ 下不变；对无穷小变换我们有
+\begin{equation}
+  \alpha\Delta\phi = i\alpha\phi;\qquad
+  \alpha\Delta\phi^{*} = -i\alpha\phi^{*}.
+  \label{eq:2.15}
+\end{equation}
+（我们把 $\phi$ 和 $\phi^{*}$ 视为独立的场。或者，我们也可以使用 $\phi$ 的实部和虚部。）现在很容易证明守恒的诺特流为
+\begin{equation}
+  j^\mu = i\bigl[ (\partial^\mu\phi^{*})\phi - \phi^{*}(\partial^\mu\phi)
+    \bigr].
+  \label{eq:2.16}
+\end{equation}
+（整体常数是任意选取的。）你可以利用克莱因-戈登方程直接检验这个流的散度为零。稍后我们将在此拉格朗日量中加入把 $\phi$ 耦合到电磁场的项。届时我们将把 $j^\mu$ 解释为场携带的电磁流密度，把 $j^0$ 的空间积分解释为它的电荷。
+
+诺特定理也可以应用于时空变换，如平移和转动。我们可以把无穷小平移 $x^\mu \to x^\mu - a^\mu$ 等价地描述为场组态的变换
+\begin{equation}
+  \phi(x) \to \phi(x+a) = \phi(x) + a^\mu\partial_\mu\phi(x).
+\end{equation}
+拉格朗日量也是标量，因此它必须以同样的方式变换：
+\begin{equation}
+  \mathcal{L} \to \mathcal{L} + a^\mu\partial_\mu\mathcal{L}
+    = \mathcal{L} + a^\nu\partial_\mu(\delta^\mu_\nu\mathcal{L}).
+\end{equation}
+将此方程与 \eqref{eq:2.10} 比较，我们看到现在有一个非零的 $\mathcal{J}^\mu$。考虑到这一点，我们可以应用该定理得到四个分别守恒的流：
+\begin{equation}
+  T^{\mu\nu} = \frac{\partial\mathcal{L}}{\partial(\partial_\mu\phi)}
+    \partial^\nu\phi - g^{\mu\nu}\mathcal{L} .
+  \label{eq:2.17}
+\end{equation}
+这正是场 $\phi$ 的应力-能量张量，也称为能量-动量张量。与时间平移相联系的守恒电荷是哈密顿量：
+\begin{equation}
+  H = \int T^{00}\ d^3x = \int \mathcal{H}\ d^3x.
+  \label{eq:2.18}
+\end{equation}
+对克莱因-戈登场计算这个量，可以重新得到结果 \eqref{eq:2.8}。与空间平移相联系的守恒电荷为
+\begin{equation}
+  P^i = \int T^{0i}\ d^3x = \int \pi\partial^i\phi\ d^3x ,
+  \label{eq:2.19}
+\end{equation}
+我们自然地把它解释为场携带的（物理）动量（不要与典则动量混淆）。
+
+\section{作为谐振子的克莱因-戈登场}
+
+我们以一种相当形式化的方式处理最简单类型的场——实克莱因-戈登场——来开始我们关于量子场论的讨论。其想法是从一个经典场论（由拉格朗日量 \eqref{eq:2.6} 支配的经典标量场理论）出发，然后把它``量子化''，即把动力学变量重新解释为满足典则对易关系的算符。%
+\footnote{这一步骤有时被称为\emph{二次量子化}，以把由此得到的克莱因-戈登方程（其中 $\phi$ 是算符）与旧的单粒子克莱因-戈登方程（其中 $\phi$ 是波函数）区分开。在本书中我们从不采纳后一种观点；我们从经典方程（其中 $\phi$ 是经典场）出发，并且恰好量子化一次。} 然后我们将以谐振子作类比，通过求出哈密顿量的本征值和本征态来``求解''这一理论。
+
+实克莱因-戈登场的经典理论已在前一节中被简要（但充分地）讨论过；相关表达式见式 \eqref{eq:2.6}、\eqref{eq:2.7} 和 \eqref{eq:2.8}。为了量子化这一理论，我们遵循与任何其他动力学系统相同的步骤：把 $\phi$ 和 $\pi$ 提升为算符，并施加合适的对易关系。回顾对一个或多个粒子的离散系统，对易关系为
+\begin{equation}
+  [q_i, p_j] = i\delta_{ij};\qquad
+  [q_i, q_j] = [p_i, p_j] = 0.
+\end{equation}
+对连续系统，推广非常自然；由于 $\pi(\mathbf{x})$ 是动量密度，我们得到 Dirac delta 函数而不是 Kronecker delta：
+\begin{equation}
+  [\phi(\mathbf{x}), \pi(\mathbf{y})] = i\delta^{(3)}(\mathbf{x}-\mathbf{y});
+  \qquad
+  [\phi(\mathbf{x}), \phi(\mathbf{y})]
+  = [\pi(\mathbf{x}), \pi(\mathbf{y})] = 0 .
+  \label{eq:2.20}
+\end{equation}
+（目前我们在薛定谔绘景中工作，其中 $\phi$ 和 $\pi$ 不依赖时间。当我们在下一节切换到海森堡绘景时，只要两个算符是在同一时刻考虑的，这些``等时''对易关系仍然成立。）
+
+哈密顿量作为 $\phi$ 和 $\pi$ 的函数也变成算符。我们的下一个任务是从哈密顿量求出谱。由于没有明显的方法做到这一点，让我们通过在傅里叶空间中写出克莱因-戈登方程来寻求指引。如果把经典克莱因-戈登场展开为
+\begin{equation}
+  \phi(\mathbf{x}, t) = \int \frac{d^3p}{(2\pi)^3}\ e^{i\mathbf{p}\cdot\mathbf{x}}
+    \phi(\mathbf{p}, t)
+\end{equation}
+（取 $\phi^{*}(\mathbf{p}) = \phi(-\mathbf{p})$ 使得 $\phi(\mathbf{x})$ 为实数），克莱因-戈登方程 \eqref{eq:2.7} 变为
+\begin{equation}
+  \Bigl( \frac{\partial^2}{\partial t^2}
+    + (|\mathbf{p}|^2 + m^2) \Bigr)\phi(\mathbf{p}, t) = 0 .
+  \label{eq:2.21}
+\end{equation}
+这与频率为
+\begin{equation}
+  \omega_{\mathbf{p}} = \sqrt{|\mathbf{p}|^2 + m^2}.
+  \label{eq:2.22}
+\end{equation}
+的简单谐振子的运动方程相同。
+
+简单谐振子是我们已经知道如何求其谱的系统。让我们简要回顾一下求法。我们把哈密顿量写成
+\begin{equation}
+  H_{\mathrm{SHO}} = \tfrac{1}{2}p^2 + \tfrac{1}{2}\omega^2\phi^2 .
+\end{equation}
+为了求 $H_{\mathrm{SHO}}$ 的本征值，我们用阶梯算符写出 $\phi$ 和 $p$：
+\begin{equation}
+  \phi = \frac{1}{\sqrt{2\omega}}(a + a^\dagger);\qquad
+  p = -i\sqrt{\frac{\omega}{2}}(a - a^\dagger) .
+  \label{eq:2.23}
+\end{equation}
+典则对易关系 $[\phi, p] = i$ 等价于
+\begin{equation}
+  [a, a^\dagger] = 1.
+  \label{eq:2.24}
+\end{equation}
+哈密顿量现在可以改写为
+\begin{equation}
+  H_{\mathrm{SHO}} = \omega\bigl( a^\dagger a + \tfrac{1}{2} \bigr).
+\end{equation}
+满足 $a|0\rangle = 0$ 的态 $|0\rangle$ 是 $H$ 的本征态，本征值为 $\tfrac{1}{2}\omega$，即零点能。此外，对易子
+\begin{equation}
+  [H_{\mathrm{SHO}}, a^\dagger] = \omega a^\dagger,
+  \qquad [H_{\mathrm{SHO}}, a] = -\omega a
+\end{equation}
+使得我们容易验证态
+\begin{equation}
+  |n\rangle = (a^\dagger)^n |0\rangle
+\end{equation}
+是 $H_{\mathrm{SHO}}$ 的本征态，本征值为 $(n+\tfrac{1}{2})\omega$。这些态穷尽了整个谱。
+
+我们可以用同样的技巧求克莱因-戈登哈密顿量的谱，但现在场的每一个傅里叶模式都被视为一个拥有自己的 $a$ 和 $a^\dagger$ 的独立振子。与 \eqref{eq:2.23} 类比，我们写出
+\begin{align}
+  \phi(\mathbf{x}) &= \int \frac{d^3p}{(2\pi)^3}
+    \frac{1}{\sqrt{2E_{\mathbf{p}}}}
+    \bigl( a_{\mathbf{p}}e^{i\mathbf{p}\cdot\mathbf{x}}
+      + a_{\mathbf{p}}^\dagger e^{-i\mathbf{p}\cdot\mathbf{x}} \bigr);
+  \label{eq:2.25}\\
+  \pi(\mathbf{x}) &= \int \frac{d^3p}{(2\pi)^3}
+    (-i)\sqrt{\frac{E_{\mathbf{p}}}{2}}
+    \bigl( a_{\mathbf{p}}e^{i\mathbf{p}\cdot\mathbf{x}}
+      - a_{\mathbf{p}}^\dagger e^{-i\mathbf{p}\cdot\mathbf{x}} \bigr).
+  \label{eq:2.26}
+\end{align}
+用 $\phi$ 和 $\pi$ 表示 $a_{\mathbf{p}}$ 和 $a_{\mathbf{p}}^\dagger$ 的逆表达式很容易推导，但很少用到。在下面的计算中，我们将发现把 \eqref{eq:2.25} 和 \eqref{eq:2.26} 重新整理为如下形式很有用：
+\begin{align}
+  a_{\mathbf{p}} &= \int d^3x\ e^{-i\mathbf{p}\cdot\mathbf{x}}
+    \Bigl[ \sqrt{\frac{E_{\mathbf{p}}}{2}}\phi(\mathbf{x})
+      + \frac{i}{\sqrt{2E_{\mathbf{p}}}}\pi(\mathbf{x}) \Bigr];
+  \label{eq:2.27}\\
+  a_{\mathbf{p}}^\dagger &= \int d^3x\ e^{i\mathbf{p}\cdot\mathbf{x}}
+    \Bigl[ \sqrt{\frac{E_{\mathbf{p}}}{2}}\phi(\mathbf{x})
+      - \frac{i}{\sqrt{2E_{\mathbf{p}}}}\pi(\mathbf{x}) \Bigr].
+  \label{eq:2.28}
+\end{align}
+对易关系 \eqref{eq:2.24} 变为
+\begin{equation}
+  [a_{\mathbf{p}}, a_{\mathbf{p}'}^\dagger]
+    = (2\pi)^3\delta^{(3)}(\mathbf{p}-\mathbf{p}'),
+  \label{eq:2.29}
+\end{equation}
+由此你可以验证 $\phi$ 和 $\pi$ 的对易子确实得到正确结果：
+\begin{equation}
+  [\phi(\mathbf{x}), \pi(\mathbf{x}')]
+  = \int \frac{d^3p\ d^3p'}{(2\pi)^6}\ \frac{-i}{2}
+    e^{i(\mathbf{p}\cdot\mathbf{x}+\mathbf{p}'\cdot\mathbf{x}')}
+  = i\delta^{(3)}(\mathbf{x}-\mathbf{x}').
+  \label{eq:2.30}
+\end{equation}
+（如果你对像这个以及下一个这样的计算不熟悉，请仔细把它们算一遍；稍加练习后它们就相当容易了，而且是接下来两章形式体系的基础。）
+
+我们现在准备用阶梯算符来表达哈密顿量。从它用 $\phi$ 和 $\pi$ 表示的表达式 \eqref{eq:2.8} 出发，我们有
+\begin{equation}
+  H = \int \frac{d^3p}{(2\pi)^3}\ E_{\mathbf{p}}
+    \Bigl( a_{\mathbf{p}}^\dagger a_{\mathbf{p}}
+      + \tfrac{1}{2}[a_{\mathbf{p}}, a_{\mathbf{p}}^\dagger] \Bigr)
+  = \int \frac{d^3p}{(2\pi)^3}\ E_{\mathbf{p}}
+    \Bigl( a_{\mathbf{p}}^\dagger a_{\mathbf{p}}
+      + \tfrac{1}{2}(2\pi)^3\delta^{(3)}(0) \Bigr).
+  \label{eq:2.31}
+\end{equation}
+第二项正比于 $\delta^{(3)}(0)$，一个无穷大的 c 数。它只是对所有模式的零点能 $\omega_{\mathbf{p}}/2$ 求和，因此它的出现是完全可预期的，尽管有些令人不安。幸运的是，这个无穷大的能量平移无法在实验上被探测到，因为实验只测量相对于 $H$ 基态的能量差。因此在我们所有的计算中都将忽略这个无穷大常数项。这个基态的能量平移有可能在理论的更深层次上造成问题；我们将在结语中讨论此事。
+
+利用这个用 $a_{\mathbf{p}}$ 和 $a_{\mathbf{p}}^\dagger$ 表示的哈密顿量表达式，很容易计算对易子
+\begin{equation}
+  [H, a_{\mathbf{p}}^\dagger] = \omega_{\mathbf{p}}a_{\mathbf{p}}^\dagger,
+  \qquad [H, a_{\mathbf{p}}] = -\omega_{\mathbf{p}}a_{\mathbf{p}} .
+  \label{eq:2.32}
+\end{equation}
+我们现在可以像谐振子那样写下理论的谱。对所有 $\mathbf{p}$ 满足 $a_{\mathbf{p}}|0\rangle = 0$ 的态 $|0\rangle$ 是基态或\emph{真空}，在丢掉 \eqref{eq:2.31} 中的无穷大常数后其能量 $E=0$。所有其他能量本征态都可以通过在 $|0\rangle$ 上作用产生算符来构造。一般地，态 $a_{\mathbf{p}}^\dagger a_{\mathbf{q}}^\dagger\cdots|0\rangle$ 是 $H$ 的本征态，能量为 $\omega_{\mathbf{p}} + \omega_{\mathbf{q}} + \cdots$。这些态穷尽了整个谱。
+
+在求出哈密顿量的谱之后，让我们试着解释它的本征态。由 \eqref{eq:2.19} 以及一个与 \eqref{eq:2.31} 类似的计算，我们可以写出总动量算符：
+\begin{equation}
+  \mathbf{P} = -\int d^3x\ \pi(\mathbf{x})\nabla\phi(\mathbf{x})
+  = \int \frac{d^3p}{(2\pi)^3}\ \mathbf{p}\ a_{\mathbf{p}}^\dagger
+    a_{\mathbf{p}} .
+  \label{eq:2.33}
+\end{equation}
+因此算符 $a_{\mathbf{p}}^\dagger$ 产生动量为 $\mathbf{p}$、能量为 $\omega_{\mathbf{p}} = \sqrt{|\mathbf{p}|^2+m^2}$ 的激发。类似地，态 $a_{\mathbf{p}}^\dagger a_{\mathbf{q}}^\dagger\cdots|0\rangle$ 具有动量 $\mathbf{p}+\mathbf{q}+\cdots$。把这些激发称为\emph{粒子}是非常自然的，因为它们是具有正确相对论性能量-动量关系的分立实体。（所谓粒子，我们并不是指必须在空间中局域化的东西；$a_{\mathbf{p}}^\dagger$ 产生的是动量本征态中的粒子。）从现在起，我们将把 $\omega_{\mathbf{p}}$ 称为 $E_{\mathbf{p}}$（或简称为 $E$），因为它确实是粒子的能量。顺便注意，能量总是正的：$E_{\mathbf{p}} = +\sqrt{|\mathbf{p}|^2+m^2}$。
+
+这一形式体系还使我们能够确定粒子的统计性质。考虑双粒子态 $a_{\mathbf{p}}^\dagger a_{\mathbf{q}}^\dagger|0\rangle$。由于 $a_{\mathbf{p}}^\dagger$ 和 $a_{\mathbf{q}}^\dagger$ 对易，这个态与两个粒子交换后的态 $a_{\mathbf{q}}^\dagger a_{\mathbf{p}}^\dagger |0\rangle$ 相同。此外，单个模式 $\mathbf{p}$ 可以包含任意多个粒子（正如简单谐振子可以被激发到任意高的能级）。因此我们断定克莱因-戈登粒子服从 Bose-Einstein 统计。
+
+我们自然选择把真空态归一化为 $\langle 0|0\rangle = 1$。单粒子态 $|\mathbf{p}\rangle \propto a_{\mathbf{p}}^\dagger|0\rangle$ 也会经常出现，因此值得为它们的归一化约定一种惯例。最简单的归一化 $\langle\mathbf{p}|\mathbf{q}\rangle = (2\pi)^3\delta^{(3)}(\mathbf{p}-\mathbf{q})$（许多书采用）并不是洛伦兹不变的，我们可以通过考虑沿 3 方向的加速变换（boost）的影响来证明这一点。在这样的加速变换下我们有 $p^{3'} = \gamma(p^3+\beta E)$，$E' = \gamma(E+\beta p^3)$。利用德尔塔函数恒等式
+\begin{equation}
+  \delta\bigl( f(x) - f(x_0) \bigr) =
+    \frac{1}{|f'(x_0)|}\,\delta(x-x_0),
+  \label{eq:2.34}
+\end{equation}
+我们可以计算
+\begin{align}
+  \delta^{(3)}(\mathbf{p}-\mathbf{q})
+  &= \delta^{(3)}(\mathbf{p}'-\mathbf{q}')\
+    \Bigl|\frac{\partial p^3}{\partial p^{3'}}\Bigr|
+  = \delta^{(3)}(\mathbf{p}'-\mathbf{q}')\
+    \gamma\Bigl(1+\beta\frac{\partial E}{\partial p^3}\Bigr)\\
+  &= \delta^{(3)}(\mathbf{p}'-\mathbf{q}')\
+    \gamma\Bigl(1+\beta\frac{p^3}{E}\Bigr)
+  = \delta^{(3)}(\mathbf{p}'-\mathbf{q}')\
+    \frac{\gamma}{E}(E+\beta p^3)
+  = \delta^{(3)}(\mathbf{p}'-\mathbf{q}')\ \frac{E'}{E} .
+\end{align}
+问题在于体积在加速变换下不变；由于洛伦兹收缩，一个在其静止系中体积为 $V$ 的盒子在加速后的参考系中体积为 $V/\gamma$。但从上面的计算我们看到，量 $E_{\mathbf{p}}\,\delta^{(3)}(\mathbf{p}-\mathbf{q})$ 是洛伦兹不变的。因此我们定义
+\begin{equation}
+  |\mathbf{p}\rangle = \sqrt{2E_{\mathbf{p}}}\ a_{\mathbf{p}}^\dagger |0\rangle,
+  \label{eq:2.35}
+\end{equation}
+使得
+\begin{equation}
+  \langle\mathbf{p}|\mathbf{q}\rangle
+    = 2E_{\mathbf{p}}\,(2\pi)^3\delta^{(3)}(\mathbf{p}-\mathbf{q}).
+  \label{eq:2.36}
+\end{equation}
+（因子 2 并不是必需的，但由于式 \eqref{eq:2.25} 中的因子 2，它是方便的。）
+
+在量子态的 Hilbert 空间上，洛伦兹变换 $\Lambda$ 将实现为某个幺正算符 $U(\Lambda)$。于是我们的归一化条件 \eqref{eq:2.35} 意味着
+\begin{equation}
+  U(\Lambda)\,|\mathbf{p}\rangle = |\Lambda\mathbf{p}\rangle .
+  \label{eq:2.37}
+\end{equation}
+如果我们更愿意把这个变换看作作用在算符 $a_{\mathbf{p}}^\dagger$ 上，我们也可以写成
+\begin{equation}
+  U(\Lambda)\,a_{\mathbf{p}}^\dagger\,U^{-1}(\Lambda)
+    = a_{\Lambda\mathbf{p}}^\dagger .
+  \label{eq:2.38}
+\end{equation}
+采用这种归一化，我们在其他地方必须除以 $2E_{\mathbf{p}}$。例如，单粒子态的完备性关系为
+\begin{equation}
+  \int \frac{d^3p}{(2\pi)^3}\ \frac{1}{2E_{\mathbf{p}}}\
+    |\mathbf{p}\rangle\langle\mathbf{p}| = 1 ,
+  \label{eq:2.39}
+\end{equation}
+其中左边的算符在单粒子态子空间内就是单位算符，在 Hilbert 空间的其余部分为零。这种形式的积分会经常出现；事实上，积分
+\begin{equation}
+  \int \frac{d^3p}{(2\pi)^3}\ \frac{1}{2E_{\mathbf{p}}}\ f(p)
+  = \int \frac{d^4p}{(2\pi)^3}\ f(p)\ \delta(p^2-m^2)\Big|_{p^0>0}
+  \label{eq:2.40}
+\end{equation}
+是一个洛伦兹不变的 3-动量积分，其含义是：若 $f(p)$ 是洛伦兹不变的，则 $\int d^3p\ f(p)/(2E_{\mathbf{p}})$ 也是洛伦兹不变的。这个积分可以看作是在 4-动量空间中双曲面 $p^2=m^2$ 的 $p^0>0$ 分支上进行的（见图 \ref{fig:2.2}）。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.45\textwidth]{fig2.2.png}
+  \caption{洛伦兹不变的 3-动量积分是在双曲面 $p^2=m^2$ 的上分支上进行的。}
+  \label{fig:2.2}
+\end{figure}
+
+最后让我们考虑态 $\phi(\mathbf{x})|0\rangle$ 的解释。由展开式 \eqref{eq:2.25} 我们看到
+\begin{equation}
+  \phi(\mathbf{x})|0\rangle = \int \frac{d^3p}{(2\pi)^3}\
+    \frac{1}{2E_{\mathbf{p}}}\ e^{-i\mathbf{p}\cdot\mathbf{x}}\
+    |\mathbf{p}\rangle
+  \label{eq:2.41}
+\end{equation}
+是具有确定动量的单粒子态的线性叠加。除了因子 $1/2E_{\mathbf{p}}$ 之外，这与熟悉的位置本征态 $|\mathbf{x}\rangle$ 的非相对论表达式相同；事实上，对小的（非相对论性的）$p$，这个额外因子近似为常数。因此我们将提出同样的解释，并断言算符 $\phi(\mathbf{x})$ 作用在真空上时会在位置 $\mathbf{x}$ 处产生一个粒子。当我们计算下面的量时，这一解释得到进一步证实：
+\begin{equation}
+  \langle 0|\phi(\mathbf{x})|\mathbf{p}\rangle
+    = \langle 0| \int \frac{d^3p'}{(2\pi)^3}\
+      \frac{1}{\sqrt{2E_{\mathbf{p}'}}}\ e^{-i\mathbf{p}'\cdot\mathbf{x}}\
+      a_{\mathbf{p}'}\ \sqrt{2E_{\mathbf{p}}}\ a_{\mathbf{p}}^\dagger|0\rangle
+    = e^{-i\mathbf{p}\cdot\mathbf{x}} .
+  \label{eq:2.42}
+\end{equation}
+我们可以把这解释为态 $|\mathbf{p}\rangle$ 的单粒子波函数的位置空间表示，正如在非相对论量子力学中 $\langle\mathbf{x}|\mathbf{p}\rangle \propto e^{i\mathbf{p}\cdot\mathbf{x}}$ 是态 $|\mathbf{p}\rangle$ 的波函数一样。
+
+\section{时空中的克莱因-戈登场}
+
+在上一节中，我们在薛定谔绘景中量子化了克莱因-戈登场，并用相对论性粒子解释了所得的理论。在本节中，我们将切换到海森堡绘景，在其中讨论依赖时间的量以及因果性问题将更为容易。在做一些准备工作之后，我们将回到第 2.1 节提出的非因果传播问题。我们还将推导克莱因-戈登传播子的表达式，它是将在第 4 章中建立的费曼规则的关键组成部分。
+
+在海森堡绘景中，我们以通常的方式让算符 $\phi$ 和 $\pi$ 依赖时间：
+\begin{equation}
+  \phi(\mathbf{x}) = \phi(x,t) = e^{iHt}\phi(\mathbf{x})e^{-iHt},
+  \label{eq:2.43}
+\end{equation}
+对 $\pi(\mathbf{x}) = \pi(x,t)$ 也类似。海森堡运动方程
+\begin{equation}
+  i\frac{\partial}{\partial t}\phi = [\phi, H],
+  \label{eq:2.44}
+\end{equation}
+使我们能够计算 $\phi$ 和 $\pi$ 对时间的依赖：
+\begin{align}
+  i\dot{\phi}(x,t) &= i\int d^3x'\ i\delta^{(3)}(\mathbf{x}-\mathbf{x}')\
+    \pi(\mathbf{x}', t) = i\pi(x,t);\\
+  i\dot{\pi}(x,t) &= i\int d^3x'\ \Bigl[ \tfrac{1}{2}(\nabla\phi)^2
+    + \tfrac{1}{2}m^2\phi^2 \Bigr]
+  = i(\nabla^2 - m^2)\phi(x,t).
+\end{align}
+把两个结果结合起来给出
+\begin{equation}
+  \frac{\partial^2}{\partial t^2}\phi = (\nabla^2 - m^2)\phi,
+  \label{eq:2.45}
+\end{equation}
+这正是克莱因-戈登方程。
+
+通过用产生和湮灭算符写出 $\phi(x)$ 和 $\pi(x)$，我们可以更好地理解它们对时间的依赖。首先注意到
+\begin{equation}
+  Ha_{\mathbf{p}} = a_{\mathbf{p}}(H - E_{\mathbf{p}}),
+  \label{eq:2.46}
+\end{equation}
+因而
+\begin{equation}
+  H^n a_{\mathbf{p}} = a_{\mathbf{p}}(H - E_{\mathbf{p}})^n,
+\end{equation}
+对任意 $n$ 成立。对 $a_{\mathbf{p}}^\dagger$，类似的关系（把 $-$ 换成 $+$）也成立。于是我们导出了这些恒等式，可以用于 $\phi(\mathbf{x})$ 的表达式 \eqref{eq:2.25}，从而根据 \eqref{eq:2.43} 求出海森堡算符 $\phi(x)$ 的期望表达式。（我们将始终用符号 $a_{\mathbf{p}}$ 和 $a_{\mathbf{p}}^\dagger$ 表示不依赖时间的薛定谔绘景阶梯算符。）结果是
+\begin{equation}
+  \phi(x) = \int \frac{d^3p}{(2\pi)^3}\ \frac{1}{\sqrt{2E_{\mathbf{p}}}}
+    \Bigl( a_{\mathbf{p}}e^{-ip\cdot x}
+      + a_{\mathbf{p}}^\dagger e^{ip\cdot x} \Bigr).
+  \label{eq:2.47}
+\end{equation}
+值得提及的是，我们可以用 $\mathbf{P}$ 而不是 $H$ 进行同样的操作，把 $\phi(x)$ 与 $\phi(0)$ 联系起来。与 \eqref{eq:2.46} 类比，可以证明
+\begin{equation}
+  P^\mu a_{\mathbf{p}} = a_{\mathbf{p}}(P^\mu - p^\mu),
+  \label{eq:2.48}
+\end{equation}
+因而
+\begin{equation}
+  \phi(x) = e^{i(P\cdot x - P^0 x^0)}\phi(0)e^{-i(P\cdot x - P^0x^0)}
+  = e^{iP\cdot x}\phi(0)e^{-iP\cdot x},
+  \label{eq:2.49}
+\end{equation}
+其中 $P^\mu = (H, \mathbf{P})$。（这里的记号容易混淆，但却是标准的。记住 $P^\mu$ 是动量算符，它的本征值是系统的总动量。另一方面，$p^\mu$ 是场单个傅里叶模式的动量，我们把它解释为该模式中一个粒子的动量。对于具有确定动量的单粒子态，$p^\mu$ 是 $P^\mu$ 的本征值。）
+
+方程 \eqref{eq:2.47} 明确体现了量子场 $\phi(x)$ 的粒子解释与波动解释的双重性。一方面，$\phi(x)$ 被写成 Hilbert 空间算符，它产生和湮灭作为场激发量子的粒子。另一方面，$\phi(x)$ 被写成克莱因-戈登方程的解（$e^{ip\cdot x}$ 和 $e^{-ip\cdot x}$）的线性组合。指数中时间依赖的两种符号都出现了：我们同时看到 $e^{-ip\cdot x}$ 和 $e^{+ip\cdot x}$，尽管 $p^0$ 总是正的。如果这些是单粒子波函数，它们将对应于正能量和负能量态；让我们更一般地把它们称为正频率和负频率模式。粒子产生算符与这里展示的波形的联系对于自由量子场总是成立的：场方程的正频率解，其系数是湮灭处于该单粒子波函数中的粒子的算符。场方程的负频率解是正频率解的厄米共轭，其系数是在该正能量单粒子波函数中产生粒子的算符。这样，相对论性波动方程同时具有正、负频率解这一事实，与一个合理的量子理论只能包含正激发能量的要求得到调和。
+
+\subsection{因果性}
+
+现在让我们回到本章开头提出的因果性问题。在我们目前的形式体系中（仍在海森堡绘景中工作），一个粒子从 $y$ 传播到 $x$ 的振幅是 $\langle 0|\phi(x)\phi(y)|0\rangle$。我们将称这个量为 $D(x-y)$。每个算符 $\phi$ 都是 $a$ 和 $a^\dagger$ 算符之和，但在这一表达式中只有 $\langle 0|a_{\mathbf{p}}a_{\mathbf{q}}^\dagger|0\rangle = (2\pi)^3\delta^{(3)}(\mathbf{p}-\mathbf{q})$ 这一项存活下来。容易验证我们剩下
+\begin{equation}
+  D(x-y) = \langle 0|\phi(x)\phi(y)|0\rangle
+  = \int \frac{d^3p}{(2\pi)^3}\ \frac{1}{2E_{\mathbf{p}}}\
+    e^{-ip\cdot(x-y)} .
+  \label{eq:2.50}
+\end{equation}
+我们已经在 \eqref{eq:2.40} 中断言这种形式的积分是洛伦兹不变的。现在让我们对 $x-y$ 的一些特定取值来求这个积分。首先考虑差值 $x-y$ 纯在时间方向的情形：$x^0-y^0=t$，$\mathbf{x}-\mathbf{y}=0$。（如果从 $y$ 到 $x$ 的间隔是类时的，那么总存在一个参考系使得情况如此。）于是我们有
+\begin{align}
+  D(x-y) &= \int_0^\infty \frac{dp}{(2\pi)^3}\ \frac{p^2}{2\sqrt{p^2+m^2}}\
+    e^{-i\sqrt{p^2+m^2}\,t}
+  = \frac{1}{4\pi^2}\int_m^\infty dE\ \sqrt{E^2-m^2}\ e^{-iEt}\\
+  &\sim \frac{m}{\pi^2}\ e^{-imt},\qquad t\to\infty .
+  \label{eq:2.51}
+\end{align}
+接下来考虑 $x-y$ 纯在空间方向的情形：$x^0-y^0=0$，$\mathbf{x}-\mathbf{y}=\mathbf{r}$。振幅于是为
+\begin{align}
+  D(x-y) &= \int \frac{d^3p}{(2\pi)^3}\ \frac{1}{2E_{\mathbf{p}}}\
+    e^{i\mathbf{p}\cdot\mathbf{r}}
+  = \frac{1}{(2\pi)^3}\int_0^\infty dp\ \frac{p^2}{2E_p}\
+    \frac{e^{ipr}-e^{-ipr}}{ipr}\\
+  &= \frac{1}{4\pi^2 i r}\int_{-\infty}^{\infty} dp\ \frac{p\ e^{ipr}}
+    {2\sqrt{p^2+m^2}} .
+\end{align}
+被积函数作为 $p$ 的复函数，在虚轴上从 $\pm im$ 开始有分支割线（见图 \ref{fig:2.3}）。为了求这个积分，我们把围道向上推移以绕开上分支割线。定义 $\rho = -ip$，我们得到
+\begin{equation}
+  D(x-y) = \frac{1}{4\pi^2 r}\int_m^\infty d\rho\
+    \frac{\rho\ e^{-\rho r}}{\sqrt{\rho^2-m^2}}
+  \sim \frac{e^{-mr}}{4\pi r},\qquad r\to\infty .
+  \label{eq:2.52}
+\end{equation}
+于是我们再次发现，在光锥之外，传播振幅指数地趋于零但非零。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.5\textwidth]{fig2.3.png}
+  \caption{用于在类空间隔上求传播振幅 $D(x-y)$ 的围道。}
+  \label{fig:2.3}
+\end{figure}
+
+然而，要真正讨论因果性，我们不应该问粒子能否跨越类空间隔传播，而应该问在一点进行的测量能否影响在另一点（与第一点的间隔是类空的）进行的测量。我们能尝试测量的最简单的东西是场 $\phi(x)$，因此我们应该计算对易子 $[\phi(x), \phi(y)]$；如果这个对易子为零，那么一个测量就不能影响另一个。事实上，如果对易子在 $(x-y)^2<0$ 时为零，那么因果性就相当一般地被保持，因为涉及 $\phi(x)$ 的任何函数（包括 $\pi(x) = \partial\phi/\partial t$）的对易子也必须为零。当然，我们从式 \eqref{eq:2.20} 知道对易子在 $x^0=y^0$ 时为零；现在让我们做更一般的计算：
+\begin{equation}
+  [\phi(x), \phi(y)] = D(x-y) - D(y-x).
+  \label{eq:2.53}
+\end{equation}
+当 $(x-y)^2<0$ 时，我们可以对第二项实施洛伦兹变换（因为每一项都分别洛伦兹不变），把 $(x-y)\to-(x-y)$，如图 \ref{fig:2.4} 所示。因此两项相等并相消为零；因果性得到保持。注意如果 $(x-y)^2>0$，则不存在使 $(x-y)\to-(x-y)$ 的连续洛伦兹变换。在这种情况下，由式 \eqref{eq:2.51}，振幅（幸运地）非零，对特殊情况 $\mathbf{x}-\mathbf{y}=0$ 大致为 $(e^{-imt}-e^{+imt})$。因此我们断定，在克莱因-戈登理论中，任何测量都不能影响光锥之外的另一个测量。因果性在克莱因-戈登理论中得到保持，正如第 2.1 节末尾所建议的那样。然而，为了恰当地理解这一机制，我们应该拓宽讨论的范围，纳入具有截然不同的粒子和反粒子激发的复克莱因-戈登场。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.5\textwidth]{fig2.4.png}
+  \caption{当 $x-y$ 类空时，一个连续洛伦兹变换可以把 $(x-y)$ 变为 $-(x-y)$。}
+  \label{fig:2.4}
+\end{figure}
+
+正如在式 \eqref{eq:2.15} 的讨论中提到的，我们可以通过把场 $\phi(x)$ 视为复值而非实值，给克莱因-戈登理论添加一个守恒电荷。当复标量场论被量子化时（见习题 2.2），$\phi(x)$ 将产生带正电荷的粒子并湮灭带负电荷的粒子，而 $\phi^\dagger(x)$ 将进行相反的操作。于是对易子 $[\phi(x), \phi^\dagger(y)]$ 将有非零贡献，这些贡献必须在光锥之外精细地相消以保持因果性。这两个贡献具有 \eqref{eq:2.53} 中两项的时空解释，但带有电荷。第一项将代表一个带负电荷的粒子从 $y$ 传播到 $x$。第二项将代表一个带正电荷的粒子从 $x$ 传播到 $y$。为了使这两个过程都存在并给出相消的振幅，这两种粒子都必须存在，而且它们必须有相同的质量。于是，在量子场论中，因果性要求每个粒子都有一个对应的反粒子，具有相同的质量和相反的量子数（这里是电荷）。对于实值克莱因-戈登场，粒子就是它自己的反粒子。
+
+\subsection{克莱因-戈登传播子}
+
+让我们再稍微深入研究一下对易子 $[\phi(x), \phi(y)]$。由于它是一个 c 数，我们可以写成 $[\phi(x), \phi(y)] = \langle 0|[\phi(x), \phi(y)]|0\rangle$。这可以改写为如下的四维积分，目前暂时假设 $x^0>y^0$：
+\begin{align}
+  \langle 0|[\phi(x), \phi(y)]|0\rangle
+  &= \int \frac{d^3p}{(2\pi)^3}\
+    \frac{1}{2E_{\mathbf{p}}}\Bigl( e^{-ip\cdot(x-y)} - e^{ip\cdot(x-y)}
+      \Bigr)\\
+  &= \int \frac{d^3p}{(2\pi)^3}\ \frac{1}{2E_{\mathbf{p}}}\
+    \Bigl( e^{-ip\cdot(x-y)}\Big|_{p^0=E_{\mathbf{p}}}
+      - e^{-ip\cdot(x-y)}\Big|_{p^0=-E_{\mathbf{p}}} \Bigr)\\
+  &= \int \frac{d^3p}{(2\pi)^3}\ \int \frac{dp^0}{2\pi i}\
+    \frac{e^{-ip\cdot(x-y)}}{p^2-m^2}
+  \label{eq:2.54}
+\end{align}
+在最后一步中，$p^0$ 积分要沿着如下围道进行：
+\[
+  \begin{array}{cc}
+    -E_{\mathbf{p}} & +E_{\mathbf{p}}
+  \end{array}
+\]
+对 $x^0>y^0$，我们可以在下方闭合围道，同时拾取两个极点，从而得到 \eqref{eq:2.54} 的上一行。对 $x^0<y^0$，我们可以上方闭合围道，得到零。因此 \eqref{eq:2.54} 的最后一行，连同绕开极点的规则，正是我们将称之为下列量的表达式：
+\begin{equation}
+  D_R(x-y) = \theta(x^0-y^0)\ \langle 0|[\phi(x), \phi(y)]|0\rangle .
+  \label{eq:2.55}
+\end{equation}
+为了更好地理解这个量，让我们做另一个计算：
+\begin{align}
+  (\partial^2 + m^2)D_R(x-y)
+  &= \bigl(\partial^2\theta(x^0-y^0)\bigr)\ \langle 0|[\phi(x), \phi(y)]|0\rangle\\
+  &\quad + 2\bigl(\partial_\mu\theta(x^0-y^0)\bigr)\
+    \bigl(\partial^\mu\langle 0|[\phi(x), \phi(y)]|0\rangle\bigr)\\
+  &\quad + \theta(x^0-y^0)\ (\partial^2+m^2)\ \langle 0|[\phi(x), \phi(y)]|0\rangle\\
+  &= -\dot{\delta}(x^0-y^0)\ \langle 0|[\phi(x), \phi(y)]|0\rangle
+    + 2\delta(x^0-y^0)\ \langle 0|[\pi(x), \phi(y)]|0\rangle + 0\\
+  &= -i\delta^{(4)}(x-y).
+  \label{eq:2.56}
+\end{align}
+这表明 $D_R(x-y)$ 是克莱因-戈登算符的格林函数。由于它在 $x^0<y^0$ 时为零，它是\emph{推迟}格林函数。
+
+如果我们尚未推导出表达式 \eqref{eq:2.54}，我们可以通过傅里叶变换来得到它。写出
+\begin{equation}
+  D_R(x-y) = \int \frac{d^4p}{(2\pi)^4}\ e^{-ip\cdot(x-y)}\ D_R(p),
+  \label{eq:2.57}
+\end{equation}
+我们得到 $D_R(p)$ 的一个代数表达式：
+\begin{equation}
+  (-p^2+m^2)D_R(p) = -i .
+\end{equation}
+于是我们立即得到结果
+\begin{equation}
+  D_R(p) = \frac{i}{p^2-m^2} .
+  \label{eq:2.58}
+\end{equation}
+\eqref{eq:2.58} 的 $p^0$ 积分可以按四种不同的围道求值，\eqref{eq:2.54} 中使用的只是其中之一。在第 4 章中我们将发现一种不同的极点规则，
+\[
+  \begin{array}{cc}
+    -E_{\mathbf{p}} & +E_{\mathbf{p}}
+  \end{array}
+\]
+极其有用；它被称为\emph{费曼规则}。记住它的一种方便方式是写成
+\begin{equation}
+  D_F(x-y) = \int \frac{d^4p}{(2\pi)^4}\ \frac{i}{p^2-m^2+i\epsilon}\
+    e^{-ip\cdot(x-y)}
+  \label{eq:2.59}
+\end{equation}
+因为此时极点在 $p^0 = \pm(E_{\mathbf{p}}-i\epsilon)$，被恰当地移到了实轴的上方和下方。当 $x^0>y^0$ 时，我们可以通过下方闭合围道进行 $p^0$ 积分，恰好得到传播振幅 $D(x-y)$ \eqref{eq:2.50}。当 $x^0<y^0$ 时，我们上方闭合围道，得到相同的表达式，但 $x$ 和 $y$ 互换。于是我们有
+\begin{equation}
+  D_F(x-y) = \begin{cases}
+    D(x-y) & \text{for } x^0>y^0\\
+    D(y-x) & \text{for } x^0<y^0
+  \end{cases}
+  = \theta(x^0-y^0)\langle 0|\phi(x)\phi(y)|0\rangle
+    + \theta(y^0-x^0)\langle 0|\phi(y)\phi(x)|0\rangle
+  = \langle 0|T\phi(x)\phi(y)|0\rangle .
+  \label{eq:2.60}
+\end{equation}
+最后一行定义了``时序''符号 $T$，它指示我们把后面的算符按时间顺序排列，最新的在左边。对最后一行作用 $(\partial^2+m^2)$，你可以直接验证 $D_F$ 是克莱因-戈登算符的格林函数。
+
+从实用的观点看，式 \eqref{eq:2.59} 和 \eqref{eq:2.60} 是本章最重要的结果。格林函数 $D_F(x-y)$ 被称为克莱因-戈登粒子的\emph{费曼传播子}，因为它毕竟是一个传播振幅。事实上，费曼传播子将构成费曼规则的一部分：$D_F(x-y)$（或 $D_F(p)$）就是我们附加到费曼图内线上的表达式，代表虚粒子的传播。
+
+然而，距离能够进行任何真正的计算，我们还有很长的路要走，因为到目前为止我们只讨论了自由的克莱因-戈登理论，其中场方程是线性的，没有相互作用。单个粒子生活在它们各自孤立的模式中，对彼此的存在以及任何其他种类粒子的存在毫不知晓。在这样一个理论中，通过散射或任何其他手段进行观测都是没有希望的。另一方面，我们所发展的形式体系极其重要，因为自由理论构成了在相互作用理论中进行微扰计算的基础。
+
+\subsection{经典源产生粒子}
+
+然而，有一种我们已经有能力处理的相互作用。考虑一个与外部的经典源场 $j(x)$ 耦合的克莱因-戈登场。也就是说，考虑场方程
+\begin{equation}
+  (\partial^2 + m^2)\phi(x) = j(x),
+  \label{eq:2.61}
+\end{equation}
+其中 $j(x)$ 是某个固定、已知的空间和时间函数，只在有限的时间间隔内非零。如果我们从真空态出发，在 $j(x)$ 被开启然后又关闭之后，我们将发现什么？
+
+场方程 \eqref{eq:2.61} 由拉格朗日量导出
+\begin{equation}
+  \mathcal{L} = \tfrac{1}{2}(\partial_\mu\phi)^2 - \tfrac{1}{2}m^2\phi^2
+    + j(x)\phi(x) .
+  \label{eq:2.62}
+\end{equation}
+但若 $j(x)$ 只在有限时间内开启，那么直接用场方程求解问题是最容易的。在 $j(x)$ 开启之前，$\phi(x)$ 具有形式
+\[
+  \phi_0(x) = \int \frac{d^3p}{(2\pi)^3}\ \frac{1}{\sqrt{2E_{\mathbf{p}}}}
+    \Bigl( a_{\mathbf{p}}e^{-ip\cdot x}
+      + a_{\mathbf{p}}^\dagger e^{ip\cdot x} \Bigr).
+\]
+如果没有源，这将是所有时间的解。有了源，运动方程的解可以用推迟格林函数构造：
+\begin{align}
+  \phi(x) &= \phi_0(x) + i\int d^4y\ D_R(x-y)\,j(y)\\
+  &= \phi_0(x) + \int \frac{d^3p}{(2\pi)^3}\ \frac{i}{\sqrt{2E_{\mathbf{p}}}}
+    \Bigl( e^{-ip\cdot x}\tilde{j}(p) - e^{ip\cdot x}\tilde{j}^{*}(p)
+      \Bigr),
+  \label{eq:2.63}
+\end{align}
+其中我们使用了来自式 \eqref{eq:2.58} 的 $D_R(x-y)$。如果我们等到 $j$ 全部成为过去，theta 函数在整个积分区域等于 1。于是 $\phi(x)$ 只涉及 $j$ 的傅里叶变换
+\begin{equation}
+  \tilde{j}(p) = \int d^4y\ e^{ip\cdot y}\,j(y),
+\end{equation}
+在满足 $p^2=m^2$ 的 4-动量 $p$ 处取值。自然地，把正频率项与 $a_{\mathbf{p}}$ 归在一起，负频率项与 $a_{\mathbf{p}}^\dagger$ 归在一起；这给出表达式
+\begin{equation}
+  \phi(x) = \int \frac{d^3p}{(2\pi)^3}\ \frac{1}{\sqrt{2E_{\mathbf{p}}}}
+    \Bigl\{ \Bigl( a_{\mathbf{p}}
+      + \frac{i\tilde{j}(p)}{\sqrt{2E_{\mathbf{p}}}} \Bigr)e^{-ip\cdot x}
+      + \mathrm{h.c.} \Bigr\}.
+  \label{eq:2.64}
+\end{equation}
+你现在可以猜测（或计算）$j(x)$ 作用之后哈密顿量的形式：只需把 $a_{\mathbf{p}}$ 换成 $(a_{\mathbf{p}} + i\tilde{j}(p)/\sqrt{2E_{\mathbf{p}}})$ 即可得到
+\begin{equation}
+  H = \int \frac{d^3p}{(2\pi)^3}\ E_{\mathbf{p}}\
+    \Bigl( a_{\mathbf{p}}^\dagger
+      + \frac{-i\tilde{j}^{*}(p)}{\sqrt{2E_{\mathbf{p}}}} \Bigr)
+    \Bigl( a_{\mathbf{p}}
+      + \frac{i\tilde{j}(p)}{\sqrt{2E_{\mathbf{p}}}} \Bigr) .
+\end{equation}
+源被关闭后系统的能量为
+\begin{equation}
+  \langle 0|H|0\rangle = \int \frac{d^3p}{(2\pi)^3}\
+    \frac{|\tilde{j}(p)|^2}{2E_{\mathbf{p}}},
+  \label{eq:2.65}
+\end{equation}
+其中 $|0\rangle$ 仍然表示自由理论的基态。我们可以通过把 $|\tilde{j}(p)|^2/2E_{\mathbf{p}}$ 识别为在模式 $\mathbf{p}$ 中产生一个粒子的概率密度，用粒子语言解释这些结果。于是产生的粒子总数为
+\begin{equation}
+  \langle 0|N|0\rangle = \int \frac{d^3p}{(2\pi)^3}\
+    \frac{|\tilde{j}(p)|^2}{2E_{\mathbf{p}}},
+  \label{eq:2.66}
+\end{equation}
+其中 $N = \int d^3p\ a_{\mathbf{p}}^\dagger a_{\mathbf{p}}/(2\pi)^3$。$j(x)$ 中只有那些与在质量壳上（即 $p^2=m^2$）的克莱因-戈登波共振的傅里叶分量才对产生粒子有效。我们将在习题 4.1 中回到这一主题。在第 6 章中，我们将研究由加速电子产生光子（轫致辐射）的类似问题。
+
+\problems
+
+\textbf{2.1} \emph{经典电磁学}（无源）由作用量导出
+\begin{equation}
+  S = -\frac{1}{4}\int d^4x\ F_{\mu\nu}F^{\mu\nu},
+\end{equation}
+其中 $F_{\mu\nu} = \partial_\mu A_\nu - \partial_\nu A_\mu$。
+\begin{enumerate}[label=(\alph*)]
+  \item 把分量 $A^\mu(x)$ 作为动力学变量，把 Maxwell 方程组推导为这个作用量的欧拉-拉格朗日方程。通过识别 $E^i = -F^{0i}$ 和 $\epsilon^{ijk}B^k = -F^{ij}$，把方程写成标准形式。
+  \item 构造这个理论的能量-动量张量。注意通常的步骤并不会得到对称张量。为弥补这一点，我们可以给 $T^{\mu\nu}$ 加上一项 $\partial_\lambda K^{\lambda\mu\nu}$，其中 $K^{\lambda\mu\nu}$ 对其前两个指标反对称。这样的对象自动无散度，因此 $T^{\mu\nu} = \cdots + \partial_\lambda K^{\lambda\mu\nu}$ 是同样好的能量-动量张量，具有相同的全局守恒能量和动量。证明这一构造（取
+    \begin{equation}
+      K^{\lambda\mu\nu} = F^{\mu\lambda}A^\nu,
+    \end{equation}
+    ）导致一个对称的能量-动量张量 $T^{\mu\nu}$，并给出电磁能量密度和动量密度的标准公式：
+    \begin{equation}
+      \mathcal{E} = \tfrac{1}{2}(\mathbf{E}^2+\mathbf{B}^2);\qquad
+      \mathbf{S} = \mathbf{E}\times\mathbf{B}.
+    \end{equation}
+\end{enumerate}
+
+\textbf{2.2} \emph{复标量场。}考虑服从克莱因-戈登方程的复值标量场的场论。该理论的作用量为
+\begin{equation}
+  S = \int d^4x\ \bigl( \partial_\mu\phi^{*}\partial^\mu\phi - m^2\phi^{*}\phi
+    \bigr).
+\end{equation}
+分析这一理论最容易的方式是把 $\phi(x)$ 和 $\phi^{*}(x)$，而不是 $\phi(x)$ 的实部和虚部，作为基本动力学变量。
+\begin{enumerate}[label=(\alph*)]
+  \item 求出 $\phi(x)$ 和 $\phi^{*}(x)$ 的共轭动量以及典则对易关系。证明哈密顿量为
+    \begin{equation}
+      H = \int d^3x\ \bigl( \pi^{*}\pi + \nabla\phi^{*}\cdot\nabla\phi
+        + m^2\phi^{*}\phi \bigr).
+    \end{equation}
+    计算 $\phi(x)$ 的海森堡运动方程，并证明它确实是克莱因-戈登方程。
+  \item 通过引入产生和湮灭算符对角化 $H$。证明该理论包含两组质量为 $m$ 的粒子。
+  \item 用产生和湮灭算符改写守恒电荷
+    \begin{equation}
+      Q = \int d^3x\ \frac{i}{2}\bigl( \phi^{*}\pi^{*} - \pi\phi \bigr)
+    \end{equation}
+    并计算每种类型粒子的电荷。
+  \item 考虑两个具有相同质量的复克莱因-戈登场的情形。把场标记为 $\phi_a(x)$，其中 $a=1,2$。证明现在有四个守恒电荷，一个由部分 (c) 的推广给出，另外三个由
+    \begin{equation}
+      Q^l = \int d^3x\ \frac{i}{2}\bigl(
+        \phi^{*}_a(\sigma^l)_{ab}\phi_b - \pi_a(\sigma^l)_{ab}\pi^{*}_b \bigr),
+    \end{equation}
+    给出，其中 $\sigma^l$ 是 Pauli sigma 矩阵。证明这三个电荷具有角动量（SU(2)）的对易关系。把这些结果推广到 $n$ 个全同复标量场的情形。%
+    \footnote{经过一些额外的工作，你可以证明在两个复场的情形实际上有六个守恒电荷，在 $n$ 个场的情形有 $n(2n-1)$ 个，分别对应于四维和 $2n$ 维旋转群的生成元。当包含场的非线性相互作用时，这些额外的对称性往往不再存在。}
+\end{enumerate}
+
+\textbf{2.3} 在 $(x-y)$ 类空即 $(x-y)^2 = -r^2$ 的情形下，用 Bessel 函数显式求函数
+\begin{equation}
+  \langle 0|\phi(x)\phi(y)|0\rangle = D(x-y) = \int \frac{d^3p}{(2\pi)^3}
+    \frac{1}{2E_{\mathbf{p}}}\ e^{-ip\cdot(x-y)},
+\end{equation}
+的值。

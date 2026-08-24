@@ -1,0 +1,1745 @@
+8
+Dynamical fermions
+
+QCD is the quantum ﬁeld theory of gluons and quarks. In previous chapters
+we have found that for gluons the inclusion of the full dynamical behavior
+in Monte Carlo simulations is straightforward, but not so for quarks. In this
+chapter we discuss the still missing feature: dynamical quarks.
+A calculation with dynamical fermions is a much more challenging enterprise than a quenched calculation, and new algorithmic ideas are needed for
+the inclusion of the fermion determinant. In this chapter we present some of
+these algorithms and techniques. Subsequently we address the coupling-mass
+phase diagram and discuss some results of dynamical QCD calculations.
+
+8.1 The many faces of the fermion determinant
+In the path integral, whenever the fermions occur bilinearly in the action, the
+Grassmann integral can be evaluated in closed form and leads to the fermion
+determinant as a factor. As an example we quote the expression for the twopoint function of a ﬂavor triplet meson from Sect. 6.1.5,
+
+
+1
+OT (n) OT (m) = −
+D[U ] e−SG [U ] det[Du ] det[Dd ]
+Z
+!
+× tr Γ Du−1 (n|m) Γ Dd−1 (m|n) ,
+
+(8.1)
+Z = D[U ] e−SG [U ] det[Du ] det[Dd ] .
+The meson interpolators are converted into products of quark propagators
+and each fermion ﬂavor accounts for one fermion determinant factor. In our
+example we take into account the two lightest quarks u and d. In the quenched
+approximation, discussed in Sect. 6.1.6, the determinants were put to unity by
+hand. This amounts to neglecting vacuum loops of quarks (see Fig. 6.2).
+Here we now take into account the eﬀect of the fermions. We stress that
+the fermion determinant is a functional of the gauge ﬁeld and has to be
+Gattringer, C., Lang, C.B.: Dynamical Fermions. Lect. Notes Phys. 788, 185–211
+(2010)
+c Springer-Verlag Berlin Heidelberg 2010
+
+DOI 10.1007/978-3-642-01850-3 8
+
+186
+
+8 Dynamical Fermions
+
+computed anew for every gauge conﬁguration. Even for lattices of moderate
+size the Dirac operator is a huge matrix with N = 12|Λ| rows and columns,
+where 12 is the product of color and Dirac entries and |Λ| the total number
+of lattice points. This number easily becomes larger than a million. The computational cost of calculating even only one such determinant in closed form,
+which formally has N ! contributing terms, is prohibitively high.
+8.1.1 The fermion determinant as observable
+Let us forget for a moment the technical problem of high computational cost.
+For small lattice size and a few conﬁgurations a direct determination is certainly possible. In this case one can try to treat the determinant as part of an
+observable and rewrite (8.1) as
+
+
+O U, ψ, ψ
+
+!
+
+=
+
+ det[Du ] det[Dd ] O[U ] G
+.
+ det[Du ] det[Dd ] G
+
+(8.2)
+
+The expectation value . . . G is computed with the path integral for pure
+gauge theory,
+
+
+1
+D[U ] e−SG [U ] A[U ] , ZG = D[U ] e−SG [U ] .
+(8.3)
+AG =
+ZG
+Although the idea of treating the determinant as an observable is appealing,
+it has a serious ﬂaw: Depending on the gauge conﬁguration the determinant
+may have widely diﬀerent values, typically covering several orders of magnitude. In the sum over all conﬁgurations this leads to large ﬂuctuations around
+the mean value and thus to an intrinsic instability. As a matter of fact, the
+distribution of the gauge conﬁgurations according to (8.3) is very diﬀerent
+from that obtained when also the determinant is taken into account in their
+Monte Carlo generation.
+For that reason, treating the determinant as an observable is numerically
+justiﬁed only for extremely large statistics. Only in lower dimensions (e.g., for
+the 2D Schwinger model) such an approach has led to acceptable results.
+8.1.2 The fermion determinant as a weight factor
+In order to obtain properly distributed gauge conﬁgurations, one tries to include the determinant as a probability weight factor when generating the
+Markov chain of gauge conﬁgurations. Thus the gauge ﬁelds U are distributed
+according to the joint distribution (for two dynamical quark ﬂavors)
+1 −SG [U ]
+e
+det[Du ] det[Dd ] .
+Z
+
+(8.4)
+
+Once the gauge conﬁgurations have been generated according to this distribution, the observables are computed on these gauge conﬁgurations as discussed
+in Chaps. 4 and 6.
+
+8.1 The many faces of the fermion determinant
+
+187
+
+There is, however, a potential problem: If we want to interpret the contribution of the fermion determinants as a factor in a probability weight it must
+be real and nonnegative. In most cases one can use the γ5 -hermiticity of D
+(see (5.76)), i.e., γ5 Dγ5 = D† , to show that the determinant is real:
+det[D]∗ = det[D† ] = det[γ5 D γ5 ] = det[D] .
+
+(8.5)
+
+However, the determinant could still be real but negative. A possible physically
+justiﬁed (see (7.21)) solution is to assume that u and d quarks are mass
+degenerate and thus Du = Dd ≡ D. More generally, for an even number of
+mass-degenerate quarks the fermion determinant is raised to an even power
+and the combined weight factor is nonnegative. No principal obstacle for an
+interpretation as probability weight is encountered then. For the case of two
+degenerate ﬂavors we can use (8.5) and write
+0 ≤ det[D] det[D] = det[D] det[D† ] = det[D D† ] .
+
+(8.6)
+
+In the last step we have rewritten the product of the two determinants for the
+two ﬂavors into a single determinant of the hermitian matrix D D† , a form
+which will be useful later.
+If in addition to γ5 -hermiticity the Dirac operator is also chiral (for vanishing quark mass), it obeys the Ginsparg–Wilson equation in the form (7.48).
+The spectrum for the massless case is then restricted to the Ginsparg–Wilson
+circle shown in Fig. 7.1. Since the eigenvalues come in complex conjugate pairs
+(cf. (7.45)), the determinant is real and nonnegative. If one introduces a mass
+term, the determinant is even strictly positive. Thus for a chiral γ5 -hermitian
+Dirac operator also odd powers of the fermion determinant give rise to a
+proper probability weight.
+In special but important cases, e.g., when a chemical potential or a
+θ-angle are introduced, γ5 -hermiticity does not hold and the determinant may
+be even complex. These cases need to be treated with diﬀerent methods (see
+Chap. 12).
+8.1.3 Pseudofermions
+The central idea in introducing dynamical fermions in the Monte Carlo sampling of gauge ﬁelds is based on the analogy between fermionic and bosonic
+Gaussian integrals. Consider the vector φ = φR + iφI of N complex variables
+and a matrix A with eigenvalues λ which all have a positive real part Reλ > 0.
+Then a Gaussian integral equivalent to (5.32) may be evaluated giving the
+generating functional
+⎞
+⎛
+
+N
+N
+N
+N
+
+
+
+
+†
+†
+†
+W [χ, χ† ] ≡
+(dφR,i dφI,i ) exp ⎝−
+φi Aij φj +
+φ i χi +
+χi φi⎠
+R2N i=1
+N
+
+=
+
+⎛
+
+⎞
+
+i,j=1
+N
+
+
+π
+exp ⎝
+χ†i (A−1 )ij χj⎠ .
+| det[A]|
+i,j=1
+
+i=1
+
+i=1
+
+(8.7)
+
+188
+
+8 Dynamical Fermions
+
+Up to an irrelevant factor π N , the result agrees with the corresponding
+Grassmann integral, except that the determinant is now in the denominator.
+ & For simplicity we again introduce the abbreviation D[φR ]D[φI ] ≡
+i dφR,i dφI,i .
+This correspondence has led to the introduction of the so-called pseudofermions. These are bosons with the same number of degrees of freedom as
+the fermionic variables. One has used them in two diﬀerent ways:
+•
+•
+
+With A ≡ (D D† )−1 one may express the fermion determinant as Gaussian integral of a bosonic ﬁeld. Used in that context we call the variables
+pseudofermion ﬁelds (see below).
+With A ≡ (D D† ) one may utilize the Gaussian integral in order to estimate matrix elements like D−1 (n|m) or sums like tr[D−1 ]. This Monte
+Carlo sum introduces statistical noise and therefore we call these variables
+noisy pseudofermions used to construct noisy pseudofermion estimators.
+These techniques will be discussed in Sect. 8.4.
+
+For a D with nonvanishing eigenvalues we have det[D] = 1/ det[D−1 ]. Thus
+one may further utilize the boson-fermion analogy. In [1] the pseudofermion
+ﬁelds were introduced by observing that from (8.7) one obtains
+
+†
+† −1
+det[D D† ] = π −N
+(8.8)
+D[φR ]D[φI ] e−φ (D D ) φ ,
+where we suppress color, Dirac, ﬂavor, and lattice indices and use
+vector/matrix notation for φ and D. One uses this relation to replace the
+integral over the fermionic Grassmann variables for two mass-degenerate ﬂavors by an integral over bosonic variables,
+
+
+!
+†
+† −1
+D [ψ] D ψ e−ψu Dψu −ψd Dψd = π −N
+D[φR ]D[φI ] e−φ (D D ) φ .
+(8.9)
+In this formulation the number of fermions of a given mass has to be even
+in order to guarantee positivity which is necessary for the convergence of
+the Gaussian integrals. The eﬀective bosonic interaction contains the inverse
+matrix (D D† )−1 and therefore is highly nonlocal.
+8.1.4 Eﬀective fermion action
+A useful way of thinking about the fermion determinant is to interpret it as
+an additional contribution to the gauge action, the so-called eﬀective fermion
+action. With (A.54) we write the determinant in the form of an exponential
+and obtain
+
+
+det[D] = exp (tr [ln(D)]) ≡ exp −S Feﬀ ,
+(8.10)
+S Feﬀ [U ] = − tr [ln(D)] .
+
+8.1 The many faces of the fermion determinant
+
+189
+
+Here we have assumed that det[D] is real and positive, i.e., D is either a chiral
+γ5 -hermitian matrix plus a mass term, or we work with two ﬂavors and D is
+replaced by DD† according to (8.6).
+In contrast to the local gauge action, the eﬀective fermion action is a very
+nonlocal quantity and connects essentially all gauge variables of the system
+with each other. Here we use the terms nonlocal and local to distinguish
+whether coupling is to all variables of the system or only to ﬁeld variables in
+the neighborhood. The latter is often called ultralocal to distinguish it from
+being local only in the continuum limit, for which it is suﬃcient to show that
+the coupling to distant ﬁeld variables decreases exponentially with distance
+(compare the discussion of the locality properties for the Dirac operator in
+Sect. 7.4.2).
+Generating gauge conﬁgurations distributed according to the combined
+Boltzmann weight factor
+exp(−S[U ])
+
+with
+
+S[U ] = SG [U ] + S Feﬀ [U ]
+
+(8.11)
+
+is a possible way to include dynamical fermions. For generating sequences of
+gauge conﬁgurations according to the distribution (8.11) we need the change
+of the total action
+
+
+exp (−S[U  ] + S[U ]) = exp (−SG [U  ] + SG [U ]) exp −S Feﬀ [U  ] + S Feﬀ [U ]
+(8.12)
+for the Metropolis step, where we decide whether to accept the candidate
+conﬁguration U  or reject it. Computing the factor from the gauge action
+is simple (compare Sect. 4.1). The second term, coming from the eﬀective
+fermion action, requires new techniques.
+8.1.5 First steps toward updating with fermions
+Before we describe modern fermion algorithms in more detail, let us brieﬂy
+discuss some general ideas for the update. Diﬀerent methods diﬀer in the way
+the action change is determined and in the dependence of the computer time
+on the volume of the lattice and the fermion mass:
+•
+
+•
+
+Global changes of the gauge ﬁeld, accepting with the determinant as weight
+factor: One estimates the ratio
+$
+%
+
+
+
+
+D[U  ]
+exp −ΔS Feﬀ ≡ exp −S Feﬀ [U  ] + S Feﬀ [U ] = det
+(8.13)
+D[U ]
+by stochastic methods as discussed in Sect. 8.4.
+Small steps, estimating ΔS Feﬀ by an approximation essentially linear in
+the change of the gauge variables. Due to this approximation errors may
+accumulate and one has to rely on corrective measures.
+
+Both paths have been pursued.
+
+190
+
+8 Dynamical Fermions
+
+Updating, e.g., a single gauge link variable in a Metropolis step requires
+the determination of the action change. For this one has to compute D−1
+acting on a vector, usually employing a conjugate gradient algorithm (see
+Sect. 8.2.3). Assuming that the necessary number of iterations depends only
+weakly on the volume, one such inversion needs computer time proportional to
+the lattice volume. The acceptance may be reasonable, but this computation
+has to be repeated for each change of a gauge variable, and therefore the full
+algorithmic cost grows with V 2 .
+On the other hand, considering a global update, where all link variables
+are altered (or a partial-global update, cf. [2]), the change of the action will
+be typically proportional to the volume and the acceptance rate drops exponentially with the volume. Thus one has to decrease the step size inversely
+proportional to the volume, which again leads to a computational eﬀort growing with the volume squared.
+However, there are algorithms with much better performance, based on
+the pseudofermion ﬁeld concept. The idea is to choose changes of the gauge
+ﬁeld not completely randomly but along directions determined by the action.
+This introduces a bias, but there are methods to eﬀectively undo this bias
+in the updating such that the detailed balance is respected. The so-called
+hybrid Monte Carlo (HMC) algorithm is such a method and will be discussed
+next.
+
+8.2 Hybrid Monte Carlo
+The updating of the gauge ﬁeld variables in a distribution PS (U ) ∝ exp(−S)
+deﬁned through the gauge ﬁeld action and the eﬀective fermionic action has
+two parts. First one has to ﬁnd a reasonable candidate for a change of
+the gauge variables. This introduces an a priori selection probability factor
+T0 (U  |U ) (compare Sect. 4.1.3). In a second step one has to decide whether to
+accept or reject the new conﬁguration, according to an acceptance probability
+TA (U  |U ). Together the two steps provide the overall transition probability
+T (U  |U ) = TA (U  |U ) T0 (U  |U ) .
+
+(8.14)
+
+The detailed balance condition (4.15) for T (U  |U ) may be obeyed with a
+Metropolis accept–reject probability following (4.16).
+If one considers only the gauge ﬁeld action both steps are simple since
+the gauge action is ultralocal (cf. Chap. 4). Thus computing the change of the
+gauge action is cheap and one makes small changes of variables, maybe even
+just for one link, and then decides whether to accept or reject the change.
+Applying this to the full action including fermions is computationally expensive since the determinant leads to a nonlocal S eﬀ and thus computing
+the change of the action involves all link variables, even if only a single gauge
+link is altered. One therefore attempts to update many variables in one step.
+
+8.2 Hybrid Monte Carlo
+
+191
+
+Doing this in a naive manner typically leads to large changes of the action and
+to extremely small acceptance probability and thus is not eﬃcient. Ideally, the
+acceptance probability should be large and only weakly volume dependent. At
+the same time the autocorrelation between subsequent conﬁgurations should
+be as small as possible.
+There are various strategies to ﬁnd a new conﬁguration with a reasonable
+chance to be accepted. We now discuss the diﬀerential equation approach.
+8.2.1 Molecular dynamics leapfrog evolution
+Let us ﬁrst look at the basic concept: A Hamiltonian process developing in
+computer time (Markov time) τ . In order to focus on the central idea we discuss the method ﬁrst for a real scalar ﬁeld Q. For simplicity of presentation
+we suppress the lattice index for this ﬁeld and employ vector/matrix notation. Using the gauge variables leads to technical complications which will be
+addressed later. Conjugate to the bosonic ﬁeld variables Q we introduce real
+momenta P and write the formula for the vacuum expectation value of some
+observable O as
+
+D[Q] exp(−S[Q]) O[Q]
+
+OQ =
+D[Q] exp(−S[Q])
+(8.15)
+
+D[Q] D[P ] exp(− 12 P 2 − S[Q]) O[Q]
+
+=
+= OP,Q .
+D[Q] D[P ] exp(− 12 P 2 − S[Q])
+To give an example for our use of vector/matrix notation, we remark that P 2
+stands for
+
+P (n)2 .
+(8.16)
+P2 =
+n∈Λ
+
+The second form in (8.15) is equivalent since in the expectation value the
+Gaussian integrals for P cancel. In the large volume limit this new form represents a microcanonical ensemble of a classical (nonrelativistic) system with
+Hamiltonian
+1
+(8.17)
+H[Q, P ] ≡ P 2 + S[Q] .
+2
+The classical equations of motion (in computer time) for this system are
+∂S
+∂H
+= −
+,
+∂Q
+∂Q
+∂H
+Q̇ =
+= P .
+∂P
+Ṗ = −
+
+(8.18)
+
+The notation used for the derivatives is a shorthand notation for the derivative
+with respect to the ﬁeld value at a single lattice site in accordance with our
+vector/matrix convention.
+
+192
+
+8 Dynamical Fermions
+
+The Eqs. (8.18) are called molecular dynamics equations since they determine the time evolution of a classical system of particles. The Hamiltonian
+is a constant of motion, and the path of the conﬁgurations (P, Q) lies on
+a hypersurface of constant energy in phase space and thus would be always
+accepted if the evolution of (8.18) could be done exactly.
+The Eqs. (8.18) can be evolved numerically, and according to (8.15) we
+may extract the requested expectation values OQ from the Q–P ensemble.
+We stress that one also has to show that the evolution gives rise to an update
+which is ergodic for the ﬁelds of interest, i.e., the ﬁelds Q in this case.
+Using the microcanonical evolution for pure gauge theories has been suggested in [3], for fermions in [4]. Such molecular dynamics evolution equations
+are also closely related to stochastic diﬀerential equations like the Langevin
+equation, where the classical evolution is disturbed by a noise term. The random noise gives rise to the quantum ﬂuctuations of the quantum ﬁeld theory
+[5, 6]. Changing the conjugate momenta randomly, according to the Gaussian
+distribution, and pursuing the microcanonical path in between these changes
+led to the so-called hybrid algorithms [7, 8].
+The numerical implementation of (8.18) introduces a discrete step size
+ε ≡ Δτ and numerical errors are unavoidable. A simple linear evolution
+scheme introduces errors O(ε2 ). Either one ﬁnds a way to extrapolate the
+results to vanishing step size or one introduces a corrective step. This second
+idea leads to the hybrid Monte Carlo algorithm.
+We call a sequence of small steps following the approximate molecular
+dynamics evolution a trajectory. For the HMC method one ﬁrst constructs a
+new conﬁguration by evolution along such a trajectory and then decides in a
+Metropolis step whether to accept the new conﬁguration.
+It will turn out that for the detailed balance condition (4.15) we need to
+have two requirements on the molecular dynamics trajectory:
+•
+•
+
+Area preservation of the integration measure D[Q] D[P ].
+Reversibility of the trajectory, Tmd (P  , Q |P, Q) = Tmd (−P, Q| − P  , Q ).
+
+Reversibility can be obtained by using the so-called leapfrog integration
+scheme (assuming perfect arithmetic precision): Whereas Q is evolved in n
+steps of length ε, the conjugate momenta start with a half-step ε/2, then
+(n − 1) full steps and ﬁnally again a half-step. We discuss the two required
+properties, area preservation and reversibility, for a single such step
+−→
+
+Q(ε) ,
+
+P (0) → P ( 2ε )
+
+→ P (ε) ,
+
+Q(0)
+
+(8.19)
+
+and longer trajectories are built by combining several such steps. The simplest
+Euler integration scheme corresponds to the equations
+
+8.2 Hybrid Monte Carlo
+
+Q(0)
+↓
+Q(ε) = Q(0) + P
+
+ε
+2
+
+ε
+
+P (0)
+.
+↓
+ε
+ε
+∂S ..
+P 2 = P (0) −
+∂Q .Q(0) 2
+.
+↓
+ε
+ε
+∂S ..
+.
+P (ε) = P 2 −
+∂Q .Q(ε) 2
+
+193
+
+(8.20)
+
+Area preservation of the integration can be shown from the product of Jacobians along this sequence1 :
+$
+%
+$
+%
+∂(P1 , Q1 )
+∂(P1 , Q1 ) ∂(P1/2 , Q1 ) ∂(P1/2 , Q0 )
+det
+= det
+.
+(8.21)
+∂(P0 , Q0 )
+∂(P1/2 , Q1 ) ∂(P1/2 , Q0 ) ∂(P0 , Q0 )
+The right-hand side factorizes into three determinants of triangular matrices, e.g.,
+$
+%
+$
+%
+∂(P1/2 , Q0 )
+1 ...
+det
+= det
+=1,
+(8.22)
+0 1
+∂(P0 , Q0 )
+and similarly for the other Jacobians. Thus the total Jacobian is 1 and the
+integration measure is invariant.
+In order to inspect reversibility let us ﬁrst combine the Eqs. (8.20) starting
+at time 0 from some initial value (Q0 , P0 ). We obtain
+.
+1 ∂S ..
+ε2 ,
+Q1 = Q0 + P0 ε −
+2 ∂Q .Q0
+
+.
+. 
+∂S ..
+1
+∂S ..
++
+P1 = P 0 −
+ε.
+(8.23)
+2 ∂Q .Q0
+∂Q .Q1
+Making a step backwards corresponds to starting at (Q1 , P1 ) and applying
+the equations with a negative step size −ε. We ﬁnd
+.
+1 ∂S ..
+ε2
+Q(ε − ε) = Q0 = Q1 − P1 ε −
+2 ∂Q .Q1
+
+.
+. 
+.
+1 ∂S ..
+∂S ..
+1 ∂S ..
+2
+ε
+= Q1 − P0 ε +
++
+−
+ε2
+2 ∂Q .Q0
+∂Q .Q1
+2 ∂Q .Q1
+(8.24)
+.
+1 ∂S ..
+2
+= Q1 − P0 ε +
+ε = Q0 ,
+2 ∂Q .Q0
+
+.
+. 
+∂S ..
+1 ∂S ..
+P (ε − ε) = P0 = P1 +
+ε = P0 .
++
+∂Q .Q1 2 ∂Q .Q0
+Thus we end up where we have started and reversibility is established. In
+the equation time always multiplies P and thus this is equivalent to stating
+1
+
+For notational convenience we use Q(nε) ≡ Qn and P (nε) ≡ Qn .
+
+194
+
+8 Dynamical Fermions
+
+that in the evolution Tmd (P  , Q |P, Q) = Tmd (−P, Q| − P  , Q ), as wanted.
+Actually, the sign of P may be reversed, since P enters quadratically in the
+distributions, and thus Tmd (P  , Q |P, Q) = Tmd (P, Q|P  , Q ).
+One may combine n leapfrog steps (8.23) to build a trajectory of length
+n ε ≈ 1. This amounts to inserting a sequence of full steps for both Q and P
+in (8.20). The discretization error for the half steps is O(ε2 ), for the normal
+steps O(ε3 ). The number of such steps in typical calculations is O(100).
+8.2.2 Completing with an accept–reject step
+Once a new conﬁguration proposal has been obtained as the endpoint of a
+leapfrog molecular dynamics trajectory, it is accepted only with a probability
+depending on the change of the total Boltzmann factor. This is necessary since
+the evolution of (8.18) is not exact due to the O(ε2 ) errors. The full HMC
+step thus consists of the following parts:
+•
+•
+
+Given a conﬁguration Q, generate a set of conjugate momenta P from a
+Gaussian distribution PG (P ) ∝ exp(−P 2 /2).
+The molecular dynamics trajectory leads from a conﬁguration (P, Q) to
+a conﬁguration (P (τ + n ε), Q(τ + n ε)) ≡ (P  , Q ). As discussed above,
+this is a deterministic process obeying
+Tmd (P  , Q |P, Q) = Tmd (−P, Q|−P  , Q ) .
+The new conﬁguration is accepted with probability (see (4.16))
+
+
+exp(−H[P  , Q ])
+
+
+TA (P , Q |P, Q) = min 1,
+.
+exp(−H[P, Q])
+
+(8.25)
+
+(8.26)
+
+We now prove that this is a valid Metropolis step in the Markov sequence
+of conﬁgurations, i.e., we show detailed balance for the algorithm. The total
+probability to move from Q to Q results from integrating over all P and P  ,
+
+2
+T (Q |Q) = D[P ] D[P  ] TA (P  , Q |P, Q) Tmd (P  , Q |P, Q) e−P /2 . (8.27)
+We then transform
+
+
+
+2
+
+
+
+e−P /2−S[Q ]
+TA (P , Q |P, Q) = min 1, −P 2 /2−S[Q]
+e
+
+
+
+
+
+
+= e
+
+−P 2 /2−S[Q ]+P 2 /2+S[Q]
+
+
+min
+
+
+2
+e−P /2−S[Q]
+,1
+e−P 2 /2−S[Q ]
+(8.28)
+
+= e−P
+
+2
+
+/2−S[Q ]+P 2 /2+S[Q]
+
+TA (P, Q|P  , Q )
+
+= e−P
+
+2
+
+/2−S[Q ]+P 2 /2+S[Q]
+
+TA (−P, Q|−P  , Q ) .
+
+8.2 Hybrid Monte Carlo
+
+195
+
+In the last step we have used that TA is obviously even in the momentum variables. Taking into account the reversibility (8.25) of the molecular dynamics
+evolution, the integral (8.27) becomes
+T (Q |Q) =
+
+
+2
+= D[P ]D[P  ] TA (−P, Q| −P  , Q ) Tmd (−P, Q| −P  , Q ) e−S[Q ]+S[Q]−P /2
+
+
+2
+= D[P ]D[P  ] TA (P, Q|P  , Q ) Tmd (P, Q|P  , Q ) e−S[Q ]+S[Q]−P /2 .
+(8.29)
+The second step is possible, since the integration measure is invariant under a
+sign change of all momenta. Multiplication with exp(−S[Q]) and comparing
+with (8.27) then gives
+
+
+e−S[Q] T (Q |Q) = e−S[Q ] T (Q|Q ) .
+
+(8.30)
+
+This is the detailed balance equation (4.15) for the distribution probability
+exp(−S[Q]) and the proof is complete.
+If the molecular dynamics equations were implemented numerically exactly, then H[P  , Q ] = H[P, Q] and the acceptance probability (8.26) becomes
+equal to 1. The Monte Carlo step therefore corrects for numerical errors in
+the discretization. There is more to that, however. Sometimes it may be computationally advantageous to evolve the molecular dynamics trajectory with
+another, e.g., simpler action S and to accept the change using the desired
+action S in (8.26). This is perfectly legal. It will aﬀect the acceptance rate,
+though, which may become very small if the actions diﬀer in any signiﬁcant
+manner.
+8.2.3 Implementing HMC for gauge ﬁelds and fermions
+Let us now apply the HMC-update to QCD with two dynamical, massdegenerate ﬂavors of quarks. Using pseudofermions as in (8.8) for rewriting
+the determinant, we have a system of pseudofermion ﬁelds φ and gauge ﬁelds
+U distributed with the Boltzmann weight factor
+exp (−S[U ])
+
+with
+
+S[U ] = SG [U ] − φ† (D D† )−1 φ .
+
+(8.31)
+
+The pseudofermions φ have the same indices as the Dirac ﬁeld ψ, i.e., color–,
+Dirac–, and space–time indices. The ﬁelds φ and U are updated alternately
+according to the distribution (8.31).
+The update of the ﬁelds φ is simple. In fact, φ may be easily created by
+generating a complex vector χ with Gaussian distribution exp(−χ† χ) and
+then determining φ = D χ. The Jacobian due to this transformation is not
+relevant since the gauge ﬁelds are not changed in this step.
+Once φ has been constructed, the gauge ﬁelds U are updated in a molecular
+dynamics trajectory treating φ as an external, constant ﬁeld. This leads to a
+new candidate gauge conﬁguration, which is then accepted or rejected in the
+
+196
+
+8 Dynamical Fermions
+
+ﬁnal Metropolis step. This procedure of constructing a ﬁeld φ, evolving U ,
+and closing with a Metropolis step, is iterated.
+We have to take into account that the gauge ﬁelds U are group elements
+whereas so far we have presented the molecular dynamics algorithm for variables in ﬂat space. Before turning to SU(3) let us discuss the simpler abelian
+case of the gauge group U(1), where the link variables can be written as
+U = exp(iQ). We use as conjugate variables the real number Q and a corresponding real momentum P . The Hamiltonian equations are identical to
+(8.18). Let us consider the discretizations of the second of those,
+Q̇ = P → Q(ε) = Q(0) + P (0) ε
+
+(8.32)
+
+→ −i ln U (ε) = i ln U (0) + P (0) ε
+
+→
+
+U (ε) = e
+
+i P (0) ε
+
+U (0) .
+
+Integrating this diﬀerential equations might have led Q out of the principal
+value interval of the group. For U(1) this is no problem, since the relation
+U = exp(i Q) automatically projects back.
+Let us now implement the algorithm for the non-abelian gauge group
+SU(3). We can write each link variable as, cf. (A.2),
+
+ 8
+
+(i)
+(8.33)
+U = exp i
+ω Ti ≡ exp(i Q) .
+i=1
+
+As for the case of U(1) our Q are identiﬁed with elements of the algebra, i.e.,
+they are traceless hermitian matrices parametrized by the real variables ω (i) .
+For each link variable Uμ (n) there are eight real momentum variables
+(i)
+(i)
+Pμ (n) conjugate to the parameters ωμ (n), where n ∈ Λ is the space–time
+index. We may combine them to an element of the algebra of SU(3) by summing them with the generators Ti ,
+Pμ (n) =
+
+8
+
+
+Pμ(i) (n) Ti .
+
+(8.34)
+
+i=1
+
+Thus the Pμ (n) are also traceless and hermitian matrices. The Hamilton equations involve the sum (use (A.3))
+!
+1   (i) 2 
+Pμ (n) =
+(8.35)
+tr Pμ (n)2 .
+2 n,μ,i
+n,μ
+We will formulate the algorithm in terms of the matrices Pμ (n) and Uμ (n).
+For the molecular dynamics evolution we also need the derivative of the
+action with respect to the Q. Derivatives always live in the tangential space
+of a manifold. For unitary groups this is the algebra (see Appendix A.1) and
+derivatives thus are along some path in the algebra. The derivative of some
+function f (U ) of a group element in the algebra direction Ti may be deﬁned
+as,2
+
+This deﬁnition can be understood from diﬀerentiating ln(U ) = i k ω (k) Tk with
+respect to ω (i) . We remark that this deﬁnition is not unique, but the outcome of
+(8.36) is, if f (U ) is a class function.
+2
+
+8.2 Hybrid Monte Carlo
+
+.
+.
+∂f (U )
+∂
+(i)
+i ω Ti
+f (e
+∇ f (U ) ≡
+=
+U )..
+.
+(i)
+∂ω
+∂ω
+ω=0
+
+197
+
+(8.36)
+
+In this way we ﬁnd, e.g., (A, B ∈ SU(3))
+∇(i) A U B = i A Ti U B ,
+
+(8.37)
+
+∇(i) A U U B = i A Ti U U B + i A U Ti U B ,
+
+and so on. The leapfrog discretized molecular dynamics equations (8.20) for
+altogether n steps then become:
+1. Pseudofermions
+Generate the pseudofermion ﬁeld φ = Dχ, where χ is distributed
+according to exp(−χ† χ).
+2. Conjugate ﬁelds
+Given a gauge conﬁguration U0 generate P0 (eight real numbers !
+for
+each (n, μ)) according to the Gaussian distribution exp − tr P 2 .
+3. Initial step
+.
+ε
+.
+P 21 = P0 − F [U, φ]. .
+2
+U0
+4. Intermediate steps
+Full steps for k = 1,. . . , n − 1:
+.
+.
+Uk = exp i ε Pk− 12 Uk−1 , Pk+ 12 = Pk− 12 − ε F [U, φ]. .
+Uk
+
+5. Final step
+
+
+
+
+Un = exp i ε Pn− 12
+
+Un−1 ,
+
+Pn = Pn− 12 −
+
+.
+ε
+.
+F [U, φ]. .
+2
+Un
+
+6. Monte Carlo step
+Accept–reject step at the end of the trajectory: accept the changes
+if a random number r ∈ [0, 1) is smaller than
+
+!
+!
+exp tr P 2 − tr P 2 + SG [U ] − SG [U  ]  
+(8.38)
++ φ† (D D† )−1 − (D D† )−1 φ .
+In these equations
+F [U, φ] =
+
+8
+
+
+
+
+Ti ∇(i) SG [U ] + φ† (D D† )−1 φ ∈ su(3)
+
+(8.39)
+
+i=1
+
+denotes the driving force, an element of the algebra su(3).
+For the pseudofermion contribution in the accept–reject step one re-uses
+the vector (D D† )−1 φ that has been computed for the force in step (5).
+A technical problem is the exponentiation exp(i ε P ) in step (4) of (8.38)
+which maps an element of the algebra to a group element. This may be done
+
+198
+
+8 Dynamical Fermions
+
+either by a series expansion or, faster, by utilizing the Cayley–Hamilton relation as done in [9].
+The force term (8.39) involves derivatives with regard to the algebra elements. As an example let us determine the force due to the contribution from
+the Wilson gauge action (4.20) involving a particular link U . It is given by
+−
+
+!
+β
+tr U A + A† U † ,
+6
+
+(8.40)
+
+where A denotes the sum of adjacent staples (4.20). The derivative of the
+trace-term then is
+!
+!
+
+!
+∇(i) tr U A + A† U † = tr i Ti U A − i A† U † Ti = tr i Ti U A − A† U † .
+(8.41)
+The resulting force is
+−
+
+8
+
+!
+
+β 
+β 
+Ti tr i Ti U A − A† U † = − i U A − A† U † .
+6 i=1
+12
+
+(8.42)
+
+We have used that i (U A − A† U † ) is traceless and hermitian and thus is a
+linear combination of the Tj . For such a sum one has the identity
+"
+#
+
+
+1
+Tj tr Tj
+ck Tk =
+cj Tj .
+(8.43)
+2 j
+j
+k
+
+The trace projects out the contribution of Tj (introducing a factor of 1/2),
+and the sum reconstructs the expression.
+The contribution of the fermion action to the force requires the evaluation
+of (we use ∂ M −1 /∂ ω = −M −1 (∂ M/∂ ω)M −1 here)
+ 
+
+−1 
+
+−1  (i)
+−1
+∇(i) φ† D D†
+∇ D D† D D†
+φ = −φ† D D†
+φ
+
+
+†
+(8.44)
+
+
+
+
+∂D
+∂D
+†
+(D D† )−1 φ .
+= − (D D† )−1 φ
+D† + D (i)
+(i)
+∂ω
+∂ω
+In each substep of the trajectory one therefore has to compute the derivative of
+D and the inverse of D D† , which is the time-consuming part of the algorithm.
+In computing the derivative of the Dirac operator one has to observe
+non-commutativity of the group elements. Some Dirac operators involve contributions, where a link variable occurs more than once. An obvious example
+is the overlap operator in a rational or series approximation (see Sect. 7.4.3).
+In such a case one has to be particularly careful in determining the derivative.
+The Wilson Dirac operator (5.51) is simply linear in the gauge ﬁeld variables and in this case computing the derivative is straightforward. We ﬁnd for
+the contribution of a particular link Uμ (k)
+
+8.3 Other algorithmic ideas
+
+199
+
+1 + γμ
+1 − γμ
+Ti Uμ (k) δn+μ̂,m δn,k + i
+Uμ (k)† Ti δn−μ̂,m δm,k .
+2a
+2a
+(8.45)
+Due to the Metropolis decision at the end of each trajectory the HMC
+algorithm is exact. Any numerical error done in the discretization is “repaired”
+by the probabilistic accept–reject step. However, the acceptance rate may
+become low. One therefore has to adjust the step size ε to prevent too large
+aberrations. Typical numbers are 50–100 steps for a complete trajectory with
+an integrated time of n ε ≈ 1. The estimated computational eﬀort for the
+HMC algorithms grows only like ∝ V 5/4 [10, 11].
+∂D(n|m)
+(i)
+∂ωμ (k)
+
+= −i
+
+8.3 Other algorithmic ideas
+8.3.1 The R-algorithm
+The HMC algorithm is exact. However, in the way presented here it is applicable only for positive deﬁnite fermion actions (like the overlap action) or
+for duplicated number of fermion species.3 It evolved out of earlier updating methods, which also used microcanonical (or Langevin) type diﬀerential
+equations, without the correcting Monte Carlo step.
+In all of the so-called hybrid algorithms [7] the system follows a molecular
+dynamics trajectory with refreshing the conjugate momenta regularly. This
+process is equivalent to an evolution according to a stochastic diﬀerential
+equation. It has been argued that systems out of equilibrium will be driven
+toward equilibrium and stay there during the updating process. The crucial
+problem is the necessary discretization, which introduces systematic errors in
+some order of the discretization time step.
+One such method, the so-called R-algorithm [12], is advocated for Kogut–
+Susskind or staggered fermions (cf. Chap. 10). The central idea is to use the
+eﬀective action discussed in (8.10). The molecular dynamics updating follows
+steps like those discussed earlier. The change of the eﬀective action is estimated stochastically [13] with the help of noisy pseudofermions. The change
+of the eﬀective fermion action due to a change of the gauge variable then is
+ΔS Feﬀ = S Feﬀ [Uμ (n) ] − S Feﬀ [Uμ (n)]
+
+2
+ ∂S eﬀ [Uμ (n)]
+(i)
+(i)
+F
+Δω
+(n)
++
+O
+Δω
+(n)
+.
+=
+μ
+μ
+(i)
+∂ωμ (n)
+n,μ,i
+For the derivative of the eﬀective action we obtain
+"
+#
+∂ tr[ln(D[U ])]
+∂S Feﬀ
+−1 ∂D[U ]
+=−
+= − tr D[U ]
+.
+(i)
+(i)
+(i)
+∂ωμ (n)
+∂ωμ (n)
+∂ωμ (n)
+3
+
+(8.46)
+
+(8.47)
+
+Suggestions how to include single fermion species will be discussed in Sect. 8.3.3.
+
+200
+
+8 Dynamical Fermions
+
+Note that the arguments are matrices and these are usually not commutative.
+However, the cyclicity property of the trace simpliﬁes the expression. For actions where the link variables occur linearly, the derivative of D is particularly
+simple.
+As there is no correction MC step, the method will show a dependence on
+the chosen value of the discretization time step ε. By using clever modiﬁcations the errors can be made O(ε2 ). This dependence has to be dealt with by
+repeating the computations for diﬀerent values and of ε extrapolating to 0.
+At each time step one computes pseudofermions φ = M † χ from Gaussian
+distributed random vectors χ. More details can be found in [12].
+8.3.2 Partial updates
+For updating methods that are based on evolution equations (like the HMC
+and the R-algorithm or any such method working with Langevin-type differential equations) one has to calculate the force term. This becomes quite
+involved for Ginsparg–Wilson-type Dirac operators. There one has to use computationally costly algorithms already for evaluating D itself.
+It is therefore tempting to shortcut the update by updating larger chunks of
+gauge variables at once. However, as has been argued earlier, this may run into
+acceptance problems when working at large volumes: A naive implementation
+will lead to a numerical cost of O(V 2 ). One therefore has to invest some eﬀort
+in providing better suggestions for the change of gauge variables, similar to
+the ideas originally leading to the hybrid algorithms.
+It has been advocated [14, 15] to interleave gauge ﬁeld updates on part of
+the lattice based on a local gauge action that approximates in some way the
+eﬀect of the fermionic action. This may be done, e.g., by considering a set of
+closed gauge loops with coeﬃcients properly tuned. This partial-global change
+of variables then undergoes an accept/reject step, where the ratio of determinants is estimated stochastically. Since the change of the eﬀective action may
+be large, one has to be particularly careful in getting a reliable estimate of
+that ratio. One therefore invokes techniques like polynomial approximations,
+preconditioning, and multi-pseudofermions.
+For real, positive determinants it is then possible to simulate single fermion
+species. This is true for Ginsparg–Wilson operators, which are normal matrices
+with eigenvalues that have positive real part. For such operators one may
+√ use a
+pseudofermion action of the form (φ, D−1 φ) and Gaussian χ with φ = Dχ to
+generate the correct distribution. For taking the square root one uses methods
+like that discussed for the construction of the overlap operator.
+8.3.3 Polynomial and rational HMC
+In the standard HMC algorithm the Dirac operator enters quadratically as
+D D† to guarantee positivity of the real part of all eigenvalues necessary for
+
+8.3 Other algorithmic ideas
+
+201
+
+the convergence of the pseudofermion Gaussian integral. Thus in that form
+only even numbers of fermions can be simulated.
+If det[D] is positive, there is a way to circumvent this restriction. One approximates D−1 by an operator T T † for the HMC trajectory calculations and
+corrects for the approximation in the accept–reject step. The approximations
+suggested are either by polynomials [16–18] or by rational functions [19–22],
+in the spirit of the evaluations of the overlap operator in Chap. 7.
+As an example we discuss the suggestions of [18]. The inverse of the Dirac
+operator is approximated by an even polynomial,
+D−1 ≈ P2n (D) =
+
+n
+
+
+∗
+(D − z2k−1 )(D − z2k−1
+),
+
+(8.48)
+
+k=1
+
+with zk = 1 − exp(i 2 π k/(2n + 1)). Assuming γ5 -hermiticity one has
+det[D − zk∗ ] = det[γ5 D† γ5 − zk∗ ] = det[D − zk ]∗ ,
+
+(8.49)
+
+and we therefore may split P2n into a product
+P2n (D) = Tn (D) Tn† (D)
+
+with
+
+Tn (D) =
+
+n
+
+
+(D − z2k−1 ) .
+
+(8.50)
+
+k=1
+
+The correct determinant is
+
+−1
+det[D] = C det[Tn† Tn ]
+
+with
+
+C = det[D Tn† Tn ] .
+
+(8.51)
+
+The HMC trajectory is then computed using a pseudofermion action
+S = −φ† Tn† (D) Tn (D) φ ,
+
+(8.52)
+
+thus providing for the second factor in (8.51), whereas the correction factor C
+is dealt with in the Metropolis accept–reject step at the end of the trajectory.
+Such methods allow one to work with odd numbers of quark ﬂavors using
+the exact MC algorithm.
+8.3.4 Multi-pseudofermions and UV-ﬁltering
+In the accept–reject Metropolis step, as it is necessary at the end of each
+HMC trajectory or in (partial) global algorithms, the stochastic determination
+with noisy pseudofermion estimation introduces additional noise. Although
+formally correct, the induced ﬂuctuations of the fermionic force may destabilize the algorithm [2, 20, 23], enforcing smaller step sizes.
+A possible way to reduce the noise of the stochastic estimator is to use
+more than one set of pseudofermion variables. Assuming positivity for M one
+uses the identity
+
+202
+
+8 Dynamical Fermions
+
+
+n
+det[M ] = det[M 1/n ]
+.
+
+(8.53)
+
+The stochastic estimator then is
+n 
+
+†
+−1/n
+φ
+det[M ] ∝
+,
+D[φR ]D[φI ]e−φ M
+
+(8.54)
+
+k=1
+
+where M is either a positive deﬁnite Dirac operator or M = D D† . The matrix
+M −1/n can be approximated by a rational function or a polynomial in M .
+A variant of this method [24] splits the determinant
+det[M ] = det[M  ] det[M −1 M ]
+
+(8.55)
+
+with separate pseudofermion ﬁelds for both factors. By choosing diﬀerent
+parameters for the matrices M and M  one may improve the updating performance; the step size can be increased while the acceptance rate remains
+stable. In the applications one chooses diﬀerent mass parameters for the two
+components; thus the method has also been called mass preconditioning.
+Another method to improve the estimate of the ratio of determinants is to
+introduce an UV-ﬁlter [25]. The idea is to reduce the spread of the eigenvalues
+of the operator to be stochastically estimated. One deﬁnes a reduced matrix
+Dm,r = D ef (D) ,
+
+(8.56)
+
+where f (D) is chosen to be a suitable low-order polynomial in D with real
+coeﬃcients such that the eigenvalues of Dm,r are concentrated around z = 1
+in the complex plane, i.e., ef (D) roughly approximates D−1 . In the acceptance
+step one then computes (using γ5 -hermiticity)
+det[D† D]new
+=
+det[D† D]old
+exp (−2 tr [f (D)new ] + 2 tr [f (D)old ])
+
+(8.57)
+†
+det[Dm,r
+Dm,r ]new
+†
+det[Dm,r
+Dm,r ]old
+
+.
+
+The computation of the trace over polynomials of D is possible for simple
+Dirac operators but may be an obstacle for extended ones.
+8.3.5 Further developments
+Both the multi-pseudofermion method and the polynomial approximation are
+in spirit related to the earlier suggestion of a multiboson algorithm [26].
+Depending on the Dirac operator there are also various methods of
+preconditioning (see also Sect. 6.2.4). Mass preconditioning and variants thereof
+are one possible improvement. For operators involving only nearest neighbor
+couplings one may split the lattice into even and odd sites and in this way
+simplify the calculations. This method is called even-odd preconditioning.
+
+8.4 Other techniques using pseudofermions
+
+203
+
+Another hierarchically organized approach splits the lattice into nonoverlapping domains and solves the system on the sub-domains. This so-called
+Schwarz alternating procedure [27–29] has been tested for both preconditioning and dynamical fermion algorithms. It is a domain decomposition method
+for solving elliptic diﬀerential equations (introduced already in the nineteenth
+century).
+Although at least for HMC algorithms one expects the necessary computer
+time to grow with V 5/4 for a given set of couplings, the growth as a function of
+the lattice spacing or the quark mass is not as clear. Since we expect the quark
+mass to be proportional to the mass squared of the lightest pseudoscalar, it is
+useful to discuss the computational cost in such units. The expected functional
+form for the numerical cost is [30, 31]
+$$$ ∝ A
+CA
+CA
+C ∝  ∝ LzL a−za Mπzπ .
+
+(8.58)
+
+Various aspects enter such a consideration. As mentioned the volume scales
+with zL  5. The condition number of the Dirac operator matrix decreases
+with the pion mass, thus the CGR solver needs more iterations. The step size
+in the HMC trajectory will have to be decreased and the autocorrelation time
+may increase. The various studies with, e.g., the Wilson fermion action have
+led to values of [30] za  7 and zπ  6, but also smaller values O(3 − 4) have
+been quoted [31].
+The ﬁeld of algorithms for dynamical fermions has been evolving over
+the years and the development has not yet ceased. Various ideas have been
+presented, which are not discussed here. Other ideas are certain to come and
+we advise to check the proceedings of the yearly lattice conferences.
+
+8.4 Other techniques using pseudofermions
+In Sect. 8.1.3 we have remarked that pseudofermion ﬁelds are used in noisy
+estimator techniques designed for evaluating fermionic observables. The starting point is the structural similarity between bosonic and fermionic generating
+functionals, (5.32) and (8.7).
+Let us start discussing the idea of noisy estimators by using an example of
+high importance: the value of the fermion condensate ψψ. In Chap. 7 we have
+found that this is essentially given by tr[D−1 ]. Straightforward calculation of
+the trace requires the determination of propagators for 12 |Λ| point sources,
+clearly an impossible task. For the noisy estimator approach we consider a set
+of uncorrelated complex random numbers χi ≡ χR,i + iχI,i with unit variance,
+χi χ∗j χ = δij .
+For example, we may choose for the χi the Gaussian distribution
+
+
+
+−N
+. . .χ = π
+D[χR ]D[χI ] exp −χ† χ . . . .
+
+(8.59)
+
+(8.60)
+
+204
+
+8 Dynamical Fermions
+
+We may approximate this integral by an average over K random vectors χ(k)
+(k)
+with entries χi distributed according to the probability density (8.60),
+1  (k) (k)∗
+χi χj .
+K
+K
+
+δij = χi χ∗j χ 
+
+(8.61)
+
+k=1
+
+Using this one can estimate the trace
+tr[D−1 ] =
+
+
+i,j
+
+1  (k) † −1 (k)
+χ
+D χ .
+K
+K
+
+(D−1 )ji δij ≈
+
+(8.62)
+
+k=1
+
+Again the random variables agree in number with the fermionic degrees of
+freedom. The number K of noise vectors considered depends on the desired
+accuracy of the estimate.
+Gaussian noisy pseudofermions may also be utilized to evaluate the change
+of the fermionic eﬀective action [32], which is required for the Monte Carlo
+update algorithm. For matrices M with strictly positive real part of the eigenvalues we have
+
+
+
+
+ 
+
+D[χR ] D[χI ] exp −χ† χ exp −χ† M −1 − 1 χ
+
+det[M ] =
+D[χR ] D[χI ] exp (−χ† χ)
+(8.63)
+
+ †  −1
+ 
+= exp −χ M − 1 χ χ .
+This identity follows from (8.7) and may be used to determine directly the
+change of the eﬀective 2-ﬂavor action:
+exp(−δSF,eﬀ ) = det[(D D† )(D D† )−1 ] = det[D† (D D† )−1 D ]
+
+
+
+ 
+= exp −χ† D−1 D D† (D† )−1 − 1 χ χ
+
+
+
+
+
+= exp −χ† D−1 D D† − D D† (D† )−1 χ χ .
+
+(8.64)
+
+Again . . .χ is approximated by a ﬁnite number of noise vectors.
+It has been suggested in [33] to replace the sum over many φ-ensembles
+by just one individual for the Monte Carlo acceptance decision. Determining
+that ratio for the updating step either way is correct in the average. However,
+this type of approach involves a Monte Carlo sum within a Monte Carlo sum
+and, as has been discussed in, e.g., [34], corresponds to an updating algorithm
+where the computer time grows with the square of the lattice volume at least,
+not considering other eﬀects like critical slowing down.
+Whenever one wants a precise calculation of quark propagators, one uses
+numerical inverters. However, it is expensive to compute the inverse matrix
+for many diﬀerent sources. This is, e.g., necessary for sums over disconnected
+pieces (see Fig. 6.1). In such a case one might be willing to trade lower accuracy
+for a larger number of source points. Noisy pseudofermions provide a tool for
+
+8.5 The coupling-mass phase diagram
+
+205
+
+approximating propagator elements. Exploiting (8.7) one may compute them
+as expectation values of φn φ∗k in a bosonic Gaussian distribution:
+
+−1 †
+−1
+Dnm
+= D† D nk Dkm
+=
+
+
+
+†
+
+†
+
+D[φR ]D[φI ]e−φ D D φ φn φ∗k †
+
+Dkm .
+D[φR ]D[φI ]e−φ† D† D φ
+
+(8.65)
+
+As long as D has nonvanishing eigenvalues this Gaussian integral is welldeﬁned. It can be evaluated using a stochastic process for the φ.
+Formulas of this type have also been used in early suggestions to implement dynamical fermions [35] for computing the expressions necessary for the
+change of the eﬀective fermionic action in (8.46).
+
+8.5 The coupling-mass phase diagram
+8.5.1 Continuum limit and phase transitions
+In Sect. 3.5.4 we discussed the true continuum limit for pure gauge theory. We
+used the renormalization group analysis result (3.88) for the lattice spacing
+a as a function of the inverse coupling β to identify the limit β → ∞ as the
+limit where a → 0 and the continuum physics is recovered. Here we address
+the continuum limit a second time, but now reformulate it using statistical
+mechanics language.
+To sketch the idea, we ﬁrst consider the simple familiar 2D Ising model.
+Without external magnetic ﬁeld, there is only a single coupling parameter.
+Depending on its value one ﬁnds two phases, a disordered “hot” phase and
+a phase with a nonvanishing magnetization, the “ordered” phase. A secondorder phase transition separates the two phases. The phase transition occurs
+at a speciﬁc value of the coupling, the so-called critical point where the correlation length ξ of the system diverges. The correlation length can be deﬁned
+through the connected correlation function of two spin variables located at the
+origin and some site n. For large distances between the spins the correlation
+function decays exponentially
+
+
+|n|
+for n → ∞ .
+(8.66)
+sn s0  − sn s0  ∝ exp −
+ξ
+The correlation length ξ is a measure for the distance over which two spins are
+correlated. When the coupling is driven close to its critical value ξ becomes
+large and the spins are correlated over long distances. The local structures
+extending only over sites close to each other become less and less important.
+Why is the notion of a diverging correlation length relevant for lattice ﬁeld
+theory? We have learned that the physical mass MH of some hadron can be
+computed from the two-point function of a hadron interpolator OH ,
+
+OH (nt ) OH (0)† ∝ e−nt aMH = e−nt /ξH .
+(8.67)
+
+206
+
+8 Dynamical Fermions
+
+Here we have deﬁned the correlation length ξH for the interpolator OH as
+ξH =
+
+1
+.
+aMH
+
+(8.68)
+
+We stress that interpolators for diﬀerent hadrons will in general give rise to
+diﬀerent correlation lengths proportional to each other. Since MH is constant
+all correlation lengths ξH of physically observable states should diverge in the
+continuum limit, a → 0. As in the systems of statistical mechanics we must
+drive our couplings, the inverse gauge coupling β and the quark mass m,
+toward critical values where the correlation length diverges. At these critical
+values we can construct a continuum limit. It is therefore of utmost importance
+to identify such critical points in the phase diagram.
+8.5.2 The phase diagram for Wilson fermions
+In QCD we expect that the correct continuum limit can be obtained at vanishing gauge coupling g = 0, corresponding to β = ∞, and a vanishing fermion
+mass parameter. However, also for other values of these couplings we have
+transitions separating phases of diﬀerent physics.
+For Wilson fermions it is usual to discuss the phase diagram in terms of
+the inverse gauge coupling β = 6/g 2 and the hopping parameter κ introduced
+in (5.55). The hopping parameter is related to the bare quark mass in the
+continuum limit through κ = 1/(2am + 8). In the hopping parameter notation
+the Dirac operator is given by (5.57).
+When discussing a phase diagram, it is always useful to ﬁrst consider
+simple limiting cases. For κ = 0 the hopping term is turned oﬀ and the Dirac
+operator becomes a unit matrix. This limit corresponds to inﬁnitely heavy
+quarks. This is the situation of the pure gauge theory (the quenched case)
+discussed already earlier. In that limit the string tension deﬁned through the
+Wilson loop may be interpreted as order parameter. As we have discussed in
+Sect. 3.4.1, at β = 0 (inﬁnite bare gauge coupling g) the theory is conﬁning
+and Monte Carlo evidence is that this conﬁnement phase extends over the
+whole range of values toward β → ∞ (g = 0). Actually, since Monte Carlo
+calculations are limited, all we can really say is that for the pure gauge theory
+there is no numerical evidence for a phase transition to a deconﬁned phase
+for large enough lattices.
+Another limiting case is that of free lattice fermions. This is obtained for
+β = ∞ (g = 0), where all plaquettes approach unity. On an inﬁnite lattice
+this is equivalent to setting all link variables to 1. With the help of lattice
+Fourier transformation one can compute the quark propagators for the free
+case and ﬁnd that the correlation length is given by the inverse of the quark
+mass. Thus the correlation length diverges for vanishing quark mass m = 0,
+which corresponds to a value of κ = 1/8.
+For ﬁnite values of β one ﬁnds that the smallest observed mass in the
+system (the mass of the pion) vanishes at some value κ which we denote by
+
+8.5 The coupling-mass phase diagram
+κ = 1/4
+
+207
+
+κch (β)
+κ = 1/8
+
+κ=0
+β=0
+
+κ=0
+β=∞
+
+Fig. 8.1. The phase diagram for QCD with Wilson fermions. The coupling constants
+are β = 6/g 2 and the hopping parameter κ. The dashed curves are lines of constant
+mass ratios of, e.g., Mπ /Mρ = const.
+
+κch (β). Since we associate the pion with the Goldstone mode of spontaneous
+chiral symmetry breaking, this is the point where at ﬁnite β the quark mass
+vanishes. In this indirect way we get our ﬁrst information on the quark mass
+itself. This line of κ = κch (β) appears to continue from κch (β = ∞) = 1/8
+down to κch (β = 0). There are strong coupling expansion results for meson
+masses [36, 37] indicating that κch (β = 0) ≈ 1/4. The resulting phase diagram
+is sketched in Fig. 8.1.
+At a given β the quark masses thus assume values between inﬁnity and
+0 when κ runs from 0 to κch (β). Driving κ towards κch (β) the pion mass
+decreases toward 0, but other masses of the system, like the ρ or the nucleon
+mass, approach nonzero values. At some value of κ the mass ratio of, e.g.,
+Mπ /Mρ will assume its experimental value. At this value of κ we then use the
+dimensionless combinations a M and the experimental values M to determine
+the lattice spacing a in order to set the scale.
+The collection of such points for varying β then deﬁnes a “physical” curve
+(dashed curves in Fig. 8.1). Along such a curve the lattice spacing decreases
+toward zero for increasing β and the system approaches the continuum limit.
+We emphasize that the dynamics of the sea quarks of course also inﬂuences
+the lattice spacing a, which thus is a function of both coupling parameters
+a = a (β, κ). Curves of constant lattice spacing thus will not simply be lines
+of constant β. Also we point out that the lattice spacing is nonzero along the
+chiral curve κ = κch (β < ∞).4 Approaching the continuum limit along the
+chiral curve is another alternative suitable for mass-independent renormalization schemes. In this situation the lattice spacing a for given gauge coupling
+is deﬁned in the chiral limit, i.e., on the chiral curve.
+4
+
+The situation is similar to that of spontaneous symmetry breaking in the
+N -component φ4 -theory. There the two couplings are the nearest neighbor-coupling
+g (playing the role of our gauge coupling) and an external magnetic ﬁeld h (related
+to the fermion mass in QCD). In the broken phase, for g > gcrit and h = 0 the
+order parameter φ is nonzero and there are Goldstone modes as well as massive
+modes. The lattice spacing is zero only toward the critical point g → gcrit . When
+the external ﬁeld is switched on the Goldstone modes become massive, similar to
+the pions.
+
+208
+
+8 Dynamical Fermions
+
+We have to add an important remark to the above discussion. As will be
+detailed in Chap. 12, by studying lattices with ﬁnite time extent (in physical
+units) one may simulate QCD at ﬁnite temperature. This introduces another
+parameter, the temperature, giving rise to a more complicated phase diagram.
+One ﬁnds a phase transition to a deconﬁned phase at some critical temperature, i.e., if the time (or space) extent becomes suﬃciently small. Here we
+only stress that the above discussion of the phase structure is based on the
+assumption that the time extent of our lattice is large enough such that we
+always remain in the conﬁned phase.
+8.5.3 Ginsparg–Wilson fermions
+The range of the bare mass parameter a m for a Ginsparg–Wilson Dirac operator in the form of (7.41) is limited to [0, 2]. The value a m = 0 deﬁnes the
+point of massless fermions and (spontaneously broken) chiral symmetry. At
+the maximum value a m = 2 the fermions decouple from the system; this
+corresponds to the limit of inﬁnitely heavy quarks.
+Since the curve of chiral symmetry is just a line at m = 0 and does not
+depend on the gauge coupling (unlike the discussed case of the Wilson action), the phase diagram looks simpler than that of Fig. 8.1. The variable a m
+replaces κ and ranges from a m = 2 for the pure gauge theory (quenched limit)
+to m = 0 for the chiral limit. Again one can ﬁnd curves of constant mass ratios
+approaching the continuum limit at β → ∞, m = 0.
+Let us address another aspect of using a Dirac operator which for vanishing
+quark mass obeys the Ginsparg–Wilson equation. For such a Dirac operator
+the eigenvalue spectrum is restricted to a circle in the complex plane. The
+smallest distance of this circle to the origin is given by the bare quark mass
+and the smallest possible eigenvalue is given by this mass. For nonvanishing
+mass the inverse Dirac operator, i.e., the quark propagator can always be
+computed, and (in principle) the chiral line can be approached.
+For non-chiral Dirac operators, e.g., the Wilson Dirac operator, one has no
+such restriction of the eigenvalues and they ﬂuctuate depending on the gauge
+ﬁeld. Thus even for nonvanishing quark mass zero eigenvalues of the Dirac
+operator may show up for exceptional conﬁgurations (compare Sect. 6.2.5).
+Consequently the quark propagator cannot be computed for such conﬁgurations. Thus the ﬂuctuations of the Dirac eigenvalues often forbid a close
+approach to the chiral line κch (β). The situation improves by using larger
+values of β, larger lattices, or more advanced Dirac operators with smaller
+ﬂuctuations of their eigenvalues.
+
+8.6 Full QCD calculations
+
+209
+
+8.6 Full QCD calculations
+In full QCD calculations the large mass quarks c, b, and t contribute negligibly
+to the dynamics of the quark sea. It is therefore an excellent approximation
+to consider only two mass-degenerate light quarks u, d and one heavier quark
+s for the sea. Even that poses an algorithmic problem. For the non-exact Rtype algorithms discussed in Sect. 8.3.1 the number of quark species of a kind
+may be easily ﬁxed by a pre-factor; however the ﬂavor mixing and the continuum limit are disputable. For the exact HMC-algorithm in its original form,
+on the other hand, positivity requires an even number of mass-degenerate
+fermions. There are, however, variants where odd numbers of fermions may
+be implemented with the help of polynomial approximations as mentioned in
+Sect. 8.3.
+There are several international collaborations studying dynamical fermions
+for various types of Dirac operators. If we tried to mention them explictly this
+would imply omitting some of them even at the time of publication of this text.
+We therefore just remark that for the simple improved Wilson action spatial
+lattice sizes up to 50–100 are presently achieved for two light ﬂavors and
+some even including the strange quark. Similar lattice sizes are being studied
+for twisted mass and staggered fermions (see Chap. 10). For the numerically
+more demanding domain wall formulation (Chap. 10) one typically works on
+lattices half that size (in lattice units). This roughly reﬂects the increased
+numerical cost, i.e., one to two orders of magnitude. First results for overlap
+fermions on smaller lattices, again a factor of two smaller than the domain
+wall sizes, are being produced, although with certain restrictions like ﬁxed
+topological sectors due to algorithmic problems for the tunneling between
+
+Fig. 8.2. Spectroscopy results from a fully dynamical simulation by the Budapest–
+Marseille–Wuppertal collaboration [38]. (From S. Dürr et al.: Science 322, 1224
+(2008). Reprinted with permission from AAAS)
+
+210
+
+8 Dynamical Fermions
+
+diﬀerent sectors. In most of these collaborations a wide spectrum of physics
+questions is attacked by the participating scientists.
+To give one example of a calculation with dynamical fermions we show
+in Fig. 8.2 the result of a spectroscopy calculation with two light dynamical fermions and a dynamical strange quark from the Budapest–Marseille–
+Wuppertal collaboration [38]. The simulation was done with the improved
+(compare Chap. 9) Wilson gauge- and Wilson fermion action on lattices with
+a spatial extent up to 4 fm. The gauge ﬁelds entering the Dirac operator
+were treated with six levels of stout smearing. Pion masses down to 190 MeV
+were reached and ﬁnite volume eﬀects, as well as eﬀects of resonances, were
+taken into account in the analysis. In Fig. 8.2 the masses for diﬀerent mesons
+and baryons are shown, extrapolated to physical quark masses and vanishing
+lattice spacing.
+Comparing these results with the quenched spectroscopy calculation of
+Fig. 6.5 one ﬁnds that the discrepancies between the lattice results and the experimental numbers have vanished. Figure 8.2 demonstrates that when taking
+into account the eﬀects of light dynamical quarks, for a wide range of diﬀerent
+quantum numbers a controlled ab initio lattice spectroscopy calculation leads
+to excellent agreement between numerical results and the experimental data.
+
+References
+1. D. H. Weingarten and D. N. Petcher: Phys. Lett. B 99, 333 (1981) 188
+2. A. Alexandru and A. Hasenfratz: Phys. Rev. D 66, 094502 (2002) 190, 201
+3. D. J. E. Callaway and A. Rahman: Phys. Rev. D 28, 1506 (1983) 192
+4. J. Polonyi and H. W. Wyld: Phys. Rev. Lett. 51, 2257 (1983) 192
+5. G. Parisi and Y.-S. Wu: Sci. Sin. 24, 483 (1981) 192
+6. J. R. Klauder: in Recent Developments in High-Energy Physics; Acta Phys.
+Austriaca Suppl. 25, edited by H. Mitter and C. B. Lang, p. 251 (Springer,
+Wien, New York 1983) 192
+7. S. Duane and J. B. Kogut: Phys. Rev. Lett. 55, 2774 (1985) 192, 199
+8. S. Duane and J. B. Kogut: Nucl. Phys. B 275, 398 (1986) 192
+9. C. Morningstar and M. Peardon: Phys. Rev. D 69, 054501 (2004) 198
+10. R. Gupta, G. W. Kilcup, and S. R. Sharpe: Phys. Rev. D 38, 1278 (1988) 199
+11. M. Creutz: Phys. Rev. D 38, 1228 (1988) 199
+12. S. Gottlieb et al.: Phys. Rev. D 35, 2531 (1987) 199, 200
+13. G. G. Batrouni et al.: Phys. Rev. D 32, 2736 (1985) 199
+14. A. Hasenfratz and A. Alexandru: Phys. Rev. D 65, 114506 (2002) 200
+15. A. Hasenfratz, P. Hasenfratz, and F. Niedermayer: Phys. Rev. D 72, 114508
+(2005) 200
+16. P. de Forcrand and T. Takaishi: Nucl. Phys. B (Proc. Suppl.) 53, 968 (1997) 201
+17. R. Frezzotti and K. Jansen: Phys. Lett. B 402, 328 (1997) 201
+18. T. Takaishi and P. de Forcrand: Int. J. Mod. Phys. C 13, 343 (2002) 201
+19. I. Horváth, A. D. Kennedy, and S. Sint: Nucl. Phys. B (Proc. Suppl.) 73, 834
+(1999) 201
+20. M. A. Clark and A. D. Kennedy: Nucl. Phys. B (Proc. Suppl.) 129, 850 (2004) 201
+
+References
+
+211
+
+21. M. A. Clark, P. de Forcrand, and A. D. Kennedy: PoS LAT2005, 115 (2005) 201
+22. M. A. Clark: PoS LAT2006, 004 (2006) 201
+23. M. Hasenbusch: Phys. Rev. D 59, 054505 (1999) 201
+24. M. Hasenbusch: Phys. Lett. B 519, 177 (2001) 202
+25. P. de Forcrand: Nucl. Phys. B (Proc. Suppl.) 73, 822 (1999) 202
+26. M. Lüscher: Nucl. Phys. B 418, 637 (1994) 202
+27. M. Lüscher: JHEP 0305, 052 (2003) 203
+28. M. Lüscher: Comput. Phys. Commun. 165, 199 (2005) 203
+29. M. Lüscher: Comput. Phys. Commun. 156, 209 (2004) 203
+30. A. Ukawa: Nucl. Phys. B (Proc. Suppl.) 106, 195 (2002) 203
+31. M. Hasenbusch: Nucl. Phys. B (Proc. Suppl.) 129–130, 27 (2004) 203
+32. G. Bhanot, U. M. Heller, and I. O. Stamatescu: Phys. Lett. B 129, 440 (1983) 204
+33. M. Grady: Phys. Rev. D 32, 1496 (1985) 204
+34. M. Creutz: Quantum Fields on the Computer (World Scientiﬁc, Singapore 1992) 204
+35. F. Fucito, E. Marinari, G. Parisi, and C. Rebbi: Nucl. Phys. B 180, 369 (1981) 205
+36. K. G. Wilson: Phys. Rev. D 10, 2445 (1974) 207
+37. K. G. Wilson: in New Phenomena in Subnuclear Physics, edited by A. Zichichi
+(Plenum, New York 1977) 207
+38. S. Dürr et al.: Science 322, 1224 (2008) 209, 210
+
+

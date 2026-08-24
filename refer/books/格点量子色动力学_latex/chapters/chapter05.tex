@@ -1,0 +1,719 @@
+% =====================================================================
+%  Chapter 5: Fermions on the lattice
+%  Gattringer & Lang, "Quantum Chromodynamics on the Lattice" (LNP 788)
+%  Reconstructed from extract/ch05.txt; equations auto-numbered.
+% =====================================================================
+
+\chapter{格点上的费米子}
+
+在第~2~章我们对格点上 QCD 的初步考察中已经提到，我们对格点费米子的表述尚未达到最终形式。特别地，我们还需要考虑正确的统计性质。在本章的第一节中，我们将说明所需的费米统计可以通过对夸克场使用反对易数——即所谓的格拉斯曼数——来实现。我们将讨论用格拉斯曼数进行计算的规则，并推导若干含格拉斯曼数的高斯积分的关键公式。
+
+第~2~章中给出的费米子格点表述仍存在某些格点人为效应，即所谓的加倍子。我们将通过分析格点 Dirac 算符的傅里叶变换来识别加倍子。为了消除加倍子，我们将在费米子作用量中加入一项附加项，从而得到 Wilson 费米子作用量。
+
+在一个简短的节中，我们将给出费米子可观测量所谓的跳跃展开。虽然这种展开只对非常重的夸克才有用，但它提供了一个有趣的概念性洞见：我们将能够把费米子解释为连接时空中各点的链变量路径。
+
+最后，我们将讨论 Wilson 作用量的对称性，这些对称性将在第~6~章构造强子插值算符时用到。
+
+\section{费米统计与格拉斯曼数}
+
+\subsection{一些新的记号}
+
+在给出需要格拉斯曼数的论证之前，让我们先引入一些新的记号。为了本章的讨论，将路径积分中的费米子部分 $\langle\ldots\rangle_F$ 与规范场部分 $\langle\ldots\rangle_G$ 分开来写是方便的（比较 (2.55)、(2.56) 和 (2.57)）
+\begin{equation}
+  \ev{O} = \ev{\ev{O}_F}_G .
+\end{equation}
+
+路径积分的费米子部分 $\langle\ldots\rangle_F$ 定义为
+\begin{equation}
+  \ev{A}_F =
+    \frac{1}{Z_F[U]}\int D\psi\,D\bar{\psi}\;
+    e^{-S_F[\psi,\bar{\psi},U]}\,A[\psi,\bar{\psi},U] .
+\end{equation}
+
+在此积分中，$U$ 是外场。费米子配分函数
+\begin{equation}
+  Z_F[U] = \int D\psi\,D\bar{\psi}\; e^{-S_F[\psi,\bar{\psi},U]} ,
+\end{equation}
+通过费米子作用量 $S_F[\psi,\bar{\psi},U]$ 对规范场的依赖而依赖于规范场。稍后我们将把 $Z_F[U]$ 认定为所谓的费米行列式，即 Dirac 算符的行列式。路径积分的规范场部分用记号 $\langle\ldots\rangle_G$ 表示，其定义为
+\begin{equation}
+  \ev{B}_G = \frac{1}{Z}\int D[U]\; e^{-S_G[U]}\,Z_F[U]\,B[U] .
+\end{equation}
+
+这里的 $B[U]$ 可以是 $\ev{A}_F$，但也可以是其他被积函数，例如仅由规范场构成的可观测量。正如我们下面将要讨论的，路径积分的费米子部分与规范场部分的性质颇为不同。因此，将两部分分开将证明是方便的。
+
+\subsection{费米统计}
+
+现在让我们讨论若干费米子场乘积的费米子真空期望值（$\alpha_i$、$\beta_i$ 为 Dirac 指标，$a_i$、$b_i$ 指颜色，$n_i$、$m_i$ 为时空坐标，$f_i$、$g_i$ 为味道标记）
+\begin{equation}
+  \Big\langle
+    \psi^{(f_1)}_{a_1}(n_1)_{\alpha_1}\,
+    \psi^{(f_2)}_{a_2}(n_2)_{\alpha_2}\cdots
+    \psi^{(f_k)}_{a_k}(n_k)_{\alpha_k}\,
+    \bar{\psi}^{(g_1)}_{b_1}(m_1)_{\beta_1}\cdots
+    \bar{\psi}^{(g_k)}_{b_k}(m_k)_{\beta_k}
+  \Big\rangle_F .
+\end{equation}
+
+就目前形式而言，这个费米子场的乘积一般并不是规范不变的。可能需要由链变量乘积构成的因子来使其规范不变。然而，这里我们关注的是路径积分的费米子部分，这样的规范因子可以在对规范场进行积分之前再加进去。
+
+费米子的定义性性质之一是其必须服从费米统计。对我们的真空期望值 (5.5) 而言，这意味着在量子数交换下具有反对称性。如果我们交换任意两个费米子的量子数，例如交换
+\begin{equation}
+  f_1 \leftrightarrow f_2, \quad n_1 \leftrightarrow n_2, \quad
+  \alpha_1 \leftrightarrow \alpha_2, \quad a_1 \leftrightarrow a_2,
+\end{equation}
+真空期望值 (5.5) 就必须改变一个负号。交换 (5.6) 等价于对 (5.5) 中前两个费米子变量进行对易，而产生负号的要求可以通过要求在此对易下额外出现一个负号来实现。因此，我们要求费米子场对于指标 $f$、$f'$、$n$、$n'$、$\alpha$、$\alpha'$、$a$、$a'$ 的任意组合都表现为反对易数，
+\begin{equation}
+  \psi^{(f)}_{a}(n)_{\alpha}\,
+  \psi^{(f')}_{a'}(n')_{\alpha'}
+  = -\psi^{(f')}_{a'}(n')_{\alpha'}\,
+  \psi^{(f)}_{a}(n)_{\alpha} .
+\end{equation}
+
+$\bar{\psi}$ 之间也必须彼此反对易，此外 $\bar{\psi}$ 还必须与 $\psi$ 反对易。因此，除 (5.7) 之外我们还要求
+\begin{equation}
+  \bar{\psi}^{(f)}_{a}(n)_{\alpha}\,
+  \bar{\psi}^{(f')}_{a'}(n')_{\alpha'}
+  = -\bar{\psi}^{(f')}_{a'}(n')_{\alpha'}\,
+  \bar{\psi}^{(f)}_{a}(n)_{\alpha} ,
+\end{equation}
+\begin{equation}
+  \bar{\psi}^{(f)}_{a}(n)_{\alpha}\,
+  \psi^{(f')}_{a'}(n')_{\alpha'}
+  = -\psi^{(f')}_{a'}(n')_{\alpha'}\,
+  \bar{\psi}^{(f)}_{a}(n)_{\alpha} .
+\end{equation}
+
+于是，我们格点理论中所有的费米自由度彼此反对易。
+
+我们指出，用反对易数表述的费米子路径积分可以通过引入相干态由费米子的正则反对易关系导出。关于这一途径，我们请读者参阅 [1, 2] 中的入门性介绍。
+
+\subsection{格拉斯曼数与导数}
+
+在论证了费米子路径积分需要使用反对易数——即所谓的格拉斯曼数——之后，我们需要学习如何用格拉斯曼数进行计算。\footnote{关于格拉斯曼数、内容超出我们此处简短介绍的入门性文献可参见 [3]。}我们考虑一组满足下式的格拉斯曼数 $\eta_i$，$i = 1, \ldots, N$，
+\begin{equation}
+  \eta_i \eta_j = -\eta_j \eta_i ,
+\end{equation}
+对所有 $i, j$ 成立。此式意味着 $\eta_i$ 是幂零的，即满足 $\eta_i^2 = 0$。因此，$\eta_i$ 的函数的幂级数在有限项之后就会截断，而唯一相关的函数类就是多项式，
+\begin{equation}
+  A = a + \sum_i a_i\,\eta_i + \sum_{i<j} a_{ij}\,\eta_i\eta_j
+      + \sum_{i<j<k} a_{ijk}\,\eta_i\eta_j\eta_k + \cdots
+      + a_{12\ldots N}\,\eta_1\eta_2\cdots\eta_N ,
+\end{equation}
+其中 $a$、$a_i$、$a_{ij} \ldots a_{12\ldots N}$ 为复系数。这些多项式可以进行加法和乘法，并构成所谓的格拉斯曼代数。格拉斯曼数 $\eta_i$ 被称为格拉斯曼代数的生成元。
+
+可以对格拉斯曼代数的元素关于生成元求导。为了建立这种格拉斯曼导数的规则，我们考虑一个简单的例子。对于只有 $N = 2$ 个生成元的格拉斯曼代数，最一般的函数是
+\begin{equation}
+  A = a + a_1\eta_1 + a_2\eta_2 + a_{12}\eta_1\eta_2 .
+\end{equation}
+
+我们定义 $A$ 关于 $\eta_1$ 的左导数为
+\begin{equation}
+  \frac{\partial}{\partial\eta_1}\,A = a_1 + a_{12}\,\eta_2 .
+\end{equation}
+
+然而，利用 (5.10) 我们可以交换 (5.12) 最后一项中生成元的次序，从而把多项式 $A$ 也写成如下形式
+\begin{equation}
+  A = a + a_1\eta_1 + a_2\eta_2 - a_{12}\,\eta_2\eta_1 .
+\end{equation}
+
+因此，为了得到一致的结果，我们必须把格拉斯曼性质也赋予导数算符：
+\begin{equation}
+  \frac{\partial}{\partial\eta_1}\,\eta_2 = -\eta_2\,\frac{\partial}{\partial\eta_1} .
+\end{equation}
+
+此外，如果我们在 $\partial/\partial\eta_1\,A$ 上再作用一个导数 $\partial/\partial\eta_2$，我们会发现为了自洽，导数之间也必须彼此反对易。因此我们为导数定义如下规则：
+\begin{equation}
+  \begin{aligned}
+    \frac{\partial}{\partial\eta_i}\,1 = 0, \qquad
+    \frac{\partial}{\partial\eta_i}\,\eta_i = 1, \qquad
+    \frac{\partial}{\partial\eta_i}\frac{\partial}{\partial\eta_j}
+      = -\frac{\partial}{\partial\eta_j}\frac{\partial}{\partial\eta_i}, \\
+    \frac{\partial}{\partial\eta_i}\,\eta_j = -\eta_j\,\frac{\partial}{\partial\eta_i}
+    \quad (i \neq j) .
+  \end{aligned}
+\end{equation}
+
+\subsection{格拉斯曼数上的积分}
+
+除了求导之外，我们还想为格拉斯曼数上的积分找到一个一致的定义。我们构造的指导原则是实现在 $\mathbb{R}^N$ 中积分的性质。更具体地说，我们考虑定义域 $\Omega \subset \mathbb{R}^N$ 上的积分，其中被积函数 $f$ 在边界 $\partial\Omega$ 上为零，
+\begin{equation}
+  \int_{\Omega}d^Nx\,f(x) =
+  \int_{\Omega}dx_1\cdots dx_N\,f(x_1, x_2, \ldots, x_N) ,
+\end{equation}
+作为函数 $f$ 的一个线性泛函。我们希望构造一个作用于格拉斯曼多项式 $A$ 上、具有等价性质的线性泛函 $\int d^N\eta$。要求积分是复线性泛函可写为
+\begin{equation}
+  \int d^N\eta\,A \in \mathbb{C}, \qquad
+  \int d^N\eta\,(\lambda_1 A_1 + \lambda_2 A_2)
+  = \lambda_1\int d^N\eta\,A_1 + \lambda_2\int d^N\eta\,A_2 ,
+\end{equation}
+其中 $\lambda_1$、$\lambda_2$ 为复数。格拉斯曼积分的第二个定义方程为
+\begin{equation}
+  \int d^N\eta\,\frac{\partial}{\partial\eta_i}\,A = 0 .
+\end{equation}
+
+这一要求等价于要求在 $\Omega \subset \mathbb{R}^N$ 上的积分中被积函数 $f(x_1, \ldots, x_N)$ 在边界 $\partial\Omega$ 上为零。与 (5.19) 等价的相应公式是
+\begin{equation}
+  \int_{\Omega}d^Nx\,\frac{\partial}{\partial x_i}\,f(x_1, \ldots, x_N) = 0 .
+\end{equation}
+
+公式 (5.19) 意味着，只要某个多项式 $A$ 可以写成另一个多项式 $A'$ 的导数，那么对 $A$ 的积分就为零。因此我们得出结论：对 $A$ 的积分必须正比于生成元 $\eta_i$ 最高次项的系数 $a_{12\ldots N}$。为了完成积分的定义，我们要求如下归一化
+\begin{equation}
+  \int d^N\eta\,\eta_1\eta_2\cdots\eta_N = 1 ,
+  \qquad \text{which implies} \qquad
+  \int d^N\eta\,A = a_{12\ldots N} .
+\end{equation}
+
+我们可以把格拉斯曼积分的定义更进一步地贴近 $\mathbb{R}^N$ 中的积分，把测度 $d^N\eta$ 写成一个乘积
+\begin{equation}
+  d^N\eta = d\eta_N\,d\eta_{N-1}\cdots d\eta_1 ,
+\end{equation}
+其中各个测度 $d\eta_i$ 满足
+\begin{equation}
+  \int d\eta_i\,1 = 0, \qquad
+  \int d\eta_i\,\eta_i = 1, \qquad
+  d\eta_i\,d\eta_j = -d\eta_j\,d\eta_i .
+\end{equation}
+
+最后一条性质是出于在被积函数中交换 $\eta_i$ 的自由度的要求。利用 (5.23) 可以定义仅对生成元 $\eta_i$ 的某个子集的积分，这与 $\mathbb{R}^N$ 的情形类似。有趣的是，测度 $d\eta_i$ 与导数 $\partial/\partial\eta_i$ 满足相同的代数性质（比较 (5.23) 与 (5.16)）。
+
+最后我们需要讨论测度 $d^N\eta$ 在由下式定义的变量线性变换下如何变换
+\begin{equation}
+  \eta'_i = \sum_{j=1}^{N}M_{ij}\,\eta_j ,
+\end{equation}
+其中 $M$ 是一个复 $N \times N$ 矩阵。将此变量变换应用于归一化积分 (5.21)，我们得到
+\begin{equation}
+  \begin{aligned}
+    &\int d^N\eta\,\eta_1\cdots\eta_N
+     = \int d^N\eta'\,\eta'_1\cdots\eta'_N\\
+    &= \int d^N\eta'\sum_{i_1,\ldots,i_N}M_{1i_1}\cdots M_{Ni_N}\,
+       \eta_{i_1}\cdots\eta_{i_N}\\
+    &= \int d^N\eta'\sum_{i_1,\ldots,i_N}M_{1i_1}\cdots M_{Ni_N}\,
+      \varepsilon_{i_1i_2\ldots i_N}\,\eta_1\cdots\eta_N\\
+    &= \det[M]\int d^N\eta'\,\eta_1\cdots\eta_N .
+  \end{aligned}
+\end{equation}
+
+在此式的第二行中，我们对格拉斯曼数的乘积 $\eta_{i_1}\cdots\eta_{i_N}$ 进行了重排。如果其中两个指标 $i_k$ 相等，该乘积为零。重排所产生的符号由全反对称张量 $\varepsilon_{i_1i_2\ldots i_N}$ 给出。矩阵元 $M_{ij}$ 与此张量的求和给出行列式。比较 (5.25) 中的第一个和最后一个表达式，可以读出格拉斯曼积分中测度的变换性质
+\begin{equation}
+  d^N\eta = \det[M]\,d^N\eta' .
+\end{equation}
+
+这一变换与 $\mathbb{R}^N$ 中积分测度的变换是``相反''的，后者中 $\det[M]$ 会出现在等号左边。
+
+\subsection{含格拉斯曼数的高斯积分}
+
+最后，我们推导处理格点费米子时所需的含格拉斯曼数的高斯积分公式。特别地，我们考虑具有 $2N$ 个生成元 $\eta_i$、$\bar{\eta}_i$（$i = 1, 2, \ldots, N$）的格拉斯曼代数。我们强调，这 $2N$ 个生成元彼此反对易，即我们有
+\begin{equation}
+  \eta_i\eta_j = -\eta_j\eta_i, \qquad
+  \bar{\eta}_i\bar{\eta}_j = -\bar{\eta}_j\bar{\eta}_i, \qquad
+  \bar{\eta}_i\eta_j = -\eta_j\bar{\eta}_i .
+\end{equation}
+
+我们证明的第一个积分是所谓的 Matthews--Salam 公式 [4, 5]
+\begin{equation}
+  Z_F = \int d\eta_N\,d\bar{\eta}_N\cdots d\eta_1\,d\bar{\eta}_1\;
+    \exp\Big(\sum_{i,j=1}^{N}\bar{\eta}_i M_{ij}\eta_j\Big) = \det[M] ,
+\end{equation}
+其中 $M$ 是一个复 $N \times N$ 矩阵。指数中可能出现的负号，如 (5.2) 中所出现的，可以被吸收进 $M$ 的定义中。令 $M = -D$，(5.28) 便确立了费米子配分函数 (5.3) 确实是一个行列式，称为费米行列式。
+
+为了证明结果 (5.28)，我们定义变换后的积分变量 $\eta'_j$
+\begin{equation}
+  \eta'_j = \sum_{k=1}^{N}M_{jk}\,\eta_k .
+\end{equation}
+
+由 (5.26) 我们得到测度的变换
+\begin{equation}
+  d\eta_N\,d\bar{\eta}_N\cdots d\eta_1\,d\bar{\eta}_1
+  = \det[M]\,d\eta'_N\,d\bar{\eta}'_N\cdots d\eta'_1\,d\bar{\eta}'_1 .
+\end{equation}
+
+利用变换 (5.29) 和 (5.30)，我们证明公式 (5.28)：
+\begin{equation}
+  \begin{aligned}
+    Z_F &= \det[M]\int\prod_{i=1}^{N}d\eta'_i\,d\bar{\eta}'_i\,
+      \exp\Big(\sum_{j=1}^{N}\bar{\eta}'_j\eta'_j\Big)
+      = \det[M]\prod_{i=1}^{N}\int d\eta'_i\,d\bar{\eta}'_i\,
+      \exp\big(\bar{\eta}'_i\eta'_i\big)\\
+      &= \det[M]\prod_{i=1}^{N}\int d\eta'_i\,d\bar{\eta}'_i\,
+      \big(1 + \bar{\eta}'_i\eta'_i\big)
+      = \det[M] .
+  \end{aligned}
+\end{equation}
+
+在 (5.31) 中，我们使用了格拉斯曼对象对（如 $\eta'_i\bar{\eta}'_i$ 与 $d\eta'_j\,d\bar{\eta}'_j$）与其他对相互对易这一事实。在第二行中，我们把各个指数函数展开为幂级数。由于格拉斯曼数的幂零性，这些级数在第二项之后就截断了。
+
+现在让我们推广积分 (5.28)：把由 $\eta_i$、$\bar{\eta}_i$（$i = 1, 2, \ldots, N$）生成的 $2N$ 维格拉斯曼代数嵌入到由 $\eta_i$、$\bar{\eta}_i$、$\theta_i$、$\bar{\theta}_i$（$i = 1, 2, \ldots, N$）生成的 $4N$ 维代数中。这 $4N$ 个格拉斯曼数彼此反对易。然而，我们只对 $\eta_i$、$\bar{\eta}_i$ 积分，其余生成元 $\theta_i$、$\bar{\theta}_i$ 用作源项。我们考虑的积分是所谓的费米子生成泛函。它由下式给出
+\begin{equation}
+  \begin{aligned}
+    &W(\theta,\bar{\theta})\\
+    &= \int\prod_{i=1}^{N}d\eta_i\,d\bar{\eta}_i\,
+      \exp\Big(\sum_{k,l=1}^{N}\bar{\eta}_k M_{kl}\eta_l
+      + \sum_{k=1}^{N}\bar{\theta}_k\eta_k
+      + \sum_{k=1}^{N}\bar{\eta}_k\theta_k\Big)\\
+    &= \det[M]\,\exp\Big(-\sum_{n,m=1}^{N}\bar{\theta}_n M^{-1}_{nm}\theta_m\Big) .
+  \end{aligned}
+\end{equation}
+
+为了证明这一结果，我们首先对指数配方，把指数写成（我们采用所有指标的求和约定）：
+\begin{equation}
+  \big(\bar{\eta}_i + \bar{\theta}_j M^{-1}_{ji}\big) M_{ik}
+  \big(\eta_k + M^{-1}_{kl}\theta_l\big)
+  - \bar{\theta}_n M^{-1}_{nm}\theta_m .
+\end{equation}
+
+然后我们进行变量变换
+\begin{equation}
+  \eta'_k = \eta_k + M^{-1}_{kl}\theta_l, \qquad
+  \bar{\eta}'_i = \bar{\eta}_i + \bar{\theta}_j M^{-1}_{ji} .
+\end{equation}
+
+由 (5.23) 可知，积分测度在此变换下保持不变。将变换 (5.33) 应用于 (5.32)，我们得到
+\begin{equation}
+  \begin{aligned}
+    &W(\theta,\bar{\theta})\\
+    &= \exp\Big(-\sum_{n,m=1}^{N}\bar{\theta}_n M^{-1}_{nm}\theta_m\Big)
+      \int\prod_{i=1}^{N}d\eta'_i\,d\bar{\eta}'_i\,
+      \exp\Big(\sum_{k,l=1}^{N}\bar{\eta}'_k M_{kl}\eta'_l\Big)\\
+    &= \det[M]\,\exp\Big(-\sum_{n,m=1}^{N}\bar{\theta}_n M^{-1}_{nm}\theta_m\Big) ,
+  \end{aligned}
+\end{equation}
+其中最后一步用到了 (5.28)，这样就完成了证明。
+
+\subsection{Wick 定理}
+
+利用生成泛函 (5.32)，我们现在可以讨论一个计算格拉斯曼数乘积的费米子期望值 $\langle\ldots\rangle_F$ 的关键公式。这个公式被称为 Wick 定理，其内容为
+\begin{equation}
+  \begin{aligned}
+    &\ev{\eta_{i_1}\bar{\eta}_{j_1}\cdots\eta_{i_n}\bar{\eta}_{j_n}}_F\\
+    &= \frac{1}{Z_F}\int\prod_{k=1}^{N}d\eta_k\,d\bar{\eta}_k\,
+      \eta_{i_1}\bar{\eta}_{j_1}\cdots\eta_{i_n}\bar{\eta}_{j_n}\,
+      \exp\Big(\sum_{l,m=1}^{N}\bar{\eta}_l M_{lm}\eta_m\Big)\\
+    &= (-1)^n\sum_{P(1,2,\ldots,n)}\operatorname{sign}(P)\,
+      M^{-1}_{i_1 j_{P_1}}M^{-1}_{i_2 j_{P_2}}\cdots M^{-1}_{i_n j_{P_n}} ,
+  \end{aligned}
+\end{equation}
+其中第二行中的求和遍历数字 $1, 2, \ldots, n$ 的所有置换 $P(1, 2, \ldots, n)$，$\operatorname{sign}(P)$ 是置换 $P$ 的符号。Wick 定理中的期望值常被称为 $n$ 点函数。
+
+可以通过如下方式证明该公式：注意到由 (5.32) 第一行中 $W(\theta,\bar{\theta})$ 的定义可推出
+\begin{equation}
+  \ev{\eta_{i_1}\bar{\eta}_{j_1}\cdots\eta_{i_n}\bar{\eta}_{j_n}}_F
+  = \frac{1}{Z_F}\frac{\partial}{\partial\theta_{j_1}}
+    \frac{\partial}{\partial\bar{\theta}_{i_1}}\cdots
+    \frac{\partial}{\partial\theta_{j_n}}
+    \frac{\partial}{\partial\bar{\theta}_{i_n}}\,
+    W(\theta,\bar{\theta})\Big|_{\theta=\bar{\theta}=0} .
+\end{equation}
+
+利用 (5.32) 第二行给出的生成泛函 $W(\theta,\bar{\theta})$ 的显式形式，并对源求导，即可得到结果 (5.36)。类似地，很容易证明 $\eta_i$ 与 $\bar{\eta}_j$ 数目不同的期望值为零。
+
+这便完成了我们对格拉斯曼数计算的讨论，现在我们已经具备了处理费米子的代数工具。
+
+\section{费米子加倍与 Wilson 费米子作用量}
+
+在上一节中，我们引入格拉斯曼数是为了把费米统计纳入我们格点上 QCD 的表述。在本节中，我们将首先把第~2~章给出的朴素费米子作用量改写为二次型形式。这一步明确表明上一节证明的 Wick 定理可以应用。基于这一形式，我们将接着考虑自由情形并分析格点 Dirac 算符的傅里叶变换。我们将识别出前面提到的加倍子，并在作用量中加入一项，以便在连续极限中消除这些多余的自由度。
+
+\subsection{格点上的 Dirac 算符}
+
+第~2.2~节给出的朴素费米子作用量为（见 (2.36)）：
+\begin{equation}
+  \begin{aligned}
+    &S_F[\psi,\bar{\psi},U] = a^4\sum_{n\in\Lambda}\Big[
+      \sum_{\mu=1}^{4}\bar{\psi}(n)\,\gamma_\mu\,
+      \frac{U_\mu(n)\psi(n+\hat{\mu}) - U_{-\mu}(n)\psi(n-\hat{\mu})}{2a}\\
+    &\qquad + m\,\bar{\psi}(n)\psi(n)\Big] .
+  \end{aligned}
+\end{equation}
+
+这里为了方便记号，我们只讨论单味道的情形，因此不出现对味道指标的求和。不同的味道只在于质量参数 $m$ 的值不同，而这与下面的讨论无关。
+
+由于作用量关于 $\psi$ 和 $\bar{\psi}$ 是双线性的，我们可以把它写成如下形式
+\begin{equation}
+  S_F[\psi,\bar{\psi},U] = a^4\sum_{n,m\in\Lambda}\sum_{a,b,\alpha,\beta}
+    \bar{\psi}(n)^{\alpha}_a\,D(n|m)^{\alpha\beta}_{ab}\,\psi(m)^{\beta}_b .
+\end{equation}
+
+格点上的朴素 Dirac 算符于是由下式给出
+\begin{equation}
+  D(n|m)^{\alpha\beta}_{ab} = \sum_{\mu=1}^{4}(\gamma_\mu)_{\alpha\beta}\,
+    \frac{U_\mu(n)_{ab}\,\delta_{n+\hat{\mu},m} - U_{-\mu}(n)_{ab}\,\delta_{n-\hat{\mu},m}}{2a}
+    + m\,\delta_{\alpha\beta}\,\delta_{ab}\,\delta_{n,m} .
+\end{equation}
+
+在 (5.39) 中，我们把费米子作用量改写成了在 Wick 定理 (5.36) 中令 $M = -a^4 D$ 时所用的精确形式。唯一的记号差别在于，(5.39) 中对若干不同的指标求和，而在 (5.36) 中我们只用一个指标来标记不同的格拉斯曼数。不过，这并不改变其代数内容或公式的适用性。
+
+\subsection{加倍问题}
+
+现在让我们在平凡规范场 $U_\mu(n) = 1$（即自由格点费米子的情形）下计算格点 Dirac 算符 $D(n|m)$ 的傅里叶变换。在附录~A.3 中我们收集并讨论了格点上傅里叶变换所需的公式。傅里叶变换分别独立地作用于两个时空坐标 $n$ 和 $m$。为了得到幺正相似变换，矩阵的第二个指标（这里为 $m$）用复共轭相位 $\exp(iq\cdot ma)$ 进行傅里叶变换。平凡规范场下 Dirac 算符 (5.40) 的傅里叶变换为（由于 $U_\mu(n) = 1$，为记号方便我们省略色指标，并在 Dirac 空间使用矢量/矩阵记号）
+\begin{equation}
+  \begin{aligned}
+    \hat{D}(p|q)
+    &= \frac{1}{|\Lambda|}\sum_{n,m\in\Lambda}e^{-ip\cdot na}\,
+      D(n|m)\,e^{iq\cdot ma}\\
+    &= \frac{1}{|\Lambda|}\sum_{n\in\Lambda}e^{-i(p-q)\cdot na}\Big[
+      \sum_{\mu=1}^{4}\gamma_\mu\,
+      \frac{e^{+iq_\mu a} - e^{-iq_\mu a}}{2a}\\
+    &\qquad + m\,\mathbb{1}\Big]\\
+    &= \delta(p-q)\,\hat{D}(p) ,
+  \end{aligned}
+\end{equation}
+其中 $|\Lambda|$ 是格点总数（见附录~A.3），而格点 Dirac 算符的傅里叶变换定义为
+\begin{equation}
+  \hat{D}(p) = m\,\mathbb{1} + \frac{i}{a}\sum_{\mu=1}^{4}\gamma_\mu\sin(p_\mu a) .
+\end{equation}
+
+\begingroup\emergencystretch=4em 由 (5.41) 的最后一行显然可见，在以 $p$、$q$ 标记矩阵元的新的基中，Dirac 算符在动量空间是对角的。因此，为了计算 Dirac 算符在实空间中的逆\linebreak[0] $\hat{D}^{-1}(n|m)$，我们只需计算 $4 \times 4$ 矩阵 $\hat{D}(p)$ 的逆，然后反演傅里叶变换即可。借助 (A.26) 可以容易地计算出矩阵 $\hat{D}(p)^{-1}$，\par\endgroup
+\begin{equation}
+  \hat{D}(p)^{-1} = \frac{m\,\mathbb{1} - i\,a^{-1}\sum_\mu\gamma_\mu\sin(p_\mu a)}
+    {m^2 + a^{-2}\sum_\mu\sin(p_\mu a)^2} ,
+\end{equation}
+反演傅里叶变换后我们得到
+\begin{equation}
+  D^{-1}(n|m) = \frac{1}{|\Lambda|}\sum_{p\in\Lambda}\hat{D}(p)^{-1}\,
+    e^{ip\cdot(n-m)a} ,
+\end{equation}
+其中我们利用 (5.41) 中的 $\delta(p-q)$ 消去了一个动量求和。这样，对于自由费米子，我们计算出了格点 Dirac 算符的逆 $D^{-1}(n|m)$。这个逆被称为夸克传播子。
+
+根据 Wick 定理 (5.36)，夸克传播子支配着 $n$ 点函数的行为，因此对它的分析十分重要。对于自由费米子，这种分析最好在动量空间中进行，即我们研究动量空间传播子 $\hat{D}(p)^{-1}$。特别令人感兴趣的是无质量费米子的情形，为此我们在 (5.43) 中令 $m = 0$。首先我们指出，对于固定的 $p$，传播子具有正确的朴素连续极限，
+\begin{equation}
+  \hat{D}(p)^{-1}\Big|_{m=0}
+  = \frac{-i\,a^{-1}\sum_\mu\gamma_\mu\sin(p_\mu a)}
+         {a^{-2}\sum_\mu\sin(p_\mu a)^2}
+  \xrightarrow{\;a\to 0\;}
+  \frac{-i\sum_\mu\gamma_\mu p_\mu}{p^2} .
+\end{equation}
+
+在连续情形中，无质量费米子的动量空间传播子（(5.45) 的右边）在
+\begin{equation}
+  p = (0, 0, 0, 0) .
+\end{equation}
+处有一个极点。
+
+这一极点对应于由连续 Dirac 算符描述的单个费米子。在格点上情形则不同。在那里，自由费米子的传播子（(5.45) 的中间项）有额外的极点：每当所有分量要么 $p_\mu = 0$、要么 $p_\mu = \pi/a$ 时，就会出现极点。动量空间包含所有动量 $p_\mu \in (-\pi/a, \pi/a]$，其中 $-\pi/a$ 与 $\pi/a$ 视为同一（比较附录~A.3），我们不能简单地剔除 $p_\mu = \pi/a$ 这个值。因此，就目前形式而言，我们的格点 Dirac 算符在以下位置具有非物理的极点
+\begin{equation}
+  p = (\pi/a, 0, 0, 0), \;(0, \pi/a, 0, 0), \ldots, (\pi/a, \pi/a, \pi/a, \pi/a) .
+\end{equation}
+
+容易看出，这会带来 15 个多余的极点，即所谓的加倍子。现在我们讨论一种从理论中消除加倍子的方法，至少在连续极限中如此。
+
+\subsection{Wilson 费米子}
+
+为了消除加倍子，我们需要把所有 $p_\mu = 0$ 的真实极点与包含动量分量 $p_\mu = \pi/a$ 的加倍子区分开来。Wilson 提出了一个可能的解决方案。他建议增加一项，使动量空间 Dirac 算符变为
+\begin{equation}
+  \hat{D}(p) = m\,\mathbb{1} + \frac{i}{a}\sum_{\mu=1}^{4}\gamma_\mu\sin(p_\mu a)
+    + \frac{1}{a}\,\mathbb{1}\sum_{\mu=1}^{4}\big(1 - \cos(p_\mu a)\big) .
+\end{equation}
+
+这一附加项，即所谓的 Wilson 项，正是我们所需要的。对于 $p_\mu = 0$ 的分量，它直接为零；对于每个 $p_\mu = \pi/a$ 的分量，它提供额外的贡献 $2/a$。这一项的作用相当于一个附加的质量项，加倍子的总质量由下式给出
+\begin{equation}
+  m + \frac{2\varepsilon}{a} ,
+\end{equation}
+其中 $\varepsilon$ 是满足 $p_\mu = \pi/a$ 的动量分量数目。在极限 $a \to 0$ 下，加倍子变得非常重，从而从理论中退耦。如果计算相应的动量空间传播子 $\hat{D}(p)^{-1}$，就会发现多余的极点消失了，只剩下物理极点 (5.46)。
+
+对于自由情形，Wilson 项在坐标空间的形式可以通过对 (5.48) 中最后一项进行逆傅里叶变换得到。它包含最近邻项，可以通过插入链变量使其规范不变。我们得到（$U_{-\mu}(n) \equiv U_\mu(n-\hat{\mu})^\dagger$）：
+\begin{equation}
+  -\frac{a}{2a^2}\sum_{\mu=1}^{4}\Big[
+    U_\mu(n)_{ab}\,\delta_{n+\hat{\mu},m} - 2\delta_{ab}\,\delta_{n,m}
+    + U_{-\mu}(n)_{ab}\,\delta_{n-\hat{\mu},m}\Big] .
+\end{equation}
+
+Wilson 项是 $-(a/2)\partial_\mu\partial_\mu$ 的一种离散化，即正比于负的拉普拉斯算符。\footnote{泰勒展开给出 $(f(x + \varepsilon) - 2f(x) + f(x - \varepsilon))/\varepsilon^2 = f''(x) + \order{\varepsilon^2}$。}前置因子 $a$ 表明 Wilson 项在朴素连续极限 $a \to 0$ 下消失。我们现在可以把 Wilson 项 (5.50) 与朴素 Dirac 算符合并，得到 Wilson 完整的 Dirac 算符。采用一种特别紧凑的记号，它可以写为：
+\begin{equation}
+  D^{(f)}(n|m)^{\alpha\beta}_{ab}
+    = \Big(m^{(f)} + \frac{4}{a}\Big)\delta_{\alpha\beta}\,\delta_{ab}\,\delta_{n,m}
+    - \frac{1}{2a}\sum_{\mu=\pm1}^{\pm4}(1-\gamma_\mu)_{\alpha\beta}\,
+      U_\mu(n)_{ab}\,\delta_{n+\hat{\mu},m} ,
+\end{equation}
+其中我们定义了
+\begin{equation}
+  \gamma_{-\mu} = -\gamma_\mu, \qquad \mu = 1, 2, 3, 4 .
+\end{equation}
+
+在 (5.51) 中，我们现在还明确写出了质量参数 $m^{(f)}$ 的味道依赖性。因此，$\Nf$ 味道 QCD 的费米子作用量由下式给出
+\begin{equation}
+  S_F[\psi,\bar{\psi},U] = \sum_{f=1}^{N_f}a^4\sum_{n,m\in\Lambda}
+    \bar{\psi}^{(f)}(n)\,D^{(f)}(n|m)\,\psi^{(f)}(m) .
+\end{equation}
+
+我们强调，右边通过 Dirac 算符 $D$ 对 $U$ 的依赖而依赖于规范场 $U$。为记号简便，我们不显式写出 Dirac 算符的自变量 $U$。
+
+现在我们有了一个可用的格点 QCD 表述，即 Wilson 表述。为了方便读者，我们在附录~A.4 中汇总了 Wilson 格点 QCD 表述的定义公式。虽然我们将在后面的章节中进一步完善我们的表述，但我们强烈建议读者现在就简要浏览一下附录~A.4。它总结了本书至此为止所走过的全部概念步骤，并再次凸显了贯穿这一构造过程的主线。
+
+\section{费米子线与跳跃展开}
+
+在本节中，我们在大夸克质量极限下分析 Wilson 费米子。这将引导我们得到所谓的跳跃展开。虽然跳跃展开作为一种解析工具并不十分强大，但它提供了一个重要的物理洞见：费米子可以被看作链变量的路径，即所谓的费米子线 [6--8]。基于这一洞见，我们将证明在第~3~章构造 Wilson 圈时使用的一个步骤是合理的，即用 Wilson 线替换夸克--反夸克对（比较 (3.57)--(3.47)）。我们还将为费米行列式找到一种解释：它可以被看作封闭费米子线（即所谓的费米子圈）的集合。
+
+\subsection{夸克传播子的跳跃展开}
+
+在第~5.1~节中我们已经证明，一个费米子场与一个反费米子场的费米子期望值（即费米子的两点函数）由 Dirac 算符的逆给出，
+\begin{equation}
+  \ev{\psi(n)^{\alpha}_a\,\bar{\psi}(m)^{\beta}_b}_F
+  = a^{-4}\,D^{-1}(n|m)^{\alpha\beta}_{ab} .
+\end{equation}
+
+这一公式由 Wick 定理 (5.36) 令 $M = -a^4 D$、$n = 1$ 并把多重指标 $i_1$ 替换为 $(n, \alpha, a)$、$j_1$ 替换为 $(m, \beta, b)$ 得出。
+
+现在我们将对大夸克质量 $m$ 展开 Dirac 算符的逆（即夸克传播子 $D^{-1}$）以及费米行列式。特别地，我们将使用 (5.51) 中给出的 Wilson Dirac 算符。这个 Dirac 算符可以写成（我们使用矩阵/矢量记号）
+\begin{equation}
+  D = C\,\big(1 - \kappa H\big)
+  \qquad \text{with} \qquad
+  \kappa = \frac{1}{2(am+4)}, \qquad C = m + \frac{4}{a},
+\end{equation}
+\begin{equation}
+  H(n|m)^{\alpha\beta}_{ab} = \sum_{\mu=\pm1}^{\pm4}(1-\gamma_\mu)_{\alpha\beta}\,
+    U_\mu(n)_{ab}\,\delta_{n+\hat{\mu},m} .
+\end{equation}
+
+项 $H$ 汇集了 Dirac 算符中所有的最近邻项，因此被称为跳跃矩阵。实数 $\kappa$ 是跳跃参数。常数 $C$ 无关紧要，因为它可以被吸收进夸克场的重新定义 $\psi \to \sqrt{C}\,\psi$、$\bar{\psi} \to \sqrt{C}\,\bar{\psi}$ 之中。因此，我们同样可以方便地使用如下形式的 Dirac 算符
+\begin{equation}
+  D = \mathbb{1} - \kappa H, \qquad \kappa = \frac{1}{2(am+4)} .
+\end{equation}
+
+跳跃展开的本质在于，对于大质量，$\kappa$ 变得很小。其思想是把 $D^{-1}$ 和 $\det[D]$ 按 $\kappa$ 的幂次展开。对于夸克传播子，可以利用众所周知的几何级数
+\begin{equation}
+  D^{-1} = (\mathbb{1} - \kappa H)^{-1} = \sum_{j=0}^{\infty}\kappa^j H^j .
+\end{equation}
+
+该级数在 $\kappa\|H\| < 1$ 时收敛。比较容易证明，跳跃项的范数\footnote{$\|H\| = \max_\varphi \sqrt{(H\varphi, H\varphi)/(\varphi, \varphi)}$，其中 $\varphi$ 是长度为 $12|\Lambda|$ 的复矢量。}满足 $\|H\| \leq 8$，因此级数在 $\kappa < 1/8$ 时收敛。
+
+让我们更仔细地考察 (5.58) 并把所有指标明确写出：
+\begin{equation}
+  D^{-1}(n|m)^{\alpha\beta}_{ab} = \sum_{j=0}^{\infty}\kappa^j\,H^j(n|m)^{\alpha\beta}_{ab} .
+\end{equation}
+
+这里 $H^j(n|m)^{\alpha\beta}_{ab}$ 表示 $H$ 的 $j$ 次幂的一个矩阵元。利用 (5.56)，我们得到这些幂次为
+\begin{equation}
+  \begin{aligned}
+    &H^0(n|m)^{\alpha\beta}_{ab} = \delta_{\alpha\beta}\,\delta_{ab}\,\delta_{n,m},\\
+    &H^1(n|m)^{\alpha\beta}_{ab} = \sum_{\mu=\pm1}^{\pm4}(1-\gamma_\mu)_{\alpha\beta}\,
+      U_\mu(n)_{ab}\,\delta_{n+\hat{\mu},m},\\
+    &H^2(n|m)^{\alpha\beta}_{ab} = \sum_{l,\rho,c}H(n,l)^{\alpha\rho}_{ac}\,H(l,m)^{\rho\beta}_{cb}\\
+    &\qquad = \sum_{\mu,\nu=\pm1}^{\pm4}\big((1-\gamma_\mu)(1-\gamma_\nu)\big)_{\alpha\beta}\,
+      \big(U_\mu(n)\,U_\nu(n+\hat{\mu})\big)_{ab}\,\delta_{n+\hat{\mu}+\hat{\nu},m},\\
+    &H^j(n|m)^{\alpha\beta}_{ab} = \sum_{\mu_i=\pm1}^{\pm4}
+      \Big(\prod_{i=1}^{j}(1-\gamma_{\mu_i})\Big)_{\alpha\beta}\,
+      P_{\mu_1\ldots\mu_j}(n)_{ab}\,\delta_{n+\hat{\mu}_1+\cdots+\hat{\mu}_j,m}.
+  \end{aligned}
+\end{equation}
+
+在最后一行中我们使用了缩写
+\begin{equation}
+  \begin{aligned}
+    P_{\mu_1\ldots\mu_j}(n)_{ab}
+    &= \big[U_{\mu_1}(n)\,U_{\mu_2}(n+\hat{\mu}_1)\cdots\\
+    &\qquad U_{\mu_j}(n+\hat{\mu}_1+\hat{\mu}_2\cdots\hat{\mu}_{j-1})\big]_{ab} ,
+  \end{aligned}
+\end{equation}
+用于表示所出现的链变量乘积。$H$ 的 0 次幂和 1 次幂是平凡的。为了计算 (5.60) 中的二次幂，我们把矩阵乘法显式写为对 $l$、$\rho$、$c$ 的求和，然后利用 (5.56)。对 $l$ 的求和由于 Kronecker $\delta$ 而消失。迭代这一步骤即可算出 $H$ 的更高次幂，给出 (5.60) 最后一行中的结果。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{fig51.png}
+  \caption*{Fig. 5.1. \emph{从 $n$ 到 $m$ 的传播子是连接这两点的链变量路径之和。长度为 $j$ 的路径带有一个因子 $\kappa^j$。}}
+  \label{fig:51}
+\end{figure}
+
+(5.60) 中的各项有一个简单的解释。由于 Kronecker $\delta$ $\delta_{n+\hat{\mu}_1+\cdots+\hat{\mu}_j,m}$，只有当格点上的位置 $n$ 和 $m$ 满足如下关系时它们才不为零
+\begin{equation}
+  m = n + \hat{\mu}_1 + \cdots + \hat{\mu}_j
+  \qquad \text{for a combination of } \mu_i \in \{\pm1, \pm2, \pm3, \pm4\} .
+\end{equation}
+
+如果条件 (5.62) 得到满足，那么两个格点 $n$ 和 $m$ 就由 (5.61) 所给出的路径上链变量的乘积相连。在 Dirac 空间中出现乘积
+\begin{equation}
+  \prod_{i=1}^{j}(1-\gamma_{\mu_i}) ,
+\end{equation}
+其中 $\mu_i$ 是路径上链的方向。有趣的是
+\begin{equation}
+  (1-\gamma_\mu)(1+\gamma_\mu) = 0 .
+\end{equation}
+
+这一性质排除了折返路径，即包含 $180^\circ$ 转弯的路径。
+
+总结我们对夸克传播子的跳跃展开：我们发现 $D^{-1}(n|m)$ 可以写成一系列非折返路径之和。长度为 $j$ 的路径带有 $\kappa^j$ 的幂次。对于给定的 $n$ 和 $m$，首项是连接 $n$ 和 $m$ 的最短路径（或对最短路径的求和）。$\kappa$ 的高阶项将贡献连接这两点的越来越长的路径。沿这些路径的链上，链变量 $U_\mu(n)$ 的乘积提供色空间的因子，而乘积 (5.63) 提供 Dirac 空间的因子。跳跃展开中贡献的一些路径如图~5.1 所示。
+
+借助这一结果，我们还证明了在我们构造 Wilson 圈（第~3.3.1--3.3.4~节）时用 Wilson 线替换费米子场乘积这一做法的合理性：Wilson 线正是跳跃展开中的项之一。特别地，在定义静态夸克势的无限大夸克质量极限（$\kappa \to 0$）下，跳跃展开中只有最短可能的路径有贡献，即直的 Wilson 线。
+
+\subsection{费米行列式的跳跃展开}
+
+与夸克传播子类似，也可以对 $\kappa$ 展开费米行列式。中心方程为
+\begin{equation}
+  \det[D] = \det[\mathbb{1}-\kappa H] = \exp\big(\tr[\ln(\mathbb{1}-\kappa H)]\big)
+    = \exp\Big(-\sum_{j=1}^{\infty}\frac{\kappa^j}{j}\,\tr H^j\Big) .
+\end{equation}
+
+第一步我们用到了 (5.57)，第二步用到了行列式的一个众所周知公式（见附录~A.5）。最后一步把对数展开为幂级数。
+
+由 (5.65) 可知，对于跳跃展开，我们需要计算跳跃项幂次的迹。这些幂次已在 (5.60) 中算出。取迹意味着，除了 Dirac 空间和色空间的迹之外，还要在 (5.60) 中令 $n = m$ 并对格点 $m$ 求和。当 $n = m$ 时，我们得到的链路径就变成了闭合圈，即所谓的费米子圈。\footnote{注意，这些并非弱耦合微扰论中的圈。}因此，费米行列式是链变量闭合圈之和的指数。由于每个圈都对色指标取迹，这些圈是规范不变的，行列式也是如此。长度为 $j$ 的圈带有一个因子 $\kappa^j/j$。在 Dirac 空间中，我们再次得到 (5.63) 类型的乘积，不过现在取了迹。同样地，(5.64) 排除了折返的圈。
+
+这便结束了我们对跳跃展开的讨论。要领会的重要信息是：夸克传播子是费米子线（即链变量的路径）之和，而费米行列式是闭合费米子圈之和。
+
+\section{Wilson 作用量的分立对称性}
+
+现在让我们讨论 Wilson 费米子作用量的若干对称性。毫无疑问，格点离散化会破坏我们在连续情形所具有的许多对称性，例如平移不变性或转动不变性。在格点上我们只剩下分立的平移和转动，但例如可以证明在连续极限下连续的转动对称性得以恢复。然而，在本节中我们集中讨论像电荷共轭 $C$ 和宇称 $P$ 这样的分立对称性。这些对称性对于构造我们将在第~6~章讨论的强子插值算符十分重要。
+
+\subsection{电荷共轭}
+
+我们以电荷共轭 $C$ 开始对分立对称性的讨论。电荷共轭把粒子变为反粒子，并按下式作用于旋量场（下面我们省略味道指标）
+\begin{equation}
+  \psi(n) \xrightarrow{\;C\;} \psi(n)^C = C^{-1}\psi(n)^T, \qquad
+  \bar{\psi}(n) \xrightarrow{\;C\;} \bar{\psi}(n)^C = -\psi(n)^T C .
+\end{equation}
+
+在此式中，转置 $T$ 是为了记号方便而使用的。它同时作用于色指标和 Dirac 指标，把一个 $3 \times 4$ 列旋量变成行旋量。电荷共轭矩阵 $C$ 只作用于 Dirac 指标，并定义为满足如下关系
+\begin{equation}
+  C\,\gamma_\mu\,C^{-1} = -\gamma_\mu^T .
+\end{equation}
+
+在附录~A.2 中，我们给出 (A.24) 中 $\gamma$ 矩阵手征表示下 $C$ 的显式形式。
+
+链变量在电荷共轭下按如下方式变换
+\begin{equation}
+  U_\mu(n) \xrightarrow{\;C\;} U_\mu(n)^C = U_\mu(n)^* = \big(U_\mu(n)^\dagger\big)^T .
+\end{equation}
+
+把链变量写成 $U_\mu(n) = \exp(iaA_\mu(n))$（比较 (2.39)），我们发现电荷共轭 (5.68) 对应于把 $A_\mu(n)$ 变为 $A_\mu(n) \to -A_\mu(n)^T$。这一改变考虑了反粒子具有与相应粒子相反的电荷这一事实。
+
+现在让我们证明 Wilson 作用量在电荷共轭下确实是不变的。对于平凡（质量型）项，我们得到（为记号方便，省略求和与常数因子）
+\begin{equation}
+  \bar{\psi}(n)^C\,\psi(n)^C = -\psi(n)^T\,C\,C^{-1}\,\psi(n)^T
+    = -\psi(n)^T\,\psi(n)^T = \psi(n)\psi(n) ,
+\end{equation}
+其中最后一步中格拉斯曼变量的交换消去了整体的负号。
+
+对于跳跃部分，我们得到（我们使用约定 $\gamma_{-\mu} = -\gamma_\mu$ 和 $U_{-\mu}(n) = U_\mu(n-\hat{\mu})^\dagger$）
+\begin{equation}
+  \begin{aligned}
+    &a^4\sum_{n}\sum_{\mu=\pm1}^{\pm4}\bar{\psi}(n)^C\,
+      \frac{1-\gamma_\mu}{2a}\,U_\mu(n)^C\,\psi(n+\hat{\mu})^C\\
+    &= -a^4\sum_{n}\sum_{\mu=\pm1}^{\pm4}\psi(n)^T\,C\,
+      \frac{1-\gamma_\mu}{2a}\,C^{-1}\,U_\mu(n)^*\,\psi(n+\hat{\mu})^T\\
+    &= -a^4\sum_{n}\sum_{\mu=\pm1}^{\pm4}\psi(n)^T\,
+      \frac{1+\gamma_\mu^T}{2a}\,\big(U_\mu(n)^\dagger\big)^T\,\psi(n+\hat{\mu})^T .
+  \end{aligned}
+\end{equation}
+
+在最后一个等式中，我们得到的是转置矩阵与旋量的乘积。这可以写成按相反次序排列的矩阵与旋量乘积的转置。颠倒两个格拉斯曼对象的次序会产生一个整体负号。由于整个乘积是标量，转置最终可以完全去掉。因此我们把最后一个等式继续写为
+\begin{equation}
+  \begin{aligned}
+    &a^4\sum_{n}\sum_{\mu=\pm1}^{\pm4}\bar{\psi}(n+\hat{\mu})\,
+      \frac{1+\gamma_\mu}{2a}\,U_\mu(n)^\dagger\,\psi(n)\\
+    &= a^4\sum_{m}\sum_{\mu=\pm1}^{\pm4}\bar{\psi}(m)\,
+      \frac{1+\gamma_\mu}{2a}\,U_\mu(m-\hat{\mu})^\dagger\,\psi(m-\hat{\mu})\\
+    &= a^4\sum_{m}\sum_{\mu=\pm1}^{\pm4}\bar{\psi}(m)\,
+      \frac{1-\gamma_{-\mu}}{2a}\,U_{-\mu}(m)\,\psi(m-\hat{\mu})\\
+    &= a^4\sum_{m}\sum_{\mu=\pm1}^{\pm4}\bar{\psi}(m)\,
+      \frac{1-\gamma_\mu}{2a}\,U_\mu(m)\,\psi(m+\hat{\mu}) ,
+  \end{aligned}
+\end{equation}
+这表明跳跃部分在电荷共轭下也是不变的。
+
+\subsection{宇称与欧几里得反射}
+
+宇称变换 $P$ 按如下方式作用于我们的格点场
+\begin{equation}
+  \begin{aligned}
+    \psi(n,n_4) &\xrightarrow{\;P\;} \psi(n,n_4)^P = \gamma_4\,\psi(-n,n_4),\\
+    \bar{\psi}(n,n_4) &\xrightarrow{\;P\;} \bar{\psi}(n,n_4)^P = \bar{\psi}(-n,n_4)\,\gamma_4,\\
+    U_i(n,n_4) &\xrightarrow{\;P\;} U_i(n,n_4)^P = U_i(-n-\hat{i},n_4)^\dagger, \quad i = 1, 2, 3,\\
+    U_4(n,n_4) &\xrightarrow{\;P\;} U_4(n,n_4)^P = U_4(-n,n_4) .
+  \end{aligned}
+\end{equation}
+
+这里有必要对格点的标记作一点说明：在我们对格点 $\Lambda$ 的定义（见 (2.25) 或 (A.27)）中，空间格点 $n_i$ 从 $0$ 取到 $N-1$。这一约定对数值研究特别方便。然而，我们同样可以把格点标记为 $n_i = -N/2+1, -N/2+2, \ldots, N/2$。当我们应用反射 $n \to -n$ 时，这里使用的正是后一种约定，连同周期性等同 $N/2 + 1 \leftrightarrow -N/2 + 1$。
+
+Wilson 作用量的对角项在宇称变换 (5.72) 下是平凡不变的，因为在空间分量的求和中，总可以把对 $n$ 的求和替换为对 $-n$ 的求和。对于跳跃项的空间部分，我们得到
+\begin{equation}
+  \begin{aligned}
+    &a^4\sum_{n,n_4}\sum_{i=\pm1}^{\pm3}\bar{\psi}(n,n_4)^P\,
+      \frac{1-\gamma_i}{2a}\,U_i(n,n_4)^P\,\psi(n+\hat{i},n_4)^P\\
+    &= a^4\sum_{n,n_4}\sum_{i=\pm1}^{\pm3}\bar{\psi}(-n,n_4)\,\gamma_4\,
+      \frac{1-\gamma_i}{2a}\,\gamma_4\,U_i(-n-\hat{i},n_4)^\dagger\,
+      \psi(-n-\hat{i},n_4)\\
+    &= a^4\sum_{m=-n}\sum_{n_4}\sum_{i=\pm1}^{\pm3}\bar{\psi}(m,n_4)\,
+      \frac{1-\gamma_{-i}}{2a}\,U_{-i}(m,n_4)\,\psi(m-\hat{i},n_4)\\
+    &= a^4\sum_{m}\sum_{n_4}\sum_{i=\pm1}^{\pm3}\bar{\psi}(m,n_4)\,
+      \frac{1-\gamma_i}{2a}\,U_i(m,n_4)\,\psi(m+\hat{i},n_4) .
+  \end{aligned}
+\end{equation}
+
+对于时间方向的跳跃部分，相应的步骤为
+\begin{equation}
+  \begin{aligned}
+    &a^4\sum_{n,n_4}\sum_{\mu=\pm4}\bar{\psi}(n,n_4)^P\,
+      \frac{1-\gamma_\mu}{2a}\,U_\mu(n,n_4)^P\,\psi(n,n_4\pm1)^P\\
+    &= a^4\sum_{n,n_4}\sum_{\mu=\pm4}\bar{\psi}(-n,n_4)\,
+      \frac{1-\gamma_\mu}{2a}\,U_\mu(-n,n_4)\,\psi(-n,n_4\pm1)\\
+    &= a^4\sum_{m,n_4}\sum_{\mu=\pm4}\bar{\psi}(m,n_4)\,
+      \frac{1-\gamma_\mu}{2a}\,U_\mu(m,n_4)\,\psi(m,n_4\pm1) .
+  \end{aligned}
+\end{equation}
+
+这样我们就确立了 Wilson 费米子作用量在宇称变换下是不变的。
+
+容易证明 Wilson 规范作用量在 $C$ 和 $P$ 下也是不变的，我们把这一证明作为练习留给读者。需要强调的是，我们后面讨论的其他格点作用量在宇称和电荷共轭下也是不变的。不过，我们不再重复给出证明这些性质的显式步骤。
+
+在闵可夫斯基空间中，时间分量与空间分量由度规中的相对符号加以区分。在欧几里得空间中不存在这样的区分，Wilson 作用量实际上在下面四个更一般的变换 $P_\mu$（$\mu = 1, 2, 3, 4$）下不变，
+\begin{equation}
+  \begin{aligned}
+    \psi(n) &\xrightarrow{\;P_\mu\;} \psi(n)^{P_\mu} = \gamma_\mu\,\psi(P_\mu(n)),\\
+    \bar{\psi}(n) &\xrightarrow{\;P_\mu\;} \bar{\psi}(n)^{P_\mu} = \bar{\psi}(P_\mu(n))\,\gamma_\mu,\\
+    U_\nu(n) &\xrightarrow{\;P_\mu\;} U_\nu(n)^{P_\mu} = U_\nu(P_\mu(n)-\hat{\nu})^\dagger, \quad \nu \neq \mu,\\
+    U_\mu(n) &\xrightarrow{\;P_\mu\;} U_\mu(n)^{P_\mu} = U_\mu(P_\mu(n)) ,
+  \end{aligned}
+\end{equation}
+其中 $P_\mu(n)$ 是除了 $n_\mu$ 之外所有分量符号都反转的矢量 $n$。
+
+作用量在四个反射 $P_\mu$ 下不变这一事实表明，在欧几里得表述中四个方向没有任何一个被特殊化。我们指出，乘积操作 $P_1 P_2 P_3$ 对应于时间反射的欧几里得等价物。这种反射对于闵可夫斯基理论希尔伯特空间的形式重构起着重要作用 [9--11]。为此重构，还需要对费米子施加时间方向的反周期边界条件。因此，数值计算通常对费米子采用时间方向反周期边界条件，而规范场通常在四个方向上都取周期边界条件。然而，在热力学极限下，边界条件的选择无关紧要，唯一的例外是我们将在第~12~章讨论的高温 QCD 研究。
+
+\subsection{$\gamma_5$-厄米性}
+
+最后让我们讨论格点 Dirac 算符的一种更为抽象的对称性，然而它有着重要的推论。几乎所有 Dirac 算符 $D$（除非引入了化学势、$\theta$ 项或扭曲质量项，参见第~10 和~12~章）都是 $\gamma_5$-厄米的，即它们满足
+\begin{equation}
+  (\gamma_5 D)^\dagger = \gamma_5 D
+  \qquad \text{or, equivalently,} \qquad
+  D^\dagger = \gamma_5 D \gamma_5 .
+\end{equation}
+
+证明这一点是一个直截了当的练习，例如对 Wilson 的格点 Dirac 算符 (5.51)：由于 (5.51) 的对角项是实数，从两侧乘以 $\gamma_5$ 后不变。在跳跃项中，由于 $\gamma$ 矩阵的性质，因子 $(1-\gamma_\mu)$ 变为 $(1+\gamma_\mu)$。由于求和遍历 $\mu$ 的两种符号，于是我们可以写
+\begin{equation}
+  \begin{aligned}
+    &\sum_{\mu=\pm1}^{\pm4}\big(\gamma_5(1-\gamma_\mu)\gamma_5\big)_{\alpha\beta}\,
+      U_\mu(n)_{ab}\,\delta_{n+\hat{\mu},m}\\
+    &= \sum_{\mu=\pm1}^{\pm4}(1+\gamma_\mu)_{\alpha\beta}\,
+      U_\mu(n)_{ab}\,\delta_{n+\hat{\mu},m}
+     = \sum_{\mu=\pm1}^{\pm4}(1-\gamma_\mu)_{\alpha\beta}\,
+      U_{-\mu}(n)_{ab}\,\delta_{n-\hat{\mu},m}\\
+    &= \sum_{\mu=\pm1}^{\pm4}(1-\gamma_\mu)_{\alpha\beta}\,
+      U_\mu(n-\hat{\mu})^\dagger_{ab}\,\delta_{n-\hat{\mu},m}
+     = \sum_{\mu=\pm1}^{\pm4}(1-\gamma_\mu)_{\alpha\beta}\,
+      U_\mu(m)^\dagger_{ab}\,\delta_{n,m+\hat{\mu}} .
+  \end{aligned}
+\end{equation}
+
+在最后一步中，我们利用 $\delta$ 函数把规范场的位置 $n-\hat{\mu}$ 替换为 $m$。与 (5.51) 比较表明，$U_\mu$ 已被替换为 $U_\mu^\dagger$，并且 $n$ 和 $m$ 已经交换。我们确实证明了 (5.76) 的有效性。
+
+这一性质为逆算符（即夸克传播子）所继承，这将在第~6.2~节强子关联函数的计算中被证明是有用的。$\gamma_5$-厄米 Dirac 算符的另一个特征是它们的本征值要么是实数，要么成复共轭对出现，我们将在第~7.3.1~节更详细地讨论。这一性质还意味着费米行列式是实的。行列式的实性对于我们在第~8~章讨论的含费米子格点 QCD 的蒙特卡罗模拟将证明是至关重要的。
+
+\section*{参考文献}
+
+\begin{enumerate}[label={[\arabic*]}]
+  \item J.~W.~Negele and H.~Orland: \emph{Quantum Many Particle Systems}
+        (Westview Press -- Advanced Book Classics, Boulder 1998).
+  \item J.~Smit: \emph{Introduction to Quantum Fields on a Lattice} (Cambridge
+        University Press, Cambridge 2002).
+  \item J.~Zinn-Justin: \emph{Quantum Field Theory and Critical Phenomena}
+        (Clarendon Press, Oxford 1996).
+  \item T.~Matthews and A.~Salam: Nuovo Cim.\ 12, 563 (1954).
+  \item T.~Matthews and A.~Salam: Nuovo Cim.\ 2, 120 (1955).
+  \item C.~B.~Lang and H.~Nicolai: Nucl.\ Phys.\ B 200 [FS4], 135 (1982).
+  \item A.~Hasenfratz, P.~Hasenfratz, Z.~Kunszt, and C.~B.~Lang: Phys.\ Lett.\
+        B 115, 289 (1982).
+  \item A.~Hasenfratz, P.~Hasenfratz, Z.~Kunszt, and C.~B.~Lang: Phys.\ Lett.\
+        B 117, 81 (1982).
+  \item J.~Glimm and A.~Jaffe: \emph{Quantum Physics. A Functional Integral
+        Point of View}, 2nd ed.\ (Springer, New York 1987).
+  \item K.~Osterwalder and E.~Seiler: Ann.\ Phys.\ 110, 440 (1978).
+  \item E.~Seiler: \emph{Gauge Theories as a Problem of Constructive Quantum
+        Field Theory and Statistical Mechanics}, Lect.\ Notes Phys.\ 159.
+        Springer, Berlin, Heidelberg, New York (1982).
+\end{enumerate}

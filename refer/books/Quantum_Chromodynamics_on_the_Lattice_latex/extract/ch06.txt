@@ -1,0 +1,2155 @@
+6
+Hadron spectroscopy
+
+The simplest quantities involving fermions that one can compute on the lattice
+are the masses of hadrons. Since there are many combinations of quantum
+numbers such as spin, parity, ﬂavor content etc. there is a wealth of possible
+hadrons. Reproducing all their masses correctly is already a powerful test for
+the correctness of QCD. Over the last 20 years lattice QCD calculations of
+the mass spectrum have improved continually and, for ground state baryons,
+have reached impressive agreement with experimental data.
+In this chapter we discuss the conceptual background and the actual implementation of a numerical spectroscopy calculation. The hadron correlation
+functions are not only necessary for computing the spectrum but enter also
+in the determination of hadronic matrix elements addressed in later chapters.
+We ﬁrst discuss how to construct operators with the correct quantum numbers and their correlation functions and address the quenched approximation.
+Subsequently we present techniques for quark sources and show how quark
+propagators can be computed. We continue with the analysis of the resulting
+hadron propagators and discuss how to obtain the hadron masses.
+
+6.1 Hadron interpolators and correlators
+In a typical QCD calculation one generates gauge conﬁgurations according
+to the requested distribution and then computes various observables. These
+include simple expectation values of plaquettes or of more extended operators
+such as Wilson loops. Also quantities like the chiral condensate ψψ have
+been studied and will be discussed in later chapters.
+Here we concentrate on determining hadron masses, i.e., we perform a
+hadron spectroscopy calculation. For this purpose one ﬁrst computes quark
+propagators for each gauge conﬁguration. These are then suitably combined
+to construct the hadron propagators. Finally, averaging over all gauge conﬁgurations provides our estimate of the hadron propagators for subsequent
+analysis.
+Gattringer, C., Lang, C.B.: Hadron Spectroscopy. Lect. Notes Phys. 788, 123–156
+(2010)
+c Springer-Verlag Berlin Heidelberg 2010
+
+DOI 10.1007/978-3-642-01850-3 6
+
+124
+
+6 Hadron spectroscopy
+
+The ﬁrst step of such a spectroscopy calculation is the identiﬁcation of
+hadron interpolators O, O such that the corresponding Hilbert space operators
+ O
+ † annihilate and create the particle states we want to analyze. A hadron
+O,
+interpolator is a functional of the lattice ﬁelds with the quantum numbers
+of the state one is interested in.1 Once the interpolators are identiﬁed we
+consider the Euclidean correlator (1.12) of hadron interpolators O(nt ), O(0)
+located at time slices n4 = nt and n4 = 0.
+For hadron spectroscopy one studies interpolators constructed out of
+quarks and gluons. These are by construction gauge-invariant color singlets.
+Such operators include:
+•
+•
+•
+•
+•
+
+Local meson operators, like OM (n) ≡ ψ(n)Γ ψ(n), consisting of quarks and
+antiquarks or baryon operators made out of three quarks; these should give
+information on the mesons and baryons as predicted by QCD.
+Extended interpolators, also contributing to hadron propagators, involving, e.g., for mesons terms like ψ(n)Uμ (n)ψ(n+ μ̂) and similar for baryons.
+Pure gauge ﬁeld interpolators like the plaquette, longer closed loops, or
+more general gluonic operators. These interpolators couple to gluonic objects such as glueballs, but also to mesons.
+Other, more exotic color-singlet combinations of quarks and antiquarks
+like ψψψψ and ψψψψψ.
+States with 3n quarks; these are just the nuclei. For example, the deuterium is a proton–neutron state made out of six valence quarks, three of
+up-type and three of down-type.
+
+According to (1.21), physically allowed states can be observed in the spectral decomposition of the propagators of these interpolators,
+
+
+
+ † |0 e−nt a Ek
+0|O|kk|
+O
+O(nt ) O(0) =
+k
+
+
+
+
+= A e−nt a EH 1 + O e−nt a ΔE ,
+
+(6.1)
+
+
+where A is a constant, EH is the energy of the lowest state |H with 0|O|H
+=
+0, and ΔE is the energy diﬀerence to the ﬁrst excited state. From the leading
+exponential decay we thus can extract the energy EH of the hadron.
+6.1.1 Meson interpolators
+The discrete symmetries which we have discussed in Sect. 5.4 play an important role in the classiﬁcation of hadrons and are needed for the construction
+of hadron interpolators. To illustrate their use we discuss as an example the
+construction of pion interpolators in more detail. Other meson interpolators
+can then be constructed along the same lines with the help of Table 6.1, which
+lists the quantum numbers of fermion bilinears.
+1
+
+According to common practice, we will often use “operator” and “interpolator”
+synonymously in the following.
+
+6.1 Hadron interpolators and correlators
+
+125
+
+To be speciﬁc, we consider QCD with only two or three ﬂavors (up, down,
+strange). Instead of using a ﬂavor index f attached to spinors denoted by
+ψ, ψ, we often use a diﬀerent symbol for each ﬂavor. Thus u, u, d, d and s, s
+denote the spinors for the three light ﬂavors.
+The pions, which we now consider in our example, are made from u and d
+quarks only. An up-quark u has isospin I = 1/2, Iz = + 1/2 and charge Q = 2/3 e,
+where in our convention the charge of the electron is −e. For the down-quark
+d we have I = 1/2, Iz = − 1/2 and Q = − 1/3 e. The pseudoscalar combinations
+can be classiﬁed with respect to their isospin and are grouped into an isotriplet (I = 1) containing the particles π + , π0 , π − with isospin components
+Iz = 1, 0, −1 and an iso-singlet (I = 0) containing the η-meson.2
+The charged pions π + and π − have a mass of 140 MeV. They have zero
+spin (J = 0), negative parity (P = −1), isospin I = 1, Iz = ±1, and electric
+charge Q = ±e. Thus, for obtaining the correct charge and isospin, π + must
+be a d–u combination and π − is of the type u–d. We also expect them to
+be color singlets. More explicitly we can use the pseudoscalar interpolators
+(summation convention for all indices)
+Oπ+ (n) = d(n) γ5 u(n) = d(n) α (γ5 )αβ u(n) β ,
+c
+
+c
+
+Oπ− (n) = u(n) γ5 d(n) = u(n) α (γ5 )αβ d(n) β .
+c
+
+(6.2)
+
+c
+
+For their transformation under parity (5.72) we ﬁnd
+Oπ+ (n, n4 ) = d(n, n4 ) γ5 u(n, n4 )
+P
+
+−→ d(−n, n4 ) γ4 γ5 γ4 u(−n, n4 ) = −d(−n, n4 ) γ5 u(−n, n4 )
+= −Oπ+ (−n, n4 ) ,
+(6.3)
+showing that our interpolator Oπ+ indeed has negative parity (the same holds
+for Oπ− ). The fact that the parity transformation changes the spatial vector
+n into −n is irrelevant for interpolators where we project to zero momentum,
+i.e., where we sum over all n (see Sect. 6.1.4). Applying charge conjugation
+(5.66) gives
+C
+
+Oπ+ (n) = d(n) γ5 u(n) −→ −d(n)T Cγ5 C −1 u(n)T = −d(n)T γ5T u(n)T
+= u(n) γ5 d(n) = Oπ− (n) ,
+
+(6.4)
+
+where we used Cγ5 C −1 = γ5T , which follows from (5.67). The interchange
+of the Grassmann variables cancels the overall minus sign. Equation (6.4)
+establishes that charge conjugation transforms Oπ+ into Oπ− and vice versa.
+The interpolator for the Iz = 0 component of the iso-triplet, the π 0 , is
+
+1 
+Oπ0 (n) = √ u(n) γ5 u(n) − d(n) γ5 d(n) .
+2
+2
+
+We remark that the physical η also has an admixture of ss. See, e.g., [1].
+
+(6.5)
+
+126
+
+6 Hadron spectroscopy
+
+Table 6.1. Quantum numbers of the most commonly used meson interpolators
+according to the general form (6.9). We remark that the classiﬁcation with respect
+to C is for the ﬂavor neutral interpolators only
+JPC
+
+State
+Scalar
+Pseudoscalar
+Vector
+Axial vector
+Tensor
+
+++
+
+0
+0−+
+1−−
+1++
+1+−
+
+Γ
+
+Particles
+
+1 , γ4
+γ5 , γ4 γ5
+γi , γ4 γi
+γi γ5
+γi γj
+
+f0 , a0 , K0∗ , . . .
+π ± , π 0 , η, K ± , K 0 , . . .
+ρ± , ρ0 , ω, K ∗ , φ, . . .
+a1 , f 1 , . . .
+h1 , b 1 , . . .
+
+The iso-singlet state (I = 0), the η-meson, is described by the interpolator
+
+1 
+Oη (n) = √ u(n) γ5 u(n) + d(n) γ5 d(n) .
+2
+
+(6.6)
+
+The properties of Oπ0 and Oη under the parity transformation are the same
+as for the interpolators Oπ± , i.e., they have P = −1. Concerning charge
+conjugation, Oπ0 and Oη are eigenstates with C = +1.
+Other mesons diﬀer from the examples we have discussed so far by their
+ﬂavor content as well as by spin and parity. We can, e.g., obtain the interpolator for the strange K + meson from the interpolator for π + , by replacing the
+d quark with an s quark,
+OK + (n) = s(n) γ5 u(n) .
+
+(6.7)
+
+Diﬀerent spin and parity correspond to diﬀerent gamma matrices in the
+fermionic bilinears. For example we obtain from the interpolator for π + the
+interpolator for the ρ+ vector meson (I = 1, Iz = +1, Q = +e, J = 1, P = −1)
+by replacing γ5 with γi , i = 1, 2, 3:
+Oρ+ (n)i = d(n) γi u(n) , i = 1, 2, 3 .
+
+(6.8)
+
+A general local meson interpolator has the form
+OM (n) = ψ (f1 ) (n) Γ ψ (f2 ) (n) ,
+
+(6.9)
+
+where Γ is a monomial of gamma matrices, and we have for this equation
+switched back to the notation with upper ﬂavor indices fi . In the case of
+degenerate ﬂavors (f1 = f2 ) combinations of (6.9) are formed to obtain the
+desired ﬂavor symmetries, as was done in our interpolators for π 0 and η in
+(6.5) and (6.6). In Table 6.1 we list the matrices Γ for the most commonly
+used interpolators together with the corresponding quantum numbers. We
+remark that in addition to the local interpolators gauge-invariant combinations of quarks and antiquarks at diﬀerent lattice sites may also be used. (See
+Sects. 6.2.2 and 6.2.3.)
+
+6.1 Hadron interpolators and correlators
+
+127
+
+6.1.2 Meson correlators
+So far we have constructed the interpolator OM that corresponds to the operM acting in the physical Hilbert space. For the Euclidean correlator we
+ator O
+ † which generates the
+also need to ﬁnd the interpolator corresponding to O
+M
+meson state from the vacuum. In order to identify this operator we formally
+conjugate the interpolator (6.9) (we drop the space–time argument n here),
+
+
+ψ (f1 ) Γ ψ (f2 )
+
+†
+
+†
+
+†
+
+= −ψ (f2 ) Γ † ψ (f1 ) ≡ −ψ (f2 ) γ4 Γ † γ4 ψ (f1 ) = ±ψ (f2 ) Γ ψ (f1 ) .
+
+(6.10)
+The minus sign in the ﬁrst step comes from the interchange of the Grassmann
+variables. In the second step we have used the relation ψ = ψ † γ4 which holds
+for the operators in Hilbert space and performed the equivalent replacement
+for the Grassmann spinors in our interpolator. The last step in (6.10) reﬂects
+the simple algebraic property γ4 Γ † γ4 = ±Γ . Thus, up to a possible overall
+ † is obtained by interchanging
+sign, the interpolator that corresponds to O
+M
+ψ’s and ψ’s and ordering the ψ to the left. The sign is irrelevant for the
+exponential decay in (6.1). Thus, for mesons we use interpolators
+OM (n) = ψ (f1 ) (n) Γ ψ (f2 ) (n) ,
+
+OM (m) = ψ (f2 ) (m) Γ ψ (f1 ) (m) ,
+
+(6.11)
+
+combined in correlators OM (n) OM (m). At the moment the space–time arguments m, n are arbitrary and only later we will set the time arguments to
+m4 = 0 and n4 = nt to match the form of the hadron correlator (6.1). In
+Sect. 6.1.4 we will discuss what to do with the spatial components m, n.
+For evaluating the correlators we have to compute the Grassmann integrals
+that appear when calculating the fermionic part . . .F of the expectation
+value (compare (5.2)). In this step there is an important diﬀerence between
+the correlators for iso-triplet operators such as (6.2) and (6.5) and correlators
+for an iso-singlet operator such as (6.6). For an iso-triplet operator of the form
+OT = d Γ u we ﬁnd (summation convention is used for all indices)
+
+
+OT (n) OT (m) F = d(n)Γ u(n) u(m)Γ d(m) F
+*
++
+= Γα1 β1 Γα2 β2 d(n) α1 u(n) β1 u(m) α2 d(m) β2
+c1
+c1
+c2
+c2 F
+*
++ *
++
+= −Γα1 β1 Γα2 β2 u(n) β1 u(m) α2
+d(m) β2 d(n) α1
+c1
+c2 u
+c2
+−1
+−1
+= −Γα1 β1Γα2 β2 Du (n|m) β1 α2 Dd (m|n) β2 α1
+c1 c2
+c2 c1
+!
+= − tr Γ Du−1 (n|m) Γ Dd−1 (m|n) .
+
+c1
+
+d
+
+(6.12)
+
+In the third line of this equation we have reordered the Grassmann variables
+and then used the fact that the fermionic expectation value factorizes with
+respect to the ﬂavors: . . .F = . . .u . . .d . Subsequently we applied Wick’s
+
+128
+
+6 Hadron spectroscopy
+
+m
+
+n
+
+m
+
+n
+
+Fig. 6.1. Connected (left-hand side plot) and disconnected (right-hand side plot)
+pieces of a meson correlator
+
+theorem (5.36) for each of the two ﬂavors (compare also (5.54)). This step is
+often referred to as fermion contraction.
+The Dirac operators Du , Dd for u and d quark diﬀer only by the value
+of the mass parameter (compare (5.51)). Often the small diﬀerence between
+the u and the d quark masses is ignored and one uses Du = Dd , i.e., exact
+isospin symmetry. It is, however, important to keep in mind that also in this
+case, only Grassmann variables with equal ﬂavor can be contracted with each
+other.
+The result in the last line of (6.12) has a simple interpretation: The propagator Du−1 (n|m) propagates a u quark from space–time point m to the point n,
+while the propagator Dd−1 (m|n) transports a d quark in the opposite direction. Such a contribution is referred to as connected piece and is depicted in
+the left-hand side plot of Fig. 6.1. We remark that each of the individual lines
+in this ﬁgure symbolizes a collection of fermion lines (cf. Fig. 5.1). √
+In the correlator of an iso-singlet operator OS = (uΓ u + dΓ d)/ 2, such
+as (6.6), also another type of contribution appears. The fermion contractions
+for this correlator are obtained by following the same steps as in (6.12),
+
+
+!
+1
+tr Γ Du−1 (n|m)Γ Du−1 (m|n)
+2
+!
+!
+1
++ tr Γ Du−1 (n|n) tr Γ Du−1 (m|m)
+(6.13)
+2
+!
+!
+1
++ tr Γ Du−1 (n|n) tr Γ Dd−1 (m|m) + u ↔ d .
+2
+
+OS (n) OS (m) F = −
+
+The ﬁrst type of contribution are the connected pieces we have already discussed. However, one also gets propagators Du−1 (n|n), Du−1 (m|m) which transport a u quark from a space time-point back to the same point. Such terms
+are called disconnected pieces and are depicted in the right-hand side plot of
+Fig. 6.1. Numerically these contributions need more computational eﬀort and
+higher statistics than the connected parts and many studies avoid considering
+such mesons or drop the disconnected pieces.
+√
+We remark that the interpolator OT,Iz =0 = (uΓ u−dΓ d)/ 2 for the Iz = 0
+component of the iso-triplet diﬀers from the singlet interpolator only by a
+relative minus sign between the u and the d terms (compare (6.5) and (6.6)).
+The corresponding correlator is like in (6.13), but with a minus sign in the
+third term. In the case of exact isospin symmetry, Du = Dd , the disconnected
+pieces cancel. The resulting correlator is the same as for the other members
+
+6.1 Hadron interpolators and correlators
+
+129
+
+of the triplet (compare (6.12)), implying that the masses of all triplet states
+are degenerate. In nature this degeneracy is quite accurate, since mπ± = 140
+MeV and mπ0 = 135 MeV. The small discrepancy is due to slightly diﬀerent
+masses for u and d quarks and electroweak corrections.
+6.1.3 Interpolators and correlators for baryons
+Baryons are objects made out of three valence quarks. Baryon interpolators
+O with well-deﬁned quantum numbers have to be constructed such that the
+ in (6.1) projects onto the state we are
+corresponding Hilbert space operator O
+interested in. As for the case of mesons we ﬁrst discuss an example in detail,
+the construction of nucleon interpolators, and then address other baryons. A
+review on baryon interpolators, going beyond our introductory presentation,
+can be found in [2].
+The proton p and the neutron n are the Iz = + 1/2 and Iz = − 1/2 components of an iso-doublet (I = 1/2). Their almost degenerate masses of mp = 938
+MeV and mn = 940 MeV demonstrate again that isospin is a good symmetry,
+as we already stressed for the pion system. The proton has electric charge
+Q = e, while the neutron has vanishing charge. Consequently the proton is a
+uud state and the neutron is of the type ddu. Due to the facts that the electric
+charge is irrelevant in QCD and p and n are strongly related by isospin symmetry, usually one does not distinguish between the two and refers to them
+simply as nucleons. We discuss only the uud-type interpolator (Iz = 1/2). The
+Iz = − 1/2 component is obtained by interchanging u and d.
+The simplest interpolator for the nucleon N is given by
+
+
+(6.14)
+ON (n) = abc u(n)a u(n)Tb Cγ5 d(n)c .
+In this equation we show explicitly only the color indices a, b, c, while for the
+Dirac indices we use vector/matrix notation. The transposition T acts on the
+Dirac indices and turns the column 4-spinor u(n)b into a row spinor u(n)Tb .
+Summing the color indices with the epsilon tensor makes the interpolator
+a color singlet and gauge-invariant, as follows from the action of a gauge
+transformation on the fermions (2.30) and (3.31).
+The term in the parentheses combines a u and a d quark into a so-called
+diquark, using the charge conjugation matrix C and γ5 . The diquark has
+isospin I = 0 and spin J = 0. The notion diquark here serves to discuss
+the quantum numbers and no dynamical meaning is implied. Thus the full
+interpolator ON has I = 1/2, Iz = + 1/2 and J = 1/2 as needed for the nucleon.
+The last quantum number we have to discuss is parity, which is P = +1
+for proton and neutron. Under the parity transformation P (see (5.72)) our
+nucleon interpolator ON (n) transforms as
+P
+ON
+(n, n4 ) = abc γ4 u(−n, n4 )a u(−n, n4 )Tb γ4T Cγ5 γ4 d(−n, n4 )c
+= abc γ4 u(−n, n4 )a u(−n, n4 )Tb Cγ5 d(−n, n4 )c = γ4 ON (−n, n4 ) , (6.15)
+
+130
+
+6 Hadron spectroscopy
+
+where in the second step we used γμT C = −Cγμ (compare (A.23)). As for
+mesons, the change of the spatial vector n into −n is irrelevant when we
+project to zero momentum, i.e., when we sum over all n (see Sect. 6.1.4).
+The nontrivial transformation of the spinor indices with γ4 can be taken into
+account by considering the combinations
+ON± (n) =
+
+
+
+
+1
+P
+ON (n) ± ON
+(n) = abc P± u(n)a u(n)Tb Cγ5 d(n)c , (6.16)
+2
+
+where the parity projectors P± are deﬁned as
+P± = 12 (1 ± γ4 ) .
+
+(6.17)
+
+After projection to zero momentum, the interpolators in (6.16) have definite parity P = ±1. The interpolator ON+ describes the positive parity nucleon, while ON− couples to its negative parity partner N (1535) with a mass
+of 1535 MeV.
+Similar to the steps performed for the meson correlator in (6.10), one ﬁnds
+that the interpolator for the corresponding creation operator is given by (up
+to an overall sign)
+
+
+ON± (n) = abc u(n)a Cγ5 d(n)Tb u(n)c P± .
+(6.18)
+Interpolators for other spin- 1/2 baryons are obtained by changing the ﬂavor
+content. Furthermore, diﬀerent diquark structures can be considered and we
+obtain more general spin- 1/2 interpolators:
+
+
+
+
+T
+ON± = abc P± Γ A ua uTb Γ B dc , ON± = abc u a Γ B db u c Γ A P± ,
+
+
+
+
+OΣ± = abc P± Γ A ua uTb Γ B sc , OΣ± = abc u a Γ B sTb u c Γ A P± ,
+
+
+
+
+OΞ± = abc P± Γ A sa sTb Γ B uc , OΞ± = abc sa Γ B u Tb sc Γ A P± ,
+
+
+
+
+
+
+
+OΛ± = abc P± Γ A 2sa uTb Γ B dc + da uTb Γ B sc − ua dTb Γ B sc ,
+ 
+ 
+ T
+
+
+
+OΛ± = abc 2 u Ta Γ B db sc + u Ta Γ B sb dc − da Γ B sb u c Γ A P±,(6.19)
+where we list the interpolators for nucleon, for the strange Σ (I = 1, S = −1),
+Ξ (I = 1/2, S = −2), and Λ (I = 0, S = −1) baryons of both parities. Three
++
+possible choices for the matrices Γ A and Γ B , all giving rise to J P = 1/2 , are
+(Γ A , Γ B ) = (1, Cγ5 ), (γ5 , C), or (1, iγ4 Cγ5 ).
+Baryons with spin J = 3/2 can be obtained by using (Γ A , Γ B ) = (1, Cγj ).
+The spatial gamma matrix γj gives rise to a diquark with spin J = 1 and
+together with the quark outside the diquark the resulting interpolator has
+spin J = 3/2 contributions, but also an admixture of spin J = 1/2. For the
+details of the necessary projection to deﬁnite spin we refer to [2].
+Note that all our baryon interpolators OB± and OB± still have an open
+Dirac index – they describe fermions after all. Usually this index is summed
+over and one considers correlators of the type (α is summed)
+
+6.1 Hadron interpolators and correlators
+
+
+
+OB± (n)α OB± (m)α .
+
+131
+
+(6.20)
+
+We conclude with displaying as an example the fermion contractions for
+the nucleon interpolator (6.14) (we use P±2 = P± and vector/matrix notation),
+
+
+ON± (n)α ON± (m)α F = − ON± (m)α ON± (n)α F
+
+
+
+
+
+= − abc a b c u(m)a Cγ5 d(m)Tb u(m)c P± u(n)c u(n)Ta Cγ5 d(n)b F
+= abc a b c (Cγ5 )α β  (Cγ5 )αβ (P± )γγ  Dd−1 (n|m) β  β ×
+(6.21)
+b b
+
+
+Du−1 (n|m) α α Du−1 (n|m) γ  γ − Du−1 (n|m) α γ Du−1 (n|m) γ  α ,
+a a
+
+c c
+
+a c
+
+c a
+
+demonstrating that for baryons only connected pieces occur.
+6.1.4 Momentum projection
+There is a ﬁnal step to be implemented for our hadron interpolators: We want
+our hadron states to be states of deﬁnite spatial momentum p. Thus we deﬁne
+
+ nt ) =  1
+O(n, nt ) e−i a n p .
+O(p,
+|Λ3 | n∈Λ3
+
+(6.22)
+
+Note that this Fourier transformation runs only over the spatial components n
+in the spatial lattice Λ3 = {n = (n1 , n2 , n3 ) | ni = 0, 1, . . . , N−1}. Accordingly,
+the momenta p are spatial momenta with components pi = 2πki /(aN ), ki =
+ nt ) is projected to deﬁnite
+−N/2 + 1, . . . , N/2. Thus, the interpolator O(p,
+spatial momentum and is located on a single time slice nt .
+It is suﬃcient to project only one of the two interpolators of a correlation
+function to deﬁnite momentum, typically the operator O(n, nt ) at the sink.
+The source operator O(0, 0) can remain in real space and usually is placed
+at the origin. That this is suﬃcient can be seen by writing the real space
+interpolator O as a sum of its Fourier components (compare (A.37)) and
+using the fact that states with diﬀerent momenta are orthogonal to each other
+such that only the zero momentum term survives. Note, however, that this
+is strictly correct only for the exact expectation values, whereas it is only
+approximate for a sum over a ﬁnite number of conﬁgurations.
+Thus, according to (1.21), our ﬁnal formula for Euclidean hadron correlators with deﬁnite momentum p reads
+)
+(
+
+
+ nt ) O(0, 0) =  1
+e−ianp O(n, nt ) O(0, 0)
+O(p,
+|Λ3 | n∈Λ3
+
+
+
+(6.23)
+= A e−ant E(p) 1 + O e−ant ΔE ,
+where the energy E(p) is related to the hadron mass mH through the relativistic dispersion relation (in our units the speed of light is c = 1)
+
+132
+
+6 Hadron spectroscopy
+
+E(p) =
+
+'
+m2H + p2 (1 + O(ap)) ,
+
+(6.24)
+
+and for zero momentum we ﬁnd E(0) = mH .
+Determining the hadron propagators for non-zero momenta allows one to
+study the spectral relation between energy and momentum as realized on the
+lattice. Since the asymptotic states describe free particles in the lattice world,
+the adequate spectral relation is that of free lattice particles. It may be obtained, e.g., from the free boson (or fermion) lattice propagator in momentum
+space. For the simplest, nearest neighbor discretization one identiﬁes the pole
+at momentum (iE(p), p) and ﬁnds the relation (mH = E(0))
+cosh (a E(p)) = cosh(a mH ) +
+
+3
+
+
+(1 − cos(a pk )) ,
+
+(6.25)
+
+k=1
+
+which approaches the continuum relation for vanishing lattice spacing a, cf.
+(6.24). Careful analysis of hadron propagators along these lines allows one to
+check for the recovery of full Euclidean invariance.
+6.1.5 Final formula for hadron correlators
+Central for obtaining results to be compared with experiment are the correlation functions of products of ﬁelds. For any product of operators, denoted
+by A, one has to evaluate
+
+1
+A = AF G =
+D[U ] e−SG [U ] D[ψ, ψ] e−SF [ψ,ψ,U ] A[ψ, ψ, U ] . (6.26)
+Z
+The integral over the Grassmann variables can be computed in closed form
+(see Chap. 5) and the integral (5.4) over the gauge ﬁeld remains.
+For deﬁniteness let us discuss the example of a propagator for a meson
+built out of two quark ﬂavors as in (6.12). After the Grassmann integration
+we end up with a ratio of purely bosonic integrals over the gauge ﬁelds,
+
+
+1
+OT (n) OT (m) = −
+D[U ] e−SG [U ] det[Du ] det[Dd ]
+Z
+!
+× tr Γ Du−1 (n|m) Γ Dd−1 (m|n) ,
+
+(6.27)
+Z = D[U ] e−SG [U ] det[Du ] det[Dd ] .
+We stress again that the fermion determinants depend on U and one has to
+perform a Monte Carlo simulation using Z −1 exp(−SG [U ]) det[Du ] det[Dd ] as
+the distribution weight for the gauge ﬁelds. This seems to be a straightforward task at ﬁrst sight. However, computing the determinant of the Dirac
+operator matrix D is highly nontrivial. Remember that this matrix has 12 |Λ|
+rows and columns, where |Λ| is the number of lattice sites. This dimension
+therefore is typically of the order of millions and a brute force calculation of
+the determinant is prohibitively expensive.
+
+6.1 Hadron interpolators and correlators
+
+133
+
+6.1.6 The quenched approximation
+Following the ﬁrst applications of the Monte Carlo method to lattice QCD,
+most of the results in the 1980s and 1990s were obtained in the quenched
+approximation.3 In particular the successful determination of the ground state
+spectrum of hadrons with light quarks is a milestone of this approach.
+Before discussing the quenched approximation, let us brieﬂy remind ourselves of the physical interpretation of the determinant factor. From the hopping expansion discussed in Chap. 5, we found that it may be written as an
+eﬀective action, which is a sum over closed loops of gauge ﬁeld link variables.
+In essence it describes the fermionic vacuum where virtual pairs of quarks and
+antiquarks are created and annihilated. These quarks are usually called sea
+quarks, since they are related to Dirac’s picture of a fermion sea, where the
+holes denote anti-fermions. Of course sea quarks are identical to generic quarks
+and we only call them such for clariﬁcation of the subsequent approximation.
+Putting the fermion determinants to unity by hand corresponds to neglecting the eﬀect of the vacuum quark loops (Sect. 5.3.2). Actually, since in
+the expansion of the determinant the leading term of the eﬀective action is
+a sum over plaquettes, part of the eﬀective action is intrinsically included in
+the gauge action by redeﬁning the gauge coupling. This is no problem, since
+the gauge coupling itself is a bare parameter and only physical quantities are
+of relevance.
+Omitting the determinants deﬁnes the quenched approximation. Instead
+of using the full expression for, e.g., the meson correlator (6.27), one computes
+
+!
+
+1
+D[U ] e−SG [U ] tr Γ Du−1 (n|m) Γ Dd−1 (m|n) ,
+OT (n) OT (m) quenched = −
+Z
+
+Z = D[U ] e−SG [U ] .
+(6.28)
+In this approximation one constructs the Markov chain of gauge conﬁgurations
+as for pure gauge theory (compare Chap. 3) and evaluates the quark propagators on those conﬁgurations. Combinations of the quark propagators build up
+the hadron correlators as discussed in the last section. In order to distinguish
+these propagating quarks from the sea quarks, and since they are responsible
+for the quantum numbers of the hadron, they are called valence quarks. The
+quenched approximation is therefore also called valence approximation.
+The quenched approximation may be considered as the limit, in which the
+sea quarks become inﬁnitely heavy and therefore cannot be generated from
+the vacuum as particle–antiparticle pairs. This can be seen from the hopping
+expansion for the fermion determinant (5.65). Since the expansion parameter
+κ deﬁned in (5.55) vanishes for m → ∞, the determinant becomes 1 in this
+limit.
+3
+
+The terms come from quenching – rapid cooling – of steel, where the carbon
+atoms are frozen to their random positions.
+
+134
+
+6 Hadron spectroscopy
+
+m
+
+n
+
+m
+
+n
+
+Fig. 6.2. Sample of quark lines contributing in hadron propagation (mesons l.h.s.,
+baryons r.h.s.). In the quenched approximation only contributions in the upper two
+rows, i.e., without sea quark loops (= closed loops) contribute. The diagrams in
+the second row appear in the quenched approximation and resemble the dynamical
+diagrams in the bottom rows. They are called hairpin diagrams and give rise to
+logarithmic singularities in the quenched approximation
+
+A simulation including the determinant and therefore allowing for the full
+dynamical vacuum structure of fermions is called a simulation with dynamical
+quarks, in contrast to the quenched simulation. Figure 6.2 gives examples for
+contributing quark lines in the quenched and the fully dynamical simulation.
+In full QCD there is no diﬀerence between sea quarks and valence quarks.
+However, in our computer laboratory we may give them diﬀerent masses.
+Such intermediate stages, where the masses of the sea quarks and the valence
+quarks diﬀer, are called partial quenching, and are sometimes useful for a
+better control of the various systematic uncertainties.
+We remark that neither the quenched nor the partially quenched approximation are proper quantum ﬁeld theories with a valid Hilbert space construction and correct positivity properties for the fermions. This leads to some
+problems in analyzing in particular the results toward small quark masses.
+Forbidding dynamical fermion loops also prevents one from studying resonances. However, these provide a conceptual problem anyhow. They are
+not asymptotic states of the ﬁeld theory and one has to introduce intricate
+tools for their identiﬁcation and the determination of scattering amplitudes
+in general (cf. Chap. 11). We expect, however, that resonances should in the
+quenched case to leading order be observed as bound states at nearby energy
+values.
+Since dynamical simulations will be treated in Chap. 8, in this chapter
+we will show exclusively results for the hadron spectrum in the quenched
+situation. Obviously these are of much higher statistical precision than those
+obtained from simulations with dynamical quarks, albeit with the intrinsic
+uncertainty of the eﬀect of quenching. Special features due to quenching (like
+occurrence of extra singularities and ghosts) will be discussed in Sect. 6.4.3.
+
+6.2 Strategy of the calculation
+
+135
+
+We stress, however, that most of the formulas and techniques presented in
+this chapter apply to both quenched and dynamical simulations.
+
+6.2 Strategy of the calculation
+In this section we discuss techniques for computing and storing the quark
+propagators needed for the hadron correlators presented in the last section.
+We describe the construction of realistic quark sources which improve the
+overlap of the lattice hadron interpolators with the physical states. The problem of exceptional conﬁgurations and its amelioration through smoothing of
+the gauge ﬁeld are addressed.
+6.2.1 The need for quark sources
+A complete quark propagator is a matrix as large as the fermion matrix itself.
+Depending on the lattice action, the Dirac operator may be sparse, with many
+vanishing entries, but the propagator D−1 is not and consists of O(1012 )
+complex numbers. Each entry D−1 (n|m) βα
+ba connects a source point (m, α, a)
+with a sink point (n, β, b). Here the notion “point” relates to site- as well
+as Dirac and color indices. Since the matrix provides the information for
+propagation in one particular gauge ﬁeld conﬁguration, its entries will be
+highly correlated and this correlation reduces the information content. So for
+two reasons one does not try to store the complete propagator matrix: It is
+wasteful to calculate all entries and it would need too much computer memory.
+However, if we consider instead just the propagator from a ﬁxed site m0 ,
+a ﬁxed Dirac index α0 , and a ﬁxed color index a0 , to any site of the lattice,
+this is just one column of the inverse Dirac operator,
+
+(m ,α ,a )
+D−1 (n|m) βα S0 0 0 0 (m) α ,
+(6.29)
+D−1 (n|m0 ) βα0 =
+ba0
+
+ba
+
+m,α,a
+
+a
+
+where we have introduced the so-called point sources
+(m ,α0 ,a0 )
+
+S0 0
+
+(m) α = δ(m − m0 ) δαα0 δaa0 .
+
+(6.30)
+
+a
+
+The expression (6.29) must be evaluated for 12 sources, one for each combination α0 , a0 of Dirac and color indices. The point sources are placed at the
+position m0 of the source interpolator OH (m0 ) and the column D−1 (n|m0 ) is
+the propagator to the position n of the sink operator OH (n).
+Since mesons contain a backward running antiquark (compare Fig. 6.1),
+one also needs the propagator in the other direction, i.e., from n to m0 . Naively
+one would expect that this requires placing sources also at n. However, we
+can utilize γ5 -hermiticity, as discussed in Sect. 5.4.3, in order to obtain the
+backward running propagator for free.
+
+136
+
+6 Hadron spectroscopy
+
+Using this symmetry property we may write (repeated indices are summed)
+γ5 D−1 γ5 = D−1
+
+†
+
+⇐⇒
+
+∗
+
+(γ5 )αα D−1 (m0 |n) α β  (γ5 )β  β = D−1 (n|m0 ) βα ,
+dc
+
+cd
+
+(6.31)
+and so obtain the backward running propagator. This can, e.g., be used to
+write the iso-triplet pion propagator (6.12) as
+
+!
+OT (n) OT (m0 )F = − tr D−1(n|m0 )γ5 D−1(m0 |n)γ5 = − |D−1(n|m0 ) αβ |2.
+cd
+
+α,β,c,d
+
+(6.32)
+This example shows explicitly that for the pion, and similarly for other mesons,
+only the forward propagator D−1 (n|m0 ) needs to be calculated. For baryons
+we only need forward propagating quarks anyhow (compare (6.21)).
+6.2.2 Point source or extended source?
+In order to get clear and strong correlation signals, which allow a reliable
+analysis, we have to optimize the interpolating ﬁelds. Although any operator
+with the correct quantum numbers contributes to the physical state, some may
+be more important than others. The overlap can be improved considerably by
+providing more realistic spatial wave functions. We present the idea using
+a meson interpolator as an example, but the generalization to baryons is
+straightforward.
+We consider a meson interpolator on a single ﬁxed time slice nt , located
+at n0 = (n0 , nt ). A more general wave function may be introduced by writing
+
+
+F (n0 ; n1 , n2 ) α1 α2 ψ (f ) (n1 , nt ) α1 ψ (f ) (n2 , nt ) α2 , (6.33)
+OM (n0 ) =
+a1 a2
+
+n1 ,n2
+
+a1
+
+a2
+
+where we have introduced a distribution function F (n0 ; n1 , n2 ) which combines ﬁeld values ψ(n1 , nt ) and ψ(n2 , nt ) at spatial positions n1 , n2 in the
+vicinity of n0 . In the simplest case, where the complete interpolator is localized on the single site n0 = (n0 , nt ), F reduces to
+F (n0 ; n1 , n2 ) α1 α2 = δ(n0 − n1 ) δα0 α1 δa0 a1 Γα0 β0 δ(n0 − n2 ) δβ0 α2 δa0 a2
+a1 a2
+
+⇒
+
+
+
+OM (n0 ) = ψ (f ) (n0 , nt ) α0 Γα0 β0 ψ (f ) (n0 , nt ) β0 ,
+a0
+
+(6.34)
+
+a0
+
+where Γ is an element of the Cliﬀord algebra.
+However, a more realistic wave function can be obtained by choosing a less
+trivial function F . In order to be able to work with only one set of 12 sources
+one usually uses factorizable functions (α0 , β0 , a0 are summed)
+(n ,α0 ,a0 )
+
+F (n0 ; n1 , n2 ) α1 α2 = Si 0
+a1 a2
+
+(n ,β0 ,a0 )
+
+(n1 ) α1 Γα0 β0 Sk 0
+a1
+
+(n2 )∗α2 .
+a2
+
+(6.35)
+
+6.2 Strategy of the calculation
+
+137
+
+We have introduced the subscripts i and k to indicate that the source functions
+for ψ and ψ may diﬀer. Using the form (6.35) one can rewrite (6.33) in terms
+of so-called smeared fermions. To indicate the type of source we mark the
+smeared fermions with a lower index i or k, respectively:
+
+
+(f  )
+ψk (n0 , nt ) α0 ≡
+Sk (n0 ,α0 ,a0 ) (n2 )∗α2 ψ (f ) (n2 , nt ) α2 ,
+a0
+
+(f )
+
+ψ i (n0 , nt ) α0 ≡
+a0
+
+a2
+
+a2
+
+n2
+
+
+
+Si (n0 ,α0 ,a0 ) (n1 ) α1 ψ (f ) (n1 , nt ) α1 .
+a1
+
+n1
+
+(6.36)
+
+a1
+
+This form makes it obvious that the smeared ﬁeld at n0 is combined from the
+original ﬁelds at positions ni . The meson operator in terms of the smeared
+fermions becomes simply (this is (6.34), but now for smeared ﬁelds):
+(f  )
+
+(f )
+
+OM (n0 ) = ψ i (n0 , nt ) α0 Γα0 β0 ψk
+a0
+
+(n0 , nt ) β0 .
+
+(6.37)
+
+a0
+
+Introducing these smearing functions for sources Si , located at m0 , and sinks
+Sk , located at n0 , leads to the smeared quark propagator
+*
++
+(f )
+(f )
+(6.38)
+Gki (n0 |m0 ) β0 α0 ≡ ψk (n0 ) β0 ψ i (m0 ) α0
+a0 F
+b0 a0
+b0
+,
+
+(m0 ,α0 ,a0 )
+(n0 ,β0 ,b0 )
+∗ (f )
+(f )
+=
+Sk
+(n) β ψ (n) β Si
+(m) α ψ (m) α
+b
+
+m,n
+
+=
+
+
+
+Sk
+
+(n0 ,β0 ,b0 )
+
+n,m
+
+(n)∗β
+b
+
+
+
+Df−1
+
+
+
+a
+
+b
+
+a
+
+F
+
+(m ,α ,a )
+(n|m) βα Si 0 0 0 (m) α .
+a
+ba
+
+In the construction of the meson and baryon correlators, as discussed in
+Sect. 6.1, one now simply replaces the original quark propagator Df−1 by the
+smeared propagator Gki . In an actual numerical calculation one computes the
+propagator from a smeared source Si to a point-like sink according to
+
+(m ,α ,a )
+D−1 (n|m) βα Si 0 0 0 (m) α .
+(6.39)
+m,α,a
+
+ba
+
+a
+
+The smearing of the sink can then be done in the subsequent construction of
+the hadron propagators by applying the smearing operator presented in the
+next subsection.
+6.2.3 Extended sources
+For smearing functions S that are not gauge-covariant, one has to ﬁx the gauge
+in the time slice using the methods from Sect. 3.2. Various source shapes have
+been used in that context. The extreme among those is a source constant in a
+time slice, the so-called wall-source. Attractive are Gaussian shapes motivated
+by intuition. The ﬁnal incentive always is the optimization of the signal.
+
+138
+
+6 Hadron spectroscopy
+
+A gauge-covariant source, with a shape similar to a Gaussian, is obtained
+by Jacobi smearing [3, 4]. One acts with a smearing operator M on the point
+source S0 of (6.30) in time slice nt to obtain the smeared source:
+(n ,α0 ,a0 )
+
+S (n0 ,α0 ,a0 ) = M S0 0
+
+,
+
+M=
+
+N
+
+
+κn H n .
+
+(6.40)
+
+n=0
+
+The operator H is essentially the spatial part of the Wilson term (5.50) without the constant piece (nt is ﬁxed to the time slice of the source),
+H(n, m) =
+
+3 
+
+
+
+Uj (n, nt ) δ(n + ĵ, m) + Uj (n − ĵ, nt )† δ(n − ĵ, m) .
+
+j=1
+
+(6.41)
+Note that H and therefore also M are hermitian and act only on the color
+indices, but are trivial in Dirac space. The operation connects diﬀerent sites
+of the time slice to the central site with gauge transporters. Jacobi smearing
+has two free parameters: the number of smearing steps N and the positive real
+parameter κ. These two parameters can be used to adjust the proﬁle (width)
+of the source. Also combining quark sources of diﬀerent widths has proved to
+be eﬃcient for optimizing the hadron propagation signals (cf. Sect. 6.3.3).
+6.2.4 Calculation of the quark propagator
+Having prepared our sources S, we need to compute the propagator D−1 acting on the source according to (6.39), i.e., we need G = D−1 S. Put diﬀerently,
+one has to solve the system of equations
+DG = S ,
+
+(6.42)
+
+where D is the Dirac matrix operator, S the source vector, and G the unknown
+propagator vector. This can be done using iterative methods. In order to get
+acquainted with that approach let us brieﬂy discuss the grandmother of those
+algorithms: As shown in the discussion of the hopping expansion (compare
+(5.57)), after rescaling the fermions we may split D into a constant part and
+a nontrivial term,
+D ≡1−Q.
+(6.43)
+Then a series expansion
+G = (1 − Q)−1 S = (1 + Q + Q2 + Q3 + . . .) S
+
+(6.44)
+
+leads to the iteration prescription
+G(0) = S ,
+
+G(i+1) = S + Q G(i) .
+
+(6.45)
+
+This is the simple Jacobi iteration which converges when the largest eigenvalue of Q is smaller than 1 in magnitude. In each iteration step one only has
+
+6.2 Strategy of the calculation
+
+139
+
+to apply the matrix Q to the vector G(i) and add S until convergence is obtained. Relaxation methods like the Gauss–Seidel method interpolate between
+subsequent steps and may improve convergence. Both methods belong to the
+class of stationary methods which solve for each of the variables locally, by
+keeping the current values of the other variables ﬁxed. Other variants derived from the Gauss–Seidel method, but converging an order of magnitude
+faster, are the SOR (successive overrelaxation) and SSOR (symmetric SOR)
+methods, which introduce extrapolation parameters [5].
+Most calculations, however, use a variant of the conjugate gradient (CG)
+method [5, 6]. This is a so-called non-stationary method and the concept
+is to iteratively minimize a quadratic functional, equivalent to ﬁnding the
+solution of the system of equations. For real symmetric, positive deﬁnite N ×N
+matrices A the function
+Q(x) =
+
+1 T
+x A x − xT b
+2
+
+(6.46)
+
+is (up to a constant) a positive deﬁnite quadratic form assuming its minimum
+at x∗ , where its gradient vanishes,
+∂Q(x)|x∗ = A x∗ − b = 0 .
+
+(6.47)
+
+Thus x∗ is the solution of the system Ax = b. The CG method works by
+iteratively constructing search direction vectors p(i) and iterates x(i) such
+that in each step Q(x(i) + αi p(i) ) is minimized as a function of the real
+parameter αi , leading to the next iterate x(i+1) = x(i) + αi p(i) . The vectors
+p(i) are orthogonal to A p(i−1) (and all previous A p(j) ) sequentially build up a
+vector space K(i) = span(p(0) , . . . , p(i) ), which is called a Krylov subspace. All
+variants of the CG method are based on such an implicit construction of an
+orthogonal basis for the Krylov subspace. Methods like the Lanczos algorithm
+for ﬁnding the eigensystem of a matrix work with this concept as well and the
+corresponding iteration may be related to the CG iteration [5].
+The iterates x(i) minimize Q in the spaces K(i) and approach the solution
+vector x∗ in at most N steps. However, often much fewer steps give suﬃciently
+accurate results. This may be checked by computing the norm A x(i) −b, and
+the process is terminated once the norm is smaller than the requested accuracy
+ε. Only scalar products between vectors and matrix–vector multiplications
+have to be computed and only vectors have to be kept in storage. Both are
+important advantages for the large, but often sparse, matrices associated with
+the Dirac operators.
+In its original version CG works only for positive deﬁnite symmetric matrices A. However, for non-symmetric matrices the residual vectors cannot be
+made orthogonal within these limitations. The Dirac operator D is not positive deﬁnite hermitian; it has complex eigenvalues. For non-symmetric, general
+matrices a variant called Bi-Conjugate Gradient (Bi-CGR) does the job. There
+two sequences of search directions and residual vectors are generated, which
+
+140
+
+6 Hadron spectroscopy
+
+Table 6.2. Pseudocode [5] for the Bi-CGStab algorithm with preconditioning matrix
+M . For no preconditioning set M = 1 and simplify the code
+r (0) = b − A x(0)
+r̃ = r (0) (for example)
+for i = 1, 2 . . . iterate :
+ρi−1 = r̃ † · r (i−1)
+if ρi−1 equals 0, the method fails.
+if i = 1 then
+p(1) = r (0)
+else
+βi−1 = αi−1 ρi−1 / (ω
+i−1 ρi−2 )
+p(i) = r (i−1) + βi−1
+
+end if
+solve M p̂ = p(i)
+v (i) = A p̂ 
+
+αi = ρi−1 / r̃ † · v (i)
+
+p(i−1) − ωi−1 v (i−1)
+
+
+
+
+
+s = r (i−1) − αi v (i)
+if the norm of s is small enough, set x(i) = x(i−1) + αi p̂ and stop.
+solve M ŝ = s
+t = A ŝ
+
+
+ωi = t† · s/ t† · t
+r (i) = s − ωi t
+x(i) = x(i−1) + αi p̂ + ωi ŝ
+repeat until convergence . . .
+
+obey a bi-orthogonality relation. Even better, improving convergence properties, the so-called Bi-CGR Stabilized (Bi-CGStab) method [7] and another
+improvement, Bi-CGStab(2) by [8], have been introduced. For details we refer
+to the original papers and to [5].
+We remark that one could utilize D−1 = D† (D D† )−1 and apply an algorithm for hermitian matrices to compute (D D† )−1 . Furthermore, for γ5 hermitian Dirac operators one could also invert the hermitian matrix Dγ5
+and use D−1 = γ5 (Dγ5 )−1 . In practice, however, it turned out that the strategy of using an algorithm for hermitian matrices does not necessarily lead to
+faster convergence.
+Here we discuss only the Bi-CGStab algorithm along the lines of [5]. In order to solve the matrix equation (6.47) for the unknown vector x∗ , one starts
+with a guessed vector x(0) . The pseudo-code for the iteration with preconditioning (see below) then may be written as in Table 6.2. For the application
+of Bi-CGStab to our problem (6.42), one sets A = D, b = S, and obtains the
+desired propagator vector G = D−1 S as G = limi→∞ x(i) .
+We remark that r̃ remains constant and one may also choose other r̃,
+as long as ρ0 = 0. For repeating the iteration one needs ωi = 0 (the
+
+6.2 Strategy of the calculation
+
+141
+
+Bi-CGStab(2) algorithm helps in this respect [8]). One stops the iterations
+as soon as r(i)† · r(i) < ε for some requested accuracy ε. The algorithm needs
+two matrix–vector multiplications with A, two inversions of the preconditioner
+M , and four inner products for each iteration step.
+For the simple CG algorithm convergence is guaranteed for positive deﬁnite
+symmetric matrices, at least after N steps for matrices of dimension N , but
+usually signiﬁcantly faster. For Bi-CGStab convergence may be faster than
+that of other CG methods, but not necessarily, and in some cases it even
+breaks down. Other starting values or other methods have to be chosen in
+such situations.
+So-called preconditioning methods sometimes allow one to accelerate the
+convergence, depending on the Dirac operator. A preconditioner is a suitable
+matrix M which we use to transform the system to
+M −1 A x = M −1 b .
+
+(6.48)
+
+Let us assume that we have a matrix M , which is numerically cheap to invert,
+i.e., to solve M ŝ = s for ŝ, and which approximates A in some way. Then
+the spectral properties of M −1 A may be more favorable, allowing faster convergence of the iterative solution. This may be true in particular, if the small
+eigenvalues of M agree with those of A. For a more complete discussion of
+such methods cf. [5, 9].
+When inverting the Dirac operators for diﬀerent quark masses, the matrices diﬀer just by a constant in the diagonal. One then can simultaneously
+solve the set of equations for a set of quark masses with little extra cost. The
+rate of convergence is determined by the convergence for the smallest mass.
+Such a multi-mass algorithm has been discussed in [10, 11].
+Since the determination of the quark propagators is numerically quite expensive, one often stores these for each gauge conﬁguration sampled and computes various hadron observables from them in the later analysis.
+
+6.2.5 Exceptional conﬁgurations
+So far we have not taken into account the Dirac operator matrix D[U ] which
+depends on the gauge ﬁeld U . This implies that the properties of D[U ] will
+change as one changes U . In particular, certain ﬂuctuations of the gauge ﬁeld,
+so-called exceptional conﬁgurations, lead to small eigenvalues of D[U ] which
+make the numerical inversion of D[U ] problematic.
+To understand this phenomenon in more detail let us consider the eigenvalues of D[U ]. For quarks with bare mass parameter m they are given by
+m + λi [U ] ,
+
+(6.49)
+
+where λi [U ] are the eigenvalues of the massless Dirac operator. In general these
+are complex numbers, but also real eigenvalues λi [U ] = ri [U ] are possible. If
+
+142
+
+6 Hadron spectroscopy
+
+such a real eigenvalue becomes negative and in magnitude similar to m, then
+the Dirac operator has a very small eigenvalue. In this case the numerical
+inversion of D[U ] breaks down, and only increasing the quark mass m resolves
+the problem. Thus the exceptional conﬁgurations limit the quark masses one
+can reach. For example in quenched simulations with Wilson fermions it turns
+out that in a typical simulation4 (e.g., for lattice size 323 × 64) the quark mass
+has to be chosen large enough such that the pion mass is at least 300 MeV
+instead of the physical 135 MeV.
+We remark that for chiral fermions, where the Dirac operator obeys the
+Ginsparg–Wilson equation, a concept which we discuss in Chap. 7, the real
+eigenvalues do not ﬂuctuate and the problem with exceptional conﬁgurations
+does not occur; therefore realistic pion masses can be reached. Also introducing a twisted mass term (see Chap. 10) solves the problem with exceptional
+conﬁgurations, since it expels the spectrum from a strip along the real axis.
+In practical simulations one ﬁnds that the ﬂuctuations of the eigenvalues
+are coupled to the ﬂuctuations of the gauge ﬁeld. These ﬂuctuations can be
+damped by either using improved gauge ﬁeld actions (see Chap. 9), larger
+lattices, or by smoothing techniques which we discuss in the next subsection.
+6.2.6 Smoothing of gauge conﬁgurations
+When aiming for correlation functions one is mainly interested in the long
+distance behavior. On the other hand, typical for gauge theories are violent
+short distance ﬂuctuations of the gauge ﬁeld. One can considerably improve
+the correlation signal by smoothing or smearing the gauge ﬁeld, either only in
+the time slices or even in space and time. This also helps with the exceptional
+conﬁgurations discussed in the preceding subsection.
+When smoothing or smearing one typically replaces the link variables by
+local averages over short paths connecting the link’s endpoints. This is a gauge
+covariant procedure and one does not have to ﬁx the gauge. The operators
+and propagators are then constructed on the smeared conﬁgurations. As long
+as the smearing is local enough, i.e., the smearing operator combines only
+a ﬁxed number of links, the long distance correlation signals should not be
+aﬀected in the continuum limit.
+Smearing algorithms are all averaging products of links along certain paths
+connecting the endpoints of a given link. For SU(2) this average is proportional
+to a group element, but for SU(3) this is not the case. Therefore one has to
+project the average to an SU(3) matrix. We brieﬂy mention here only three
+variants of such smearing algorithms.
+APE smearing [12]: In that case the average is over the original link Uμ
+and over the six perpendicular staples (visualize!) connecting its endpoints,
+4
+
+Theoretical arguments show that only for κ < 1/8 one can be sure that there
+are no exceptional conﬁgurations.
+
+6.3 Extracting hadron masses
+
+Vμ (n) = (1 − α) Uμ +
+
+143
+
+α 
+Cμν (n) ,
+6
+ν=μ
+
+Cμν (n) = Uν (n) Uμ (n + ν̂) Uν (n + μ̂)†
++ Uν (n − ν̂)† Uμ (n − ν̂) Uν (n − ν̂ + μ̂) ,
+
+(6.50)
+
+where the real parameter α may be adjusted depending on the gauge coupling. The projection
+of the sum to SU(3) is usually done by maximizing
+!
+Re tr X Vμ (n)† for X ∈ SU(3) and using X as new link variable Uμ (n).
+HYP smearing [13]: In that approach the average is over paths lying
+within the hypercubes containing the link variable. Again the sum has to be
+projected to SU(3).
+Stout smearing [14]: This method uses a particular way of projection,
+deﬁning the new link after a smearing step by
+Uμ (n) = ei Qμ (n) Uμ (n) .
+Qμ (n) is a traceless, hermitian matrix constructed from staples,
+
+
+!
+i
+1
+†
+†
+Qμ (n) =
+Ωμ (n) − Ωμ (n) − tr Ωμ (n) − Ωμ (n)
+,
+2
+3
+⎛
+⎞
+
+ρμν Cμν (n)⎠ Uμ (n)† .
+Ωμ (n) = ⎝
+
+(6.51)
+
+(6.52)
+
+ν=μ
+
+The Cμν are the same as in (6.50) and the real weight factors ρμν are tunable
+parameters. Common choices are taking them constant, ρμν = ρ, or smearing
+only the spatial links: ρμ4 = ρ4μ = 0, ρnm = ρ. The new links have gauge
+transformation properties like the original ones. This approach of getting an
+SU(3) element from a sum of matrices may be used for other combinations
+of paths too, of course. The advantage of stout smearing is that Uμ (n) is
+diﬀerentiable with respect to the link variables. This is a prime beneﬁt in
+applications like the hybrid Monte Carlo method for dynamical fermions discussed in Chap. 8.
+Such link smearing methods lead to what is often called a fat link for
+obvious reasons. There is a variety of other such suggestions, among them the
+FLIC link [15] or diﬀerentiable variants of the HYP smearing [16, 17].
+All such smearing steps can be iterated. However, the smearing then aﬀects
+not just neighboring variables but extends over increasingly larger distances.
+Eventually the asymptotic behavior of the propagators will be aﬀected rendering such results problematic. Anyway, most of the positive eﬀect of smearing
+is achieved already after the ﬁrst smearing step(s).
+
+6.3 Extracting hadron masses
+Once the quark propagators are computed as described in the last section,
+they can be combined to the hadron correlators discussed in Sect. 6.1. From
+
+144
+
+6 Hadron spectroscopy
+
+these correlators one can extract the corresponding hadron masses and in this
+section we present the techniques necessary for this step.
+In spectroscopy calculations we analyze hadron correlators of the form
+(6.1). In these formulas energies E, masses m, and momenta p always come
+with a factor of the lattice constant a, making the products aE, am, and
+ap dimensionless. It is convenient to drop the factor of the lattice constant and use so-called lattice units. In lattice units (6.1) assumes the form
+(6.53) below. For going back to physical units, an energy E has to be replaced by aE, and equivalently for masses and momenta (see Sect. 6.4.2).
+Unless stated otherwise, from now on we use lattice units for masses and
+energies.
+6.3.1 Eﬀective mass curves
+In the analysis of the mass spectrum one studies the correlation function of
+ with the quantum numbers of a particular hadron or set of
+an operator O
+hadrons. However, these operators usually do not create eigenstates of the
+Hamiltonian. They have contributions from several eigenstates and the correlation function is the spectral sum (1.21), discussed in Chap. 1. If the sink
+operator is projected to zero momentum (by summation over the respective
+time slices) we ﬁnd
+(
+) 
+ nt ) O(0, 0) =
+
+ † |0 e−nt Ek .
+0|O|kk|
+O
+(6.53)
+C(nt ) ≡ O(0,
+k
+
+For ﬁnite lattice size the values Ek are discrete. If the operators couple to single
+particle intermediate states, the masses mk of those particles will correspond
+to the low-lying energy values, i.e., Ek = mk . If the operators couple to two- or
+more-particle intermediate states, the energy values Ek are related to masses
+and relative momenta of the involved particles.
+Due to the exponential form of the terms in the sum (6.53), the relative
+contribution of higher lying energy states varies with nt . Only for large nt the
+lowest energy state dominates. For smaller nt the mixing with other states
+blurs the picture and the sum (6.53) has many relevant contributions,
+C(nt ) = A0 e−nt E0 + A1 e−nt E1 . . . .
+
+(6.54)
+
+In Sect. 6.3.3 we will discuss methods to analyze the case when more than one
+energy level has to be determined. For the moment let us consider the simplest
+situation where one is interested only in the lowest energy E0 corresponding
+to the ground state.
+The left-hand side plot of Fig. 6.3 shows an example for the correlation
+function of a mesonic operator with the quantum numbers of the pion in a
+sample calculation. The linear regions in the log-plot correspond to the range
+of nt -values where a single exponential behavior ∼ exp(−nt E0 ) dominates.
+
+6.3 Extracting hadron masses
+1.2
+
+m = 0.02
+m = 0.05
+m = 0.10
+m = 0.20
+
+100
+C(nt)
+
+145
+
+m = 0.02
+m = 0.05
+m = 0.10
+m = 0.20
+
+1.0
+meff
+0.8
+
+10–2
+
+0.6
+0.4
+
+10–4
+
+0.2
+10–6
+
+0
+
+5
+
+10
+
+15
+nt
+
+20
+
+25
+
+30
+
+0.0
+
+0
+
+5
+
+10
+
+15
+nt
+
+20
+
+25
+
+30
+
+Fig. 6.3. Result of a Monte Carlo simulation on a 163 × 32 lattice at lattice spacing
+a ≈ 0.15 fm. L.h.s.: log-plot for the pion correlation function; r.h.s.: eﬀective mass
+plot (in lattice units). The diﬀerent sets correspond to diﬀerent values of the quark
+mass in lattice units. The points are connected to guide the eye
+
+For mesons propagation in nt and (NT − nt ) is identical up to a possible relative minus sign and, when only the ground state is considered, the correlator
+shows (depending on source and sink interpolators) a cosh- or sinh-dependence
+on nt :
+/
+2 A0 e−NT E0 /2 cosh ((NT /2 − nt )E0 )
+−nt E0
+−(NT −nt ) E0
+.
+A0 e
+± A0 e
+=
+2 A0 e−NT E0 /2 sinh ((NT /2 − nt )E0 )
+(6.55)
+In order to analyze in which range of nt the contribution of the sub-leading
+exponentials in (6.54) can be neglected, one deﬁnes an eﬀective mass as
+
+
+meﬀ nt + 12 = ln
+
+C(nt )
+.
+C(nt + 1)
+
+(6.56)
+
+Once the correlator C(nt ) is dominated by the ground state energy, meﬀ becomes constant and forms an eﬀective mass plateau at meﬀ = E0 .
+If one wants to respect periodicity in nt according to (6.55), one sets
+C(nt )
+cosh (meﬀ (nt − NT /2))
+=
+,
+C(nt + 1)
+cosh (meﬀ (nt + 1 − NT /2))
+
+(6.57)
+
+(and equivalently for the case of sinh) and solves for meﬀ at each nt . This
+was done in the right-hand side plot in Fig. 6.3. Depending on the mass, such
+modiﬁcations due to periodicity eﬀects may not be necessary if one stays away
+from the region nt  NT /2.
+In the right-hand side plot of Fig. 6.3 the eﬀective mass plateaus are well
+pronounced for 4 < nt < 28. In this range the contribution of excited states
+can be neglected and a two-parameter ﬁt to the simple form A0 exp(−nt E0 )
+
+146
+
+6 Hadron spectroscopy
+
+can be performed. If the correlator is symmetric, as in our example, then one
+ﬁts to A0 cosh((nt − NT /2) E0 ).
+A generalization of eﬀective mass techniques is combining correlation function values from diﬀerent time slices subtracting the leading exponential decay.
+This may be extended to a tool for extraction excited hadron masses [18].
+We stress that the symmetry of correlators, i.e., equal propagation in nt
+and NT − nt up to a sign, is not a general feature. In particular, after projection to deﬁnite parity (see (6.16)) a baryon propagates in nt , while its parity
+partner propagates in NT − nt . Since the two masses are diﬀerent, the propagator is not symmetric, and instead of cosh or sinh, the simple exponential
+form has to be used for eﬀective masses and the ﬁt function.
+6.3.2 Fitting the correlators
+Although plotting meﬀ gives a ﬁrst estimate of the ground state mass, a correlated ﬁt in a range of nt values should be performed. For the correlated
+analysis one ﬁts the data in a range nmin ≤ nt , nt ≤ nmax by minimizing
+χ2 =
+
+n
+max
+
+(C(nt ) − f (nt )) w(nt , nt ) (C(nt ) − f (nt )) ,
+
+(6.58)
+
+nt ,nt =nmin
+
+with regard to the parameters A0 , E0 of the hypothesis function
+f (nt ) = A0 e−E0 nt or f (nt ) = A0 cosh ((nt − NT /2) E0 ) (or sinh) .
+(6.59)
+The weight w ideally should be the inverse of the exact covariance matrix,
+i.e., w(nt , nt ) = Cov−1 (nt , nt ). In actual Monte Carlo runs one only knows an
+estimator, i.e., the measured covariance matrix of the data,
+CovN (nt , nt ) =
+
+1
+ (C(nt ) − C(nt )N ) (C(nt ) − C(nt )N ) N , (6.60)
+N −1
+
+where . . .N denotes the statistical average over N gauge conﬁgurations. In
+
+(6.58) one thus uses w(nt , nt ) = Cov−1
+N (nt , nt ).
+However, this estimator is often too badly determined and due to statistical
+ﬂuctuations there may be accidental small eigenvalues destabilizing the ﬁt. In
+such a case often either some smooth approximation or just the diagonal part
+of the covariance matrix (neglecting the correlation between diﬀerent data
+points) are used. The latter gives rise to w(nt , nt ) = δnt ,nt /σ(nt )2 and the
+χ2 -functional of (6.58) reduces to the form familiar from uncorrelated ﬁts.
+For a critical account of correlated ﬁts, see [19].
+One method to determine the ﬁt range [nmin , nmax ] in (6.58) is the analysis
+of eﬀective mass plateaus discussed above. Another criterion is to require that
+the χ2 per degree of freedom of the ﬁt does not change by more than O(1)
+when the region is extended. Although a generally valid way to determine
+the ﬁt interval is desirable, often – in particular for data with only moderate
+
+6.3 Extracting hadron masses
+
+147
+
+statistics – it is aﬀected by individual prejudice. Any such decision involves
+some arbitrariness and should be checked by visual inspection of the ﬁts.
+A simple method to estimate the statistical error of the ﬁt result for the
+mass is to use the statistical bootstrap or jackknife methods. One repeats the
+analysis for large subsets of the data and determines the ﬁnal error of the
+mass a posteriori, as discussed in Chap. 4.
+6.3.3 The calculation of excited states
+In particular at smaller time distances one observes the contribution of states
+with energies higher than that of the ground state (see the right-hand side
+plot of Fig. 6.3). Obviously it is desirable to get an estimate of these energy
+levels corresponding to excited states. At the same time, disentangling ground
+states from higher states provides cleaner signals for both.
+A direct ﬁt of the correlation function to a hypothesis function f (nt ) which
+is a sum of K exponentials,
+f (nt ) =
+
+K
+
+
+ck e−nt Ek ,
+
+(6.61)
+
+k=1
+
+would formally work, if the number of parameters were smaller than the number of data points and if the data C(nt ) were exact. In reality the data result
+from Monte Carlo simulations and do have errors. It can be easily demonstrated that already a sum of three exponentials may lead to unreliable results in such ﬁts. Several alternative approaches have been discussed in the
+literature.
+Bayesian analysis (conditionally biased ﬁts): In order to stabilize
+the ﬁt to a hypothesis function of the type (6.61), one does not use the χ2
+functional (6.58), but instead one minimizes
+F = χ2 + λ φ ,
+
+(6.62)
+
+where φ is some stabilizing function of the ﬁt parameters and λ a positive real
+multiplier. This technique is well known for so-called ill-posed problems like
+analytic continuation of functions given only by data points [20].
+In [21] it has been proposed to use as the stabilizing function
+φ=
+
+K 
+
+
+k )2 + bk (ck − 
+ak (Ek − E
+ck )2
+
+
+,
+
+(6.63)
+
+k=1
+
+k and 
+where E
+ck are prejudices for the expected energy values and coeﬃcients. Adjusting the parameters ak and bk determines the relative weight for
+the corresponding bias. The ﬁt is thus stabilized, even if the number of ﬁt
+parameters exceeds the number of data, leading to unique results depending
+
+148
+
+6 Hadron spectroscopy
+
+on the multiplier λ, which deﬁnes the “amount of prejudice”. One tries to ﬁnd
+regions for the resulting ﬁt parameters that depend only weakly on λ.
+One technique based on such ideas [22] has been to start with simple oneexponential ﬁts at large-nt values, then continue with two-exponential ﬁts
+including the result of the earlier ﬁt as a bias along the lines discussed. Experience shows that one usually needs good statistics (small statistical errors of
+the data) in order to successfully employ that method.
+Maximum entropy method: For this approach one writes the correlation function as the Laplace transform of a spectral density,
+ ∞
+dE ρ(E) e−nt E .
+(6.64)
+C(nt ) =
+0
+
+In the continuum the resulting spectral density ρ(E) should exhibit peaks
+near the energy values dominating the correlation function. When computing
+ρ(E) from lattice data, one discretizes the energy in small steps, En = n ΔE,
+and uses the values ρ(En ) of the density at the discrete energies En as ﬁt
+parameters. The technical challenge is to recover the spectral density from
+the (few) values of C(nt ) by minimizing a suitable distance functional (6.62).
+Various approaches to deﬁne the stabilizing functional φ have been used.
+In the maximum entropy method the functional φ in (6.62) is chosen based
+on probabilistic arguments. We normalize the spectral density according to
+ ∞
+dE ρ(E) ≡ 1 .
+(6.65)
+C(0) =
+0
+
+Then ρ(E) should be distributed such that each “quantum” has the same a
+priori chance to contribute to the energy value E. This leads to the stabilizer
+ ∞
+φ[ρ] =
+dE ρ(E) ln (ρ(E)) .
+(6.66)
+0
+
+Minimizing the joint probability leads to a smooth solution. A drawback is
+that in this method the spectral density has to be positive. Also, the functional
+is non-linear and dedicated numerical methods have to be used to solve the
+minimization problem.
+This approach is heavily used in statistical physics. It also has been applied
+to nucleon propagators [23, 24]. From experience with statistical physics it
+is expected, however, that one needs data for many values of nt and with
+very small errors for a reliable result. Sample calculations show signiﬁcant
+ambiguities when one tries to extract more energy levels from moderately
+precise correlation data.
+Variational analysis: The situation concerning excited states can be
+improved by considering not only a single correlator, but by computing a
+matrix of cross correlators
+(
+)
+
+i (0, nt ) Oj (0, 0) =
+i |kk|O
+ † |0 e−nt Ek , (6.67)
+0|O
+Cij (nt ) ≡ O
+j
+k
+
+6.3 Extracting hadron masses
+
+149
+
+for a set of N basis interpolators Oi , i = 1, . . . , N , all with the quantum
+numbers of the state one is interested in. Diﬀerent interpolators can, e.g., be
+constructed by using diﬀerent Dirac structures as discussed in Sect. 6.1, or
+with quark propagators acting on diﬀerent quark sources.
+Utilizing the special form of the spectral decomposition on the right-hand
+side of (6.67) it has been shown [25–27] that diagonalizing the cross-correlation
+matrix C(nt ) allows to disentangle the physical states to some amount.
+Indeed the eigenvalues λ(k) (nt ) of the correlation matrix can be shown to
+behave as
+
+
+(6.68)
+λ(k) (nt ) ∝ e−nt Ek 1 + O(e−nt ΔEk ) ,
+where ΔEk is the distance of Ek to nearby energy levels. Even better results
+can be obtained when using the generalized eigenvalue equation
+C(nt ) v = λ(nt ) C(n0 ) v ,
+
+(6.69)
+
+where the eigenvalues behave again as in (6.68), but the amplitude of the
+correction term is typically smaller. The generalized eigenvalue problem (6.69)
+may be rewritten as
+Q(n0 )−1 C(nt ) Q† (n0 )−1 u = λ(nt ) u with Q(n0 ) Q† (n0 ) = C(n0 ) .
+
+(6.70)
+
+Numerically this form is expected to be more stable than diagonalizing
+C(n0 )−1 C(nt ), which is another way of rewriting the generalized eigenvalue
+problem as a regular eigenvalue problem.
+In the generalized eigenvalue problem the normalization at some time slice
+n0 < nt ought to improve the signal by suppressing the contributions from
+higher excited states. Indeed that eﬀect can be observed in sample calculations
+using model data: Both approaches, the straightforward diagonalization, as
+well as the generalized eigenvalue problem, give the correct answers asymptotically, but the generalized eigenvalue approach does so already at smaller
+distances nt .
+The method improves when the number of basis interpolators is increased.
+These should be independent and have good overlap with the eigenstates of
+the problem. On the other hand, in realistic calculations, including more interpolators enhances the statistical noise and thus aﬀects the diagonalization.
+It always pays oﬀ to choose lattice operators which are close to the expected
+physical content of the eigenstates.
+The eigenvectors of the problem give the overlap of the eigenstates, supposedly the states close to the physical states, with the basis interpolators
+used in the correlation matrix (6.67). Thus, one may derive information
+on the wave function of the physical modes. In [28–30] lattice operators
+have been obtained by combining Jacobi smeared quark sources of diﬀerent widths thus allowing for nodes in the spatial wave function. A diﬀerent
+approach is followed in [31, 32] where extended lattice interpolators are constructed using irreducible representations of the symmetry group of a cubic
+lattice.
+
+150
+
+6 Hadron spectroscopy
+
+6.4 Finalizing the results for the hadron masses
+Now we are at a stage where the hadron masses have been extracted from the
+corresponding correlators and are ready for analysis. We discuss the necessary
+steps for ﬁnalizing the spectroscopy calculation and illustrate them using data
+from quenched calculations.
+1.5
+
+1.6
+
+aM
+
+MN/Mρ
+
+1.0
+1.4
+
+0.5
+N
+ρ
+π
+0.0
+
+0.00
+
+0.05
+
+0.10
+a mq
+
+0.15
+
+lattice data
+experiment
+
+1.2
+
+0.20
+
+0.0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+(Mπ/Mρ)2
+
+Fig. 6.4. Raw data for hadron masses. The left-hand side plot shows pion, ρ, and
+nucleon masses in lattice units as a function of the bare quark mass. The right-hand
+side plot is a so-called APE plot where dimensionless ratios are compared to the
+experimental number. The data are taken from the quenched calculation [33]
+
+6.4.1 Discussion of some raw data
+Following the steps of the last sections we have computed hadron masses in
+lattice units, i.e., we have obtained numbers for the dimensionless products
+aM . Usually, the hadron masses are evaluated for a range of light quark masses
+mq ≡ mu = md . The left-hand side plot in Fig. 6.4 shows such raw data for
+pion, ρ, and nucleon masses from a quenched simulation [33].
+Converting masses in lattice units to numbers, that can be compared to
+experimental data, can be done by considering ratios of masses where the
+lattice constant a cancels. The right-hand side plot in Fig. 6.4 shows MN /Mρ ,
+the ratio of nucleon to ρ mass, as a function of (Mπ /Mρ )2 , where Mπ is the
+pion mass. Such a plot is called APE plot [34]. An alternative is the so-called
+Edinburgh plot [35], where one uses Mπ /Mρ on the horizontal axis.
+In both, APE and Edinburgh plots, the data for MN /Mρ can be compared
+to the physical point, MN /Mρ ≈ 1.209 at Mπ /Mρ ≈ 0.180. Although we
+do not perform an extrapolation, it is obvious that the data shown in the
+APE plot of Fig. 6.4 clearly extrapolate to the physical point already in the
+quenched approximation.
+
+6.4 Finalizing the results for the hadron masses
+
+151
+
+6.4.2 Setting the scale and the quark mass parameters
+The results of a lattice calculation are always dimensionless numbers like, e.g.,
+mass ratios. In order to compare with the experiment, one has to relate a mass
+or length unit to an experimental value. Consequently, the data have to be
+converted to physical units such as MeV. In other words, one has to determine
+the physical value of the lattice constant a in order to obtain a mass M from
+the calculated number for aM . There are two main techniques for this step
+called scale setting.
+Setting the scale with the Sommer parameter: For this approach
+one uses the Sommer parameter to determine the lattice constant a from the
+static potential as discussed in Sect. 3.5. The result has the form a = x fm,
+where x is a dimensionless number.
+From our hadron correlators we have computed the dimensionless number
+X = a M for some hadron mass M . Consequently the physical mass M = X/a
+is given in inverse fm. This mass unit is a consequence of using natural units
+ = 1, c = 1. For converting this result to MeV one uses
+1 =  c = 197.327 MeV fm
+
+⇒
+
+1 fm−1 = 197.327 MeV .
+
+(6.71)
+
+For the hadron mass in MeV we then obtain
+M=
+
+X
+X
+X
+=
+fm−1 =
+197.327 MeV .
+a
+x
+x
+
+(6.72)
+
+Setting the scale with a hadron mass: In this approach one uses
+one of the hadron masses M0 for setting the scale. Popular candidates are
+the ρ meson or the nucleon. For that hadron, e.g., the ρ-meson, the mass
+in lattice units, aM0 (mq ), has to be known at several values of the bare
+quark mass mq . One then extrapolates the data to the value m∗q of the mass
+parameter, where the dimensionless pion to ρ mass ratio assumes its physical
+value, Mπ (m∗q )/Mρ (m∗q ) = Mπexp /Mρexp = 0.180. Alternatively one may also
+extrapolate aM0 (mq ) to the chiral limit, i.e., to mq = 0. This is only an
+approximation for the true physical point, but on the other hand this choice
+avoids the statistical error due to the measured pion to ρ mass ratio. For both
+extrapolations the result is a number X = aM0 (m∗q ) (or X = aM0 (0)), and we
+identify M0 (m∗q ) ≡ M0exp (or M0 (0) ≡ M0exp ), where M0exp is the experimental
+mass of our hadron in MeV. One obtains the lattice constant in inverse MeV:
+a = X/M0exp . This scale a can be directly used to obtain other masses M in
+MeV from the values aM in lattice units.
+For simulations with three quark ﬂavors, in addition to the scale a, also the
+light quark mass mq = mu = md and the strange quark mass ms have to be
+determined. For the light quark mass one either identiﬁes the physical point
+by setting mq = m∗q , with m∗q determined as discussed above, or alternatively
+one assumes that the light u and d quarks are massless. For setting the strange
+quark mass, a similar strategy is applied: One uses a hadron containing the
+strange quark, typically the K ± pseudoscalar meson, the vector meson φ, or
+
+152
+
+6 Hadron spectroscopy
+
+baryons like Σ or Ω. The K ± has quark content u, s and thus its mass is
+a function of the u and s quark masses, MK ± (mq , ms ) with mq = mu . In a
+ﬁrst step the data are extrapolated either to the chiral limit, mq = 0, or to
+mq = m∗q . This gives the K ± mass MK ± (ms ) at diﬀerent values of the strange
+quark mass (the scale is set with one of the methods discussed above). This
+is done for several values of ms and the data for MK ± (ms ) are interpolated.
+The value m∗s , where the interpolated data coincide with the experimental
+exp
+value, MK ± (m∗s ) = MK
+± = 494 MeV, gives the bare strange quark mass
+parameter ms = m∗s . When using the φ, the situation is even simpler, since
+φ is predominantly a strange–antistrange state and no chiral extrapolation is
+needed.
+6.4.3 Various extrapolations
+Analyzing lattice data one faces the notorious, three-fold group of problems:
+•
+•
+•
+
+Finite size eﬀects and inﬁnite volume limit V → ∞.
+Scaling in the continuum limit a → 0.
+Chiral extrapolation m → 0.
+
+Finite size: All numerical lattice results are obtained in ﬁnite volumes.
+At ﬁxed other parameters one therefore has to study the dependence on the
+lattice size and, if possible, extrapolate to inﬁnite spatial volume. For the
+extrapolation one may either use a naive parameterization, e.g., in powers of
+1/L for spatial extent L, or, if possible, a model based on theory.
+Actually, like in the analysis of the spin models of statistical physics, ﬁnite
+size eﬀects may even be useful to learn about inﬁnite volume results. An
+example is chiral perturbation theory which provides a systematic expansion
+with the inﬁnite volume quantities appearing as parameters [36, 37]. We apply
+such formulas in the next chapter when we discuss a lattice calculation of the
+chiral condensate on ﬁnite lattices.
+For most spectroscopy studies one uses N 3 × NT lattices which are much
+larger in the time direction than in the spatial directions and L = a N . Indeed, neglecting the ﬁnite time extent (and thus ﬁnite temperature eﬀects)
+the leading ﬁnite size eﬀects are due to the spatial volume. Eﬀects from interaction around the spatial torus lead to exponential corrections to the mass
+of O (exp(−α L)) (cf. [38, 39] and the discussion in Chap. 11). The leading contribution comes from the smallest mass hadron, the pion, and is of
+O (exp(−L Mπ )). As a rule of thumb, for L Mπ > 4 ﬁnite size eﬀects from this
+mechanism can be ignored.
+For small volumes numerical studies of the volume dependence of hadron
+masses seem to indicate a 1/Ln behavior, with n ≈ 2−3. This would be
+compatible with the intuitive picture that the wave function is squeezed at
+too small spatial volume and that the observed shift in energy is in leading
+order due to this squeezing eﬀect (cf. [40, 41] and references therein). Most
+analyses agree on the observation that ground state hadron masses obtained
+
+6.4 Finalizing the results for the hadron masses
+
+153
+
+for linear lattice sizes larger than 3 fm show no noticeable volume dependence.
+For excited states with wave functions of larger extent, the squeezing eﬀect
+may be more serious.
+Continuum limit and scaling: A measured mass M (physical units)
+has a-dependent corrections,
+M (a) = Mphys (1 + O (aα )) ,
+
+(6.73)
+
+which may be diﬀerent for diﬀerent lattice actions. Whereas with the Wilson
+fermion action a quadratic contribution to the mass was identiﬁed [42], one
+ﬁnds that improving the fermion action reduces this dependence [33].
+Eventually we want to obtain results for continuous space–time. This corresponds to the limit a → 0, or, equivalently, β → ∞. However, decreasing
+the lattice spacing for a ﬁxed number of lattice points shrinks the physical
+volume. Thus, as we decrease a (increase β), we have to increase the number
+of lattice points, N 3 × NT , which in turn drives up the numerical cost of the
+simulation. Typical simulations try to aﬀord three or four values of a and
+perform an extrapolation to a = 0.
+Chiral extrapolation: Often numerical results are obtained for unphysically large quark masses. Eventually we want to approach the small quark
+masses corresponding to the physical pion. From a conceptual point of view
+one even might be interested in the massless case, the chiral limit m → 0.
+Massless 2-ﬂavor QCD (i.e., assuming vanishing mu and md ) is an interesting
+and nontrivial, one-parameter theory, where hadron masses are expected to be
+close to their experimental values. One could even call this a zero-parameter
+theory, since the gauge coupling is only used to ﬁx the scale. Unfortunately
+this limit is hard to achieve for several reasons. Toward smaller quark masses
+a Pandora’s box of problems opens up.
+For fermion actions that do not preserve chiral symmetry (or do not introduce a regulator like the twisted mass action, cf. Chaps. 7 and 10), there
+are zero modes occurring even for nonvanishing quark mass, due to the exceptional conﬁgurations discussed in Sect. 6.2.5. This limits the smallest pion
+masses that can be reached.
+Another class of problems at small mq turns up when using the quenched
+approximation. Omitting the fermion determinant has several eﬀects:
+•
+•
+•
+•
+
+The absence of the fermion determinant alters the physics by omitting
+sea quark loops (compare Fig. 6.2). Thus, hadrons cannot decay in the
+quenched approximation.
+The contribution of the anomaly (see next chapter) is removed and the
+η  -meson becomes light – an additional Goldstone mode appears.
+States with negative coeﬃcients in their correlation function appear, socalled ghosts. The quenched η  combined with a hadron provides an example for such a state [43–45], cf. the hairpin diagrams in Fig. 6.2.
+Small eigenvalues of the Dirac operator are not suppressed by the determinant (which is the product of all eigenvalues). Consequently, ﬂuctuations
+leading to exceptional conﬁgurations may occur more often.
+
+154
+
+6 Hadron spectroscopy
+1.8
+1.6
+Ξ
+
+m (GeV)
+
+1.4
+Λ
+
+φ
+
+1.2
+K*
+
+Ω
+
+Σ
+
+Ξ*
+Σ*
+
+N
+
+1.0
+
+Δ
+
+0.8
+
+K input
+φ input
+experiment
+
+0.6
+
+K
+
+0.4
+
+Fig. 6.5. Quenched light hadron spectrum compared with experiments; statistical
+and systematic errors are indicated. The plot is from a high statistics simulation
+of the CP–PACS collaboration using Wilson valence quarks [42]. (Reprinted ﬁgure
+with permission from S. Aoki et al., Phys. Rev. D 67, 034503 (2003). Copyright
+(2003) by the American Physical Society)
+
+For extrapolations in the quark mass, chiral perturbation theory provides
+the suitable conceptional background (for introductory accounts, see [46–49]).
+Chiral perturbation theory is an expansion in the pion mass around the chiral
+limit taking into account the symmetries of QCD. The resulting extrapolation
+formulas are typically expressed in terms of the pion mass, and as an example
+we show the result for the extrapolation of the nucleon [50, 51]
+
+
+MN = c0 + c2 Mπ2 + c3 Mπ3 + c4 Mπ4 ln(Mπ ) + O Mπ4 ,
+
+(6.74)
+
+where the expansion coeﬃcients ci are related to low energy constants such
+as the pion decay constant in the chiral limit.
+Chiral perturbation theory can be modiﬁed to take into account quenching
+[52–54]. Formulas such as (6.74) obtain corrections which may become singular
+in the chiral limit. This is due to the additional Goldstone boson already
+addressed.
+6.4.4 Some quenched results
+High precision determinations of hadron masses involve measurements on several hundred gauge ﬁeld conﬁgurations on lattices with size up to 643 × 112
+for quenched Wilson fermions (see e.g. [42, 55]; simulations with other formulations will be addressed in later chapters). The lattice spacing in these simulations was as small as 0.05 fm at a linear physical lattice size of O(3.2 fm).
+
+References
+
+155
+
+To illustrate what has been achieved in quenched lattice spectroscopy, in
+Fig. 6.5 we show the results of a high statistics study from the CP–PACS
+collaboration [42]. The mass values have been obtained after extrapolation to
+inﬁnite volume, vanishing lattice spacing and the chiral limit. Results from
+setting the strange quark mass with either K or φ are compared. Although the
+calculation was done in the quenched approximation, a good agreement with
+experimental data is found for a large range of hadrons. In Chap. 8 we will
+compare Fig. 6.5 to a more recent spectroscopy result with fully dynamical
+quarks.
+
+References
+1. C. Amsler et al. [Particle Data Group]: Phys. Lett. B 667, 1 (2008) 125
+2. D.B. Leinweber et al.: in Lect. Notes Phys. 663, 71. Springer, Berlin, Heidelberg
+(2005) 129, 130
+3. S. Güsken et al.: Phys. Lett. B 227, 266 (1989) 138
+4. C. Best et al.: Phys. Rev. D 56, 2743 (1997) 138
+5. R. Barrett et al.: Templates for the Solution of Linear Systems: Building Blocks
+for Iterative Methods (SIAM, Philadelphia 1994) 139, 140, 141
+6. W. H. Press, S. A. Teukolsky, W. T. Vetterling, and B. P. Flannery: Numerical
+Recipes in C, 2nd ed. (Cambridge University Press, Cambridge, New York 1999) 139
+7. H. A. van der Vorst: SIAM J. Sci. Statist. Comput. 13, 631 (1992) 140
+8. M. H. Gutknecht: SIAM J. Sci. Statist. Comput. 14, 1020 (1993) 140, 141
+9. I. Montvay and G. Münster: Quantum Fields on a Lattice (Cambridge University
+Press, Cambridge, New York 1994) 141
+10. A. Frommer et al.: Int. J. Mod. Phys. C 6, 627 (1995) 141
+11. B. Jegerlehner: Nucl. Phys. B (Proc. Suppl.) 63, 958 (1998) 141
+12. M. Albanese et al.: Phys. Lett. B 192, 163 (1987) 142
+13. A. Hasenfratz and F. Knechtli: Phys. Rev. D 64, 034504 (2001) 143
+14. C. Morningstar and M. Peardon: Phys. Rev. D 69, 054501 (2004) 143
+15. W. Kamleh, D. Adams, D. B. Leinweber, and A. G. Williams: Phys. Rev. D 66,
+014501 (2002) 143
+16. A. Hasenfratz, R. Hoﬀmann, and S. Schaefer: JHEP 0705, 029 (2007) 143
+17. S. Dürr: Comput. Phys. Commun. 180, 1338 (2009) 143
+18. D. Guadagnoli, M. Papinutto, and S. Simula: Phys. Lett. B 604, 74 (2004) 146
+19. C. Michael: Phys. Rev. D 49, 2616 (1994) 146
+20. S. Ciulli, C. Pomponiu, and I. Sabba-Stefanescu: Phys. Rep. 17, 133 (1975) 147
+21. G. P. Lepage et al.: Nucl. Phys. (Proc. Suppl.) 106, 12 (2002) 147
+22. Y. Chen et al. (unpublished) arXiv:hep-lat/0405001 (2004) 148
+23. M. Asakawa, T. Hatsuda, and Y. Nakahara: Prog. Part. Nucl. Phys. 46, 459
+(2001) 148
+24. K. Sasaki, S. Sasaki, T. Hatsuda, and M. Asakawa: Nucl. Phys. B (Proc. Suppl.)
+129, 212 (2004) 148
+25. C. Michael: Nucl. Phys. B 259, 58 (1985) 149
+26. M. Lüscher and U. Wolﬀ: Nucl. Phys. B 339, 222 (1990) 149
+27. B. Blossier et al.: JHEP 0904, 094 (2009) 149
+28. T. Burch et al.: Phys. Rev. D 70, 054502 (2004) 149
+
+

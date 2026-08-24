@@ -1,0 +1,449 @@
+% SECTION 7: Simplest Formulation of the Lattice Action
+
+% -------- PDF page 30 --------
+Rajan Gupta
+
+30
+
+13, will be to implement the breaking of these symmetries by operators
+that come with sufficiently many powers of a so that their effect is very
+local, and thus small on physical (long-distance) quantities.
+7. Simplest Formulation of the Lattice Action
+7.1. Gauge Action
+The gauge action can be expressed in terms of closed loops. I will outline
+the construction for the simpler case of the abelian U (1) model in which the
+link variables are commuting complex numbers instead of SU(3) matrices.
+1×1
+Consider the simplest Wilson loop, the 1 × 1 plaquette Wµν
+:
+1×1
+Wµν
+= Uµ (x)Uν (x + µ̂)Uµ† (x + ν̂)Uν† (x)
+µ̂
+
+ν̂
+
+µ̂
+
+ν̂
+
+= eiag[Aµ (x+ 2 )+Aν (x+µ̂+ 2 )−Aµ (x+ν̂+ 2 )−Aν (x+ 2 )]
+Expanding about x + µ̂+ν̂
+2
+
+(7.1)
+
+gives
+
+exp [ ia2 g(∂µ Aν − ∂ν Aµ ) +
+
+ia4 g 3
+(∂ Aν − ∂ν3 Aµ ) + . . .]
+12 µ
+
+a4 g 2
+Fµν F µν + O(a6 ) + . . .
+2
+The real and imaginary parts of the loop give
+= 1 + ia2 gFµν −
+
+a4 g 2
+Fµν F µν + terms higher order in a
+2
+1×1
+Im(Wµν
+) = a2 gFµν .
+
+(7.2)
+
+1×1
+Re Tr(1 − Wµν
+)=
+
+(7.3)
+
+So far the indices µ and ν are uncontracted. There are 6 distinct positively
+oriented plaquettes, {µ < ν}, associated with each site. Summing over
+µ, ν, and taking care of the double counting by an extra factor of 12 , gives
+Z
+1
+a4 X X
+1 XX
+µν
+1×1
+F
+F
+→
+d4 xFµν F µν .
+Re
+Tr(1
+−
+W
+)
+=
+µν
+µν
+g 2 x µ<ν
+4 x µ,ν
+4
+Thus, to lowest order in a, the expansion of the plaquette gives the
+continuum action. The steps in the derivation for non-abelian groups are
+identical and the final expression (up to numeric factors) is the same. The
+result for the gauge action for SU(3), defined in terms of plaquettes and
+called the Wilson action, is
+6 XX
+1
+1×1
+).
+(7.4)
+Sg = 2
+Re Tr (1 − Wµν
+g x µ<ν
+3
+
+
+% -------- PDF page 31 --------
+INTRODUCTION TO LATTICE QCD
+
+31
+
+For historic reasons the lattice calculations are mostly presented in terms
+of the coupling β ≡ 6/g 2 . Since β is used for many other quantities like
+1/kT or the β-function, I shall try to be more explicit in the use of notation
+(g versus β) if there is a possibility for confusion.
+Exercise: Repeat the Taylor expansion for the physical case of SU(3). Show
+that the non-abelian term in Fµν = ∂µ Aν − ∂ν Aµ + g[Aµ , Aν ] arises due to
+the non-commuting property of λ matrices. The details of the derivation
+for SU(2) are given in section 3 of Ref. [8].
+There are four important points to note based on the above construction
+of the lattice action.
+2
+
+1) The leading correction is O(a2 ). The term a6 Fµν (∂µ3 Aν − ∂ν3 Aµ ) is
+present in the expansion of all planar Wilson loops. Thus at the classical level it can be gotten rid of by choosing an action that is a linear
+combination of say 1 × 1 and 1 × 2 Wilson loops with the appropriate
+relative strength given by the Taylor expansion (see Section 12).
+2) Quantum effects will give rise to corrections, i.e. a2 → X(g 2 )a2 where in
+perturbation theory X(g 2 ) = 1 + c1 g 2 + . . ., and will bring in additional
+non-planar loops. Improvement of the action will consequently require
+including these additional loops, and adjusting the relative strengths
+which become functions of g 2 . This is also discussed in Section 12.
+3) The reason for defining the action in terms of small loops is computational speed and reducing the size of the discretization errors. For
+example the leading correction to 1 × 1 loops is proportional to a2 /6
+whereas for 1 × 2 loops it increases to 5a2 /12. Also, the cost of simulation increases by a factor of 2 − 3.
+4) The electric and magnetic fields E and B are proportional to Fµν .
+Eq. 7.3 shows that these are given in terms of the imaginary part of
+Wilson loops.
+7.2. Fermion Action
+To discretize the Dirac action, Wilson replaced the derivative with the
+symmetrized difference and included appropriate gauge links to maintain
+gauge invariance
+/ =
+ψDψ
+
+X
+1
+ψ(x)
+γµ [Uµ (x)ψ(x + µ̂) − Uµ† (x − µ̂) ψ(x − µ̂)] . (7.5)
+2a
+µ
+
+
+% -------- PDF page 32 --------
+Rajan Gupta
+
+32
+
+It is easy to see that one recovers the Dirac action in the limit a → 0 by
+Taylor expanding the Uµ and ψ(x + µ̂) in powers of the lattice spacing a.
+Keeping only the leading term in a, Eq. 7.5 becomes
+
+
+µ̂
+1
+ψ(x)γµ [ 1 + iagAµ (x + ) + . . . ψ(x) + aψ ′ (x) + . . . −
+2a
+2
+
+
+µ̂
+1 − iagAµ (x − )) + . . . ψ(x) − aψ ′ (x) + . . . ]
+2
+a2 3
+= ψ(x)γµ (∂µ + ∂µ + . . .)ψ(x)
+6
+
+a2 1 2
++igψ(x)γµ [Aµ +
+∂µ Aµ + (∂µ Aµ )∂µ + Aµ ∂µ2 + . . .]ψ(x) ,
+2 4
+which, to O(a2 ), is the kinetic part of the standard continuum Dirac action
+in Euclidean space-time. Thus one arrives at the simplest (called “naive”)
+lattice action for fermions
+X
+S N = mq
+ψ(x)ψ(x)
+x
+
++
+≡
+
+X
+
+1 X
+ψ(x)γµ [Uµ (x)ψ(x + µ̂) − Uµ† (x − µ̂)ψ(x − µ̂)]
+2a x
+N
+ψ(x)Mxy
+[U ]ψ(y)
+
+(7.6)
+
+x
+
+where the interaction matrix M N is
+
+1 X 
+†
+N
+γµ Ui,µ δi,j−µ − γµ Ui−µ,µ
+δi,j+µ
+Mi,j
+[U ] = mq δij +
+2a µ
+
+(7.7)
+
+The Euclidean γ matrices are hermitian, γµ = γµ† , and satisfy {γµ , γν } =
+2δµν . The representation I shall use is
+
+
+
+
+
+
+0
+iσ
+1 0
+0 1
+γ =
+, γ4 =
+, γ5 =
+,
+(7.8)
+−iσ 0
+0 −1
+1 0
+i
+which is related to Bjorken and Drell conventions as follows: γi = iγBD
+,
+0
+5
+γ4 = γBD , γ5 = γBD . In this representation γ1 , γ3 are pure imaginary,
+while γ2 , γ4 , γ5 are real.
+The Taylor expansion showed that the discretization errors start at
+O(a2 ). For another simple
+illustration consider the inverse of the free-field
+P
+propagator m + i/a µ γµ sin(pµ a). Set p = 0 and rotate to Minkowski
+
+
+% -------- PDF page 33 --------
+INTRODUCTION TO LATTICE QCD
+
+33
+
+space (p4 → iE, i.e. sinp4 a → isinhEa). Then, using the forward propagator (upper two components of γ4 ), gives
+mpole
+a = sinhEa
+q
+
+(7.9)
+
+for the relation between the pole mass and the energy. This shows that,
+even in the free field case, the continuum relation E(p = 0) = m is violated
+by corrections that are O(a2 ).
+Symmetries: The invariance group of the fermion action under rotations
+in space and time is the hypercubic group. Full Euclidean invariance will
+be recovered only in the continuum limit. The action is invariant under
+translations by a and under P, C, and T as can be checked using Table 2.
+N
+ψy has the following global symmetry:
+The naive action ψ x Mxy
+ψ(x) → eiθ ψ(x)
+
+ψ(x) → ψ(x)e−iθ
+
+(7.10)
+
+where θ is a continuous parameter. This symmetry is related to baryon
+number conservation and leads to a conserved vector current. For mq = 0
+the action is also invariant under
+ψ(x) → eiθγ5 ψ(x)
+
+ψ(x) → ψ(x)eiθγ5
+
+(7.11)
+
+Having both a vector and an axial symmetry in a hard-cutoff regularization
+would imply a violation of the Adler-Bell-Jackiw theorem. It turns out that
+while the naive fermion action preserves chiral symmetry it also has the
+notorious fermion doubling problem as explained in Section 9. The chiral
+charges of these extra fermions are such as to exactly cancel the anomaly.
+In fact the analysis of S N lead to a no-go theorem by Nielsen-Ninomiya [14]
+that states that it is not possible to define a local, translationally invariant,
+hermitian lattice action that preserves chiral symmetry and does not have
+doublers.
+We will discuss two fixes to the doubling/anomaly/chiral symmetry
+problem. First, include an additional term in the action that breaks chiral symmetry and removes the doublers (Wilson’s fix). Second, exploit
+the fact that the naive fermion action has a much larger symmetry group,
+UV (4) ⊗ UA (4), to reduce the doubling problem from 2d = 16 → 16/4 while
+maintaining a remnant chiral symmetry (staggered fermions). In both cases
+one regains the correct anomaly in the continuum limit. Before diving into
+these fixes, I would like to first discuss issues of the measure of integration and gauge fixing, and give an overview of Symanzik’s improvement
+program.
+
+
+% -------- PDF page 34 --------
+34
+
+Rajan Gupta
+
+7.3. The Haar Measure
+The fourth ingredient needed to complete the formulation of LQCD as a
+quantum field theory via the path integral is to define the measure of integration over the gauge degrees of freedom. Note that, unlike the continuum
+fields Aµ , lattice fields are SU(3) matrices with elements that are bounded
+in the range [0, 1]. Therefore, Wilson proposed an invariant group measure,
+the Haar measure, for this integration. This measure is defined such that
+for any elements V and W of the group
+Z
+Z
+Z
+dU f (U ) =
+dU f (U V ) =
+dU f (W U )
+(7.12)
+where f (U ) is an arbitrary function over the group. This construction is
+simple, and has the additional advantage that in non-perturbative studies
+it avoids the problem of having to include a gauge fixing term in the path
+integral. This is because the field variables are compact. Hence there are
+no divergences and one can normalize the measure by defining
+Z
+dU = 1.
+(7.13)
+For gauge invariant quantities each gauge copy contributes the same
+amount. Consequently the lack of a gauge fixing term just gives an overall
+extra numerical factor. This cancels in the calculation of correlation functions due to the normalization of the path integral. Note that gauge fixing
+and the Fadeev-Papov construction does have to be introduced when doing
+lattice perturbation theory [36].
+The measure and the action are invariant under C, P, T transformations,
+therefore when calculating correlation functions via the path integral we
+must average over a configuration U and the ones obtained from it by the
+application of C, P, T . In most cases this averaging occurs very naturally, for example, Euclidean translation invariance guarantees P and T
+invariance. Similarly, taking the real part of the trace of a Wilson loop is
+equivalent to summing over U and its the charge conjugate configuration.
+A cook-book recipe for evaluating the behavior of correlation functions after average over configurations related by the lattice discrete symmetries
+is given in Section 17.
+One important consequence of these symmetries is that only the real
+part of Euclidean correlation functions has a non-zero expectation value.
+This places restriction on the quantities one can calculate using LQCD. For
+example, simulations of LQCD have not been very successful at calculations
+of scattering amplitudes, which are in general complex [48]. The connection
+
+
+% -------- PDF page 35 --------
+INTRODUCTION TO LATTICE QCD
+
+35
+
+between Minkowski and Euclidean correlation functions was discussed in
+Section 5. To get scattering amplitudes what is required is to first calculate
+Euclidean amplitudes for all values of the Euclidean time τ , followed by a
+fourier transform in τ , and finally a Wick rotation to Minkowski space. For
+such an procedure to work requires data with phenomenal accuracy. Unfortunately, simulations give Euclidean correlation functions for a discrete set
+of τ and with errors that get exponentially magnified in the rotation. The
+best that has been done is to use Lüscher’s method that relates scattering
+phase shifts to shifts in two particle energy states in finite volume [27,28].
+So far this method has been tested on models in 2-4 dimensions, and used
+to calculate scattering lengths in QCD [29,30].
+
+7.4. Gauge Fixing and Gribov Copies
+R
+Gauge invariance and the property of group integration, dU U = 0, are
+sufficient to show that only gauge invariant correlation functions have nonzero expectation values. This is the celebrated Elitzur’s theorem [37]. It
+states that a local continuous symmetry cannot be spontaneously broken.
+In certain applications (study of quark and gluon propagators [38], 3gluon coupling [39], hadronic wavefunctions [40], and determination of
+renormalization constants using quark states [41]) it is useful to work in
+a fixed gauge. The common gauge choices are axial (ηµ Aµ = 0 where
+η in Minkowski space is a fixed time-like vector. The common choice is
+A4 = 0), Coulomb (∂i Ai = 0), and Landau (∂µ Aµ = 0). Their lattice
+analogues, assuming periodic boundary conditions, are the following.
+Maximal Axial Gauge: On a lattice with periodic boundary conditions one cannot enforce A4 = 0 by setting all links in the time direction
+to unity as the Wilson line in each direction is an invariant. The gauge
+freedom at all but one site can be removed as follows. Set all time-like
+links U4 = 1 on all but one timeslice. On that time-slice all U4 links are
+constrained to be the original Wilson line in 4-direction, however, one can
+set links in ẑ direction U3 = 1 except on one z-plane. On that z-plane set
+U3 links to the Wilson line in that direction and all links in ŷ direction
+U2 = 1 except on one y-line. On this y-line set all U2 links to the value
+of y-lines and links in x̂ direction U1 = 1 except on one point. While such
+a construction is unique, the choice of the time-slice, z-plane, y-line, and
+x-point and the labeling of x, y, z, t axis are not. Also, this gauge fixing
+does not respect Euclidean translation invariance and it is not smooth.
+Coulomb Gauge: The lattice condition is given by the gauge transfor-
+
+
+% -------- PDF page 36 --------
+Rajan Gupta
+
+36
+
+mation V (x) that maximizes the function
+
+
+XX
+†
+†
+†
+F [V ] =
+Re TrV (x) Ui (x)V (x + î) + Ui (x − î)V (x − î) (7.14)
+x
+
+i
+
+separately on each time-slice and i runs over the spatial indices 1 − 3.
+Landau Gauge: This is defined by the same function as in Eq. 7.14
+except that the sum is evaluated on the whole lattice and i = 1 − 4.
+The maximization condition, Eq. 7.14, corresponds, in
+R the continuum,
+to finding the stationary points of F [V ] = ||AV || = d4 xTr(AVµ )2 (x).
+What we would like is to find the global minimum corresponding to the
+“smoothest” fields Aµ , or the copies in case it is not unique. For any gauge
+configuration there is an infinite set of gauge equivalent configurations obtained by applying the set of transformations {V (x)}. This set is called the
+gauge orbit. The first question is whether the gauge fixing procedure gives
+a unique solution, i.e. whether the gauge-fixing algorithm converges to the
+same final point irrespective of the starting point on the gauge orbit. For
+the maximal axial gauge, the construction is unique (the configuration {U }
+and {V U V † } for any {V } give the same final link matrices), so the answer
+is clearly yes. For the Coulomb and Landau gauge choices the answer is
+no – there are a number of solutions to the gauge-fixing condition. These
+are the famous Gribov copies [42]. For a recent theoretical review of this
+subject see [43].
+The algorithms for fixing to either the Coulomb gauge or the Landau
+gauge are mostly local. Local algorithms generate, for each site, a gauge
+matrix vi (x) that maximizes the sum, defined in Eq. 7.14, of the link matrices emerging from that site. This gauge transformation is then applied
+to the lattice. These two steps
+Q are iterated until the global maximum is
+found. The ordered product i vi (x) gives V (x). For all practical purposes
+we shall call this end-point of the gauge fixing algorithm a Gribov copy. It
+is, in most cases and especially for the local gauge-fixing algorithms, the
+nearest extremum, and not the global minimum of ||AV ||. A set of Gribov copies can be generated by first performing a different random gauge
+transformation on the configuration and then applying the same gaugefixing algorithm, or by using different gauge-fixing algorithms. For recent
+studies of the efficacy of different algorithms see [44,45].
+The Monte Carlo update procedure is such that it is highly improbable
+that any finite statistical sample contains gauge equivalent configurations.
+So one does not worry about gauge copies. In the gauge-fixed path integral
+one would a priori like to average over only one Gribov copy per configuration and choose this to be the “smoothest”. Finding the V (x) which
+gives the smoothest configuration has proven to be a non-trivial problem.
+
+

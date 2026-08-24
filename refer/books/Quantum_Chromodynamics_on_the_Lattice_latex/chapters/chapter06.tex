@@ -1,0 +1,1805 @@
+% =====================================================================
+%  Chapter 6: Hadron spectroscopy
+%  Gattringer & Lang, "Quantum Chromodynamics on the Lattice" (LNP 788)
+%  Reconstructed from extract/ch06.txt; equations auto-numbered.
+% =====================================================================
+
+\chapter{Hadron spectroscopy}
+
+The simplest quantities involving fermions that one can compute on the lattice
+are the masses of hadrons. Since there are many combinations of quantum
+numbers such as spin, parity, flavor content etc.\ there is a wealth of
+possible hadrons. Reproducing all their masses correctly is already a powerful
+test for the correctness of QCD. Over the last 20 years lattice QCD
+calculations of the mass spectrum have improved continually and, for ground
+state baryons, have reached impressive agreement with experimental data.
+
+In this chapter we discuss the conceptual background and the actual
+implementation of a numerical spectroscopy calculation. The hadron correlation
+functions are not only necessary for computing the spectrum but enter also in
+the determination of hadronic matrix elements addressed in later chapters. We
+first discuss how to construct operators with the correct quantum numbers and
+their correlation functions and address the quenched approximation.
+Subsequently we present techniques for quark sources and show how quark
+propagators can be computed. We continue with the analysis of the resulting
+hadron propagators and discuss how to obtain the hadron masses.
+
+\section{Hadron interpolators and correlators}
+
+In a typical QCD calculation one generates gauge configurations according to
+the requested distribution and then computes various observables. These
+include simple expectation values of plaquettes or of more extended operators
+such as Wilson loops. Also quantities like the chiral condensate
+$\langle\bar\psi\psi\rangle$ have been studied and will be discussed in later
+chapters.
+
+Here we concentrate on determining hadron masses, i.e., we perform a hadron
+spectroscopy calculation. For this purpose one first computes quark
+propagators for each gauge configuration. These are then suitably combined to
+construct the hadron propagators. Finally, averaging over all gauge
+configurations provides our estimate of the hadron propagators for subsequent
+analysis.
+
+The first step of such a spectroscopy calculation is the identification of
+hadron interpolators $\bar{O}$, $O$ such that the corresponding Hilbert space
+operators $\hat{\bar{O}}$, $\hat{O}^\dagger$ annihilate and create the particle
+states we want to analyze. A hadron interpolator is a functional of the
+lattice fields with the quantum numbers of the state one is interested
+in.\footnote{According to common practice, we will often use ``operator'' and
+``interpolator'' synonymously in the following.} Once the interpolators are
+identified we consider the Euclidean correlator (1.12) of hadron interpolators
+$\bar{O}(n_t)$, $O(0)$ located at time slices $n_4 = n_t$ and $n_4 = 0$.
+
+For hadron spectroscopy one studies interpolators constructed out of quarks
+and gluons. These are by construction gauge-invariant color singlets. Such
+operators include:
+\begin{itemize}
+  \item Local meson operators, like $O_M(n) \equiv \bar\psi(n)\Gamma\psi(n)$,
+        consisting of quarks and antiquarks or baryon operators made out of
+        three quarks; these should give information on the mesons and baryons
+        as predicted by QCD.
+  \item Extended interpolators, also contributing to hadron propagators,
+        involving, e.g., for mesons terms like
+        $\bar\psi(n)U_\mu(n)\psi(n+\hat\mu)$ and similar for baryons.
+  \item Pure gauge field interpolators like the plaquette, longer closed
+        loops, or more general gluonic operators. These interpolators couple
+        to gluonic objects such as glueballs, but also to mesons.
+  \item Other, more exotic color-singlet combinations of quarks and antiquarks
+        like $\psi\psi\psi\psi$ and $\psi\psi\bar\psi\bar\psi$.
+  \item States with $3n$ quarks; these are just the nuclei. For example, the
+        deuterium is a proton--neutron state made out of six valence quarks,
+        three of up-type and three of down-type.
+\end{itemize}
+
+According to (1.21), physically allowed states can be observed in the spectral
+decomposition of the propagators of these interpolators,
+\begin{equation}
+  \big\langle \bar{O}(n_t)\, O(0) \big\rangle
+  = \sum_k \bra{0}\hat{O}\ket{k}\bra{k}\hat{O}^\dagger\ket{0} e^{-n_t a E_k}
+  = A\, e^{-n_t a E_H}\left( 1 + \order{e^{-n_t a \Delta E}} \right),
+\end{equation}
+where $A$ is a constant, $E_H$ is the energy of the lowest state $\ket{H}$
+with $\bra{0}\hat{O}\ket{H} \neq 0$, and $\Delta E$ is the energy difference to
+the first excited state. From the leading exponential decay we thus can
+extract the energy $E_H$ of the hadron.
+
+\subsection{Meson interpolators}
+
+The discrete symmetries which we have discussed in Sect.~5.4 play an important
+role in the classification of hadrons and are needed for the construction of
+hadron interpolators. To illustrate their use we discuss as an example the
+construction of pion interpolators in more detail. Other meson interpolators
+can then be constructed along the same lines with the help of Table~6.1, which
+lists the quantum numbers of fermion bilinears.
+
+To be specific, we consider QCD with only two or three flavors (up, down,
+strange). Instead of using a flavor index $f$ attached to spinors denoted by
+$\psi$, $\bar\psi$, we often use a different symbol for each flavor. Thus $u$,
+$\bar u$, $d$, $\bar d$ and $s$, $\bar s$ denote the spinors for the three
+light flavors.
+
+The pions, which we now consider in our example, are made from $u$ and $d$
+quarks only. An up-quark $u$ has isospin $I = 1/2$, $I_z = +1/2$ and charge
+$Q = 2/3\,e$, where in our convention the charge of the electron is $-e$. For
+the down-quark $d$ we have $I = 1/2$, $I_z = -1/2$ and $Q = -1/3\,e$. The
+pseudoscalar combinations can be classified with respect to their isospin and
+are grouped into an isotriplet ($I = 1$) containing the particles $\pi^+$,
+$\pi^0$, $\pi^-$ with isospin components $I_z = 1, 0, -1$ and an iso-singlet
+($I = 0$) containing the $\eta$-meson.\footnote{We remark that the physical
+$\eta$ also has an admixture of $s\bar s$. See, e.g., [1].}
+
+The charged pions $\pi^+$ and $\pi^-$ have a mass of 140\,MeV. They have zero
+spin ($J = 0$), negative parity ($P = -1$), isospin $I = 1$, $I_z = \pm 1$, and
+electric charge $Q = \pm e$. Thus, for obtaining the correct charge and
+isospin, $\pi^+$ must be a $\bar d$--$u$ combination and $\pi^-$ is of the type
+$u$--$\bar d$. We also expect them to be color singlets. More explicitly we can
+use the pseudoscalar interpolators (summation convention for all indices)
+\begin{equation}
+  \begin{gathered}
+    O_{\pi^+}(n) = \bar d(n)\, \gamma_5\, u(n)
+      = \bar d(n)^\alpha_c (\gamma_5)_{\alpha\beta} u(n)^\beta_c , \\
+    O_{\pi^-}(n) = \bar u(n)\, \gamma_5\, d(n)
+      = \bar u(n)^\alpha_c (\gamma_5)_{\alpha\beta} d(n)^\beta_c .
+  \end{gathered}
+\end{equation}
+For their transformation under parity (5.72) we find
+\begin{multline}
+  O_{\pi^+}(n, n_4) = \bar d(n, n_4)\, \gamma_5\, u(n, n_4)
+  \xrightarrow{\;P\;}
+  \bar d(-n, n_4)\, \gamma_4\gamma_5\gamma_4\, u(-n, n_4) \\
+  = -\bar d(-n, n_4)\, \gamma_5\, u(-n, n_4)
+  = -O_{\pi^+}(-n, n_4) ,
+\end{multline}
+showing that our interpolator $O_{\pi^+}$ indeed has negative parity (the same
+holds for $O_{\pi^-}$). The fact that the parity transformation changes the
+spatial vector $n$ into $-n$ is irrelevant for interpolators where we project
+to zero momentum, i.e., where we sum over all $n$ (see Sect.~6.1.4). Applying
+charge conjugation (5.66) gives
+\begin{multline}
+  O_{\pi^+}(n) = \bar d(n)\, \gamma_5\, u(n)
+  \xrightarrow{\;C\;}
+  -d(n)^T\, C\gamma_5 C^{-1}\, u(n)^T
+  = -d(n)^T\, \gamma_5^T\, u(n)^T \\
+  = \bar u(n)\, \gamma_5\, d(n) = O_{\pi^-}(n) ,
+\end{multline}
+where we used $C\gamma_5 C^{-1} = \gamma_5^T$, which follows from (5.67). The
+interchange of the Grassmann variables cancels the overall minus sign. Equation
+(6.4) establishes that charge conjugation transforms $O_{\pi^+}$ into
+$O_{\pi^-}$ and vice versa. The interpolator for the $I_z = 0$ component of the
+iso-triplet, the $\pi^0$, is
+\begin{equation}
+  O_{\pi^0}(n) = \frac{1}{\sqrt{2}}\left[ \bar u(n)\, \gamma_5\, u(n)
+    - \bar d(n)\, \gamma_5\, d(n) \right].
+\end{equation}
+
+\begin{table}[htbp]
+  \centering
+  \caption*{Table 6.1. Quantum numbers of the most commonly used meson
+    interpolators according to the general form (6.9). We remark that the
+    classification with respect to $C$ is for the flavor neutral interpolators
+    only}
+  \begin{tabular}{@{}l c c l@{}}
+    \toprule
+    $J^{PC}$ & State & $\Gamma$ & Particles \\
+    \midrule
+    $0^{++}$ & Scalar & $1,\ \gamma_4$ & $f_0,\ a_0,\ K_0^*,\ \ldots$ \\
+    $0^{-+}$ & Pseudoscalar & $\gamma_5,\ \gamma_4\gamma_5$
+      & $\pi^\pm,\ \pi^0,\ \eta,\ K^\pm,\ K^0,\ \ldots$ \\
+    $1^{--}$ & Vector & $\gamma_i,\ \gamma_4\gamma_i$
+      & $\rho^\pm,\ \rho^0,\ \omega,\ K^*,\ \phi,\ \ldots$ \\
+    $1^{++}$ & Axial vector & $\gamma_i\gamma_5$ & $a_1,\ f_1,\ \ldots$ \\
+    $1^{+-}$ & Tensor & $\gamma_i\gamma_j$ & $h_1,\ b_1,\ \ldots$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The iso-singlet state ($I = 0$), the $\eta$-meson, is described by the
+interpolator
+\begin{equation}
+  O_{\eta}(n) = \frac{1}{\sqrt{2}}\left[ \bar u(n)\, \gamma_5\, u(n)
+    + \bar d(n)\, \gamma_5\, d(n) \right].
+\end{equation}
+The properties of $O_{\pi^0}$ and $O_\eta$ under the parity transformation are
+the same as for the interpolators $O_{\pi^\pm}$, i.e., they have $P = -1$.
+Concerning charge conjugation, $O_{\pi^0}$ and $O_\eta$ are eigenstates with
+$C = +1$. Other mesons differ from the examples we have discussed so far by
+their flavor content as well as by spin and parity. We can, e.g., obtain the
+interpolator for the strange $K^+$ meson from the interpolator for $\pi^+$, by
+replacing the $d$ quark with an $s$ quark,
+\begin{equation}
+  O_{K^+}(n) = \bar s(n)\, \gamma_5\, u(n) .
+\end{equation}
+Different spin and parity correspond to different gamma matrices in the
+fermionic bilinears. For example we obtain from the interpolator for $\pi^+$
+the interpolator for the $\rho^+$ vector meson ($I = 1$, $I_z = +1$, $Q = +e$,
+$J = 1$, $P = -1$) by replacing $\gamma_5$ with $\gamma_i$, $i = 1, 2, 3$:
+\begin{equation}
+  O_{\rho^+}(n)_i = \bar d(n)\, \gamma_i\, u(n) , \qquad i = 1, 2, 3 .
+\end{equation}
+A general local meson interpolator has the form
+\begin{equation}
+  O_M(n) = \bar\psi^{(f_1)}(n)\, \Gamma\, \psi^{(f_2)}(n) ,
+\end{equation}
+where $\Gamma$ is a monomial of gamma matrices, and we have for this equation
+switched back to the notation with upper flavor indices $f_i$. In the case of
+degenerate flavors ($f_1 = f_2$) combinations of (6.9) are formed to obtain the
+desired flavor symmetries, as was done in our interpolators for $\pi^0$ and
+$\eta$ in (6.5) and (6.6). In Table~6.1 we list the matrices $\Gamma$ for the
+most commonly used interpolators together with the corresponding quantum
+numbers. We remark that in addition to the local interpolators gauge-invariant
+combinations of quarks and antiquarks at different lattice sites may also be
+used. (See Sects.~6.2.2 and 6.2.3.)
+
+\subsection{Meson correlators}
+
+So far we have constructed the interpolator $O_M$ that corresponds to the
+operator $\hat{O}_M$ acting in the physical Hilbert space. For the Euclidean
+correlator we also need to find the interpolator corresponding to
+$\hat{O}_M^\dagger$ which generates the meson state from the vacuum. In order
+to identify this operator we formally conjugate the interpolator (6.9) (we drop
+the space--time argument $n$ here),
+\begin{equation}
+  \left( \bar\psi^{(f_1)} \Gamma \psi^{(f_2)} \right)^\dagger
+  = -\bar\psi^{(f_2)}\, \bar{\Gamma}^\dagger\, \psi^{(f_1)}
+  \equiv -\bar\psi^{(f_2)}\, \gamma_4 \Gamma^\dagger \gamma_4\, \psi^{(f_1)}
+  = \pm \bar\psi^{(f_2)}\, \Gamma\, \psi^{(f_1)} .
+\end{equation}
+The minus sign in the first step comes from the interchange of the Grassmann
+variables. In the second step we have used the relation $\bar\psi =
+\psi^\dagger\gamma_4$ which holds for the operators in Hilbert space and
+performed the equivalent replacement for the Grassmann spinors in our
+interpolator. The last step in (6.10) reflects the simple algebraic property
+$\gamma_4\Gamma^\dagger\gamma_4 = \pm\Gamma$. Thus, up to a possible overall
+sign, the interpolator that corresponds to $\hat{O}_M^\dagger$ is obtained by
+interchanging $\psi$'s and $\bar\psi$'s and ordering the $\bar\psi$ to the
+left. The sign is irrelevant for the exponential decay in (6.1). Thus, for
+mesons we use interpolators
+\begin{equation}
+  \begin{gathered}
+    O_M(n) = \bar\psi^{(f_1)}(n)\, \Gamma\, \psi^{(f_2)}(n) , \\
+    \bar{O}_M(m) = \bar\psi^{(f_2)}(m)\, \Gamma\, \psi^{(f_1)}(m) ,
+  \end{gathered}
+\end{equation}
+combined in correlators $\big\langle O_M(n)\, \bar{O}_M(m)\big\rangle$. At the
+moment the space--time arguments $m$, $n$ are arbitrary and only later we will
+set the time arguments to $m_4 = 0$ and $n_4 = n_t$ to match the form of the
+hadron correlator (6.1). In Sect.~6.1.4 we will discuss what to do with the
+spatial components $\mathbf{m}$, $\mathbf{n}$.
+
+For evaluating the correlators we have to compute the Grassmann integrals that
+appear when calculating the fermionic part $\langle\ldots\rangle_F$ of the
+expectation value (compare (5.2)). In this step there is an important
+difference between the correlators for iso-triplet operators such as (6.2) and
+(6.5) and correlators for an iso-singlet operator such as (6.6). For an
+iso-triplet operator of the form $O_T = \bar d\,\Gamma\,u$ we find (summation
+convention is used for all indices)
+\begin{equation}
+  \begin{split}
+    \big\langle O_T(n)\, \bar{O}_T(m) \big\rangle_F
+    &= \big\langle \bar d(n)\Gamma u(n)\ \bar u(m)\Gamma d(m) \big\rangle_F \\
+    &= \Gamma_{\alpha_1\beta_1}\Gamma_{\alpha_2\beta_2}\,
+       \big\langle \bar d(n)^{\alpha_1}_{c_1} u(n)^{\beta_1}_{c_1}\,
+       \bar u(m)^{\alpha_2}_{c_2} d(m)^{\beta_2}_{c_2} \big\rangle_F \\
+    &= -\Gamma_{\alpha_1\beta_1}\Gamma_{\alpha_2\beta_2}\,
+       \big\langle u(n)^{\beta_1}_{c_1}\, \bar u(m)^{\alpha_2}_{c_2} \big\rangle_u\,
+       \big\langle d(m)^{\beta_2}_{c_2}\, \bar d(n)^{\alpha_1}_{c_1} \big\rangle_d \\
+    &= -\Gamma_{\alpha_1\beta_1}\Gamma_{\alpha_2\beta_2}\,
+       \big[D_u^{-1}(n|m)\big]^{\beta_1\alpha_2}_{c_1c_2}\,
+       \big[D_d^{-1}(m|n)\big]^{\beta_2\alpha_1}_{c_2c_1} \\
+    &= - \tr\!\left[ \Gamma\, D_u^{-1}(n|m)\, \Gamma\, D_d^{-1}(m|n) \right].
+  \end{split}
+\end{equation}
+In the third line of this equation we have reordered the Grassmann variables
+and then used the fact that the fermionic expectation value factorizes with
+respect to the flavors: $\langle\ldots\rangle_F = \langle\ldots\rangle_u\,
+\langle\ldots\rangle_d$. Subsequently we applied Wick's theorem (5.36) for
+each of the two flavors (compare also (5.54)). This step is often referred to
+as fermion contraction.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig61.png}
+  \caption*{Fig. 6.1. \emph{Connected (left-hand side plot) and disconnected
+    (right-hand side plot) pieces of a meson correlator}.}
+  \label{fig:61}
+\end{figure}
+
+The Dirac operators $D_u$, $D_d$ for $u$ and $d$ quark differ only by the value
+of the mass parameter (compare (5.51)). Often the small difference between the
+$u$ and the $d$ quark masses is ignored and one uses $D_u = D_d$, i.e., exact
+isospin symmetry. It is, however, important to keep in mind that also in this
+case, only Grassmann variables with equal flavor can be contracted with each
+other.
+
+The result in the last line of (6.12) has a simple interpretation: The
+propagator $D_u^{-1}(n|m)$ propagates a $u$ quark from space--time point $m$ to
+the point $n$, while the propagator $D_d^{-1}(m|n)$ transports a $d$ quark in
+the opposite direction. Such a contribution is referred to as connected piece
+and is depicted in the left-hand side plot of Fig.~6.1. We remark that each of
+the individual lines in this figure symbolizes a collection of fermion lines
+(cf.\ Fig.~5.1).
+
+In the correlator of an iso-singlet operator $O_S = (\bar u\Gamma u +
+\bar d\Gamma d)/\sqrt{2}$, such as (6.6), also another type of contribution
+appears. The fermion contractions for this correlator are obtained by following
+the same steps as in (6.12),
+\begin{multline}
+  \big\langle O_S(n)\, \bar{O}_S(m) \big\rangle_F
+  = -\frac{1}{2}\tr\!\left[ \Gamma D_u^{-1}(n|m)\Gamma D_u^{-1}(m|n) \right] \\
+  + \frac{1}{2}\tr\!\left[ \Gamma D_u^{-1}(n|n) \right]
+    \tr\!\left[ \Gamma D_u^{-1}(m|m) \right] \\
+  + \frac{1}{2}\tr\!\left[ \Gamma D_u^{-1}(n|n) \right]
+    \tr\!\left[ \Gamma D_d^{-1}(m|m) \right] \\
+  + u \leftrightarrow d .
+\end{multline}
+The first type of contribution are the connected pieces we have already
+discussed. However, one also gets propagators $D_u^{-1}(n|n)$,
+$D_u^{-1}(m|m)$ which transport a $u$ quark from a space time-point back to the
+same point. Such terms are called disconnected pieces and are depicted in the
+right-hand side plot of Fig.~6.1. Numerically these contributions need more
+computational effort and higher statistics than the connected parts and many
+studies avoid considering such mesons or drop the disconnected pieces.
+
+We remark that the interpolator $O_{T,I_z=0} = (\bar u\Gamma u - \bar d\Gamma
+d)/\sqrt{2}$ for the $I_z = 0$ component of the iso-triplet differs from the
+singlet interpolator only by a relative minus sign between the $u$ and the $d$
+terms (compare (6.5) and (6.6)). The corresponding correlator is like in
+(6.13), but with a minus sign in the third term. In the case of exact isospin
+symmetry, $D_u = D_d$, the disconnected pieces cancel. The resulting correlator
+is the same as for the other members of the triplet (compare (6.12)), implying
+that the masses of all triplet states are degenerate. In nature this
+degeneracy is quite accurate, since $m_{\pi^\pm} = 140$\,MeV and $m_{\pi^0} =
+135$\,MeV. The small discrepancy is due to slightly different masses for $u$
+and $d$ quarks and electroweak corrections.
+
+\subsection{Interpolators and correlators for baryons}
+
+Baryons are objects made out of three valence quarks. Baryon interpolators $O$
+with well-defined quantum numbers have to be constructed such that the
+corresponding Hilbert space operator $\hat{O}$ in (6.1) projects onto the state
+we are interested in. As for the case of mesons we first discuss an example in
+detail, the construction of nucleon interpolators, and then address other
+baryons. A review on baryon interpolators, going beyond our introductory
+presentation, can be found in [2].
+
+The proton $p$ and the neutron $n$ are the $I_z = +1/2$ and $I_z = -1/2$
+components of an iso-doublet ($I = 1/2$). Their almost degenerate masses of
+$m_p = 938$\,MeV and $m_n = 940$\,MeV demonstrate again that isospin is a good
+symmetry, as we already stressed for the pion system. The proton has electric
+charge $Q = e$, while the neutron has vanishing charge. Consequently the proton
+is a $uud$ state and the neutron is of the type $ddu$. Due to the facts that
+the electric charge is irrelevant in QCD and $p$ and $n$ are strongly related
+by isospin symmetry, usually one does not distinguish between the two and
+refers to them simply as nucleons. We discuss only the $uud$-type interpolator
+($I_z = 1/2$). The $I_z = -1/2$ component is obtained by interchanging $u$ and
+$d$.
+
+The simplest interpolator for the nucleon $N$ is given by
+\begin{equation}
+  O_N(n) = \varepsilon_{abc}\, u(n)_a\, u(n)_b^T\, C\, \gamma_5\, d(n)_c .
+\end{equation}
+In this equation we show explicitly only the color indices $a, b, c$, while for
+the Dirac indices we use vector/matrix notation. The transposition $T$ acts on
+the Dirac indices and turns the column 4-spinor $u(n)_b$ into a row spinor
+$u(n)_b^T$. Summing the color indices with the epsilon tensor makes the
+interpolator a color singlet and gauge-invariant, as follows from the action of
+a gauge transformation on the fermions (2.30) and (3.31).
+
+The term in the parentheses combines a $u$ and a $d$ quark into a so-called
+diquark, using the charge conjugation matrix $C$ and $\gamma_5$. The diquark
+has isospin $I = 0$ and spin $J = 0$. The notion diquark here serves to discuss
+the quantum numbers and no dynamical meaning is implied. Thus the full
+interpolator $O_N$ has $I = 1/2$, $I_z = +1/2$ and $J = 1/2$ as needed for the
+nucleon.
+
+The last quantum number we have to discuss is parity, which is $P = +1$ for
+proton and neutron. Under the parity transformation $P$ (see (5.72)) our
+nucleon interpolator $O_N(n)$ transforms as
+\begin{multline}
+  O_N(n, n_4) \xrightarrow{\;P\;} \varepsilon_{abc}\,
+    \gamma_4 u(-n, n_4)_a\, u(-n, n_4)_b^T\, \gamma_4^T C\gamma_5\gamma_4\,
+    d(-n, n_4)_c \\
+  = \varepsilon_{abc}\, \gamma_4 u(-n, n_4)_a\, u(-n, n_4)_b^T\, C\gamma_5\,
+    d(-n, n_4)_c \\
+  = \gamma_4\, O_N(-n, n_4) ,
+\end{multline}
+where in the second step we used $\gamma_\mu^T C = -C\gamma_\mu$ (compare
+(A.23)). As for mesons, the change of the spatial vector $n$ into $-n$ is
+irrelevant when we project to zero momentum, i.e., when we sum over all $n$
+(see Sect.~6.1.4). The nontrivial transformation of the spinor indices with
+$\gamma_4$ can be taken into account by considering the combinations
+\begin{equation}
+  O_{N^\pm}(n) = \half\left[ O_N(n) \pm O_N^P(n) \right]
+  = \varepsilon_{abc}\, P_\pm\, u(n)_a\, u(n)_b^T\, C\gamma_5\, d(n)_c ,
+\end{equation}
+where the parity projectors $P_\pm$ are defined as
+\begin{equation}
+  P_\pm = \half (1 \pm \gamma_4) .
+\end{equation}
+After projection to zero momentum, the interpolators in (6.16) have definite
+parity $P = \pm 1$. The interpolator $O_{N^+}$ describes the positive parity
+nucleon, while $O_{N^-}$ couples to its negative parity partner $N(1535)$ with
+a mass of 1535\,MeV.
+
+Similar to the steps performed for the meson correlator in (6.10), one finds
+that the interpolator for the corresponding creation operator is given by (up
+to an overall sign)
+\begin{equation}
+  \bar{O}_{N^\pm}(n) = \varepsilon_{abc}\, \bar u(n)_a\, C\gamma_5\,
+    \bar d(n)_b^T\, \bar u(n)_c\, P_\pm .
+\end{equation}
+Interpolators for other spin-$1/2$ baryons are obtained by changing the flavor
+content. Furthermore, different diquark structures can be considered and we
+obtain more general spin-$1/2$ interpolators:
+\begin{equation}
+  \begin{gathered}
+    O_{N\pm} = \varepsilon_{abc}\, P_\pm \Gamma_A\, u_a\, u_b^T\, \Gamma_B\, d_c , \\
+    \bar{O}_{N\pm} = \varepsilon_{abc}\, \bar u_a\, \Gamma_B\, \bar d_b^T\,
+      \bar u_c\, \Gamma_A\, P_\pm , \\
+    O_{\Sigma\pm} = \varepsilon_{abc}\, P_\pm \Gamma_A\, u_a\, u_b^T\,
+      \Gamma_B\, s_c , \\
+    \bar{O}_{\Sigma\pm} = \varepsilon_{abc}\, \bar u_a\, \Gamma_B\, \bar s_b^T\,
+      \bar u_c\, \Gamma_A\, P_\pm , \\
+    O_{\Xi\pm} = \varepsilon_{abc}\, P_\pm \Gamma_A\, s_a\, s_b^T\, \Gamma_B\,
+      u_c , \\
+    \bar{O}_{\Xi\pm} = \varepsilon_{abc}\, \bar s_a\, \Gamma_B\, \bar u_b^T\,
+      \bar s_c\, \Gamma_A\, P_\pm , \\
+    O_{\Lambda\pm} = \varepsilon_{abc}\, P_\pm \Gamma_A\,
+      \bigl[ 2\, s_a\, u_b^T\, \Gamma_B\, d_c + d_a\, u_b^T\, \Gamma_B\, s_c
+        - u_a\, d_b^T\, \Gamma_B\, s_c \bigr] , \\
+    \bar{O}_{\Lambda\pm} = \varepsilon_{abc}\,
+      \bigl[ 2\, \bar u_a^T\, \Gamma_B\, \bar d_b\, \bar s_c
+        + \bar u_a^T\, \Gamma_B\, \bar s_b\, \bar d_c
+        - \bar d_a\, \Gamma_B\, \bar s_b\, \bar u_c \bigr]\,
+      \Gamma_A\, P_\pm ,
+  \end{gathered}
+\end{equation}
+where we list the interpolators for nucleon, for the strange $\Sigma$ ($I = 1$,
+$S = -1$), $\Xi$ ($I = 1/2$, $S = -2$), and $\Lambda$ ($I = 0$, $S = -1$)
+baryons of both parities. Three possible choices for the matrices $\Gamma_A$
+and $\Gamma_B$, all giving rise to $J^P = 1/2^+$, are $(\Gamma_A, \Gamma_B) =
+(1, C\gamma_5)$, $(\gamma_5, C)$, or $(1, i\gamma_4 C\gamma_5)$.
+
+Baryons with spin $J = 3/2$ can be obtained by using $(\Gamma_A, \Gamma_B) =
+(1, C\gamma_j)$. The spatial gamma matrix $\gamma_j$ gives rise to a diquark
+with spin $J = 1$ and together with the quark outside the diquark the resulting
+interpolator has spin $J = 3/2$ contributions, but also an admixture of spin
+$J = 1/2$. For the details of the necessary projection to definite spin we
+refer to [2].
+
+Note that all our baryon interpolators $O_{B\pm}$ and $\bar{O}_{B\pm}$ still
+have an open Dirac index -- they describe fermions after all. Usually this
+index is summed over and one considers correlators of the type ($\alpha$ is
+summed)
+\begin{equation}
+  \big\langle O_{B\pm}(n)_\alpha\, \bar{O}_{B\pm}(m)_\alpha \big\rangle .
+\end{equation}
+We conclude with displaying as an example the fermion contractions for the
+nucleon interpolator (6.14) (we use $P_\pm^2 = P_\pm$ and vector/matrix
+notation),
+\begin{equation}
+  \begin{gathered}
+    \big\langle O_{N^\pm}(n)_\alpha\, \bar{O}_{N^\pm}(m)_\alpha \big\rangle_F
+    = -\big\langle \bar{O}_{N^\pm}(m)_\alpha\, O_{N^\pm}(n)_\alpha \big\rangle_F \\
+    = -\varepsilon_{abc}\varepsilon_{a'b'c'}\,
+      \Big\langle \bar u(m)_a C\gamma_5 \bar d(m)_b^T \bar u(m)_c P_\pm \\
+    \qquad\qquad u(n)_{c'}\, u(n)_{a'}^T C\gamma_5\, d(n)_{b'} \Big\rangle_F \\
+    = \varepsilon_{abc}\varepsilon_{a'b'c'}\, (C\gamma_5)_{\alpha'\beta'}
+      (C\gamma_5)_{\alpha\beta} (P_\pm)_{\gamma\gamma'}\,
+      D_d^{-1}(n|m)_{\beta'\beta} \times \\
+    \qquad \Big[ D_u^{-1}(n|m)_{\alpha'\alpha} D_u^{-1}(n|m)_{\gamma'\gamma}
+      - D_u^{-1}(n|m)_{\alpha'\gamma} D_u^{-1}(n|m)_{\gamma'\alpha} \Big] ,
+  \end{gathered}
+\end{equation}
+demonstrating that for baryons only connected pieces occur.
+
+\subsection{Momentum projection}
+
+There is a final step to be implemented for our hadron interpolators: We want
+our hadron states to be states of definite spatial momentum $\mathbf{p}$. Thus
+we define
+\begin{equation}
+  \widetilde{O}(\mathbf{p}, n_t) = \frac{1}{|\Lambda_3|}
+    \sum_{n\in\Lambda_3} O(n, n_t)\, e^{-\imath a\, n\cdot p} .
+\end{equation}
+Note that this Fourier transformation runs only over the spatial components
+$n$ in the spatial lattice $\Lambda_3 = \{ n = (n_1, n_2, n_3) \mid n_i = 0, 1,
+\ldots, N-1 \}$. Accordingly, the momenta $\mathbf{p}$ are spatial momenta with
+components $p_i = 2\pi k_i/(aN)$, $k_i = -N/2 + 1, \ldots, N/2$. Thus, the
+interpolator $\widetilde{O}(\mathbf{p}, n_t)$ is projected to definite spatial
+momentum and is located on a single time slice $n_t$.
+
+It is sufficient to project only one of the two interpolators of a correlation
+function to definite momentum, typically the operator $O(n, n_t)$ at the sink.
+The source operator $O(0, 0)$ can remain in real space and usually is placed at
+the origin. That this is sufficient can be seen by writing the real space
+interpolator $O$ as a sum of its Fourier components (compare (A.37)) and using
+the fact that states with different momenta are orthogonal to each other such
+that only the zero momentum term survives. Note, however, that this is strictly
+correct only for the exact expectation values, whereas it is only approximate
+for a sum over a finite number of configurations.
+
+Thus, according to (1.21), our final formula for Euclidean hadron correlators
+with definite momentum $\mathbf{p}$ reads
+\begin{equation}
+  \begin{split}
+    \big\langle \widetilde{O}(\mathbf{p}, n_t)\, O(0, 0) \big\rangle
+    &= \frac{1}{|\Lambda_3|}\sum_{n\in\Lambda_3} e^{-\imath a\, n\cdot p}\,
+       \big\langle O(n, n_t)\, O(0, 0) \big\rangle \\
+    &= A\, e^{-a n_t E(\mathbf{p})}\left( 1 + \order{e^{-a n_t \Delta E}}
+       \right),
+  \end{split}
+\end{equation}
+where the energy $E(\mathbf{p})$ is related to the hadron mass $m_H$ through
+the relativistic dispersion relation (in our units the speed of light is
+$c = 1$)
+\begin{equation}
+  E(\mathbf{p}) = \sqrt{m_H^2 + \mathbf{p}^2}\left( 1 + \order{ap} \right),
+\end{equation}
+and for zero momentum we find $E(0) = m_H$.
+
+Determining the hadron propagators for non-zero momenta allows one to study the
+spectral relation between energy and momentum as realized on the lattice. Since
+the asymptotic states describe free particles in the lattice world, the
+adequate spectral relation is that of free lattice particles. It may be
+obtained, e.g., from the free boson (or fermion) lattice propagator in momentum
+space. For the simplest, nearest neighbor discretization one identifies the
+pole at momentum $(iE(\mathbf{p}), \mathbf{p})$ and finds the relation
+($m_H = E(0)$)
+\begin{equation}
+  \cosh\bigl(a E(\mathbf{p})\bigr) = \cosh(a m_H)
+    + \sum_{k=1}^{3} \bigl( 1 - \cos(a p_k) \bigr) ,
+\end{equation}
+which approaches the continuum relation for vanishing lattice spacing $a$, cf.\
+(6.24). Careful analysis of hadron propagators along these lines allows one to
+check for the recovery of full Euclidean invariance.
+
+\subsection{Final formula for hadron correlators}
+
+Central for obtaining results to be compared with experiment are the
+correlation functions of products of fields. For any product of operators,
+denoted by $A$, one has to evaluate
+\begin{multline}
+  \langle A\rangle = \big\langle \langle A\rangle_F \big\rangle_G
+  = \frac{1}{Z}\int D[U]\, e^{-S_G[U]} \\
+  \times \int D[\bar\psi,\psi]\, e^{-S_F[\bar\psi,\psi,U]}\,
+    A[\bar\psi,\psi,U] .
+\end{multline}
+The integral over the Grassmann variables can be computed in closed form (see
+Chap.~5) and the integral (5.4) over the gauge field remains.
+
+For definiteness let us discuss the example of a propagator for a meson built
+out of two quark flavors as in (6.12). After the Grassmann integration we end
+up with a ratio of purely bosonic integrals over the gauge fields,
+\begin{equation}
+  \begin{gathered}
+    \big\langle O_T(n)\, \bar{O}_T(m) \big\rangle
+    = -\frac{1}{Z}\int D[U]\, e^{-S_G[U]}\, \det[D_u]\det[D_d] \\
+    \qquad \times \tr\!\left[ \Gamma D_u^{-1}(n|m)\, \Gamma D_d^{-1}(m|n) \right], \\
+    Z = \int D[U]\, e^{-S_G[U]}\, \det[D_u]\det[D_d] .
+  \end{gathered}
+\end{equation}
+We stress again that the fermion determinants depend on $U$ and one has to
+perform a Monte Carlo simulation using $Z^{-1}\exp(-S_G[U])\det[D_u]\det[D_d]$
+as the distribution weight for the gauge fields. This seems to be a
+straightforward task at first sight. However, computing the determinant of the
+Dirac operator matrix $D$ is highly nontrivial. Remember that this matrix has
+$12|\Lambda|$ rows and columns, where $|\Lambda|$ is the number of lattice
+sites. This dimension therefore is typically of the order of millions and a
+brute force calculation of the determinant is prohibitively expensive.
+
+\subsection{The quenched approximation}
+
+Following the first applications of the Monte Carlo method to lattice QCD, most
+of the results in the 1980s and 1990s were obtained in the quenched
+approximation.\footnote{The terms come from quenching -- rapid cooling -- of
+steel, where the carbon atoms are frozen to their random positions.} In
+particular the successful determination of the ground state spectrum of hadrons
+with light quarks is a milestone of this approach.
+
+Before discussing the quenched approximation, let us briefly remind ourselves
+of the physical interpretation of the determinant factor. From the hopping
+expansion discussed in Chap.~5, we found that it may be written as an effective
+action, which is a sum over closed loops of gauge field link variables. In
+essence it describes the fermionic vacuum where virtual pairs of quarks and
+antiquarks are created and annihilated. These quarks are usually called sea
+quarks, since they are related to Dirac's picture of a fermion sea, where the
+holes denote anti-fermions. Of course sea quarks are identical to generic
+quarks and we only call them such for clarification of the subsequent
+approximation.
+
+Putting the fermion determinants to unity by hand corresponds to neglecting the
+effect of the vacuum quark loops (Sect.~5.3.2). Actually, since in the expansion
+of the determinant the leading term of the effective action is a sum over
+plaquettes, part of the effective action is intrinsically included in the gauge
+action by redefining the gauge coupling. This is no problem, since the gauge
+coupling itself is a bare parameter and only physical quantities are of
+relevance.
+
+Omitting the determinants defines the quenched approximation. Instead of using
+the full expression for, e.g., the meson correlator (6.27), one computes
+\begin{equation}
+  \begin{gathered}
+    \big\langle O_T(n)\, \bar{O}_T(m) \big\rangle_{\mathrm{quenched}}
+    = -\frac{1}{Z}\int D[U]\, e^{-S_G[U]}\,
+      \tr\!\left[ \Gamma D_u^{-1}(n|m)\, \Gamma D_d^{-1}(m|n) \right], \\
+    Z = \int D[U]\, e^{-S_G[U]} .
+  \end{gathered}
+\end{equation}
+In this approximation one constructs the Markov chain of gauge configurations
+as for pure gauge theory (compare Chap.~3) and evaluates the quark propagators
+on those configurations. Combinations of the quark propagators build up the
+hadron correlators as discussed in the last section. In order to distinguish
+these propagating quarks from the sea quarks, and since they are responsible
+for the quantum numbers of the hadron, they are called valence quarks. The
+quenched approximation is therefore also called valence approximation.
+
+The quenched approximation may be considered as the limit, in which the sea
+quarks become infinitely heavy and therefore cannot be generated from the
+vacuum as particle--antiparticle pairs. This can be seen from the hopping
+expansion for the fermion determinant (5.65). Since the expansion parameter
+$\kappa$ defined in (5.55) vanishes for $m \to \infty$, the determinant becomes
+1 in this limit.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig62.png}
+  \caption*{Fig. 6.2. \emph{Sample of quark lines contributing in hadron
+    propagation (mesons l.h.s., baryons r.h.s.). In the quenched approximation
+    only contributions in the upper two rows, i.e., without sea quark loops
+    ($=$ closed loops) contribute. The diagrams in the second row appear in the
+    quenched approximation and resemble the dynamical diagrams in the bottom
+    rows. They are called hairpin diagrams and give rise to logarithmic
+    singularities in the quenched approximation}.}
+  \label{fig:62}
+\end{figure}
+
+A simulation including the determinant and therefore allowing for the full
+dynamical vacuum structure of fermions is called a simulation with dynamical
+quarks, in contrast to the quenched simulation. Figure 6.2 gives examples for
+contributing quark lines in the quenched and the fully dynamical simulation. In
+full QCD there is no difference between sea quarks and valence quarks. However,
+in our computer laboratory we may give them different masses. Such intermediate
+stages, where the masses of the sea quarks and the valence quarks differ, are
+called partial quenching, and are sometimes useful for a better control of the
+various systematic uncertainties.
+
+We remark that neither the quenched nor the partially quenched approximation
+are proper quantum field theories with a valid Hilbert space construction and
+correct positivity properties for the fermions. This leads to some problems in
+analyzing in particular the results toward small quark masses. Forbidding
+dynamical fermion loops also prevents one from studying resonances. However,
+these provide a conceptual problem anyhow. They are not asymptotic states of
+the field theory and one has to introduce intricate tools for their
+identification and the determination of scattering amplitudes in general
+(cf.\ Chap.~11). We expect, however, that resonances should in the quenched
+case to leading order be observed as bound states at nearby energy values.
+
+Since dynamical simulations will be treated in Chap.~8, in this chapter we will
+show exclusively results for the hadron spectrum in the quenched situation.
+Obviously these are of much higher statistical precision than those obtained
+from simulations with dynamical quarks, albeit with the intrinsic uncertainty
+of the effect of quenching. Special features due to quenching (like occurrence
+of extra singularities and ghosts) will be discussed in Sect.~6.4.3.
+
+We stress, however, that most of the formulas and techniques presented in this
+chapter apply to both quenched and dynamical simulations.
+
+\section{Strategy of the calculation}
+
+In this section we discuss techniques for computing and storing the quark
+propagators needed for the hadron correlators presented in the last section. We
+describe the construction of realistic quark sources which improve the overlap
+of the lattice hadron interpolators with the physical states. The problem of
+exceptional configurations and its amelioration through smoothing of the gauge
+field are addressed.
+
+\subsection{The need for quark sources}
+
+A complete quark propagator is a matrix as large as the fermion matrix itself.
+Depending on the lattice action, the Dirac operator may be sparse, with many
+vanishing entries, but the propagator $D^{-1}$ is not and consists of
+$\order{10^{12}}$ complex numbers. Each entry $D^{-1}(n|m)^{\beta\alpha}_{ba}$
+connects a source point $(m, \alpha, a)$ with a sink point $(n, \beta, b)$.
+Here the notion ``point'' relates to site- as well as Dirac and color indices.
+Since the matrix provides the information for propagation in one particular
+gauge field configuration, its entries will be highly correlated and this
+correlation reduces the information content. So for two reasons one does not
+try to store the complete propagator matrix: It is wasteful to calculate all
+entries and it would need too much computer memory.
+
+However, if we consider instead just the propagator from a fixed site $m_0$, a
+fixed Dirac index $\alpha_0$, and a fixed color index $a_0$, to any site of the
+lattice, this is just one column of the inverse Dirac operator,
+\begin{equation}
+  D^{-1}(n|m_0)^{\beta\alpha_0}_{b a_0}
+  = \sum_{m,\alpha,a} D^{-1}(n|m)^{\beta\alpha}_{ba}\,
+    S_0^{(m_0,\alpha_0,a_0)}(m)^{\alpha}_{a} ,
+\end{equation}
+where we have introduced the so-called point sources
+\begin{equation}
+  S_0^{(m_0,\alpha_0,a_0)}(m)^{\alpha}_{a}
+  = \delta(m - m_0)\, \delta_{\alpha\alpha_0}\, \delta_{aa_0} .
+\end{equation}
+The expression (6.29) must be evaluated for 12 sources, one for each
+combination $\alpha_0$, $a_0$ of Dirac and color indices. The point sources are
+placed at the position $m_0$ of the source interpolator $O_H(m_0)$ and the
+column $D^{-1}(n|m_0)$ is the propagator to the position $n$ of the sink
+operator $\bar{O}_H(n)$.
+
+Since mesons contain a backward running antiquark (compare Fig.~6.1), one also
+needs the propagator in the other direction, i.e., from $n$ to $m_0$. Naively
+one would expect that this requires placing sources also at $n$. However, we
+can utilize $\gamma_5$-hermiticity, as discussed in Sect.~5.4.3, in order to
+obtain the backward running propagator for free.
+
+Using this symmetry property we may write (repeated indices are summed)
+\begin{equation}
+  \gamma_5 D^{-1} \gamma_5 = D^{-1\,\dagger}
+  \quad\Longleftrightarrow\quad
+  (\gamma_5)_{\alpha\alpha'}\, D^{-1}(m_0|n)^{\alpha'\beta'}_{dc}\,
+  (\gamma_5)_{\beta'\beta} = D^{-1}(n|m_0)^{\beta\alpha\,*}_{cd} ,
+\end{equation}
+and so obtain the backward running propagator. This can, e.g., be used to write
+the iso-triplet pion propagator (6.12) as
+\begin{multline}
+  \big\langle O_T(n)\, \bar{O}_T(m_0) \big\rangle_F
+  = -\tr\!\left[ D^{-1}(n|m_0)\, \gamma_5\, D^{-1}(m_0|n)\, \gamma_5 \right] \\
+  = -\sum_{\alpha,\beta,c,d} \left| D^{-1}(n|m_0)^{\alpha\beta}_{cd}
+    \right|^2 .
+\end{multline}
+This example shows explicitly that for the pion, and similarly for other
+mesons, only the forward propagator $D^{-1}(n|m_0)$ needs to be calculated. For
+baryons we only need forward propagating quarks anyhow (compare (6.21)).
+
+\subsection{Point source or extended source?}
+
+In order to get clear and strong correlation signals, which allow a reliable
+analysis, we have to optimize the interpolating fields. Although any operator
+with the correct quantum numbers contributes to the physical state, some may be
+more important than others. The overlap can be improved considerably by
+providing more realistic spatial wave functions. We present the idea using a
+meson interpolator as an example, but the generalization to baryons is
+straightforward.
+
+We consider a meson interpolator on a single fixed time slice $n_t$, located at
+$\mathbf{n}_0 = (n_0, n_t)$. A more general wave function may be introduced by
+writing
+\begin{equation}
+  O_M(\mathbf{n}_0) = \sum_{n_1,n_2}
+    F(\mathbf{n}_0; n_1, n_2)^{\alpha_1\alpha_2}_{a_1a_2}\,
+    \psi^{(f)}(n_1, n_t)^{\alpha_1}_{a_1}\,
+    \bar\psi^{(f)}(n_2, n_t)^{\alpha_2}_{a_2} ,
+\end{equation}
+where we have introduced a distribution function $F(\mathbf{n}_0; n_1, n_2)$
+which combines field values $\psi(n_1, n_t)$ and $\bar\psi(n_2, n_t)$ at
+spatial positions $n_1$, $n_2$ in the vicinity of $\mathbf{n}_0$. In the
+simplest case, where the complete interpolator is localized on the single site
+$\mathbf{n}_0 = (n_0, n_t)$, $F$ reduces to
+\begin{equation}
+  \begin{gathered}
+    F(\mathbf{n}_0; n_1, n_2)^{\alpha_1\alpha_2}_{a_1a_2}
+    = \delta(n_0 - n_1)\, \delta_{\alpha_0\alpha_1}\, \delta_{a_0a_1}\,
+      \Gamma_{\alpha_0\beta_0}\, \delta(n_0 - n_2)\, \delta_{\beta_0\alpha_2}\,
+      \delta_{a_0a_2} \\[2mm]
+    \Longrightarrow\qquad
+    O_M(\mathbf{n}_0) = \psi^{(f)}(n_0, n_t)^{\alpha_0}_{a_0}\,
+      \Gamma_{\alpha_0\beta_0}\, \bar\psi^{(f)}(n_0, n_t)^{\beta_0}_{a_0} ,
+  \end{gathered}
+\end{equation}
+where $\Gamma$ is an element of the Clifford algebra.
+
+However, a more realistic wave function can be obtained by choosing a less
+trivial function $F$. In order to be able to work with only one set of 12
+sources one usually uses factorizable functions ($\alpha_0$, $\beta_0$, $a_0$
+are summed)
+\begin{equation}
+  F(\mathbf{n}_0; n_1, n_2)^{\alpha_1\alpha_2}_{a_1a_2}
+  = S_i^{(n_0,\alpha_0,a_0)}(n_1)^{\alpha_1}_{a_1}\,
+    \Gamma_{\alpha_0\beta_0}\,
+    S_k^{(n_0,\beta_0,a_0)}(n_2)^{*\alpha_2}_{a_2} .
+\end{equation}
+We have introduced the subscripts $i$ and $k$ to indicate that the source
+functions for $\psi$ and $\bar\psi$ may differ. Using the form (6.35) one can
+rewrite (6.33) in terms of so-called smeared fermions. To indicate the type of
+source we mark the smeared fermions with a lower index $i$ or $k$,
+respectively:
+\begin{equation}
+  \begin{gathered}
+    \psi_k^{(f')}(n_0, n_t)^{\alpha_0}_{a_0}
+    \equiv \sum_{n_2,a_2} S_k^{(n_0,\alpha_0,a_0)}(n_2)^{*\alpha_2}_{a_2}\,
+      \psi^{(f')}(n_2, n_t)^{\alpha_2}_{a_2} , \\
+    \psi_i^{(f)}(n_0, n_t)^{\alpha_0}_{a_0}
+    \equiv \sum_{n_1,a_1} S_i^{(n_0,\alpha_0,a_0)}(n_1)^{\alpha_1}_{a_1}\,
+      \psi^{(f)}(n_1, n_t)^{\alpha_1}_{a_1} ,
+  \end{gathered}
+\end{equation}
+This form makes it obvious that the smeared field at $\mathbf{n}_0$ is combined
+from the original fields at positions $n_i$. The meson operator in terms of the
+smeared fermions becomes simply (this is (6.34), but now for smeared fields):
+\begin{equation}
+  O_M(\mathbf{n}_0) = \psi_i^{(f)}(n_0, n_t)^{\alpha_0}_{a_0}\,
+    \Gamma_{\alpha_0\beta_0}\,
+    \psi_k^{(f')}(n_0, n_t)^{\beta_0}_{a_0} .
+\end{equation}
+Introducing these smearing functions for sources $S_i$, located at $m_0$, and
+sinks $S_k$, located at $n_0$, leads to the smeared quark propagator
+\begin{equation}
+  \begin{split}
+    G_{ki}(n_0|m_0)^{\beta_0\alpha_0}_{b_0a_0}
+    &\equiv \big\langle \psi_k^{(f)}(n_0)^{\beta_0}_{b_0}\,
+       \bar\psi_i^{(f)}(m_0)^{\alpha_0}_{a_0} \big\rangle_F \\
+    &= \sum_{m,n} S_k^{(n_0,\beta_0,b_0)}(n)^{*\beta}_{b}\,
+       S_i^{(m_0,\alpha_0,a_0)}(m)^{\alpha}_{a}\,
+       \big\langle \psi(n)^{\beta}_{b}\, \bar\psi(m)^{\alpha}_{a} \big\rangle_F \\
+    &= \sum_{n,m} S_k^{(n_0,\beta_0,b_0)}(n)^{*\beta}_{b}\,
+       \big[D_f^{-1}(n|m)\big]^{\beta\alpha}_{ba}\,
+       S_i^{(m_0,\alpha_0,a_0)}(m)^{\alpha}_{a} .
+  \end{split}
+\end{equation}
+In the construction of the meson and baryon correlators, as discussed in
+Sect.~6.1, one now simply replaces the original quark propagator $D_f^{-1}$ by
+the smeared propagator $G_{ki}$. In an actual numerical calculation one
+computes the propagator from a smeared source $S_i$ to a point-like sink
+according to
+\begin{equation}
+  \sum_{m,\alpha,a} D^{-1}(n|m)^{\beta\alpha}_{ba}\,
+    S_i^{(m_0,\alpha_0,a_0)}(m)^{\alpha}_{a} .
+\end{equation}
+The smearing of the sink can then be done in the subsequent construction of the
+hadron propagators by applying the smearing operator presented in the next
+subsection.
+
+\subsection{Extended sources}
+
+For smearing functions $S$ that are not gauge-covariant, one has to fix the
+gauge in the time slice using the methods from Sect.~3.2. Various source shapes
+have been used in that context. The extreme among those is a source constant in
+a time slice, the so-called wall-source. Attractive are Gaussian shapes
+motivated by intuition. The final incentive always is the optimization of the
+signal.
+
+A gauge-covariant source, with a shape similar to a Gaussian, is obtained by
+Jacobi smearing [3, 4]. One acts with a smearing operator $M$ on the point
+source $S_0$ of (6.30) in time slice $n_t$ to obtain the smeared source:
+\begin{equation}
+  S^{(n_0,\alpha_0,a_0)} = M\, S_0^{(n_0,\alpha_0,a_0)}, \qquad
+  M = \sum_{n=0}^{N} \kappa^n H^n .
+\end{equation}
+The operator $H$ is essentially the spatial part of the Wilson term (5.50)
+without the constant piece ($n_t$ is fixed to the time slice of the source),
+\begin{equation}
+  H(n, m) = \sum_{j=1}^{3}\left[ U_j(n, n_t)\, \delta(n + \hat{\jmath}, m)
+    + U_j(n - \hat{\jmath}, n_t)^\dagger\, \delta(n - \hat{\jmath}, m) \right].
+\end{equation}
+Note that $H$ and therefore also $M$ are hermitian and act only on the color
+indices, but are trivial in Dirac space. The operation connects different sites
+of the time slice to the central site with gauge transporters. Jacobi smearing
+has two free parameters: the number of smearing steps $N$ and the positive real
+parameter $\kappa$. These two parameters can be used to adjust the profile
+(width) of the source. Also combining quark sources of different widths has
+proved to be efficient for optimizing the hadron propagation signals
+(cf.\ Sect.~6.3.3).
+
+\subsection{Calculation of the quark propagator}
+
+Having prepared our sources $S$, we need to compute the propagator $D^{-1}$
+acting on the source according to (6.39), i.e., we need $G = D^{-1}S$. Put
+differently, one has to solve the system of equations
+\begin{equation}
+  D\, G = S ,
+\end{equation}
+where $D$ is the Dirac matrix operator, $S$ the source vector, and $G$ the
+unknown propagator vector. This can be done using iterative methods. In order
+to get acquainted with that approach let us briefly discuss the grandmother of
+those algorithms: As shown in the discussion of the hopping expansion (compare
+(5.57)), after rescaling the fermions we may split $D$ into a constant part and
+a nontrivial term,
+\begin{equation}
+  D \equiv 1 - Q .
+\end{equation}
+Then a series expansion
+\begin{equation}
+  G = (1 - Q)^{-1} S = (1 + Q + Q^2 + Q^3 + \ldots)\, S
+\end{equation}
+leads to the iteration prescription
+\begin{equation}
+  G^{(0)} = S , \qquad G^{(i+1)} = S + Q\, G^{(i)} .
+\end{equation}
+This is the simple Jacobi iteration which converges when the largest eigenvalue
+of $Q$ is smaller than 1 in magnitude. In each iteration step one only has to
+apply the matrix $Q$ to the vector $G^{(i)}$ and add $S$ until convergence is
+obtained. Relaxation methods like the Gauss--Seidel method interpolate between
+subsequent steps and may improve convergence. Both methods belong to the class
+of stationary methods which solve for each of the variables locally, by keeping
+the current values of the other variables fixed. Other variants derived from
+the Gauss--Seidel method, but converging an order of magnitude faster, are the
+SOR (successive overrelaxation) and SSOR (symmetric SOR) methods, which
+introduce extrapolation parameters [5].
+
+Most calculations, however, use a variant of the conjugate gradient (CG) method
+[5, 6]. This is a so-called non-stationary method and the concept is to
+iteratively minimize a quadratic functional, equivalent to finding the solution
+of the system of equations. For real symmetric, positive definite $N\times N$
+matrices $A$ the function
+\begin{equation}
+  Q(x) = \half\, x^T A\, x - x^T b
+\end{equation}
+is (up to a constant) a positive definite quadratic form assuming its minimum
+at $x^*$, where its gradient vanishes,
+\begin{equation}
+  \left.\frac{\partial Q(x)}{\partial x}\right|_{x = x^*}
+  = A\, x^* - b = 0 .
+\end{equation}
+Thus $x^*$ is the solution of the system $Ax = b$. The CG method works by
+iteratively constructing search direction vectors $p^{(i)}$ and iterates
+$x^{(i)}$ such that in each step $Q(x^{(i)} + \alpha_i p^{(i)})$ is minimized as
+a function of the real parameter $\alpha_i$, leading to the next iterate
+$x^{(i+1)} = x^{(i)} + \alpha_i p^{(i)}$. The vectors $p^{(i)}$ are orthogonal
+to $A\,p^{(i-1)}$ (and all previous $A\,p^{(j)}$) sequentially build up a
+vector space $K^{(i)} = \mathrm{span}(p^{(0)}, \ldots, p^{(i)})$, which is
+called a Krylov subspace. All variants of the CG method are based on such an
+implicit construction of an orthogonal basis for the Krylov subspace. Methods
+like the Lanczos algorithm for finding the eigensystem of a matrix work with
+this concept as well and the corresponding iteration may be related to the CG
+iteration [5].
+
+The iterates $x^{(i)}$ minimize $Q$ in the spaces $K^{(i)}$ and approach the
+solution vector $x^*$ in at most $N$ steps. However, often much fewer steps
+give sufficiently accurate results. This may be checked by computing the norm
+$\|A\,x^{(i)} - b\|$, and the process is terminated once the norm is smaller
+than the requested accuracy $\varepsilon$. Only scalar products between vectors
+and matrix--vector multiplications have to be computed and only vectors have to
+be kept in storage. Both are important advantages for the large, but often
+sparse, matrices associated with the Dirac operators.
+
+In its original version CG works only for positive definite symmetric matrices
+$A$. However, for non-symmetric matrices the residual vectors cannot be made
+orthogonal within these limitations. The Dirac operator $D$ is not positive
+definite hermitian; it has complex eigenvalues. For non-symmetric, general
+matrices a variant called Bi-Conjugate Gradient (Bi-CGR) does the job. There
+two sequences of search directions and residual vectors are generated, which
+obey a bi-orthogonality relation. Even better, improving convergence
+properties, the so-called Bi-CGR Stabilized (Bi-CGStab) method [7] and another
+improvement, Bi-CGStab(2) by [8], have been introduced. For details we refer to
+the original papers and to [5].
+
+We remark that one could utilize $D^{-1} = D^\dagger(D D^\dagger)^{-1}$ and
+apply an algorithm for hermitian matrices to compute $(D D^\dagger)^{-1}$.
+Furthermore, for $\gamma_5$ hermitian Dirac operators one could also invert the
+hermitian matrix $D\gamma_5$ and use $D^{-1} = \gamma_5 (D\gamma_5)^{-1}$. In
+practice, however, it turned out that the strategy of using an algorithm for
+hermitian matrices does not necessarily lead to faster convergence.
+
+Here we discuss only the Bi-CGStab algorithm along the lines of [5]. In order
+to solve the matrix equation (6.47) for the unknown vector $x^*$, one starts
+with a guessed vector $x^{(0)}$. The pseudo-code for the iteration with
+preconditioning (see below) then may be written as in Table~6.2. For the
+application of Bi-CGStab to our problem (6.42), one sets $A = D$, $b = S$, and
+obtains the desired propagator vector $G = D^{-1}S$ as
+$G = \lim_{i\to\infty} x^{(i)}$.
+
+\begin{table}[htbp]
+  \centering
+  \caption*{Table 6.2. Pseudocode [5] for the Bi-CGStab algorithm with
+    preconditioning matrix $M$. For no preconditioning set $M = 1$ and simplify
+    the code}
+  \small
+  \begin{tabular}{@{}l@{}}
+    $r^{(0)} = b - A\, x^{(0)}$ \\
+    $\tilde{r} = r^{(0)}$ \quad (for example) \\
+    for $i = 1, 2, \ldots$ iterate: \\
+    \quad $\rho_{i-1} = \tilde{r}^{\dagger} \cdot r^{(i-1)}$ \\
+    \quad if $\rho_{i-1}$ equals 0, the method fails. \\
+    \quad if $i = 1$ then \\
+    \quad\quad $p^{(1)} = r^{(0)}$ \\
+    \quad else \\
+    \quad\quad $\beta_{i-1} = \alpha_{i-1}\, \rho_{i-1} / (\omega_{i-1}\,
+      \rho_{i-2})$ \\
+    \quad\quad $p^{(i)} = r^{(i-1)} + \beta_{i-1}\, (p^{(i-1)} - \omega_{i-1}\,
+      v^{(i-1)})$ \\
+    \quad end if \\
+    \quad solve $M\, \hat{p} = p^{(i)}$ \\
+    \quad $v^{(i)} = A\, \hat{p}$ \\
+    \quad $\alpha_i = \rho_{i-1} / (\tilde{r}^{\dagger} \cdot v^{(i)})$ \\
+    \quad $s = r^{(i-1)} - \alpha_i\, v^{(i)}$ \\
+    \quad if the norm of $s$ is small enough, set $x^{(i)} = x^{(i-1)} +
+      \alpha_i\, \hat{p}$ and stop. \\
+    \quad solve $M\, \hat{s} = s$ \\
+    \quad $t = A\, \hat{s}$ \\
+    \quad $\omega_i = t^{\dagger} \cdot s / (t^{\dagger} \cdot t)$ \\
+    \quad $r^{(i)} = s - \omega_i\, t$ \\
+    \quad $x^{(i)} = x^{(i-1)} + \alpha_i\, \hat{p} + \omega_i\, \hat{s}$ \\
+    repeat until convergence \ldots
+  \end{tabular}
+\end{table}
+
+We remark that $\tilde{r}$ remains constant and one may also choose other
+$\tilde{r}$, as long as $\rho_0 \neq 0$. For repeating the iteration one needs
+$\omega_i \neq 0$ (the Bi-CGStab(2) algorithm helps in this respect [8]). One
+stops the iterations as soon as $r^{(i)\dagger} \cdot r^{(i)} < \varepsilon$ for
+some requested accuracy $\varepsilon$. The algorithm needs two matrix--vector
+multiplications with $A$, two inversions of the preconditioner $M$, and four
+inner products for each iteration step.
+
+For the simple CG algorithm convergence is guaranteed for positive definite
+symmetric matrices, at least after $N$ steps for matrices of dimension $N$, but
+usually significantly faster. For Bi-CGStab convergence may be faster than that
+of other CG methods, but not necessarily, and in some cases it even breaks
+down. Other starting values or other methods have to be chosen in such
+situations.
+
+So-called preconditioning methods sometimes allow one to accelerate the
+convergence, depending on the Dirac operator. A preconditioner is a suitable
+matrix $M$ which we use to transform the system to
+\begin{equation}
+  M^{-1} A\, x = M^{-1} b .
+\end{equation}
+Let us assume that we have a matrix $M$, which is numerically cheap to invert,
+i.e., to solve $M\hat{s} = s$ for $\hat{s}$, and which approximates $A$ in some
+way. Then the spectral properties of $M^{-1}A$ may be more favorable, allowing
+faster convergence of the iterative solution. This may be true in particular,
+if the small eigenvalues of $M$ agree with those of $A$. For a more complete
+discussion of such methods cf.\ [5, 9].
+
+When inverting the Dirac operators for different quark masses, the matrices
+differ just by a constant in the diagonal. One then can simultaneously solve
+the set of equations for a set of quark masses with little extra cost. The rate
+of convergence is determined by the convergence for the smallest mass. Such a
+multi-mass algorithm has been discussed in [10, 11].
+
+Since the determination of the quark propagators is numerically quite
+expensive, one often stores these for each gauge configuration sampled and
+computes various hadron observables from them in the later analysis.
+
+\subsection{Exceptional configurations}
+
+So far we have not taken into account the Dirac operator matrix $D[U]$ which
+depends on the gauge field $U$. This implies that the properties of $D[U]$ will
+change as one changes $U$. In particular, certain fluctuations of the gauge
+field, so-called exceptional configurations, lead to small eigenvalues of
+$D[U]$ which make the numerical inversion of $D[U]$ problematic.
+
+To understand this phenomenon in more detail let us consider the eigenvalues of
+$D[U]$. For quarks with bare mass parameter $m$ they are given by
+\begin{equation}
+  m + \lambda_i[U] ,
+\end{equation}
+where $\lambda_i[U]$ are the eigenvalues of the massless Dirac operator. In
+general these are complex numbers, but also real eigenvalues
+$\lambda_i[U] = r_i[U]$ are possible. If such a real eigenvalue becomes
+negative and in magnitude similar to $m$, then the Dirac operator has a very
+small eigenvalue. In this case the numerical inversion of $D[U]$ breaks down,
+and only increasing the quark mass $m$ resolves the problem. Thus the
+exceptional configurations limit the quark masses one can reach. For example in
+quenched simulations with Wilson fermions it turns out that in a typical
+simulation\footnote{Theoretical arguments show that only for $\kappa < 1/8$ one
+can be sure that there are no exceptional configurations.} (e.g., for lattice
+size $32^3 \times 64$) the quark mass has to be chosen large enough such that
+the pion mass is at least 300\,MeV instead of the physical 135\,MeV.
+
+We remark that for chiral fermions, where the Dirac operator obeys the
+Ginsparg--Wilson equation, a concept which we discuss in Chap.~7, the real
+eigenvalues do not fluctuate and the problem with exceptional configurations
+does not occur; therefore realistic pion masses can be reached. Also
+introducing a twisted mass term (see Chap.~10) solves the problem with
+exceptional configurations, since it expels the spectrum from a strip along the
+real axis.
+
+In practical simulations one finds that the fluctuations of the eigenvalues are
+coupled to the fluctuations of the gauge field. These fluctuations can be
+damped by either using improved gauge field actions (see Chap.~9), larger
+lattices, or by smoothing techniques which we discuss in the next subsection.
+
+\subsection{Smoothing of gauge configurations}
+
+When aiming for correlation functions one is mainly interested in the long
+distance behavior. On the other hand, typical for gauge theories are violent
+short distance fluctuations of the gauge field. One can considerably improve
+the correlation signal by smoothing or smearing the gauge field, either only in
+the time slices or even in space and time. This also helps with the exceptional
+configurations discussed in the preceding subsection.
+
+When smoothing or smearing one typically replaces the link variables by local
+averages over short paths connecting the link's endpoints. This is a gauge
+covariant procedure and one does not have to fix the gauge. The operators and
+propagators are then constructed on the smeared configurations. As long as the
+smearing is local enough, i.e., the smearing operator combines only a fixed
+number of links, the long distance correlation signals should not be affected
+in the continuum limit.
+
+Smearing algorithms are all averaging products of links along certain paths
+connecting the endpoints of a given link. For SU(2) this average is
+proportional to a group element, but for SU(3) this is not the case. Therefore
+one has to project the average to an SU(3) matrix. We briefly mention here only
+three variants of such smearing algorithms.
+
+APE smearing [12]: In that case the average is over the original link $U_\mu$
+and over the six perpendicular staples (visualize!) connecting its endpoints,
+\begin{equation}
+  \begin{gathered}
+    V_\mu(n) = (1 - \alpha)\, U_\mu + \frac{\alpha}{6}\sum_{\nu\neq\mu}
+      C_{\mu\nu}(n) , \\
+    C_{\mu\nu}(n) = U_\nu(n) U_\mu(n+\hat\nu) U_\nu(n+\hat\mu)^\dagger
+      + U_\nu(n-\hat\nu)^\dagger U_\mu(n-\hat\nu)
+      U_\nu(n-\hat\nu+\hat\mu) ,
+  \end{gathered}
+\end{equation}
+where the real parameter $\alpha$ may be adjusted depending on the gauge
+coupling. The projection of the sum to SU(3) is usually done by maximizing
+$\Re\,\tr[X\, V_\mu(n)^\dagger]$ for $X \in \mathrm{SU}(3)$ and using $X$ as new
+link variable $U'_\mu(n)$.
+
+HYP smearing [13]: In that approach the average is over paths lying within the
+hypercubes containing the link variable. Again the sum has to be projected to
+SU(3).
+
+Stout smearing [14]: This method uses a particular way of projection, defining
+the new link after a smearing step by
+\begin{equation}
+  U'_\mu(n) = e^{\imath Q_\mu(n)}\, U_\mu(n) .
+\end{equation}
+$Q_\mu(n)$ is a traceless, hermitian matrix constructed from staples,
+\begin{equation}
+  \begin{gathered}
+    Q_\mu(n) = \frac{\imath}{2}\left[ \Omega_\mu(n) - \Omega_\mu(n)^\dagger
+      - \frac{1}{3}\tr\!\left( \Omega_\mu(n) - \Omega_\mu(n)^\dagger \right)
+      \right], \\
+    \Omega_\mu(n) = \left( \sum_{\nu\neq\mu} \rho_{\mu\nu} C_{\mu\nu}(n)
+      \right) U_\mu(n)^\dagger .
+  \end{gathered}
+\end{equation}
+The $C_{\mu\nu}$ are the same as in (6.50) and the real weight factors
+$\rho_{\mu\nu}$ are tunable parameters. Common choices are taking them
+constant, $\rho_{\mu\nu} = \rho$, or smearing only the spatial links:
+$\rho_{\mu 4} = \rho_{4\mu} = 0$, $\rho_{nm} = \rho$. The new links have gauge
+transformation properties like the original ones. This approach of getting an
+SU(3) element from a sum of matrices may be used for other combinations of
+paths too, of course. The advantage of stout smearing is that $U'_\mu(n)$ is
+differentiable with respect to the link variables. This is a prime benefit in
+applications like the hybrid Monte Carlo method for dynamical fermions
+discussed in Chap.~8.
+
+Such link smearing methods lead to what is often called a fat link for obvious
+reasons. There is a variety of other such suggestions, among them the FLIC link
+[15] or differentiable variants of the HYP smearing [16, 17].
+
+All such smearing steps can be iterated. However, the smearing then affects not
+just neighboring variables but extends over increasingly larger distances.
+Eventually the asymptotic behavior of the propagators will be affected
+rendering such results problematic. Anyway, most of the positive effect of
+smearing is achieved already after the first smearing step(s).
+
+\section{Extracting hadron masses}
+
+Once the quark propagators are computed as described in the last section, they
+can be combined to the hadron correlators discussed in Sect.~6.1. From these
+correlators one can extract the corresponding hadron masses and in this section
+we present the techniques necessary for this step.
+
+In spectroscopy calculations we analyze hadron correlators of the form (6.1).
+In these formulas energies $E$, masses $m$, and momenta $\mathbf{p}$ always
+come with a factor of the lattice constant $a$, making the products $aE$,
+$am$, and $a\mathbf{p}$ dimensionless. It is convenient to drop the factor of
+the lattice constant and use so-called lattice units. In lattice units (6.1)
+assumes the form (6.53) below. For going back to physical units, an energy $E$
+has to be replaced by $aE$, and equivalently for masses and momenta (see
+Sect.~6.4.2). Unless stated otherwise, from now on we use lattice units for
+masses and energies.
+
+\subsection{Effective mass curves}
+
+In the analysis of the mass spectrum one studies the correlation function of an
+operator $\hat{O}$ with the quantum numbers of a particular hadron or set of
+hadrons. However, these operators usually do not create eigenstates of the
+Hamiltonian. They have contributions from several eigenstates and the
+correlation function is the spectral sum (1.21), discussed in Chap.~1. If the
+sink operator is projected to zero momentum (by summation over the respective
+time slices) we find
+\begin{equation}
+  C(n_t) \equiv \big\langle \widetilde{O}(\mathbf{0}, n_t)\, O(0, 0)
+    \big\rangle = \sum_k \bra{0}\hat{O}\ket{k}\,\bra{k}\hat{O}^\dagger\ket{0}\,
+    e^{-n_t E_k} .
+\end{equation}
+For finite lattice size the values $E_k$ are discrete. If the operators couple
+to single particle intermediate states, the masses $m_k$ of those particles
+will correspond to the low-lying energy values, i.e., $E_k = m_k$. If the
+operators couple to two- or more-particle intermediate states, the energy
+values $E_k$ are related to masses and relative momenta of the involved
+particles.
+
+Due to the exponential form of the terms in the sum (6.53), the relative
+contribution of higher lying energy states varies with $n_t$. Only for large
+$n_t$ the lowest energy state dominates. For smaller $n_t$ the mixing with
+other states blurs the picture and the sum (6.53) has many relevant
+contributions,
+\begin{equation}
+  C(n_t) = A_0\, e^{-n_t E_0} + A_1\, e^{-n_t E_1} \ldots .
+\end{equation}
+In Sect.~6.3.3 we will discuss methods to analyze the case when more than one
+energy level has to be determined. For the moment let us consider the simplest
+situation where one is interested only in the lowest energy $E_0$ corresponding
+to the ground state.
+
+The left-hand side plot of Fig.~6.3 shows an example for the correlation
+function of a mesonic operator with the quantum numbers of the pion in a sample
+calculation. The linear regions in the log-plot correspond to the range of
+$n_t$-values where a single exponential behavior
+$\sim \exp(-n_t E_0)$ dominates.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig63.png}
+  \caption*{Fig. 6.3. \emph{Result of a Monte Carlo simulation on a
+    $16^3 \times 32$ lattice at lattice spacing $a \approx 0.15$~fm. L.h.s.:
+    log-plot for the pion correlation function; r.h.s.: effective mass plot (in
+    lattice units). The different sets correspond to different values of the
+    quark mass in lattice units. The points are connected to guide the eye}.}
+  \label{fig:63}
+\end{figure}
+
+For mesons propagation in $n_t$ and $(N_T - n_t)$ is identical up to a possible
+relative minus sign and, when only the ground state is considered, the
+correlator shows (depending on source and sink interpolators) a cosh- or
+sinh-dependence on $n_t$:
+\begin{equation}
+  A_0\, e^{-n_t E_0} \pm A_0\, e^{-(N_T - n_t)E_0}
+  = \begin{cases}
+      2 A_0\, e^{-N_T E_0/2}\, \cosh\!\big( (N_T/2 - n_t) E_0 \big) \\
+      2 A_0\, e^{-N_T E_0/2}\, \sinh\!\big( (N_T/2 - n_t) E_0 \big)
+    \end{cases}
+\end{equation}
+In order to analyze in which range of $n_t$ the contribution of the sub-leading
+exponentials in (6.54) can be neglected, one defines an effective mass as
+\begin{equation}
+  m_{\mathrm{eff}}\!\left( n_t + \half \right) = \ln
+    \frac{C(n_t)}{C(n_t + 1)} .
+\end{equation}
+Once the correlator $C(n_t)$ is dominated by the ground state energy, $m_{\rm
+eff}$ becomes constant and forms an effective mass plateau at $m_{\rm eff} =
+E_0$.
+
+If one wants to respect periodicity in $n_t$ according to (6.55), one sets
+\begin{equation}
+  \frac{C(n_t)}{C(n_t + 1)}
+  = \frac{\cosh\!\big( m_{\rm eff}(n_t - N_T/2) \big)}
+         {\cosh\!\big( m_{\rm eff}(n_t + 1 - N_T/2) \big)} ,
+\end{equation}
+(and equivalently for the case of sinh) and solves for $m_{\rm eff}$ at each
+$n_t$. This was done in the right-hand side plot in Fig.~6.3. Depending on the
+mass, such modifications due to periodicity effects may not be necessary if one
+stays away from the region $n_t \lesssim N_T/2$.
+
+In the right-hand side plot of Fig.~6.3 the effective mass plateaus are well
+pronounced for $4 < n_t < 28$. In this range the contribution of excited states
+can be neglected and a two-parameter fit to the simple form
+$A_0 \exp(-n_t E_0)$ can be performed. If the correlator is symmetric, as in
+our example, then one fits to $A_0 \cosh((n_t - N_T/2) E_0)$.
+
+A generalization of effective mass techniques is combining correlation function
+values from different time slices subtracting the leading exponential decay.
+This may be extended to a tool for extraction excited hadron masses [18].
+
+We stress that the symmetry of correlators, i.e., equal propagation in $n_t$ and
+$N_T - n_t$ up to a sign, is not a general feature. In particular, after
+projection to definite parity (see (6.16)) a baryon propagates in $n_t$, while
+its parity partner propagates in $N_T - n_t$. Since the two masses are
+different, the propagator is not symmetric, and instead of cosh or sinh, the
+simple exponential form has to be used for effective masses and the fit
+function.
+
+\subsection{Fitting the correlators}
+
+Although plotting $m_{\rm eff}$ gives a first estimate of the ground state
+mass, a correlated fit in a range of $n_t$ values should be performed. For the
+correlated analysis one fits the data in a range $n_{\min} \leq n_t, n_t' \leq
+n_{\max}$ by minimizing
+\begin{equation}
+  \chi^2 = \sum_{n_t, n_t' = n_{\min}}^{n_{\max}}
+    \big( C(n_t) - f(n_t) \big)\, w(n_t, n_t')\,
+    \big( C(n_t') - f(n_t') \big) ,
+\end{equation}
+with regard to the parameters $A_0$, $E_0$ of the hypothesis function
+\begin{equation}
+  f(n_t) = A_0\, e^{-E_0 n_t} \qquad \text{or} \qquad
+  f(n_t) = A_0\, \cosh\!\big( (n_t - N_T/2) E_0 \big) \ \text{(or sinh)} .
+\end{equation}
+The weight $w$ ideally should be the inverse of the exact covariance matrix,
+i.e., $w(n_t, n_t') = \mathrm{Cov}^{-1}(n_t, n_t')$. In actual Monte Carlo runs
+one only knows an estimator, i.e., the measured covariance matrix of the data,
+\begin{equation}
+  \mathrm{Cov}_N(n_t, n_t')
+  = \frac{1}{N - 1}\Big\langle
+      \big( C(n_t) - \langle C(n_t)\rangle_N \big)\,
+      \big( C(n_t') - \langle C(n_t')\rangle_N \big)
+    \Big\rangle_N ,
+\end{equation}
+where $\langle\ldots\rangle_N$ denotes the statistical average over $N$ gauge
+configurations. In (6.58) one thus uses
+$w(n_t, n_t') = \mathrm{Cov}^{-1}_N(n_t, n_t')$.
+
+However, this estimator is often too badly determined and due to statistical
+fluctuations there may be accidental small eigenvalues destabilizing the fit. In
+such a case often either some smooth approximation or just the diagonal part of
+the covariance matrix (neglecting the correlation between different data
+points) are used. The latter gives rise to $w(n_t, n_t') =
+\delta_{n_t,n_t'}/\sigma(n_t)^2$ and the $\chi^2$-functional of (6.58) reduces
+to the form familiar from uncorrelated fits. For a critical account of
+correlated fits, see [19].
+
+One method to determine the fit range $[n_{\min}, n_{\max}]$ in (6.58) is the
+analysis of effective mass plateaus discussed above. Another criterion is to
+require that the $\chi^2$ per degree of freedom of the fit does not change by
+more than $\order{1}$ when the region is extended. Although a generally valid
+way to determine the fit interval is desirable, often -- in particular for data
+with only moderate statistics -- it is affected by individual prejudice. Any
+such decision involves some arbitrariness and should be checked by visual
+inspection of the fits.
+
+A simple method to estimate the statistical error of the fit result for the
+mass is to use the statistical bootstrap or jackknife methods. One repeats the
+analysis for large subsets of the data and determines the final error of the
+mass a posteriori, as discussed in Chap.~4.
+
+\subsection{The calculation of excited states}
+
+In particular at smaller time distances one observes the contribution of states
+with energies higher than that of the ground state (see the right-hand side
+plot of Fig.~6.3). Obviously it is desirable to get an estimate of these energy
+levels corresponding to excited states. At the same time, disentangling ground
+states from higher states provides cleaner signals for both.
+
+A direct fit of the correlation function to a hypothesis function $f(n_t)$
+which is a sum of $K$ exponentials,
+\begin{equation}
+  f(n_t) = \sum_{k=1}^{K} c_k\, e^{-n_t E_k} ,
+\end{equation}
+would formally work, if the number of parameters were smaller than the number
+of data points and if the data $C(n_t)$ were exact. In reality the data result
+from Monte Carlo simulations and do have errors. It can be easily demonstrated
+that already a sum of three exponentials may lead to unreliable results in such
+fits. Several alternative approaches have been discussed in the literature.
+
+\textbf{Bayesian analysis (conditionally biased fits):} In order to stabilize
+the fit to a hypothesis function of the type (6.61), one does not use the
+$\chi^2$ functional (6.58), but instead one minimizes
+\begin{equation}
+  F = \chi^2 + \lambda\, \phi ,
+\end{equation}
+where $\phi$ is some stabilizing function of the fit parameters and $\lambda$ a
+positive real multiplier. This technique is well known for so-called ill-posed
+problems like analytic continuation of functions given only by data points
+[20].
+
+In [21] it has been proposed to use as the stabilizing function
+\begin{equation}
+  \phi = \sum_{k=1}^{K}\left[ a_k\, (E_k - \bar{E}_k)^2
+    + b_k\, (c_k - \bar{c}_k)^2 \right],
+\end{equation}
+where $\bar{E}_k$ and $\bar{c}_k$ are prejudices for the expected energy values
+and coefficients. Adjusting the parameters $a_k$ and $b_k$ determines the
+relative weight for the corresponding bias. The fit is thus stabilized, even if
+the number of fit parameters exceeds the number of data, leading to unique
+results depending on the multiplier $\lambda$, which defines the ``amount of
+prejudice''. One tries to find regions for the resulting fit parameters that
+depend only weakly on $\lambda$.
+
+One technique based on such ideas [22] has been to start with simple
+one-exponential fits at large-$n_t$ values, then continue with two-exponential
+fits including the result of the earlier fit as a bias along the lines
+discussed. Experience shows that one usually needs good statistics (small
+statistical errors of the data) in order to successfully employ that method.
+
+\textbf{Maximum entropy method:} For this approach one writes the correlation
+function as the Laplace transform of a spectral density,
+\begin{equation}
+  C(n_t) = \int_0^\infty \dd E\, \rho(E)\, e^{-n_t E} .
+\end{equation}
+In the continuum the resulting spectral density $\rho(E)$ should exhibit peaks
+near the energy values dominating the correlation function. When computing
+$\rho(E)$ from lattice data, one discretizes the energy in small steps,
+$E_n = n\,\Delta E$, and uses the values $\rho(E_n)$ of the density at the
+discrete energies $E_n$ as fit parameters. The technical challenge is to
+recover the spectral density from the (few) values of $C(n_t)$ by minimizing a
+suitable distance functional (6.62). Various approaches to define the
+stabilizing functional $\phi$ have been used.
+
+In the maximum entropy method the functional $\phi$ in (6.62) is chosen based
+on probabilistic arguments. We normalize the spectral density according to
+\begin{equation}
+  C(0) = \int_0^\infty \dd E\, \rho(E) \equiv 1 .
+\end{equation}
+Then $\rho(E)$ should be distributed such that each ``quantum'' has the same a
+priori chance to contribute to the energy value $E$. This leads to the
+stabilizer
+\begin{equation}
+  \phi[\rho] = \int_0^\infty \dd E\, \rho(E)\, \ln\!\big( \rho(E) \big) .
+\end{equation}
+Minimizing the joint probability leads to a smooth solution. A drawback is that
+in this method the spectral density has to be positive. Also, the functional is
+non-linear and dedicated numerical methods have to be used to solve the
+minimization problem.
+
+This approach is heavily used in statistical physics. It also has been applied
+to nucleon propagators [23, 24]. From experience with statistical physics it is
+expected, however, that one needs data for many values of $n_t$ and with very
+small errors for a reliable result. Sample calculations show significant
+ambiguities when one tries to extract more energy levels from moderately
+precise correlation data.
+
+\textbf{Variational analysis:} The situation concerning excited states can be
+improved by considering not only a single correlator, but by computing a matrix
+of cross correlators
+\begin{equation}
+  C_{ij}(n_t) \equiv \big\langle \widetilde{O}_i(0, n_t)\, O_j(0, 0) \big\rangle
+  = \sum_k \bra{0}\hat{O}_i\ket{k}\,\bra{k}\hat{O}_j^\dagger\ket{0}\,
+    e^{-n_t E_k} ,
+\end{equation}
+for a set of $N$ basis interpolators $O_i$, $i = 1, \ldots, N$, all with the
+quantum numbers of the state one is interested in. Different interpolators can,
+e.g., be constructed by using different Dirac structures as discussed in
+Sect.~6.1, or with quark propagators acting on different quark sources.
+
+Utilizing the special form of the spectral decomposition on the right-hand side
+of (6.67) it has been shown [25--27] that diagonalizing the cross-correlation
+matrix $C(n_t)$ allows to disentangle the physical states to some amount.
+Indeed the eigenvalues $\lambda^{(k)}(n_t)$ of the correlation matrix can be
+shown to behave as
+\begin{equation}
+  \lambda^{(k)}(n_t) \propto e^{-n_t E_k}\left( 1 +
+    \order{e^{-n_t \Delta E_k}} \right),
+\end{equation}
+where $\Delta E_k$ is the distance of $E_k$ to nearby energy levels. Even
+better results can be obtained when using the generalized eigenvalue equation
+\begin{equation}
+  C(n_t)\, v = \lambda(n_t)\, C(n_0)\, v ,
+\end{equation}
+where the eigenvalues behave again as in (6.68), but the amplitude of the
+correction term is typically smaller. The generalized eigenvalue problem (6.69)
+may be rewritten as
+\begin{equation}
+  Q(n_0)^{-1}\, C(n_t)\, Q^\dagger(n_0)^{-1}\, u = \lambda(n_t)\, u
+  \qquad \text{with} \qquad Q(n_0)\, Q^\dagger(n_0) = C(n_0) .
+\end{equation}
+Numerically this form is expected to be more stable than diagonalizing
+$C(n_0)^{-1}C(n_t)$, which is another way of rewriting the generalized
+eigenvalue problem as a regular eigenvalue problem.
+
+In the generalized eigenvalue problem the normalization at some time slice
+$n_0 < n_t$ ought to improve the signal by suppressing the contributions from
+higher excited states. Indeed that effect can be observed in sample calculations
+using model data: Both approaches, the straightforward diagonalization, as well
+as the generalized eigenvalue problem, give the correct answers asymptotically,
+but the generalized eigenvalue approach does so already at smaller distances
+$n_t$.
+
+The method improves when the number of basis interpolators is increased. These
+should be independent and have good overlap with the eigenstates of the
+problem. On the other hand, in realistic calculations, including more
+interpolators enhances the statistical noise and thus affects the
+diagonalization. It always pays off to choose lattice operators which are close
+to the expected physical content of the eigenstates.
+
+The eigenvectors of the problem give the overlap of the eigenstates, supposedly
+the states close to the physical states, with the basis interpolators used in
+the correlation matrix (6.67). Thus, one may derive information on the wave
+function of the physical modes. In [28--30] lattice operators have been
+obtained by combining Jacobi smeared quark sources of different widths thus
+allowing for nodes in the spatial wave function. A different approach is
+followed in [31, 32] where extended lattice interpolators are constructed using
+irreducible representations of the symmetry group of a cubic lattice.
+
+\section{Finalizing the results for the hadron masses}
+
+Now we are at a stage where the hadron masses have been extracted from the
+corresponding correlators and are ready for analysis. We discuss the necessary
+steps for finalizing the spectroscopy calculation and illustrate them using
+data from quenched calculations.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig64.png}
+  \caption*{Fig. 6.4. \emph{Raw data for hadron masses. The left-hand side plot
+    shows pion, $\rho$, and nucleon masses in lattice units as a function of the
+    bare quark mass. The right-hand side plot is a so-called APE plot where
+    dimensionless ratios are compared to the experimental number. The data are
+    taken from the quenched calculation [33]}.}
+  \label{fig:64}
+\end{figure}
+
+\subsection{Discussion of some raw data}
+
+Following the steps of the last sections we have computed hadron masses in
+lattice units, i.e., we have obtained numbers for the dimensionless products
+$aM$. Usually, the hadron masses are evaluated for a range of light quark
+masses $m_q \equiv m_u = m_d$. The left-hand side plot in Fig.~6.4 shows such
+raw data for pion, $\rho$, and nucleon masses from a quenched simulation [33].
+
+Converting masses in lattice units to numbers, that can be compared to
+experimental data, can be done by considering ratios of masses where the
+lattice constant $a$ cancels. The right-hand side plot in Fig.~6.4 shows
+$M_N/M_\rho$, the ratio of nucleon to $\rho$ mass, as a function of
+$(M_\pi/M_\rho)^2$, where $M_\pi$ is the pion mass. Such a plot is called APE
+plot [34]. An alternative is the so-called Edinburgh plot [35], where one uses
+$M_\pi/M_\rho$ on the horizontal axis.
+
+In both, APE and Edinburgh plots, the data for $M_N/M_\rho$ can be compared to
+the physical point, $M_N/M_\rho \approx 1.209$ at $M_\pi/M_\rho \approx 0.180$.
+Although we do not perform an extrapolation, it is obvious that the data shown
+in the APE plot of Fig.~6.4 clearly extrapolate to the physical point already
+in the quenched approximation.
+
+\subsection{Setting the scale and the quark mass parameters}
+
+The results of a lattice calculation are always dimensionless numbers like,
+e.g., mass ratios. In order to compare with the experiment, one has to relate a
+mass or length unit to an experimental value. Consequently, the data have to be
+converted to physical units such as MeV. In other words, one has to determine
+the physical value of the lattice constant $a$ in order to obtain a mass $M$
+from the calculated number for $aM$. There are two main techniques for this
+step called scale setting.
+
+\textbf{Setting the scale with the Sommer parameter:} For this approach one
+uses the Sommer parameter to determine the lattice constant $a$ from the static
+potential as discussed in Sect.~3.5. The result has the form $a = x$~fm, where
+$x$ is a dimensionless number.
+
+From our hadron correlators we have computed the dimensionless number
+$X = aM$ for some hadron mass $M$. Consequently the physical mass $M = X/a$ is
+given in inverse fm. This mass unit is a consequence of using natural units
+$\hbar = 1$, $c = 1$. For converting this result to MeV one uses
+\begin{equation}
+  1 = \hbar c = 197.327\ \mathrm{MeV\,fm}
+  \qquad\Longrightarrow\qquad
+  1\ \mathrm{fm}^{-1} = 197.327\ \mathrm{MeV} .
+\end{equation}
+For the hadron mass in MeV we then obtain
+\begin{equation}
+  M = \frac{X}{a} = \frac{X}{x}\ \mathrm{fm}^{-1} = \frac{X}{x}\,
+    197.327\ \mathrm{MeV} .
+\end{equation}
+
+\textbf{Setting the scale with a hadron mass:} In this approach one uses one of
+the hadron masses $M_0$ for setting the scale. Popular candidates are the
+$\rho$ meson or the nucleon. For that hadron, e.g., the $\rho$-meson, the mass
+in lattice units, $aM_0(m_q)$, has to be known at several values of the bare
+quark mass $m_q$. One then extrapolates the data to the value $m_q^*$ of the
+mass parameter, where the dimensionless pion to $\rho$ mass ratio assumes its
+physical value, $M_\pi(m_q^*)/M_\rho(m_q^*) = M_\pi^{\rm exp}/M_\rho^{\rm exp} =
+0.180$. Alternatively one may also extrapolate $aM_0(m_q)$ to the chiral limit,
+i.e., to $m_q = 0$. This is only an approximation for the true physical point,
+but on the other hand this choice avoids the statistical error due to the
+measured pion to $\rho$ mass ratio. For both extrapolations the result is a
+number $X = aM_0(m_q^*)$ (or $X = aM_0(0)$), and we identify
+$M_0(m_q^*) \equiv M_0^{\rm exp}$ (or $M_0(0) \equiv M_0^{\rm exp}$), where
+$M_0^{\rm exp}$ is the experimental mass of our hadron in MeV. One obtains the
+lattice constant in inverse MeV: $a = X/M_0^{\rm exp}$. This scale $a$ can be
+directly used to obtain other masses $M$ in MeV from the values $aM$ in lattice
+units.
+
+For simulations with three quark flavors, in addition to the scale $a$, also
+the light quark mass $m_q = m_u = m_d$ and the strange quark mass $m_s$ have to
+be determined. For the light quark mass one either identifies the physical
+point by setting $m_q = m_q^*$, with $m_q^*$ determined as discussed above, or
+alternatively one assumes that the light $u$ and $d$ quarks are massless. For
+setting the strange quark mass, a similar strategy is applied: One uses a
+hadron containing the strange quark, typically the $K^\pm$ pseudoscalar meson,
+the vector meson $\phi$, or baryons like $\Sigma$ or $\Omega$. The $K^\pm$ has
+quark content $u$, $s$ and thus its mass is a function of the $u$ and $s$ quark
+masses, $M_{K^\pm}(m_q, m_s)$ with $m_q = m_u$. In a first step the data are
+extrapolated either to the chiral limit, $m_q = 0$, or to $m_q = m_q^*$. This
+gives the $K^\pm$ mass $M_{K^\pm}(m_s)$ at different values of the strange quark
+mass (the scale is set with one of the methods discussed above). This is done
+for several values of $m_s$ and the data for $M_{K^\pm}(m_s)$ are interpolated.
+The value $m_s^*$, where the interpolated data coincide with the experimental
+value, $M_{K^\pm}(m_s^*) = M_{K^\pm}^{\rm exp} = 494$\,MeV, gives the bare
+strange quark mass parameter $m_s = m_s^*$. When using the $\phi$, the situation
+is even simpler, since $\phi$ is predominantly a strange--antistrange state and
+no chiral extrapolation is needed.
+
+\subsection{Various extrapolations}
+
+Analyzing lattice data one faces the notorious, three-fold group of problems:
+\begin{itemize}
+  \item Finite size effects and infinite volume limit $V \to \infty$.
+  \item Scaling in the continuum limit $a \to 0$.
+  \item Chiral extrapolation $m \to 0$.
+\end{itemize}
+
+\textbf{Finite size:} All numerical lattice results are obtained in finite
+volumes. At fixed other parameters one therefore has to study the dependence on
+the lattice size and, if possible, extrapolate to infinite spatial volume. For
+the extrapolation one may either use a naive parameterization, e.g., in powers
+of $1/L$ for spatial extent $L$, or, if possible, a model based on theory.
+
+Actually, like in the analysis of the spin models of statistical physics,
+finite size effects may even be useful to learn about infinite volume results.
+An example is chiral perturbation theory which provides a systematic expansion
+with the infinite volume quantities appearing as parameters [36, 37]. We apply
+such formulas in the next chapter when we discuss a lattice calculation of the
+chiral condensate on finite lattices.
+
+For most spectroscopy studies one uses $N^3 \times N_T$ lattices which are much
+larger in the time direction than in the spatial directions and $L = aN$.
+Indeed, neglecting the finite time extent (and thus finite temperature effects)
+the leading finite size effects are due to the spatial volume. Effects from
+interaction around the spatial torus lead to exponential corrections to the
+mass of $\order{\exp(-\alpha L)}$ (cf.\ [38, 39] and the discussion in
+Chap.~11). The leading contribution comes from the smallest mass hadron, the
+pion, and is of $\order{\exp(-L M_\pi)}$. As a rule of thumb, for
+$L M_\pi > 4$ finite size effects from this mechanism can be ignored.
+
+For small volumes numerical studies of the volume dependence of hadron masses
+seem to indicate a $1/L^n$ behavior, with $n \approx 2{-}3$. This would be
+compatible with the intuitive picture that the wave function is squeezed at too
+small spatial volume and that the observed shift in energy is in leading order
+due to this squeezing effect (cf.\ [40, 41] and references therein). Most
+analyses agree on the observation that ground state hadron masses obtained for
+linear lattice sizes larger than 3~fm show no noticeable volume dependence. For
+excited states with wave functions of larger extent, the squeezing effect may
+be more serious.
+
+\textbf{Continuum limit and scaling:} A measured mass $M$ (physical units) has
+$a$-dependent corrections,
+\begin{equation}
+  M(a) = M_{\rm phys}\left( 1 + \order{a^\alpha} \right),
+\end{equation}
+which may be different for different lattice actions. Whereas with the Wilson
+fermion action a quadratic contribution to the mass was identified [42], one
+finds that improving the fermion action reduces this dependence [33].
+
+Eventually we want to obtain results for continuous space--time. This
+corresponds to the limit $a \to 0$, or, equivalently, $\beta \to \infty$.
+However, decreasing the lattice spacing for a fixed number of lattice points
+shrinks the physical volume. Thus, as we decrease $a$ (increase $\beta$), we
+have to increase the number of lattice points, $N^3 \times N_T$, which in turn
+drives up the numerical cost of the simulation. Typical simulations try to
+afford three or four values of $a$ and perform an extrapolation to $a = 0$.
+
+\textbf{Chiral extrapolation:} Often numerical results are obtained for
+unphysically large quark masses. Eventually we want to approach the small quark
+masses corresponding to the physical pion. From a conceptual point of view one
+even might be interested in the massless case, the chiral limit $m \to 0$.
+Massless 2-flavor QCD (i.e., assuming vanishing $m_u$ and $m_d$) is an
+interesting and nontrivial, one-parameter theory, where hadron masses are
+expected to be close to their experimental values. One could even call this a
+zero-parameter theory, since the gauge coupling is only used to fix the scale.
+Unfortunately this limit is hard to achieve for several reasons. Toward smaller
+quark masses a Pandora's box of problems opens up.
+
+For fermion actions that do not preserve chiral symmetry (or do not introduce a
+regulator like the twisted mass action, cf.\ Chaps.~7 and 10), there are zero
+modes occurring even for nonvanishing quark mass, due to the exceptional
+configurations discussed in Sect.~6.2.5. This limits the smallest pion masses
+that can be reached.
+
+Another class of problems at small $m_q$ turns up when using the quenched
+approximation. Omitting the fermion determinant has several effects:
+\begin{itemize}
+  \item The absence of the fermion determinant alters the physics by omitting
+        sea quark loops (compare Fig.~6.2). Thus, hadrons cannot decay in the
+        quenched approximation.
+  \item The contribution of the anomaly (see next chapter) is removed and the
+        $\eta'$-meson becomes light -- an additional Goldstone mode appears.
+  \item States with negative coefficients in their correlation function appear,
+        so-called ghosts. The quenched $\eta'$ combined with a hadron provides
+        an example for such a state [43--45], cf.\ the hairpin diagrams in
+        Fig.~6.2.
+  \item Small eigenvalues of the Dirac operator are not suppressed by the
+        determinant (which is the product of all eigenvalues). Consequently,
+        fluctuations leading to exceptional configurations may occur more
+        often.
+\end{itemize}
+
+For extrapolations in the quark mass, chiral perturbation theory provides the
+suitable conceptional background (for introductory accounts, see [46--49]).
+Chiral perturbation theory is an expansion in the pion mass around the chiral
+limit taking into account the symmetries of QCD. The resulting extrapolation
+formulas are typically expressed in terms of the pion mass, and as an example
+we show the result for the extrapolation of the nucleon [50, 51]
+\begin{equation}
+  M_N = c_0 + c_2 M_\pi^2 + c_3 M_\pi^3 + c_4 M_\pi^4 \ln(M_\pi)
+    + \order{M_\pi^4} ,
+\end{equation}
+where the expansion coefficients $c_i$ are related to low energy constants such
+as the pion decay constant in the chiral limit.
+
+Chiral perturbation theory can be modified to take into account quenching
+[52--54]. Formulas such as (6.74) obtain corrections which may become singular
+in the chiral limit. This is due to the additional Goldstone boson already
+addressed.
+
+\subsection{Some quenched results}
+
+High precision determinations of hadron masses involve measurements on several
+hundred gauge field configurations on lattices with size up to $64^3 \times
+112$ for quenched Wilson fermions (see e.g.\ [42, 55]; simulations with other
+formulations will be addressed in later chapters). The lattice spacing in these
+simulations was as small as 0.05~fm at a linear physical lattice size of
+$\order{3.2~\mathrm{fm}}$.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{fig65.png}
+  \caption*{Fig. 6.5. \emph{Quenched light hadron spectrum compared with
+    experiments; statistical and systematic errors are indicated. The plot is
+    from a high statistics simulation of the CP--PACS collaboration using Wilson
+    valence quarks [42]. (Reprinted figure with permission from S.~Aoki et al.,
+    Phys.\ Rev.\ D 67, 034503 (2003). Copyright (2003) by the American Physical
+    Society)}.}
+  \label{fig:65}
+\end{figure}
+
+To illustrate what has been achieved in quenched lattice spectroscopy, in
+Fig.~6.5 we show the results of a high statistics study from the CP--PACS
+collaboration [42]. The mass values have been obtained after extrapolation to
+infinite volume, vanishing lattice spacing and the chiral limit. Results from
+setting the strange quark mass with either $K$ or $\phi$ are compared. Although
+the calculation was done in the quenched approximation, a good agreement with
+experimental data is found for a large range of hadrons. In Chap.~8 we will
+compare Fig.~6.5 to a more recent spectroscopy result with fully dynamical
+quarks.
+
+\section*{References}
+
+\begin{enumerate}[label={[\arabic*]}]
+  \item C.~Amsler et al.\ [Particle Data Group]: Phys.\ Lett.\ B 667, 1 (2008) 125
+  \item D.B.~Leinweber et al.: in Lect.\ Notes Phys.\ 663, 71. Springer, Berlin,
+        Heidelberg (2005) 129, 130
+  \item S.~G\"usken et al.: Phys.\ Lett.\ B 227, 266 (1989) 138
+  \item C.~Best et al.: Phys.\ Rev.\ D 56, 2743 (1997) 138
+  \item R.~Barrett et al.: \emph{Templates for the Solution of Linear Systems:
+        Building Blocks for Iterative Methods} (SIAM, Philadelphia 1994) 139,
+        140, 141
+  \item W.~H.~Press, S.~A.~Teukolsky, W.~T.~Vetterling, and B.~P.~Flannery:
+        \emph{Numerical Recipes in C}, 2nd ed.\ (Cambridge University Press,
+        Cambridge, New York 1999) 139
+  \item H.~A.~van der Vorst: SIAM J.\ Sci.\ Statist.\ Comput.\ 13, 631 (1992)
+        140
+  \item M.~H.~Gutknecht: SIAM J.\ Sci.\ Statist.\ Comput.\ 14, 1020 (1993) 140,
+        141
+  \item I.~Montvay and G.~M\"unster: \emph{Quantum Fields on a Lattice}
+        (Cambridge University Press, Cambridge, New York 1994) 141
+  \item A.~Frommer et al.: Int.\ J.\ Mod.\ Phys.\ C 6, 627 (1995) 141
+  \item B.~Jegerlehner: Nucl.\ Phys.\ B (Proc.\ Suppl.) 63, 958 (1998) 141
+  \item M.~Albanese et al.: Phys.\ Lett.\ B 192, 163 (1987) 142
+  \item A.~Hasenfratz and F.~Knechtli: Phys.\ Rev.\ D 64, 034504 (2001) 143
+  \item C.~Morningstar and M.~Peardon: Phys.\ Rev.\ D 69, 054501 (2004) 143
+  \item W.~Kamleh, D.~Adams, D.~B.~Leinweber, and A.~G.~Williams: Phys.\ Rev.\
+        D 66, 014501 (2002) 143
+  \item A.~Hasenfratz, R.~Hoffmann, and S.~Schaefer: JHEP 0705, 029 (2007) 143
+  \item S.~D\"urr: Comput.\ Phys.\ Commun.\ 180, 1338 (2009) 143
+  \item D.~Guadagnoli, M.~Papinutto, and S.~Simula: Phys.\ Lett.\ B 604, 74
+        (2004) 146
+  \item C.~Michael: Phys.\ Rev.\ D 49, 2616 (1994) 146
+  \item S.~Ciulli, C.~Pomponiu, and I.~Sabba-Stefanescu: Phys.\ Rep.\ 17, 133
+        (1975) 147
+  \item G.~P.~Lepage et al.: Nucl.\ Phys.\ (Proc.\ Suppl.) 106, 12 (2002) 147
+  \item Y.~Chen et al.\ (unpublished) arXiv:hep-lat/0405001 (2004) 148
+  \item M.~Asakawa, T.~Hatsuda, and Y.~Nakahara: Prog.\ Part.\ Nucl.\ Phys.\ 46,
+        459 (2001) 148
+  \item K.~Sasaki, S.~Sasaki, T.~Hatsuda, and M.~Asakawa: Nucl.\ Phys.\ B
+        (Proc.\ Suppl.) 129, 212 (2004) 148
+  \item C.~Michael: Nucl.\ Phys.\ B 259, 58 (1985) 149
+  \item M.~L\"uscher and U.~Wolff: Nucl.\ Phys.\ B 339, 222 (1990) 149
+  \item B.~Blossier et al.: JHEP 0904, 094 (2009) 149
+  \item T.~Burch et al.: Phys.\ Rev.\ D 70, 054502 (2004) 149
+  \item T.~Burch et al.: Phys.\ Rev.\ D 73, 094505 (2006) 149
+  \item T.~Burch et al.: Phys.\ Rev.\ D 74, 014504 (2006) 149
+  \item S.~Basak et al.: Phys.\ Rev.\ D 72, 094506 (2005) 149
+  \item S.~Basak et al.: Phys.\ Rev.\ D 72, 074501 (2005) 149
+  \item C.~Gattringer et al.\ [BGR (Bern-Graz-Regensburg) collaboration]: Nucl.\
+        Phys.\ B 677, 3 (2004) 150, 153
+  \item P.~Bacilieri et al.: Phys.\ Lett.\ B 214, 115 (1988) 150
+  \item K.~C.~Bowlers et al.: Phys.\ Lett.\ B 162, 354 (1985) 150
+  \item J.~Gasser and H.~Leutwyler: Ann.\ Phys.\ 158, 142 (1984) 152
+  \item P.~Hasenfratz and H.~Leutwyler: Nucl.\ Phys.\ B 343, 241 (1990) 152
+  \item M.~L\"uscher: in \emph{Progress in Gauge Field Theory}, Carg\`ese, 1983,
+        edited by G.~'t~Hooft et al.\ (Plenum, New York 1984) 152
+  \item M.~L\"uscher: Commun.\ Math.\ Phys.\ 104, 177 (1986) 152
+  \item M.~Fukugita et al.: Phys.\ Lett.\ B 294, 380 (1992) 152
+  \item K.~Sasaki and S.~Sasaki: Phys.\ Rev.\ D 72, 034502 (2005) 152
+  \item S.~Aoki et al.\ [CP-PACS collaboration]: Phys.\ Rev.\ D 67, 034503
+        (2003) 153, 154, 155
+  \item S.~R.~Sharpe: Phys.\ Rev.\ D 56, 7052 (1997) 153
+  \item S.~R.~Sharpe: Phys.\ Rev.\ D 62, 099901 (2000) 153
+  \item J.~Heitger, R.~Sommer, and H.~Wittig: Nucl.\ Phys.\ B 588, 377 (2000)
+        153
+  \item H.~Leutwyler: in \emph{Festschrift in Honor of B.L.~Ioffe: At the
+        Frontier of Particle Physics}, edited by M.~Shifman, Vol.~1, p.~271
+        (World Scientific, Singapore 2001) 154
+  \item U.~Mei\ss ner: in \emph{Festschrift in Honor of B.L.~Ioffe: At the
+        Frontier of Particle Physics}, edited by M.~Shifman, Vol.~1, p.~417
+        (World Scientific, Singapore 2001) 154
+  \item U.~Mei\ss ner: PoS LAT2005, 009 (2006) 154
+  \item V.~Bernard and U.~Mei\ss ner: Ann.\ Rev.\ Nucl.\ Part.\ Sci.\ 57, 33
+        (2007) 154
+  \item T.~Becher and H.~Leutwyler: Eur.\ Phys.\ J.\ C 9, 643 (1999) 154
+  \item M.~Procura, T.~R.~Hemmert, and W.~Weise: Phys.\ Rev.\ D 69, 034505
+        (2004) 154
+  \item S.~R.~Sharpe: Phys.\ Rev.\ D 46, 3146 (1992) 154
+  \item C.~W.~Bernard and M.~F.~L.~Golterman: Phys.\ Rev.\ D 46, 853 (1992) 154
+  \item C.~W.~Bernard and M.~F.~L.~Golterman: Phys.\ Rev.\ D 49, 486 (1994) 154
+  \item K.~C.~Bowlers et al.\ [UKQCD collaboration]: Phys.\ Rev.\ D 62, 054506
+        (2000) 154
+\end{enumerate}

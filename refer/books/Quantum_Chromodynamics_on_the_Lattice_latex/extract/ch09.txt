@@ -1,0 +1,2219 @@
+9
+Symanzik improvement and RG actions
+
+When introducing the QCD action on the lattice we had to discretize the
+derivative terms that show up in the continuum action. It was pointed out
+then that any discretization, e.g., symmetric diﬀerences for the ﬁrst derivative in the fermion action, gives rise to discretization eﬀects. Typically the
+discretization eﬀects are of O(a) for fermions and of O(a2 ) for the gauge
+ﬁelds. These disappear only in the continuum limit when the lattice spacing a
+is sent to zero. Performing the continuum limit is, however, a nontrivial task.
+As one decreases a, the number of lattice points has to increase, such that the
+physical volume remains constant (ideally one would ﬁrst send the number
+of lattice points to inﬁnity before sending a to zero). Thus in a numerical
+simulation one always works with ﬁnite a and the discretization errors have
+to be dealt with, e.g., by including them in the extrapolation to vanishing a.
+An elegant way of approaching the problem is a systematical reduction
+of the discretization errors. We have already mentioned that the discretization we have chosen is not unique. Also other discretizations give rise to the
+same formal continuum limit. In particular one may combine diﬀerent terms
+to obtain a lattice action with reduced discretization eﬀects. Adding, e.g.,
+an extra term to the Wilson fermion action and matching its coeﬃcient appropriately, one can reduce the discretization error from O(a) to O(a2 ). In
+a similar way it is possible (and necessary for a full improvement) to reduce
+also the discretization errors of the observables used. A systematic implementation of these ideas is the Symanzik improvement program which we discuss
+in Sect. 9.1.
+A conceptionally diﬀerent approach uses actions constructed from renormalization group (RG) transformations. Improvement is achieved by integrating out (blocking) short distance degrees of freedom and including their eﬀect
+in the action for the blocked ﬁelds. This strategy is presented in Sects. 9.2–
+9.4. After discussing the blocking approach for free fermions where the lattice
+action can be computed in closed form (Sect. 9.2), we introduce the general
+setting for full QCD in Sect. 9.3. In Sect. 9.4 we ﬁnally address an important use of the RG approach, the identiﬁcation of the lattice counterpart of
+Gattringer, C., Lang, C.B.: Symanzik Improvement and RG Actions. Lect. Notes
+Phys. 788, 213–242 (2010)
+c Springer-Verlag Berlin Heidelberg 2010
+
+DOI 10.1007/978-3-642-01850-3 9
+
+214
+
+9 Symanzik improvement and RG actions
+
+continuum symmetries, and as an application we derive the Ginsparg–Wilson
+equation.
+
+9.1 The Symanzik improvement program
+9.1.1 A toy example
+Let us begin our discussion of improvement with a toy example which already
+contains most of the steps that will be taken when improving lattice QCD.
+We consider the (symmetric) discretization of the derivative f  (x) for some
+function f (x) of a single real variable x:
+f (x+a) − f (x−a)
+= f  (x) + a2 C (2) (x) + a4 C (4) (x) + O(a6 ) .
+2a
+
+(9.1)
+
+Note that due to the (anti-)symmetrical discretization on the left-hand side,
+only even powers of a and odd derivatives of f can appear on the right-hand
+side. We have introduced the abbreviations C (2) and C (4) for the correction
+terms. Since a has dimension of length, in order to have the same dimensions
+on both sides the correction terms C (k) must have dimension 1+k, i.e., C (k) ∼
+length −(1+k) (assuming that f is dimensionless).
+Using the Taylor series expansion
+f (x ± a) = f (x) ± af  (x) +
+
+a2 
+a3
+f (x) ± f  (x) + O(a4 ) ,
+2
+6
+
+(9.2)
+
+we can identify the leading correction term as
+C (2) (x) =
+
+1 
+f (x) .
+6
+
+(9.3)
+
+We stress at this point that this expression for the correction term is given in
+continuum language, i.e., as a higher derivative of f .
+The strategy for improvement is to add to the left-hand side of (9.1) a
+discretized expression (i.e., an expression built from f (x), f (x ± a), f (x ±
+2a), . . .) such that the correction terms on the right-hand side are canceled
+up to the requested order. For improvement of O(a2 ) we thus use the ansatz
+f (x+a) − f (x−a)
++ c a2 D(3) [f ](x) = f  (x) + O(a4 ) ,
+2a
+
+(9.4)
+
+where D(3) [f ] is a discretized expression obeying D(3) [f ] ≈ f  + O(a2 ) and c
+is some constant.
+Employing again the power series (9.2), it is easy to see that
+D(3) [f ](x) =
+
+f (x+2a) − 2f (x+a) + 2f (x−a) − f (x−2a)
+1
+, c = − (9.5)
+3
+2a
+6
+
+9.1 The Symanzik improvement program
+
+215
+
+does the job and O(a2 ) improvement is achieved. We remark, however, that
+the choice (9.5) is not unique, and, e.g., also terms including f (x ± 3a) could
+have been used.
+Let us summarize the steps taken in our toy example, which already outline
+the approach for improving lattice QCD:
+•
+•
+•
+•
+•
+
+We start from a simple discretized expression for the quantity of interest
+(the ﬁrst derivative f  in our example).
+Correction terms are identiﬁed using continuum language (higher derivatives in the toy example).
+The correction terms have certain symmetries (only odd derivatives in the
+example) and are ordered according to their dimension.
+In order to achieve improvement, discretized versions of the correction
+terms are added with suitable coeﬃcients, such that corrections up to the
+desired order vanish.
+There is some arbitrariness in the choice of the discretized correction terms.
+
+Exactly the same steps and features will appear in the improvement of lattice
+QCD. The main diﬀerence is the determination of the coeﬃcients. In the toy
+example the coeﬃcient c followed from simple algebraic considerations. Due
+to the nonlinear nature of QCD and the necessary renormalization, the determination of the corresponding coeﬃcients in QCD is much more involved
+and must be done perturbatively or through a nonperturbative matching procedure. The approach to improvement outlined here is known as Symanzik
+improvement program [1–4].
+9.1.2 The framework for improving lattice QCD
+When improving lattice QCD, we need to improve Euclidean correlation functions, e.g., two point functions of interpolators O1 and O2 located at two
+diﬀerent space–time points n, m ∈ Λ,
+
+!
+1
+O1 (n) O2 (m) =
+D[U ]D ψ, ψ e−S [U,ψ,ψ ] O1 [U, ψ, ψ; n]O2 [U, ψ, ψ; m] ,
+Z
+(9.6)
+which may be used to compute the energy spectrum and some matrix elements. To obtain improvement for all these observables in general we will
+have to improve both the lattice action S and the interpolators O1 , O2 .
+Let us begin the discussion with the improvement of the action. To be
+speciﬁc, we start on the lattice with Wilson’s gauge action (2.49) and a fermion
+action with Wilson’s Dirac operator (5.51). From the discussion of the previous
+chapters we expect discretization errors of O(a) for the fermion part and O(a2 )
+for the gauge part of the action.
+Following the strategy illustrated in the toy example, we begin with identifying a continuum expression for the correction terms. These should be ordered
+according to their dimension and have the symmetries of the QCD action. In
+
+216
+
+9 Symanzik improvement and RG actions
+
+other words we write down an eﬀective action which describes the behavior
+of Wilson’s form of lattice QCD at ﬁnite a and its approach to the continuum
+limit. Following [1, 2, 5–7] we write the eﬀective action in the form
+
+
+
+d4 x L(0) (x) + aL(1) (x) + a2 L(2) (x) + . . . .
+(9.7)
+Seﬀ =
+Here L(0) is the usual QCD Lagrangian as deﬁned in (2.3) and (2.17). The
+terms L(k) , k ≥ 1 are the additional correction terms, which are built from
+products of quark and gluon ﬁelds such that they have dimensions 4 + k,
+i.e., L(k) ∼ length −(4+k) . Thus, compared to L(0) , which is of dimension 4,
+these terms will contain additional derivatives or powers of the quark mass
+m. Requiring the symmetries of the lattice action (compare Sect. 5.4), one
+may show that the leading correction term L(1) (x) can be written as a linear
+combination of the following dimension-5 operators (σμν ≡ [γμ , γν ]/2i):
+(1)
+
+L 1 (x) = ψ(x)σμν Fμν (x)ψ(x) ,
+→
+−
+→
+−
+←
+−
+←
+−
+(1)
+L 2 (x) = ψ(x) D μ (x) D μ (x)ψ(x) + ψ(x) D μ (x) D μ (x)ψ(x) ,
+(1)
+
+L 3 (x) = m tr [Fμν (x)Fμν (x)] ,
+
+
+→
+−
+←
+−
+(1)
+L 4 (x) = m ψ(x)γμ D μ (x)ψ(x) − ψ(x)γμ D μ (x)ψ(x) ,
+(1)
+
+L 5 (x) = m2 ψ(x)ψ(x) .
+
+(9.8)
+
+This list of operators may be further reduced by using the ﬁeld equation
+(γμ Dμ + m)ψ = 0, which gives rise to the two relations
+(1)
+
+(1)
+
+(1)
+
+L 1 − L 2 + 2L 5 = 0 ,
+
+(1)
+
+(1)
+
+L 4 + 2L 5 = 0 .
+(1)
+
+(9.9)
+(1)
+
+These relations may be used to eliminate the terms L 2 and L 4 from the
+set of operators that span the leading correction, and it can be shown [6, 7]
+that this is true beyond tree level (where the ﬁeld equations hold). Thus it
+(1)
+(1)
+(1)
+is suﬃcient to work with only the terms L 1 , L 3 , and L 5 . Two of these,
+(1)
+(1)
+L 3 and L 5 , are terms that up to some factor are already present in the
+original action, such that they can be accounted for by a redeﬁnition of the
+bare parameters m and g (or β = 6/g 2 ).
+Thus for O(a) improvement of the Wilson lattice action it is suﬃcient to
+(1)
+add the Pauli term L 1 such that we obtain for the improved action
+
+1
+SI = SWilson + csw a5
+ψ(n) σμν Fμν (n)ψ(n) .
+(9.10)
+2
+μ<ν
+n∈Λ
+
+The real coeﬃcient csw is often referred to as Sheikholeslami–Wohlert coeﬃcient due to the authors of [5], where the improved action (9.10) was written
+down for the ﬁrst time. As outlined in the toy example, Fμν has to be a dis(1)
+cretized version of the corresponding term in L 1 , i.e., a lattice form of the
+ﬁeld strength tensor. A convenient but not unique choice is
+
+9.1 The Symanzik improvement program
+
+ν
+
+217
+
+n
+μ
+
+Fig. 9.1. Graphical representation of the sum Qμν (n) of plaquettes in the μ–ν plane
+used for the discretization of the ﬁeld strength in (9.11)
+
+−i
+Fμν (n) =
+(Qμν (n) − Qνμ (n)) ,
+8a2
+
+(9.11)
+
+where Qμν (n) is the sum of plaquettes Uμ,ν (n) (compare (2.48)) in the μ–ν
+plane as shown in Fig. 9.1,
+Qμν (n) ≡ Uμ,ν (n) + Uν,−μ (n) + U−μ,−ν (n) + U−ν,μ (n) ,
+
+(9.12)
+
+which is a discretization of the continuum ﬁeld strength tensor. Due to the
+shape of the terms which is reminiscent of a clover leaf, the last term in (9.10)
+is often referred to as clover term or clover improvement.
+At this point we need to add a couple of comments: We saw that for O(a)
+improvement it is suﬃcient to add a single term to the fermion action. The
+(1)
+only pure glue term L 3 was found to be proportional to the original gauge
+action and thus was absorbed in a redeﬁnition of the bare gauge coupling.
+Relevant purely gluonic operators appear only at dimension 6, i.e., they contribute at O(a2 ). This is in agreement with previous remarks that for bosonic
+ﬁelds the discretization errors are only of O(a2 ). For the improvement of the
+gauge action we refer the reader to the original literature, e.g., [3, 8], where
+the so-called Lüscher–Weisz gauge action is presented.
+The second comment concerns the discretization errors of chirally symmetric Dirac operators that obey the Ginsparg–Wilson equation (7.29). If one
+would add the order O(a)-improving term, i.e., the clover term, the resulting
+Dirac operator would no longer obey the Ginsparg–Wilson equation. Thus
+we must conclude that a Ginsparg–Wilson Dirac operator is already O(a)
+improved. As a matter of fact the nonlinear right-hand side of the Ginsparg–
+(1)
+Wilson equation (7.29) generates a lattice discretization of the Pauli term L 1
+when the naive lattice Dirac operator (which necessarily is a building block of
+any lattice Dirac operator) is squared. This link between O(a) improvement
+and chiral symmetry hints already at a nonperturbative strategy [6] for determining the Sheikholeslami–Wohlert coeﬃcient, which we will present below,
+following the discussion of the improvement of currents.
+
+218
+
+9 Symanzik improvement and RG actions
+
+9.1.3 Improvement of interpolators
+The improvement of the action, which we have discussed in the last section, is
+already suﬃcient for O(a) improvement of on-shell quantities such as hadron
+masses. However, for a full O(a) improvement of correlator (9.6), which is
+necessary for the improvement of the hadronic matrix elements computed
+from it, also the interpolators Oi need to be improved.
+As for the action the strategy is to ﬁnd continuum expressions for the
+correction terms which are organized with respect to their dimension and are
+identiﬁed by requiring the symmetries of the operator Oi one wants to improve. Since currents with arbitrary quantum numbers may be constructed,
+it is not possible to give an exhaustive list of terms needed for general O(a)
+improvement of n-point functions. Following [6, 7] we instead discuss two
+examples, the improvement of the isovector axial current Aaμ and the pseudoscalar density P a :
+1
+ψ(n)γμ γ5 τ a ψ(n) ,
+2
+1
+P a (n) = ψ(n)γ5 τ a ψ(n) .
+2
+
+Aaμ (n) =
+
+(9.13)
+
+Here τ a denotes one of the Pauli matrices τ 1 , τ 2 , τ 3 acting in Nf = 2-ﬂavor
+space. The dimension-4 operators needed for O(a) improvement of the current
+Aaμ are given by
+−
+
+←
+−
+→
+1
+ψ(x)γ5 σμν D ν (x) − D ν (x) τ a ψ(x) ,
+2
+
+
+1
+a
+(A2 )μ (x) = ∂μ ψ(x)γ5 τ a ψ(x) ,
+2
+m
+(A3 )aμ (x) =
+ψ(x)γμ γ5 τ a ψ(x) .
+2
+
+(A1 )aμ (x) =
+
+(9.14)
+
+As for the improvement of the action we can apply the ﬁeld equation, which
+can be used to show that A1 can be written as a linear combination of A2
+and A3 . Furthermore A3 has the form of the original current of (9.13) such
+that it can be absorbed in the overall multiplicative renormalization constant
+ZA for the axial vector current (compare Chap. 11). Thus we obtain for the
+O(a)-improved axial current AI the expression
+(AI )aμ (n) = Aaμ (n) + cA a ∂μ P a (n) ,
+
+(9.15)
+
+where the real coeﬃcient cA still has to be determined. By ∂μ we denote the
+symmetric diﬀerence operator ∂μ f (n) = (f (n + μ̂) − f (n − μ̂)) /2a.
+For the pseudoscalar density P a the only term that occurs is a normalization with an extra factor of the mass, which is again absorbed in the renormalization. Thus for O(a) improvement it is suﬃcient to work with (PI )a = P a .
+
+9.1 The Symanzik improvement program
+
+219
+
+9.1.4 Determination of improvement coeﬃcients
+For the O(a) improvement of n-point functions of the axial currents we still
+need to determine the coeﬃcients csw and cA . As already remarked, here
+QCD deviates from our toy example due to its nonlinearity and the necessary
+renormalization.
+Using a traditional approach, one can compute the coeﬃcients perturbatively [5, 10, 11]:
+csw = 1 + 0.2659 g 2 + O(g 4 ) , cA = − 0.00756 g 2 + O(g 4 ) .
+
+(9.16)
+
+However, for many important applications of lattice QCD one works in a
+regime where the coupling g is not small and the perturbative result is not
+particularly useful. For an introductory discussion of another approach, tadpole improvement [12], see [13].
+We have already remarked that for the nonperturbative determination of
+csw and cA one can explore the chiral symmetry of QCD [6]. In Chap. 11 we
+will show that nontrivial relations between vacuum expectation values may
+be derived, the so-called Ward identities. Here we simply state their existence
+without proof. The particular Ward identity which we make use of here reads
+in the continuum
+
+
+(9.17)
+∂μ Aaμ (x) O = 2m P a (x) O .
+In this equation Aaμ and P a are the continuum counterparts of the corresponding lattice interpolators deﬁned in (9.13). O is an interpolator chosen
+such that P a (x) O  does not vanish, with the restriction that its support
+does not include the point x where Aaμ (x) and P a (x) are located. Equation
+(9.17) expresses the fact that the isovector axial current is conserved for a
+chiral theory where m = 0. Thus it is referred to as the partially conserved
+axial current relation (PCAC).
+On the lattice we expect that after renormalization (see Chap. 11), the
+lattice interpolators approach the continuum relation (9.17), such that
+(
+ )
+)
+(
+a
+(n) O = 2m(r) P (r) a (n) O + O(az ) .
+(9.18)
+∂μ A(r)
+μ
+The superscript (r) in this equation expresses the fact that renormalized quantities are being used. The important observation is that the correction O(az )
+is diﬀerent for the improved theory with properly chosen csw and cA , where
+one expects z = 2, while for the unimproved theory one expects O(a) corrections, i.e., z = 1. Thus we may use the corrections in the PCAC relation
+(9.18) to determine csw and cA .
+A slight complication arises through the necessary renormalization. Using
+the improved axial current (AI )aμ (for the pseudoscalar we work with the
+original deﬁnition, (PI )a = P a ), we write the renormalized interpolators as
+
+
+a
+A(r)
+(n) = ZA (1 + bA am) Aaμ (n) + cA a ∂μ P a (n) ,
+μ
+P (r) a (n) = ZP (1 + bP am) P a (n) .
+
+(9.19)
+
+220
+
+9 Symanzik improvement and RG actions
+
+Here ZA and ZP are the renormalization constants for the axial vector and
+the pseudoscalar, respectively (see Chap. 11). The real coeﬃcients bA and bP
+parameterize their lattice corrections including correction terms such as (A3 )aμ ,
+which, as we have already remarked, were absorbed in the renormalization.
+Based on (9.18) we deﬁne an unrenormalized quark mass mAWI , referred
+to as PCAC mass or AWI (axial Ward identity) mass through the ratio
+)
+(
+
+ a (n) Oa
+∂μ Aaμ (n) + cA a P
+.
+(9.20)
+mAWI (n) =
+2 P a (n) Oa 
+
+In this equation Oa is an interpolator which we will deﬁnebelow and 
+ (n) =
+(f
+(n
++
+μ̂)−
+denotes the Laplacian operator on the lattice, f
+μ
+2f (n) + f (n − μ̂)) /a2 . From the lattice PCAC relation (9.18) we obtain
+mAWI =
+
+ZP (1 + bP am) (r)
+m
++ O(az ) ,
+ZA (1 + bA am)
+
+(9.21)
+
+where z = 2 is obtained when csw and cA have the correct nonperturbative values. For the determination of these values one evaluates mAWI three
+times using three diﬀerent Oa in (9.20). This is done at ﬁxed bare parameters such that one of the three values can be used to remove the ratio
+−1
+(ZP (1+bP am)) (ZA (1+bA am)) and the other two determine csw and cA .
+The remaining problem is the choice of the operators Oa that one inserts
+into (9.20). The operators Oa must have the quantum numbers of P a and
+should be chosen such that they probe the PCAC relation (and thus the cutoﬀ
+eﬀect), but leave the renormalization factors in (9.21) unchanged. An operator
+with that properties [6] may be constructed using the so-called Schrödinger
+functional.
+For the Schrödinger functional [14–18] one uses instead of periodic (or antiperiodic) boundary conditions in time direction, Dirichlet, i.e., ﬁxed boundary
+conditions. For the spatial directions periodic boundary conditions are kept.
+Using a lattice with NT + 1 lattice points in time direction, we need to specify
+the boundary values for the ﬁelds at n4 = 0 and n4 = NT :
+P+ ψ(n, 0) = ρ(n)
+
+,
+
+ψ(n, 0)P− = ρ(n) ,
+
+P− ψ(n, NT ) = ρ (n)
+
+,
+
+ψ(n, NT )P+ = ρ (n) ,
+
+(9.22)
+
+where P± are the projectors P± = (1 ± γ4 )/2. For the gauge ﬁelds we need to
+specify the values of the spatial gauge links at n4 = 0 and n4 = NT :
+
+
+Uj (n, 0) = diag eiφ1 /N , eiφ2 /N , eiφ3 /N ,
+
+ 
+
+
+Uj (n, NT ) = diag eiφ1 /N , eiφ2 /N , eiφ3 /N .
+(9.23)
+Here N denotes the number of lattice points in spatial direction and the phases
+φi , φi are subject to the conditions φ1 + φ2 + φ3 = 0 and φ1 + φ2 + φ3 = 0.
+
+9.2 Lattice actions for free fermions from RG transformations
+
+221
+
+The dynamical variables, which are integrated over in the path integral
+constituting the Schrödinger functional in (9.25) below, are just the fermion
+and gauge degrees of freedom in the interior of our lattice. The boundary
+values, on the other hand, may be used as source terms. Making use of this
+feature we write down the interpolator Oa which we insert in (9.21) as
+Oa = −
+
+∂
+a6  ∂
+γ5 τ a
+.
+2 n,m ∂ρ(n)
+∂ρ(m)
+
+(9.24)
+
+The vacuum expectation value of, e.g., the correlator of Aaμ and Oa in the
+Schrödinger functional is then deﬁned as
+.
+
+.
+ a
+1
+a
+a
+a −S[ψ,ψ,U ] .
+Aμ (n)O
+=
+, (9.25)
+D[ψ, ψ, U ] Aμ (n) O e
+. 
+Z
+ρ=ρ =ρ=ρ =0
+i.e., the boundary values for the fermions are set to 0 after the derivatives
+with respect to ρ, ρ , ρ, and ρ in the deﬁnition of Oa have been performed.
+The boundary values for the gauge ﬁelds are kept at nontrivial values and
+now may be used to probe the system.
+The operator Oa corresponds to a quark source and sinks with zero spatial
+momentum placed at the timeslice n4 = 0. Thus the vacuum expectation value
+(9.25) may be interpreted as a quark and an antiquark lines traveling into the
+interior of our lattice where they annihilate at the point n, i.e., the point
+where we placed the current Aaμ (n).
+For our application the key property of the Schrödinger functional is that
+in (9.21) the renormalization constants and the renormalized mass do not
+depend on the boundary conditions φi and φi . Thus these can be used to
+probe the exponent z which parameterizes the discretization error. If csw and
+cA are chosen correctly the exponent is z = 2, and the results for the PCAC
+mass mAWI as deﬁned in (9.20) should be (essentially) independent of φi , φi ,
+and the coordinate n4 where the current Aaμ is inserted. For technical details
+of the strategy for determining csw and cA from this condition we refer to the
+original literature [19–21].
+The numerical result for the coeﬃcient csw for two ﬂavors of dynamical
+Wilson fermions may be parameterized as [21]
+csw =
+
+1 − 0.454g 2 − 0.175g 4 + 0.012g 6 + 0.045g 8
+,
+1 − 0.720g 2
+
+(9.26)
+
+which is a reliable approximation for the range of couplings g ∈ [0.0, 1.1].
+
+9.2 Lattice actions for free fermions from RG
+transformations
+In the last section we have achieved improvement by analyzing how diﬀerent
+terms that may appear in a lattice discretization of the action depend on the
+
+222
+
+9 Symanzik improvement and RG actions
+
+lattice spacing a. We have seen that a linear combination of such terms with
+suitably chosen coeﬃcients reduces the discretization errors. In the next three
+sections we now discuss a diﬀerent approach, the so-called renormalization
+group (RG) transformations, in which the degrees of freedom above the lattice
+cutoﬀ are integrated out and the eﬀect of these UV modes is incorporated in
+suitable terms of the lattice action.
+In this section we directly block free fermions from the continuum (see
+[22]). This warming-up exercise demonstrates some of the central concepts of
+RG transformations for an example that can be solved in closed form. The
+example is also of interest for the problem of chiral fermions on the lattice. We
+will see that the lattice action we obtain from the blocking procedure obeys
+the Ginsparg–Wilson equation, which we have already identiﬁed in Chap. 7 as
+the key to chiral symmetry on the lattice.
+9.2.1 Integrating out the ﬁelds over hypercubes
+The starting point is the continuum action for free massless fermions:
+
+
+!
+
+ .
+d4 x φ(x) γμ ∂μ φ(x) =
+d4 p φ(−p)
+iγμ pμ φ(p)
+SF φ, φ =
+(9.27)
+For later use we have in the second step already transformed the action to
+momentum space using the symmetric convention
+ ∞ 4
+ ∞ 4
+d x
+d p 
+−ip·x
+f(p) =
+f
+(x)
+e
+,
+f
+(x)
+=
+(9.28)
+f (p) eip·x
+2
+2
+(2π)
+(2π)
+−∞
+−∞
+for the Fourier transformation in the continuum. We stress at this point that
+the Fourier transform in the continuum is denoted by f, while for the Fourier
+transform on the lattice f is used, as deﬁned in Appendix A.3.
+The continuum ﬁelds φ(x), φ(x) carry only Dirac indices, since no gauge
+B
+ﬁeld is coupled. In order to obtain blocked lattice ﬁelds φB
+n , φn from the
+continuum ﬁelds φ(x), φ(x), we embed an inﬁnite Euclidean lattice Z4 into
+our Euclidean space–time R4 . The lattice constant a is set to a = 1 for now,
+but will be displayed explicitly later when needed. We construct the blocked
+ﬁelds by integrating the continuum ﬁelds over hypercubes with sides of length
+1, centered at the sites n of our lattice, i.e., n ∈ Z4 :
+ 4 
+
+ ∞ 4
+ nμ + 12
+d p 
+B
+dxμ φ(x) =
+(9.29)
+φn =
+φ(p) π(p) eip·n .
+2
+1
+(2π)
+−∞
+μ=1 nμ − 2
+In this equation we have expressed the continuum ﬁeld φ(x) through its
+
+Fourier transform φ(p)
+as deﬁned in (9.28) and abbreviated the remaining
+space–time integral as
+
+ 4  1
+4
+ 2
+
+2 sin(pμ /2)
+dxμ eip·x =
+.
+(9.30)
+π(p) =
+1
+pμ
+μ=1 − 2
+μ=1
+
+9.2 Lattice actions for free fermions from RG transformations
+
+223
+
+The function π(p) describes the blocking procedure in momentum space. The
+blocking of the conjugate ﬁeld φ proceeds in exactly the same way. Since the
+blocking procedure is trivial in Dirac space, the blocked ﬁelds simply inherit
+the Dirac indices of their continuum counterparts.
+Equation (9.29) expresses the blocked ﬁeld φB
+n as a Fourier integral with
+
+the Fourier transform φ(p)
+of the continuum. For later use we rewrite (9.29)
+to obtain an alternative expression where the lattice Fourier transform φB (p)
+of the blocked ﬁeld is used:
+ π
+
+d4 p B
+B
+ip·n
+B (p) =
+
+(p)
+e
+,
+φ
+φ
+φ(p+2πk)
+π(p+2πk) . (9.31)
+φn =
+2
+−π (2π)
+4
+k∈Z
+
+Note that now the momentum integral runs only over the Brillouin zone, i.e.,
+pμ ∈ (−π, π], which is the momentum space of an inﬁnite lattice, as can be
+seen from the formulas in Appendix A.3, when one sends the number of lattice
+points to inﬁnity.
+9.2.2 The blocked lattice Dirac operator
+B
+After deﬁning the blocked ﬁelds φB
+n , φn and evaluating their expression as
+Fourier integrals, we can now formally deﬁne the lattice theory obtained from
+the blocking procedure:
+ 
+
+
+
+
+
+
+
+!
+!
+B
+B
+ψ n −φn ψn −φn − SF φ, φ .
+exp − ψ n Dnm ψm = D φ, φ exp −
+n,m
+
+n
+
+(9.32)
+In this equation ψm , ψ n denote the ﬁelds of the target lattice theory, i.e., the
+fermions living on the inﬁnite lattice Z4 . Consequently the indices n and m
+run over all of Z4 . The Dirac operator on the lattice is denoted by Dnm . The
+left-hand side thus is the Boltzmann factor exp(−Slatt ) of the lattice theory.
+Both the lattice ﬁelds ψm , ψ n and the lattice Dirac operator Dnm carry spinor
+indices which we suppress, i.e., we use vector/matrix notation in Dirac space.
+The right-hand side of (9.32) deﬁnes how the lattice theory, or more precisely the lattice Dirac operator Dnm , is obtained from its continuum counterpart: The continuum ﬁelds φ, φ are integrated !over in a path integral (we
+will comment on the continuum measure D φ, φ later). In the Boltzmann
+!
+factor we have the continuum action SF φ, φ from (9.27) as usual and an
+additional quadratic piece which couples the blocked continuum ﬁelds φB , φB
+to the ﬁelds ψ, ψ of the target theory on the lattice.
+Since the path integral on the right-hand side is Gaussian it can be solved
+in closed form: It is convenient [22] to rewrite the blocking term with an
+additional Gaussian integral over auxiliary Grassmann variables η, η:
+
+224
+
+9 Symanzik improvement and RG actions
+
+
+exp −
+
+
+
+ψ n − φB
+n
+
+n
+
+
+
+D[η, η] exp
+
+
+
+
+
+
+
+
+ψn − φB
+n
+
+
+
+=
+
+
+
+
+
+B
+η n ηn + ψ n −φB
+n ηn + η n ψn −φn
+
+(9.33)
+
+.
+
+n
+
+The auxiliary ﬁelds live on the lattice, carry a Dirac index, and the measure
+D[η, η] is the product over the measures at all lattice points. The terms in
+(9.33) that mix the auxiliary ﬁelds and the blocked ﬁelds φB are written as
+ ∞ 4
+
+
+d p 
+
+B
+ , J(p)
+η n φn =
+J(−p)
+φ(p)
+=
+η n π(−p) e−ip·n ,
+2
+−∞ (2π)
+n
+n
+ ∞ 4
+
+
+d p 
+ , J(p)
+ =
+φB
+η
+=
+φ(−p) J(p)
+ηn π(−p) e−ip·n , (9.34)
+n n
+2
+(2π)
+−∞
+n
+n
+where we have used (9.29) to express the blocked ﬁelds through their continuum Fourier transforms.
+Inserting (9.33) and (9.34) into the master formula (9.32), we obtain
+
+
+ 
+
+
+
+
+!
+ψ n Dnm ψm = D[η, η] exp
+η n ηn + ψ n ηn + η n ψn I J, J ,
+exp −
+n,m
+
+n
+
+(9.35)
+where !we denote the remaining path integral over the continuum ﬁelds as
+I J, J given by
+
+
+ ∞ 4 
+
+!
+d p
+2
+
+
+
+
+
+(2π)
+φ(−p)
+iγ
+p
+φ(−p)
+J(p)
++
+J(−p)
+φ(p)
+φ(p)
++
+D φ, φ exp −
+μ μ
+2
+−∞(2π)
+
+ ∞
+−iγμ pμ 
+d4 p 
+J(p)
+.
+(9.36)
+J(−p)
+= C exp
+4
+p2
+−∞ (2π)
+
+In the second step we have solved the path integral, as discussed in Chap. 5, by
+completing the square in the exponent and a shift of the integration variables
+
+
+and similarly for
++ iγμ pμ (2π)−2 p−2 J(p),
+in the path integral, φ (p) = φ(p)
+
+φ. The remaining term, which after the shift of the integration variables is
+independent of J and J, is denoted by the constant C. We stress at! this point
+that we did not explicitly deﬁne the continuum measure D φ, φ and only
+assumed, that it remains invariant under a shift of variables. As a matter
+of fact, for a proper deﬁnition of this measure, a regulator such as a ﬁnite
+lattice is necessary. If one removes this regulator the constant C diverges
+which, however, is irrelevant for the evaluation of vacuum expectation values
+of operators, where such a constant cancels in the normalization of expectation
+values with the partition function Z. Thus we can ignore the constant C and
+the path integral (9.36) is given by the term quadratic in J which comes from
+the completion of the square.
+
+9.2 Lattice actions for free fermions from RG transformations
+
+225
+
+The ﬁnal step is to insert result (9.36) into the remaining integral (9.35)
+over η and η:
+
+
+
+exp −
+ψ n Dnm ψm
+n,m
+
+
+
+= C
+
+D[η, η] exp
+
+η n (1 + R)nm ηm +
+
+n,m
+
+
+
+
+
+
+
+= CC exp −
+
+
+
+
+
+
+
+n
+
+
+
+−1
+ψ n (1 + R)nm ψm
+
+ψ n ηn + η n ψn
+
+
+
+.
+
+(9.37)
+
+n,m
+
+In the last step we have again solved the Gaussian path integral by completing
+the square in the exponent and the remaining term, which is independent of
+ψ and ψ, gives rise to another irrelevant constant C  . The matrix Rnm was
+
+
+from (9.34) into the
+obtained by inserting the expressions for J(p)
+and J(p)
+exponent on the right-hand side of (9.36). Explicitly the matrix R reads
+ ∞ 4
+d p
+−iγμ pμ −ip·m
+π(p) eip·n
+e
+π(−p) ,
+(9.38)
+Rnm =
+2
+(2π)
+p2
+−∞
+and by comparing the ﬁrst and the last term in (9.37) we obtain the ﬁnal
+result for the lattice Dirac operator (after dropping the constants C and C  )
+−1
+
+Dnm = (1 + R)nm .
+
+(9.39)
+
+The lattice Dirac operator D is most conveniently expressed by switching to
+its Fourier transform:
+1  −ip·n
+
+e
+Dnm eiq·m .
+(9.40)
+D(p|q)
+=
+(2π)4 n,m
+For the necessary Fourier transform of R one ﬁnds
+
+R(p|q)
+= δ(p − q)
+
+ π (q + 2πk)2
+
+k∈Z4
+
+with vμ (q) =
+
+(q + 2πk)2
+
+ π (q + 2πk)2
+k∈Z4
+
+(q + 2πk)2
+
+(−i)γμ (q + 2πk)μ = −i δ(p − q)γμ vμ (q) ,
+
+(q + 2πk)μ .
+
+(9.41)
+
+Inserting this into (9.39) one obtains [22]
+a 1 + i γμ vμ (q)
+−1
+
+
+
+.
+D(p|q)
+= δ(p − q) D(q)
+, D(q)
+= (a 1 − i γμ vμ (q)) =
+a2 + v(q)2
+(9.42)
+Here we have split oﬀ the Dirac-δ that ensures momentum conservation which
+is a consequence of translation invariance. We have also re-inserted the lattice
+spacing a necessary for the analysis below.
+
+226
+
+9 Symanzik improvement and RG actions
+
+9.2.3 Properties of the blocked action
+
+The lattice propagator in momentum space, D(q),
+is the result of our blocking
+procedure for obtaining the eﬀective lattice theory. It has a series of remarkable
+properties which we discuss now.
+
+First we convince ourselves that D(q)
+has the correct naive continuum
+limit and that it is free of doublers. In other words we need to show that
+/
+when all qμ ≈ 0 ,
+iγμ qμ + O(a)
+
+(9.43)
+D(q) =
+O(1/a)
+when at least one qμ ≈ π/a .
+When inspecting the ﬁnal result (9.42) for the lattice Dirac operator, it is obvious that the properties (9.43) must come from the behavior of the functions
+vμ (q) given in (9.41). As a matter of fact one can show (e.g., most quickly by
+analyzing the vμ (q) numerically) that they behave as
+/
+qμ /q 2
+when all qμ ≈ 0 ,
+(9.44)
+vμ (q) ≈
+0 when at least one qμ ≈ π/a .
+This behavior exactly implies the required properties of a lattice Dirac operator as stated in (9.43).
+ gives rise to a proper
+Having established that the blocked Dirac operator D
+lattice theory let us now investigate its properties further. When transforming
+back to real space it is found that the blocked Dirac operator is not ultralocal,
+in agreement with the general discussion in Sect. 7.4.2. It may, however, be
+demonstrated [22] that the blocked Dirac operator falls oﬀ exponentially as is
+necessary for a local quantum ﬁeld theory.
+Another important aspect is discretization errors. We have seen in (9.43)
+that in the limit of vanishing momentum q we obtain the correct behavior
+iγμ qμ . What, however, are the deviations from that ideal behavior as one increases the momentum? A physically interesting way of assessing this question
+ This
+is to analyze the dispersion relation of a free fermion described by D.
+−1
+
+may be done by computing the poles of D(q) in the complex q4 plane for
+diﬀerent values of the spatial momentum q. Plotting the energy E(q), which
+is given by the modulus of the position q4 of the pole, versus the spatial momentum, one ﬁnds that for the blocked Dirac operator the values fall exactly
+on top of the linear continuum dispersion relation, E(q) = |q|, essentially
+almost all the way up to the cutoﬀ π/a. This indicates that the discretization
+errors are small.
+Finally we comment on the chiral properties of the blocked lattice Dirac
+
+operator D(q).
+It is a simple exercise to show that it obeys the Ginsparg–
+Wilson equation in the form
+
+
+
+
+= 2 a D(q)
+γ5 D(q)
+.
+D(q)
+γ5 + γ5 D(q)
+
+(9.45)
+
+We remark that here we encounter the Ginsparg–Wilson equation with a
+slightly diﬀerent normalization than the original version (7.29), namely an
+
+9.3 Real space renormalization group for QCD
+
+227
+
+extra factor of 2 on the right-hand side. This factor is, however, completely
+irrelevant, since the whole program for chiral symmetry on the lattice, which
+we presented in Chap. 7, can be implemented with the modiﬁed normalization
+as well. Thus we ﬁnd that the blocked theory is also chiral.
+To summarize this section, we have shown that blocking free fermions from
+the continuum gives rise to
+•
+•
+•
+
+Proper lattice fermions without doublers and a local action.
+Fermions with a perfect dispersion relation almost up to the cutoﬀ.
+A Dirac operator that obeys the Ginsparg–Wilson equation.
+
+With these three properties it is obvious that the blocking procedure is a powerful method for constructing lattice discretizations of quantum ﬁeld theories.
+In Sect. 9.4 we will show that the emerging chiral lattice symmetry is not a
+coincidence but is the consequence of a rather general mapping of continuum
+symmetries onto a corresponding lattice theory obtained by blocking. Before
+we come to this analysis, we need, however, to address the problem of generalizing the strategy, which we have here outlined for free fermions, to the case
+of full QCD where gluons and quark ﬁelds are interacting.
+
+9.3 Real space renormalization group for QCD
+In the last section we have demonstrated by an explicit calculation for free
+fermions that the RG approach of integrating out degrees of freedom above
+the cutoﬀ ∼ 1/a is a powerful tool for constructing a lattice discretization of
+a quantum ﬁeld theory. The resulting lattice action has beautiful properties,
+in particular discretization eﬀects are absent almost up to the cutoﬀ and the
+lattice Dirac operator obeys the Ginsparg–Wilson equation, which is a lattice
+manifestation of the continuum chiral symmetry.
+For the case of full QCD, i.e., when gauge ﬁelds are coupled to the fermions,
+the situation is considerably more complicated. A serious obstacle prevents a
+direct blocking from the continuum like for free fermions considered in the last
+section: The continuum path integral on the right-hand side of (9.32) cannot
+be solved in closed form if non-Gaussian terms appear. Such terms are the
+interaction terms of the gauge ﬁeld and the fermions, as well as the cubic and
+quartic terms of the gauge action.
+The conceptual way out is to use a lattice version of QCD on a very ﬁne
+lattice, i.e., a lattice close to the continuum limit where the lattice spacing a
+is very small and discretization eﬀects are tiny. This ﬁne lattice replaces the
+continuum theory as a starting point for the blocking transformation. Instead
+of integrating hypercubes of the continuum we average the lattice ﬁelds on
+a block of sites of the ﬁne lattice to construct the ﬁelds on a coarser lattice.
+The action on the coarse lattice is identiﬁed through an equation equivalent
+to (9.32). Iterating such a real space renormalization group transformation we
+may obtain the action of the target theory on a lattice with the coarseness
+
+228
+
+9 Symanzik improvement and RG actions
+
+Fig. 9.2. Example of an overlapping discrete block spin transformation. We show
+for a plane of the lattice how the fermion ﬁelds on the ﬁne lattice (ﬁlled dots) may
+be averaged to construct the blocked fermion ﬁelds living on the coarse lattice (open
+circles around the sites of the lattice with only even indices). Along the arrows gauge
+transporters are included to obtain gauge covariant spinors on the coarse lattice
+
+we want to work at. Up to the cutoﬀ this coarse action will have the same
+discretization errors as the theory on the ﬁne lattice we started with. The
+physics of the short-distance UV modes, which are averaged over in the RG
+transformation, is encoded in terms of the action used on the coarse lattice.
+We remark that originally the real space renormalization group was developed
+as an approach for analyzing systems of statistical mechanics near criticality
+[23, 24]. As an introduction to its application in lattice QCD which goes
+beyond our brief sketch we recommend [25].
+9.3.1 Blocking full QCD
+Let us begin with describing how we can construct new ﬁelds living on a
+coarse lattice Λ with spacing a = 2a from ﬁelds on a ﬁne lattice Λ with
+lattice constant a. Since we now consider QCD, we have to block both the
+fermions and the gauge ﬁelds. Before we discuss the actual construction, we
+set the notational conventions: The space–time index of the ﬁne lattice Λ is
+denoted by n and the space–time index of the coarse lattice Λ by n . The
+fermion and the gauge ﬁelds on the ﬁne lattice are ψn , ψ n and Uμ (n), their
+B
+
+blocked counterparts living on the coarse lattice are ψnB , ψ B
+n and Uμ (n ), and
+the genuine coarse ﬁelds are denoted by ψn  , ψ n and Uμ (n ).
+We start with discussing the blocking prescription of the fermions. Many
+diﬀerent blocking schemes are possible. A rather simple one is illustrated in
+Fig. 9.2, where we show how the ﬁelds may be blocked in a plane of the lattice
+(the other planes are blocked equivalently). The fermion ﬁelds ψn , ψ n live on
+the sites of the ﬁne lattice (ﬁlled dots in the ﬁgure) and have to be averaged
+suitably for obtaining the blocked fermions ψnB , ψ B
+n , living on the coarse lattice
+which we choose to consist of the sites with only even indices of the ﬁne lattice
+
+9.3 Real space renormalization group for QCD
+
+229
+
+
+(marked by circles in the plot). The blocked ﬁelds ψnB , ψ B
+n at a site n of the
+coarse lattice are obtained by averaging over all the ﬁelds ψn , ψ n on all lattice
+sites n which are connected to n by one or more oriented paths. Obviously
+the sites of the ﬁne lattice are connected to several sites of the coarse lattice.
+Such a type of blocking prescription is referred to as overlapping block spin
+transformation.
+It is mandatory to keep gauge covariance intact when combining the
+fermion ﬁelds ψn , ψ n from diﬀerent sites n of the ﬁne lattice. Thus we need to
+connect the ﬁelds at sites n to the lattice site n where we put the blocked ﬁeld
+through gauge transporters U (n , n). Such transporters are obtained by multiplying the link variables Uμ (m) of the ﬁne lattice along the oriented paths
+in the ﬁgure. If a link is run through in negative direction we apply our usual
+convention U−μ (m) ≡ Uμ (m − μ̂)† . In order to obtain a blocking prescription
+which respects the symmetries of the lattice, several sites n are connected to
+n by a set of paths which are related by symmetries such as discrete rotations,
+reﬂections etc. We can summarize the blocking of the fermions as
+⎛
+⎞
+
+
+
+
+⎝
+sp
+Uμ (m)⎠ ψn ≡
+ω[U ]n n ψn . (9.46)
+ψnB =
+n∈N (n )
+
+p∈P(n ,n)
+
+(m,μ)∈p
+
+n
+
+Here N (n ) is a neighborhood of sites n of the ﬁne lattice around the target
+site n on the coarse lattice. By P(n , n) we denote the set of paths p that
+we want to use for connecting the site n of the ﬁne lattice to n , e.g., the
+choice depicted in Fig. 9.2. The product runs over all the links (m, μ) in the
+path p. Each path comes with a coeﬃcient sp . These coeﬃcients must reﬂect
+the symmetries (e.g., paths related to each other by a rotation must have the
+same coeﬃcient), and as a normalization condition, we require the coeﬃcients
+of all paths connected to a target site n to sum up to 1. In the last step of
+(9.46) we have rewritten the blocking prescription by introducing a matrix
+ω[U ]n n which depends on the gauge ﬁelds U of the ﬁne lattice and collects
+all the terms that connect n and n. The conjugate ﬁelds ψ(n) are blocked
+equivalently with the hermitian conjugate of ω[U ]. We point out that, as in
+the last section, the blocking procedure is trivial in Dirac space.
+Concerning the blocking of the gauge link Uμ (n) one could simply multiply
+the two ﬁne link variables that connect two sites of the coarse lattice in order
+to obtain the blocked variables. However, also here usually a more general
+gauge covariant averaging is used, with a simple version given by
+(9.47)
+UμB (n ) = (1 − α)Uμ (n )Uμ (n + μ̂)
+α 
+
+
+
+
+†
+Uν (n )Uμ (n + ν̂)Uμ (n + ν̂ + μ̂)Uν (n +2μ̂)
++
+6
+ν=μ
+
++ Uν (n − ν̂)† Uμ (n − ν̂)Uμ (n − ν̂ + μ̂)Uν (n − ν̂ +2μ̂) .
+
+230
+
+9 Symanzik improvement and RG actions
+
+Here μ̂ and ν̂ are unit vectors on the ﬁne lattice pointing in the μ and ν
+directions, and α is a real parameter of the blocking procedure. Essentially
+the blocking linearly combines paths of links on the ﬁne lattice which connect
+neighboring sites on the coarse lattice. Along these paths the ordered products
+of the ﬁne link variables are taken into account. Finding an optimal blocking
+prescription requires a certain amount of experimenting, and prescriptions
+more reﬁned than the one in (9.47) are discussed in [26–29].
+We remark that in the above deﬁnition the blocked ﬁeld UμB (n ) is not
+an element of the gauge group, since the sum of two SU(3) matrices is not
+in SU(3). Below we will deﬁne how the blocked ﬁeld UμB (n ) is connected to
+the link variables Uμ (n ) on the coarse lattice, which of course will then be
+elements of the gauge group.
+Having deﬁned how to obtain the blocked ﬁelds ψ B , ψ B , and U B , we can
+now formulate a blocking relation which generalizes (9.32) and deﬁnes the
+theory on the coarse lattice:
+
+!
+
+
+− SF
+[ψ  ,ψ  ,U  ] − β  SG
+[U  ]
+e
+= D ψ, ψ D [U ] e− SF [ψ,ψ,U ] − β SG [U ]
+
+
+
+
+
+
+(9.48)
+× e− TF [ψ ,ψ ,ψ ,ψ ,U ] − β TG [U ,U ] .
+!
+In this equation SF [ψ, ψ, U ] and SF ψ  , ψ  , U  are the fermion actions for
+
+the ﬁne and the coarse lattices, and β SG [U ] and β  SG
+[U  ] the corresponding
+
+gauge actions, where β, β denote the inverse gauge couplings for the two
+lattices. The right-hand side is now a well-deﬁned lattice path integral over
+the degrees of freedom on the ﬁne lattice. The blocking functions TF and TG
+connect the fermion and gauge ﬁelds ψ  , ψ  , U  of the target theory on the
+coarse lattice to the blocked quantities ψ B , ψ B , U B . For the fermions we use
+
+ 
+
+!
+ψn − b ψnB
+ψ n − b ψ B
+TF ψ , ψ , ψ B , ψ B, U = κF
+n
+n
+
+= κF
+
+
+
+
+×
+
+B
+
+B
+
+
+ψ n − b
+
+n
+
+ψn  − b
+
+
+
+
+ψ n ω[U ]†nn
+
+n
+
+
+
+B
+
+ω[U ]n n ψn
+
+
+,
+
+(9.49)
+
+n
+
+where b is a real-valued normalization constant and κF a real parameter that
+may be used for tuning properties of the action on the coarse lattice, in particular its locality. In the second line of (9.49) we have expressed the blocked
+ﬁelds with the transformation matrix ω[U ] introduced in (9.46). For the gauge
+ﬁeld we deﬁne
+  κG
+!
+!
+!
+Re tr Uν (n )UνB (n ) − N UνB (n ) ,
+TG U  , U B =
+3
+n ,ν
+
+
+! 
+!
+
+exp N UνB (n ) ≡
+(9.50)
+dW exp β κG Re tr W UνB (n )† /3 .
+
+9.3 Real space renormalization group for QCD
+
+231
+
+!
+The second equation deﬁnes the normalization N UνB (n ) through an integral
+over W ∈ SU(3), and κG is again a real parameter of the transformation.
+9.3.2 The RG ﬂow of the couplings
+In the last section we have deﬁned the blocking prescriptions for fermions and
+gauge ﬁelds and thus have given a well-deﬁned meaning to the renormalization
+group equation (9.48) which connects the actions for the theories on the coarse
+and the ﬁne lattices. For an arbitrary coarse conﬁguration ψ  , ψ  , U  , the righthand side of (9.48) deﬁnes the action on the coarse lattice in the exponent on
+the left-hand side.
+We have already remarked that the key idea of the RG transformation is
+to include the physics of the modes on the ﬁne lattice in suitable terms in the
+action used for the coarse lattice. Such terms can, e.g., look like the clover
+term (9.10) introduced in the ﬁrst section of this chapter. All these terms of
+the action on the coarse lattice come with some coeﬃcients c1 , c2 . . ., which
+for the example of the clover term correspond to the Sheikholeslami–Wohlert
+coeﬃcient of the Symanzik improvement program. We assume that we can
+view the RG transformation (9.48) as a mapping in the space of the couplings
+which parameterize a lattice QCD action,
+β , c1 , c2 . . . −→ β  , c1 , c2 . . . ,
+RG
+
+(9.51)
+
+where the β, ci are the couplings on the ﬁne lattice (most of which vanish for
+the plain Wilson action which might be the action we start from). For labeling
+the couplings we do not distinguish between the fermion and gauge ﬁeld parts
+of the action and only single out the inverse gauge couplings β, β  .
+Starting from the theory with couplings β, c1 , c2 . . ., we block the ﬁelds
+and the couplings of the coarse lattice, β  , c1 , c2 , . . ., assume values such that
+the eﬀects of the integrated-out ﬁelds of the ﬁne lattice are taken into account.
+At the same time the lattice spacing increases by a scale factor of 2,
+a −→ a = 2a .
+RG
+
+(9.52)
+
+We remark that the scale factor of 2 is particular for the blocking transformation deﬁned by Fig. 9.2 and (9.47), and other blocking prescriptions can have
+a diﬀerent scale factor.
+We now ask ourselves whether mapping (9.51) has a ﬁxed point (FP), i.e.,
+a set of couplings that is mapped onto itself under the RG transformation
+(9.51). Equation (9.52) suggests that two types of ﬁxed points might exist,
+corresponding to a = a = ∞ or to a = a = 0. Obviously only the second
+possibility, which often is referred to as critical ﬁxed point, is of interest to
+us since it corresponds to the continuum limit a → 0. As we have discussed
+in Sect. 3.5.4, the continuum limit of lattice QCD, where a → 0, is obtained
+in the limit β → ∞. Thus we expect to ﬁnd a suitable critical ﬁxed point at
+
+232
+
+9 Symanzik improvement and RG actions
+
+β = ∞ and parameter values c1 , c2 , . . . . Under our RG transformation (9.51)
+these values are mapped onto themselves.
+In a practical application we cannot start our RG transformation from
+β = ∞. However, a detailed analysis of the ﬂow of couplings under repeated
+RG transformations (see, e.g., [25]) suggests that it is suﬃcient to start from
+a large but ﬁnite value of β and a few steps of repeated RG transformations
+will drive the couplings c1 , c2 , . . . into the ﬁxed point values c1 , c2 , . . . .
+9.3.3 Saddle point analysis of the RG equation
+So far we have speciﬁed the blocking prescription for full QCD, deﬁned the RG
+transformation (9.48), and identiﬁed a possible ﬁxed point which corresponds
+to the continuum physics we are interested in. What is left to do is to ﬁnd a
+way of solving the RG transformation (9.48), such that we can construct the
+RG action on the lattice.
+For this purpose we may use the fact that the critical ﬁxed point we want
+to ﬁnd corresponds to β = β  = ∞. In this limit the path integral on the
+right-hand side of (9.48) is dominated by its saddle point, i.e., a conﬁguration
+(not necessarily unique) of gauge ﬁelds U on the ﬁne lattice which minimizes
+the exponent. On both sides of (9.48) the terms in the exponent which are
+multiplied with the inverse couplings β, β  have to match as we send the
+inverse couplings to inﬁnity. We read oﬀ the following equation for the gauge
+ﬁeld part of the action:
+
+!
+
+SG
+(9.53)
+[U  ] = min SG [U ] + TG∞ U  , U B .
+U
+
+The superscript ∞ attached to the blocking function TG indicates that it also
+has to be evaluated at β = ∞. Since we want to identify the so-called ﬁxed
+FP
+at the ﬁxed point, which is deﬁned by the coeﬃcients
+point (FP) action SG
+
+FP
+= SG = SG
+and obtain
+ci that are mapped onto themselves, we can set SG
+FP
+the equation that identiﬁes the gauge part SG of the ﬁxed point action,
+ FP
+!
+FP
+SG
+(9.54)
+[U  ] = min SG
+[U ] + TG∞ U  , U B
+U
+⎛
+⎞
+
+  κG
+!
+!
+FP
+= min ⎝SG
+Re tr Uν (n )UνB (n ) − N ∞ UνB (n ) ⎠ ,
+[U ] +
+U
+3
+
+n ,ν
+
+where in the second step we have inserted the explicit expression of the blocking function TG as given in (9.50). The necessary limit β → ∞ is easy to
+perform since β enters only through the normalization constant N ∞ which
+again can be evaluated through its saddle point giving
+!
+!
+κG
+(9.55)
+max Re tr W UνB (n )† .
+N ∞ UνB (n ) =
+3 W ∈SU(3)
+Matching the exponents with factors β, β  in the saddle point analysis of
+(9.48) leads to Eq. (9.54) which determines the gauge part of the ﬁxed point
+
+9.3 Real space renormalization group for QCD
+
+233
+
+action. The requirement that also the remaining factors from the fermion
+contributions match gives rise to
+
+!
+
+
+
+
+  B
+B
+min
+min
+e− SF [ψ ,ψ ,U ] = D ψ, ψ e− SF [ψ,ψ,U ] − TF [ψ ,ψ ,ψ ,ψ ,U ] , (9.56)
+where the right-hand side has to be evaluated for the conﬁguration U min which
+minimizes the right-hand side of the gauge ﬁeld RG equation (9.54).
+The integral on the right-hand side of (9.56) can be solved, since it is
+Gaussian. We write the coarse and ﬁne fermion actions with the help of Dirac
+operators D and D for the coarse and the ﬁne lattices as
+
+!
+
+ψ n D [U  ]n m ψm
+SF ψ  , ψ  , U  =
+ ,
+SF ψ, ψ, U
+
+!
+min
+
+n ,m
+
+=
+
+
+
+!
+ψ n D U min nm ψm .
+
+(9.57)
+
+n,m
+
+!
+Using the fact that the blocking function TF ψ , ψ , ψ B , ψ B , U min is also bilinear in ψ and ψ (see (9.49)) we solve the fermionic integral with the techniques
+of Sect. 5.1.4. The result of the integral on the right-hand side of (9.56) is the
+exponential of a bilinear form for the coarse ﬁelds ψ  , ψ  . The kernel of this
+bilinear form has to match the kernel in the exponent of the bilinear form on
+the left-hand side of (9.56). We obtain
+!
+D U  n m = κF δn m
+(9.58)
+
+
+
+
+
+
+† 
+ −1 
+
+
+
+
+−κ2F b2 ω U min D U min + κF b2 ω U min ω U min
+ω U min
+,
+n m
+
+which is the RG equation that relates the Dirac operator D on the coarse
+lattice to the Dirac operator D of the ﬁne lattice.
+Equations (9.54) and (9.58) are the two RG equations that connect the
+action on the ﬁne lattice to the action on the coarse lattice. It is interesting
+to note that the RG equation for the ﬁxed point gauge action is independent
+of the problem for the fermions. The RG equation (9.58) for the fermions,
+however, needs as input a gauge conﬁguration U min on the ﬁne lattice, which
+minimizes the right-hand side of (9.54). In the next section we discuss how
+solutions of (9.54) and (9.58) may be approximated.
+9.3.4 Solving the RG equations
+The two RG equations (9.54) and (9.58) are nonlinear equations which should
+hold for arbitrary coarse background gauge ﬁelds U  . In a ﬁrst step one has
+to determine the ﬁne conﬁguration U min that corresponds to a given U  and
+minimizes the right-hand side of (9.54). This conﬁguration is then used in the
+RG equation (9.58) for the fermions.
+
+234
+
+9 Symanzik improvement and RG actions
+
+FP
+In order to determine the ﬁxed point gauge action SG
+and the Dirac
+
+operator D , both these quantities have to be approximated and parameterized
+using a ﬁnite number of terms with couplings ci . For the gauge action one may
+use a linear combination of traces over closed loops of link variables and powers
+thereof,
+
+m
+
+1
+FP
+Re tr [1 − Ul ]
+SG
+[U ] =
+cm (l)
+.
+(9.59)
+3
+m
+l∈L
+
+In this equation L is a collection of closed loops on the lattice and Ul the
+ordered product of link variables along such a loop l ∈ L. The couplings cm (l)
+are real parameters of the action. The set L of loops has to be chosen such
+that the lattice symmetries, e.g., discrete translations, rotations, are obeyed.
+Obviously, the parameterized action (9.59) is a generalization of the Wilson
+gauge action (2.49) and reduces to this action if we choose for L the set of all
+plaquettes and restrict ourselves only to powers m = 1 in (9.59).
+The parameterization of the Dirac operator proceeds in a similar way [30,
+31] and may also be viewed as a generalization of the Wilson Dirac operator
+(5.51). When we discussed the doubling problem in Sect. 5.2 we were forced
+to include terms that come with the unit matrix in Dirac space. In the ansatz
+for the parameterized Dirac operator now all possible 16 generators Γk ∈
+{1, γμ , σμν , γμ γ5 , γ5 } of the Cliﬀord algebra are used. Similar to the gauge
+(k)
+action we allow for a whole collection of paths p ∈ Pn,m that connect two
+sites n, m on the lattice and we obtain [30, 31]
+D[U ]nm =
+
+16
+
+k=1
+
+Γk
+
+
+
+c(k,p)
+n,m [U ] Up ,
+
+(9.60)
+
+(k)
+p∈Pn,m
+
+where Up denotes the product of link variables along the path p. Again the
+(k)
+set of paths Pn,m has to respect the discrete lattice symmetries. In addition
+(k)
+(k,p)
+the set of paths Pn,m and the coeﬃcients cn,m depend on the element of the
+Cliﬀord algebra, since for the fermions the reﬂections and other symmetries
+such as charge conjugation (see Sect. 5.4) involve also matrices acting in Dirac
+(k,p)
+space. The coeﬃcients cn,m [U ] may be gauge-invariant functions of the link
+variables Uμ , e.g., they could depend on the local plaquette values.
+FP
+the couplings on both sides of (9.54) are the
+For the gauge action SG
+same and determine the ﬁxed point action which then is used at arbitrary
+β. The actual determination is done via minimizing the diﬀerence between
+the left-hand and the right-hand sides of (9.54). This step actually involves
+two minimizations: The coeﬃcients of the action and the ﬁne conﬁguration
+have to be varied. In a practical approach [26–29, 32] one ﬁrst uses a simpler
+gauge action on the right-hand side of (9.54) which serves to determine a
+minimal gauge conﬁguration U min corresponding to a coarse conﬁguration
+U  . In a second step this minimal conﬁguration is then used to determine the
+coeﬃcients cm (l) of the parameterized ﬁxed point action (9.59). The resulting
+
+9.3 Real space renormalization group for QCD
+
+235
+
+ﬁxed point gauge action was tested nonperturbatively and was shown to have
+only very small cutoﬀ eﬀects [26–29].
+For the fermionic RG equation (9.58) an approach, slightly diﬀerent from
+the ﬁxed point action for the gauge ﬁelds, was chosen [33–37]. Instead of ﬁnding a ﬁxed point solution for the RG equation, a sequence of Dirac operators
+is determined using (9.58): One starts from a ﬁne lattice, with very large β
+and a Dirac operator D, for the ﬁne lattice where the couplings are held ﬁxed.
+The couplings of a new Dirac operator D for the coarse lattice are then determined from (9.58). Iterating this step the Dirac operator at the target β,
+which gives rise to the resolution one wants to work at, may be determined.
+In each step the coeﬃcients are computed from (9.58) by minimizing a χ2
+functional which may be chosen as
+32
+ 
+
+
+
+3
+3
+
+min
+rand 3
+− Drhs U(i)
+ψ(k)
+χ2 =
+(9.61)
+3 D U(i)
+3 .
+i
+
+k
+
+
+
+
+is the Dirac operator on the coarse lattice and
+In this equation D U(i)
+
+
+min
+Drhs U(i)
+denotes the right-hand side of the RG equation (9.58). The sum
+
+with index i runs over an ensemble of coarse gauge conﬁgurations U(i)
+, i=
+1, 2, . . ., and the corresponding minimal conﬁgurations determined from the
+min
+. The diﬀerence of the two Dirac
+FP equation (9.54) are denoted as U(i)
+rand
+operators then acts on a set of random vectors ψ(k)
+labeled by an index
+rand
+k = 1, 2, . . .. The action of the diﬀerence of Dirac operators on the ψ(k)
+produces a set of vectors and by  . . .  we denote the norm of these vectors.
+The resulting FP Dirac operator was tested in a series of papers [32–
+39] and it was established that the expected properties such as small cutoﬀ
+eﬀects can be captured by parameterizations (9.59) and (9.60). Probably even
+more important is the fact that the RG equations transport symmetries of
+the continuum onto the lattice. For chiral symmetry these properties were
+discussed in detail [35, 40, 41]. In particular the FP Dirac operator obeys the
+Ginsparg–Wilson equation and the properties which we discussed already in
+Chap. 7, such as the correct anomaly, index theorem, follow. We will revisit
+the fact that RG transformations transport symmetries onto the lattice in the
+next section.
+We remark that the parameterization of the Dirac operator (9.60) has
+been used also in a diﬀerent way [38, 42]. Inserting the parameterized Dirac
+operator (9.60) into the Ginsparg–Wilson equation (7.29), one can read oﬀ a
+(k,p)
+system of coupled quadratic equations for the coeﬃcients cn,m . After truncation this system can be solved numerically and the resulting coeﬃcients
+determine the so-called chirally improved Dirac operator. This operator was
+tested extensively [39, 43] and was found to have good chiral properties at a
+numerical cost considerably lower than necessary for the overlap operator.
+
+236
+
+9 Symanzik improvement and RG actions
+
+9.4 Mapping continuum symmetries onto the lattice
+In the last section we have seen that a practical implementation of the RG
+approach to full lattice QCD is a rather nontrivial enterprise. We conclude
+this chapter by presenting another very important application of the real space
+renormalization techniques: We show that the blocking transformation may
+be used to map symmetries of the continuum action onto a lattice version
+of the symmetry for the corresponding lattice action obtained by blocking.
+We discuss this connection between continuum and lattice symmetries here
+only for the case of fermions. This case is particularly important, since one
+of the symmetries of interest is chiral symmetry – a long-standing problem
+of the lattice formulation. If one maps the (vectorlike) chiral symmetry in
+the continuum onto the lattice, one ﬁnds that the emerging structure on the
+lattice is the Ginsparg–Wilson equation which we already discussed in detail
+in Chap. 7. However, the relation between continuum symmetries and their
+lattice counterparts is not restricted to chiral symmetries but may be worked
+out for general symmetries of a continuum theory.
+9.4.1 The generating functional and its symmetries
+Similar to the blocking of free lattice fermions discussed in Sect. 9.2, the starting point of our analysis is again the equation which deﬁnes the Dirac operator
+D on the lattice through a blocking transformation from the fermionic continuum action S:
+
+!
+B
+B
+(9.62)
+D φ, φ e− (ψ−φ ) B (ψ−φ ) − SF [φ,φ] .
+e− ψDψ =
+We denote the lattice fermions by ψ, ψ and use vector/matrix notation for all
+indices (space–time, color, Dirac). φ, φ are the fermion ﬁelds in the continuum
+which enter the path integral on the right-hand side. Through integrating over
+hypercubes which are centered at the points of the lattice, one constructs from
+them the blocked ﬁelds φB , φB . These then live on the sites of the lattice and
+consequently they have the same indices as the lattice ﬁelds ψ, ψ, in particular
+a discrete space–time index.
+We stress that (9.62) is understood in a background gauge ﬁeld which is
+not integrated over but also has to be blocked in a suitable way to maintain
+gauge covariance (see the last section). The continuum path integral in (9.62)
+is deﬁned only formally, but could, e.g., be constructed by a lattice theory in
+the continuum limit, as done in the last section. Anyway, here we are only
+interested in symmetry properties of the fermion part of the action which is a
+bilinear form in the fermion ﬁelds. For this analysis a formal deﬁnition of the
+continuum path integral is suﬃcient.
+Here we consider a more general blocking prescription than the one used
+in Sect. 9.2 and allow for a nontrivial blocking kernel B which determines how
+the blocked ﬁelds φB , φB and the lattice ﬁelds ψ, ψ are mixed. At the moment
+
+9.4 Mapping continuum symmetries onto the lattice
+
+237
+
+we leave the blocking kernel B unspeciﬁed, but will discuss its role in the end
+of this section.
+The work by Ginsparg and Wilson [44] starts from (9.62) and analyzes
+its behavior under a chiral rotation of the lattice ﬁelds. Following [45] we use
+a slightly diﬀerent approach and consider the generating functional on the
+lattice deﬁned as
+
+!
+!
+D ψ, ψ eψJ + Jψ − ψDψ ,
+(9.63)
+W J, J =
+where we have sources J and J coupled to the lattice fermions. Inserting the
+exponential of the action from (9.62), we ﬁnd an expression for the generating
+functional through a blocking prescription:
+
+
+!
+!
+!
+B
+B
+W J, J = D ψ, ψ eψJ + Jψ D φ, φ e− (ψ−φ ) B (ψ−φ ) − SF [φ,φ]
+
+
+!
+!
+B
+B
+B
+B
+= D φ, φ e−φ Bφ −SF [φ,φ] D ψ, ψ e−ψBψ + ψ(J+Bφ ) + (J+φ B )ψ
+
+!
+B
+B
+−1
+(9.64)
+= det[B] eJB J D φ, φ eJφ + φ J − SF [φ,φ] .
+In the last step we have already formally solved the Gaussian integral over the
+lattice ﬁelds by completing the square in the exponent (compare the discussion
+in Sect. 9.2). The resulting expression (9.64) is the lattice generating functional
+in terms of a continuum path integral.
+We now explore how a symmetry of the continuum
+fermion action SF
+!
+aﬀects the lattice generating functional W J, J . In particular we consider a
+transformation of the continuum ﬁelds:
+φ → φ = eiεT φ ,
+
+φ → φ = φ eiεT .
+
+(9.65)
+
+The generators T, T of the transformation are matrices acting in Dirac space.
+More general transformations are possible as is discussed in [46]. Our choice
+implies that the blocked ﬁelds φB and φB transform in the same way as
+the original ﬁelds, since the blocking from φ, φ to φB , φB is a purely scalar
+operation, in other words the blocked ﬁelds are essentially linear combinations
+of the continuum ﬁelds. We stress that the generators T and T are independent
+transformations, i.e., φ and φ need not transform in the same way.
+We now assume that the transformation (9.65) is a symmetry of the action
+!
+!
+SF φ , φ = SF φ, φ .
+(9.66)
+One can also evaluate the integral over the continuum ﬁelds in the last line
+of (9.64) using the transformed variables φ , φ . Doing so and exploring the
+invariance of the action, we obtain
+
+238
+
+9 Symanzik improvement and RG actions
+
+
+
+!
+B
+B
+
+
+(9.67)
+D φ , φ eJφ + φ J − SF [φ ,φ ]
+ 
+
+iεT B
+B iεT J
+− SF [φ,φ]
+= D eiεT φ, φ eiεT eJe φ + φ e
+
+
+
+!
+iεT B
+B iεT
+2
+= 1 + iεAT T + O(ε )
+D φ, φ eJe φ + φ e J − SF [φ,φ] .
+
+In the last step we have transformed the measure of the continuum path
+integral and taken into account that transformation (9.65) could be anomalous
+with the anomaly AT T showing up in the Jacobian of the transformation
+[47, 48]. Since later we will evaluate all expressions up to O(ε), we have kept
+only the leading term of the Jacobian. For non-anomalous transformations
+T, T one has AT T = 0.
+Inserting result (9.67) back into the expression for the generating functional (9.64), we ﬁnd that continuum symmetries (9.65) and (9.66) imply the
+following symmetry of the generating functional on the lattice:
+
+
+
+
+!
+
+J B −1 −eiεT B −1 eiεT J 
+1 + iεAT T + O(ε2 ) W eiεT J, JeiεT .
+W J, J = e
+(9.68)
+Equation (9.68) summarizes how a continuum
+symmetry
+reﬂects
+itself
+in
+the
+!
+lattice generating functional W J, J constructed through blocking.
+9.4.2 Identiﬁcation of the corresponding lattice symmetries
+Having analyzed the manifestation of a continuum symmetry in our lattice
+generating functional, we now want to identify a corresponding symmetry on
+the lattice which also fulﬁlls the symmetry condition (9.68). For that purpose
+we consider transformed lattice ﬁelds
+ψ  = eiεM ψ ,
+
+ψ  = ψ eiεM .
+
+(9.69)
+
+The two generators M, M for the lattice transformation are not yet known and
+we want to identify how they depend on the continuum generators T, T and
+the blocking kernel B. The fact that the transformation should be a symmetry
+of the lattice action implies
+ψ  D ψ  = ψ eiεM D eiεM ψ = ψ D ψ .
+!
+
+(9.70)
+
+For later use we remark that when expanded in ε the invariance condition
+(9.70) at O(ε) implies the commutation relation
+M D + DM = 0 .
+
+(9.71)
+
+As we have done for the continuum expression in the last section, we now
+express the generating functional (9.63) in terms of the transformed ﬁelds
+ψ  , ψ  and explore the implications of the symmetry (9.70):
+
+9.4 Mapping continuum symmetries onto the lattice
+
+239
+
+
+
+!
+
+
+
+
+D ψ  , ψ  e− ψ Dψ + ψ J + Jψ ,
+(9.72)
+
+
+
+!
+!
+iεM
+iεM
+D ψ, ψ e− ψDψ + ψe J + Je ψ .
+= det eiεM det eiεM
+
+!
+W J, J =
+
+The two Jacobi determinants on the right-hand side come from the transformation of the measure on the lattice. Using the relation det[A] = exp(tr ln A)
+(see (A.54)) we can expand them as
+
+
+!
+!
+det eiεM det eiεM = 1 + iε tr M + M + O(ε2 ) .
+(9.73)
+Combining the last two equations we ﬁnd the symmetry relation for the generating functional which is implied by lattice symmetry (9.70):
+
+
+!
+
+!
+
+W J, J = 1 + iε tr M + M + O(ε2 ) W eiεM J, JeiεM . (9.74)
+Now we compare symmetry condition (9.74) from the lattice transformation
+to the corresponding continuum relation (9.68). By setting the two equal we
+obtain the equation
+e
+
+
+
+
+(9.75)
+1 + iεAT T + O(ε2 ) W eiεT J, JeiεT
+
+
+
+
+= 1 + iε tr [ M + M ] + O(ε2 ) W eiεM J, JeiεM ,
+
+
+
+J B −1 −eiεT B −1 eiεT J 
+
+which we can use to identify the lattice transformation M, M that matches
+the continuum transformation T, T . The last step is to insert the explicit form
+of the generating functional,
+W J, J
+
+!
+
+= det[D] e JD
+
+−1
+
+J
+
+,
+
+(9.76)
+
+which is obtained by directly solving the Gaussian integral (9.63). When inserting (9.76), (9.75) becomes (we drop the factor det[D] on both sides)
+e
+
+
+
+J B −1 −eiεT B −1 eiεT J 
+
+
+iεT
+−1 iεT
+1 + iεAT T + O(ε2 ) e Je D e J
+(9.77)
+!
+
+
+iεM
+−1 iεM
+= 1 + i ε tr M + M + O(ε2 ) e Je D e J .
+
+The last equation holds for arbitrary ε and arbitrary sources J, J. Thus the
+terms bilinear in J and J, as well as the O(ε) terms independent of J, J, have
+to match. For the latter term we conclude
+!
+(9.78)
+AT T = tr M + M ,
+and thus have identiﬁed the lattice counterpart of the continuum anomaly.
+The terms bilinear in the sources J, J lead to a symmetry relation for the
+quark propagator,
+
+240
+
+9 Symanzik improvement and RG actions
+
+B −1 − eiεT B −1 eiεT + eiεT D−1 eiεT = eiεM D−1 eiεM .
+
+(9.79)
+
+When expanding in ε one obtains at O(ε)
+T ( D−1 − B −1 ) + ( D−1 − B −1 ) T = M D−1 + D−1 M .
+
+(9.80)
+
+This equation is solved by
+M = T ( 1 − B −1 D ) ,
+
+M = ( 1 − DB −1 ) T .
+
+(9.81)
+
+These are the generators of the lattice symmetry which we wanted to ﬁnd.
+They depend on the continuum generators T, T , the blocking kernel B, and the
+lattice Dirac operator D. Inserting M, M into the symmetry relation (9.71)
+one ends up with a nonlinear equation for the lattice Dirac operator D,
+T D + D T = D [ B −1 T + T B −1 ] D ,
+
+(9.82)
+
+which is a generalization of the Ginsparg–Wilson equation [45, 46].
+When inserting the explicit form (9.81) into the anomaly equation (9.78)
+one obtains the ﬁnal form for the anomaly
+!
+(9.83)
+AT T = tr T + T − T B −1 D − D B −1 T .
+It is easy to check that when blocking a vector-like continuum theory
+with a blocking kernel B = 2 · 1 and considering a chiral rotation in the
+continuum, where T = T = γ5 , Eq. (9.82) reduces to the usual Ginsparg–
+Wilson relation (7.29). The generators M, M of (9.81) are generators (7.2)
+of Lüscher’s symmetry and the anomaly assumes the form A = − tr [γ5 D],
+which we have already discussed in Chap. 7.
+We have shown that with the help of the blocking transformation we can
+identify the mathematical structures that implement chiral symmetry on the
+lattice, in particular the Ginsparg–Wilson equation, the chiral transformations
+on the lattice, and the form of the anomaly. All of these were developed
+individually in Chap. 7, but now follow in one go from a single calculation.
+Recently the blocking transformations were explored further with the motivation of implementing properly Weyl fermions on the lattice as needed for
+the electroweak sector of the standard model [46, 49–51]. A central insight
+[50] concerns the role of the blocking matrix B:
+1. The blocking matrix B must break all symmetries that are anomalous in
+the target theory.
+2. Other symmetries may be broken by B if it is convenient.
+For the case of QCD the choice of B ∝ 1, which we have used in the above
+discussion, is suﬃcient since only the U(1) axial transformation is anomalous.
+For the case of the electroweak sector additional breaking is required due to
+the fermion number anomalies. For this case a suitable blocking matrix was
+proposed in a particular model [50] and the correct symmetry pattern was
+shown to emerge for the corresponding ﬁxed point action. For the resulting
+Ginsparg–Wilson equations it is possible to ﬁnd an explicit solution [51] using
+the overlap construction.
+
+References
+
+241
+
+References
+
+1. K. Symanzik: Nucl. Phys. B 226, 187 (1983) 215, 216
+2. K. Symanzik: Nucl. Phys. B 226, 205 (1983) 215, 216
+3. M. Lüscher and P. Weisz: Commun. Math. Phys. 97, 59 (1985) 215, 217
+4. M. Lüscher and P. Weisz: Erratum, Commun. Math. Phys. 98, 433 (1985) 215
+5. B. Sheikholeslami and R. Wohlert: Nucl. Phys. B 259, 572 (1985) 216, 219
+6. M. Lüscher, S. Sint, R. Sommer, and P. Weisz: Nucl. Phys. B 478, 365 (1996) 216, 217, 218
+7. M. Lüscher: in Probing the Standard Model of Particle Interactions, Proceedings
+Les Houches 1997, edited by R. Gupta, A. Morel, E. de Rafael, and F. David,
+Vol. 1 (Elsevier, Amsterdam 1998) 216, 218
+8. G. Curci, P. Menotti, and G. Paﬀuti: Phys. Lett. B 130, 205 (1983) 217
+9. G. Curci, P. Menotti, and G. Paﬀuti: Erratum, Phys. Lett. B 135, 516 (1984)
+10. R. Wohlert (unpublished) DESY 87–069 (1987) 219
+11. M. Lüscher and P. Weisz: Nucl. Phys. B 479, 429 (1996) 219
+12. G. P. Lepage and P. B. Mackenzie: Phys. Rev. D 48, 2250 (1993) 219
+13. T. DeGrand and C. DeTar: Lattice Methods for Quantum Chromodynamics
+(World Scientiﬁc, Singapore 2006) 219
+14. K. Symanzik: Nucl. Phys. B 190, 1 (1981) 220
+15. M. Lüscher: Nucl. Phys. B 254, 252 (1985) 220
+16. M. Lüscher, R. Narayanan, P. Weisz, and U. Wolﬀ: Nucl. Phys. B 384, 168
+(1992) 220
+17. S. Sint: Nucl. Phys. B 421, 135 (1994) 220
+18. S. Sint: Nucl. Phys. B 451, 416 (1995) 220
+19. M. Lüscher et al.: Nucl. Phys. B 491, 323 (1997) 221
+20. R. G. Edwards, U. M. Heller, and T. R. Klassen: Nucl. Phys. (Proc. Suppl.) 63,
+847 (1998) 221
+21. K. Jansen and R. Sommer: Nucl. Phys. B 530, 185 (1998) 221
+22. W. Bietenholz and U.-J. Wiese: Nucl. Phys. B 464, 319 (1996) 222, 223, 225, 226
+23. K. G. Wilson and J. Kogut: Phys. Rep. 12C, 76 (1974) 228
+24. K. G. Wilson: Rev. Mod. Phys. 47, 773 (1975) 228
+25. P. Hasenfratz: in Advanced School on Non-Perturbative Quantum Field Physics:
+Peniscola, Spain 2–6 June 1997, edited by M. Asorey and A. Dobado, p. 137
+(World Scientiﬁc, Singapore 1998) 228, 232
+26. P. Hasenfratz and F. Niedermayer: Nucl. Phys. B 414, 785 (1994) 230, 234, 235
+27. T. DeGrand, A. Hasenfratz, P. Hasenfratz, and F. Niedermayer: Nucl. Phys. B
+454, 587 (1995) 230, 234, 235
+28. T. DeGrand, A. Hasenfratz, P. Hasenfratz, and F. Niedermayer: Nucl. Phys. B
+454, 615 (1995) 230, 234, 235
+29. M. Blatter and F. Niedermayer: Nucl. Phys. B 482, 286 (1996) 230, 234, 235
+30. P. Hasenfratz et al.: Int. J. Mod. Phys. C12, 691 (2001) 234
+31. C. Gattringer: Phys. Rev. D 63, 114501 (2001) 234
+32. C. B. Lang and T. K. Pany: Nucl. Phys. B 513, 645 (1998) 234, 235
+33. P. Hasenfratz et al.: Nucl. Phys. B (Proc. Suppl.) 94, 627 (2001) 235
+34. P. Hasenfratz et al.: Nucl. Phys. B (Proc. Suppl.) 106, 799 (2002) 235
+35. P. Hasenfratz et al.: Nucl. Phys. B 643, 280 (2002) 235
+36. S. Hauswirth: Ph.D. thesis, Universität Bern, Switzerland (2002) 235
+37. T. Jörg: Ph.D. thesis, Universität Bern, Switzerland (2002) 235
+38. C. Gattringer: Nucl. Phys. B (Proc. Suppl.) 119, 122 (2002) 235
+
+

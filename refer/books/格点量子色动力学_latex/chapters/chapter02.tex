@@ -1,0 +1,702 @@
+% =====================================================================
+%  第 2 章：格点上的 QCD——初步介绍
+%  Gattringer & Lang, "Quantum Chromodynamics on the Lattice" (LNP 788)
+%  根据 extract/ch02.txt 重建；方程自动编号。
+% =====================================================================
+
+\chapter{格点上的 QCD——初步介绍}
+
+在第 1 章中，我们利用系统的正则量子化方法推导了标量场论的格点路径积分。
+随后，我们改变了观点，把格点路径积分本身当作一种量子化方法。所涉及的步
+骤包括对经典欧氏作用量进行格点离散化，以及构造对经典场的“所有构型”积
+分的测度。在本章中，我们开始对量子色动力学实施这两个步骤。
+
+量子色动力学（QCD）是强相互作用的粒子与场的理论，也就是夸克与胶子的理
+论。在本章第一节中，我们将回顾 QCD 作用量泛函及其对称性。这为随后在格
+点上离散化 QCD 作准备。离散化分几步进行。我们首先对 QCD 作用量的费米子
+部分进行朴素离散化，然后讨论胶子的格点作用量。最后我们写出 QCD 格点路
+径积分的完整表达式。然而，我们在此就要强调，本章得到的路径积分表达式并
+不是最终结果。为了纳入费米统计，我们路径积分中夸克场的性质必须加以改变。
+这一步将在第 5 章中进行，届时我们将把夸克场重新解释为反对易的数，即所
+谓的格拉斯曼数。
+
+\section{连续时空中的 QCD 作用量}
+
+我们以回顾欧氏连续作用量来开始 QCD 格点路径积分的构造。在引入夸克场与
+胶子场之后，我们从讨论作用量的费米子部分及其在规范变换下的不变性入手，
+来构建 QCD 连续作用量。随后，我们构造在这些变换下保持不变的胶子场作用量。
+
+\subsection{夸克场与胶子场}
+
+夸克是有质量的费米子，因此由 Dirac 4 分量旋量描述
+\begin{equation}
+  \psi^{(f)}(x)^\alpha_c , \qquad \bar\psi^{(f)}(x)^\alpha_c .
+\end{equation}
+这些夸克场带有多个指标和自变量。时空位置记为 $x$，Dirac 指标记为
+$\alpha = 1, 2, 3, 4$，色指标记为 $c = 1, 2, 3$。一般我们用希腊字母表示
+Dirac 指标，用字母 $a, b, c, \ldots$ 表示色。因此每个场 $\psi^{(f)}(x)$ 有
+12 个独立分量。此外，夸克分为若干味道，分别称为上、下、奇异、粲、底和顶，
+我们用味道指标 $f = 1, 2, \ldots, 6$ 来表示。在许多计算中，只包含最轻的
+两三种夸克味道就足够了。因此，我们的味道指标将从 1 取到 $\Nf$，即味道的
+数目。我们指出，我们常常省略这些指标，转而使用矩阵/矢量记号。
+
+在闵可夫斯基算符方法中，场 $\psi$ 与 $\bar\psi$ 通过
+$\bar\psi = \psi^\dagger \gamma_0$ 相联系，其中 $\gamma_0$ 是与时间相关的
+$\gamma$ 矩阵。在欧氏路径积分中，我们使用独立的积分变量 $\psi$ 和
+$\bar\psi$。
+
+除了夸克之外，QCD 还包含描述胶子的规范场，
+\begin{equation}
+  A_\mu(x)_{cd} .
+\end{equation}
+这些场同样带有多个指标。与夸克场一样，它们具有记为 $x$ 的时空自变量。
+此外，规范场构成一个矢量场，带有洛伦兹指标 $\mu$，用以标记不同分量在时
+空中的方向。由于我们关心的是欧氏作用量，洛伦兹指标 $\mu$ 是欧氏的，即
+我们不区分协变指标与逆变指标。这里不涉及度规张量，$\mu = 1, 2, 3, 4$ 只
+是标记不同的分量。最后，胶子场带有色指标 $c, d = 1, 2, 3$。对于给定的
+$x$ 和 $\mu$，场 $A_\mu(x)$ 在每个时空点 $x$ 处是一个无迹厄米的 $3 \times
+3$ 矩阵。我们将在下面更详细地讨论这些矩阵的结构及其物理动机。
+
+将 QCD 作用量分成两部分是方便的：费米子部分，包含夸克场以及将它们耦合到
+胶子的相互作用项；胶子部分，仅描述胶子自身的传播与相互作用。
+
+\subsection{QCD 作用量的费米子部分}
+
+QCD 作用量的费米子部分 $S_F[\psi, \bar\psi, A]$ 是场 $\psi$ 和 $\bar\psi$
+的双线性泛函，其表达式为
+\begin{equation}
+  \begin{split}
+    S_F[\psi, \bar\psi, A] &=
+      \sum_{f=1}^{\Nf} \int \dd^4 x\,
+      \bar\psi^{(f)}(x) \Big(\gamma_\mu \big(\partial_\mu
+        + \im A_\mu(x)\big) + m^{(f)}\Big) \psi^{(f)}(x) \\
+    &= \sum_{f=1}^{\Nf} \int \dd^4 x\,
+      \bar\psi^{(f)}(x)^\alpha_c \Big( (\gamma_\mu)_{\alpha\beta}
+      \big(\delta_{cd}\,\partial_\mu + \im A_\mu(x)_{cd}\big)\\
+    &\qquad + m^{(f)}\,\delta_{\alpha\beta}\,\delta_{cd}\Big)
+      \psi^{(f)}(x)^\beta_d .
+  \end{split}
+\end{equation}
+该式的第一行我们对色指标和 Dirac 指标使用了矩阵/矢量记号，而在第二行我
+们显式写出所有指标。注意我们使用了爱因斯坦求和约定。
+
+式 (2.3) 清楚地表明，该作用量是各味道 $f = 1, 2, \ldots, \Nf$ 作用量之
+和。不同味道的夸克都以完全相同的方式耦合到胶子场 $A_\mu$，彼此只在其质
+量 $m^{(f)}$ 上不同。当然，不同的味道也具有不同的电荷，因而与电磁场的耦
+合方式不同。但在这里我们只讨论强相互作用。
+
+夸克场 $\psi$、$\bar\psi$ 的色指标 $c$ 和 $d$ 与规范场的相应指标求和，从
+而以这种方式将夸克耦合到胶子。规范场对每个分量 $\mu$ 的耦合都不同，因为
+每个分量都乘以不同的矩阵 $\gamma_\mu$。$\gamma$ 矩阵是 Dirac 空间中的
+$4\times 4$ 矩阵，在 QCD 作用量中它们混合夸克场的各个 Dirac 分量。它们是
+Dirac 方程中熟知的（闵可夫斯基）$\gamma$ 矩阵的欧氏版本。欧氏 $\gamma$
+矩阵 $\gamma_\mu$，$\mu = 1, 2, 3, 4$，满足欧氏反对易关系
+\begin{equation}
+  \{\gamma_\mu, \gamma_\nu\} = 2\,\delta_{\mu\nu}\,\mathbb{1} .
+\end{equation}
+在附录 A.2 中我们讨论如何从闵可夫斯基 $\gamma$ 矩阵构造欧氏 $\gamma$ 矩
+阵，并给出一个显式表示。式 (2.3) 动能项中的各偏导数以与规范场相同的方
+式混合 Dirac 分量，即 $\partial_\mu$ 也与矩阵 $\gamma_\mu$ 缩并。不过，
+动能项在色空间中是平凡的。最后，质量项在色空间和 Dirac 空间中都是平凡的。
+
+在详细讨论了我们的记号之后，我们还应验证作用量 (2.5) 确实给出费米子的相
+对论性波动方程，即 Dirac 方程。对于单一味道，作用量的贡献为（在随后的讨
+论中我们略去味道指标，并对色指标和 Dirac 指标使用矩阵/矢量记号）
+\begin{equation}
+  S_F[\psi, \bar\psi, A] = \int \dd^4 x\,
+    \bar\psi(x) \big(\gamma_\mu (\partial_\mu + \im A_\mu(x)) + m\big)
+    \psi(x) .
+\end{equation}
+在 (2.5) 中应用欧拉--拉格朗日方程 (1.43) 的最简单方法是把 (2.5) 的被积函
+数对 $\bar\psi(x)$ 求变分。这给出
+\begin{equation}
+  \big(\gamma_\mu (\partial_\mu + \im A_\mu(x)) + m\big) \psi(x) = 0 ,
+\end{equation}
+这正是在外场 $A_\mu$ 中的（欧氏）Dirac 方程。因此，我们验证了作用量 (2.5)
+具有正确的形式。
+
+\subsection{费米子作用量的规范不变性}
+
+到目前为止，我们只讨论了 QCD 的不同组成部分以及它们如何组装成 QCD 作用量
+的费米子部分。现在让我们更深入地探讨其背后的结构与对称性。
+
+除了额外的色结构之外，作用量 (2.5) 与电动力学的作用量完全相同——当使用
+矩阵/矢量记号时，这种差异甚至不明显。事实上，QCD 作用量是通过推广电动力
+学的规范不变性得到的。
+
+在电动力学中，作用量在把费米子场在每个时空点 $x$ 乘以任意相位、并结合规
+范场的相应变换下保持不变。在 QCD 中，我们要求作用量在夸克色指标之间的局
+域转动下不变。在每个时空点 $x$，我们选取一个独立的复 $3 \times 3$ 矩阵
+$\Omega(x)$。这些矩阵要求是酉的，$\Omega(x)^\dagger = \Omega(x)^{-1}$，
+并且满足 $\det[\Omega(x)] = 1$。这样的矩阵构成特殊酉群的定义表示，对于
+$3 \times 3$ 矩阵的情形记作 SU(3)。容易看出这个集合在矩阵乘法下封闭。此
+外，单位矩阵包含在该集合中，且对每个元素都存在逆元（即其厄米共轭矩阵）。
+因此 SU(3) 矩阵的集合构成一个群。我们在附录 A.1 中汇集了证明这些论断的
+基本方程。不过要注意，群的乘法运算——矩阵乘法——不是交换的。具有非交
+换群运算的群称为非阿贝尔群。将非阿贝尔群用于规范理论的想法由杨振宁和米
+尔斯提出 [1]，这类理论通常称为杨--米尔斯理论。
+
+回到我们对 QCD 规范不变性的讨论，我们要求作用量在如下变换下不变
+\begin{equation}
+  \psi(x) \to \psi'(x) = \Omega(x)\psi(x) , \qquad
+  \bar\psi(x) \to \bar\psi'(x) = \bar\psi(x)\Omega(x)^\dagger
+\end{equation}
+其中费米子场的变换如上，而规范场的变换 $A_\mu(x) \to A'_\mu(x)$ 尚未指定。
+作用量的不变性意味着我们要求
+\begin{equation}
+  S_F[\psi', \bar\psi', A'] = S_F[\psi, \bar\psi, A] .
+\end{equation}
+结合 (2.5) 和 (2.7)，这给出
+\begin{equation}
+  S_F[\psi', \bar\psi', A'] =
+    \int \dd^4 x\,
+    \bar\psi(x)\Omega(x)^\dagger
+    \Big(\gamma_\mu \big(\partial_\mu + \im A'_\mu(x)\big) + m\Big)
+    \Omega(x)\psi(x) .
+\end{equation}
+利用 $\Omega(x)^\dagger = \Omega(x)^{-1}$，我们立即看到对于质量项，规范变换
+矩阵相互抵消。对于其余项，情况要复杂一些。通过比较 (2.5) 与 (2.9)，我们
+得到条件
+\begin{equation}
+  \begin{split}
+    \partial_\mu + \im A_\mu(x) &=
+      \Omega(x)^\dagger \big(\partial_\mu + \im A'_\mu(x)\big) \Omega(x) \\
+    &= \partial_\mu + \Omega(x)^\dagger \big(\partial_\mu \Omega(x)\big)
+      + \im\, \Omega(x)^\dagger A'_\mu(x)\Omega(x) .
+  \end{split}
+\end{equation}
+这是作用于 $x$ 的函数的算符方程。因此，根据乘积法则，我们得到两项含导数
+的项。现在我们可以解出 $A'_\mu(x)$（再次使用 $\Omega(x)^\dagger =
+\Omega(x)^{-1}$），从而得到规范场的变换性质
+\begin{equation}
+  A_\mu(x) \to A'_\mu(x)
+  = \Omega(x) A_\mu(x) \Omega(x)^\dagger
+    + \im\, \big(\partial_\mu \Omega(x)\big) \Omega(x)^\dagger .
+\end{equation}
+注意 $A'_\mu(x)$ 也是厄米且无迹的，正如规范场所需。对于 (2.11) 右端的第
+一项，这由 $A_\mu(x)$ 无迹以及 $\Omega(x)^\dagger = \Omega(x)^{-1}$ 推出。
+对于第二项，这在附录 A.1 中证明（见 (A.11) 和 (A.15)）。
+
+费米子作用量 (2.5) 在费米子的规范变换 (2.7) 下保持不变这一要求，必然意味
+着规范场 $A_\mu(x)$ 的存在，且其变换性质由 (2.11) 给出。
+
+在下一节中，当我们在格点上离散化 QCD 时，我们同样要求格点作用量在夸克场
+的局域规范变换 (2.7) 下不变。为了实现作用量的规范不变性，必须引入规范场。
+
+\subsection{胶子作用量}
+
+现在让我们讨论胶子场 $A_\mu(x)$ 的作用量。胶子作用量 $S_G[A_\mu]$ 只是规范
+场的泛函，并且要求在变换 (2.11) 下不变：
+\begin{equation}
+  S_G[A'] = S_G[A] .
+\end{equation}
+为了构造具有该性质的作用量，我们定义协变导数
+\begin{equation}
+  D_\mu(x) = \partial_\mu + \im A_\mu(x) .
+\end{equation}
+从 (2.10) 第一行的中间结果中，我们读出协变导数的变换性质为
+\begin{equation}
+  D_\mu(x) \to D'_\mu(x) = \partial_\mu + \im A'_\mu(x)
+  = \Omega(x) D_\mu(x) \Omega(x)^\dagger .
+\end{equation}
+这些变换性质保证了 $D_\mu(x)\psi(x)$ 与 $\psi(x)$ 以完全相同的方式变换
+——因此得名“协变导数”。
+
+现在用协变导数来构造作用量泛函，它推广了电动力学中已知的表达式。我们把场
+强张量 $F_{\mu\nu}(x)$ 定义为对易子
+\begin{equation}
+  F_{\mu\nu}(x) = -\im [D_\mu(x), D_\nu(x)]
+  = \partial_\mu A_\nu(x) - \partial_\nu A_\mu(x)
+    + \im [A_\mu(x), A_\nu(x)] ,
+\end{equation}
+右端最后一项并不为零，因为 $A_\mu(x)$ 与 $A_\nu(x)$ 是矩阵，即乘法为非交
+换运算的对象。除这个对易子之外，场强张量 $F_{\mu\nu}(x)$ 与电动力学中场强
+的形式相同。
+
+\begingroup\emergencystretch=4em 场强张量是两个协变导数的对易子这一事实意味着它继承变换性质\linebreak[0] (2.14)，即它
+按如下方式变换\par\endgroup
+\begin{equation}
+  F_{\mu\nu}(x) \to F'_{\mu\nu}(x) = \Omega(x) F_{\mu\nu}(x) \Omega(x)^\dagger .
+\end{equation}
+作为规范作用量的候选，我们现在考虑表达式
+\begin{equation}
+  S_G[A] = \frac{1}{2 g^2} \int \dd^4 x\,
+    \tr\big[F_{\mu\nu}(x) F_{\mu\nu}(x)\big] .
+\end{equation}
+对色指标取迹保证了 (2.17) 在规范变换下不变。可以利用 (2.16)、迹在循环置
+换下的不变性以及 $\Omega(x)^\dagger = \Omega(x)^{-1}$ 来验证这一性质。此
+外，对洛伦兹指标 $\mu$、$\nu$ 求和（求和约定）保证了该作用量是洛伦兹标量。
+我们再次强调，(2.17) 是在欧氏空间中理解的。
+
+从 (2.15) 和 (2.17) 可以明显看出，我们的规范作用量推广了电动力学的作用量。
+除了迹和不同的整体因子之外，它与电磁场的作用量完全一致。迹的出现是因为胶
+子场是矩阵值的。下面我们将矩阵值场分解为分量，从而消去迹，进一步拉近与电
+动力学的相似性。额外的因子 $1/g^2$ 只是引入耦合的一种方便方式。在对规范场
+重新标度之后
+\begin{equation}
+  A_\mu(x) \to \frac{1}{g} A_\mu(x) ,
+\end{equation}
+(2.17) 中的因子 $1/g^2$ 消失，规范作用量呈现更为熟悉的形式。此时，规范耦
+合出现在协变导数中
+\begin{equation}
+  D_\mu(x) \to \partial_\mu + \im g A_\mu(x) ,
+\end{equation}
+从而清楚地表明 $g$ 是规范场与夸克的耦合强度。在格点上，把规范耦合作为规
+范作用量的整体因子更为方便，也就是说我们采用 (2.17) 的形式。
+
+\subsection{规范场的色分量}
+
+我们把规范场 $A_\mu(x)$ 作为厄米无迹矩阵引入，并证明了规范变换 (2.11) 保
+持这些性质。因此 $A_\mu(x)$ 属于李代数 su(3)，我们可以写
+\begin{equation}
+  A_\mu(x) = \sum_{i=1}^{8} A_\mu^{(i)}(x)\, T_i .
+\end{equation}
+分量 $A_\mu^{(i)}(x)$，$i = 1, 2, \ldots 8$，是实值场，即所谓的色分量，而
+$T_i$ 是无迹厄米 $3 \times 3$ 矩阵的一组基（见附录 A.1）。我们可以利用规
+范场的这个表示 (2.20) 把场强张量 (2.15) 也写成其分量的形式。将 (2.20) 代
+入 (2.15) 得到
+\begin{equation}
+  F_{\mu\nu}(x) = \sum_{i=1}^{8}
+    \big(\partial_\mu A_\nu^{(i)}(x) - \partial_\nu A_\mu^{(i)}(x)\big) T_i
+    + \im \sum_{j,k=1}^{8} A_\mu^{(j)}(x) A_\nu^{(k)}(x)\,
+      [T_j, T_k] .
+\end{equation}
+利用对易关系 (A.4)，右端的对易子可以进一步化简，最终得到
+\begin{equation}
+  F_{\mu\nu}(x) = \sum_{i=1}^{8} F_{\mu\nu}^{(i)}(x)\, T_i ,
+\end{equation}
+\begin{equation}
+  F_{\mu\nu}^{(i)}(x) = \partial_\mu A_\nu^{(i)}(x) - \partial_\nu A_\mu^{(i)}(x)
+    - f_{ijk}\, A_\mu^{(j)}(x) A_\nu^{(k)}(x) .
+\end{equation}
+现在可以把场强的这一表示代入规范作用量的表达式 (2.17)，并利用 (A.3) 计算
+迹，得到
+\begin{equation}
+  S_G[A] = \frac{1}{4 g^2} \sum_{i=1}^{8}
+    \int \dd^4 x\, F_{\mu\nu}^{(i)}(x) F_{\mu\nu}^{(i)}(x) .
+\end{equation}
+从这个方程我们看到，规范作用量是对色分量的求和，每一项都具有电动力学作用
+量的形式。然而，出现了一个性质上全新的特征：从 (2.23) 的右端我们看到，场
+强的色分量并不是规范场 $A_\mu^{(i)}(x)$ 的线性函数，而是具有一个混合胶子
+场不同色分量的二次项。因此，在作用量 (2.24) 中，我们不仅遇到电动力学中熟
+知的规范场二次项，还发现三次项和四次项。这些项引起胶子的自相互作用，使
+QCD 成为一个高度非平凡的理论。自相互作用是色禁闭的原因，而色禁闭是 QCD
+最显著的特征。
+
+在图 2.1 中，我们展示了一个示意图（即所谓的树级费曼图），用以说明三次和四
+次相互作用项。卷曲线代表胶子，圆点代表相互作用顶点。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{fig21.png}
+  \caption*{图 2.1. \emph{胶子三次与四次自相互作用的示意图。波浪线代表胶
+    子传播子，圆点代表相互作用顶点}.}
+  \label{fig:21}
+\end{figure}
+
+以上论述结束我们对连续作用量的回顾，现在我们已经具备了开始量子色动力学格
+点离散化所需的所有概念和记号。不过我们要强调，除了规范不变性之外，QCD 作
+用量还有其他重要的对称性。我们将在需要时再讨论这些对称性。
+
+\section{费米子的朴素离散化}
+
+在本节中，我们介绍所谓的费米子作用量朴素离散化。稍后在第 5 章中，这种离
+散化将加上额外的项以去除格点人为效应。这里，它用于展示基本思想，更重要
+的是，用于讨论与连续形式不同的格点胶子场的表示。我们将表明，在格点上，
+胶子场必须作为规范群的元素引入，而不是像连续表述那样作为代数的元素。
+
+\subsection{自由费米子的离散化}
+
+如第 1.4 节所讨论的，格点表述的第一步是引入四维格点 $\Lambda$：
+\begin{equation}
+  \Lambda = \{n = (n_1, n_2, n_3, n_4) \;|\;
+    n_1, n_2, n_3 = 0, 1, \ldots, N-1 ; \;
+    n_4 = 0, 1, \ldots, N_T-1\} .
+\end{equation}
+矢量 $n \in \Lambda$ 标记时空中的点，这些点之间相隔一个格点常数 $a$。在我
+们的 QCD 格点离散化中，我们现在只在格点上放置旋量，即我们的费米子自由度
+为
+\begin{equation}
+  \psi(n) , \quad \bar\psi(n) , \quad n \in \Lambda ,
+\end{equation}
+其中旋量带有与连续情形相同的色、Dirac 和味道指标（我们在记号中略去它们）。
+注意，为记号方便，我们仅使用整数值的四维坐标 $n$ 来标记夸克的格点位置，
+而不是实际的物理时空点 $x = an$。
+
+在连续情形中，自由费米子的作用量 $S_F^0$ 由下式给出（在 (2.5) 中令
+$A_\mu = 0$）
+\begin{equation}
+  S_F^0[\psi, \bar\psi] = \int \dd^4 x\,
+    \bar\psi(x) (\gamma_\mu \partial_\mu + m) \psi(x) .
+\end{equation}
+当在格点上表述这个作用量时，我们必须离散化对时空的积分以及偏导数。离散化
+通过沿 $\Lambda$ 求和来实现，正如我们在第 1 章对标量场论所做的那样。偏导
+数用对称的表达式离散化
+\begin{equation}
+  \partial_\mu \psi(x) \to
+    \frac{1}{2a}\big(\psi(n + \hat\mu) - \psi(n - \hat\mu)\big) .
+\end{equation}
+因此，我们的自由费米子作用量的格点版本为
+\begin{equation}
+  S_F^0[\psi, \bar\psi] = a^4 \sum_{n\in\Lambda}
+    \bar\psi(n) \left( \sum_{\mu=1}^{4} \gamma_\mu\,
+      \frac{\psi(n + \hat\mu) - \psi(n - \hat\mu)}{2a} + m\,\psi(n) \right) .
+\end{equation}
+这一形式是引入规范场的出发点。
+
+\subsection{以链结变量引入规范场}
+
+在上一节中我们表明，要求作用量在夸克场色指标的局域转动 (2.7) 下不变，强
+制我们引入规范场。在格点上，我们通过为每个格点 $n$ 选取一个 SU(3) 元素
+$\Omega(n)$ 并按下式变换费米子场来实现同样的变换
+\begin{equation}
+  \psi(n) \to \psi'(n) = \Omega(n) \psi(n) , \qquad
+  \bar\psi(n) \to \bar\psi'(n) = \bar\psi(n) \Omega(n)^\dagger .
+\end{equation}
+与连续情形一样，我们发现在格点上 (2.29) 的质量项在变换 (2.30) 下不变。对
+于 (2.29) 中的离散化导数项则不是这样。例如，考虑项
+\begin{equation}
+  \bar\psi(n)\psi(n + \hat\mu) \to
+  \bar\psi'(n) \psi'(n + \hat\mu) =
+  \bar\psi(n) \Omega(n)^\dagger \Omega(n + \hat\mu) \psi(n + \hat\mu) .
+\end{equation}
+这不是规范不变的。然而，如果我们引入一个带方向指标 $\mu$ 的场 $U_\mu(n)$，
+那么
+\begin{equation}
+  \bar\psi'(n) U'_\mu(n) \psi'(n + \hat\mu) =
+  \bar\psi(n) \Omega(n)^\dagger U'_\mu(n) \Omega(n + \hat\mu)
+  \psi(n + \hat\mu)
+\end{equation}
+在按如下方式定义新场的规范变换时是规范不变的
+\begin{equation}
+  U_\mu(n) \to U'_\mu(n) = \Omega(n) U_\mu(n) \Omega(n + \hat\mu)^\dagger .
+\end{equation}
+为了使费米子作用量 (2.29) 规范不变，我们把规范场 $U_\mu(n)$ 作为规范群
+SU(3) 的元素引入，其变换如 (2.33) 所示。这些矩阵值变量是有方向的，并且附
+着在格点的链结上，因此通常称为链结变量。$U_\mu(n)$ 位于连接格点 $n$ 与
+$n + \hat\mu$ 的链结上。
+
+由于链结变量是有方向的，我们也可以定义指向负 $\mu$ 方向的链结变量。注意，
+这些并不是独立的链结变量，而仅仅是为记号方便引入的。特别地，$U_{-\mu}(n)$
+从 $n$ 指向 $n - \hat\mu$，并通过如下定义与正方向的链结变量
+$U_\mu(n - \hat\mu)$ 相联系
+\begin{equation}
+  U_{-\mu}(n) \equiv U_\mu(n - \hat\mu)^\dagger .
+\end{equation}
+在图 2.2 中，我们图示了链结变量在格点上的几何布局。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{fig22.png}
+  \caption*{图 2.2. \emph{链结变量 $U_\mu(n)$ 与 $U_{-\mu}(n)$}.}
+  \label{fig:22}
+\end{figure}
+
+由定义 (2.34) 和 (2.33)，我们得到负方向链结的变换性质
+\begin{equation}
+  U_{-\mu}(n) \to U'_{-\mu}(n) =
+  \Omega(n) U_{-\mu}(n) \Omega(n - \hat\mu)^\dagger .
+\end{equation}
+注意，我们是将胶子场 $U_\mu(n)$ 作为规范群 SU(3) 的元素引入的，而不是作为
+连续情形所用的李代数的元素。根据规范变换 (2.33) 和 (2.35)，变换后的链结
+变量也仍然是 SU(3) 群的元素。
+
+在引入了链结变量及其在规范变换下的性质之后，我们现在可以把自由费米子作用
+量 (2.29) 推广为外规范场 $U$ 中费米子的所谓朴素费米子作用量：
+\begin{equation}
+  \begin{split}
+    S_F[\psi, \bar\psi, U] = a^4 \sum_{n\in\Lambda}
+    \bar\psi(n) \Big( \sum_{\mu=1}^{4} \gamma_\mu\,
+      \frac{U_\mu(n)\psi(n + \hat\mu) - U_{-\mu}(n)\psi(n - \hat\mu)}{2a}\\
+    + m\,\psi(n) \Big) .
+  \end{split}
+\end{equation}
+利用 (2.30)、(2.33) 和 (2.35) 给出的费米子与链结变量的规范变换性质，容易
+看出费米子作用量 (2.36) 的规范不变性，
+$S_F[\psi, \bar\psi, U] = S_F[\psi', \bar\psi', U']$。
+
+\subsection{链结变量与连续规范场的关系}
+
+现在让我们更详细地讨论链结变量，看看它们如何与连续表述中取代数值的规范场
+相联系。我们把 $U_\mu(n)$ 作为连接 $n$ 与 $n + \hat\mu$ 两点的链结变量引
+入。因此变换性质 (2.33) 由两个变换矩阵 $\Omega(n)$ 和
+$\Omega(n + \hat\mu)^\dagger$ 决定。在连续情形中，也具有这种变换性质的对象
+是已知的：它就是规范场 $A_\mu$ 沿连接两点 $x$ 与 $y$ 的某条曲线 $C_{xy}$
+的路径有序指数积分，即所谓的规范输运子：
+\begin{equation}
+  G(x, y) = \mathcal{P} \exp\!\left( \im \int_{C_{xy}} A \cdot ds \right) .
+\end{equation}
+我们可以假设格点嵌入在连续时空之中，光滑的规范场就生活在那里。关于连续情
+形中路径有序指数的详细讨论，参见例如文献 [2]。我们不需要连续规范输运子的
+精确定义，只需用到在规范变换 (2.11) 下它们按如下方式变换
+\begin{equation}
+  G(x, y) \to \Omega(x) G(x, y) \Omega(y)^\dagger .
+\end{equation}
+当把 $n$ 与 $n + \hat\mu$ 视为一条路径的端点时，这些变换性质与我们的链结
+变量 $U_\mu(n)$ 相同。基于这些变换性质，我们把链结变量 $U_\mu(n)$ 解释为
+连接 $n$ 与 $n + \hat\mu$ 两点的规范输运子的格点版本，即我们希望建立
+$U_\mu(n) = G(n, n + \hat\mu) + O(a)$。为此，我们引入取代数值的格点规范场
+$A_\mu(n)$，并写
+\begin{equation}
+  U_\mu(n) = \exp\!\big(\im a A_\mu(n)\big) .
+\end{equation}
+比较 (2.37) 和 (2.39)，可以看到我们把沿从 $n$ 到 $n + \hat\mu$ 的路径的积
+分近似为 $aA_\mu(n)$，即路径长度 $a$ 乘以场 $A_\mu(n)$ 在起点的取值。
+\footnote{我们提醒读者，为记号方便，我们仅用整数值的四维坐标 $n$ 来标记
+格点。但在当前的讨论中应记住，物理的时空坐标是 $a\,n$，即相邻格点之间的
+距离为 $a$。} 这个近似精确到 $O(a)$，在这一阶不需要路径排序。由于链结变量
+充当规范输运子，我们将经常使用这一术语来代替“链结变量”。
+
+基于关系 (2.39)，我们现在还可以把格点费米子作用量 (2.36) 与其连续对应物
+(2.5) 联系起来。由于我们构造的指导原则之一是要求格点作用量在 $a \to 0$
+极限下趋近连续形式，我们对 (2.39) 作小 $a$ 展开，
+\begin{equation}
+  U_\mu(n) = 1 + \im a A_\mu(n) + O(a^2) , \qquad
+  U_{-\mu}(n) = 1 - \im a A_\mu(n - \hat\mu) + O(a^2) ,
+\end{equation}
+其中我们对 $U_{-\mu}(n)$ 的展开使用了 (2.34) 和 $A_\mu = A_\mu^\dagger$。
+将这些展开后的链结变量代入表达式 (2.36)，我们发现
+\begin{equation}
+  S_F[\psi, \bar\psi, U] = S_F^0[\psi, \bar\psi] + S_F^I[\psi, \bar\psi, A] ,
+\end{equation}
+其中 $S_F^0$ 表示作用量的自由部分，相互作用部分为
+\begin{equation}
+  \begin{split}
+    S_F^I[\psi, \bar\psi, A] &= \im a^4 \sum_{n\in\Lambda}\sum_{\mu=1}^{4}
+      \bar\psi(n) \gamma_\mu\,
+      \half\big(A_\mu(n) \psi(n + \hat\mu) + A_\mu(n - \hat\mu)
+        \psi(n - \hat\mu)\big) \\
+    &= \im a^4 \sum_{n\in\Lambda}\sum_{\mu=1}^{4}
+      \bar\psi(n) \gamma_\mu A_\mu(n) \psi(n) + O(a) .
+  \end{split}
+\end{equation}
+在第二步中我们使用了 $\psi(n \pm \hat\mu) = \psi(n) + O(a)$ 和
+$A_\mu(n - \hat\mu) = A_\mu(n) + O(a)$。这两个方程 (2.41) 和 (2.42) 表明，
+当对费米子作用量的格点版本 (2.36) 作 $a \to 0$ 展开时，我们确实恢复了连续
+形式 (2.5)。
+
+在继续离散化 QCD 作用量的规范部分之前，我们强调一个重要的概念性要点：取
+群值的链结变量 $U_\mu(n)$ 不仅仅是把连续情形中取李代数值的场 $A_\mu(x)$
+偷偷塞进格点表述的辅助构造。相反，群元素 $U_\mu(n)$ 被认为是路径积分中要
+被积掉的基本变量（见第 3 章）。这种从代数值场到（紧）群值场的改变具有重
+要的后果。特别是，规范固定的作用发生相当大的变化。我们将在完成格点上 QCD
+的构造之后详细讨论这些问题。
+
+\section{威尔逊规范作用量}
+
+我们已经把链结变量作为将胶子场放到格点上的基本量引入。现在我们用链结变量
+构造格点规范作用量，并表明在 $a \to 0$ 极限下它趋近其连续对应物（假设格
+点规范场嵌入在连续背景中）。这是朴素连续极限，与完整的、已积分的量子理论
+的连续极限相对照。
+
+\subsection{由链结变量构造的规范不变对象}
+
+作为构造胶子作用量的准备，让我们先讨论沿一条链结路径的链结变量串的变换性
+质。设 $P$ 是格点上连接 $n_0$ 与 $n_1$ 两点的一条由 $k$ 条链结组成的路径。
+我们定义有序乘积
+\begin{equation}
+  P[U] = U_{\mu_0}(n_0) U_{\mu_1}(n_0 + \hat\mu_0) \ldots
+    U_{\mu_{k-1}}(n_1 - \hat\mu_{k-1})
+  \equiv \prod_{(n,\mu)\in P} U_\mu(n) .
+\end{equation}
+这个对象是连续规范输运子 (2.37) 的格点版本。注意路径 $P$ 可能包含正负两
+个方向 $\pm\mu$ 的链结变量。
+
+由单个链结变量的变换性质 (2.33) 和 (2.35) 可知，除端点外各点的规范转动相
+互抵消：考虑路径上两个相邻链结变量的变换，其中一个终止于 $n$，另一个从
+该点出发。两个变换矩阵 $\Omega(n)^\dagger$ 和 $\Omega(n)$ 在 $n$ 处相互抵
+消。只剩下路径两个端点 $n_0$ 和 $n_1$ 处的矩阵。因此乘积 $P[U]$ 按如下方
+式变换
+\begin{equation}
+  P[U] \to P[U'] = \Omega(n_0) P[U] \Omega(n_1)^\dagger .
+\end{equation}
+与单个链结项类似，通过在起点和终点附加上夸克场，可以从这样的链结变量乘积
+$P[U]$ 构造出规范不变的量，
+\begin{equation}
+  \bar\psi(n_0) P[U] \psi(n_1) .
+\end{equation}
+构造链结变量规范不变乘积的另一种方式是选取路径 $P$ 为闭合圈 $L$ 并取迹，
+\begin{equation}
+  L[U] = \tr\!\left[ \prod_{(n,\mu)\in L} U_\mu(n) \right] .
+\end{equation}
+根据 (2.44)，在规范变换下，只剩下圈根植点 $n_0$ 处的矩阵 $\Omega(n_0)$ 和
+$\Omega(n_0)^\dagger$。这些矩阵在取迹时相互抵消。我们发现
+\begin{equation}
+  L[U'] = \tr\!\left[ \Omega(n_0) \prod_{(n,\mu)\in L} U_\mu(n)
+    \Omega(n_0)^\dagger \right] = \tr\!\left[ \prod_{(n,\mu)\in L} U_\mu(n)
+    \right] = L[U] .
+\end{equation}
+因此，我们已确定链结变量闭合圈的迹是规范不变的对象。这样的链结变量圈用于
+构造胶子作用量，以后也将充当物理可观测量。
+
+\subsection{规范作用量}
+
+对于胶子作用量，使用格点上最短的非平凡闭合圈就足够了，即所谓的方格。方格
+变量 $U_{\mu\nu}(n)$ 只由四个链结变量相乘而成，定义为
+\begin{equation}
+  \begin{split}
+    U_{\mu\nu}(n) &= U_\mu(n) U_\nu(n + \hat\mu) U_{-\mu}(n + \hat\mu + \hat\nu)
+      U_{-\nu}(n + \hat\nu)\\
+    &= U_\mu(n) U_\nu(n + \hat\mu) U_\mu(n + \hat\nu)^\dagger U_\nu(n)^\dagger .
+  \end{split}
+\end{equation}
+在第二种写法中我们利用了等价关系 (2.34)。我们在图 2.3 中描绘了方格。正如
+我们在上一段中所证明的，方格变量的迹是规范不变的对象。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7\textwidth]{fig23.png}
+  \caption*{图 2.3. \emph{构成方格 $U_{\mu\nu}(n)$ 的四个链结变量。圆圈表
+    示在方格中依次经过各链结的顺序}.}
+  \label{fig:23}
+\end{figure}
+
+现在我们给出威尔逊形式的规范作用量 [3]——格点规范理论的第一个表述——随后
+表明它的确在朴素极限 $a \to 0$ 下趋近连续形式。威尔逊规范作用量是对所有方
+格的求和，每个方格只按一种取向计数。这个求和可以通过对所有方格所在的格点
+$n$ 求和、再结合对洛伦兹指标 $1 \leq \mu < \nu \leq 4$ 求和来实现，
+\begin{equation}
+  S_G[U] = \frac{2}{g^2} \sum_{n\in\Lambda} \sum_{\mu<\nu}
+    \Re\, \tr\big[1 - U_{\mu\nu}(n)\big] .
+\end{equation}
+各项贡献是单位矩阵减去方格变量后取迹的实部。引入因子 $2/g^2$ 是为了在
+$a \to 0$ 极限下与连续作用量 (2.17) 的形式相匹配。现在让我们讨论这个极限。
+
+为了确立正确的极限，我们需要对形式 (2.39) 中的链结变量作小 $a$ 展开。为
+了有条理地处理方格中四个链结变量的乘积，利用矩阵指数乘积的
+Baker--Campbell--Hausdorff 公式是有用的：
+\begin{equation}
+  \exp(A) \exp(B) = \exp\!\left( A + B + \half [A, B] + \cdots \right) ,
+\end{equation}
+其中 $A$ 和 $B$ 是任意矩阵，省略号表示被略去的次数高于 2 的矩阵幂次。公
+式 (2.50) 可以通过把两边按 $A$ 和 $B$ 的幂次展开而容易地证明。将 (2.39)
+代入方格的定义 (2.48)，并迭代应用 (2.50)，我们得到
+\begin{multline}
+  U_{\mu\nu}(n) = \exp\!\Big(
+    \im a A_\mu(n) + \im a A_\nu(n + \hat\mu)
+    - \frac{a^2}{2} [A_\mu(n), A_\nu(n + \hat\mu)] \\
+    - \im a A_\mu(n + \hat\nu) - \im a A_\nu(n)
+    - \frac{a^2}{2} [A_\mu(n + \hat\nu), A_\nu(n)] \\
+    + \frac{a^2}{2} [A_\nu(n + \hat\mu), A_\mu(n + \hat\nu)]
+    + \frac{a^2}{2} [A_\mu(n), A_\nu(n)] \\
+    + \frac{a^2}{2} [A_\mu(n), A_\mu(n + \hat\nu)]
+    + \frac{a^2}{2} [A_\nu(n + \hat\mu), A_\nu(n)] + O(a^3) \Big) .
+\end{multline}
+在这个表达式中，我们有带位移自变量的规范场，如 $A_\nu(n + \hat\mu)$。现在
+我们对这些场作泰勒展开，即令
+\begin{equation}
+  A_\nu(n + \hat\mu) = A_\nu(n) + a\, \partial_\mu A_\nu(n) + O(a^2) ,
+\end{equation}
+并考虑直至 $O(a^2)$ 的贡献。通过这一展开，若干项相互抵消，我们得到
+\begin{equation}
+  \begin{split}
+    U_{\mu\nu}(n) &= \exp\!\big( \im a^2
+      \big(\partial_\mu A_\nu(n) - \partial_\nu A_\mu(n)
+      + \im [A_\mu(n), A_\nu(n)]\big) + O(a^3) \big) \\
+    &= \exp\!\big( \im a^2 F_{\mu\nu}(n) + O(a^3) \big) .
+  \end{split}
+\end{equation}
+在第二步中我们使用了 (2.15) 给出的场强的连续定义。现在可以把形式 (2.53)
+代入威尔逊规范作用量 (2.49)。对 (2.53) 中的指数作展开，我们发现
+\begin{equation}
+  \begin{split}
+    S_G[U] &= \frac{2}{g^2} \sum_{n\in\Lambda} \sum_{\mu<\nu}
+      \Re\, \tr\big[1 - U_{\mu\nu}(n)\big] \\
+    &= \frac{a^4}{2 g^2} \sum_{n\in\Lambda} \sum_{\mu,\nu}
+      \tr\big[F_{\mu\nu}(n)^2\big] + O(a^2) .
+  \end{split}
+\end{equation}
+在取 $\tr[1 - U_{\mu\nu}(n)]$ 的实部时，(2.53) 中指数展开出现的 $O(a^2)$
+项相互抵消（可以利用
+$\tr[U_{\mu\nu}(n)]^* = \tr[U_{\mu\nu}(n)^\dagger] = \tr[U_{\nu\mu}(n)]$
+看出这一点）。类似地，(2.53) 展开中的 $O(a^3)$ 项也相互抵消，因此正如
+(2.54) 所述，威尔逊作用量在 $O(a^2)$ 精度内逼近连续形式。注意因子 $a^4$
+连同对 $\Lambda$ 的求和正是时空积分的离散化，因此 $\lim_{a\to 0} S_G[U] =
+S_G[A]$。这就完成了我们对威尔逊规范作用量朴素连续极限 $a \to 0$ 的讨论。
+
+在结束本节时我们指出，为了进一步减小截断效应，人们提出了多种不同的规范场
+格点作用量。我们将在第 9 章回到这个问题。
+
+\section{QCD 格点路径积分的形式表达式}
+
+在构造了格点上的费米子作用量和规范场作用量之后，我们现在可以写出用于欧氏
+关联函数的格点 QCD 路径积分公式的完整表达式。正如已经预告的，这里给出的
+初步表述将在后续章节中进一步完善。尽管如此，我们认为这样一份中间总结有助
+于理解构造的脉络。
+
+\subsection{QCD 格点路径积分}
+
+按照第 1.4 节的讨论，我们把欧氏关联函数写成如下形式的格点路径积分
+\begin{equation}
+  \ev{O_2(t)\, O_1(0)} = \frac{1}{Z} \int
+    \mathcal{D}[\psi, \bar\psi]\, \mathcal{D}[U]\,
+    e^{-S_F[\psi,\bar\psi,U] - S_G[U]}\,
+    O_2[\psi, \bar\psi, U]\, O_1[\psi, \bar\psi, U] ,
+\end{equation}
+其中配分函数 $Z$ 由下式给出
+\begin{equation}
+  Z = \int \mathcal{D}[\psi, \bar\psi]\, \mathcal{D}[U]\,
+    e^{-S_F[\psi,\bar\psi,U] - S_G[U]} .
+\end{equation}
+在路径积分形式中，系统的量子化通过对所有场构型积分来实现。在格点上，相应
+的路径积分测度是所有夸克场分量的测度之积与所有链结变量的测度之积：
+\begin{equation}
+  \begin{split}
+    \mathcal{D}[\psi, \bar\psi] &=
+      \prod_{n\in\Lambda}\prod_{f,\alpha,c}
+      \dd\psi^{(f)}(n)_c^\alpha\,
+      \dd\bar\psi^{(f)}(n)_c^\alpha ,\\
+    \mathcal{D}[U] &= \prod_{n\in\Lambda}\prod_{\mu=1}^{4} \dd U_\mu(n) .
+  \end{split}
+\end{equation}
+这里给出的费米子测度和规范场测度都将在后续章节中更详细地讨论。对于费米子
+场，我们必须纳入泡利原理，把旋量 $\psi$ 和 $\bar\psi$ 变成反对易变量。这
+些所谓的格拉斯曼数以及相应的积分规则将在第 5 章中讨论。对于规范场，我们
+在 (2.57) 中把单个链结变量的测度记为 $\dd U_\mu(n)$，但尚未说明我们如何实
+现对 SU(3) 群流形的积分。这引出 Haar 测度的概念，我们将在下一章讨论。尽
+管存在这些问题，(2.57) 中的表达式已经包含了格点 QCD 的一些基本特征，特别
+是把原始的量子场约化为可数多个经典变量。
+
+如第 1.4 节所讨论的，在路径积分量子化 (2.55) 中，被积分的构型以欧氏作用
+量的玻尔兹曼因子加权。作用量的费米子部分和规范部分相应的格点版本已经推导
+出来（比较 (2.36) 和 (2.49)）
+\begin{multline}
+  S_F[\psi, \bar\psi, U] = a^4 \sum_{f=1}^{\Nf}\sum_{n\in\Lambda}
+    \bar\psi^{(f)}(n) \Big( \sum_{\mu=1}^{4} \gamma_\mu\\
+    \frac{U_\mu(n)\psi^{(f)}(n + \hat\mu)
+      - U_{-\mu}(n)\psi^{(f)}(n - \hat\mu)}{2a}
+    + m^{(f)}\, \psi^{(f)}(n) \Big) \\
+    + \text{第 5 章中讨论的项} ,
+\end{multline}
+其中我们现在还对 $\Nf$ 种夸克味道求和。我们再次强调，费米子作用量必须再
+补充另一项以去除格点人为效应（见第 5 章）。而规范作用量已经可以直接使用，
+原封不动地从 (2.49) 搬过来：
+\begin{equation}
+  S_G[U] = \frac{2}{g^2} \sum_{n\in\Lambda} \sum_{\mu<\nu}
+    \Re\, \tr\big[1 - U_{\mu\nu}(n)\big] .
+\end{equation}
+我们指出，泛函 $O_1[\psi, \bar\psi, U]$ 和 $O_2[\psi, \bar\psi, U]$ 是作用在
+希尔伯特空间中的算符 $\hat{O}_1$ 和 $\hat{O}_2$ 的翻译（对应物）。这种翻译
+按照 (1.81) 所表达的方式，通过在场本征态之间求算符的期望值来实现。我们强
+调，泛函 $O_2$ 只依赖于带时间自变量 $n_t$ 的场，该自变量通过 $t = a\, n_t$
+与 (2.55) 右端的欧氏时间 $t$ 相联系。泛函 $O_1$ 中的场只依赖于 $t = 0$ 的
+场。
+
+方程 (2.55)、(2.56)、(2.57)、(2.58) 和 (2.59) 构成了我们在格点 QCD 构造中
+的当前状态。到目前为止，我们讨论了描述夸克和胶子的基本场，并把它们放到格
+点上——夸克放在格点上，规范场放在格点的链结上。为了允许费米子场像连续情
+形那样进行色转动，我们把规范场作为取群值的链结变量引入。随后，我们证明了
+沿闭合路径的链结变量乘积是规范不变的，并利用方格构造了威尔逊规范作用量。
+最后，我们按照第 1.4 节的路径积分量子化方案把这些要素组装起来。算符被翻
+译成经典场的泛函。这些泛函以玻尔兹曼因子加权，然后对乘积在所有可能的场构
+型上积分。这个积分的精确定义——费米子的格拉斯曼积分、链结变量的 Haar 测
+度——将在后续章节中讨论。
+
+\section*{参考文献}
+
+\begin{enumerate}[label={[\arabic*]}]
+  \item C.~N.~Yang and R.~Mills: Phys.\ Rev.\ 96, 191 (1954).
+  \item M.~E.~Peskin and D.~V.~Schroeder: \emph{An Introduction to Quantum
+        Field Theory} (Addison-Wesley, Reading, Massachusetts 1995).
+  \item K.~G.~Wilson: Phys.\ Rev.\ D 10, 2445 (1974).
+\end{enumerate}

@@ -1,0 +1,967 @@
+% =====================================================================
+%  第 6 章：强子谱学
+%  Gattringer & Lang, "Quantum Chromodynamics on the Lattice" (LNP 788)
+%  Reconstructed from extract/ch06.txt; equations auto-numbered.
+% =====================================================================
+
+\chapter{强子谱学}
+
+在格点上可以计算的涉及费米子的最简单的物理量是强子的质量。由于自旋、宇称、味含量等量子数有许多组合方式，因此存在大量可能的强子。正确地再现它们的所有质量，本身就是对 QCD 正确性的一次强有力的检验。在过去 20 年里，格点 QCD 对质量谱的计算不断改进，对于基态重子，已与实验数据达到了令人瞩目的吻合。
+
+在本章中，我们讨论数值谱学计算的概念背景和具体实现。强子关联函数不仅是计算能谱所必需的，也出现在后续章节将要讨论的强子矩阵元的确定中。我们首先讨论如何构造具有正确量子数的算符及其关联函数，并讨论淬火近似。随后我们介绍夸克源的技术，并说明如何计算夸克传播子。接着我们分析所得的强子传播子，并讨论如何得到强子质量。
+
+\section{强子插值算符与关联函数}
+
+在典型的 QCD 计算中，人们按照所要求的分布生成规范位形，然后计算各种观测量。这些观测量包括基本方格（plaquette）的简单期望值，或诸如威尔逊圈这样更扩展的算符。像手征凝聚 $\langle\bar\psi\psi\rangle$ 这样的量也已被研究过，并将在后面的章节中讨论。
+
+这里我们专注于确定强子质量，即我们进行强子谱学计算。为此，首先对每个规范位形计算夸克传播子。然后把这些传播子适当地组合起来构造强子传播子。最后，对所有规范位形求平均，就得到强子传播子的估计值，供后续分析使用。
+
+这类谱学计算的第一步是确定强子插值算符 $\bar{O}$、$O$，使得相应的希尔伯特空间算符 $\hat{\bar{O}}$、$\hat{O}^\dagger$ 能湮灭和产生我们想要分析的粒子态。强子插值算符是具有所感兴趣态的量子数的格点场的泛函。\footnote{按照惯例，下文中我们常常把“算符”和“插值算符”当作同义词使用。}一旦确定了插值算符，我们就考虑位于时间片 $n_4 = n_t$ 和 $n_4 = 0$ 的强子插值算符 $\bar{O}(n_t)$、$O(0)$ 的欧几里得关联函数 (1.12)。
+
+对于强子谱学，人们研究由夸克和胶子构造的插值算符。这些算符构造出来就是规范不变的色单态。这类算符包括：
+\begin{itemize}
+  \item 局域介子算符，如 $O_M(n) \equiv \bar\psi(n)\Gamma\psi(n)$，由夸克和反夸克组成，或者由三个夸克构成的重子算符；这些算符应当给出 QCD 所预言的介子和重子的信息。
+\begingroup\emergencystretch=4em   \item 扩展插值算符，它们也对强子传播子有贡献，例如对于介子涉及\linebreak[0] $\bar\psi(n)U_\mu(n)\psi(n+\hat\mu)$ 这样的项，对重子也类似。\par\endgroup
+  \item 纯规范场插值算符，如基本方格、更长的闭合圈或更一般的胶子算符。这些插值算符与胶球这样的胶子性客体耦合，但也与介子耦合。
+  \item 其他更奇特的夸克与反夸克的色单态组合，如 $\psi\psi\psi\psi$ 和 $\psi\psi\bar\psi\bar\psi$。
+  \item 具有 $3n$ 个夸克的态；这些正是原子核。例如，氘核是一个由六个价夸克——三个上型夸克和三个下型夸克——组成的质子–中子态。
+\end{itemize}
+
+根据 (1.21)，物理上允许的态可以在这些插值算符传播子的谱分解中观察到，
+\begin{equation}
+  \big\langle \bar{O}(n_t)\, O(0) \big\rangle
+  = \sum_k \bra{0}\hat{O}\ket{k}\bra{k}\hat{O}^\dagger\ket{0} e^{-n_t a E_k}
+  = A\, e^{-n_t a E_H}\left( 1 + \order{e^{-n_t a \Delta E}} \right),
+\end{equation}
+其中 $A$ 是常数，$E_H$ 是满足 $\bra{0}\hat{O}\ket{H} \neq 0$ 的最低态 $\ket{H}$ 的能量，$\Delta E$ 是与第一激发态的能量差。因此，从主导的指数衰减中我们可以提取强子的能量 $E_H$。
+
+\subsection{介子插值算符}
+
+我们在第 5.4 节讨论过的分立对称性在强子的分类中起着重要作用，也是构造强子插值算符所必需的。为了说明它们的用途，我们以 $\pi$ 介子插值算符的构造为例进行更详细的讨论。其他介子插值算符可以沿着同样的思路，借助表 6.1 来构造，该表列出了费米子双线性型的量子数。
+
+具体来说，我们考虑只有两种或三种味（上、下、奇异）的 QCD。我们常常不用附在旋量 $\psi$、$\bar\psi$ 上的味指标 $f$，而是对每种味使用不同的符号。因此 $u$、$\bar u$、$d$、$\bar d$ 和 $s$、$\bar s$ 分别表示三种轻味的旋量。
+
+我们现在例子中考虑的 $\pi$ 介子仅由 $u$ 和 $d$ 夸克构成。上夸克 $u$ 的同位旋为 $I = 1/2$，$I_z = +1/2$，电荷为 $Q = 2/3\,e$，在我们的约定中电子的电荷为 $-e$。对于下夸克 $d$，我们有 $I = 1/2$，$I_z = -1/2$，$Q = -1/3\,e$。赝标量组合可以按照同位旋进行分类，并分成包含粒子 $\pi^+$、$\pi^0$、$\pi^-$（同位旋分量 $I_z = 1, 0, -1$）的同位旋三重态（$I = 1$）和包含 $\eta$ 介子的同位旋单态（$I = 0$）。\footnote{我们指出，物理的 $\eta$ 介子还混有 $s\bar s$ 成分。参见，例如，文献 [1]。}
+
+带电 $\pi$ 介子 $\pi^+$ 和 $\pi^-$ 的质量为 140\,MeV。它们的自旋为零（$J = 0$），宇称为负（$P = -1$），同位旋 $I = 1$，$I_z = \pm 1$，电荷 $Q = \pm e$。因此，为了得到正确的电荷和同位旋，$\pi^+$ 必须是 $\bar d$--$u$ 组合，而 $\pi^-$ 是 $u$--$\bar d$ 型。我们还预期它们是色单态。更明确地，我们可以使用赝标量插值算符（所有指标采用求和约定）
+\begin{equation}
+  \begin{gathered}
+    O_{\pi^+}(n) = \bar d(n)\, \gamma_5\, u(n)
+      = \bar d(n)^\alpha_c (\gamma_5)_{\alpha\beta} u(n)^\beta_c , \\
+    O_{\pi^-}(n) = \bar u(n)\, \gamma_5\, d(n)
+      = \bar u(n)^\alpha_c (\gamma_5)_{\alpha\beta} d(n)^\beta_c .
+  \end{gathered}
+\end{equation}
+关于它们在宇称变换 (5.72) 下的变换，我们发现
+\begin{multline}
+  O_{\pi^+}(n, n_4) = \bar d(n, n_4)\, \gamma_5\, u(n, n_4)
+  \xrightarrow{\;P\;}
+  \bar d(-n, n_4)\, \gamma_4\gamma_5\gamma_4\, u(-n, n_4) \\
+  = -\bar d(-n, n_4)\, \gamma_5\, u(-n, n_4)
+  = -O_{\pi^+}(-n, n_4) ,
+\end{multline}
+这表明我们的插值算符 $O_{\pi^+}$ 确实具有负宇称（$O_{\pi^-}$ 也是如此）。宇称变换把空间矢量 $n$ 变为 $-n$ 这一事实，对于投影到零动量的插值算符——即对所有 $n$ 求和——并不重要（参见第 6.1.4 节）。应用电荷共轭 (5.66) 得
+\begin{multline}
+  O_{\pi^+}(n) = \bar d(n)\, \gamma_5\, u(n)
+  \xrightarrow{\;C\;}
+  -d(n)^T\, C\gamma_5 C^{-1}\, u(n)^T
+  = -d(n)^T\, \gamma_5^T\, u(n)^T \\
+  = \bar u(n)\, \gamma_5\, d(n) = O_{\pi^-}(n) ,
+\end{multline}
+其中我们使用了 $C\gamma_5 C^{-1} = \gamma_5^T$，它由 (5.67) 推出。格拉斯曼变量的交换消去了整体的负号。方程 (6.4) 表明电荷共轭把 $O_{\pi^+}$ 变为 $O_{\pi^-}$，反之亦然。同位旋三重态 $I_z = 0$ 分量即 $\pi^0$ 的插值算符为
+\begin{equation}
+  O_{\pi^0}(n) = \frac{1}{\sqrt{2}}\left[ \bar u(n)\, \gamma_5\, u(n)
+    - \bar d(n)\, \gamma_5\, d(n) \right].
+\end{equation}
+
+\begin{table}[htbp]
+  \centering
+  \caption*{Table 6.1. 最常用的介子插值算符按一般形式 (6.9) 的量子数。我们指出，关于 $C$ 的分类仅针对味中性插值算符}
+  \begin{tabular}{@{}l c c l@{}}
+    \toprule
+    $J^{PC}$ & 态 & $\Gamma$ & 粒子 \\
+    \midrule
+    $0^{++}$ & 标量 & $1,\ \gamma_4$ & $f_0,\ a_0,\ K_0^*,\ \ldots$ \\
+    $0^{-+}$ & 赝标量 & $\gamma_5,\ \gamma_4\gamma_5$
+      & $\pi^\pm,\ \pi^0,\ \eta,\ K^\pm,\ K^0,\ \ldots$ \\
+    $1^{--}$ & 矢量 & $\gamma_i,\ \gamma_4\gamma_i$
+      & $\rho^\pm,\ \rho^0,\ \omega,\ K^*,\ \phi,\ \ldots$ \\
+    $1^{++}$ & 轴矢量 & $\gamma_i\gamma_5$ & $a_1,\ f_1,\ \ldots$ \\
+    $1^{+-}$ & 张量 & $\gamma_i\gamma_j$ & $h_1,\ b_1,\ \ldots$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+同位旋单态（$I = 0$），即 $\eta$ 介子，由插值算符描述
+\begin{equation}
+  O_{\eta}(n) = \frac{1}{\sqrt{2}}\left[ \bar u(n)\, \gamma_5\, u(n)
+    + \bar d(n)\, \gamma_5\, d(n) \right].
+\end{equation}
+$O_{\pi^0}$ 和 $O_\eta$ 在宇称变换下的性质与插值算符 $O_{\pi^\pm}$ 相同，即它们具有 $P = -1$。关于电荷共轭，$O_{\pi^0}$ 和 $O_\eta$ 是具有 $C = +1$ 的本征态。其他介子与迄今讨论过的例子的不同之处在于其味含量以及自旋和宇称。例如，我们可以把 $d$ 夸克替换成 $s$ 夸克，从 $\pi^+$ 的插值算符得到奇异 $K^+$ 介子的插值算符，
+\begin{equation}
+  O_{K^+}(n) = \bar s(n)\, \gamma_5\, u(n) .
+\end{equation}
+不同的自旋和宇称对应于费米子双线性型中不同的 gamma 矩阵。例如，把 $\gamma_5$ 替换为 $\gamma_i$（$i = 1, 2, 3$），我们就从 $\pi^+$ 的插值算符得到 $\rho^+$ 矢量介子（$I = 1$，$I_z = +1$，$Q = +e$，$J = 1$，$P = -1$）的插值算符：
+\begin{equation}
+  O_{\rho^+}(n)_i = \bar d(n)\, \gamma_i\, u(n) , \qquad i = 1, 2, 3 .
+\end{equation}
+一般局域介子插值算符具有如下形式
+\begin{equation}
+  O_M(n) = \bar\psi^{(f_1)}(n)\, \Gamma\, \psi^{(f_2)}(n) ,
+\end{equation}
+其中 $\Gamma$ 是 gamma 矩阵的单项式，在本方程中我们已换回带味指标上标 $f_i$ 的记号。在味简并（$f_1 = f_2$）的情形下，需要构造 (6.9) 的组合以得到所要求的味对称性，就像我们在 (6.5) 和 (6.6) 中为 $\pi^0$ 和 $\eta$ 所做的那样。在表 6.1 中，我们列出最常用插值算符的矩阵 $\Gamma$ 及相应的量子数。我们指出，除了局域插值算符之外，也可以使用不同格点上的夸克与反夸克的规范不变组合。（参见第 6.2.2 和 6.2.3 节。）
+
+\subsection{介子关联函数}
+
+到目前为止，我们构造了对应于作用在物理希尔伯特空间中的算符 $\hat{O}_M$ 的插值算符 $O_M$。对于欧几里得关联函数，我们还需要找到对应于 $\hat{O}_M^\dagger$ 的插值算符，它从真空产生介子态。为了识别这个算符，我们对插值算符 (6.9) 形式地取共轭（这里略去时空宗量 $n$），
+\begin{equation}
+  \left( \bar\psi^{(f_1)} \Gamma \psi^{(f_2)} \right)^\dagger
+  = -\bar\psi^{(f_2)}\, \bar{\Gamma}^\dagger\, \psi^{(f_1)}
+  \equiv -\bar\psi^{(f_2)}\, \gamma_4 \Gamma^\dagger \gamma_4\, \psi^{(f_1)}
+  = \pm \bar\psi^{(f_2)}\, \Gamma\, \psi^{(f_1)} .
+\end{equation}
+第一步中的负号来自格拉斯曼变量的交换。在第二步中，我们使用了关系式 $\bar\psi = \psi^\dagger\gamma_4$，它对希尔伯特空间中的算符成立，并对其中的格拉斯曼旋量进行了等价替换。(6.10) 中的最后一步反映了简单的代数性质 $\gamma_4\Gamma^\dagger\gamma_4 = \pm\Gamma$。因此，除了可能的整体符号外，对应于 $\hat{O}_M^\dagger$ 的插值算符是通过交换 $\psi$ 与 $\bar\psi$ 并把 $\bar\psi$ 排到左边而得到的。该符号对 (6.1) 中的指数衰减无关紧要。因此，对于介子我们使用插值算符
+\begin{equation}
+  \begin{gathered}
+    O_M(n) = \bar\psi^{(f_1)}(n)\, \Gamma\, \psi^{(f_2)}(n) , \\
+    \bar{O}_M(m) = \bar\psi^{(f_2)}(m)\, \Gamma\, \psi^{(f_1)}(m) ,
+  \end{gathered}
+\end{equation}
+并把它们组合成关联函数 $\big\langle O_M(n)\, \bar{O}_M(m)\big\rangle$。此刻时空宗量 $m$、$n$ 是任意的，稍后我们才把时间宗量设为 $m_4 = 0$ 和 $n_4 = n_t$，以匹配强子关联函数 (6.1) 的形式。在第 6.1.4 节中，我们将讨论如何处理空间分量 $\mathbf{m}$、$\mathbf{n}$。
+
+为了计算关联函数，我们必须计算期望值的费米子部分 $\langle\ldots\rangle_F$ 时出现的格拉斯曼积分（比较 (5.2)）。在这一步中，同位旋三重态算符（如 (6.2) 和 (6.5)）的关联函数与同位旋单态算符（如 (6.6)）的关联函数之间存在一个重要差别。对于形式为 $O_T = \bar d\,\Gamma\,u$ 的同位旋三重态算符，我们发现（所有指标采用求和约定）
+\begin{equation}
+  \begin{split}
+    \big\langle O_T(n)\, \bar{O}_T(m) \big\rangle_F
+    &= \big\langle \bar d(n)\Gamma u(n)\ \bar u(m)\Gamma d(m) \big\rangle_F \\
+    &= \Gamma_{\alpha_1\beta_1}\Gamma_{\alpha_2\beta_2}\,
+       \big\langle \bar d(n)^{\alpha_1}_{c_1} u(n)^{\beta_1}_{c_1}\,
+       \bar u(m)^{\alpha_2}_{c_2} d(m)^{\beta_2}_{c_2} \big\rangle_F \\
+    &= -\Gamma_{\alpha_1\beta_1}\Gamma_{\alpha_2\beta_2}\,
+       \big\langle u(n)^{\beta_1}_{c_1}\, \bar u(m)^{\alpha_2}_{c_2} \big\rangle_u\,
+       \big\langle d(m)^{\beta_2}_{c_2}\, \bar d(n)^{\alpha_1}_{c_1} \big\rangle_d \\
+    &= -\Gamma_{\alpha_1\beta_1}\Gamma_{\alpha_2\beta_2}\,
+       \big[D_u^{-1}(n|m)\big]^{\beta_1\alpha_2}_{c_1c_2}\,
+       \big[D_d^{-1}(m|n)\big]^{\beta_2\alpha_1}_{c_2c_1} \\
+    &= - \tr\!\left[ \Gamma\, D_u^{-1}(n|m)\, \Gamma\, D_d^{-1}(m|n) \right].
+  \end{split}
+\end{equation}
+在本方程第三行中，我们重新排列了格拉斯曼变量，然后利用了费米子期望值按味分解的事实：$\langle\ldots\rangle_F = \langle\ldots\rangle_u\, \langle\ldots\rangle_d$。随后我们对两种味分别应用了维克定理 (5.36)（亦比较 (5.54)）。这一步通常称为费米子收缩。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig61.png}
+  \caption*{Fig. 6.1. \emph{介子关联函数的连通部分（左图）和断开部分（右图）}.}
+  \label{fig:61}
+\end{figure}
+
+$u$ 和 $d$ 夸克的狄拉克算符 $D_u$、$D_d$ 只相差质量参数的值（比较 (5.51)）。人们常常忽略 $u$ 与 $d$ 夸克质量之间的微小差别而使用 $D_u = D_d$，即精确的同位旋对称性。然而，重要的是要记住，即使在这种情况下，也只有味相同的格拉斯曼变量才能相互收缩。
+
+(6.12) 最后一行的结果有一个简单的物理解释：传播子 $D_u^{-1}(n|m)$ 把 $u$ 夸克从时空点 $m$ 传播到点 $n$，而传播子 $D_d^{-1}(m|n)$ 把 $d$ 夸克沿相反方向输运。这样的贡献称为连通部分，在图 6.1 的左图中描绘。我们指出，该图中每一条单独的线都象征着一组费米子线（参见图 5.1）。
+
+在同位旋单态算符 $O_S = (\bar u\Gamma u + \bar d\Gamma d)/\sqrt{2}$（如 (6.6)）的关联函数中，还出现另一种类型的贡献。按照与 (6.12) 相同的步骤，可以得到该关联函数的费米子收缩，
+\begin{multline}
+  \big\langle O_S(n)\, \bar{O}_S(m) \big\rangle_F
+  = -\frac{1}{2}\tr\!\left[ \Gamma D_u^{-1}(n|m)\Gamma D_u^{-1}(m|n) \right] \\
+  + \frac{1}{2}\tr\!\left[ \Gamma D_u^{-1}(n|n) \right]
+    \tr\!\left[ \Gamma D_u^{-1}(m|m) \right] \\
+  + \frac{1}{2}\tr\!\left[ \Gamma D_u^{-1}(n|n) \right]
+    \tr\!\left[ \Gamma D_d^{-1}(m|m) \right] \\
+  + u \leftrightarrow d .
+\end{multline}
+第一种类型的贡献是我们已经讨论过的连通部分。然而，还会出现传播子 $D_u^{-1}(n|n)$、$D_u^{-1}(m|m)$，它们把 $u$ 夸克从一个时空点传回同一点。这样的项称为断开部分，在图 6.1 的右图中描绘。数值上，这些贡献比连通部分需要更多的计算量和更高的统计量，许多研究避免考虑这类介子，或者丢掉断开部分。
+
+我们指出，同位旋三重态 $I_z = 0$ 分量的插值算符 $O_{T,I_z=0} = (\bar u\Gamma u - \bar d\Gamma d)/\sqrt{2}$ 与单态插值算符的差别仅在于 $u$ 项和 $d$ 项之间的相对负号（比较 (6.5) 和 (6.6)）。相应的关联函数与 (6.13) 类似，但第三项带负号。在精确同位旋对称性（$D_u = D_d$）的情况下，断开部分相互抵消。所得关联函数与三重态其他成员的相同（比较 (6.12)），这意味着三重态所有成员的质量都简并。在自然界中，这种简并相当精确，因为 $m_{\pi^\pm} = 140$\,MeV，而 $m_{\pi^0} = 135$\,MeV。这一微小差异源于 $u$ 和 $d$ 夸克的质量略有不同以及电弱修正。
+
+\subsection{重子的插值算符与关联函数}
+
+重子是由三个价夸克构成的客体。必须构造具有明确量子数的重子插值算符 $O$，使得 (6.1) 中相应的希尔伯特空间算符 $\hat{O}$ 投影到我们感兴趣的态上。与介子的情况一样，我们首先详细讨论一个例子——核子插值算符的构造，然后再处理其他重子。超出我们导论性介绍范围的重子插值算符综述可见文献 [2]。
+
+质子 $p$ 和中子 $n$ 是同位旋二重态（$I = 1/2$）的 $I_z = +1/2$ 和 $I_z = -1/2$ 分量。它们的质量几乎简并：$m_p = 938$\,MeV，$m_n = 940$\,MeV，这再次表明同位旋是一个好的对称性，正如我们在 $\pi$ 介子系统中已经强调的那样。质子的电荷为 $Q = e$，而中子的电荷为零。因此质子是 $uud$ 态，中子是 $ddu$ 型。由于电荷在 QCD 中无关紧要，且 $p$ 和 $n$ 通过同位旋对称性紧密关联，通常人们不区分二者，而统称为核子。我们只讨论 $uud$ 型插值算符（$I_z = 1/2$）。$I_z = -1/2$ 分量通过交换 $u$ 和 $d$ 得到。
+
+核子 $N$ 的最简单插值算符由下式给出
+\begin{equation}
+  O_N(n) = \varepsilon_{abc}\, u(n)_a\, u(n)_b^T\, C\, \gamma_5\, d(n)_c .
+\end{equation}
+在本方程中，我们只显式写出颜色指标 $a, b, c$，对于狄拉克指标我们使用矢量/矩阵记号。转置 $T$ 作用于狄拉克指标，把列 4 旋量 $u(n)_b$ 变成行旋量 $u(n)_b^T$。用 epsilon 张量对颜色指标求和使插值算符成为色单态且规范不变，这由规范变换对费米子的作用 (2.30) 和 (3.31) 可知。
+
+括号中的项用电荷共轭矩阵 $C$ 和 $\gamma_5$ 把一个 $u$ 夸克和一个 $d$ 夸克组合成所谓的双夸克。该双夸克具有同位旋 $I = 0$ 和自旋 $J = 0$。这里的双夸克概念仅用于讨论量子数，不隐含动力学意义。因此完整的插值算符 $O_N$ 具有核子所需的 $I = 1/2$、$I_z = +1/2$ 和 $J = 1/2$。
+
+我们还要讨论的最后一个量子数是宇称，质子和中子的宇称为 $P = +1$。在宇称变换 $P$（参见 (5.72)）下，我们的核子插值算符 $O_N(n)$ 变换为
+\begin{multline}
+  O_N(n, n_4) \xrightarrow{\;P\;} \varepsilon_{abc}\,
+    \gamma_4 u(-n, n_4)_a\, u(-n, n_4)_b^T\, \gamma_4^T C\gamma_5\gamma_4\,
+    d(-n, n_4)_c \\
+  = \varepsilon_{abc}\, \gamma_4 u(-n, n_4)_a\, u(-n, n_4)_b^T\, C\gamma_5\,
+    d(-n, n_4)_c \\
+  = \gamma_4\, O_N(-n, n_4) ,
+\end{multline}
+其中在第二步我们使用了 $\gamma_\mu^T C = -C\gamma_\mu$（比较 (A.23)）。与介子一样，当我们投影到零动量——即对所有 $n$ 求和——时，空间矢量 $n$ 变为 $-n$ 无关紧要（参见第 6.1.4 节）。旋量指标随 $\gamma_4$ 的非平凡变换可以通过考虑组合
+\begin{equation}
+  O_{N^\pm}(n) = \half\left[ O_N(n) \pm O_N^P(n) \right]
+  = \varepsilon_{abc}\, P_\pm\, u(n)_a\, u(n)_b^T\, C\gamma_5\, d(n)_c ,
+\end{equation}
+其中宇称投影算符 $P_\pm$ 定义为
+\begin{equation}
+  P_\pm = \half (1 \pm \gamma_4) .
+\end{equation}
+投影到零动量之后，(6.16) 中的插值算符具有确定的宇称 $P = \pm 1$。插值算符 $O_{N^+}$ 描述正宇称核子，而 $O_{N^-}$ 耦合到它的负宇称伙伴 $N(1535)$，其质量为 1535\,MeV。
+
+与 (6.10) 中为介子关联函数执行的步骤类似，可以发现相应的产生算符的插值算符由下式给出（除整体符号外）
+\begin{equation}
+  \bar{O}_{N^\pm}(n) = \varepsilon_{abc}\, \bar u(n)_a\, C\gamma_5\,
+    \bar d(n)_b^T\, \bar u(n)_c\, P_\pm .
+\end{equation}
+通过改变味含量，可以得到其他自旋-$1/2$ 重子的插值算符。此外，还可以考虑不同的双夸克结构，我们得到更一般的自旋-$1/2$ 插值算符：
+\begin{equation}
+  \begin{gathered}
+    O_{N\pm} = \varepsilon_{abc}\, P_\pm \Gamma_A\, u_a\, u_b^T\, \Gamma_B\, d_c , \\
+    \bar{O}_{N\pm} = \varepsilon_{abc}\, \bar u_a\, \Gamma_B\, \bar d_b^T\,
+      \bar u_c\, \Gamma_A\, P_\pm , \\
+    O_{\Sigma\pm} = \varepsilon_{abc}\, P_\pm \Gamma_A\, u_a\, u_b^T\,
+      \Gamma_B\, s_c , \\
+    \bar{O}_{\Sigma\pm} = \varepsilon_{abc}\, \bar u_a\, \Gamma_B\, \bar s_b^T\,
+      \bar u_c\, \Gamma_A\, P_\pm , \\
+    O_{\Xi\pm} = \varepsilon_{abc}\, P_\pm \Gamma_A\, s_a\, s_b^T\, \Gamma_B\,
+      u_c , \\
+    \bar{O}_{\Xi\pm} = \varepsilon_{abc}\, \bar s_a\, \Gamma_B\, \bar u_b^T\,
+      \bar s_c\, \Gamma_A\, P_\pm , \\
+    O_{\Lambda\pm} = \varepsilon_{abc}\, P_\pm \Gamma_A\,
+      \bigl[ 2\, s_a\, u_b^T\, \Gamma_B\, d_c + d_a\, u_b^T\, \Gamma_B\, s_c
+        - u_a\, d_b^T\, \Gamma_B\, s_c \bigr] , \\
+    \bar{O}_{\Lambda\pm} = \varepsilon_{abc}\,
+      \bigl[ 2\, \bar u_a^T\, \Gamma_B\, \bar d_b\, \bar s_c
+        + \bar u_a^T\, \Gamma_B\, \bar s_b\, \bar d_c
+        - \bar d_a\, \Gamma_B\, \bar s_b\, \bar u_c \bigr]\,
+      \Gamma_A\, P_\pm ,
+  \end{gathered}
+\end{equation}
+其中我们列出了核子以及两种宇称的奇异 $\Sigma$（$I = 1$，$S = -1$）、$\Xi$（$I = 1/2$，$S = -2$）和 $\Lambda$（$I = 0$，$S = -1$）重子的插值算符。矩阵 $\Gamma_A$ 和 $\Gamma_B$ 有三种可能的选择都能给出 $J^P = 1/2^+$：$(\Gamma_A, \Gamma_B) = (1, C\gamma_5)$、$(\gamma_5, C)$ 或 $(1, i\gamma_4 C\gamma_5)$。
+
+使用 $(\Gamma_A, \Gamma_B) = (1, C\gamma_j)$ 可以得到自旋 $J = 3/2$ 的重子。空间 gamma 矩阵 $\gamma_j$ 给出一个自旋 $J = 1$ 的双夸克，再加上双夸克外面的夸克，所得的插值算符具有自旋 $J = 3/2$ 的贡献，但也混有自旋 $J = 1/2$。关于投影到确定自旋所需的细节，我们请读者参阅文献 [2]。
+
+注意，我们所有的重子插值算符 $O_{B\pm}$ 和 $\bar{O}_{B\pm}$ 仍然有一个自由的狄拉克指标——毕竟它们描述的是费米子。通常对这一指标求和，并考虑如下类型的关联函数（对 $\alpha$ 求和）
+\begin{equation}
+  \big\langle O_{B\pm}(n)_\alpha\, \bar{O}_{B\pm}(m)_\alpha \big\rangle .
+\end{equation}
+最后，作为例子，我们展示核子插值算符 (6.14) 的费米子收缩（我们使用 $P_\pm^2 = P_\pm$ 以及矢量/矩阵记号），
+\begin{equation}
+  \begin{gathered}
+    \big\langle O_{N^\pm}(n)_\alpha\, \bar{O}_{N^\pm}(m)_\alpha \big\rangle_F
+    = -\big\langle \bar{O}_{N^\pm}(m)_\alpha\, O_{N^\pm}(n)_\alpha \big\rangle_F \\
+    = -\varepsilon_{abc}\varepsilon_{a'b'c'}\,
+      \Big\langle \bar u(m)_a C\gamma_5 \bar d(m)_b^T \bar u(m)_c P_\pm \\
+    \qquad\qquad u(n)_{c'}\, u(n)_{a'}^T C\gamma_5\, d(n)_{b'} \Big\rangle_F \\
+    = \varepsilon_{abc}\varepsilon_{a'b'c'}\, (C\gamma_5)_{\alpha'\beta'}
+      (C\gamma_5)_{\alpha\beta} (P_\pm)_{\gamma\gamma'}\,
+      D_d^{-1}(n|m)_{\beta'\beta} \times \\
+    \qquad \Big[ D_u^{-1}(n|m)_{\alpha'\alpha} D_u^{-1}(n|m)_{\gamma'\gamma}
+      - D_u^{-1}(n|m)_{\alpha'\gamma} D_u^{-1}(n|m)_{\gamma'\alpha} \Big] ,
+  \end{gathered}
+\end{equation}
+这证明了对于重子只出现连通部分。
+
+\subsection{动量投影}
+
+对于我们的强子插值算符，还有最后一步要实现：我们希望强子态是具有确定空间动量 $\mathbf{p}$ 的态。因此我们定义
+\begin{equation}
+  \widetilde{O}(\mathbf{p}, n_t) = \frac{1}{|\Lambda_3|}
+    \sum_{n\in\Lambda_3} O(n, n_t)\, e^{-\imath a\, n\cdot p} .
+\end{equation}
+\begingroup\emergencystretch=4em 注意，这个傅里叶变换只对空间格点\linebreak[0] $\Lambda_3 = \{ n = (n_1, n_2, n_3) \mid n_i = 0, 1, \ldots, N-1 \}$ 上的空间分量 $n$ 进行。相应地，动量 $\mathbf{p}$ 是空间动量，其分量为 $p_i = 2\pi k_i/(aN)$，$k_i = -N/2 + 1, \ldots, N/2$。因此，插值算符 $\widetilde{O}(\mathbf{p}, n_t)$ 被投影到确定的空间动量，并且位于单个时间片 $n_t$ 上。\par\endgroup
+
+只需把关联函数中两个插值算符之一投影到确定的动量，通常是汇点处的算符 $O(n, n_t)$。源算符 $O(0, 0)$ 可以留在实空间中，通常置于原点。把实空间插值算符 $O$ 写成其傅里叶分量的和（比较 (A.37)），并利用不同动量的态彼此正交、因而只有零动量项存活的事实，就可以看出这样做已经足够。不过要注意，这严格来说只对精确期望值成立，而对于有限数位形的求和只是近似成立。
+
+因此，根据 (1.21)，我们关于具有确定动量 $\mathbf{p}$ 的欧几里得强子关联函数的最终公式为
+\begin{equation}
+  \begin{split}
+    \big\langle \widetilde{O}(\mathbf{p}, n_t)\, O(0, 0) \big\rangle
+    &= \frac{1}{|\Lambda_3|}\sum_{n\in\Lambda_3} e^{-\imath a\, n\cdot p}\,
+       \big\langle O(n, n_t)\, O(0, 0) \big\rangle \\
+    &= A\, e^{-a n_t E(\mathbf{p})}\left( 1 + \order{e^{-a n_t \Delta E}}
+       \right),
+  \end{split}
+\end{equation}
+其中能量 $E(\mathbf{p})$ 通过相对论色散关系与强子质量 $m_H$ 相联系（在我们的单位制中光速 $c = 1$）
+\begin{equation}
+  E(\mathbf{p}) = \sqrt{m_H^2 + \mathbf{p}^2}\left( 1 + \order{ap} \right),
+\end{equation}
+而对于零动量我们有 $E(0) = m_H$。
+
+确定非零动量的强子传播子，使我们能够研究格点上实现的能量与动量之间的谱关系。由于渐近态描述的是格点世界中的自由粒子，恰当的谱关系是自由格点粒子的谱关系。例如，可以从动量空间中自由玻色子（或费米子）格点传播子得到它。对于最简单的最近邻离散化，可以识别出动量 $(iE(\mathbf{p}), \mathbf{p})$ 处的极点，并找到关系式（$m_H = E(0)$）
+\begin{equation}
+  \cosh\bigl(a E(\mathbf{p})\bigr) = \cosh(a m_H)
+    + \sum_{k=1}^{3} \bigl( 1 - \cos(a p_k) \bigr) ,
+\end{equation}
+当格点间距 $a$ 趋于零时，它趋近于连续关系式，参见 (6.24)。沿着这些思路仔细分析强子传播子，可以检验完整的欧几里得不变性是否得到恢复。
+
+\subsection{强子关联函数的最终公式}
+
+对于要与实验比较的结果而言，核心是场乘积的关联函数。对于任意算符乘积（记为 $A$），必须计算
+\begin{multline}
+  \langle A\rangle = \big\langle \langle A\rangle_F \big\rangle_G
+  = \frac{1}{Z}\int D[U]\, e^{-S_G[U]} \\
+  \times \int D[\bar\psi,\psi]\, e^{-S_F[\bar\psi,\psi,U]}\,
+    A[\bar\psi,\psi,U] .
+\end{multline}
+对格拉斯曼变量的积分可以闭式地计算（参见第 5 章），剩下的就是对规范场的积分 (5.4)。
+
+为明确起见，我们讨论一个由两种夸克味构成的介子传播子的例子，如 (6.12)。在格拉斯曼积分之后，我们最终得到纯粹玻色子型规范场积分之比，
+\begin{equation}
+  \begin{gathered}
+    \big\langle O_T(n)\, \bar{O}_T(m) \big\rangle
+    = -\frac{1}{Z}\int D[U]\, e^{-S_G[U]}\, \det[D_u]\det[D_d] \\
+    \qquad \times \tr\!\left[ \Gamma D_u^{-1}(n|m)\, \Gamma D_d^{-1}(m|n) \right], \\
+    Z = \int D[U]\, e^{-S_G[U]}\, \det[D_u]\det[D_d] .
+  \end{gathered}
+\end{equation}
+\begingroup\emergencystretch=4em 我们再次强调，费米子行列式依赖于 $U$，必须用\linebreak[0] $Z^{-1}\exp(-S_G[U])\allowbreak\det[D_u]\allowbreak\det[D_d]$ 作为规范场的分布权重进行蒙特卡罗模拟。乍一看，这似乎是一项直截了当的任务。然而，计算狄拉克算符矩阵 $D$ 的行列式是非常不平凡的。记住，这个矩阵有 $12|\Lambda|$ 行和列，其中 $|\Lambda|$ 是格点数目。因此这个维数通常在数百万的量级，直接强行计算行列式是极其昂贵的。\par\endgroup
+
+\subsection{淬火近似}
+
+在蒙特卡罗方法最初应用于格点 QCD 之后，20 世纪 80 年代和 90 年代的大多数结果都是在淬火近似下获得的。\footnote{该术语来源于钢的淬火——快速冷却——此时碳原子被冻结在其随机位置上。}特别是对含轻夸克强子基态谱的成功确定，是这一方法的里程碑。
+
+在讨论淬火近似之前，让我们简要回顾一下行列式因子的物理意义。从第 5 章讨论的跳跃展开中，我们发现它可以写成一个有效作用量，它是对规范场链变量闭合圈的求和。本质上，它描述的是费米子真空，其中虚的夸克-反夸克对被产生和湮灭。这些夸克通常称为海夸克，因为它们与狄拉克关于费米子海的图像有关，费米子海中的空穴代表反费米子。当然，海夸克与一般的夸克完全相同，我们只是为了澄清随后的近似才这样称呼它们。
+
+人为地把费米子行列式置为 1，相当于忽略真空夸克圈的效果（第 5.3.2 节）。实际上，由于在行列式的展开中有效作用量的首项是对基本方格的求和，通过重新定义规范耦合，部分有效作用量被内在地包含在规范作用量中。这没有问题，因为规范耦合本身就是一个裸参数，只有物理量才是相关的。
+
+略去行列式就定义了淬火近似。例如，不使用介子关联函数 (6.27) 的完整表达式，而是计算
+\begin{equation}
+  \begin{gathered}
+    \big\langle O_T(n)\, \bar{O}_T(m) \big\rangle_{\mathrm{quenched}}
+    = -\frac{1}{Z}\int D[U]\, e^{-S_G[U]}\,
+      \tr\!\left[ \Gamma D_u^{-1}(n|m)\, \Gamma D_d^{-1}(m|n) \right], \\
+    Z = \int D[U]\, e^{-S_G[U]} .
+  \end{gathered}
+\end{equation}
+在这个近似中，人们像纯规范理论那样构造规范位形的马尔可夫链（比较第 3 章），并在这些位形上计算夸克传播子。如上一节所讨论的，夸克传播子的组合构成强子关联函数。为了把这些传播的夸克与海夸克区分开，又因为它们决定强子的量子数，它们被称为价夸克。因此，淬火近似也称为价夸克近似。
+
+淬火近似可以看作海夸克变得无限重、因而不能再以粒子-反粒子对的形式从真空产生的极限。这可以从费米子行列式的跳跃展开 (5.65) 看出。由于 (5.55) 中定义的展开参数 $\kappa$ 在 $m \to \infty$ 时趋于零，行列式在该极限下变为 1。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig62.png}
+  \caption*{Fig. 6.2. \emph{在强子传播中起贡献的夸克线示例（左图为介子，右图为重子）。在淬火近似中，只有上面两行中的贡献，即没有海夸克圈（$=$ 闭合圈）的贡献才起作用。第二行中的图出现在淬火近似中，与底部各行动力学图相似。它们称为发夹图，并在淬火近似中导致对数奇异性}.}
+  \label{fig:62}
+\end{figure}
+
+包含行列式从而允许费米子完整动力学真空结构的模拟，称为含动力学夸克的模拟，与淬火模拟相对。图 6.2 给出了淬火模拟和完全动力学模拟中起贡献的夸克线的例子。在全 QCD 中，海夸克与价夸克之间没有区别。然而，在我们的计算机实验室中，我们可以给它们不同的质量。这种海夸克与价夸克质量不同的中间阶段称为部分淬火，有时有助于更好地控制各种系统不确定性。
+
+我们指出，淬火近似和部分淬火近似都不是具有有效希尔伯特空间构造和费米子正确正性性质的恰当量子场论。这导致在分析结果（尤其是趋向小夸克质量的结果）时出现一些问题。禁止动力学费米子圈也使人们无法研究共振态。不过，共振态本来就带来概念上的问题。它们不是场论的渐近态，人们必须引入精细的工具来识别它们并一般性地确定散射振幅（参见第 11 章）。然而，我们预期在淬火情形下，共振态应在领头阶表现为能量值相近处的束缚态。
+
+由于动力学模拟将在第 8 章中处理，在本章中我们将只展示淬火情形下的强子谱结果。显然，这些结果比从动力学夸克模拟得到的结果具有高得多的统计精度，尽管带有淬火效应的内在不确定性。由淬火导致的特殊特征（如额外奇异性和鬼态的出现）将在第 6.4.3 节中讨论。
+
+然而，我们强调，本章介绍的大部分公式和技术既适用于淬火模拟，也适用于动力学模拟。
+
+\section{计算策略}
+
+在本节中，我们讨论计算和存储上一节介绍的强子关联函数所需的夸克传播子的技术。我们描述如何构造现实的夸克源，以改善格点强子插值算符与物理态之间的重叠。我们还讨论例外位形的问题以及通过规范场平滑化对其进行改善。
+
+\subsection{夸克源的必要性}
+
+一个完整的夸克传播子是与费米子矩阵本身一样大的矩阵。取决于格点作用量，狄拉克算符可能是稀疏的，有许多零元，但传播子 $D^{-1}$ 不是稀疏的，它由 $\order{10^{12}}$ 个复数组成。每个矩阵元 $D^{-1}(n|m)^{\beta\alpha}_{ba}$ 连接一个源点 $(m, \alpha, a)$ 和一个汇点 $(n, \beta, b)$。这里的“点”既涉及格点位又涉及狄拉克和颜色指标。由于该矩阵提供的是在某一特定规范位形中传播的信息，其矩阵元将高度相关，而这种相关降低了信息含量。因此有两个原因使人们不试图存储完整的传播子矩阵：计算所有矩阵元是浪费的，而且它需要的计算机内存也太大。
+
+然而，如果我们只考虑从固定格点 $m_0$、固定狄拉克指标 $\alpha_0$ 和固定颜色指标 $a_0$ 到格点上任意格点的传播子，这正好是狄拉克算符逆矩阵的一列，
+\begin{equation}
+  D^{-1}(n|m_0)^{\beta\alpha_0}_{b a_0}
+  = \sum_{m,\alpha,a} D^{-1}(n|m)^{\beta\alpha}_{ba}\,
+    S_0^{(m_0,\alpha_0,a_0)}(m)^{\alpha}_{a} ,
+\end{equation}
+其中我们引入了所谓的点源
+\begin{equation}
+  S_0^{(m_0,\alpha_0,a_0)}(m)^{\alpha}_{a}
+  = \delta(m - m_0)\, \delta_{\alpha\alpha_0}\, \delta_{aa_0} .
+\end{equation}
+表达式 (6.29) 必须对 12 个源进行计算，每个狄拉克和颜色指标组合 $\alpha_0$、$a_0$ 对应一个源。点源放在源插值算符 $O_H(m_0)$ 的位置 $m_0$ 处，而列 $D^{-1}(n|m_0)$ 是到汇算符 $\bar{O}_H(n)$ 的位置 $n$ 的传播子。
+
+由于介子包含一个反向传播的反夸克（比较图 6.1），人们还需要另一个方向的传播子，即从 $n$ 到 $m_0$。天真地想，这会需要在 $n$ 处也放置源。然而，我们可以利用第 5.4.3 节讨论的 $\gamma_5$ 厄米性，免费地得到反向传播子。
+
+利用这一对称性质，我们可以写出（重复指标求和）
+\begin{equation}
+  \gamma_5 D^{-1} \gamma_5 = D^{-1\,\dagger}
+  \quad\Longleftrightarrow\quad
+  (\gamma_5)_{\alpha\alpha'}\, D^{-1}(m_0|n)^{\alpha'\beta'}_{dc}\,
+  (\gamma_5)_{\beta'\beta} = D^{-1}(n|m_0)^{\beta\alpha\,*}_{cd} ,
+\end{equation}
+从而得到反向传播子。例如，这可以用来把同位旋三重态 $\pi$ 介子传播子 (6.12) 写成
+\begin{multline}
+  \big\langle O_T(n)\, \bar{O}_T(m_0) \big\rangle_F
+  = -\tr\!\left[ D^{-1}(n|m_0)\, \gamma_5\, D^{-1}(m_0|n)\, \gamma_5 \right] \\
+  = -\sum_{\alpha,\beta,c,d} \left| D^{-1}(n|m_0)^{\alpha\beta}_{cd}
+    \right|^2 .
+\end{multline}
+这个例子清楚地表明，对于 $\pi$ 介子，以及其他介子，只需要计算前向传播子 $D^{-1}(n|m_0)$。对于重子，我们无论如何都只需要前向传播的夸克（比较 (6.21)）。
+
+\subsection{点源还是扩展源？}
+
+为了得到清晰而强的关联信号，从而允许可靠的分析，我们必须优化插值场。虽然任何具有正确量子数的算符都对物理态有贡献，但有些算符比其他算符更重要。通过提供更现实的空间波函数，可以大大改善重叠。我们以介子插值算符为例来说明这一思想，但推广到重子是直接的。
+
+我们考虑位于 $\mathbf{n}_0 = (n_0, n_t)$ 的单个固定时间片 $n_t$ 上的介子插值算符。可以通过写出下式引入更一般的波函数
+\begin{equation}
+  O_M(\mathbf{n}_0) = \sum_{n_1,n_2}
+    F(\mathbf{n}_0; n_1, n_2)^{\alpha_1\alpha_2}_{a_1a_2}\,
+    \psi^{(f)}(n_1, n_t)^{\alpha_1}_{a_1}\,
+    \bar\psi^{(f)}(n_2, n_t)^{\alpha_2}_{a_2} ,
+\end{equation}
+其中我们引入了分布函数 $F(\mathbf{n}_0; n_1, n_2)$，它把 $\mathbf{n}_0$ 附近空间位置 $n_1$、$n_2$ 处的场值 $\psi(n_1, n_t)$ 和 $\bar\psi(n_2, n_t)$ 组合起来。在最简单的情况下，整个插值算符局域在单个格点 $\mathbf{n}_0 = (n_0, n_t)$ 上，$F$ 约化为
+\begin{equation}
+  \begin{gathered}
+    F(\mathbf{n}_0; n_1, n_2)^{\alpha_1\alpha_2}_{a_1a_2}
+    = \delta(n_0 - n_1)\, \delta_{\alpha_0\alpha_1}\, \delta_{a_0a_1}\,
+      \Gamma_{\alpha_0\beta_0}\, \delta(n_0 - n_2)\, \delta_{\beta_0\alpha_2}\,
+      \delta_{a_0a_2} \\[2mm]
+    \Longrightarrow\qquad
+    O_M(\mathbf{n}_0) = \psi^{(f)}(n_0, n_t)^{\alpha_0}_{a_0}\,
+      \Gamma_{\alpha_0\beta_0}\, \bar\psi^{(f)}(n_0, n_t)^{\beta_0}_{a_0} ,
+  \end{gathered}
+\end{equation}
+其中 $\Gamma$ 是 Clifford 代数的一个元素。
+
+然而，通过选择一个不那么平凡的函数 $F$，可以得到更现实的波函数。为了能用一组 12 个源进行工作，通常使用可分解函数（对 $\alpha_0$、$\beta_0$、$a_0$ 求和）
+\begin{equation}
+  F(\mathbf{n}_0; n_1, n_2)^{\alpha_1\alpha_2}_{a_1a_2}
+  = S_i^{(n_0,\alpha_0,a_0)}(n_1)^{\alpha_1}_{a_1}\,
+    \Gamma_{\alpha_0\beta_0}\,
+    S_k^{(n_0,\beta_0,a_0)}(n_2)^{*\alpha_2}_{a_2} .
+\end{equation}
+我们引入下标 $i$ 和 $k$ 以表示 $\psi$ 和 $\bar\psi$ 的源函数可能不同。利用形式 (6.35)，可以把 (6.33) 用所谓的涂抹费米子重新写出。为了表明源的类型，我们分别用下标 $i$ 或 $k$ 标记涂抹费米子：
+\begin{equation}
+  \begin{gathered}
+    \psi_k^{(f')}(n_0, n_t)^{\alpha_0}_{a_0}
+    \equiv \sum_{n_2,a_2} S_k^{(n_0,\alpha_0,a_0)}(n_2)^{*\alpha_2}_{a_2}\,
+      \psi^{(f')}(n_2, n_t)^{\alpha_2}_{a_2} , \\
+    \psi_i^{(f)}(n_0, n_t)^{\alpha_0}_{a_0}
+    \equiv \sum_{n_1,a_1} S_i^{(n_0,\alpha_0,a_0)}(n_1)^{\alpha_1}_{a_1}\,
+      \psi^{(f)}(n_1, n_t)^{\alpha_1}_{a_1} ,
+  \end{gathered}
+\end{equation}
+这种形式清楚地表明，$\mathbf{n}_0$ 处的涂抹场由位置 $n_i$ 处的原始场组合而成。用涂抹费米子表示的介子算符变得很简单（这就是 (6.34)，但现在针对涂抹场）：
+\begin{equation}
+  O_M(\mathbf{n}_0) = \psi_i^{(f)}(n_0, n_t)^{\alpha_0}_{a_0}\,
+    \Gamma_{\alpha_0\beta_0}\,
+    \psi_k^{(f')}(n_0, n_t)^{\beta_0}_{a_0} .
+\end{equation}
+为位于 $m_0$ 的源 $S_i$ 和位于 $n_0$ 的汇 $S_k$ 引入这些涂抹函数，就得到涂抹夸克传播子
+\begin{equation}
+  \begin{split}
+    G_{ki}(n_0|m_0)^{\beta_0\alpha_0}_{b_0a_0}
+    &\equiv \big\langle \psi_k^{(f)}(n_0)^{\beta_0}_{b_0}\,
+       \bar\psi_i^{(f)}(m_0)^{\alpha_0}_{a_0} \big\rangle_F \\
+    &= \sum_{m,n} S_k^{(n_0,\beta_0,b_0)}(n)^{*\beta}_{b}\,
+       S_i^{(m_0,\alpha_0,a_0)}(m)^{\alpha}_{a}\,
+       \big\langle \psi(n)^{\beta}_{b}\, \bar\psi(m)^{\alpha}_{a} \big\rangle_F \\
+    &= \sum_{n,m} S_k^{(n_0,\beta_0,b_0)}(n)^{*\beta}_{b}\,
+       \big[D_f^{-1}(n|m)\big]^{\beta\alpha}_{ba}\,
+       S_i^{(m_0,\alpha_0,a_0)}(m)^{\alpha}_{a} .
+  \end{split}
+\end{equation}
+在如第 6.1 节所讨论的介子和重子关联函数的构造中，现在只需把原始夸克传播子 $D_f^{-1}$ 替换为涂抹传播子 $G_{ki}$。在实际数值计算中，按照下式从涂抹源 $S_i$ 计算到类点汇的传播子
+\begin{equation}
+  \sum_{m,\alpha,a} D^{-1}(n|m)^{\beta\alpha}_{ba}\,
+    S_i^{(m_0,\alpha_0,a_0)}(m)^{\alpha}_{a} .
+\end{equation}
+然后，在后续构造强子传播子的过程中，可以通过应用下一小节介绍的涂抹算符来完成汇的涂抹。
+
+\subsection{扩展源}
+
+对于不规范协变的涂抹函数 $S$，必须使用第 3.2 节的方法在时间片内固定规范。在这种情形下人们使用了各种源的形状。其中最极端的是在时间片内取常数的源，即所谓的墙源。由直觉启发的类高斯形状也很有吸引力。最终的目的始终是优化信号。
+
+具有类似高斯形状的规范协变源可以通过雅可比涂抹 [3, 4] 得到。人们把涂抹算符 $M$ 作用于时间片 $n_t$ 内 (6.30) 的点源 $S_0$ 上，得到涂抹源：
+\begin{equation}
+  S^{(n_0,\alpha_0,a_0)} = M\, S_0^{(n_0,\alpha_0,a_0)}, \qquad
+  M = \sum_{n=0}^{N} \kappa^n H^n .
+\end{equation}
+算符 $H$ 本质上是不含常数项的威尔逊项 (5.50) 的空间部分（$n_t$ 固定为源所在的时间片），
+\begin{equation}
+  H(n, m) = \sum_{j=1}^{3}\left[ U_j(n, n_t)\, \delta(n + \hat{\jmath}, m)
+    + U_j(n - \hat{\jmath}, n_t)^\dagger\, \delta(n - \hat{\jmath}, m) \right].
+\end{equation}
+注意，$H$ 因而 $M$ 都是厄米的，只作用于颜色指标，而在狄拉克空间中是平庸的。该操作通过规范联络把时间片上的不同格点连接到中心格点。雅可比涂抹有两个自由参数：涂抹步数 $N$ 和正实数参数 $\kappa$。这两个参数可以用来调整源的轮廓（宽度）。此外，组合不同宽度的夸克源也已被证明对优化强子传播信号是有效的（参见第 6.3.3 节）。
+
+\subsection{夸克传播子的计算}
+
+准备好我们的源 $S$ 之后，需要按照 (6.39) 计算作用在源上的传播子 $D^{-1}$，即我们需要 $G = D^{-1}S$。换句话说，必须求解方程组
+\begin{equation}
+  D\, G = S ,
+\end{equation}
+其中 $D$ 是狄拉克矩阵算符，$S$ 是源矢量，$G$ 是未知的传播子矢量。这可以用迭代方法完成。为了熟悉这一方法，让我们简要讨论这些算法的鼻祖：如跳跃展开的讨论（比较 (5.57)）所示，在重新标度费米子之后，我们可以把 $D$ 分解为常数部分和非平凡项，
+\begin{equation}
+  D \equiv 1 - Q .
+\end{equation}
+那么级数展开
+\begin{equation}
+  G = (1 - Q)^{-1} S = (1 + Q + Q^2 + Q^3 + \ldots)\, S
+\end{equation}
+就导致迭代规则
+\begin{equation}
+  G^{(0)} = S , \qquad G^{(i+1)} = S + Q\, G^{(i)} .
+\end{equation}
+这就是简单的雅可比迭代，当 $Q$ 的最大本征值的模小于 1 时收敛。在每个迭代步中，只需把矩阵 $Q$ 作用到矢量 $G^{(i)}$ 上并加上 $S$，直到收敛为止。像高斯–赛德尔方法这样的松弛方法在相继的步之间进行插值，可以改善收敛。这两种方法都属于驻定方法这一类，它们通过保持其他变量当前的取值来局部地求解每个变量。由高斯–赛德尔方法派生出的其他变体，但收敛速度快一个数量级，是 SOR（逐次超松弛）和 SSOR（对称 SOR）方法，它们引入了外推参数 [5]。
+
+然而，大多数计算使用共轭梯度（CG）方法 [5, 6] 的变体。这是一种所谓的非驻定方法，其思想是迭代地最小化一个二次泛函，这等价于求方程组的解。对于实的对称正定 $N\times N$ 矩阵 $A$，函数
+\begin{equation}
+  Q(x) = \half\, x^T A\, x - x^T b
+\end{equation}
+（除了一个常数外）是一个正定二次型，在 $x^*$ 处取得最小值，其梯度在该处为零，
+\begin{equation}
+  \left.\frac{\partial Q(x)}{\partial x}\right|_{x = x^*}
+  = A\, x^* - b = 0 .
+\end{equation}
+因此 $x^*$ 是方程组 $Ax = b$ 的解。CG 方法通过迭代地构造搜索方向矢量 $p^{(i)}$ 和迭代矢量 $x^{(i)}$ 来工作，使得在每一步中 $Q(x^{(i)} + \alpha_i p^{(i)})$ 作为实数参数 $\alpha_i$ 的函数被最小化，从而得到下一个迭代矢量 $x^{(i+1)} = x^{(i)} + \alpha_i p^{(i)}$。矢量 $p^{(i)}$ 与 $A\,p^{(i-1)}$（以及所有之前的 $A\,p^{(j)}$）正交，依次张成一个矢量空间 $K^{(i)} = \mathrm{span}(p^{(0)}, \ldots, p^{(i)})$，它称为克雷洛夫子空间。CG 方法的所有变体都基于这种对克雷洛夫子空间正交基的隐式构造。像用于求矩阵本征系统的 Lanczos 算法这样的方法也使用这一概念，相应的迭代可以与 CG 迭代联系起来 [5]。
+
+迭代矢量 $x^{(i)}$ 在空间 $K^{(i)}$ 中最小化 $Q$，并在至多 $N$ 步内逼近解矢量 $x^*$。然而，通常少得多的步数就能给出足够精确的结果。这可以通过计算范数 $\|A\,x^{(i)} - b\|$ 来检验，一旦范数小于所要求的精度 $\varepsilon$，过程即终止。只需计算矢量之间的标量积和矩阵–矢量乘法，且只需在存储中保留矢量。对于与狄拉克算符相关的大而常常稀疏的矩阵，这两点都是重要的优势。
+
+在其原始版本中，CG 只适用于正定对称矩阵 $A$。然而，对于非对称矩阵，在这些限制内无法使残差矢量正交。对于非对称的一般矩阵，一种称为双共轭梯度（Bi-CGR）的变体可以胜任。在那里生成两个搜索方向和残差矢量的序列，它们满足双正交关系。为了进一步改善收敛性质，还引入了所谓的 Bi-CGR 稳定化（Bi-CGStab）方法 [7] 以及由文献 [8] 提出的另一改进 Bi-CGStab(2)。有关细节，我们请读者参阅原始论文和文献 [5]。
+
+我们指出，可以利用 $D^{-1} = D^\dagger(D D^\dagger)^{-1}$，并应用针对厄米矩阵的算法来计算 $(D D^\dagger)^{-1}$。此外，对于 $\gamma_5$ 厄米的狄拉克算符，也可以求厄米矩阵 $D\gamma_5$ 的逆，并利用 $D^{-1} = \gamma_5 (D\gamma_5)^{-1}$。然而，在实践中发现，使用针对厄米矩阵的算法的策略并不一定导致更快的收敛。
+
+这里我们只讨论遵循文献 [5] 思路的 Bi-CGStab 算法。为了求解未知矢量 $x^*$ 的矩阵方程 (6.47)，我们从猜测的矢量 $x^{(0)}$ 开始。带预条件（见下文）的迭代伪代码可以写成表 6.2 的形式。把 Bi-CGStab 应用于我们的问题 (6.42) 时，令 $A = D$，$b = S$，所求的传播子矢量 $G = D^{-1}S$ 作为 $G = \lim_{i\to\infty} x^{(i)}$ 得到。
+
+\begin{table}[htbp]
+  \centering
+  \caption*{Table 6.2. 带预条件矩阵 $M$ 的 Bi-CGStab 算法的伪代码 [5]。若不预条件，令 $M = 1$ 并简化代码}
+  \small
+  \begin{tabular}{@{}l@{}}
+    $r^{(0)} = b - A\, x^{(0)}$ \\
+    $\tilde{r} = r^{(0)}$ \quad （例如） \\
+    对 $i = 1, 2, \ldots$ 迭代： \\
+    \quad $\rho_{i-1} = \tilde{r}^{\dagger} \cdot r^{(i-1)}$ \\
+    \quad 若 $\rho_{i-1}$ 等于 0，则方法失败。 \\
+    \quad 若 $i = 1$ 则 \\
+    \quad\quad $p^{(1)} = r^{(0)}$ \\
+    \quad 否则 \\
+    \quad\quad $\beta_{i-1} = \alpha_{i-1}\, \rho_{i-1} / (\omega_{i-1}\,
+      \rho_{i-2})$ \\
+    \quad\quad $p^{(i)} = r^{(i-1)} + \beta_{i-1}\, (p^{(i-1)} - \omega_{i-1}\,
+      v^{(i-1)})$ \\
+    \quad 结束判断 \\
+    \quad 解 $M\, \hat{p} = p^{(i)}$ \\
+    \quad $v^{(i)} = A\, \hat{p}$ \\
+    \quad $\alpha_i = \rho_{i-1} / (\tilde{r}^{\dagger} \cdot v^{(i)})$ \\
+    \quad $s = r^{(i-1)} - \alpha_i\, v^{(i)}$ \\
+    \quad 若 $s$ 的范数足够小，令 $x^{(i)} = x^{(i-1)} +
+      \alpha_i\, \hat{p}$ 并停止。 \\
+    \quad 解 $M\, \hat{s} = s$ \\
+    \quad $t = A\, \hat{s}$ \\
+    \quad $\omega_i = t^{\dagger} \cdot s / (t^{\dagger} \cdot t)$ \\
+    \quad $r^{(i)} = s - \omega_i\, t$ \\
+    \quad $x^{(i)} = x^{(i-1)} + \alpha_i\, \hat{p} + \omega_i\, \hat{s}$ \\
+    重复直至收敛 \ldots
+  \end{tabular}
+\end{table}
+
+我们指出，$\tilde{r}$ 保持不变，只要 $\rho_0 \neq 0$，也可以选择其他的 $\tilde{r}$。为了重复迭代，需要 $\omega_i \neq 0$（Bi-CGStab(2) 算法在这方面有所帮助 [8]）。一旦对某个要求的精度 $\varepsilon$ 有 $r^{(i)\dagger} \cdot r^{(i)} < \varepsilon$，就停止迭代。该算法每个迭代步需要两次与 $A$ 的矩阵–矢量乘法、两次预条件器 $M$ 的求逆以及四次内积。
+
+对于简单的 CG 算法，对正定对称矩阵保证收敛，对维数为 $N$ 的矩阵至少 $N$ 步后收敛，但通常显著更快。对于 Bi-CGStab，收敛可能比其他 CG 方法快，但不一定，在某些情况下甚至发散。在这种情况下必须选择其他初值或其他方法。
+
+所谓的预条件方法有时允许加速收敛，这取决于狄拉克算符。预条件器是一个合适的矩阵 $M$，我们用它将系统变换为
+\begin{equation}
+  M^{-1} A\, x = M^{-1} b .
+\end{equation}
+让我们假设我们有一个矩阵 $M$，它数值上求逆便宜，即解 $M\hat{s} = s$ 求 $\hat{s}$ 便宜，并且在某种意义下近似 $A$。那么 $M^{-1}A$ 的谱性质可能更有利，从而允许迭代解更快收敛。尤其是当 $M$ 的小本征值与 $A$ 的相同时，这可能成立。关于这类方法的更完整讨论，参见 [5, 9]。
+
+当对不同夸克质量求狄拉克算符的逆时，矩阵只在对角线上相差一个常数。这时可以以很小的额外代价同时求解一组夸克质量的方程组。收敛速率由最小质量的收敛决定。这样的多质量算法已在 [10, 11] 中讨论过。
+
+由于确定夸克传播子在数值上相当昂贵，人们常常为每个采样的规范位形存储它们，并在后续分析中据此计算各种强子观测量。
+
+\subsection{例外位形}
+
+到目前为止，我们还没有考虑依赖于规范场 $U$ 的狄拉克算符矩阵 $D[U]$。这意味着 $D[U]$ 的性质会随 $U$ 的改变而改变。特别是，规范场的某些涨落——所谓的例外位形——导致 $D[U]$ 出现小本征值，使 $D[U]$ 的数值求逆出现问题。
+
+为了更详细地理解这一现象，让我们考虑 $D[U]$ 的本征值。对于裸质量参数为 $m$ 的夸克，它们由下式给出
+\begin{equation}
+  m + \lambda_i[U] ,
+\end{equation}
+其中 $\lambda_i[U]$ 是无质量狄拉克算符的本征值。一般这些是复数，但也可能出现实本征值 $\lambda_i[U] = r_i[U]$。如果这样一个实本征值变为负且大小与 $m$ 相近，那么狄拉克算符就有一个非常小的本征值。在这种情况下，$D[U]$ 的数值求逆会失效，只有增大夸克质量 $m$ 才能解决问题。因此例外位形限制了能够达到的夸克质量。例如，在用威尔逊费米子的淬火模拟中，结果表明在一个典型模拟中\footnote{理论论证表明，只有 $\kappa < 1/8$ 时才能确定没有例外位形。}（例如格点大小 $32^3 \times 64$），夸克质量必须选得足够大，使得 $\pi$ 介子质量至少为 300\,MeV，而不是物理的 135\,MeV。
+
+我们指出，对于狄拉克算符满足 Ginsparg--Wilson 方程的手征费米子——我们在第 7 章讨论这一概念——实本征值不会涨落，因此不会出现例外位形的问题；从而可以达到现实的 $\pi$ 介子质量。引入扭曲质量项（参见第 10 章）也能解决例外位形的问题，因为它把谱从沿实轴的条带中驱逐出去。
+
+在实际模拟中，人们发现本征值的涨落与规范场的涨落相互耦合。这些涨落可以通过使用改进的规范场作用量（参见第 9 章）、更大的格点，或者通过我们在下一小节讨论的平滑化技术来抑制。
+
+\subsection{规范位形的平滑化}
+
+当目标是关联函数时，人们主要感兴趣的是长距离行为。另一方面，规范理论的典型特征是规范场的剧烈短距离涨落。通过平滑化或涂抹规范场（或者只在时间片内，甚至同时在空间和时间上），可以大大改善关联信号。这也有助于缓解上一小节讨论的例外位形问题。
+
+在平滑化或涂抹时，人们通常把链变量替换为连接链两端点的短路径上的局域平均。这是一个规范协变的过程，不必固定规范。算符和传播子于是在涂抹后的位形上构造。只要涂抹足够局域，即涂抹算符只组合固定数目的链，长距离关联信号在连续极限下就不应受到影响。
+
+涂抹算法都是沿连接给定链两端点的特定路径对链的乘积求平均。对于 SU(2)，这个平均正比于一个群元，但对于 SU(3) 情况并非如此。因此必须把平均投影到一个 SU(3) 矩阵。这里我们只简要提及此类涂抹算法的三种变体。
+
+APE 涂抹 [12]：在这种情况下，平均是对原始链 $U_\mu$ 以及连接其两端点的六个垂直扶手（staple，请想象一下！）进行的，
+\begin{equation}
+  \begin{gathered}
+    V_\mu(n) = (1 - \alpha)\, U_\mu + \frac{\alpha}{6}\sum_{\nu\neq\mu}
+      C_{\mu\nu}(n) , \\
+    C_{\mu\nu}(n) = U_\nu(n) U_\mu(n+\hat\nu) U_\nu(n+\hat\mu)^\dagger
+      + U_\nu(n-\hat\nu)^\dagger U_\mu(n-\hat\nu)
+      U_\nu(n-\hat\nu+\hat\mu) ,
+  \end{gathered}
+\end{equation}
+其中实数参数 $\alpha$ 可以根据规范耦合来调节。对求和结果到 SU(3) 的投影通常通过最大化 $\Re\,\tr[X\, V_\mu(n)^\dagger]$（$X \in \mathrm{SU}(3)$）来完成，并把 $X$ 用作新的链变量 $U'_\mu(n)$。
+
+HYP 涂抹 [13]：在这种方法中，平均是对包含链变量的超立方体内的路径进行的。同样，求和结果必须投影到 SU(3)。
+
+Stout 涂抹 [14]：这种方法使用一种特殊的投影方式，在涂抹一步之后把新链定义为
+\begin{equation}
+  U'_\mu(n) = e^{\imath Q_\mu(n)}\, U_\mu(n) .
+\end{equation}
+$Q_\mu(n)$ 是由扶手构造的无迹厄米矩阵，
+\begin{equation}
+  \begin{gathered}
+    Q_\mu(n) = \frac{\imath}{2}\left[ \Omega_\mu(n) - \Omega_\mu(n)^\dagger
+      - \frac{1}{3}\tr\!\left( \Omega_\mu(n) - \Omega_\mu(n)^\dagger \right)
+      \right], \\
+    \Omega_\mu(n) = \left( \sum_{\nu\neq\mu} \rho_{\mu\nu} C_{\mu\nu}(n)
+      \right) U_\mu(n)^\dagger .
+  \end{gathered}
+\end{equation}
+矩阵 $C_{\mu\nu}$ 与 (6.50) 中的相同，实权重因子 $\rho_{\mu\nu}$ 是可调参数。常见的选择是令它们为常数，$\rho_{\mu\nu} = \rho$，或者只涂抹空间链：$\rho_{\mu 4} = \rho_{4\mu} = 0$，$\rho_{nm} = \rho$。新链的规范变换性质与原始链相同。这种从矩阵求和得到 SU(3) 元素的方法当然也可以用于其他路径组合。Stout 涂抹的优点是 $U'_\mu(n)$ 对链变量是可微的。这是在第 8 章讨论的动力学费米子混合蒙特卡罗方法等应用中的一个主要优势。
+
+这类链涂抹方法得到通常所谓的粗链（fat link），原因显而易见。还有许多其他此类建议，其中包括 FLIC 链 [15] 或 HYP 涂抹的可微变体 [16, 17]。
+
+所有这些涂抹步骤都可以迭代。然而，此时涂抹就不仅仅影响邻近变量，而是扩展到越来越大的距离。最终传播子的渐近行为将受到影响，使这类结果出现问题。无论如何，涂抹的大部分正面效果在最初的一步（或几步）涂抹之后就已经实现。
+
+\section{提取强子质量}
+
+一旦按照上一节所述计算了夸克传播子，就可以把它们组合成第 6.1 节讨论的强子关联函数。从这些关联函数中可以提取相应的强子质量，在本节中我们介绍这一步骤所需的技术。
+
+在谱学计算中，我们分析形式为 (6.1) 的强子关联函数。在这些公式中，能量 $E$、质量 $m$ 和动量 $\mathbf{p}$ 总是带有格点常数 $a$ 的因子，使得乘积 $aE$、$am$ 和 $a\mathbf{p}$ 无量纲。去掉格点常数的因子并使用所谓的格点单位比较方便。在格点单位中，(6.1) 变成下面的形式 (6.53)。为了回到物理单位，能量 $E$ 必须替换为 $aE$，质量和动量也类似（参见第 6.4.2 节）。除非另有说明，从现在起我们对质量和能量使用格点单位。
+
+\subsection{有效质量曲线}
+
+在质量谱的分析中，人们研究具有特定强子或一组强子量子数的算符 $\hat{O}$ 的关联函数。然而，这些算符通常不产生哈密顿量的本征态。它们含有来自若干本征态的贡献，关联函数是第 1 章讨论过的谱和 (1.21)。如果把汇算符投影到零动量（通过对相应时间片求和），我们发现
+\begin{equation}
+  C(n_t) \equiv \big\langle \widetilde{O}(\mathbf{0}, n_t)\, O(0, 0)
+    \big\rangle = \sum_k \bra{0}\hat{O}\ket{k}\,\bra{k}\hat{O}^\dagger\ket{0}\,
+    e^{-n_t E_k} .
+\end{equation}
+对于有限格点大小，$E_k$ 的值是离散的。如果算符耦合到单粒子中间态，那么这些粒子的质量 $m_k$ 将对应低激发能量值，即 $E_k = m_k$。如果算符耦合到两粒子或多粒子中间态，那么能量值 $E_k$ 与所涉及粒子的质量和相对动量有关。
+
+由于求和 (6.53) 中各项的指数形式，较高能量态的相对贡献随 $n_t$ 变化。只有在大的 $n_t$ 处，最低能量态才占主导。对于较小的 $n_t$，与其他态的混合使图像模糊，求和 (6.53) 有许多相关贡献，
+\begin{equation}
+  C(n_t) = A_0\, e^{-n_t E_0} + A_1\, e^{-n_t E_1} \ldots .
+\end{equation}
+在第 6.3.3 节中，我们将讨论需要确定多个能级时用于分析的方法。目前，让我们考虑最简单的情形，即只对对应于基态的最低能量 $E_0$ 感兴趣。
+
+图 6.3 的左图显示了一个示例计算中具有 $\pi$ 介子量子数的介子算符关联函数的例子。对数图中的线性区域对应于单一指数行为 $\sim \exp(-n_t E_0)$ 主导的 $n_t$ 值范围。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig63.png}
+  \caption*{Fig. 6.3. \emph{在格点间距 $a \approx 0.15$~fm 的 $16^3 \times 32$ 格点上的蒙特卡罗模拟结果。左图：$\pi$ 介子关联函数的对数图；右图：有效质量图（格点单位）。不同的数据组对应于格点单位中夸克质量的不同取值。各点用连线连接以引导视线}.}
+  \label{fig:63}
+\end{figure}
+
+对于介子，在 $n_t$ 和 $(N_T - n_t)$ 中的传播除了可能的相对负号外完全相同，当只考虑基态时，关联函数显示（取决于源和汇插值算符）对 $n_t$ 的 cosh 或 sinh 依赖：
+\begin{equation}
+  A_0\, e^{-n_t E_0} \pm A_0\, e^{-(N_T - n_t)E_0}
+  = \begin{cases}
+      2 A_0\, e^{-N_T E_0/2}\, \cosh\!\big( (N_T/2 - n_t) E_0 \big) \\
+      2 A_0\, e^{-N_T E_0/2}\, \sinh\!\big( (N_T/2 - n_t) E_0 \big)
+    \end{cases}
+\end{equation}
+为了分析在哪个 $n_t$ 范围内 (6.54) 中次主导指数的贡献可以忽略，人们把有效质量定义为
+\begin{equation}
+  m_{\mathrm{eff}}\!\left( n_t + \half \right) = \ln
+    \frac{C(n_t)}{C(n_t + 1)} .
+\end{equation}
+一旦关联函数 $C(n_t)$ 由基态能量主导，$m_{\rm eff}$ 就变成常数，并在 $m_{\rm eff} = E_0$ 处形成有效质量平台。
+
+如果想按照 (6.55) 尊重 $n_t$ 的周期性，则令
+\begin{equation}
+  \frac{C(n_t)}{C(n_t + 1)}
+  = \frac{\cosh\!\big( m_{\rm eff}(n_t - N_T/2) \big)}
+         {\cosh\!\big( m_{\rm eff}(n_t + 1 - N_T/2) \big)} ,
+\end{equation}
+（对于 sinh 的情形类似）并对每个 $n_t$ 求解 $m_{\rm eff}$。这在图 6.3 的右图中已完成。取决于质量，如果远离 $n_t \lesssim N_T/2$ 的区域，由周期性效应导致的这类修正可能并非必要。
+
+在图 6.3 的右图中，有效质量平台在 $4 < n_t < 28$ 范围内非常明显。在这个范围内，激发态的贡献可以忽略，可以对简单形式 $A_0 \exp(-n_t E_0)$ 进行两参数拟合。如果关联函数是对称的，如我们例子中的情形，那么就对 $A_0 \cosh((n_t - N_T/2) E_0)$ 进行拟合。
+
+有效质量技术的一个推广是把不同时间片的关联函数值组合起来并减去主导的指数衰减。这可以扩展为提取激发态强子质量的工具 [18]。
+
+我们强调，关联函数的对称性——即在 $n_t$ 和 $N_T - n_t$ 中除了符号外传播相同——并不是普遍特征。特别是，在投影到确定的宇称之后（参见 (6.16)），重子在 $n_t$ 中传播，而它的宇称伙伴在 $N_T - n_t$ 中传播。由于这两个质量不同，传播子不是对称的，因此对于有效质量和拟合函数，必须使用简单的指数形式，而不是 cosh 或 sinh。
+
+\subsection{关联函数的拟合}
+
+虽然绘制 $m_{\rm eff}$ 给出了基态质量的初步估计，但还是应该在 $n_t$ 值范围内进行关联拟合。对于关联分析，通过在范围 $n_{\min} \leq n_t, n_t' \leq n_{\max}$ 内最小化下式来拟合数据
+\begin{equation}
+  \chi^2 = \sum_{n_t, n_t' = n_{\min}}^{n_{\max}}
+    \big( C(n_t) - f(n_t) \big)\, w(n_t, n_t')\,
+    \big( C(n_t') - f(n_t') \big) ,
+\end{equation}
+关于假设函数的参数 $A_0$、$E_0$
+\begin{equation}
+  f(n_t) = A_0\, e^{-E_0 n_t} \qquad \text{or} \qquad
+  f(n_t) = A_0\, \cosh\!\big( (n_t - N_T/2) E_0 \big) \ \text{(or sinh)} .
+\end{equation}
+权重 $w$ 理想情况下应该是精确协方差矩阵的逆，即 $w(n_t, n_t') = \mathrm{Cov}^{-1}(n_t, n_t')$。在实际蒙特卡罗运行中，人们只知道一个估计量，即数据的测量协方差矩阵，
+\begin{equation}
+  \mathrm{Cov}_N(n_t, n_t')
+  = \frac{1}{N - 1}\Big\langle
+      \big( C(n_t) - \langle C(n_t)\rangle_N \big)\,
+      \big( C(n_t') - \langle C(n_t')\rangle_N \big)
+    \Big\rangle_N ,
+\end{equation}
+\begingroup\emergencystretch=4em 其中 $\langle\ldots\rangle_N$ 表示对 $N$ 个规范位形的统计平均。因此在 (6.58) 中使用\linebreak[0] $w(n_t, n_t') = \mathrm{Cov}^{-1}_N(n_t, n_t')$。\par\endgroup
+
+然而，这个估计量常常确定得不够好，而且由于统计涨落，可能会出现偶然的小本征值使拟合不稳定。在这种情况下，通常要么使用某种光滑近似，要么只使用协方差矩阵的对角部分（忽略不同数据点之间的关联）。后者给出 $w(n_t, n_t') = \delta_{n_t,n_t'}/\sigma(n_t)^2$，而 (6.58) 的 $\chi^2$ 泛函约化为非关联拟合中常见的形式。关于关联拟合的批判性论述，参见 [19]。
+
+确定 (6.58) 中拟合范围 $[n_{\min}, n_{\max}]$ 的一种方法是上面讨论的有效质量平台分析。另一个判据是要求当区域扩展时，拟合的每自由度 $\chi^2$ 变化不超过 $\order{1}$。虽然确定拟合区间的一般有效方式是值得追求的，但通常——尤其是对于只有中等统计量的数据——它受到个人偏好的影响。任何这样的决定都带有一定的任意性，应该通过目视检查拟合来检验。
+
+估计质量拟合结果统计误差的一种简单方法是使用统计自助法（bootstrap）或刀切法（jackknife）。如第 4 章所讨论的，人们对数据的大的子集重复分析，并在事后确定质量的最终误差。
+
+\subsection{激发态的计算}
+
+特别是在较小的时间距离处，可以观察到能量高于基态的态的贡献（参见图 6.3 的右图）。显然，得到这些对应于激发态的能级的估计是可取的。同时，把基态与较高态区分开，对两者都能提供更干净的信号。
+
+把关联函数直接拟合到作为 $K$ 个指数之和的假设函数 $f(n_t)$，
+\begin{equation}
+  f(n_t) = \sum_{k=1}^{K} c_k\, e^{-n_t E_k} ,
+\end{equation}
+如果参数数目小于数据点数目，且数据 $C(n_t)$ 是精确的，那么这在形式上是可行的。实际上，数据来自蒙特卡罗模拟，确实有误差。容易证明，即使是三个指数的和，在这样的拟合中也可能导致不可靠的结果。文献中已经讨论了几种替代方法。
+
+\textbf{贝叶斯分析（条件有偏拟合）：} 为了使对类型 (6.61) 假设函数的拟合稳定，不使用 $\chi^2$ 泛函 (6.58)，而是最小化
+\begin{equation}
+  F = \chi^2 + \lambda\, \phi ,
+\end{equation}
+其中 $\phi$ 是拟合参数的某个稳定化函数，$\lambda$ 是正实数乘子。这项技术对于所谓的不适定问题很有名，比如只由数据点给出的函数的解析延拓 [20]。
+
+文献 [21] 提出使用如下稳定化函数
+\begin{equation}
+  \phi = \sum_{k=1}^{K}\left[ a_k\, (E_k - \bar{E}_k)^2
+    + b_k\, (c_k - \bar{c}_k)^2 \right],
+\end{equation}
+其中 $\bar{E}_k$ 和 $\bar{c}_k$ 是预期能量值和系数的偏好值。调节参数 $a_k$ 和 $b_k$ 决定相应偏置的相对权重。因此，即使拟合参数数目超过数据数目，拟合也能保持稳定，得到取决于乘子 $\lambda$ 的唯一结果，$\lambda$ 定义了“偏好的程度”。人们试图找到所得拟合参数中仅微弱依赖于 $\lambda$ 的区域。
+
+一种基于这些思想的技术 [22] 是从大 $n_t$ 值的简单单指数拟合开始，然后按照所讨论的思路，把先前拟合的结果作为偏置纳入双指数拟合。经验表明，为了成功使用该方法，通常需要好的统计量（数据的统计误差要小）。
+
+\textbf{最大熵方法：} 对于这种方法，把关联函数写成谱密度的拉普拉斯变换，
+\begin{equation}
+  C(n_t) = \int_0^\infty \dd E\, \rho(E)\, e^{-n_t E} .
+\end{equation}
+在连续情形下，所得谱密度 $\rho(E)$ 应在主导关联函数的能量值附近出现峰。当从格点数据计算 $\rho(E)$ 时，把能量离散成小步长，$E_n = n\,\Delta E$，并把密度在离散能量 $E_n$ 处的值 $\rho(E_n)$ 作为拟合参数。技术上的挑战是通过最小化合适的距离泛函 (6.62)，从（少数几个）$C(n_t)$ 值恢复谱密度。人们已经使用了各种方法来定义稳定化泛函 $\phi$。
+
+在最大熵方法中，(6.62) 中的泛函 $\phi$ 基于概率论论证来选择。我们按照下式对谱密度归一化
+\begin{equation}
+  C(0) = \int_0^\infty \dd E\, \rho(E) \equiv 1 .
+\end{equation}
+那么 $\rho(E)$ 的分布应使得每个“量子”对能量值 $E$ 作出贡献的先验机会相同。这导致稳定化子
+\begin{equation}
+  \phi[\rho] = \int_0^\infty \dd E\, \rho(E)\, \ln\!\big( \rho(E) \big) .
+\end{equation}
+最小化联合概率会得到光滑解。一个缺点是这种方法要求谱密度为正。此外，该泛函是非线性的，必须使用专门的数值方法来解决最小化问题。
+
+这种方法在统计物理中被大量使用。它也被应用于核子传播子 [23, 24]。然而，从统计物理的经验来看，人们预计需要许多 $n_t$ 值且误差很小的数据才能得到可靠的结果。示例计算表明，当试图从中等精度的关联数据中提取更多能级时，会出现显著的歧义性。
+
+\textbf{变分分析：} 有关激发态的情形可以通过不仅考虑单个关联函数，而是计算一个交叉关联函数矩阵来改进
+\begin{equation}
+  C_{ij}(n_t) \equiv \big\langle \widetilde{O}_i(0, n_t)\, O_j(0, 0) \big\rangle
+  = \sum_k \bra{0}\hat{O}_i\ket{k}\,\bra{k}\hat{O}_j^\dagger\ket{0}\,
+    e^{-n_t E_k} ,
+\end{equation}
+其中 $O_i$（$i = 1, \ldots, N$）是一组 $N$ 个基插值算符，它们都具有所感兴趣态的量子数。例如，可以使用第 6.1 节讨论的不同狄拉克结构来构造不同的插值算符，或者使用作用在不同夸克源上的夸克传播子来构造。
+
+利用 (6.67) 右端谱分解的特殊形式，文献 [25--27] 已证明，对交叉关联矩阵 $C(n_t)$ 进行对角化可以在一定程度上把物理态分开。确实，可以证明关联矩阵的本征值 $\lambda^{(k)}(n_t)$ 的行为为
+\begin{equation}
+  \lambda^{(k)}(n_t) \propto e^{-n_t E_k}\left( 1 +
+    \order{e^{-n_t \Delta E_k}} \right),
+\end{equation}
+其中 $\Delta E_k$ 是 $E_k$ 到邻近能级的距离。使用广义本征值方程可以得到更好的结果
+\begin{equation}
+  C(n_t)\, v = \lambda(n_t)\, C(n_0)\, v ,
+\end{equation}
+其中本征值的行为再次如 (6.68)，但修正项的振幅通常更小。广义本征值问题 (6.69) 可以改写为
+\begin{equation}
+  Q(n_0)^{-1}\, C(n_t)\, Q^\dagger(n_0)^{-1}\, u = \lambda(n_t)\, u
+  \qquad \text{with} \qquad Q(n_0)\, Q^\dagger(n_0) = C(n_0) .
+\end{equation}
+数值上，这种形式预计比 $C(n_0)^{-1}C(n_t)$ 的对角化更稳定，后者是把广义本征值问题改写为普通本征值问题的另一种方式。
+
+在广义本征值问题中，在某个时间片 $n_0 < n_t$ 处的归一化应当通过抑制更高激发态的贡献来改善信号。确实，在使用模型数据的示例计算中可以观察到这一效应：两种方法——直接对角化和广义本征值问题——在渐近意义上都给出正确答案，但广义本征值方法在更小的距离 $n_t$ 处就已经如此。
+
+当基插值算符数目增加时，方法得到改进。这些插值算符应当相互独立，并与问题的本征态有良好的重叠。另一方面，在实际计算中，包含更多插值算符会增强统计噪声，从而影响对角化。选择接近本征态预期物理内容的格点算符总是值得的。
+
+该问题的本征矢量给出本征态（即预计接近物理态的态）与关联矩阵 (6.67) 中所用基插值算符的重叠。因此，可以推导出物理模波函数的信息。在 [28--30] 中，通过组合不同宽度的雅可比涂抹夸克源得到格点算符，从而允许空间波函数中出现节点。[31, 32] 中采用了一种不同的方法，用立方格点对称群的不可约表示构造扩展格点插值算符。
+
+\section{强子质量结果的最终确定}
+
+现在我们处于这样一个阶段：已经从相应的关联函数中提取了强子质量，可以进行分析了。我们讨论完成谱学计算所需的步骤，并用淬火计算的数据加以说明。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\textwidth]{fig64.png}
+  \caption*{Fig. 6.4. \emph{强子质量的原始数据。左图显示格点单位中 $\pi$ 介子、$\rho$ 和核子质量随裸夸克质量的变化。右图是所谓的 APE 图，其中无量纲比值与实验数值进行比较。数据取自淬火计算 [33]}.}
+  \label{fig:64}
+\end{figure}
+
+\subsection{一些原始数据的讨论}
+
+按照前面几节的步骤，我们计算了格点单位中的强子质量，即得到了无量纲乘积 $aM$ 的数值。通常，强子质量在一系列轻夸克质量 $m_q \equiv m_u = m_d$ 下进行计算。图 6.4 的左图显示了来自淬火模拟 [33] 的 $\pi$ 介子、$\rho$ 和核子质量的这类原始数据。
+
+把格点单位中的质量转换为可以与实验数据比较的数值，可以通过考虑格点常数 $a$ 抵消的质量比来实现。图 6.4 的右图显示了核子与 $\rho$ 质量之比 $M_N/M_\rho$ 作为 $(M_\pi/M_\rho)^2$ 的函数，其中 $M_\pi$ 是 $\pi$ 介子质量。这样的图称为 APE 图 [34]。另一种替代是所谓的爱丁堡图 [35]，其中横轴使用 $M_\pi/M_\rho$。
+
+\begingroup\emergencystretch=4em 在 APE 图和爱丁堡图中，$M_N/M_\rho$ 的数据都可以与物理点比较：\linebreak[0] $M_\pi/M_\rho \approx 0.180$ 处 $M_N/M_\rho \approx 1.209$。虽然我们不进行外推，但很明显，图 6.4 中 APE 图所示的数据在淬火近似中已经清楚地外推到物理点。\par\endgroup
+
+\subsection{标度的设定与夸克质量参数}
+
+格点计算的结果总是像质量比这样的无量纲数。为了与实验比较，必须把一个质量或长度单位与一个实验值联系起来。因此，数据必须转换为诸如 MeV 这样的物理单位。换句话说，为了从计算出的 $aM$ 数值得到质量 $M$，必须确定格点常数 $a$ 的物理值。这一步有两种主要技术，称为标度设定。
+
+\textbf{用 Sommer 参数设定标度：} 对于这种方法，如第 3.5 节所讨论的，使用 Sommer 参数从静态势确定格点常数 $a$。结果具有 $a = x$~fm 的形式，其中 $x$ 是一个无量纲数。
+
+从我们的强子关联函数中，我们为某个强子质量 $M$ 计算了无量纲数 $X = aM$。因此物理质量 $M = X/a$ 以 fm 的倒数给出。这个质量单位是使用自然单位 $\hbar = 1$、$c = 1$ 的结果。为了把结果转换为 MeV，使用
+\begin{equation}
+  1 = \hbar c = 197.327\ \mathrm{MeV\,fm}
+  \qquad\Longrightarrow\qquad
+  1\ \mathrm{fm}^{-1} = 197.327\ \mathrm{MeV} .
+\end{equation}
+然后得到以 MeV 为单位的强子质量
+\begin{equation}
+  M = \frac{X}{a} = \frac{X}{x}\ \mathrm{fm}^{-1} = \frac{X}{x}\,
+    197.327\ \mathrm{MeV} .
+\end{equation}
+
+\textbf{用强子质量设定标度：} 在这种方法中，用强子质量之一 $M_0$ 来设定标度。流行的候选者是 $\rho$ 介子或核子。对于该强子（例如 $\rho$ 介子），需要知道格点单位中的质量 $aM_0(m_q)$ 在裸夸克质量 $m_q$ 的若干个值处的结果。然后把数据外推到质量参数的值 $m_q^*$，在该处无量纲的 $\pi$ 介子与 $\rho$ 的质量比取物理值：$M_\pi(m_q^*)/M_\rho(m_q^*) = M_\pi^{\rm exp}/M_\rho^{\rm exp} = 0.180$。另一种选择是，也可以把 $aM_0(m_q)$ 外推到手征极限，即 $m_q = 0$。这只是对真实物理点的近似，但另一方面，这一选择避免了由测量的 $\pi$ 介子与 $\rho$ 质量比带来的统计误差。对于两种外推，结果都是一个数 $X = aM_0(m_q^*)$（或 $X = aM_0(0)$），我们令 $M_0(m_q^*) \equiv M_0^{\rm exp}$（或 $M_0(0) \equiv M_0^{\rm exp}$），其中 $M_0^{\rm exp}$ 是我们的强子以 MeV 为单位的实验质量。得到以 MeV 的倒数给出的格点常数：$a = X/M_0^{\rm exp}$。这个标度 $a$ 可以直接用于从格点单位的值 $aM$ 得到以 MeV 为单位的其他质量 $M$。
+
+对于三种夸克味的模拟，除了标度 $a$ 之外，还必须确定轻夸克质量 $m_q = m_u = m_d$ 和奇异夸克质量 $m_s$。对于轻夸克质量，要么通过令 $m_q = m_q^*$ 来识别物理点（$m_q^*$ 如上所述确定），要么假设轻的 $u$ 和 $d$ 夸克无质量。设定奇异夸克质量时采用类似的策略：使用一个含奇异夸克的强子，通常是 $K^\pm$ 赝标量介子、矢量介子 $\phi$，或像 $\Sigma$ 或 $\Omega$ 这样的重子。$K^\pm$ 的夸克含量为 $u$、$s$，因此其质量是 $u$ 和 $s$ 夸克质量的函数，$M_{K^\pm}(m_q, m_s)$，其中 $m_q = m_u$。第一步把数据外推到手征极限 $m_q = 0$，或外推到 $m_q = m_q^*$。这给出在不同奇异夸克质量值处的 $K^\pm$ 质量 $M_{K^\pm}(m_s)$（标度用上述方法之一设定）。对若干个 $m_s$ 值重复此过程，并对 $M_{K^\pm}(m_s)$ 的数据进行插值。插值数据与实验值一致处的值 $m_s^*$——$M_{K^\pm}(m_s^*) = M_{K^\pm}^{\rm exp} = 494$\,MeV——给出裸奇异夸克质量参数 $m_s = m_s^*$。当使用 $\phi$ 时，情况更简单，因为 $\phi$ 主要是奇异–反奇异态，不需要手征外推。
+
+\subsection{各种外推}
+
+分析格点数据时，人们面临臭名昭著的三组问题：
+\begin{itemize}
+  \item 有限大小效应与无穷体积极限 $V \to \infty$。
+  \item 连续极限 $a \to 0$ 中的标度行为。
+  \item 手征外推 $m \to 0$。
+\end{itemize}
+
+\textbf{有限大小：} 所有数值格点结果都是在有限体积中得到的。因此，在其他参数固定时，必须研究对格点大小的依赖，并尽可能外推到无穷空间体积。对于外推，可以使用朴素的参数化，例如对空间延展 $L$ 用 $1/L$ 的幂次，或者在可能的情况下，使用基于理论的模型。
+
+实际上，与统计物理自旋模型的分析一样，有限大小效应甚至可能有助于了解无穷体积的结果。一个例子是手征微扰论，它提供一种系统展开，其中无穷体积量作为参数出现 [36, 37]。在下一章讨论有限格点上手征凝聚的格点计算时，我们会应用这样的公式。
+
+对于大多数谱学研究，人们使用 $N^3 \times N_T$ 格点，它在时间方向上比空间方向大得多，$L = aN$。确实，忽略有限时间延展（从而忽略有限温度效应）时，主导的有限大小效应来自空间体积。围绕空间环面的相互作用效应导致对质量的指数修正 $\order{\exp(-\alpha L)}$（参见 [38, 39] 和第 11 章的讨论）。主导贡献来自质量最小的强子——$\pi$ 介子，为 $\order{\exp(-L M_\pi)}$ 量级。作为经验法则，当 $L M_\pi > 4$ 时，来自这一机制的有限大小效应可以忽略。
+
+对于小体积，对强子质量体积依赖的数值研究似乎表明 $1/L^n$ 行为，其中 $n \approx 2{-}3$。这与直觉图像一致：波函数在过小的空间体积中被挤压，观察到的能量移动在领头阶正是由这种挤压效应引起的（参见 [40, 41] 及其中的参考文献）。大多数分析都认同这样的观察：在线性格点大小大于 3~fm 时得到的基态强子质量没有明显的体积依赖。对于波函数延展更大的激发态，挤压效应可能更严重。
+
+\textbf{连续极限与标度行为：} 测得的质量 $M$（物理单位）含有依赖于 $a$ 的修正，
+\begin{equation}
+  M(a) = M_{\rm phys}\left( 1 + \order{a^\alpha} \right),
+\end{equation}
+不同格点作用量的修正可能不同。对于威尔逊费米子作用量，识别出对质量的二次贡献 [42]，而人们发现改进费米子作用量会减小这种依赖 [33]。
+
+最终我们想要得到连续时空的结果。这对应于极限 $a \to 0$，或等价地 $\beta \to \infty$。然而，在格点数固定的情况下减小格点间距会缩小物理体积。因此，当我们减小 $a$（增大 $\beta$）时，必须增大格点数 $N^3 \times N_T$，而这反过来又推高了模拟的数值成本。典型的模拟力求负担三到四个 $a$ 值，并外推到 $a = 0$。
+
+\textbf{手征外推：} 数值结果常常是在非物理的大夸克质量下得到的。最终我们想要接近对应于物理 $\pi$ 介子的小夸克质量。从概念的观点看，人们甚至可能对无质量情形——手征极限 $m \to 0$——感兴趣。无质量的 2 味 QCD（即假设 $m_u$ 和 $m_d$ 为零）是一个有趣而非平凡的单参数理论，其中强子质量预计接近它们的实验值。甚至可以称之为零参数理论，因为规范耦合只用于确定标度。不幸的是，由于若干原因，这个极限很难达到。随着夸克质量变小，打开了装满问题的潘多拉魔盒。
+
+对于不保持手征对称性的费米子作用量（或不引入像扭曲质量作用量那样的正规化子，参见第 7 章和第 10 章），由于第 6.2.5 节讨论的例外位形，即使夸克质量非零也会出现零模。这限制了能够达到的最小 $\pi$ 介子质量。
+
+当使用淬火近似时，在小 $m_q$ 处会出现另一类问题。略去费米子行列式有几个效应：
+\begin{itemize}
+  \item 费米子行列式的缺失通过略去海夸克圈改变了物理（比较图 6.2）。因此，在淬火近似中强子不能衰变。
+  \item 反常的贡献（参见下一章）被移除，$\eta'$ 介子变轻——出现了一个额外的戈德斯通模。
+  \item 关联函数中带有负系数的态出现，即所谓的鬼态。淬火的 $\eta'$ 与一个强子组合为这样的态提供了一个例子 [43--45]，参见图 6.2 中的发夹图。
+  \item 狄拉克算符的小本征值不被行列式（它是所有本征值的乘积）所抑制。因此，导致例外位形的涨落可能更频繁地发生。
+\end{itemize}
+
+对于夸克质量的外推，手征微扰论提供了合适的概念背景（导论性论述参见 [46--49]）。手征微扰论是绕着手征极限以 $\pi$ 介子质量展开的微扰论，考虑了 QCD 的对称性。所得的外推公式通常用 $\pi$ 介子质量表达，作为例子，我们展示核子外推的结果 [50, 51]
+\begin{equation}
+  M_N = c_0 + c_2 M_\pi^2 + c_3 M_\pi^3 + c_4 M_\pi^4 \ln(M_\pi)
+    + \order{M_\pi^4} ,
+\end{equation}
+其中展开系数 $c_i$ 与低能常数（如手征极限中的 $\pi$ 介子衰变常数）有关。
+
+手征微扰论可以修改以考虑淬火 [52--54]。像 (6.74) 这样的公式得到的修正可能在手征极限中变成奇异。这是由于前面已经提到的额外戈德斯通玻色子。
+
+\subsection{若干淬火结果}
+
+强子质量的高精度确定涉及在多达 $64^3 \times 112$ 的格点上对几百个规范场位形进行测量（对于淬火威尔逊费米子；参见例如 [42, 55]；其他表述的模拟将在后面的章节中讨论）。这些模拟中的格点间距小至 0.05~fm，线性物理格点大小为 $\order{3.2~\mathrm{fm}}$。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{fig65.png}
+  \caption*{Fig. 6.5. \emph{淬火的轻强子谱与实验的比较；标出了统计误差和系统误差。该图来自 CP--PACS 合作组使用威尔逊价夸克的高统计量模拟 [42]。（经许可转载自 S.~Aoki 等人，Phys.\ Rev.\ D 67, 034503 (2003)。版权 (2003) 归美国物理学会所有）}.}
+  \label{fig:65}
+\end{figure}
+
+为了说明淬火格点谱学所取得的成就，在图 6.5 中我们展示了来自 CP--PACS 合作组 [42] 的高统计量研究的结果。质量值是在外推到无穷体积、格点间距趋于零和手征极限之后得到的。比较了用 $K$ 或 $\phi$ 设定奇异夸克质量的结果。尽管计算是在淬火近似下进行的，但对一大类强子都发现与实验数据很好的一致。在第 8 章中，我们将把图 6.5 与一个使用完全动力学夸克的更新的谱学结果进行比较。
+
+\section*{参考文献}
+
+\begin{enumerate}[label={[\arabic*]}]
+  \item C.~Amsler et al.\ [Particle Data Group]: Phys.\ Lett.\ B 667, 1 (2008) 125
+  \item D.B.~Leinweber et al.: in Lect.\ Notes Phys.\ 663, 71. Springer, Berlin,
+        Heidelberg (2005) 129, 130
+  \item S.~G\"usken et al.: Phys.\ Lett.\ B 227, 266 (1989) 138
+  \item C.~Best et al.: Phys.\ Rev.\ D 56, 2743 (1997) 138
+  \item R.~Barrett et al.: \emph{Templates for the Solution of Linear Systems:
+        Building Blocks for Iterative Methods} (SIAM, Philadelphia 1994) 139,
+        140, 141
+  \item W.~H.~Press, S.~A.~Teukolsky, W.~T.~Vetterling, and B.~P.~Flannery:
+        \emph{Numerical Recipes in C}, 2nd ed.\ (Cambridge University Press,
+        Cambridge, New York 1999) 139
+  \item H.~A.~van der Vorst: SIAM J.\ Sci.\ Statist.\ Comput.\ 13, 631 (1992)
+        140
+  \item M.~H.~Gutknecht: SIAM J.\ Sci.\ Statist.\ Comput.\ 14, 1020 (1993) 140,
+        141
+  \item I.~Montvay and G.~M\"unster: \emph{Quantum Fields on a Lattice}
+        (Cambridge University Press, Cambridge, New York 1994) 141
+  \item A.~Frommer et al.: Int.\ J.\ Mod.\ Phys.\ C 6, 627 (1995) 141
+  \item B.~Jegerlehner: Nucl.\ Phys.\ B (Proc.\ Suppl.) 63, 958 (1998) 141
+  \item M.~Albanese et al.: Phys.\ Lett.\ B 192, 163 (1987) 142
+  \item A.~Hasenfratz and F.~Knechtli: Phys.\ Rev.\ D 64, 034504 (2001) 143
+  \item C.~Morningstar and M.~Peardon: Phys.\ Rev.\ D 69, 054501 (2004) 143
+  \item W.~Kamleh, D.~Adams, D.~B.~Leinweber, and A.~G.~Williams: Phys.\ Rev.\
+        D 66, 014501 (2002) 143
+  \item A.~Hasenfratz, R.~Hoffmann, and S.~Schaefer: JHEP 0705, 029 (2007) 143
+  \item S.~D\"urr: Comput.\ Phys.\ Commun.\ 180, 1338 (2009) 143
+  \item D.~Guadagnoli, M.~Papinutto, and S.~Simula: Phys.\ Lett.\ B 604, 74
+        (2004) 146
+  \item C.~Michael: Phys.\ Rev.\ D 49, 2616 (1994) 146
+  \item S.~Ciulli, C.~Pomponiu, and I.~Sabba-Stefanescu: Phys.\ Rep.\ 17, 133
+        (1975) 147
+  \item G.~P.~Lepage et al.: Nucl.\ Phys.\ (Proc.\ Suppl.) 106, 12 (2002) 147
+  \item Y.~Chen et al.\ (unpublished) arXiv:hep-lat/0405001 (2004) 148
+  \item M.~Asakawa, T.~Hatsuda, and Y.~Nakahara: Prog.\ Part.\ Nucl.\ Phys.\ 46,
+        459 (2001) 148
+  \item K.~Sasaki, S.~Sasaki, T.~Hatsuda, and M.~Asakawa: Nucl.\ Phys.\ B
+        (Proc.\ Suppl.) 129, 212 (2004) 148
+  \item C.~Michael: Nucl.\ Phys.\ B 259, 58 (1985) 149
+  \item M.~L\"uscher and U.~Wolff: Nucl.\ Phys.\ B 339, 222 (1990) 149
+  \item B.~Blossier et al.: JHEP 0904, 094 (2009) 149
+  \item T.~Burch et al.: Phys.\ Rev.\ D 70, 054502 (2004) 149
+  \item T.~Burch et al.: Phys.\ Rev.\ D 73, 094505 (2006) 149
+  \item T.~Burch et al.: Phys.\ Rev.\ D 74, 014504 (2006) 149
+  \item S.~Basak et al.: Phys.\ Rev.\ D 72, 094506 (2005) 149
+  \item S.~Basak et al.: Phys.\ Rev.\ D 72, 074501 (2005) 149
+  \item C.~Gattringer et al.\ [BGR (Bern-Graz-Regensburg) collaboration]: Nucl.\
+        Phys.\ B 677, 3 (2004) 150, 153
+  \item P.~Bacilieri et al.: Phys.\ Lett.\ B 214, 115 (1988) 150
+  \item K.~C.~Bowlers et al.: Phys.\ Lett.\ B 162, 354 (1985) 150
+  \item J.~Gasser and H.~Leutwyler: Ann.\ Phys.\ 158, 142 (1984) 152
+  \item P.~Hasenfratz and H.~Leutwyler: Nucl.\ Phys.\ B 343, 241 (1990) 152
+  \item M.~L\"uscher: in \emph{Progress in Gauge Field Theory}, Carg\`ese, 1983,
+        edited by G.~'t~Hooft et al.\ (Plenum, New York 1984) 152
+  \item M.~L\"uscher: Commun.\ Math.\ Phys.\ 104, 177 (1986) 152
+  \item M.~Fukugita et al.: Phys.\ Lett.\ B 294, 380 (1992) 152
+  \item K.~Sasaki and S.~Sasaki: Phys.\ Rev.\ D 72, 034502 (2005) 152
+  \item S.~Aoki et al.\ [CP-PACS collaboration]: Phys.\ Rev.\ D 67, 034503
+        (2003) 153, 154, 155
+  \item S.~R.~Sharpe: Phys.\ Rev.\ D 56, 7052 (1997) 153
+  \item S.~R.~Sharpe: Phys.\ Rev.\ D 62, 099901 (2000) 153
+  \item J.~Heitger, R.~Sommer, and H.~Wittig: Nucl.\ Phys.\ B 588, 377 (2000)
+        153
+  \item H.~Leutwyler: in \emph{Festschrift in Honor of B.L.~Ioffe: At the
+        Frontier of Particle Physics}, edited by M.~Shifman, Vol.~1, p.~271
+        (World Scientific, Singapore 2001) 154
+  \item U.~Mei\ss ner: in \emph{Festschrift in Honor of B.L.~Ioffe: At the
+        Frontier of Particle Physics}, edited by M.~Shifman, Vol.~1, p.~417
+        (World Scientific, Singapore 2001) 154
+  \item U.~Mei\ss ner: PoS LAT2005, 009 (2006) 154
+  \item V.~Bernard and U.~Mei\ss ner: Ann.\ Rev.\ Nucl.\ Part.\ Sci.\ 57, 33
+        (2007) 154
+  \item T.~Becher and H.~Leutwyler: Eur.\ Phys.\ J.\ C 9, 643 (1999) 154
+  \item M.~Procura, T.~R.~Hemmert, and W.~Weise: Phys.\ Rev.\ D 69, 034505
+        (2004) 154
+  \item S.~R.~Sharpe: Phys.\ Rev.\ D 46, 3146 (1992) 154
+  \item C.~W.~Bernard and M.~F.~L.~Golterman: Phys.\ Rev.\ D 46, 853 (1992) 154
+  \item C.~W.~Bernard and M.~F.~L.~Golterman: Phys.\ Rev.\ D 49, 486 (1994) 154
+  \item K.~C.~Bowlers et al.\ [UKQCD collaboration]: Phys.\ Rev.\ D 62, 054506
+        (2000) 154
+\end{enumerate}

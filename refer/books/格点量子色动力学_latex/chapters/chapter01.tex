@@ -1,0 +1,729 @@
+% =====================================================================
+%  第 1 章：格点上的路径积分
+%  Gattringer & Lang, "Quantum Chromodynamics on the Lattice" (LNP 788)
+%  Reconstructed from extract/ch01.txt; equations auto-numbered.
+% =====================================================================
+
+\chapter{格点上的路径积分}
+
+在格点上量子化场的基本工具是欧几里得路径积分。我们的第一章致力于引入路径积分形式体系并阐明其含义。为了在展开这一思想时不至于迷失于技术细节，我们以最简单的情形——标量场理论——来引入路径积分。我们将推导并讨论格点场论的两条关键方程。第一条关键方程是
+\begin{equation}
+  \begin{split}
+    \ev{O_2(t)\,O_1(0)}
+    &= \lim_{T\to\infty}\frac{1}{Z_T}\tr\!\big[e^{-(T-t)H}O_2\,e^{-tH}O_1\big]\\
+    &= \sum_n \bbraket{0}{O_2}{n}\,\bbraket{n}{O_1}{0}\,e^{-tE_n},
+  \end{split}
+\end{equation}
+其中 $Z_T$ 是由 $Z_T = \tr[e^{-TH}]$ 给出的归一化因子。(1.1) 的左端是两个算符 $O_1$ 和 $O_2$ 的欧几里得关联函数，$H$ 是系统的哈密顿量。右端的欧氏关联函数被表示为对哈密顿算符本征态（以 $n$ 标记）的求和。求和中的各项包含算符 $O_i$ 在真空 $\ket{0}$ 与物理态 $\ket{n}$ 之间的矩阵元。这些矩阵元被含有系统能量本征值 $E_n$ 的指数所加权。因此，(1.1) 的右端既可以用来提取算符的矩阵元，也可以用来提取理论的能谱。
+
+在第二条关键方程
+\begin{equation}
+  \frac{1}{Z_T}\tr\!\big[e^{-(T-t)H}O_2\,e^{-tH}O_1\big]
+  = \frac{1}{Z_T}\int D[\Phi]\,e^{-S_E[\Phi]}\,O_2[\Phi(\cdot,t)]\,O_1[\Phi(\cdot,0)],
+\end{equation}
+中，左端的欧氏关联函数被表示为路径积分，即对场 $\Phi$ 的一切可能位形进行积分。这是一个关键之处。左端是用量子场论的算符语言表述的，而右端完全不涉及场算符。在被积函数中，两个算符 $O_i$ 被转译为场的泛函 $O_i$，然后用含有经典欧氏作用量 $S_E[\Phi]$ 的玻尔兹曼因子加权。(1.2) 的右端可以在格点上进行数值计算。
+
+\section{希尔伯特空间与欧氏时间中的传播}
+
+这一节致力于详细讨论欧氏关联函数 (1.1)。在真正引入欧氏关联函数之前，我们先简要总结希尔伯特空间的定义和性质，为后续内容做好准备（入门教材可参见文献 [1--4]）。
+
+\subsection{希尔伯特空间}
+
+希尔伯特空间 $\mathcal{H}$ 是一个无穷维向量空间。它的元素可以相加并可与标量相乘，且 $\mathcal{H}$ 对这些运算是封闭的，即对于向量 $\ket{u}, \ket{v} \in \mathcal{H}$ 和复数 $\alpha$、$\beta$，我们有
+\begin{equation}
+  \alpha\ket{u} + \beta\ket{v} \in \mathcal{H}.
+\end{equation}
+我们常常把希尔伯特空间中的向量称为态。此外，希尔伯特空间还配备有一个标量积，即一个半双线性泛函 $\braket{u}{v}$，它把一个向量 $\ket{v}$ 和一个对偶向量 $\bra{u}$ 映到复数上。该标量积满足如下性质（$*$ 表示复共轭）
+\begin{align}
+  \braket{u}{v} &= \braket{v}{u}^*, \\
+  \braket{w}{\alpha u + \beta v} &= \alpha\braket{w}{u} + \beta\braket{w}{v}.
+\end{align}
+我们这里感兴趣的希尔伯特空间具有完备的可数基，即一组线性无关的向量 $\ket{e_n}$，使得每个向量 $\ket{u} \in \mathcal{H}$ 都可以写成基元的线性组合，
+\begin{equation}
+  \ket{u} = \sum_n \alpha_n \ket{e_n},
+\end{equation}
+其中系数 $\alpha_n$ 为复数。若基向量 $\ket{e_n}$ 满足 $\braket{e_m}{e_n} = \delta_{mn}$，则该基称为正交归一基。
+
+作用在希尔伯特空间 $\mathcal{H}$ 上的算符 $\hat{O}$ 把向量映到希尔伯特空间中的其他向量，
+\begin{equation}
+  \ket{u}\in\mathcal{H} \;\longrightarrow\; \hat{O}\ket{u}\in\mathcal{H}.
+\end{equation}
+相应的伴随算符 $\hat{O}^\dagger$ 定义为
+\begin{equation}
+  \bra{u}\hat{O}\ket{v} = \bra{v}\hat{O}^\dagger\ket{u}^*.
+\end{equation}
+若算符对所有的 $\mathcal{H}$ 满足 $\hat{O}^\dagger = \hat{O}$，则称之为自伴的或厄米的。算符 $\hat{O}$ 的本征向量或本征态 $\ket{u}$ 是满足如下方程的向量
+\begin{equation}
+  \hat{O}\ket{u} = \lambda\ket{u},
+\end{equation}
+其中 $\lambda$ 是某个复数，即所谓的本征值。自伴算符的本征值是实数，且具有不同本征值的本征向量彼此正交。具有相同本征值的本征向量可以使之正交，归一化之后，自伴算符的本征向量构成一组正交归一集。对一大类算符而言，相应的本征向量集合为希尔伯特空间提供了一组正交归一基。\footnote{我们在此指出，我们对希尔伯特空间的简要总结只聚焦于后续计算中实际需要的代数性质。关于本征系的完备性以及连续谱本征向量的讨论等更微妙的方面，我们请读者参阅更具数学性的文献 [5, 6]。}
+
+单位算符 $\mathbb{1}$ 可以用完备正交归一基的向量写为
+\begin{equation}
+  \mathbb{1} = \sum_n \ket{e_n}\bra{e_n}.
+\end{equation}
+这也称为完备性关系。最后，我们把算符的迹 $\tr[\hat{O}]$ 定义为
+\begin{equation}
+  \tr[\hat{O}] = \sum_n \bra{e_n}\hat{O}\ket{e_n},
+\end{equation}
+其中求和遍历一组正交归一基的向量。迹存在的算符称为迹类算符。我们强调，迹在用于计算它的基改变时保持不变，因为不同的正交归一基之间由幺正变换相联系。
+
+在本书的某些计算中，我们将使用不可数的完备态集合，例如动量本征态。对于这些集合，(1.6)、(1.10) 和 (1.11) 中的求和被替换为积分。
+
+\subsection{关于粒子物理中希尔伯特空间的注记}
+
+让我们就与粒子物理相关的希尔伯特空间补充几点说明。我们并不试图系统地构造这些希尔伯特空间（参见，例如，文献 [4]），而是集中讨论这里需要的一些性质。
+
+粒子物理中希尔伯特空间的一个重要特征是其向量可以是多粒子态。其背后的物理原因是，当用相对论性场论来描述物理系统时，会发生粒子的产生与湮灭过程。为了纳入这一特征，希尔伯特空间是 0 粒子、1 粒子、2 粒子等希尔伯特空间的直和。这样的希尔伯特空间称为福克空间。
+
+福克空间中的一个典型向量是：在某位置 $x$ 有一个$\pi$介子、在另一位置 $y$ 有一个质子的态（一个 2 粒子态）。1 粒子态的例子是：在原点有一个单独的 $\Delta$ 重子的态。粒子的态可以用其量子数和位置来描述，但也可以利用粒子的动量来刻画态。这种情形的一个例子是：由动量分别为 $p$ 和 $-p$ 的两个$\pi$介子组成的态。
+
+0 粒子态称为真空，记作 $\ket{0}$。我们指出，在某些情形下，例如对称性自发破缺时，真空态不一定是唯一的。
+
+一类重要的算符是产生和湮灭粒子的场算符。在许多情形下，场算符的伴随就是相应反粒子的场算符。说明这一特征的一个例子是$\pi$介子系统：设 $O_{\pi^+}^\dagger$ 是产生具有 $\pi^+$ 介子量子数的态的算符（实际上，该算符是由夸克和反夸克场算符的乘积构造而成的）。这个算符的伴随 $O_{\pi^+}$ 要么湮灭那个态，要么产生一个具有其反粒子（$\pi^-$ 介子）量子数的态。我们将于第 6 章更详细地讨论强子算符的构造及其性质。
+
+我们指出，到目前为止所讨论的所有态和算符都是与时间无关的。它们在欧氏时间中的演化现在就来讨论。
+
+\subsection{欧氏关联函数}
+
+做好了这些准备，我们现在可以开始讨论欧氏关联函数了。首先定义欧氏关联函数 $\ev{O_2(t)\,O_1(0)}_T$：
+\begin{equation}
+  \ev{O_2(t)\,O_1(0)}_T
+  = \frac{1}{Z_T}\tr\!\big[e^{-(T-t)H}O_2\,e^{-tH}O_1\big],
+\end{equation}
+其中归一化因子 $Z_T$ 由下式给出
+\begin{equation}
+  Z_T = \tr\big[e^{-TH}\big].
+\end{equation}
+稍后我们将证明，在欧几里得路径积分形式体系中，归一化因子 $Z_T$ 是统计力学系统的配分函数。这里的 $O_1$ 和 $O_2$ 可以是产生或湮灭态的算符，可以是测量可观测量的算符，也可以是所有这些算符的组合。自伴算符 $\hat{H}$ 是系统的哈密顿算符，它测量系统中的能量，同时也支配着时间演化。参数 $T$ 和 $t$ 是表示传播欧氏时间距离的实数非负参量。其中 $t$ 是我们真正关心的实际距离，而 $T$ 是一个形式上的最大距离，最终将被取到无穷。在大多数情形下（有界算符），哈密顿算符的指数可以通过其幂级数展开来定义
+\begin{equation}
+  e^{-tH} = \sum_{j=0}^{\infty}\frac{(-t)^j}{j!}\,H^j.
+\end{equation}
+
+让我们来求配分函数 $Z_T$。根据迹的定义 (1.11)，我们需要把算符夹在正交归一基的向量之间，然后对所有基向量求和。结果与选用哪一组正交归一基无关。对于 (1.13) 中的迹，一个自然的选择是 $\hat{H}$ 的本征态基。把 $\hat{H}$ 的本征态记为 $\ket{n}$，相应的本征值方程为
+\begin{equation}
+  \hat{H}\ket{n} = E_n\ket{n}.
+\end{equation}
+能量本征值 $E_n$ 是实数，并且假定谱是离散的，我们把态排列为
+\begin{equation}
+  E_0 \leq E_1 \leq E_2 \leq E_3 \cdots
+\end{equation}
+指标 $n$ 标记描述各态的所有量子数组合，使得它们的能量按 (1.16) 排列。
+
+当使用基 $\ket{n}$ 来计算 (1.13) 中的迹时，得到
+\begin{equation}
+  Z_T = \sum_n \bra{n}e^{-TH}\ket{n} = \sum_n e^{-TE_n},
+\end{equation}
+其中第二步用到了 (1.15) 和本征态的归一化条件 $\braket{n}{n} = 1$。配分函数 $Z_T$ 不过是对所有能量本征值 $E_n$ 的指数求和。
+
+欧氏关联函数 $\ev{O_2(t)\,O_1(0)}_T$ 可以用类似的方式计算。照常计算迹，并在 $O_2$ 右侧以 (1.10) 的形式插入单位算符，我们得到
+\begin{align}
+  \ev{O_2(t)\,O_1(0)}_T
+  &= \frac{1}{Z_T}\sum_{m,n}\bra{m}e^{-(T-t)H}O_2\ket{n}\bra{n}e^{-tH}O_1\ket{m} \notag\\
+  &= \frac{1}{Z_T}\sum_{m,n} e^{-(T-t)E_m}\,\bbraket{m}{O_2}{n}\,e^{-tE_n}\,\bbraket{n}{O_1}{m}.
+\end{align}
+下一步是把 $Z_T$ 的表达式 (1.17) 代入最后一个方程，并在分子和分母中同时提出因子 $e^{-TE_0}$。由此得到
+\begin{equation}
+  \ev{O_2(t)\,O_1(0)}_T
+  = \frac{\displaystyle\sum_{m,n}\bbraket{m}{O_2}{n}\,\bbraket{n}{O_1}{m}\,
+       e^{-t\Delta E_n}\,e^{-(T-t)\Delta E_m}}
+         {1 + e^{-T\Delta E_1} + e^{-T\Delta E_2} + \cdots},
+\end{equation}
+其中我们定义了
+\begin{equation}
+  \Delta E_n = E_n - E_0.
+\end{equation}
+因此，欧氏关联函数 $\ev{O_1(0)\,O_2(t)}_T$ 只依赖于相对于真空能量 $E_0$ 归一化的那些能量。实验中能够测量的恰恰是这些能量差。为了方便起见，从现在起我们用 $E_n$ 表示相对于真空的能量差，即用 $E_n$ 代替 $\Delta E_n$。这意味着真空 $\ket{0}$ 的能量 $E_0$ 被归一化为零。
+
+现在我们分析 (1.19) 在极限 $T \to \infty$ 下的行为。在这个极限下（假定真空是唯一的且 $E_1 > 0$），分母等于 1。类似地，在分子中只有 $E_m = 0$ 的那些项存活，即只有 $\ket{m} = \ket{0}$ 的贡献。于是我们得到
+\begin{equation}
+  \lim_{T\to\infty}\ev{O_2(t)\,O_1(0)}_T
+  = \sum_n \bbraket{0}{O_2}{n}\,\bbraket{n}{O_1}{0}\,e^{-tE_n}.
+\end{equation}
+我们在这里推导出的表达式对于格点场论的解释至关重要。它是若干个指数的和，每一个指数对应一个能级。这些能量可以按如下方式计算：假定要计算质子 $p$ 的能量。对 $O_1$，选取一个从真空中产生具有质子量子数的态的算符 $O_p^\dagger$；对 $O_2$，选取该算符的伴随，即湮灭质子的算符 $O_p$。那么，对所有不具有质子量子数的态 $\bra{n}$，矩阵元 $\bra{n}O_p^\dagger\ket{0}$ 都为零。第一个有贡献的态 $\bra{n}$ 是描述一个质子的态，即 $\bra{n} = \bra{p}$。在态的阶梯上继续往上，我们会找到质子的激发态 $\bra{p'}$、$\bra{p''}$、\dots，它们与 $O_p^\dagger\ket{0}$ 的重叠也不为零。于是我们得到
+\begin{equation}
+  \lim_{T\to\infty}\ev{O_p(t)\,O_p(0)^\dagger}_T
+  = \big|\bra{p}O_p^\dagger\ket{0}\big|^2 e^{-tE_p}
+    + \big|\bra{p'}O_p^\dagger\ket{0}\big|^2 e^{-tE_{p'}} + \cdots,
+\end{equation}
+其中我们利用 (1.8) 简化了指数前面的系数。对于足够大的 $t$，次领头项被强烈压低，因为 $E_{p'} > E_p$。因此，在足够大的 $t$ 处，我们可以从欧氏关联函数的指数衰减中得到 $E_p$。当使用其他算符 $O_1$、$O_2$ 从真空中产生其他态时，我们可以用刚才对质子演示的类似方法，提取理论谱中所有粒子的基态能量。此外，我们还可以研究矩阵元 $\bra{n}\hat{O}\ket{0}$。由于 $\hat{O}$ 可以是若干算符的乘积，因而可以接触到的矩阵元的范围很广。这些技巧将在第 6 章和第 11 章中详加讨论。
+
+至此，我们完成了对欧氏关联函数性质的讨论。在下一节中，我们将引入路径积分作为计算关联函数 (1.12) 的一种技巧。
+
+让我们以一条简短说明来结束本节，说明欧氏关联函数与实时（闵可夫斯基量子力学）的关系。在海森堡绘景中，算符依赖于时间，时刻 $\tau$ 的算符由下式给出（注意我们采用 $\hbar \equiv 1$）
+\begin{equation}
+  \hat{O}(\tau) = e^{i\tau H}\,\hat{O}\,e^{-i\tau H}.
+\end{equation}
+因此，欧氏关联函数 (1.12) 可以看作时刻 0 的算符 $O_1$ 与虚时 $t = i\tau$ 的算符 $O_2$ 的关联函数，再乘以一个额外的时间传播算符 $\exp(-TH)$，后者在 $T \to \infty$ 时投影到真空。具有实时 $\tau$ 的四矢量对应闵可夫斯基度规。当切换到虚时 $t = i\tau$ 时，时间分量与空间分量之间的相对负号消失，度规变为欧几里得度规；这就是 (1.12) 中定义的对象被称为欧氏关联函数的原因。
+
+在下一节讨论欧氏关联函数的路径积分表示时，我们还会遇到类似的度规变换。从实时到虚时的转换通常称为维克旋转。然而我们要强调，把 $t$ 解释为时间并非必不可少。(1.12) 这一表达式完全可以看作一个方便的数学工具，它使人们能够提取能级和算符的矩阵元。
+
+\section{量子力学系统的路径积分}
+
+上一节中我们在希尔伯特空间引入并分析的欧氏关联函数 (1.12)，现在将被改写成路径积分——这是费曼引入的概念。在第 1.3 节中，我们将推导格点场论的第二条关键方程 (1.2)。不过，作为准备步骤，本节先为一个简单的量子力学系统推导路径积分。这使我们能够把注意力集中在构造的基本步骤上，而不必陷入太多的技术细节。在第 1.3 节中，我们将对标量场理论重复路径积分的推导。
+
+在路径积分的初次阐述中，我们采用的量子力学系统是势场 $U$ 中的一个单粒子。为了进一步简化，我们把粒子的运动限制在 $x$ 轴上。该系统的哈密顿量为
+\begin{equation}
+  \hat{H} = \frac{\hat{p}^2}{2m} + U.
+\end{equation}
+正则量子化条件由对易关系给出
+\begin{equation}
+  [\hat{x}, \hat{p}] = i,
+\end{equation}
+（我们采用 $\hbar \equiv 1$），它意味着动量算符由下式给出
+\begin{equation}
+  \hat{p} = -i\frac{d}{dx}.
+\end{equation}
+
+对于这个系统，我们想按照 (1.13) 计算配分函数
+\begin{equation}
+  Z_T = \tr\big[e^{-TH}\big] = \int dx\,\bra{x}e^{-TH}\ket{x}.
+\end{equation}
+这个方程中的第二步已经表达了我们用位置态 $\ket{x}$ 来计算迹的意图。
+
+我们先来求自由情形所需的矩阵元：
+\begin{equation}
+  \bra{x}e^{-t\hat{p}^2/2m}\ket{y}
+  = \int dp\,\bbraket{x}{e^{-t\hat{p}^2/2m}}{p}\braket{p}{y}
+  = \int dp\,\braket{x}{p}\,\braket{p}{y}\,e^{-tp^2/2m}.
+\end{equation}
+第一步我们用动量本征态 $\ket{p}$ 按 (1.10) 插入了单位算符。第二步用到了 $\hat{p}\ket{p} = p\ket{p}$。注意，在 (1.28) 右端的指数中，$p$ 不再是一个算符，而是一个数——动量。
+
+利用动量本征态的实空间表示，即平面波
+\begin{equation}
+  \braket{x}{p} = \frac{1}{\sqrt{2\pi}}\,e^{ipx},
+\end{equation}
+我们得到矩阵元
+\begin{equation}
+  \bra{x}e^{-t\hat{p}^2/2m}\ket{y}
+  = \frac{1}{2\pi}\int dp\,e^{ip(x-y)}e^{-tp^2/2m}
+  = \sqrt{\frac{m}{2\pi t}}\,e^{-(x-y)^2m/(2t)}.
+\end{equation}
+最后一步我们用到了众所周知的高斯积分（$c$、$b$ 为实数，$c > 0$）
+\begin{equation}
+  \int_{-\infty}^{\infty}dx\,e^{-cx^2}\,e^{\pm ibx}
+  = \sqrt{\frac{\pi}{c}}\,e^{-b^2/4c}.
+\end{equation}
+
+现在来看势 $U$ 不为零的一般情形。这里的问题是哈密顿量 (1.24) 中的两项彼此不对易，这使得 $\hat{H}$ 的指数计算有些复杂。我们把势 $U$ 对称地劈开，对于无穷小的欧氏时间步 $\varepsilon$，写出
+\begin{equation}
+  e^{-\varepsilon H} = e^{-\varepsilon U/2}\,e^{-\varepsilon\hat{p}^2/2m}\,
+  e^{-\varepsilon U/2}\,\big(1 + \order{\varepsilon}\big).
+\end{equation}
+这个公式可以由两边对 $\varepsilon$ 展开得到。我们把领头项简写为
+\begin{equation}
+  W_\varepsilon = e^{-\varepsilon U/2}\,e^{-\varepsilon\hat{p}^2/2m}\,
+  e^{-\varepsilon U/2},
+\end{equation}
+并得到
+\begin{equation}
+  \begin{split}
+    \bra{x}W_\varepsilon\ket{y}
+    &= e^{-\varepsilon U(x)/2}\,\bra{x}e^{-\varepsilon\hat{p}^2/2m}\ket{y}\,
+       e^{-\varepsilon U(y)/2}\\
+    &= \sqrt{\frac{m}{2\pi\varepsilon}}\,
+       e^{-\varepsilon U(x)/2}\,e^{-\varepsilon U(y)/2}\,e^{-(x-y)^2m/(2\varepsilon)}.
+  \end{split}
+\end{equation}
+第一步用到了 $\hat{U}\ket{x} = U(x)\ket{x}$，其中 $U(x)$ 是一个实数——势在 $x$ 处的值。第二步代入了 (1.30)。
+
+利用 Trotter 公式（证明可参见，例如，文献 [7]），我们可以由无穷小步 $\varepsilon$ 累积出有限的欧氏时间步 $T$：
+\begin{equation}
+  e^{-TH} = \lim_{N_T\to\infty} W_\varepsilon^{N_T}
+  \qquad \text{with} \quad \varepsilon = \frac{T}{N_T}.
+\end{equation}
+
+我们得到
+\begin{align}
+  Z_T &= \int dx_0\,\bra{x_0}e^{-TH}\ket{x_0}
+        = \lim_{N_T\to\infty}\int dx_0\,\bra{x_0}W_\varepsilon^{N_T}\ket{x_0} \notag\\
+      &= \lim_{N_T\to\infty}\int dx_0\cdots dx_{N_T-1}\,
+         \bra{x_0}W_\varepsilon\ket{x_1}\cdots \notag\\
+      &\qquad \bra{x_{N_T-2}}W_\varepsilon\ket{x_{N_T-1}}
+         \bra{x_{N_T-1}}W_\varepsilon\ket{x_0} \notag\\
+      &= \lim_{N_T\to\infty} C^{N_T}\int dx_0\cdots dx_{N_T-1}\, \notag\\
+      &\quad \exp\!\Big(-\varepsilon\sum_{j=0}^{N_T-1}
+           \Big[\frac{m}{2}\Big(\frac{x_j - x_{j+1}}{\varepsilon}\Big)^2 + U(x_j)\Big]\Big).
+\end{align}
+在这一推导中，我们以 $\int dx_i \ket{x_i}\bra{x_i}$ 的形式插入了单位算符，然后使用了 (1.34) 的结果，并引入了简写 $C = \sqrt{m/(2\pi\varepsilon)}$。
+
+我们的表达式 (1.36) 含有极限 $N_T \to \infty$。由于我们的目标是用计算机对路径积分进行数值计算，我们能够使用的步数 $N_T$ 必须是有限的。因此我们定义配分函数的一个近似（周期性取 $x_{N_T} \equiv x_0$）
+\begin{equation}
+  Z_T^\varepsilon = C^{N_T}\int dx_0\cdots dx_{N_T-1}\,
+  \exp\!\Big(-\varepsilon\sum_{j=0}^{N_T-1}
+    \Big[\frac{m}{2}\Big(\frac{x_{j+1} - x_j}{\varepsilon}\Big)^2 + U(x_j)\Big]\Big),
+\end{equation}
+其中步长 $\varepsilon$ 与欧氏时间由 $T = \varepsilon N_T$ 相联系。
+
+指数中的求和有一个有趣的解释。显然，对于光滑路径
+\begin{align}
+  \frac{x_{j+1} - x_j}{\varepsilon} &= \dot{x}(t) + \order{\varepsilon}
+    \qquad \text{with} \quad t = j\varepsilon, \notag\\
+  \sum_{j=0}^{N_T-1}\varepsilon\;\cdots\; &= \int_0^T dt\;\cdots\;
+    + \order{\varepsilon} \qquad \text{with} \quad T = N_T\varepsilon.
+\end{align}
+因此我们可以认定
+\begin{equation}
+  \sum_{j=0}^{N_T-1}\varepsilon
+  \Big[\frac{m}{2}\Big(\frac{x_{j+1} - x_j}{\varepsilon}\Big)^2 + U(x_j)\Big]
+  = \int_0^T dt\;\Big[\frac{m}{2}\dot{x}(t)^2 + U(x(t))\Big] + \order{\varepsilon}.
+\end{equation}
+右端的表达式称为欧氏作用量 $S_E$。它是在从实时 $\tau$ 切换到虚时 $t = i\tau$ 并旋转积分围道时，由通常的作用量 $S$ 得到的：
+\begin{equation}
+  \begin{split}
+    S[x,\dot{x}] &= \int_0^T d\tau\,
+      \Big[\frac{m}{2}\dot{x}(\tau)^2 - U(x(\tau))\Big]\\
+    &\;\to\; i\int_0^T dt\,
+      \Big[\frac{m}{2}\dot{x}(t)^2 + U(x(t))\Big] = i\,S_E[x,\dot{x}].
+  \end{split}
+\end{equation}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{fig11.png}
+  \caption*{Fig. 1.1. \emph{在 (1.37) 中起贡献的一条离散化路径}.}
+  \label{fig:11}
+\end{figure}
+
+让我们总结一下：我们发现可以构造配分函数的一个形如 (1.37) 的近似 $Z_T^\varepsilon$。在这个近似中，我们把欧氏时间区间 $T$ 分成 $N_T$ 个大小为 $\varepsilon$ 的步（采用周期性边界条件）。在每一步插入一个变量 $x_j$，对它从 $-\infty$ 到 $+\infty$ 积分。这些值 $x_j$ 的集合可以解释为一条路径（比较图 1.1），而积分就是对所有可能的路径进行积分。被积函数是离散化路径的欧氏作用量的指数 (1.37)。
+
+在下一节中，我们将为更接近我们目标理论 QCD 的系统发展路径积分表示。我们将考虑标量场理论。构造的技术步骤——自由情形、无穷小时间步、Trotter 公式——将是相同的。不过，由于我们处理的是具有许多自由度的量子场论，计算（尤其是相应的记号）会稍微复杂一些。
+
+\section{标量场理论的路径积分}
+
+现在我们来推导标量场理论的关键方程 (1.2)。尽管这已经是一个场论，但它的结构比 QCD 简单。这使我们能够把注意力集中在场论路径积分推导的核心要点上，而不必过多担心技术细节。虽然我们的阐述是自足的，我们还是推荐文献 [8, 9] 作为标量场正则量子化的入门读物，而这正是我们的出发点。
+
+\subsection{克莱因-戈登场}
+
+让我们首先回顾闵可夫斯基空间中标量场的经典作用量和运动方程。我们考虑一个实标量场 $\Phi(t,x)$。相应的作用量 $S$ 是对时空的积分
+\begin{equation}
+  S = \int dt\,d^3x\;\mathcal{L}\big(\Phi(t,x), \partial_\mu\Phi(t,x)\big),
+\end{equation}
+其中拉格朗日密度 $\mathcal{L}$ 为
+\begin{align}
+  \mathcal{L}(\Phi, \partial_\mu\Phi)
+  &= \frac{1}{2}(\partial_\mu\Phi)(\partial^\mu\Phi) - \frac{m^2}{2}\Phi^2 - V(\Phi) \notag\\
+  &= \frac{1}{2}\dot{\Phi}^2 - \frac{1}{2}(\nabla\Phi)^2 - \frac{m^2}{2}\Phi^2 - V(\Phi).
+\end{align}
+这是一个耦合振子组成的系统。我们再次强调，这个表达式处于闵可夫斯基空间，即第二步我们用度规 $g_{\mu\nu} = \mathrm{diag}(1,-1,-1,-1)$ 改写了动能项。在作用量中我们还允许有势项 $V(\Phi)$。一个标准的例子是 $V(\Phi(t,x)) = \lambda\,\Phi(t,x)^4$。
+
+利用欧拉-拉格朗日方程
+\begin{equation}
+  \partial_\mu\frac{\partial\mathcal{L}}{\partial(\partial_\mu\Phi)}
+  - \frac{\partial\mathcal{L}}{\partial\Phi} = 0,
+\end{equation}
+我们可以导出经典运动方程
+\begin{equation}
+  \partial_\mu(\partial^\mu\Phi) + m^2\Phi + V'(\Phi) = 0.
+\end{equation}
+在没有势的情况下，这就是克莱因-戈登方程。
+
+下一步我们使用正则形式来量子化系统。为此我们需要哈密顿量，它由拉格朗日密度得到。正则动量 $\Pi(t,x)$ 定义为
+\begin{equation}
+  \Pi(t,x) = \frac{\partial}{\partial\dot{\Phi}(t,x)}
+    \mathcal{L}\big(\Phi(t,x), \partial_\mu\Phi(t,x)\big) = \dot{\Phi}(t,x),
+\end{equation}
+而哈密顿函数 $H$ 通过勒让德变换得到
+\begin{align}
+  H &= \int d^3x\,\Pi(t,x)\,\dot{\Phi}(t,x)
+      - \int d^3x\;\mathcal{L}\big(\Phi(t,x), \partial_\mu\Phi(t,x)\big) \notag\\
+    &= \int d^3x\;\Big[\frac{1}{2}\Pi(t,x)^2
+       + \frac{1}{2}\big(\nabla\Phi(t,x)\big)^2
+       + \frac{m^2}{2}\Phi(t,x)^2 + V\big(\Phi(t,x)\big)\Big].
+\end{align}
+哈密顿函数是系统在连续情形下量子化的出发点。量子化之后，哈密顿函数 $H$ 以及场 $\Phi(t,x)$ 和 $\Pi(t,x)$ 变成薛定谔算符 $\hat{H}$、$\hat{\Phi}(x)$、$\hat{\Pi}(x)$。哈密顿算符为（略去正规序）
+\begin{equation}
+  \hat{H} = \int d^3x\;\Big[\frac{1}{2}\hat{\Pi}(x)^2
+    + \frac{1}{2}\big(\nabla\hat{\Phi}(x)\big)^2
+    + \frac{m^2}{2}\hat{\Phi}(x)^2 + V\big(\hat{\Phi}(x)\big)\Big].
+\end{equation}
+所有时间变量都已消失，算符的时间演化由 (1.23) 给出。算符 $\hat{\Phi}$、$\hat{\Pi}$ 满足正则等时对易关系（$\hbar \equiv 1$）
+\begin{equation}
+  \big[\hat{\Phi}(x), \hat{\Pi}(y)\big] = i\,\delta(x-y), \qquad
+  \big[\hat{\Phi}(x), \hat{\Phi}(y)\big] = 0, \qquad
+  \big[\hat{\Pi}(x), \hat{\Pi}(y)\big] = 0.
+\end{equation}
+现在我们离开正则路径，采用另一种策略：在量子化系统之前，先引入格点作为截断。
+
+\subsection{克莱因-戈登哈密顿量的格点正规化}
+
+为了以数学上良定义的方式从量子场论中计算某些量，必须引入紫外正规化手段。这样的正规化手段是使表达式有限所必需的。在连续微扰论中，可以通过维数正规化、泡利-维拉斯正规化或动量截断等方式引入正规化。格点场论选择了不同的途径。
+
+其核心思想是用三维有限格点 $\Lambda^3$ 取代连续空间：
+\begin{equation}
+  x \;\Rightarrow\; an, \qquad n_i = 0, 1, \ldots, N-1
+  \quad \text{for} \quad i = 1, 2, 3.
+\end{equation}
+格点常数 $a$ 具有长度的物理量纲。分量 $n_1$、$n_2$、$n_3$ 取整数值的矢量 $n$ 标记格点。算符 $\hat{\Phi}(n)$ 和 $\hat{\Pi}(n)$ 现在只存在于格点上，我们把空间变量 $x$ 换成格点标记 $n$ 来强调这一事实。由于每个分量 $n_i$ 从 0 取到 $N-1$，总共有 $N^3$ 个格点，因而格点系统有 $2N^3$ 个自由度（每个格点上的 $\hat{\Phi}$ 和 $\hat{\Pi}$）。对于任何有限系统，都必须决定在边界处如何处理。我们选择周期性边界条件，即把 $n_j = N$ 与 $n_j = 0$ 等同。
+
+\begingroup\emergencystretch=4em 为了对哈密顿算符 (1.47) 进行格点正规化，我们还需要离散化导数\linebreak[0] $\nabla\hat{\Phi}(x)$。利用 $\hat{\Phi}(x)$ 的泰勒级数展开容易看出，对于小的格点常数 $a$，导数可以近似为\par\endgroup
+\begin{equation}
+  \partial_j\hat{\Phi}(x)
+  = \frac{\hat{\Phi}(n+\hat{\jmath}) - \hat{\Phi}(n-\hat{\jmath})}{2a}
+    + \order{a^2},
+\end{equation}
+其中 $\hat{\jmath}$ 表示 $j$ 方向上的单位矢量。利用导数的这一定义，我们得到哈密顿算符 (1.47) 的格点版本：
+\begin{equation}
+  \hat{H} = a^3\sum_{n\in\Lambda^3}\Big[
+    \frac{1}{2}\hat{\Pi}(n)^2
+    + \frac{1}{2}\sum_{j=1}^3
+      \Big(\frac{\hat{\Phi}(n+\hat{\jmath}) - \hat{\Phi}(n-\hat{\jmath})}{2a}\Big)^2
+    + \frac{m^2}{2}\hat{\Phi}(n)^2 + V\big(\hat{\Phi}(n)\big)\Big].
+\end{equation}
+积分 $\int d^3x$ 已被求和 $a^3\sum_{n\in\Lambda^3}$ 取代。该哈密顿量描述的系统具有有限个自由度 $\hat{\Phi}(n)$ 及其相应的共轭动量 $\hat{\Pi}(n)$。正则量子化条件由对易关系给出
+\begin{equation}
+  \big[\hat{\Phi}(n), \hat{\Pi}(m)\big] = i\,a^{-3}\delta_{nm},
+\end{equation}
+\begin{equation}
+  \big[\hat{\Phi}(n), \hat{\Phi}(m)\big] = 0, \qquad
+  \big[\hat{\Pi}(n), \hat{\Pi}(m)\big] = 0.
+\end{equation}
+将新的量子化条件 (1.52) 和 (1.53) 与其连续对应物比较，可以看到 (1.48) 中的狄拉克 $\delta$ 函数被克罗内克 $\delta$ 符号 $\delta_{nm} = \delta_{n_1 m_1}\delta_{n_2 m_2}\delta_{n_3 m_3}$ 取代，这对于离散自由度是常见的。(1.52) 右端的因子 $a^{-3}$ 是为了使量纲正确。用 $\ell$ 表示长度量纲，我们得到所涉及量的量纲 $[\,\cdot\,]$（采用 $\hbar \equiv 1$）：
+\begin{equation}
+  [S] = 1, \qquad [H] = \frac{1}{\ell}, \qquad [a] = \ell, \qquad
+  [\hat{\Phi}] = \frac{1}{\ell}, \qquad [\hat{\Pi}] = \frac{1}{\ell^2}, \qquad
+  [m] = \frac{1}{\ell}.
+\end{equation}
+因此，(1.52) 中的因子 $a^{-3}$ 是为了使两边具有相同量纲的对象所必需的。这个因子也与连续公式 (1.48) 中的量纲匹配，因为那里的狄拉克 $\delta$ 函数也具有量纲 $\ell^{-3}$。
+
+当动量算符表示为导数时，对易关系 (1.52) 和 (1.53) 得到满足
+\begin{equation}
+  \hat{\Pi}(n) = -\frac{i}{a^3}\frac{\partial}{\partial\Phi(n)}.
+\end{equation}
+
+利用这一表示，我们可以把格点上克莱因-戈登场哈密顿算符写成其最终形式
+\begin{align}
+  \hat{H} &= \hat{H}_0 + \hat{U}, \notag\\
+  \hat{H}_0 &= a^3\sum_{n\in\Lambda^3}\frac{1}{2}
+    \Big(-\frac{i}{a^3}\frac{\partial}{\partial\Phi(n)}\Big)^2
+    = -\sum_{n\in\Lambda^3}\frac{1}{2a^3}\frac{\partial^2}{\partial\Phi(n)^2}, \notag\\
+  \hat{U} &= a^3\sum_{n\in\Lambda^3}\Big[
+    \frac{1}{2}\sum_{j=1}^3
+      \Big(\frac{\hat{\Phi}(n+\hat{\jmath}) - \hat{\Phi}(n-\hat{\jmath})}{2a}\Big)^2
+    + \frac{m^2}{2}\hat{\Phi}(n)^2 + V\big(\hat{\Phi}(n)\big)\Big].
+\end{align}
+我们把哈密顿算符分成两部分：含有导数的自由部分 $\hat{H}_0$ 和相互作用部分 $\hat{U}$。这种分解对欧氏关联函数的计算很有用。
+
+引入一组场算符 $\hat{\Phi}(n)$ 的本征态是很方便的，它们与量子力学中的位置态 $\ket{x}$ 相当。条件 (1.52) 是普通量子力学中条件 $[\hat{x}, \hat{p}] = i\hbar$ 的推广。类似地，态 $\ket{\Phi}$ 是位置态 $\ket{x}$ 的推广。算符 $\hat{\Phi}(n)$ 对 $\ket{\Phi}$ 的作用定义为
+\begin{equation}
+  \hat{\Phi}(n)\ket{\Phi} = \Phi(n)\ket{\Phi}.
+\end{equation}
+因此，算符 $\hat{\Phi}(n)$ 作用于本征态 $\ket{\Phi}$ 时，给出的本征值是场在格点 $n$ 处的值 $\Phi(n)$。因此，态 $\ket{\Phi}$ 由场在所有格点上的值标记，即由集合 $\{\Phi(n), n \in \Lambda^3\}$ 标记。态 $\ket{\Phi}$ 是正交且完备的：
+\begin{equation}
+  \braket{\Phi'}{\Phi} = \delta(\Phi' - \Phi)
+  \equiv \prod_{n\in\Lambda^3}\delta\big(\Phi'(n) - \Phi(n)\big),
+\end{equation}
+\begin{equation}
+  \mathbb{1} = \int_{-\infty}^{\infty}D\Phi\;\ket{\Phi}\bra{\Phi}
+  \qquad \text{with} \quad D\Phi = \prod_{n\in\Lambda^3}d\Phi(n).
+\end{equation}
+
+\subsection{自由情形的欧氏时间传播算符}
+
+在讨论了标量场的哈密顿量及其格点离散化之后，我们现在可以回到原来的问题，即欧氏关联函数 (1.12) 和配分函数 (1.13) 的计算。在这两个表达式中，我们都会遇到欧氏时间传播算符 $\exp(-tH)$。对于完整的哈密顿算符 $\hat{H}$，时间传播算符的矩阵元无法以闭式形式计算。但对于自由部分 $\hat{H}_0$，这是一个简单的练习，我们利用 $\hat{H}_0$ 的本征态来完成。
+
+如 (1.56) 所示，自由哈密顿算符 $\hat{H}_0$ 是二阶导数的求和，即动量算符平方的求和。由量子力学众所周知，导数算符的本征态是动量本征态 $\ket{\Pi}$：平面波。\footnote{这些并不是实空间中的平面波，而是场 $\Phi(n)$ 的平面波。}由于 $\hat{H}_0$ 是对 $N^3$ 个导数的求和，本征态是 $N^3$ 个平面波的乘积，每个场分量 $\Phi(n)$ 对应一个平面波。每个平面波由一个波数 $\Pi(n)$ 刻画。整个本征态由所有这些波数的集合标记，我们把这个本征态记为 $\ket{\Pi}$，在场表示中由下式给出
+\begin{equation}
+  \braket{\Phi}{\Pi}
+  = \prod_{n\in\Lambda^3}\sqrt{\frac{a^3}{2\pi}}\;e^{i a^3\Pi(n)\Phi(n)}.
+\end{equation}
+(1.60) 中的本征态归一化得使单位算符为
+\begin{equation}
+  \mathbb{1} = \int_{-\infty}^{\infty}D\Pi\;\ket{\Pi}\bra{\Pi}
+  \qquad \text{with} \quad D\Pi = \prod_{n\in\Lambda^3}d\Pi(n).
+\end{equation}
+
+自由哈密顿量 $\hat{H}_0$ 对 $\ket{\Pi}$ 的作用给出
+\begin{equation}
+  \bra{\Phi}\hat{H}_0\ket{\Pi}
+  = -\frac{1}{2a^3}\sum_{n\in\Lambda^3}
+    \frac{\partial^2}{\partial\Phi(n)^2}\braket{\Phi}{\Pi}
+  = \frac{a^3}{2}\sum_{n\in\Lambda^3}\Pi(n)^2\braket{\Phi}{\Pi}.
+\end{equation}
+因此 $\hat{H}_0$ 的本征值由 $(a^3/2)\sum_n\Pi(n)^2$ 给出。重要的是要认识到，在 (1.60) 和 (1.62) 两个方程中，量 $\Phi(n)$ 和 $\Pi(n)$ 都不再是算符，而是实数。它们是场在格点 $n$ 处的值和波数。
+
+借助本征态 (1.60)，我们现在可以计算自由理论欧氏时间传播算符的矩阵元
+\begin{align}
+  \bra{\Phi'}e^{-t\hat{H}_0}\ket{\Phi}
+  &= \int D\Pi\;\bra{\Phi'}e^{-t\hat{H}_0}\ket{\Pi}\braket{\Pi}{\Phi} \notag\\
+  &= \int D\Pi\;\braket{\Phi'}{\Pi}\,\braket{\Pi}{\Phi}\,
+     e^{-t\frac{a^3}{2}\sum_n \Pi(n)^2},
+\end{align}
+其中第一步我们以 (1.61) 的形式插入了单位算符，第二步用到了本征值方程 (1.62)。把 (1.60) 代入最后一个表达式，我们得到一组可以求解的高斯积分之积：
+\begin{align}
+  \bra{\Phi'}e^{-t\hat{H}_0}\ket{\Phi}
+  &= \prod_{n\in\Lambda^3}\frac{a^3}{2\pi}
+     \int d\Pi(n)\;e^{i a^3\Pi(n)(\Phi'(n)-\Phi(n))}
+     e^{-t a^3\Pi(n)^2/2} \notag\\
+  &= \prod_{n\in\Lambda^3}\sqrt{\frac{a^3}{2\pi t}}\;
+     e^{-a^3/(2t)(\Phi'(n)-\Phi(n))^2} \notag\\
+  &= \Big(\frac{a^3}{2\pi t}\Big)^{N^3/2}
+     e^{-a^3/(2t)\sum_n(\Phi'(n)-\Phi(n))^2},
+\end{align}
+最后一步用到了高斯积分 (1.31)。
+
+\subsection{用 Trotter 公式处理相互作用项}
+
+当我们从自由情形转向包含势 $\hat{U}$ 的情形时，我们再次需要用 Trotter 公式 (1.35) 由无穷小步累积出有限的欧氏时间步 $t$。与上一节的量子力学系统一样，我们定义
+\begin{equation}
+  W_\varepsilon = e^{-\varepsilon\hat{U}/2}\,e^{-\varepsilon\hat{H}_0}\,
+  e^{-\varepsilon\hat{U}/2}.
+\end{equation}
+利用 Trotter 公式 (1.35)，我们得到
+\begin{align}
+  \bra{\Phi'}e^{-t\hat{H}}\ket{\Phi}
+  &= \lim_{n_t\to\infty}\bra{\Phi'}W_\varepsilon^{n_t}\ket{\Phi} \notag\\
+  &= \lim_{n_t\to\infty}\int D\Phi_1 D\Phi_2\cdots D\Phi_{n_t-1}\,
+     \bra{\Phi'}W_\varepsilon\ket{\Phi_{n_t-1}} \notag\\
+  &\qquad \bra{\Phi_{n_t-1}}W_\varepsilon\ket{\Phi_{n_t-2}}\cdots
+     \bra{\Phi_1}W_\varepsilon\ket{\Phi}.
+\end{align}
+在最后一步，我们以 (1.59) 的形式插入了 $n_t - 1$ 次单位算符。
+
+剩下要做的是计算 (1.66) 中出现的矩阵元，即 $\bra{\Phi_{i+1}}W_\varepsilon\ket{\Phi_i}$。我们首先注意到，由 (1.56) 和 (1.57)，
+\begin{equation}
+  \hat{U}\ket{\Phi} = U[\Phi]\ket{\Phi},
+\end{equation}
+其中
+\begin{equation}
+  U[\Phi] = a^3\sum_{n\in\Lambda^3}\Big[
+    \frac{1}{2}\sum_{j=1}^3
+      \Big(\frac{\Phi(n+\hat{\jmath}) - \Phi(n-\hat{\jmath})}{2a}\Big)^2
+    + \frac{m^2}{2}\Phi(n)^2 + V(\Phi(n))\Big].
+\end{equation}
+我们强调，$U[\Phi]$ 是一个数，即对经典场 $\Phi(n)$ 求值得到的经典相互作用项。利用 (1.64) 和 (1.67)，我们得到
+\begin{align}
+  \bra{\Phi_{i+1}}W_\varepsilon\ket{\Phi_i}
+  &= \bra{\Phi_{i+1}}e^{-\varepsilon\hat{U}/2}\,e^{-\varepsilon\hat{H}_0}\,
+     e^{-\varepsilon\hat{U}/2}\ket{\Phi_i} \notag\\
+  &= e^{-\varepsilon U[\Phi_{i+1}]/2}\,
+     \bra{\Phi_{i+1}}e^{-\varepsilon\hat{H}_0}\ket{\Phi_i}\,
+     e^{-\varepsilon U[\Phi_i]/2} \notag\\
+  &= C^N\,e^{-\varepsilon U[\Phi_i]/2}\,
+     e^{-a^3/(2\varepsilon)\sum_n(\Phi(n)_i - \Phi(n)_{i+1})^2}\,
+     e^{-\varepsilon U[\Phi_{i+1}]/2}.
+\end{align}
+我们引入了简写 $C$ 来表示因子 $\sqrt{a^3/(2\pi \varepsilon)}$。再次强调，(1.69) 的右端是一个实数。它是无穷小时间传播算符 $W_\varepsilon$ 的矩阵元。在 (1.66) 中把这些矩阵元组合起来，就可以得到传播一段有限欧氏时间后的矩阵元。
+
+\subsection{配分函数的路径积分表示}
+
+现在让我们用 (1.66) 和 (1.69) 两个方程来计算 (1.13) 中定义的配分函数 $Z_T$。当用态 $\ket{\Phi_0}$ 来计算该方程中的迹时，我们得到
+\begin{equation}
+  Z_T = \int D\Phi_0\;\bra{\Phi_0}e^{-TH}\ket{\Phi_0}
+  = \lim_{N_T\to\infty}\int D\Phi_0\;\bra{\Phi_0}W_\varepsilon^{N_T}\ket{\Phi_0},
+\end{equation}
+其中 $T = N_T\varepsilon$。我们已经指出，我们的目标是在数值模拟中实现路径积分，因此无法执行 $N_T \to \infty$ 的极限，因为计算机只能处理有限个自由度。所以，我们必须以有限的分辨率 $\varepsilon$ 工作，因而只能得到精确配分函数的一个近似。我们把这个近似记为 $Z_T^\varepsilon$。再次插入 $N_T - 1$ 组完备态，并利用矩阵元 $\bra{\Phi_{i+1}}W_\varepsilon\ket{\Phi_i}$ 的表达式 (1.69)，我们得到
+\begin{align}
+  Z_T^\varepsilon &= \int D\Phi_0\;\bra{\Phi_0}W_\varepsilon^{N_T}\ket{\Phi_0} \notag\\
+  &= \int D\Phi_0\cdots D\Phi_{N_T-1}\,
+     \bra{\Phi_0}W_\varepsilon\ket{\Phi_{N_T-1}}
+     \bra{\Phi_{N_T-1}}W_\varepsilon\ket{\Phi_{N_T-2}}\cdots
+     \bra{\Phi_1}W_\varepsilon\ket{\Phi_0} \notag\\
+  &= C^{N^3N_T}\int D\Phi_0\cdots D\Phi_{N_T-1}\;e^{-S_E[\Phi]},
+\end{align}
+其中
+\begin{equation}
+  S_E[\Phi] = \frac{a^3}{2\varepsilon}\sum_{n\in\Lambda^3}
+    \sum_{j=0}^{N_T-1}\big(\Phi(n)_{j+1} - \Phi(n)_j\big)^2
+    + \varepsilon\sum_{j=0}^{N_T-1}U[\Phi_j].
+\end{equation}
+我们指出，在第一个求和中，我们把指标 $j$ 按周期延拓，即令 $j = N_T$ 与 $j = 0$ 等同。
+
+(1.72) 中 $S_E$ 的表达式可以通过引入更紧凑的记号 $\Phi(n, n_4) \equiv \Phi(n)_{n_4}$ 来简化。这相当于引入一个四维格点 $\Lambda$，其定义为
+\begin{equation}
+  \Lambda = \big\{(n, n_4)\;\big|\; n\in\Lambda^3,\;
+    n_4 = 0, 1, \ldots, N_T - 1\big\},
+\end{equation}
+其中我们还把 $j$ 重新标记为 $n_4$。注意，格点 $\Lambda$ 在所有四个方向都是周期的，因为它继承了 $\Lambda^3$ 各空间分量的空间周期性。采用这一记号，$S_E$ 写为
+\begin{equation}
+  \begin{split}
+    S_E[\Phi] = \varepsilon a^3\sum_{(n,n_4)\in\Lambda}\Big[
+    &\frac{1}{2}\Big(\frac{\Phi(n,n_4+1) - \Phi(n,n_4)}{\varepsilon}\Big)^2\\
+    &+ \frac{1}{2}\sum_{j=1}^3
+      \Big(\frac{\Phi(n+\hat{\jmath},n_4) - \Phi(n-\hat{\jmath},n_4)}{2a}\Big)^2\\
+    &+ \frac{m^2}{2}\Phi(n,n_4)^2 + V\big(\Phi(n,n_4)\big)\Big].
+  \end{split}
+\end{equation}
+与上一节的量子力学问题一样，(1.74) 中 $S_E$ 的表达式同样是欧氏作用量的一个离散化：右端的第一项可以解释为沿 4 方向的离散化导数的平方。对 $\Lambda$ 的求和连同因子 $\varepsilon a^3$ 是对空间和欧氏时间积分的离散化。有了这两种认定，表达式 (1.74) 与 (1.41) 和 (1.42) 中给出的克莱因-戈登场作用量非常相似。唯一的不同是一个整体负号，以及 (1.42) 中时间导数与其余各项之间的相对负号。如果把 (1.42) 中的时间旋转到虚轴，即把 $t$ 换成 $i\tau$，那么这个相对负号就消失了。因此 $S_E[\Phi]$ 是系统在欧氏时间下的作用量——欧氏作用量。
+
+同样，(1.71) 中的测度也可以写成更简单的形式
+\begin{equation}
+  D[\Phi] = \prod_{(n,n_4)\in\Lambda}d\Phi(n,n_4),
+\end{equation}
+而配分函数的表达式变为
+\begin{equation}
+  Z_T^\varepsilon = C^{N^3N_T}\int D[\Phi]\;e^{-S_E[\Phi]}.
+\end{equation}
+
+\subsection{在路径积分中加入算符}
+
+我们可以用与计算配分函数 $Z_T$ 类似的方法来求 (1.2) 的右端。特别是，我们再次使用 Trotter 公式，把欧氏关联函数的分子写为
+\begin{equation}
+  \tr\big[e^{-(T-t)H}O_2\,e^{-tH}O_1\big]
+  = \lim_{N_T\to\infty}\tr\big[W_\varepsilon^{N_T-n_t}O_2\,W_\varepsilon^{n_t}O_1\big],
+\end{equation}
+其中步数 $N_T$ 和 $n_t$ 通过 $T = \varepsilon N_T$ 和 $t = \varepsilon n_t$ 与 $T$ 和 $t$ 相联系。与近似 $Z_T^\varepsilon$ 类似，我们也引入一个具有有限时间分辨率 $\varepsilon$ 的欧氏关联函数。它为
+\begin{align}
+  \ev{O_2(t)\,O_1(0)}_T^\varepsilon
+  &= \frac{1}{Z_T^\varepsilon}\tr\big[W_\varepsilon^{N_T-n_t}O_2\,W_\varepsilon^{n_t}O_1\big] \notag\\
+  &= \frac{1}{Z_T^\varepsilon}\int D\Phi_0\cdots D\Phi_{N_T-1}
+     D\tilde{\Phi}_0\,D\tilde{\Phi}_{n_t}\, \notag\\
+  &\qquad \bra{\Phi_0}W_\varepsilon\ket{\Phi_{N_T-1}}
+     \bra{\Phi_{N_T-1}}W_\varepsilon\ket{\Phi_{N_T-2}}\cdots \notag\\
+  &\qquad \times \bra{\Phi_{n_t+1}}W_\varepsilon\ket{\tilde{\Phi}_{n_t}}\,
+     \bra{\tilde{\Phi}_{n_t}}O_2\ket{\Phi_{n_t}} \notag\\
+  &\qquad\quad \bra{\Phi_{n_t}}W_\varepsilon\ket{\Phi_{n_t-1}}\cdots
+     \bra{\Phi_1}W_\varepsilon\ket{\tilde{\Phi}_0}\,
+     \bra{\tilde{\Phi}_0}O_1\ket{\Phi_0}.
+\end{align}
+这个结构与归一化常数 $Z_T^\varepsilon$ 的等价表达式 (1.71) 相比，仅多出了两个矩阵元的插入
+\begin{equation}
+  \bra{\tilde{\Phi}_0}O_1\ket{\Phi_0}
+  \qquad \text{and} \qquad
+  \bra{\tilde{\Phi}_{n_t}}O_2\ket{\Phi_{n_t}}.
+\end{equation}
+
+算符 $O_1$ 和 $O_2$ 是由场算符及其共轭动量构造的表达式。两个典型的例子是
+\begin{equation}
+  O_A = \hat{\Phi}(n_0)^\dagger, \qquad
+  O_B = \sum_{n\in\Lambda^3}\hat{\Phi}(n)\,e^{-ianp},
+\end{equation}
+其中第一个算符 $O_A$ 在某个位置 $n_0$ 处从真空产生一个场量子，而算符 $O_B$ 湮灭一个投影到动量 $p$ 的量子。(1.78) 中可以出现的所有算符 $O_1$ 和 $O_2$ 都可以写成场算符和共轭动量 (1.55) 的表达式。于是，对于场算符组合的矩阵元 (1.79)，我们得到
+\begin{equation}
+  \bra{\tilde{\Phi}}O\ket{\Phi} = O[\Phi]\,\delta(\tilde{\Phi} - \Phi),
+\end{equation}
+其中我们用到了 (1.57) 和 (1.58)。对象 $O[\Phi]$ 不再是一个算符，而是经典场变量 $\Phi$ 的一个泛函。泛函把由所有场值 $\Phi(n)$（$n \in \Lambda^3$）的集合确定的场位形 $\Phi$ 映到复数。对于上文 (1.80) 例子中的两个算符 $O_A$ 和 $O_B$，这些泛函为（$*$ 表示复共轭）
+\begin{equation}
+  O_A[\Phi] = \Phi(n_0)^*, \qquad
+  O_B[\Phi] = \sum_{n\in\Lambda^3}\Phi(n)\,e^{-ianp}.
+\end{equation}
+
+把算符矩阵元的表达式 (1.81) 代入 (1.78)，并积掉场 $\tilde{\Phi}_0$ 和 $\tilde{\Phi}_{n_t}$，我们得到
+\begin{equation}
+  \ev{O_2(t)\,O_1(0)}_T^\varepsilon
+  = \frac{C^{N^3N_T}}{Z_T^\varepsilon}\int D[\Phi]\;e^{-S_E[\Phi]}\,
+    O_2[\Phi(\cdot,n_t)]\,O_1[\Phi(\cdot,0)].
+\end{equation}
+在最后一步，我们像处理配分函数那样收集并合并了各项。特别是，我们得到与 (1.74) 给出的相同的 $S_E$ 作用量表达式，并再次使用 (1.75) 中定义的测度 $D[\Phi]$。泛函 $O_1[\Phi(\cdot,0)]$ 和 $O_2[\Phi(\cdot,n_t)]$ 是作用于希尔伯特空间中的原始算符 $O_1$ 和 $O_2$ 的格点转译。泛函 $O_1[\Phi(\cdot,0)]$ 对时间变量为 0 的场 $\Phi(\cdot,0)$ 求值，而泛函 $O_2[\Phi(\cdot,n_t)]$ 对时间变量为 $n_t$（通过 $t = \varepsilon n_t$ 与欧氏时间 $t$ 相联系）的场 $\Phi(\cdot,n_t)$ 求值。用于求值的场的空间变量被一个点取代，因为泛函是把由给定时刻所有场值集合确定的整个场位形映到复数。我们强调，泛函 $O_1[\Phi(\cdot,0)]$、$O_2[\Phi(\cdot,n_t)]$ 以及玻尔兹曼因子 $\exp(-S_E[\Phi])$ 都是数而不是算符，因此它们的相对次序不再重要。最后我们指出，(1.83) 中的因子 $C^{N^3N_T}$ 与配分函数表达式 (1.76) 中出现的因子相同。分母和分子中的这两个因子相互抵消，从现在起我们可以省略它们。
+
+\section{用路径积分进行量子化}
+
+上一节我们完成了欧氏关联函数 $\ev{O_2(t)\,O_1(0)}_T^\varepsilon$ 路径积分表示的推导。本节我们讨论所推导出的方程的若干方面，并介绍格点场论的一些一般概念和策略。特别是，我们将阐述直接把路径积分作为量子化系统方法的思想。关于这一主题的进一步阅读，我们推荐文献 [7, 10, 11]。
+
+\subsection{欧氏作用量的不同离散化}
+
+让我们以更仔细地考察欧氏作用量的表达式 (1.74) 来开始对路径积分的讨论。审视导数项——(1.74) 右端的前两项——时，会注意到两种导数离散化之间的差别。时间导数的离散化使用向前差分，而空间导数则使用中心差分。空间导数的离散化是在 (1.50) 中选定的，时间导数则是用 Trotter 公式沿欧氏时间逐步传播的结果，因此它只包含最近邻。然而，这样的离散化比使用中心差分的离散化误差更大。由泰勒展开 $f(x \pm \varepsilon) = f(x) \pm \varepsilon f'(x) + \varepsilon^2 f''(x)/2 \pm \varepsilon^3 f'''(x)/6 + \cdots$ 可以发现，对于向前差分
+\begin{equation}
+  \frac{f(x+\varepsilon) - f(x)}{\varepsilon} = f'(x) + \order{\varepsilon},
+\end{equation}
+而对于中心差分离散化
+\begin{equation}
+  \frac{f(x+\varepsilon) - f(x-\varepsilon)}{2\varepsilon}
+  = f'(x) + \order{\varepsilon^2}.
+\end{equation}
+由于离散化误差更小，把中心差分公式也用于时间导数更为有利。
+
+通常还会实行的第二个改动是，对时间和空间采用相同的格点常数，即令
+\begin{equation}
+  \varepsilon = a.
+\end{equation}
+虽然 $\varepsilon$ 和 $a$ 的来历不同，但两者都应该很小：空间格点常数决定我们能在多小的长度尺度上分辨系统，而时间格点常数则决定 Trotter 公式对欧氏时间传播算符的近似有多好。当对时间使用中心差分并实施 (1.86) 时，欧氏作用量写为
+\begin{equation}
+  S_E[\Phi] = a^4\sum_{n\in\Lambda}\Big[
+    \frac{1}{2}\sum_{\mu=1}^4
+      \Big(\frac{\Phi(n+\hat{\mu}) - \Phi(n-\hat{\mu})}{2a}\Big)^2
+    + \frac{m^2}{2}\Phi(n)^2 + V(\Phi(n))\Big].
+\end{equation}
+显然，在这种形式下，作用量对空间各方向和欧氏时间一视同仁。除了在欧氏空间中度规张量的时间分量与空间分量之间没有相对负号之外，(1.87) 中空间与时间的同等地位与闵可夫斯基度规下 (1.41) 和 (1.42) 的作用量相同。(1.42) 中用于在协变与逆变指标之间转换的度规张量被克罗内克 $\delta$ 符号取代。
+
+最后我们指出，在闵可夫斯基空间中，指标从 $\mu = 0$ 取到 3，其中 $\mu = 0$ 指时间。为了强调使用的是欧几里得度规，(1.87) 中的指标 $\mu$ 从 1 取到 4，且 $\mu = 4$ 指欧氏时间。
+
+\subsection{路径积分作为量子化方案}
+
+对时间采用中心差分的作用量并不是按上述方式从第一性原理推导出来的。我们对作用量所做的改动表明，现在我们改变了量子化系统的思想方法。让我们来讨论这种新的量子化方案。
+
+在上一节的推导中，系统通过强制场及其共轭动量满足正则对易规则 (1.52) 和 (1.53) 而得到量子化。随后，欧氏关联函数作为路径积分的表达式
+\begin{equation}
+  \ev{O_2(t)\,O_1(0)}_T = \frac{1}{Z_T}\int D[\Phi]\;e^{-S_E[\Phi]}\,
+    O_2[\Phi(\cdot,n_t)]\,O_1[\Phi(\cdot,0)],
+\end{equation}
+被推导出来（从现在起，我们省去表示时间离散化的上标 $\varepsilon$）。配分函数也由路径积分给出
+\begin{equation}
+  Z_T = \int D[\Phi]\;e^{-S_E[\Phi]}.
+\end{equation}
+测度
+\begin{equation}
+  D[\Phi] = \prod_{n\in\Lambda}d\Phi(n),
+\end{equation}
+是四维格点 $\Lambda$ 上所有点 $n$ 处经典场变量积分测度的乘积测度。
+
+我们现在引入的新量子化方案直接基于 (1.88)、(1.89) 和 (1.90) 三个方程。它表明，量子化不再通过强制对易关系满足正则对易规则来实现，而是通过对经典场变量的路径积分来实现。量子化一个系统所涉及的步骤如下
+\begin{itemize}
+  \item \textbf{第 1 步：}连续的时空被一个格点常数为 $a$ 的四维欧几里得格点取代。自由度为生活在格点上的经典场变量 $\Phi$。
+  \item \textbf{第 2 步：}系统的欧氏作用量 $S_E[\Phi]$ 在格点上离散化，使得在极限 $a \to 0$ 下得到欧氏连续作用量。玻尔兹曼权重因子为 $\exp(-S_E[\Phi])$。
+  \item \textbf{第 3 步：}把想要研究的欧氏关联函数中出现的算符转译为泛函，即用经典格点场变量替换场算符。
+  \item \textbf{第 4 步：}欧氏关联函数按如下方式计算：在某个格点场位形上对这些泛函求值，用玻尔兹曼因子加权，然后对所有可能的场位形积分。
+\end{itemize}
+
+在接下来的章节中，我们将对 QCD 实施这一方案。不过，在这种方案中有几种不同的可能性可供选择。我们已经看到，可以使用各种不同的导数离散化，它们的离散化误差各不相同。一个重要的问题是，系统的不同离散化是否都会导致这样的理论：相应的欧氏关联函数 $\ev{O_2(t)\,O_1(0)}_T$ 可以按照我们的第一条关键方程来解释
+\begin{equation}
+  \lim_{T\to\infty}\ev{O_2(t)\,O_1(0)}_T
+  = \sum_n \bbraket{0}{O_2}{n}\,\bbraket{n}{O_1}{0}\,e^{-tE_n},
+\end{equation}
+从而可以提取能级和物理矩阵元。换句话说：路径积分中所用的欧氏作用量的某个给定格点离散化，是否会产生一个适当的量子力学希尔伯特空间？如果会，如何从欧氏关联函数重构出具有闵可夫斯基度规的 $n$ 点函数？这些问题的一个非常一般的答案由所谓的奥斯特瓦尔德-施拉德重构给出（教科书式的阐述参见，例如，文献 [12]）。如果由路径积分计算出的欧氏关联函数满足一组特定的公理，那么就可以以构造性的方式得到闵可夫斯基理论的希尔伯特空间。对于格点 QCD 的威尔逊形式（我们将在第 2 章和第 5 章中介绍），这一构造在文献 [13] 中被推广到了格点 QCD（另见文献 [14]）。对于基于转移矩阵的另一种格点构造，感兴趣的读者请参阅文献 [15]。对我们这里的阐述来说，只需得出结论：我们在 QCD 的离散化上有一定的自由度，并且当公理得到满足时，物理希尔伯特空间就可以被构造出来。
+
+一旦在格点上计算出物理可观测量，人们关心的是它们在极限 $a \to 0$ 下的值，即所谓的连续极限。这个极限可以从几个方面来理解。当我们要求作用量的格点离散化在 $a \to 0$ 时趋近其连续对应物时，我们已经遇到过所谓的朴素（或经典）连续极限。然而，作用量的朴素连续极限在构造格点理论时只被用作指导原则。完全量子化的理论需要对路径积分求值，这会给出可观测量作为 $a$ 的复杂函数的结果。在实际数值计算中，连续极限是以另一种方式趋近的：把理论的耦合常数推向其临界值，即推向系统发生相变的值。这样做时，物理标度（例如质子的大小）在格点单位下变得很大。换句话说，我们格点的分辨率变得越来越精细。当然，这几句话太简短，不足以理解这一程序，我们将在第 3.5 节中非常详细地讨论它。这一真正的连续极限基于统计力学的概念，我们将通过讨论格点场论与统计力学的关系来结束本章。
+
+\subsection{与统计力学的关系}
+
+如所预告的，我们的格点场论与统计力学之间存在结构上的等价性。统计力学的一个原型系统是自旋系统。自由度是位于某个（通常为三维的）格点上的经典自旋变量 $s_n$。系统的能量是自旋的泛函 $H[s]$。在正则系综中，即系统处于温度为 $T$ 的热浴中时，系统处于特定位形 $s$ 的概率 $P[s]$ 为
+\begin{equation}
+  P[s] = \frac{1}{Z}\,e^{-\beta H[s]},
+\end{equation}
+其中 $\beta$ 是逆温度 $\beta = 1/k_B T$，$k_B$ 表示玻尔兹曼常数。配分函数 $Z$ 为
+\begin{equation}
+  Z = \sum_{\{s\}}e^{-\beta H[s]},
+\end{equation}
+其中求和遍历所有可能的自旋位形 $\{s\}$。某个可观测量 $O$ 的期望值为
+\begin{equation}
+  \ev{O} = \frac{1}{Z}\sum_{\{s\}}e^{-\beta H[s]}\,O[s].
+\end{equation}
+
+(1.88) 与 (1.94) 之间的相似性是显而易见的。玻尔兹曼因子 $\exp(-\beta H)$ 被权重因子 $\exp(-S_E)$ 取代，对所有自旋位形的求和被对经典场 $\Phi$ 位形的积分取代。于是，把路径积分的归一化因子称为"配分函数"现在就显得很自然了。从技术角度看，格点场论与统计力学之间的结构等价性也是一个重要的观察：它使得人们可以把最初在统计力学中发展起来的解析和数值方法应用到格点场论上。其中一些技巧将在后续章节中讨论。
+
+\section*{参考文献}
+
+\begin{enumerate}[label={[\arabic*]}]
+  \item C.~Cohen-Tannoudji, B.~Diu, and F.~Lalo\"e: \emph{Quantum Mechanics}
+        (John Wiley and Sons, New York, London, Sidney, Toronto 1977).
+  \item J.~J.~Sakurai: \emph{Modern Quantum Physics} (Addison-Wesley, Reading,
+        Massachusetts 1994).
+  \item A.~Messiah: \emph{Quantum Mechanics}, Vols.~1 and 2 (Dover
+        Publications, Mineola, New York 1958).
+  \item J.~W.~Negele and H.~Orland: \emph{Quantum Many Particle Systems}
+        (Westview Press -- Advanced Book Classics, Boulder 1998).
+  \item E.~Prugove\v{c}ki: \emph{Quantum Mechanics in Hilbert Space}, 2nd ed.
+        (Academic Press, New York, London, Toronto, Sydney, San Francisco
+        1981).
+  \item M.~Reed and B.~Simon: \emph{Methods of Modern Mathematical Physics},
+        revised and enlarged ed., Vol.~1: Functional Analysis (Academic Press,
+        Boston, San Diego, New York, London, Sydney, Tokyo, Toronto 1980).
+  \item G.~Roepstorff: \emph{Path Integral Approach to Quantum Physics}
+        (Springer, Berlin, Heidelberg, New York 1996).
+  \item C.~Itzykson and J.-B.~Zuber: \emph{Quantum Field Theory} (McGraw-Hill,
+        New York 1985).
+  \item M.~E.~Peskin and D.~V.~Schroeder: \emph{An Introduction to Quantum
+        Field Theory} (Addison-Wesley, Reading, Massachusetts 1995).
+  \item R.~P.~Feynman and A.~Hibbs: \emph{Quantum Mechanics and Path
+        Integrals} (McGraw-Hill, New York 1965).
+  \item R.~J.~Rivers: \emph{Path Integral Methods in Quantum Field Theory},
+        Cambridge Monographs on Mathematical Physics (Cambridge University
+        Press, Cambridge, New York 1990).
+  \item J.~Glimm and A.~Jaffe: \emph{Quantum Physics. A Functional Integral
+        Point of View}, 2nd ed. (Springer, New York 1987).
+  \item K.~Osterwalder and E.~Seiler: Ann.\ Phys.\ 110, 440 (1978).
+  \item E.~Seiler: \emph{Gauge Theories as a Problem of Constructive Quantum
+        Field Theory and Statistical Mechanics}, Lect.\ Notes Phys.\ 159.
+        Springer, Berlin, Heidelberg, New York (1982).
+  \item M.~L\"uscher: Commun.\ Math.\ Phys.\ 54, 283 (1977).
+\end{enumerate}

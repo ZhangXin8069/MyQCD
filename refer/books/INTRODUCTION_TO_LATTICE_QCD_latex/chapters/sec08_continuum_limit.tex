@@ -1,0 +1,161 @@
+\chapter{Continuum limit and Symanzik's Improvement program}
+
+The Taylor expansion of the simple Wilson action for the gauge and fermion
+degrees of freedom showed the presence of higher dimensional operators.
+Since these are suppressed by powers of the lattice spacing, they are
+irrelevant operators in the language of the renormalization group, i.e.\ they
+vanish at the fixed point at $a \to 0$. Another way of expressing the same
+thing is as follows. The lattice theory with a hard cut-off at $\pi/a$ can be
+regarded as an effective theory [49]. Integration of momenta from
+$\infty \to \pi/a$ generates effective interactions. Thus, in general, we can
+write the action as
+\begin{equation}
+S_C = S_L(\pi/a) + \sum_n \sum_i a^n C_i^n A_i^n(\pi/a) \,,
+\label{eq:8.1}
+\end{equation}
+where $S_C$ ($S_L$) is the continuum (lattice) action, and the first sum is
+over all operators of a given dimension, and the second over all dimensions
+greater than four. Similarly, the operators used to probe the physics can be
+written as
+\begin{equation}
+O_C = O_L(\pi/a) + \sum_n \sum_i a^n D_i^n O_i^n(\pi/a) \,,
+\label{eq:8.2}
+\end{equation}
+where in this case quantum corrections can induce mixing with lower dimension
+operators also. The coefficients $C_i^n$ and $D_i^n$ are both functions of the
+coupling $\alpha_s$. Parenthetically, one important reason for preserving
+gauge, Lorentz, and chiral symmetries at finite $a$ is that they greatly
+restrict the set of possible operators of a given dimension.
+
+Now consider the expectation value of a given operator
+\begin{equation}
+\begin{split}
+\langle O_C \rangle &= \int dU\, O_C e^{-S_C} \\
+&= \int dU \left( O_L + \sum_n \sum_i a^n D_i^n O_i^n \right)
+   e^{-S_L - \sum_m \sum_i a^m C_i^m A_i^m} \\
+&= \int dU \left( O_L + \sum_n \sum_i a^n D_i^n O_i^n \right)
+   \left( 1 - \sum_m \sum_i a^m C_i^m A_i^m + \cdots \right) e^{-S_L} \\
+&= \int dU\, O_L e^{-S_L}
+   + \int dU\, O_L \left( \sum_m \sum_i a^m C_i^m A_i^m + \cdots \right) e^{-S_L} \\
+&\qquad + \int dU \left( \sum_n \sum_i a^n D_i^n O_i^n \right)
+   \left( 1 - \sum_m \sum_i a^m C_i^m A_i^m + \cdots \right) e^{-S_L} \,.
+\end{split}
+\label{eq:8.3}
+\end{equation}
+Note that the operators $A_i^n$, which appear in the action, are summed over
+all space-time points. This leads to contact terms in Eq.~\ref{eq:8.3} which
+I shall, for brevity, ignore as they necessitate a proper definition of the
+operators but do not change the conclusions.
+
+The basis for believing that LQCD provides reliable results from simulations
+at finite $a$ is that the contributions of the lattice artifacts (last two
+terms in the last expression) are small, can be estimated, and thus removed.
+At this point I will only make a few general statements about the calculation
+of expectation values which will be embellished on in later lectures.
+\begin{itemize}
+\item The contribution of the last two terms in Eq.~\ref{eq:8.3} vanishes in
+the limit $a \to 0$ unless there is mixing with operators of lower dimension.
+In such cases the mixing coefficient has to be determined very accurately
+(necessitating non-perturbative methods) otherwise the $a \to 0$ limit is
+divergent.
+\item Calculations have to be done at values of $a$ at which contributions of
+irrelevant terms organized in successive powers in $a$ decrease at least
+geometrically.
+\item To achieve continuum results simulations are carried out at a sufficient
+number of values of $a$ to allow reliable extrapolation to $a = 0$. The
+``fineness'' of the lattice spacing $a$ at which to do the calculations and
+the number of points needed depends on the size of the corrections and how
+well we can determine the functional form to use in the extrapolation.
+\item To improve the result to any given order in $a$, one has to improve both
+the action and the operators to the same order. Such an approach, based on
+removing lattice artifacts organized as a power series expansion in $a$, is
+called the Symanzik improvement program.
+\end{itemize}
+
+Eq.~\ref{eq:8.3} shows clearly that there is fair degree of flexibility in
+constructing LQCD. We are free to add any irrelevant operator with a sensible
+strength and still recover QCD in the continuum limit. The only difference
+between various constructions of the action is the approach to the continuum
+limit. What we would like to do is improve the action and operators so as to
+get continuum results on as coarse lattices as possible. On the other hand
+improvement requires adding irrelevant terms to both the action and the
+operators. This increases the complexity of the calculations and the
+simulation time. Thus, the strategy for minimizing discretization errors is a
+compromise -- optimize between simplicity of the action and operators
+(defined in terms of the cost of simulation, code implementation, and
+analyses) and the reduction of the discretization errors evaluated at some
+given fixed value of the lattice spacing, say $a \approx 0.1$ fermi. The
+remaining errors, presumably small, can then be removed by extrapolating the
+results obtained from simulations at a few values of $a$ to $a = 0$.
+
+The number of floating points operations needed in the simulations of LQCD
+scale roughly as $L^6$ in the quenched approximation and $L^{10}$ with
+dynamical fermions. Current lattice simulations of QCD are done for lattice
+spacing $a$ varying in the range $2\,\mathrm{GeV} \leq a^{-1} \leq
+5\,\mathrm{GeV}$. For these parameter values the corrections due to the
+$O(a)$, $O(ma)$, $O(pa)$, $O(a^2)$, \ldots\ terms in the Wilson action are
+found to be large in many observables. The importance of improving the
+lattice formulation (action and operators) is therefore self-evident,
+especially for full QCD. Thus, the search for such actions is a hot topic
+right now. Before discussing these let me first summarize what one hopes to
+gain by, and the criteria by which to judge, such an improvement program.
+\begin{enumerate}
+\item Improved scaling, i.e.\ discretization errors are reduced. Consequently
+one can work on coarser lattices (smaller $L = N_S$) for a given accuracy.
+Even a factor of 2 reduction in $L$ translates into $2^{10} \approx 1000$ in
+computer time!
+
+\item Better restoration of rotational and internal symmetries like chiral,
+staggered flavor, etc..
+
+\item The trajectory along which the continuum limit is taken should not pass
+close to extraneous phase transitions that are artifacts of the lattice
+discretization (see Section 15 for a discussion of phase transitions in the
+lattice theory). The problem with such transitions is that in their vicinity
+the desired continuum scaling behavior can be modified for certain
+observables, i.e.\ the artifact terms in Eq.~\ref{eq:8.3} may not have a
+geometric convergence in $a$ and may thus be large.
+
+\item The study of topology on the lattice is particularly sensitive to short
+distance fluctuations that are artifacts of discretizing the gauge action.
+For the Wilson gauge action one finds that the topological charge, calculated
+using L\"uscher's geometric method [50], jumps from $0 \to 1$ at a core
+radius of the instanton of $\rho_c a \approx 0.7$, whereas the action of such
+instantons, $S_{\rho_c}$, is significantly less than the classical value
+$S^{\mathrm{cl}} = 8\pi^2/\beta$. The entropy factor for such small
+instantons with $S < S^{\mathrm{cl}}$ overwhelms the Boltzmann suppression,
+leading to a divergent topological susceptibility in the continuum limit.
+These short distance artifacts are called dislocations and it is not
+a~posteriori obvious how to separate the physical from the unphysical when
+$\rho \approx \rho_c$. It is, therefore, very important to start with a
+lattice formulation in which such artifacts are excluded, and there exist
+only physical instantons, i.e.\ those with mean core size that has the
+correct scaling behavior with $g$. One finds that dislocations are suppressed
+by improved actions, i.e.\ improving the gauge action increases $S_{\rho_c}$
+[51] and better definition of the topological charge [52].
+
+\item Lattice perturbation theory becomes increasingly complicated as more
+and more irrelevant operators are added to the action. Even though, with the
+advent of non-perturbative methods for determining renormalization constants,
+the reliance on lattice perturbation theory has decreased, perturbative
+analyses serve as a valuable guide and check, so we would like to retain this
+possibility. What one expects for an improved action is that the lattice and
+continuum value of $\alpha_s$, and the coefficients of the series expansion
+in $\alpha_s$ for a given observable, are much closer. In that case a much
+more reliable matching between the two theories is possible. At present the
+1-loop matching between the lattice and continuum theories is one of the
+larger sources of uncertainties.
+
+\item The Adler-Bell-Jackiw (ABJ) Anomaly: In the continuum the flavor
+singlet axial current has an anomaly. This shows up as part of the UV
+regularization scheme. In the Pauli-Villars scheme one introduces a heavy
+mass as the cutoff. This breaks $\gamma_5$ invariance, while in dimensional
+regularization, $\gamma_5$ is not well-defined away from 4 dimensions.
+Naive fermions, as shown below, preserve the $\gamma_5$ invariance but at the
+expense of flavor doubling. A consequence of the doublers is a pairwise
+cancellation and no net anomaly. A viable lattice theory should reproduce the
+ABJ anomaly.
+\end{enumerate}
+
+Before discussing such ``improved'' actions, it is instructive to revisit the
+construction of the naive Dirac action to highlight its problems.
