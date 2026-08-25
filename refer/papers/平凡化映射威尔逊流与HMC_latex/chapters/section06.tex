@@ -1,0 +1,131 @@
+\section{所提议的格点 QCD 模拟算法}
+
+与迄今使用的 QCD 模拟算法相比，
+把通过威尔逊流欧拉积分得到的变换
+与 HMC 算法相结合，
+预期会更快地对拓扑扇区采样，并且总体上效率更高。
+若规范作用量恰为 Wilson 方块作用量，
+则建议使用威尔逊流。
+对于其他作用量，
+可以按照第~4 节的思路容易地构造相应的流。
+
+
+\subsection{参数的选择}
+
+欧拉积分器的参数是积分步长 $\eps$
+与施加的欧拉扫描次数 $n$。
+还需要为格点的链接选定一个明确的排序。
+
+步长 $\eps$ 应取正且不大于（比方说）$1/16$，
+以保证欧拉积分器的可逆性有充分的安全裕度。
+为使算法效率最大化，
+肯定还需要对积分时间 $n\eps$ 作一些调节。
+注意，此处的时间单位与 4.4 小节所用者不同，
+即那里取 $t=1$ 对应于这里积分时间 $n\eps=\beta/32$。
+
+链接的排序可以任意选择。
+例如，可以先访问所有偶点 $x$ 上的链接 $(x,0)$，
+然后是所有奇点上的链接 $(x,0)$，
+再访问所有偶点上的链接 $(x,1)$，依此类推。
+这种排序非常适合并行处理，
+因为给定方向上偶（奇）位点上的链接变量彼此退耦，
+因而可以并行更新。
+
+
+\subsection{力的计算}
+
+在一个更新周期开始时，
+先把当前规范场 $U$ 施加 $n$ 次反向欧拉扫描
+变换为场 $V=\transne^{-1}(U)$。
+驱动 $V$ 的分子动力学演化的力由
+\begin{equation}
+  F(z,\rho)^c=\hat{\du}^c_{z,\rho}\left\{
+  S(\transne(V))-\ln\det\transnes(V)\right\}
+\end{equation}
+给出，其中作用量 $S(U)$ 此时包含通常的海夸克赝费米子作用量
+（为简单起见，略去了对赝费米子场的依赖）。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=3.6cm]{images/trj.pdf}
+  \caption{%
+所提议的算法用标准 HMC 算法（粗线）演化场 $V$。
+驱动分子动力学演化的力
+通过对威尔逊流的正向积分、
+以及随后把作用量与流的雅可比行列式的导数反向传播而得到
+（本图中 $n=3$）。
+}
+  \label{fig:trj}
+\end{figure}
+
+每当需要计算力时，
+必须再次对当前场 $V$ 施加 $n$ 次正向欧拉扫描把它变换回 $U$
+（见图~3）。
+在此过程中生成的场 $U_0,U_{\eps},\ldots,U_{n\eps}$
+应当存入内存，
+以便在力从 $U$ 反向传播到 $V$ 时可用。
+注意，中间场
+\begin{equation}
+  U_{k\eps,[x,\mu]}(y,\nu)=
+  \begin{cases}
+    U_{k\epsilon}(y,\nu) & \text{若 $(y,\nu)\geq(x,\mu)$,}\\[0.8ex]
+    U_{k\epsilon+\epsilon}(y,\nu) & \text{其他情形,}
+  \end{cases}
+\end{equation}
+此时也是可用的。
+
+雅可比行列式的因子化 (5.14) 蕴含
+\begin{equation}
+   F(z,\rho)^c=\hat{\du}^c_{z,\rho}S(U_{n\eps})
+   -\sum_{k=0}^{n-1}\sum_{x,\mu}
+  \hat{\du}^c_{z,\rho}\ln\det\euler{x,\mu,*}(U_{k\eps,[x,\mu]}).
+\end{equation}
+此外，
+\begin{equation}
+  \hat{\du}^c_{z,\rho}S(U_{n\eps})=
+  \sum_{y,\nu}\left.\du^a_{y,\nu}S(U)\right|_{U=U_{n\eps}}
+  \transnes(y,\nu;z,\rho)^{ac},
+\end{equation}
+并且对于式~(6.3) 中涉及变换 $V\to U_{k\eps,[x,\mu]}$
+之雅可比矩阵的其他各项也有类似的公式。
+所有这些矩阵以及式~(6.4) 中的那个矩阵，
+都是单链接变换 (5.8) 的雅可比矩阵的乘积。
+因此，力可以按如下方式递推计算：
+
+\begin{enumerate}[leftmargin=2.2em,itemsep=0.6ex]
+\item 置 $U=U_{n\eps}$ 与 $F(z,\rho)^c=\du^c_{z,\rho}S(U)$。
+
+\item 对 $k$ 从 $n-1$ 到 $0$，
+按相反次序遍历所有链接 $(x,\mu)$，
+置 $U=U_{k\eps,[x,\mu]}$，
+并按下式更新力：
+\begin{equation}
+   F(z,\rho)^c\to\sum_{y,\nu}F(y,\nu)^a
+   [\euler{x,\mu,*}(U)](y,\nu;z,\rho)^{ac}
+   -\du^c_{z,\rho}\ln\det\euler{x,\mu,*}(U).
+\end{equation}
+\end{enumerate}
+
+\noindent
+注意，在递推过程中场 $U$ 沿威尔逊流正向积分的路径回溯。
+由于雅可比矩阵 $\euler{x,\mu,*}(U)$ 仅在与 $(x,\mu)$ 共享一个方格的链接上才偏离单位阵，
+力传播 (6.5) 所需的总计算量
+预期与对力场施加 $n$ 次最近邻规范协变差分算符所需者相近。
+
+
+\subsection{域分解算法}
+
+场变换也可以与 DD-HMC 算法~\cite{DDHMC} 相结合。
+在这种情形下只有所谓的活性（active）链接变量被变换，
+但变换可以依赖于非活性的场分量。
+
+于是在纯规范理论中，
+同样可以构造平凡化流。
+它们作用于活性链接变量，
+并把每个域内的规范作用量收缩为一个常数
+（即只依赖于非活性链接变量的表达式）。
+这些流与第~4 节构造的流并不相同，
+但可以通过求解那里导出的微分方程得到。
+特别是，对于 Wilson 作用量的平凡化流，
+在领头阶上是稍作修改的威尔逊流，
+其中含 $\nu$ 条活性链接的方格被赋予权重 $4/\nu$。

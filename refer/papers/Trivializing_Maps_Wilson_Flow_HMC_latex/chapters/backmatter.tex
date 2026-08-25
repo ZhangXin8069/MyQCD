@@ -1,0 +1,550 @@
+\section*{Acknowledgements}
+In the course of this work, I profited from
+many discussions with Filippo Palombi and Stefan Schaefer
+of various questions related to
+the slow topology-switching in current lattice QCD simulations.
+I also wish to thank
+Stefan Schaefer, Rainer Sommer and Francesco Virotta for
+sharing some of their simulation results before publication.
+
+\appendix
+
+\numberwithin{equation}{section}
+
+\section{SU(3) notation}
+
+\subsection{Group generators}
+
+The Lie algebra $\Lie$ of $\Group$
+may be identified with the space of all anti-hermitian
+traceless $3\times3$ matrices.
+With respect to a
+basis $T^a$, $a=1,\ldots,8$, of such matrices,
+the elements $X\in\Lie$ are given by
+\begin{equation}
+  X=X^aT^a,
+\end{equation}
+where $(X^1,\ldots,X^8)\in\rz^8$
+(repeated group indices are automatically summed over).
+
+The generators $T^a$ are assumed to satisfy
+the normalization condition
+\begin{equation}
+  \tr\bigl\{T^aT^b\bigr\}=-\frac{1}{2}\delta^{ab}.
+\end{equation}
+The structure of the Lie algebra is then encoded in the commutators
+\begin{equation}
+  [T^a,T^b]=f^{abc}T^c,
+\end{equation}
+while the completeness of the generators implies
+\begin{align}
+  \bigl\{T^a,T^b\bigr\}&=-\frac{1}{3}\delta^{ab}+id^{abc}T^c,
+  \\[1.0ex]
+  T^a_{\alpha\beta}T^a_{\gamma\delta}&=
+  -\frac{1}{2}\left\{
+  \delta_{\alpha\delta}\delta_{\beta\gamma}-\frac{1}{3}\delta_{\alpha\beta}
+  \delta_{\gamma\delta}\right\}.
+\end{align}
+It follows from these equations that the structure constants
+$f^{abc}$ and the tensor $d^{abc}$ are both real.
+Moreover, $f^{abc}$
+is totally anti-symmetric in the indices and $d^{abc}$ totally symmetric
+and traceless.
+
+
+\subsection{Adjoint representation}
+
+The representation space of the adjoint representation of $\Lie$
+is the Lie algebra itself,
+i.e.\ the elements $X$ of $\Lie$ are represented by linear
+transformations
+\begin{align}
+  &\Ad X:\,\Lie\mapsto\Lie,
+  \\[0.8ex]
+  &\Ad X\cdot Y=[X,Y]\quad\text{for all}\quad Y\in\Lie.
+\end{align}
+The action of $\Ad X$ on the group generators
+is given by
+\begin{equation}
+  \Ad X\cdot T^b=T^a(\Ad X)^{ab},
+\end{equation}
+where
+\begin{equation}
+  (\Ad X)^{ab}=-f^{abc}X^c
+\end{equation}
+is a real antisymmetric $8\times 8$ matrix.
+
+
+\subsection{Matrix norms}
+
+The natural scalar product in $\Lie$ is
+\begin{equation}
+  (X,Y)=X^aY^a=-2\,\tr\bigl\{XY\bigr\}.
+\end{equation}
+In particular, $\|X\|=(X,X)^{1/2}$ is a possible definition of
+the norm of $X\in\Lie$.
+
+Another useful matrix norm derives from the square norm
+\begin{equation}
+  \|v\|_2=\bigl\{|v_1|^2+|v_2|^2+|v_3|^2\bigr\}^{1/2}
+\end{equation}
+of complex colour vectors $v$. If $A$ is any complex $3\times3$ matrix,
+one defines
+\begin{equation}
+  \|A\|_2=\max_{\|v\|_2=1}\|Av\|_2.
+\end{equation}
+This norm satisfies
+\begin{equation}
+   \|A+B\|_2\leq\|A\|_2+\|B\|_2,
+   \qquad
+   \|AB\|_2\leq\|A\|_2\|B\|_2,
+\end{equation}
+for all matrices $A,B$. Moreover, if $A$ is hermitian or
+antihermitian, $\|A\|_2$ is equal to the maximum of the absolute
+values of its eigenvalues.
+
+\section{Properties of the SU(3) exponential function}
+
+\subsection{Lipschitz bound}
+
+For any $X,Y\in\Lie$, the relation
+\begin{equation}
+  \|\rme^X-\rme^Y\|_2=
+  \|1-\rme^{-X}\rme^Y\|_2
+\end{equation}
+follows from the fact that $\rme^X$ is unitary.
+Using the identity
+\begin{equation}
+  1-\rme^{-X}\rme^Y=
+  \int_0^1\rmd s\,\rme^{-sX}(X-Y)\rme^{sY}
+\end{equation}
+and the subadditivity (A.13) of the norm,
+the Lipschitz bound
+\begin{equation}
+  \|\rme^X-\rme^Y\|_2\leq\|X-Y\|_2
+\end{equation}
+is then obtained.
+
+
+\subsection{Differential of the exponential map}
+
+Let $X$ be an element of the Lie algebra $\Lie$.
+A linear mapping $J(X):\Lie\mapsto\Lie$ is then defined by
+\begin{equation}
+  J(X)\cdot Y=\rme^{-X}\left.{\rmd\over\rmd t}\rme^{X+tY}\right|_{t=0}
+  \quad\text{for all $Y\in\Lie$.}
+\end{equation}
+$J(X)$ is referred to as the differential of the exponential map.
+Scaling the expo\-nents by a parameter $s$, as above,
+one obtains the representation
+\begin{equation}
+  J(X)\cdot Y=
+  \int_0^1\rmd s\,\rme^{-sX}Y\rme^{sX}
+\end{equation}
+and thus the expansion
+\begin{equation}
+  J(X)=1+\sum_{k=1}^{\infty}{(-1)^k\over(k+1)!}(\Ad X)^k
+\end{equation}
+which is absolutely convergent for any $X\in\Lie$.
+
+The action of $J(X)$ on the group generators $T^a$
+is given by
+\begin{equation}
+  J(X)\cdot T^b=T^aJ(X)^{ab},
+\end{equation}
+where $J(X)^{ab}$ is a real $8\times8$ matrix.
+Note that
+\begin{equation}
+  J(X)^T=J(-X)=\rme^{\Ad X}J(X),
+  \qquad
+  J(X)\Ad X=1-\rme^{-\Ad X}.
+\end{equation}
+Moreover, eq.~(B.5) implies
+\begin{equation}
+  \|J(X)\cdot Y\|_2\leq\|Y\|_2
+\end{equation}
+for all $X,Y\in\Lie$.
+
+\section{Jacobian of the Euler step}
+
+The Jacobian matrix (5.11) of the Euler step
+is equal to unity except for some non-zero elements
+along the row $(y,\nu)=(x,\mu)$. Its determinant
+therefore coincides with the determinant of the $(x,\mu;x,\mu)$-element
+\begin{equation}
+  A^{ac}=\left\{\left(\rme^{\Ad X}\right)^{ac}
+  +\eps J(-X)^{ab}[Z_{*}(U)](x,\mu;x,\mu)^{bc}
+  \right\}_{X=\eps[Z(U)](x,\mu)}
+\end{equation}
+of the matrix.
+
+The derivative $[Z_{*}(U)](x,\mu;x,\mu)^{bc}$
+can be worked out explicitly in terms of
+the plaquette sum
+\begin{multline}
+  M=\sum_{\nu\neq\mu}\bigl\{
+  U(x,\mu)U(x+\hat{\mu},\nu)U(x+\hat{\nu},\mu)^{-1}U(x,\nu)^{-1}+\\
+  U(x,\mu)U(x+\hat{\mu}-\hat{\nu},\nu)^{-1}U(x-\hat{\nu},\mu)^{-1}
+  U(x-\hat{\nu},\nu)\bigr\}.
+\end{multline}
+A few lines of algebra then lead to the expression
+\begin{equation}
+  A^{ac}=B^{ac}+\frac{1}{2}\eps C^{ab}\Bigl\{
+  id^{bcd}\tr\bigl\{T^d(M+M^{\dagger})\bigr\}
+  -\frac{1}{3}\delta^{bc}\tr\bigl\{M+M^{\dagger}\bigr\}\Bigl\}
+\end{equation}
+where
+\begin{align}
+  B&=\frac{1}{2}\bigl(\rme^{\Ad X}+1\bigr),
+  \\[0.6ex]
+  C&=J(-X),\qquad X=-\eps\Proj\bigl\{M\bigr\}.
+\end{align}
+In particular,
+\begin{equation}
+  \det A=1-\frac{4}{3}\eps\,\tr\bigl\{M+M^{\dagger}\bigr\}+\rmO(\eps^2),
+\end{equation}
+as expected from eq.~(3.9).
+
+\section{Inversion of the Euler step}
+
+\subsection{Basic norm bounds}
+
+For any complex $3\times3$ matrix $M$,
+the inequality
+\begin{equation}
+  \|\Proj\bigl\{M\bigr\}\|_2\leq\frac{4}{3}\|M\|_2
+\end{equation}
+can be established in a few lines. One first observes that
+\begin{equation}
+  \frac{1}{2}\bigl(M-M^{\dagger}\bigr)=A D A^{-1},
+  \qquad A\in\Group,
+\end{equation}
+where $D$ is a diagonal matrix with diagonal elements
+$\lambda_1,\lambda_2,\lambda_3$. Setting
+\begin{equation}
+  \bar{\lambda}=\frac{1}{3}\sum_{k=1}^3\lambda_k,
+\end{equation}
+the estimates
+\begin{multline}
+  \|\Proj\bigl\{M\bigr\}\|_2=\max_k
+  \left|\lambda_k-\bar{\lambda}\right|
+  \\
+  \leq\frac{4}{3}\max_k\left|\lambda_k\right|=
+  \frac{2}{3}\|M-M^{\dagger}\|_2\leq\frac{4}{3}\|M\|_2
+\end{multline}
+then show that the inequality (D.1) holds for all matrices $M$.
+
+An immediate consequence of the bound (D.1) and the Lipschitz bound (B.3)
+is that
+\begin{equation}
+  \bigl\|\Proj\bigl\{A\bigl(\rme^X-\rme^Y\bigr)B\bigr\}\bigr\|_2\leq
+  \frac{4}{3}\|X-Y\|_2
+\end{equation}
+for all $A,B\in\Group$ and $X,Y\in\Lie$.
+
+
+\subsection{Solution of eq.~(5.1)}
+
+For a given link $(x,\mu)$ and any fixed $U'(x,\mu)\in\Group$,
+the function
+\begin{equation}
+  f(X)=\bigl\{[Z(U)](x,\mu)\bigr\}_{
+  U(x,\mu)=\rme^{-\eps X}U'(x,\mu)}
+\end{equation}
+maps $X\in\Lie$ back to $\Lie$. Recalling eq.~(5.3), the inequality
+(D.5) immediately implies that
+\begin{equation}
+  \|f(X)-f(Y)\|_2\leq k\|X-Y\|_2,
+  \qquad k=8|\eps|.
+\end{equation}
+The function $f(X)$ is therefore a strict contraction if
+the integration step size $\eps$ is in the range (5.5) (which is assumed
+to be the case from now on).
+
+It is not difficult to prove that
+strict contractions in a complete metric space
+have a unique fixed point
+(see ref.~\cite{ReedSimonI}, Theorem V.18, for example).
+In the present case, the fixed point
+$X_{*}$ can be computed by noting that
+the sequence $X_0=0,X_1,X_2,\ldots$ generated through
+the recursion $X_{n+1}=f(X_n)$ satisfies
+\begin{equation}
+  \|X_n-X_{*}\|_2\leq k\|X_{n-1}-X_{*}\|_2
+\end{equation}
+and therefore rapidly converges to $X_{*}$.
+The matrix
+\begin{equation}
+  U(x,\mu)=\rme^{-\eps X_{*}}U'(x,\mu)
+\end{equation}
+then provides a solution of eq.~(5.1).
+Moreover, there is no other solution,
+because the fixed point $X_{*}$ of $f(X)$ is unique.
+
+
+\subsection{Positivity of the Jacobian}
+
+In order to prove that
+the determinant of the Jacobian matrix (C.1) is positive
+at all $\eps$ in the range (5.5),
+it suffices to show that the matrix has no zero mode, i.e.\ that
+\begin{equation}
+  A^{ac}Y^c=0
+\end{equation}
+implies $Y=0$.
+To this end, eq.~(D.10) is first written in the form
+\begin{equation}
+  Y^a=-\eps J(X)^{ab}W^b,
+\end{equation}
+where
+\begin{equation}
+  X=\eps[Z(U)](x,\mu),\qquad
+  W^b=[Z_{*}(U)](x,\mu;x,\mu)^{bc}Y^c.
+\end{equation}
+Recalling eq.~(5.10), the formula
+\begin{equation}
+  W=\lim_{t\to0}{1\over t}\left\{
+  \left.[Z(U)](x,\mu)\right|_{U(x,\mu)\to\rme^{tY}U(x,\mu)}-[Z(U)](x,\mu)
+  \right\}
+\end{equation}
+may then be derived from which one infers that
+\begin{equation}
+  \|W\|_2\leq 8\|Y\|_2.
+\end{equation}
+The inequality (D.5) has here been used again and also the fact that
+the norm is a continuous map from $\Lie$ to $\rz$.
+The combination of eq.~(D.11) and the bounds (B.9) and (D.14)
+now implies $\|Y\|_2\leq k\|Y\|_2$ and thus $Y=0$.
+
+\section{Differentiability of $\Sflow_t$}
+
+The action $\Sflow_t$ solves an
+elliptic partial differential equation with smooth coefficients
+and is therefore guaranteed (by elliptic regularity)
+to be a differentiable function of the
+gauge field $U$.
+In this appendix, the simultaneous
+differentiability in the time $t$
+is established by expanding $\Sflow_t$
+in powers of $t-t_0$ around any fixed time $t_0$.
+Using Sobolev norms,
+the expansion can be shown to converge
+if $t$ is sufficiently close to $t_0$.
+The pointwise
+uniform convergence of the series and its derivatives,
+and therefore the differentiability of $\Sflow_t$,
+then follows from
+Sobolev's lemma.
+
+
+\subsection{Sobolev spaces on the field manifold}
+
+The definition of the Sobolev spaces on a compact manifold
+is quite involved and will not be reviewed here. An introduction
+to the subject and the proof of all statements made in this subsection
+is given in the first three sections of ref.~\cite{Gilkey},
+for example.
+
+Let $\Cinfty$ be the space of differentiable functions on the field
+manifold and $H_k$ the associated Sobolev space of order $k\in\gz$. The latter
+is the completion of $\Cinfty$ with respect to a certain norm $\|\cdot\|_k$.
+A characteristic feature of these norms is that
+the bounds
+\begin{equation}
+  \|\mathfrak{D}\phi\|_k\leq c_k\|\phi\|_{k+p}
+\end{equation}
+hold for all $\phi\in\Cinfty$ and
+any differential operator $\mathfrak{D}$ of order $p$
+with smooth coefficients,
+where the constants $c_k$ depend on $\mathfrak{D}$ but not on $\phi$.
+Such differential operators thus extend to
+bounded linear operators from $H_{k+p}$ to $H_k$.
+Moreover,
+$\|\phi\|_k\leq\|\phi\|_l$ if $k<l$
+and therefore
+$H_l\subset H_k$.
+
+A fairly concrete description of the
+Sobolev space $H_k$ can be given when $k$ is even
+and non-negative. For any $t\in\rz$ and $j=0,1,2,\ldots$,
+another norm $\|\phi\|_{t,j}$ of $\phi\in\Cinfty$
+may be defined through
+\begin{equation}
+  \|\phi\|_{t,j}=\|\phi\|+\|\Lop^j\phi\|,
+\end{equation}
+where $\|\cdot\|$ is the norm associated to the scalar product (4.7).
+The fact that $\Lop$ is a second-order elliptic differential operator
+then implies
+\begin{equation}
+  \|\phi\|_{2j}\leq a_{t,j}\|\phi\|_{t,j},
+  \qquad
+  \|\phi\|_{t,j}\leq b_{t,j}\|\phi\|_{2j}
+\end{equation}
+for some constants $a_{t,j},b_{t,j}$.
+In particular,
+$H_{2j}$ is the completion of $\Cinfty$ with respect to the
+norm $\|\cdot\|_{t,j}$.
+
+
+\subsection{Properties of the inverse of $\Lop$}
+
+Let $\Pop$ be the orthogonal projector to the zero mode of $\Lop$
+in the Hilbert space with scalar product (4.7).
+Its action on any function $\phi\in\Cinfty$ is given by
+\begin{equation}
+  \Pop\phi=(1,\phi)/(1,1).
+\end{equation}
+Note that $\Pop$ projects $\phi$ to a constant, but the constant
+depends on the definition of the scalar product $(\cdot\,,\cdot)$
+and therefore on $t$.
+The action of the inverse $\Gop$ of $\Lop$ on $\phi$
+is then determined by the equations
+\begin{equation}
+  \Lop\Gop\phi=(1-\Pop)\phi,
+  \qquad
+  \Pop\Gop\phi=0.
+\end{equation}
+As already mentioned in subsect.~4.2, the ellipticity of $\Lop$
+and the absence of further zero modes
+imply that these equations have, for any fixed $t$,
+a unique differentiable solution $\Gop\phi$.
+Evidently, $\Sflow_t=\Gop S$.
+
+Since $\Lop$ has a spectral gap in the subspace orthogonal to
+the zero mode, $\Gop$ is a bounded operator with respect
+to the norm $\|\cdot\|$.
+As a consequence, there exists a constant $g_t$ such that
+\begin{equation}
+  \|\Gop\phi\|_{t,j}\leq g_t\|\phi\|_{t,j-1}
+\end{equation}
+for all $j=1,2,\ldots$ and all $\phi\in\Cinfty$. Moreover,
+recalling the inequalities (E.3), one concludes that
+\begin{equation}
+  \|\Gop\phi\|_{2j}\leq g_{t,j}\|\phi\|_{2j-2}
+\end{equation}
+for some other constants $g_{t,j}$.
+
+
+\subsection{Expansion of $\Sflow_t$}
+
+For any fixed time $t_0$, the operator $\Lop$ may be
+decomposed according to
+\begin{equation}
+  \Lop=\Lopz+\left(t-t_0\right)\Lopp,
+  \qquad
+  \Lopp=\sum_{x,\mu}
+  \left(\du^a_{x,\mu}S\right)\du^a_{x,\mu}.
+\end{equation}
+Each term in the power series
+\begin{equation}
+  \psi_t=\sum_{n=0}^{\infty}\left(t_0-t\right)^n
+  \left(\Gopz\Lopp\right)^n\Gopz S
+\end{equation}
+is then a well-defined differentiable function of both $t$ and $U$.
+Moreover, since
+\begin{multline}
+  \|\Gopz\Lopp\phi\|_{2j}\leq g_{t_0,j}\|\Lopp\phi\|_{2j-2}\leq
+  d_jg_{t_0,j}\|\phi\|_{2j-1}\\
+  \leq d_jg_{t_0,j}\|\phi\|_{2j},
+\end{multline}
+all $j=1,2,\ldots$ and some constants $d_j$, it is clear that the
+series and all its derivatives with respect to $t$
+converge uniformly in the norm $\|\cdot\|_{2j}$
+if $t$ is sufficiently close to $t_0$.
+Sobolev's lemma (statement (c) in lemma 1.3.5 of
+ref.~\cite{Gilkey}) then implies
+that the series converges pointwise and uniformly, together
+with all its derivatives in $t$ and its derivatives in $U$ up
+to some order proportional to $j$.
+
+If $t$ is in a neighbourhood of $t_0$,
+where the convergence of the
+series and its derivatives up to order $l\geq2$
+is guaranteed, the action of the
+operator $\Lop$ and the summation may be interchanged
+and one finds that
+\begin{equation}
+  \Lop\psi_t=S-\sum_{n=0}^{\infty}\left(t_0-t\right)^n
+  \Popz\left(\Lopp\Gopz\right)^nS
+  =\left(1-\Pop\right)S,
+\end{equation}
+the second equality being implied by the identities $\Pop\Lop\psi_t=0$
+and $\Pop\Popz=\Popz$.
+As a consequence,
+\begin{equation}
+  \left(1-\Pop\right)\psi_t=\Gop S=\Sflow_t,
+\end{equation}
+which shows that $\Sflow_t$ is,
+in the specified neighbourhood of $t_0$,
+$l$ times continuously differentiable with respect to $t$ and $U$.
+Since $t_0$ and $l$ can be chosen arbitrarily, the
+simultaneous differentiability
+of $\Sflow_t$ is thus guaranteed at all times $t$ and to all orders.
+
+\begin{thebibliography}{13}
+\setlength{\itemsep}{0.2ex}
+
+\bibitem{NicolaiMap}
+H. Nicolai,
+Phys. Lett. 89B (1980) 341;
+Nucl. Phys. B176 (1980) 419
+
+\bibitem{MoserZehnder}
+J. Moser, E. J. Zehnder,
+{\itshape Notes on Dynamical Systems},
+Courant Lecture Notes, vol.~12 (American Mathematical Society, 2005)
+
+\bibitem{DelDebbioTauQ}
+L. Del Debbio, H. Panagopoulos, E. Vicari,
+JHEP 0208 (2002) 044
+
+\bibitem{StefanConference}
+S. Schaefer, R. Sommer, F. Virotta,
+{\itshape Investigating the critical slowing down of QCD simulations},
+talk given at the XXVII International Symposium on Lattice Field Theory,
+Beijing, China (July 2009), arXiv:0910.1465 [hep-lat],
+to appear in the proceedings
+
+\bibitem{HMC}
+S. Duane, A. D. Kennedy, B. J. Pendleton, D. Roweth,
+Phys. Lett. B195 (1987) 216
+
+\bibitem{DuaneEtAl}
+S. Duane, R. Kenway, B. J. Pendleton, D. Roweth,
+Phys. Lett. B176 (1986) 143;
+S. Duane, B. J. Pendleton,
+Phys. Lett. B206 (1988) 101
+
+\bibitem{ArnoldI}
+V. I. Arnold,
+{\itshape Ordinary Differential Equations}, 3rd ed.\ (Springer-Verlag, Berlin, 2008)
+
+\bibitem{Gilkey}
+P. B. Gilkey,
+{\itshape Invariance Theory, the Heat Equation and the Atiyah-Singer
+Index Theorem}, 2nd ed.\ (CRC Press, Boca Raton, 1995)
+
+\bibitem{Wilson}
+K. G. Wilson,
+Phys. Rev. D10 (1974) 2445
+
+\bibitem{HairerEtAl}
+E. Hairer, C. Lubich, G. Wanner,
+{\itshape Geometric Numerical Integration:
+Structure-Preserving Algorithms for Ordinary Differential Equations},
+2nd ed.\ (Springer, Berlin, 2006)
+
+\bibitem{Stout}
+C. Morningstar, M. Peardon,
+Phys. Rev. D69 (2004) 054501
+
+\bibitem{DDHMC}
+M. L\"uscher,
+Comput. Phys. Commun. 165 (2005) 199
+
+\bibitem{ReedSimonI}
+M. Reed, B. Simon,
+{\itshape Methods of Modern Mathematical Physics}, vol.~I
+(Academic Press, New York, 1972)
+
+\end{thebibliography}

@@ -1,0 +1,84 @@
+\section{Introduction}
+The extraction of hadron masses and matrix elements from
+Monte Carlo estimates of Euclidean-space correlation functions
+in lattice QCD can be done more reliably and accurately when
+operators which couple more strongly to the states of interest
+and less strongly to the higher-lying contaminating states
+are used.  For states containing gluons, a crucial ingredient
+in constructing such operators in lattice QCD is link
+variable smearing.  Operators constructed out of
+smeared or fuzzed links have dramatically reduced mixings with
+the high frequency modes of the theory.  The use of such operators
+has been shown to especially benefit determinations of the
+glueball spectrum\cite{colin2}, hybrid meson masses\cite{hybrids,jkm1},
+the torelon spectrum\cite{torelons}, and excitations of the static
+quark-antiquark potential\cite{jkm2}.
+
+Link variable smoothing is also playing an increasingly important
+role in the construction of improved lattice actions.  In Ref.~\cite{fat1},
+the use of so-called fat links in a staggered quark action was shown
+to significantly decrease flavor symmetry breaking.
+Smeared links were subsequently used\cite{fat2} to construct hypercubic
+fermion actions having improved rotational invariance.
+A staggered fermion action using a link smearing transformation\cite{hyp}
+known as hypercubic (HYP) fat links was shown to improve flavor symmetry
+by an order of magnitude relative to the standard action.
+The so-called Asqtad improved staggered 
+quark action\cite{asqtad1,asqtad2,asqtad3}
+also makes use of link fattening to reduce flavor symmetry breaking.
+Another variant of fermion actions which exploit smeared link variables
+is the fat link irrelevant clover (FLIC) action\cite{flic}.
+FLIC fermions are Wilson-like and described by an action which
+includes an irrelevant clover improvement term constructed using
+smeared links.  Fat links have also been used to construct a
+gauge action\cite{fatgauge} with reduced discretization errors using
+approximate renormalization group transformations.
+
+The link fuzzing algorithm most often used in gluonic operator construction
+is that described in
+Ref.~\cite{APEsmear} in which every spatial link $U_j(x)$ on the lattice
+is replaced by itself plus a real weight $\rho$ 
+times the sum of its four neighboring
+(spatial) staples, projected back into $SU(3)$.  Such a fuzzing step is
+iterated $n_\rho$ times to obtain the final fuzzed link variables.
+Empirically, one finds that the projection into $SU(3)$ is a crucial
+ingredient of the smearing.  Link smearings which do not apply such
+a projection are found to be much less effective.  The projection into
+$SU(3)$ is not unique and must be carefully defined so that all symmetry
+properties of the link variables are preserved.  Various ways of implementing
+this projection have appeared in the literature.  Given a $3\times 3$
+matrix $V$, its projection $U$ into $SU(3)$ is often taken to be the
+matrix $U\in SU(3)$ which maximizes $\ReTr(UV^\dagger)$.  An iterative
+procedure is required to perform such a maximization.  
+Alternatively\cite{su3projectA}, the projected matrix $U$ can be defined by
+$ U = V\ (V^\dagger V)^{-1/2} \det(V^{-1}V^\dagger)^{1/6}.$ 
+
+Although the above smearing procedure works well in practice, the
+projection is somewhat unpalatable since it may be viewed as an
+arbitrary and abrupt way to remain within the group.  More importantly,
+the branch cuts and lack of differentiability inherent in the projection
+can hinder or even make impossible the application of modern Monte Carlo
+updating techniques, such as hybrid Monte Carlo (HMC)\cite{hmc}, which
+require knowing the response of the action to a small change in one of
+the link variables.
+
+A link smearing method which circumvents these problems is proposed
+and tested in this paper.  The link smearing method is analytic
+everywhere in the finite complex plane and utilizes the exponential
+function in such a manner to remain within $SU(3)$, eliminating the
+need for any projection back into the group.  Because of this construction,
+the algorithm is useful for any Lie group.  The method is described
+in Sec.~\ref{sec:analytic} and its practical implementations when
+constructing operators and when computing the response of the action
+to a change in a link variable are detailed in 
+Secs.~\ref{sec:implement} and \ref{sec:force}, respectively.
+Numerical tests of the smearing are presented in Sec.~\ref{sec:tests}.
+Using the smeared plaquette and the effective mass $aE_{\rm eff}(t)$
+associated with the static quark-antiquark potential, no
+degradation in effectiveness is observed as compared to the standard
+link smearing method, although an increased sensitivity to the
+smearing parameter is found.  The results also suggest that lattice
+actions and operators constructed out of smeared link variables may
+be much less afflicted by radiative corrections since the
+usually-dominant large tadpole contributions are drastically reduced.
+

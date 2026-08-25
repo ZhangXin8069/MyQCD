@@ -1,0 +1,116 @@
+
+\lussec 7. 关联函数的计算
+
+在数值格点 QCD 中，
+涉及非零流时间处的场的关联函数，
+可以按照处理普通强子关联函数时通常采取的步骤来计算。
+然而流方程必须在某个环节被求解，
+这一事实代表了一种需要仔细对待的复杂化。
+作为示例，本节针对两个代表性情形把细节具体展开。
+
+
+\lussubsec 7.1 赝标两点函数
+
+实践中人们关心的是零空间动量下的关联函数
+\equation{
+  \langle \Pax^{rs}(x)\Pax_t^{sr}(y)\rangle=
+  -\sum_{v,w}\langle\tr\{
+  [K(t,y;0,v)S(v,x)_{ss}]^{\dagger}K(t,y;0,w)S(w,x)_{rr}\}\rangle
+  \enum
+}
+并利用随机源场 [\cite{MichaelPeisa}]
+计算其对一个源点格点集合 $\Gamma$ 的平均，
+以减小统计误差。
+
+若取 $x$ 为源点，
+则求平均相当于作代换
+\equation{
+  P^{rs}(x)\to {1\over N_{\Gamma}N_s}
+  \sum_{k=1}^{N_s}
+  (\psibar_r,\eta_k)(\eta_k,\dirac{5}\psi_s),
+  \enum
+}
+其中 $N_{\Gamma}$ 是 $\Gamma$ 中点的数目，
+而
+\equation{
+  \eta_k(x),\quad k=1,\ldots,N_s,
+  \enum
+}
+是 $\Gamma$ 上随机选取的、均值为零且方差为
+\equation{
+  \langle\eta_k(v)\eta_l(w)^{\dagger}\rangle=
+  \cases{\delta_{kl}\delta_{vw} & if $v,w\in\Gamma$,\cr
+  \noalign{\vskip1.0ex}
+  0 & otherwise.\cr}
+  \enum
+}
+的复旋量场。
+在一个 QCD 模拟中，
+计算零空间动量下平均后的关联函数
+\equation{
+  {1\over N_{\Gamma}}\sum_{x\in\Gamma}\sum_{\vec{y}}
+  \langle \Pax^{rs}(x)\Pax_t^{sr}(y)\rangle=
+  -{1\over N_{\Gamma}N_s}\sum_{k=1}^{N_s}
+  \sum_{\vec{y}}\langle\phi_{k,s}(t,y)^{\dagger}\phi_{k,r}(t,y)\rangle,
+  \enum
+}
+于是相当于对有代表性的规范场系综、
+对所有 $k=1,\ldots,N_s$ 与 $h=r,s$，
+计算函数
+\equation{
+  \phi_{k,h}(t,y)=\sum_{w,x}
+  K(t,y;0,w)S(w,x)_{hh}\eta_k(x)
+  \enum
+}
+对给定的规范场，
+计算 $\phi_{k,h}(t,y)$ 分两步进行：
+先通过求解质量为 $m_{0,h}$、源场为 $\eta_k(x)$
+的格点狄拉克方程算出 $\phi_{k,h}(0,w)$；
+随后必须把算得的场在流时间上从 0 演化到 $t$。
+沿流时间增大的方向，
+流方程在数值上是稳定的，
+用龙格--库塔积分器（附录 D）
+便容易以可忽略的积分误差得到解。
+
+
+\lussubsec 7.2 手征凝聚
+
+对随时间演化的夸克凝聚
+\equation{
+  \langle S_t^{rr}(x)\rangle=
+  -\sum_{v,w}\langle
+  \tr\{K(t,x;0,v)\left[S(v,w)_{rr}-\cfl\delta_{vw}\right]
+  K(t,x;0,w)^{\dagger}\}\rangle,
+  \enum
+}
+而言，同样希望对其位置 $x$ 求平均。
+如上引入随机源场后，即可得到表示式
+\equation{
+  {1\over N_{\Gamma}}\sum_{x\in\Gamma}
+  \langle S_t^{rr}(x)\rangle=
+  -{1\over N_{\Gamma}}
+  \sum_{v,w}\langle
+  \xi_k(t;0,v)^{\dagger}\left[S(v,w)_{rr}-\cfl\delta_{vw}\right]
+  \xi_k(t;0,w)\rangle
+  \enum
+}
+其中用到场
+\equation{
+  \xi_k(t;s,w)=\sum_x K(t;x;s,w)^{\dagger}\eta_k(x)
+  \enum
+}
+在流时间 $s=0$ 处的值。
+
+计算这些场需要求解伴随流方程
+\equation{
+  (\partial_s+\Delta)\xi_k(t;s,w)=0
+  \enum
+}
+从时刻 $s=t$（此时 $\xi_k$ 与 $\eta_k$ 重合）
+积到 $s=0$。
+此处不应使用直截了当的龙格--库塔积分，
+因为拉普拉斯算子 $\Delta$ 是在由 $s$ 时刻梯度流决定的规范场存在下取的，
+那样就必须把规范场沿时间反向演化，
+即沿不稳定方向演化。
+如附录 E 所解释的，
+这一困难可以通过一个避免规范场反向积分的分级方案来克服。

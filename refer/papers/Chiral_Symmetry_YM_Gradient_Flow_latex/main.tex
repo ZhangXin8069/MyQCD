@@ -1,0 +1,143 @@
+% Chiral symmetry and the Yang--Mills gradient flow
+% M. Lüscher, JHEP 04 (2013) 123 — arXiv:1302.5246
+% Re-typeset from the arXiv LaTeX source (plain TeX) into normalized article form.
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+% ------------------------------------------------------------------
+% Compatibility layer for the original plain-TeX source
+% ------------------------------------------------------------------
+\makeatletter
+\newcount\equationno  \equationno=0
+\def\equationlabel{}
+
+\long\def\lussec #1. #2 \par{%
+  \par\vskip 1.8em plus .4em minus .2em
+  \gdef\equationlabel{#1}\global\equationno=0
+  {\noindent\large\bfseries #1.\quad #2\par}\nobreak
+  \vskip .9em plus .2em\noindent\ignorespaces}
+
+\long\def\lussubsec #1 \par{%
+  \par\vskip 1.5em plus .3em minus .2em
+  {\noindent\normalsize\itshape #1\par}\nobreak
+  \vskip .7em plus .2em\noindent\ignorespaces}
+
+\long\def\lusapp #1. #2 \par{%
+  \par\vskip 1.8em plus .4em minus .2em
+  \gdef\equationlabel{\hbox{\rm#1}}\global\equationno=0
+  {\noindent\large\bfseries Appendix #1.\quad #2\par}\nobreak
+  \vskip .9em plus .2em\noindent\ignorespaces}
+
+\def\enum{\global\advance\equationno by \@ne
+  \hfill\llap{{(\equationlabel.\the\equationno)}}}
+\def\noenum{\hfill}
+\def\equation#1{$$\displaylines{\qquad #1}$$}
+\def\next#1{\cr\noalign{\vskip#1}\qquad}
+\let\nexteq\next
+
+% plain-TeX display-alignment macros (after plain.tex)
+\def\openup#1{\advance\lineskip#1\advance\baselineskip#1\advance\lineskiplimit#1}
+\def\ialign{\everycr{}\tabskip\z@skip\halign}
+\def\displ@y{\mathsurround\z@\displayindent\z@\everycr{}\relax}
+\def\@lign{\everycr{}}
+\def\displaylines#1{\displ@y\tabskip\z@skip
+  \halign{\hbox to\displaywidth{$\@lign\hfil\displaystyle##\hfil$}\crcr
+    #1\crcr}}
+\def\normalbaselines{\baselineskip\normalbaselineskip
+  \lineskip\normallineskip\lineskiplimit\normallineskiplimit}
+\def\cases#1{\left\{\vcenter{\normalbaselines\m@th
+  \ialign{$##\hfil$&\quad##\hfil\crcr#1\crcr}}\right.}
+
+% inserts, captions, footnotes, rules
+\long\def\topinsert{\par\pagebreak[1]\vskip 1.6em
+  \noindent\begin{minipage}{\linewidth}\centering}
+\long\def\endinsert{\par\end{minipage}\par\vskip 1.6em}
+\newcount\figureno \figureno=0
+\long\def\figurecaption#1{\global\advance\figureno by \@ne
+  \par\vskip 5pt\begingroup\small
+  \leftskip=2em\rightskip=2em
+  \noindent Fig.~\the\figureno.\ #1\par\endgroup}
+\newcount\tableno \tableno=0
+\long\def\tablecaption#1{\global\advance\tableno by \@ne
+  \par\vskip 3pt\begingroup\small\centering
+  Table~\the\tableno.\ #1\par\endgroup}
+\def\thicktablerule{\rule{\linewidth}{0.8pt}}
+\def\thintablerule{\rule{\linewidth}{0.4pt}}
+\newcommand\sfn[2]{%
+  \begingroup\renewcommand\thefootnote{#1}\footnotetext{#2}\endgroup
+  \textsuperscript{#1}}
+\makeatother
+
+% ------------------------------------------------------------------
+% Notational macros of the original paper (src/macros), adapted:
+%   \Bbb -> \mathbb, \frak -> \mathfrak, \frac kept as LaTeX's,
+%   \Im/\Re/\ring mapped to standard LaTeX equivalents.
+% ------------------------------------------------------------------
+\def\Bbb#1{\mathbb{#1}}
+\def\frak#1{\mathfrak{#1}}
+\renewcommand\Im{{\mathrm{Im}}\,}
+\renewcommand\Re{{\mathrm{Re}}\,}
+\let\ring\mathring
+\newcommand\mib{\boldsymbol}
+\providecommand\sixrm{\fontsize{6}{6.6}\selectfont}
+\input{luescher-macros.tex}
+
+\title{Chiral symmetry and the Yang--Mills gradient flow}
+\author{}
+\date{}
+
+\begin{document}
+
+\rightline{\normalsize CERN-PH-TH/2013-025}
+\vspace{1.2cm}
+\begin{center}
+{\LARGE\bfseries Chiral symmetry and the Yang--Mills gradient flow}\\[1.2em]
+{\large Martin L\"uscher}\\[0.8em]
+{\itshape CERN, Physics Department, 1211 Geneva 23, Switzerland}\\[0.9em]
+{\footnotesize JHEP 04 (2013) 123 \quad DOI: 10.1007/JHEP04(2013)123 \quad arXiv:1302.5246 [hep-lat]}
+\end{center}
+\vspace{0.8em}
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{0.6em}
+
+\noindent{\bfseries Abstract}\quad
+In the last few years,
+the Yang--Mills gradient flow was shown to
+be an attractive tool for non-perturbative studies
+of non-Abelian gauge theories.
+Here a simple extension of the
+flow to the quark fields in QCD is considered.
+As in the case of the pure-gauge gradient flow,
+the renormalizability of correlation functions involving
+local fields at positive flow times can be established
+using a representation through a local field theory in
+$4+1$ dimensions.
+Applications of the extended flow in lattice QCD
+include non-perturbative renormalization
+and O($a$) improvement as well as
+accurate calculations of the chiral condensate
+and of the pseudo-scalar decay constant in the chiral limit.
+
+\vspace{0.6em}
+\noindent\rule{\linewidth}{0.4pt}
+\vspace{1.2em}
+
+\input{chapters/section01.tex}
+\input{chapters/section02.tex}
+\input{chapters/section03.tex}
+\input{chapters/section04.tex}
+\input{chapters/section05.tex}
+\input{chapters/section06.tex}
+\input{chapters/section07.tex}
+\input{chapters/section08.tex}
+\input{chapters/section09.tex}
+\input{chapters/section10.tex}
+\input{chapters/backmatter.tex}
+
+\end{document}

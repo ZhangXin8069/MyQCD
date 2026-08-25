@@ -1,0 +1,365 @@
+\section{Operator construction\label{sec:theory}}
+
+The energy of an eigenstate of the hamiltonian of a quantum field
+theory can be determined by computing the correlation function between
+creation and annihilation operators $\chi$ at Euclidean times $t$ and $t'$;
+\begin{equation}
+   C(t',t)  = \Big\langle \chi(t')\,  \chi^\dagger(t) \Big\rangle.
+\end{equation}
+Inserting a complete set of eigenstates of the hamiltonian, such that
+$\hat{H} | k \rangle = E_k  | k\rangle$, this correlation function
+decomposes into a sum of contributions from all states in the spectrum
+with the same quantum numbers as the source operators,
+\begin{equation}
+   C(t',t)  = \sum_k \big|\langle \chi | k \rangle\big|^2 \, e^{-{E_k} (t'-t)}.
+\end{equation}
+In order to
+measure energies of low-lying states, it it crucial to construct operators that
+overlap predominantly with these light modes.
+This exposes the asymptotic behaviour of the correlator at earlier
+time-separations and enables more statistically accurate determinations of
+energies.
+There is a good deal of freedom in
+the construction of appropriate operators. Once the constraints of symmetries
+and temporal localisation are imposed, any function of the fields in the path
+integral can be used in principle.
+
+Smearing is a well-established means of defining an initial step in the
+construction of creation operators. Rather than applying a creation operator to
+the fields directly, a smoothing function is applied first. The function should
+preserve as many symmetries as possible while effectively removing the
+presence of short-range modes, which make an insignificant contribution to the
+low-energy correlation function. In contemporary simulations, a popular form
+of this operation in theories where fermion fields couple to gauge bosons is
+the Jacobi smearing method \cite{Allton:1993wc}.
+
+Gauge-covariant quark smearings based on the lattice Laplacian start
+with the simplest representation of the second-order three-dimensional
+differential operator
+\begin{equation}
+   -\nabla^2_{xy}(t) = 6 \delta_{xy} - \sum_{j=1}^3
+      \left(
+	  \tilde{U}_j(x,t)         \delta_{x+\hat\jmath,y}
+	 +\tilde{U}^\dagger_j(x-\hat\jmath,t) \delta_{x-\hat\jmath,y}
+	  \right),
+\end{equation}
+where the gauge fields, $\tilde{U}$ may be constructed from an appropriate
+covariant gauge-field-smearing algorithm \cite{Morningstar:2003gk}.
+After defining the Laplace operator, a simple smearing can be written
+\begin{equation}
+  J_{\sigma, n_\sigma}(t) = \left( 1 + \frac{\sigma \nabla^2(t)}{n_\sigma} \right)^{n_\sigma},
+  \label{eqn:smearing}
+\end{equation}
+where $\sigma$ and $n_\sigma$ are tunable parameters that can be used to
+optimise projection onto the states under investigation.
+For large $n_\sigma$, this approximates the exponential of $\sigma\nabla^2$,
+{\it i.e.}
+\begin{equation}
+  \lim_{n_\sigma\rightarrow\infty} J_{\sigma, n_\sigma}(t) = \exp\left(\sigma
+      \nabla^2(t)\right).
+\label{eqn:jacobi}
+\end{equation}
+The resulting exponential suppression of higher eigenmodes of the lattice
+Laplace operator means only a small number of the lowest modes contribute
+substantially to $J$.
+
+This observation suggests the smearing operator can be approximated
+by forming an eigenvector representation, truncated to the lowest
+modes.  Since the smearing operators used in lattice calculations are
+approximated well by low-rank constructions, a definition of smearing can be
+chosen to enforce this more absolutely.  Let $V_M$ be the vector space
+of scalar fields charged under the fundamental representation of the gauge
+group on a particular time-slice. $V_M$ has rank $M = N_c \times N_x \times
+N_y \times N_z$ where $N_c$ is the number of colours, and $N_x,N_y$ and $N_z$
+are the extents of the lattice in the three spatial directions.
+Now define smearing to be a well-chosen operator of rank $N \ll M$.  This class
+of operators will be called ``distillation'' operators.  There is a substantial
+benefit to doing this: if the rank of the operator is sufficiently small, all
+elements of the propagation matrix from this space can be constructed at an
+affordable computational cost (which is proportional to the rank of the space, $N$).
+Consequently, correlation functions involving arbitrarily intricate hadron
+creation operators can be measured with a fixed inversion overhead.
+
+Define the distillation operator on time-slice $t$ as a product of an $M \times
+N$ matrix and its hermitian conjugate:
+\begin{equation}
+ \Box(t) = V(t) V^\dagger(t)
+\implies \Box_{xy}(t) = \sum_{k=1}^N v_x^{(k)} (t) v_y^{(k)\dag} (t).
+    \label{eqn:box}
+\end{equation}
+The $k^{\rm th}$ column of $V(t)$ contains the $k^{\rm th}$ eigenvector
+of $\nabla^2$ evaluated on the background of the spatial gauge fields of
+time-slice $t$, once the eigenvectors have been sorted by eigenvalue. This is
+the projection operator into $V_N$, the subspace spanned by these eigenmodes,
+so $\Box^2 = \Box$.
+When the number of eigenvectors included is the same as the dimension of
+$V_M$, {\em i.e.} $N = M$, the distillation operator becomes the identity, and
+fields acted upon are unsmeared.
+
+The Laplace operator inherits many symmetries of the vacuum. It transforms
+like a scalar under rotations, is covariant under gauge transformation and
+is parity and charge conjugation invariant. If the action of one of these
+symmetries on the Laplace operator maps $\nabla^2 $ onto $\tilde\nabla^2$, then
+there is a unitary transformation, $R$ on $V_M$ such that
+\beq
+R \tilde\nabla^2 R^\dagger = \nabla^2.
+\eeq
+This implies that if $v$ is an eigenvector of $\nabla^2$ then the eigenvectors
+of $\tilde\nabla^2$ are $R v$.
+Considering the definition of the distillation operator given in
+Eq.~\ref{eqn:box}, the transformed operator must then obey
+\beq
+R \stackrel{\sim}{\Box} R^\dagger = \Box,
+\eeq
+and so correlation functions constructed using distilled fields have the same
+symmetry properties on the lattice as those constructed using Laplacian smearing
+methods.
+
+\subsection{Meson two-point correlation functions}\label{subsec:theory-mesons}
+
+Consider the momentum-projected creation and annihilation
+operators of an isovector meson, $\bar{u} \Gamma^A d$ and
+$\bar{d} \Gamma^B u$, where $\Gamma$ acts in spin and color as well as
+coordinate space. Applying the distillation operator $\Box$ onto each
+quark field, the creation operator at three-momentum $\vec{p}$ is written as
+\begin{equation}
+\chi^\dagger_M(\vec{p},t)
+  = \bar{u}_x(t) \Box_{xy}(t) \cdot e^{-i p\cdot y}\, \Gamma^A_{yz}(t) \cdot \Box_{zw}(t) d_w(t),
+\label{eqn:meson_quark_op}
+\end{equation}
+where there is an implied summation over repeated spatial indices. In a shorthand notation the correlation function can be written as
+\begin{equation}
+  C^{(2)}_M(t',t) = \Big\langle \bar{d}(t')\Box(t')\Gamma^B(t')\Box(t')u(t')\,\cdot\,
+                      \bar{u}(t)\Box(t)\Gamma^A(t)\Box(t) d(t)
+    \Big\rangle.
+\end{equation}
+After evaluating the quark field path-integral and inserting the outer-product
+definition of the distillation operator $\Box$ from Eq.~\ref{eqn:box}, the
+correlator can be written
+\begin{equation}
+  C^{(2)}_M(t',t) = \mbox{Tr} \Bigl[
+      \Phi^B(t') \,
+      \tau(t',t) \,\Phi^A(t) \, \tau(t,t') \Bigr],
+\end{equation}
+where
+\begin{equation}
+  \Phi^A_{\alpha\beta}(t) = V^\dagger(t) \left[ \Gamma^A(t) \right]_{\alpha\beta} V(t)
+  \equiv V^\dagger(t) {\cal D}^A(t) V(t) S^A_{\alpha\beta} ,
+\label{eqn:meson_op}
+\end{equation}
+and
+\begin{equation}
+  \tau_{\alpha\beta }(t',t) = V^\dagger(t') M^{-1}_{\alpha\beta}(t',t) V(t),
+\label{eqn:peram}
+\end{equation}
+with $M$ the lattice representation of the Dirac operator
+and where the quark spin indices, $\alpha,\beta$ of $\Phi$ and $\tau$ have been
+explicitly written. $\Phi$ has a well-defined momentum, while there is no
+explicit momentum projection in the definition of $\tau$. Often, $\Phi$ can be
+decomposed into terms that act only within coordinate and color space ${\cal
+D}^A$ and only within spin space $S^{A}$. Note that $\Phi$ and $\tau$ are
+square matrices of dimension $N \times N_\sigma$ where $N_\sigma$ is the number
+of components in a lattice Dirac spinor. Therefore it requires just
+$N \times N_\sigma$ operations of the inverse of the fermion matrix on a
+vector in order to compute all elements of $\tau$, the ``perambulator''.
+Notice also that the choice of source and sink operators is entirely
+independent of the computation of $\tau$; any source and sink operators can be
+correlated {\it a posteriori} once all elements of the $\tau$ matrix have been
+computed and stored. The method straightforwardly extends to the determination
+of correlation functions for mesons composed of different, non-degenerate
+quark flavors.
+
+In the determination of an isoscalar meson correlation function, evaluation of
+disconnected terms is required.
+The disconnected diagram can be similarly represented once distilled fields are
+used in creation and annihilation operators. Such a term would
+comprise two separate traces over the distillation space:
+\begin{equation}
+  C^{(2,\mathrm{disc})}_M(t',t) =
+   \mbox{Tr}\Bigl[ \Phi^A(t) \tau(t,t) \Bigr]
+   \mbox{Tr}\Bigl[ \Phi^B(t') \tau^\dagger(t' ,t') \Bigr].
+\end{equation}
+An exact determination of this expression requires computing $\tau(t,t)$ for
+all time-slices $t$.
+
+Since distilled single-particle operators can be projected onto definite
+momentum at both source and sink, multi-meson correlators can also be
+constructed using creation and annihilation operators of the form
+\begin{equation}
+\chi_{MM}(\vec{q}=\vec{p}_1 - \vec{p}_2; t) = \chi_M(\vec{p}_1,t)
+  \chi_M(-\vec{p}_2,t),
+\label{eqn:multi_meson_quark_op}
+\end{equation}
+where $p_1$ and $p_2$ are the three-momenta of the single particle operators
+in Eq.~\ref{eqn:meson_quark_op}. After integration over the quark fields, the
+resulting diagrams can again be computed by taking traces over products of
+construction operators in the distillation space with the perambulators.
+The precise structure of these functions depends on the quark flavor content of
+the source and sink operators, so details are not presented here.  As before,
+these matrices are small compared to the dimension of the space of quark
+fields, and once the quark propagation is encoded in the perambulator,
+these multi-hadron correlation function can be computed.
+
+\subsection{Baryon two-point correlation functions}\label{subsec:theory-baryons}
+
+The factorization technique can also be applied to baryons.
+To illustrate the concepts involved, consider just the isospin-1/2 sector
+although the technique generalizes naturally to other baryon multiplets.
+An annihilation operator involving displacements
+as well as coefficients in spin space is written:
+\begin{equation}
+\chi_B(t) = \epsilon^{abc} S_{\alpha_1\alpha_2\alpha_3}
+({\cal D}_1\Box d)^a_{\alpha_1}
+({\cal D}_2\Box u)^b_{\alpha_2}
+({\cal D}_3\Box u)^c_{\alpha_3}(t),
+\end{equation}
+where the color indices of the quark fields acted upon
+by the displacement operators ${\cal D}_i$ are contracted with the
+antisymmetric tensor, and repeated spin indices are summed.
+After integration over quark fields, the correlation function
+\begin{equation}
+   C^{(2)}_B(t',t) = -\Big\langle \chi_B(t') \, \bar{\chi}_B(t)\Big\rangle
+\end{equation}
+can be factored into perambulator terms, Eq.~\ref{eqn:peram}
+as well as creation and annihilation operators, where the latter can be
+written as
+\begin{equation}
+ \Phi^{(i,j,k)}_{\alpha_1\alpha_2\alpha_3}(t) = \epsilon^{abc}
+\left({\cal D}_1 v^{(i)}\right)^{a}
+\left({\cal D}_2 v^{(j)}\right)^{b}
+\left({\cal D}_3 v^{(k)}\right)^{c}(t)\;
+S_{\alpha_1\alpha_2\alpha_3}\ .
+\label{eqn:baryon_op}
+\end{equation}
+The spin terms factor from the antisymmetric contraction of the vectors
+$v$.
+
+There are two terms in the resulting correlation function
+that involve tensor contractions of the creation and annihilation operators
+with the perambulators
+\begin{align}
+C^{(2)}_B[\tau_d,\tau_u,\tau_u](t',t) &=
+  \Phi^{(i,j,k)}(t')
+  \tau_d^{(i,\bar{i})}(t',t)
+  \tau_u^{(j,\bar{j})}(t',t)
+  \tau_u^{(k,\bar{k})}(t',t)
+  \Phi^{(\bar{i},\bar{j},\bar{k})*}(t)
+  \nonumber\\
+ &\quad- \Phi^{(i,j,k)}(t')
+  \tau_d^{(i,\bar{i})}(t',t)
+  \tau_u^{(j,\bar{k})}(t',t)
+  \tau_u^{(k,\bar{j})}(t',t)
+  \Phi^{(\bar{i},\bar{j},\bar{k})*}(t),
+\end{align}
+where there is an implicit tensor contraction over the internal spin
+indices, and where the quark labels $d$ and $u$ are used to denote
+the corresponding flavors of the quark perambulator terms in
+Eq.~\ref{eqn:peram}.
+
+Similar to the meson case, the choice of source and sink operators is
+independent of the computation of the perambulators $\tau_d$ and $\tau_u$.
+The computation of these matrices can also be shared with computation of meson
+correlators.  A baryon correlation function can be evaluated {\em a posteriori}
+using the contractions of the vectors with displacements in
+Eq.~\ref{eqn:baryon_op} which can also be shared among the source and sink
+operators. These contractions do not involve spin components, thus making the
+storage of $\Phi$ manageable.
+
+\subsection{Meson three-point correlation functions}\label{subsec:theory-mesons-3pt}
+
+A generic meson three-point function is written
+\beq
+   C^{(3)}(t_f, t, t_i) = \Big\langle
+\big( \bar{d}\Box \Gamma^B \Box u\big)(t_f) \cdot
+\big(\bar{u}\Gamma u\big)(t) \cdot
+\big(\bar{u} \Box \Gamma^A \Box d \big)(t_i)
+\Big\rangle,
+\eeq
+where there is no smearing in the operator on timeslice $t$.
+The completely connected Wick contraction can be expressed as
+\beq
+ C^{(3)}_{\mathrm{conn}}(t_f, t, t_i) = \mbox{Tr}\Bigl[\Phi^B(t_f)\, J(t_f,t,t_i) \,\Phi^A(t_i)\, \gamma_5 \tau^\dag(t_f,t_i) \gamma_5\Bigr]
+\eeq
+where the ``generalized perambulator'' is defined by
+\begin{equation}
+J_{\alpha\beta}(t_f,t,t_i) =  V^\dag(t_f) \left( M^{-1}(t_f,t)\, \Gamma(t) \,
+M^{-1}(t,t_i)  \right)_{\alpha\beta} V(t_i). \label{eqn:genperam}
+\end{equation}
+In general, a disconnected term may also appear; this can be factorised as the
+product of a two-point function (evaluated according to the algorithm of
+Sec.~\ref{subsec:theory-mesons}) and a disconnected insertion. Since the
+disconnected trace does not involve distilled fields, the evaluation of this
+insertion is not discussed further at this point.
+To compute the connected three-point correlation function, there are two
+distinct sets of inversions needed. The first is from the distillation vectors
+at the source time-slice $t_i$ and the second from the sink time-slice $t_f$.
+The generalised perambulator of Eq.~\ref{eqn:genperam} is then constructed by
+contracting the two solutions from these two sets of inversions.
+The current insertion is encoded in the choice of operator $\Gamma$.
+Any momentum insertion at the current operator involves a Fourier transform on
+each time-slice $t$.
+
+\subsection{Baryon three-point correlation functions}\label{subsec:theory-baryons-3pt}
+
+Baryon three-point correlation functions can also be expressed in terms of
+the generalized perambulators of Eq.~\ref{eqn:genperam}.
+Consider a three-point correlation function where a baryon is created on
+time-slice $t_i$, then is acted on by a current operator on time-slice $t$ and
+is subsequently annihilated at $t_f$:
+\begin{equation}
+   C^{(3)}_B(t_f, t, t_i) = - \Big\langle B(t_f)\cdot \big(\bar{u}\Gamma u \big)(t) \cdot \bar{B}(t_i) \Big\rangle.
+\end{equation}
+After quark-field integration, this can be written as a sum of both
+a connected three-point contribution
+and the product of a disconnected insertion and a two-point correlator.
+As before, the discussion here is restricted to isospin-1/2 light baryons
+although the technique is quite general.
+Note that the disconnected insertion involves unsmeared fields and must be
+evaluated through some other technique. The two-point contribution follows
+from Sec.~\ref{subsec:theory-baryons}.
+For an up-quark insertion in the correlation function
+\begin{equation}
+\begin{split}
+   C^{(3)}_\mathrm{conn.}(t_f, t, t_i) =& -\epsilon^{abc}\epsilon^{\bar{a}\bar{b}\bar{c}} S_{\alpha_1\alpha_2 \alpha_3} \bar{S}_{\bar{\alpha}_1 \bar{\alpha}_2 \bar{\alpha}_3}\\
+&\quad\quad\Big\langle \big(
+({\cal D}_1\Box d)^a_{\alpha_1}
+({\cal D}_2\Box u)^b_{\alpha_2}
+({\cal D}_3\Box u)^c_{\alpha_3} \big)(t_f)\\&\quad\quad\cdot
+\big(\bar{u}\Gamma u\big)(t)
+\cdot \big( (\bar d\Box\bar{\cal D}_1)^{\bar{a}}_{\bar\alpha_1}
+(\bar u\Box\bar{\cal D}_2)^{\bar{b}}_{\bar\alpha_2}
+(\bar u\Box\bar{\cal D}_3)^{\bar{c}}_{\bar\alpha_3}\big)(t_i)
+\Big\rangle,
+\end{split}
+\end{equation}
+there are four Wick contractions after quark-field integration.
+The up-quark generalized perambulator from Eq.~\ref{eqn:genperam}
+is denoted as
+\begin{equation}
+\widetilde{\tau}_U(t_f,t,t_i)  =
+V^\dagger(t_f) M_u^{-1}(t_f,t)\Gamma(t) M_u^{-1}(t,t_i) V(t_i)
+\end{equation}
+and similarly for the down quark. Since the quarks in the insertion
+come in pairs, the connected three-point correlator can be written as the
+sum of two two-point correlation functions
+with each up-quark perambulator substituted with the corresponding
+generalized perambulator in turn;
+\begin{equation}
+C^{(3)}_u(t_f,t,t_i) = C^{(2)}[\tau_D,\tau_U,\widetilde{\tau}_U](t) +
+C^{(2)}[\tau_D,\widetilde{\tau}_U,\tau_U](t).
+\end{equation}
+The down-quark contribution can be written as
+\begin{equation}
+C^{(3)}_d(t_f,t,t_i) = C^{(2)}[\widetilde{\tau}_D,\tau_U,\tau_U](t).
+\end{equation}
+This kind of construction is a generic feature of the three-point functions.
+
+As in the previous two- and three-point correlator examples, the choice
+of source and sink operators is independent of the perambulator and
+generalized perambulator computations.  These latter generalized
+perambulators can be shared among meson three-point correlator
+calculations. In addition, for degenerate quarks, only one generalized
+perambulator need be computed, independent of the flavor of the quark line
+where the current insertion is to occur.
+Thus, the overall computation of distinct three-point
+correlation functions has a manageable computational cost.

@@ -1,0 +1,85 @@
+\section{Momentum smearing: the basic idea}
+\label{sec:basic}
+\begin{figure}
+\includegraphics[width=0.48\textwidth]{momsmear_basic_principle_14pt.pdf}
+\caption{Conventional smearing versus momentum smearing for the example
+of a Gaussian wave function in $d=1$ spatial dimensions.
+The momentum $k$ shifts the centre of the distribution
+in momentum space, resulting in an oscillatory behaviour in position space.}
+\label{fig:transform}
+\end{figure}
+
+As discussed above, quark smearing within hadronic sources or sinks is essential in lattice simulations
+to increase the overlap with the desired physical state, reflecting the fact that hadrons are extended objects,
+rather than pointlike. A smearing operator $F$ is diagonal in time, trivial
+in spin and acts
+on the position and colour indices of quark fields:
+\begin{equation}
+	(F q)_{\vect{x}} = \sum_{\vect{y}\in (a \mathbb{Z})^d}\, f_{\vect{x}-\vect{y}}\, \GC_{\vect{x}\vect{y}}\, q_{\vect{y}} \label{formwupN}\,,
+\end{equation}
+where $f$ is a scalar function, $\GC$ is a gauge covariant transporter,
+which in the free case will be a unit matrix in colour and position space,
+and $d$ is the number of spatial dimensions, usually $d=3$.
+Note that the field $q_{\vect{x}}$ is usually periodic in $\vect{x}$ on the lattice, whereas $f_{\vect{x}-\vect{y}}$ need not be periodic in $\vect{x}-\vect{y}$. 
+In the free case, the convolution Eq.~\eqref{formwupN} becomes a product in Fourier space
+\begin{equation}
+	\sum_{\vect{x}\in (a \mathbb{Z})^d} e^{i\vect{p}\cdot\vect{x}}\,(F q)_{\vect{x}} = 
+	\tilde{f}(\vect{p})\, \tilde{q}_{\vect{p}}\,.	\label{wupfour}
+\end{equation}
+For the special case of a Gaussian,
+\begin{equation}
+\label{eq:smgauss}
+	 f_{\vect{x}-\vect{y}} = f_{\vect{0}} \exp\left(-\frac{|\vect{x}-\vect{y}|^2}{2{\sigma}^2}\right)\,,
+\end{equation}
+the Fourier transformed smearing kernel again is a Gaussian:
+\begin{equation}
+	\tilde{f}(\vect{p}) \equiv  \sum_{\vect{z}\in (a \mathbb{Z})^d} e^{i\vect{p}\cdot\vect{z}} f_{\vect{z}} = \tilde{f}({\vect{0}}) \exp\left( - \frac{\sigma^2\vect{p}^2}{2} \right)  \, .	\label{kerfour}
+\end{equation}
+Thus, the smeared quark operator has maximal overlap with a quark at rest, $\vect{p}=\vect{0}$.
+Non-zero velocities are suppressed in accordance with the above Gaussian momentum distribution.
+Clearly, for hadrons carrying significant spatial momenta, such a smearing may be counterproductive.
+
+Having identified the problem, it is easy to modify the smearing to perform well for moving hadrons.
+We aim at a momentum distribution of quarks centred around a finite momentum $\vect{k}$, so we need to shift the smearing kernel in momentum space:
+\begin{equation}
+	\tilde{f}(\vect{p}) \mapsto  \tilde{f}(\vect{p} - \vect{k}) \label{kerfourshift}\,,
+\end{equation}
+as illustrated in Fig.~\ref{fig:transform}.
+This translates to the replacement in position space
+\begin{equation}
+	f_{\vect{z}} \mapsto e^{i\vect{k}\cdot\vect{z}} f_{\vect{z}} \ .
+\end{equation}
+Our modified smearing operator $F_{(\vect{k})}$, where $F_{(\vect{0})}=F$,
+can thus be formally expressed as
+\begin{align}
+	(F_{(\vect{k})} q)_{\vect{x}} &= \sum_{\vect{y}\in (a \mathbb{Z})^d} F_{(\vect{k})\vect{x}\vect{y}} q_{\vect{y}}\nonumber\\&= 
+	\sum_{\vect{y}\in (a \mathbb{Z})^d} e^{-i\vect{k}\cdot(\vect{x}-\vect{y})}\, f_{\vect{x}-\vect{y}}\, \GC_{\vect{x}\vect{y}}\, q_{\vect{y}} \label{formnewsm}\ .
+\end{align}
+The only new ingredient is the additional
+phase factor $\exp\left[-i\vect{k}\cdot(\vect{x}-\vect{y})\right]$.
+Note that the quark momentum shift
+$\vect{k}$ need \emph{not} be a lattice momentum, i.e.\ it is not restricted to discrete values $\vect{k}\in(2\pi/L)\mathbb{Z}^d$. The smearing kernel $f$
+and the gauge dependent factor $\GC$ can be taken over from any existing smearing method. For an iterative smearing method,
+the extra phase factor can easily be integrated into the elementary smearing step. Below we demonstrate this for the
+example of Wuppertal smearing.
+In principle, there could be additional effects
+like a Lorentz contraction of the wave function. This
+was studied, e.g., in Refs.~\cite{Roberts:2012tp,DellaMorte:2012xc},
+and we will also address this possibility.
+
+The new, modified smearing operator $F_{(\vect{k})}$ of Eq.~\eqref{formnewsm} inherits important properties
+from the smearing operator $F_{(\vect{0})}$ it is based on.
+If the unmodified smearing operator is self-adjoint, then so is the modified smearing operator $F_{(\vect{k})}$,
+because from $f_{\vect{x}-\vect{y}} = f_{\vect{y}-\vect{x}}^*$ and $\GC_{\vect{x}\vect{y}} = \GC^\dagger_{\vect{y}\vect{x}}$ it follows that
+$F_{(\vect{k})\vect{x}\vect{y}} = F^\dagger_{(\vect{k})\vect{y}\vect{x}}$.
+The underlying smearing operator $F_{(\vect{0})}$ should transform according to an irreducible representation (irrep) of the cubic group $O_h$.
+Usually, this will be the trivial $A_1$ representation
+but the smearing operator can also be used to inject angular momentum
+or to add non-trivial gluonic excitations~\cite{Lacock:1994qx}.
+Obviously, $F_{(\vect{k})}$ with a momentum shift $\vect{k}\neq\vect{0}$
+breaks the cubic symmetry. However, when used in conjunction 
+with a momentum projection that selects hadrons with a momentum $\vect{p}$, then as long
+as $\vect{k}\parallel \vect{p}$, the smearing operator remains within the
+$A_1$ representation of the $O_h$ little group corresponding to
+the momentum direction $\vect{p}$.
+
