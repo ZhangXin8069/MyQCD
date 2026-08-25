@@ -1,0 +1,175 @@
+\section{用于格点 $\phi^4$ 标量场的扩散模型}
+\label{sec:phi4}
+
+格点标量场论已被广泛研究，应用横跨众多课题。标量场常被用来展示数值算法（包括机器学习算法）的效力。这里我们将实现一个 DM，为具有四次相互作用、处于破缺相与对称相的二维标量场论生成组态。
+
+我们考虑 $d$ 维\textit{欧几里得}时空中的实标量场，作用量为
+\begin{equation}
+S_E = \int \text{d}^{d}x\left( \frac{1}{2}\sum_{\mu=1}^d\left(\partial_\mu\phi_0\right)^2 + \frac{1}{2} m_0^2\phi_0^2 + \frac{\lambda_0}{4!}\phi_0^4 \right),
+\end{equation}
+其中下标标记裸量，包括质量 $m_0$、耦合 $\lambda_0$ 与场 $\phi_0(x)$。在格距为 $a$ 的格点上沿所有方向离散化导数，$\partial_\mu\phi_0(x)=[\phi_0(x+a\hat\mu)-\phi(x)]/a$，其中 $\hat{\mu}$ 是 $\mu-$方向的单位矢量；再重新定义场与参数以得到无量纲组合，便得格点作用量（参见文献~\cite{Smit:2002ug}）
+\begin{equation}
+S_E = \sum_x \left[  -2\kappa \sum_{\mu = 1}^d\phi(x)\phi(x+\hat{\mu}) + (1-2\lambda)\phi^2(x) + \lambda\phi^4(x) \right],
+\label{eq:phi4action}
+\end{equation}
+其中 $\kappa$ 是跳跃参数，通过
+\begin{equation}
+     (am_0)^2 = \frac{1-2\lambda}{\kappa} - 2d,
+\end{equation}
+与裸质量参数相联系，而 $\lambda=a^{4-d}\kappa^2\lambda_0/6$ 是描述场相互作用的无量纲耦合常数。两个参数均为正。场已按 $a^{d/2-1}\phi_0=(2\kappa)^{1/2}\phi$ 重标度。
+
+在 $d\geq2$ 的情形，对每个耦合 $\lambda$，跳跃参数存在临界值 $\kappa_c(\lambda)$，在其处发生二阶相变。这一量子相变对应于连续极限下临界点之上自发破缺的 $\mathbb{Z}_2$ 对称性~\cite{Akiyama:2021zhf}。当质量项变为负值时，破缺相在经典层面出现。在经典层面，跳跃参数的临界值为
+\begin{equation}
+    \kappa_\text{c}^{\rm cl}(\lambda) = \frac{1-2\lambda}{2d},\label{eq:kc}
+\end{equation}
+它由质量项为零决定，但量子涨落会改变该数值~\cite{Smit:2002ug}。当 $\kappa$ 减小并越过临界值时，系统从破缺相转变到对称相。
+
+
+\subsection{组态生成与模型设置}
+
+为实现 DM，我们首先按上文定义制备 $d=2$ 维、$32 \times 32$ 格点上标量 $\phi^4$ 理论的场组态，固定 $\lambda = 0.022$。为评估模型性能，我们在破缺相（$\kappa = 0.5$）与对称相（$\kappa = 0.21$）分别生成了 5120 个训练样本与 1024 个测试样本。选取这些特定参数值的原因是：由 式~\eqref{eq:kc} 可得，在 $\lambda = 0.022$ 处相变发生在约 $\kappa_c \simeq 0.239$。
+
+\textbf{混合蒙特卡洛设置。}为制备数据集，我们采用马尔可夫链蒙特卡洛（MCMC）方法。做局域更新的经典 Metropolis-Hastings 算法常受长自关联时间之苦，因此我们改用混合蒙特卡洛（HMC）方法。通过引入经典的哈密顿运动方程~\cite{neal2011mcmc}，HMC 方法改善了 MCMC 的性能，并在保持可接受接受率的同时允许更大的步长。在我们的设置中，选定一组作用量参数后，制备尺寸为 $32 \times 32$ 的二维格点。对 HMC 的每条轨迹，我们先以``100 条轨迹的热身序列''进行热化。随后再演化 64 条轨迹，取最后一条轨迹更新的结果作为一个组态。每条轨迹使用成熟的 HMC 积分器（如 leapfrog），步长为 $\Delta t$。每条轨迹的总长度由 $\tau = n_\text{step} \times \Delta t$ 决定，$n_\text{step}$ 是单条 HMC 轨迹内积分器被应用的次数（通常设定使 $\tau = 1$）。训练数据集中的每个组态都来自一条不同的马尔可夫链。
+
+\textbf{扩散模型设置。}我们采用 式~\eqref{eq:sbm} 所示的方差扩张 DM，取 $\sigma = 25$，扩散时间设为 $T = 1$。
+在训练过程中步长并不固定，而是在区间 $[0,T]$ 中随机采样时间点，时间点数等于每批优化中的批大小（batch size）。批大小为 64，最大训练轮数为 250 以确保收敛。采样时，用 Euler-Maruyama 方法以时间步长 $T/N = 0.002$ 求解逆时 SDE。利用 U-Net 结构~\cite{Ronneberger:2015unet} 表示 式~\eqref{eq:objective} 中的 $\mathbf{s}_\theta$；更多细节见附录~\ref{app:unet}。除非另有说明，我们从训练良好的 DM 生成 1024 个样本来展示其性能。
+
+{我们将 HMC 与 DM 算法部署在不同设备上。对所选参数值（$\kappa = 0.21, \lambda = 0.022$，$32\times 32$ 格点），HMC 在 CPU（Intel Xeon Gold 6226R @ 2.90GHz）上以 1.57 组态/秒生成样本，DM 在 GPU（Nvidia GeForce RTX 3090 @ 1.40Ghz）上以 97.52 组态/秒生成样本。}
+
+\subsection{破缺相}
+
+我们从破缺相开始。此处预期出现大团簇：场组态围绕某个正或负的平均值涨落，该平均值通常称为真空期望值、序参量或磁化强度。我们证明训练良好的 DM 能成功捕捉场组态的成团行为。图~\ref{fig:sample} 将去噪过程可视化。图中每一行代表一个不同的样本，每一列代表去噪过程中不同的时间点。第一列是从先验分布随机抽取的噪声样本，即 $p \approx \mathcal{N}\bigg(\phi; \mathbf{0}, \frac{1}{2\log \sigma}(\sigma^{2} - 1) \mathbf{I}\bigg)$；第五列则是经去噪得到的生成样本。图~\ref{fig:sample} 底部的箭头指示随机微分方程中时间演化的方向，见 式~\eqref{eq:rsde}。
+
+序参量或磁化强度定义为
+\begin{equation}
+    \left\langle M\right\rangle = \frac{1}{V}\left\langle \sum_{x}\phi(x)\right\rangle,
+\end{equation}
+其中 $V= N^d$ 表示格点数。HMC 生成的测试样本与 DM 生成样本的比较见图~\ref{fig:brokenphase}，可见各含 1024 样本的两个分布相互一致。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[!htbp]
+    \begin{minipage}{0.50\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{images/DM_samples.pdf}
+    \caption{用训练良好的 DM 从零开始独立生成四个组态的去噪过程。}\label{fig:sample}
+    \end{minipage}
+\hfill
+    \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{images/mag_k0.5_testing.pdf}
+    \caption{训练良好的 DM 生成的 1024 个样本与 HMC 得到的磁化强度分布比较。}\label{fig:brokenphase}
+    \end{minipage}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{对称相}
+\label{sec:sym_phase}
+现在转向对称相，取 $\kappa=0.21$，略低于但接近临界值。在热力学极限下，相变可以用连通两点磁化率的发散来刻画。该磁化率度量系统对小微扰的响应，定义为
+\begin{equation}
+    \chi_2 = V\left( \langle M^2 \rangle - \langle M \rangle^2 \right).
+\end{equation}
+此外，Binder 累积量~\cite{Binder:1981zz}是常用于鉴别相变的无量纲量，定义为分布矩之比，
+\begin{equation}
+    U_L = 1- \frac{1}{3}\frac{\langle M^4 \rangle}{\langle M^2 \rangle^2}.
+\end{equation}
+它对分布形状（即序参量的峰度）敏感，对于探测和分析有限尺寸系统中的相变尤为有用。
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/mag_k0.21_testing.pdf}
+\caption{对称相中磁化强度分布的比较：测试数据集（HMC）与训练良好的 DM。两种情形的独立组态数均为 1024。
+}\label{fig:k021}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table*}[!htbp]
+\centering
+\begin{tabular}{c|c|c|c}
+\hline\hline
+    data-set&$\langle M \rangle$ & $\chi_2$ & $U_L$ \\
+\hline
+    Training (HMC)& 0.0012$\pm$ 0.0007&  2.5160 $\pm$ 0.0457 & 0.1042 $\pm$ 0.0367\\
+    Testing (HMC)& 0.0018 $\pm$ 0.0015& 2.4463 $\pm$ 0.1099 & -0.0198 $\pm$ 0.1035\\
+    Generated (DM)& 0.0017$\pm$ 0.0015 &  2.4227 $\pm$ 0.1035 & 0.0484 $\pm$ 0.0959\\
+\hline\hline
+\end{tabular}
+\caption{不同数据集上计算的观测量比较，误差下界由统计 jackknife 方法确定。下面两行的样本量相当，而训练集（顶行）的样本量大五倍。
+}
+\label{tab:observables}
+\end{table*}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+在图~\ref{fig:k021} 中，我们比较了分别由训练好的 DM 与 HMC 独立得到的磁化强度分布，二者一致性良好。为更定量起见，表~\ref{tab:observables} 给出分别用训练好的 DM 和 HMC 得到的磁化强度 $\langle M\rangle$、两点磁化率 $\chi_2$ 与 Binder 累积量 $U_L$。对后者，同时列出训练集与测试集的期望值，前者组态数多五倍，这反映在不确定度上。我们的结论是：DM 能够准确捕捉系统的统计性质——如这些观测量所反映的那样——并与从目标分布抽样的成熟方法 HMC 符合良好。{关于对训练集规模与生成数据集规模依赖性的研究见附录~\ref{app:sta}。}我们指出，DM 中未施加任何接受--拒绝步骤。
+
+
+\ref{subsec:continious} 节所述的似然计算方法使我们能够为训练好的 DM 生成的场组态估计作用量。通过将训练好的 DM 的作用量估计与真实作用量（见 式~(\ref{eq:phi4action})）比较，可以确认 DM 是否正确捕捉了底层物理。为此，我们先用训练好的 DM 生成一组场组态系综，再用概率流 ODE 方法计算这些组态的似然 $q(\phi)$。应用换元公式即可算出这些场组态的作用量值：
+\begin{equation}
+    S_\text{eff} = -\log q(\phi),
+\end{equation}
+其中常数项 $Z$ 已被省略。图~\ref{fig:action} 将评估出的有效作用量与直接由物理作用量（即 式~\eqref{eq:phi4action}）得到的结果作比较。黑色虚线表示 $x-$轴与 $y-$轴成正比；绿色点是分别由概率 ODE 估计（$x-$轴）和物理作用量计算（$y-$轴）得到的作用量值。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/action_k0.21.pdf}
+\caption{在 1024 个样本上，由训练好的 DM 用概率 ODE 估计的有效作用量与物理作用量之间的关联。}\label{fig:action}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+决定系数 $R^2$ 是定量衡量估计作用量值 $S_{\rm eff}(\phi_i)$ 与真实值 $S(\phi_i)$ 吻合程度的有用量具。这里 $i$ 标记抽样组态的编号。我们使用
+\begin{equation}
+  R^2 = 1 - \frac{\sum_i\left[ S(\phi_i) - S_\text{eff}(\phi_i)\right]^2}{\sum_i \left[S(\phi_i) - \overline{S}(\phi)\right]},
+\end{equation}
+其中 $\overline{S}(\phi)$ 是真实作用的平均值，
+\begin{equation}
+    \overline{S}(\phi) =\frac{1}{N}\sum_{i=1}^N S(\phi_i).
+\end{equation}
+它度量因变量（此处为作用量）的变化中可由自变量（此处为 DM 生成的样本）预测的比例。$R^2$ 接近 1 表明 DM 提供了准确的作用量估计，意味着训练好的 DM 已有效地正确学到了标量场论的底层物理。
+在图~\ref{fig:action} 中，采用默认数据集规模（5120 个训练样本）时，在 1024 个生成组态上算得的 $R^2$ 值为 0.960。
+
+{
+\subsection{自关联时间}
+
+临界慢化~\cite{Wolff:1989wq}出现在模拟逼近临界点、系统关联长度发散之时。应在接近相变的 $\kappa$ 值处考察它，该相变位于 $\kappa_c \simeq 0.27$（$L = 32, \lambda = 0.022$）；参见文献~\cite{Pawlowski:2017rhn,Pawlowski:2018qxs,Bachtis:2020ajb}。
+
+临界慢化可用观测量 $O$ 的自关联函数研究，其定义为
+\begin{equation}
+    C_{O}(t) = \left\langle (O_{t_0} - \left\langle O_{t_0} \right\rangle)(O_{t_0+t} - \left\langle O_{t_0+t} \right\rangle) \right\rangle
+            = \left\langle O_{t_0}O_{t_0+t} \right\rangle - \left\langle O_{t_0} \right\rangle\left\langle O_{t_0+t} \right\rangle,
+\end{equation}
+其中 $t_0$ 是起始时间，$t$ 表示沿马尔可夫链的时间。在指数拟合 $C_O(t)\sim \exp\{ -t/t_c\}$ 中，特征时间 $t_c$ 在临界点附近应按关联长度 $\xi$ 的幂次标度，即 $t_c\sim \xi^z$（关联长度 $\xi$ 不应与前向 SDE 中的时间变量混淆）。归一化的自关联函数 $\bar{C}_O(t) \equiv C_O(t)/C_O(0)$ 可用于更清晰的比较。
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/autocor_L32_k0.27_l0.022_num5120_nm1.pdf}
+\caption{在 $\kappa = 0.27, \lambda  = 0.22, L = 32$ 处，用 1024 个样本比较 Metropolis-Hastings MC 算法、HMC 与基于 DM 的 MC 的 $|M|$ 归一化自关联函数}.
+\label{fig:autocor}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+我们对磁化强度的``绝对值''进行研究，其定义为
+\begin{equation}
+|M| = \frac{1}{V} \left\langle  \sum_x \left|\phi(x) \right|\right\rangle,
+\end{equation}
+并比较各种更新方式。由于样本的似然可以计算（如上一节所示），我们可以用 Metropolis-Hastings（MH）算法配合训练良好的 DM 构造渐近精确的马尔可夫链采样器。仿照基于流的模型的惯例，我们称之为基于 DM 的蒙特卡洛方法。接受判据修正为
+\begin{equation}
+p_\text{accept}(\phi_\text{proposal}\mid \phi^{i-1}) = \text{min} \left ( 1, \frac{q(\phi^{i-1})}{p(\phi^{i-1})}\frac{p(\phi_\text{proposal})}{q(\phi_\text{proposal})} \right ),
+\end{equation}
+其中 $\phi^{i-1}$ 是前一组态，$\phi_\text{proposal}$ 由训练良好的 DM 抽取。进而，通过比较自关联函数 $C_{|M|}(t)$ 与用 Metropolis-Hastings 蒙特卡洛（MC）及 HMC 算法在 1024 个组态上的结果，我们可以估计 DM 的效率增益，如图~\ref{fig:autocor} 所示。{关于接受率对参数及训练轮数依赖性的更全面讨论见附录~\ref{app:acc}}。
+
+另外，可以计算积分自关联时间~\cite{Schaefer:2010hu,Pawlowski:2018qxs,DelDebbio:2021qwf} 作更定量的比较。其定义为
+\begin{equation}
+    \tau_{O,{\mathrm{int}}}={\frac{1}{2}}+{\frac{1}{C_{O}(0)}}\sum_{t=1}^{t_\text{max}}C_{O}(t).
+\end{equation}
+对所讨论的各算法，积分自关联时间为 $ \tau_{|M|,{\mathrm{int}}}\text{(MC)} = 79.984$、$\tau_{|M|,{\mathrm{int}}}\text{(HMC)} = 41.354$、$\tau_{|M|,{\mathrm{int}}}\text{(DM-MC)} = 2.360$，其中我们在 1024 个组态上以 $t_\text{max} = 100$ 条 MC 轨迹计算了自关联时间。要得到带不确定度的更精确估计，也可在计算中选用自动开窗程序~\cite{Wolff:2003sm,Joswig:2022qfe}。这些比较表明，我们提出的方法有潜力显著抑制沿马尔可夫链的自关联。}

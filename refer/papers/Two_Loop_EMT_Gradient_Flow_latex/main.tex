@@ -1,0 +1,127 @@
+% Re-typeset from arXiv:1808.09837v4 (official LaTeX source).
+% Normalized to unified style: article class + standard packages (see CONVERSION_GUIDE.md).
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,mathtools,graphicx,microtype,enumitem,url,ifthen}
+\usepackage[hidelinks]{hyperref}
+
+% ---- macros taken over from the original source ----
+\newcommand{\ringc}{\mathring{c}}
+\newcommand{\three}{three}
+\newcommand{\two}{two}
+\newcommand{\one}{one}
+\newcommand{\TF}{T_F}
+\newcommand{\gcoup}[1]{\ifthenelse{\equal{#1}{}}%
+                     {\frac{g}{4\pi}}{\frac{g^{#1}}{(4\pi)^{#1}}}}
+\newcommand{\eom}{EOM}
+\newcommand{\emt}{EMT}
+\newcommand{\rchi}{\mathring{\chi}}
+\newcommand{\noeqn}[1]{(\ref{#1})}
+\newcommand{\tcalo}{\tilde{\calo}}
+\newcommand{\calo}{\mathcal{O}}
+\newcommand{\citere}[1]{Ref.\,\cite{#1}}
+\newcommand{\citeres}[1]{Refs.\,\cite{#1}}
+\newcommand{\code}{\tt}
+\newcommand{\abbrev}[1]{{\small #1}}
+\newcommand{\EulerGamma}{\gamma_\text{E}}
+\newcommand{\ep}{\epsilon}
+\newcommand{\eqn}[1]{Eq.\,(\ref{#1})}
+\newcommand{\eqs}[1]{Eqs.\,(\ref{#1})}
+\newcommand{\fig}[1]{Fig.\,\ref{#1}}
+\newcommand{\figs}[1]{Figs.\,\ref{#1}}
+\newcommand{\tab}[1]{Table\,\ref{#1}}
+\newcommand{\tabs}[1]{Tables\,\ref{#1}}
+\newcommand{\sct}[1]{Sect.\,\ref{#1}}
+\newcommand{\scts}[1]{Sects.\,\ref{#1}}
+\newcommand{\dd}{\text{d}}
+\newcommand{\deriv}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\dderiv}[2]{\frac{\dd #1}{\dd #2}}
+\newcommand{\order}[1]{{\cal O}(#1)}
+\newcommand{\qcd}{QCD}
+\newcommand{\lo}{LO}
+\newcommand{\nlo}{NLO}
+\newcommand{\nnlo}{NNLO}
+\newcommand{\msbar}{\ensuremath{\overline{\mbox{MS}}}}
+% replacement for the `slashed' package
+\newcommand{\slashed}[1]{\ensuremath{\not{#1}}}
+
+% ---- journal-macro block from the original source (needed by the bibliography) ----
+\def\app#1#2#3{{\it Act.~Phys.~Pol.~}\jref{\bf B #1}{#2}{#3}}
+\def\apa#1#2#3{{\it Act.~Phys.~Austr.~}\jref{\bf#1}{#2}{#3}}
+\def\annphys#1#2#3{{\it Ann.~Phys.~}\jref{\bf #1}{#2}{#3}}
+\def\cmp#1#2#3{{\it Comm.~Math.~Phys.~}\jref{\bf #1}{#2}{#3}}
+\def\cpc#1#2#3{{\it Comp.~Phys.~Commun.~}\jref{\bf #1}{#2}{#3}}
+\def\epjc#1#2#3{{\it Eur.\ Phys.\ J.\ }\jref{\bf C #1}{#2}{#3}}
+\def\fortp#1#2#3{{\it Fortschr.~Phys.~}\jref{\bf#1}{#2}{#3}}
+\def\ijmpc#1#2#3{{\it Int.~J.~Mod.~Phys.~}\jref{\bf C #1}{#2}{#3}}
+\def\ijmpa#1#2#3{{\it Int.~J.~Mod.~Phys.~}\jref{\bf A #1}{#2}{#3}}
+\def\jcp#1#2#3{{\it J.~Comp.~Phys.~}\jref{\bf #1}{#2}{#3}}
+\def\jetp#1#2#3{{\it JETP~Lett.~}\jref{\bf #1}{#2}{#3}}
+\def\jphysg#1#2#3{{\small\it J.~Phys.~G~}\jref{\bf #1}{#2}{#3}}
+\def\jhep#1#2#3{{\small\it JHEP~}\jref{\bf #1}{#2}{#3}}
+\def\mpl#1#2#3{{\it Mod.~Phys.~Lett.~}\jref{\bf A #1}{#2}{#3}}
+\def\nima#1#2#3{{\it Nucl.~Inst.~Meth.~}\jref{\bf A #1}{#2}{#3}}
+\def\npb#1#2#3{{\it Nucl.~Phys.~}\jref{\bf B #1}{#2}{#3}}
+\def\nca#1#2#3{{\it Nuovo~Cim.~}\jref{\bf #1A}{#2}{#3}}
+\def\plb#1#2#3{{\it Phys.~Lett.~}\jref{\bf B #1}{#2}{#3}}
+\def\prc#1#2#3{{\it Phys.~Reports }\jref{\bf #1}{#2}{#3}}
+\def\prd#1#2#3{{\it Phys.~Rev.~}\jref{\bf D #1}{#2}{#3}}
+\def\pR#1#2#3{{\it Phys.~Rev.~}\jref{\bf #1}{#2}{#3}}
+\def\prl#1#2#3{{\it Phys.~Rev.~Lett.~}\jref{\bf #1}{#2}{#3}}
+\def\pr#1#2#3{{\it Phys.~Reports }\jref{\bf #1}{#2}{#3}}
+\def\ptp#1#2#3{{\it Prog.~Theor.~Phys.~}\jref{\bf #1}{#2}{#3}}
+\def\ptep#1#2#3{{\it PTEP~}\jref{\textbf{#1}}{#2}{#3}}
+\def\ppnp#1#2#3{{\it Prog.~Part.~Nucl.~Phys.~}\jref{\bf #1}{#2}{#3}}
+\def\rmp#1#2#3{{\it Rev.~Mod.~Phys.~}\jref{\bf #1}{#2}{#3}}
+\def\sovnp#1#2#3{{\it Sov.~J.~Nucl.~Phys.~}\jref{\bf #1}{#2}{#3}}
+\def\sovus#1#2#3{{\it Sov.~Phys.~Usp.~}\jref{\bf #1}{#2}{#3}}
+\def\tmf#1#2#3{{\it Teor.~Mat.~Fiz.~}\jref{\bf #1}{#2}{#3}}
+\def\tmp#1#2#3{{\it Theor.~Math.~Phys.~}\jref{\bf #1}{#2}{#3}}
+\def\yadfiz#1#2#3{{\it Yad.~Fiz.~}\jref{\bf #1}{#2}{#3}}
+\def\zpc#1#2#3{{\it Z.~Phys.~}\jref{\bf C #1}{#2}{#3}}
+\def\ibid#1#2#3{{ibid.~}\jref{\bf #1}{#2}{#3}}
+\def\otherjournal#1#2#3#4{{\it #1}\jref{\bf #2}{#3}{#4}}
+\newcommand{\jref}[3]{{\bf #1}, #3 (#2)}
+\newcommand{\hepph}[1]{\href{http://arXiv.org/abs/hep-ph/#1}{\texttt{hep-ph/#1}}}
+\newcommand{\hepth}[1]{\href{http://arXiv.org/abs/hep-th/#1}{\texttt{hep-th/#1}}}
+\newcommand{\heplat}[1]{\href{http://arXiv.org/abs/hep-lat/#1}{\texttt{hep-lat/#1}}}
+\newcommand{\mathph}[1]{\href{http://arXiv.org/abs/math-ph/#1}{\texttt{math-ph/#1}}}
+\newcommand{\arxiv}[2]{\href{http://arXiv.org/abs/#1}{\texttt{arXiv:#1\,[#2]}}}
+\newcommand{\bibentry}[4]{#1, {\it #2}, #3\ifthenelse{\equal{#4}{}}{}{, }#4.}
+
+\title{The two-loop energy-momentum tensor within the gradient-flow formalism}
+\author{Robert V. Harlander \and Yannick Kluth \and Fabian Lange}
+\date{}
+\begin{document}
+\maketitle
+\footnotetext[1]{Institute for Theoretical Particle Physics and Cosmology,
+RWTH Aachen University, D-52056 Aachen, Germany.
+Published as \textit{Eur.\ Phys.\ J.\ C} \textbf{78} (2018) 944,
+DOI:10.1140/epjc/s10052-018-6415-7; preprint TTK-18-32,
+\href{https://arxiv.org/abs/1808.09837}{arXiv:1808.09837 [hep-lat]}.}
+
+\begin{abstract}
+  The gradient-flow formulation of the energy-momentum tensor of
+  QCD is extended to NNLO perturbation theory. This means that the
+  Wilson coefficients which multiply the flowed operators in the
+  corresponding expression for the regular energy-momentum tensor are
+  calculated to this order. The result has been obtained by applying
+  modern tools of regular perturbation theory, reducing the occurring
+  two-loop integrals, which also include flow-time integrations, to a
+  small set of master integrals which can be calculated analytically.
+\end{abstract}
+\newpage
+\tableofcontents
+\newpage
+
+\input{chapters/section01}
+\input{chapters/section02}
+\input{chapters/section03}
+\input{chapters/section04}
+\input{chapters/section05}
+\input{chapters/section06}
+\input{chapters/section07}
+\input{chapters/section08}
+\input{chapters/backmatter}
+
+\end{document}

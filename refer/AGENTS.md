@@ -30,3 +30,13 @@ cd <dir>/build && xelatex -interaction=nonstopmode -halt-on-error ../main.tex  #
 
 38 篇 = 14 篇库内原文里程碑 + 24 篇引文网络枢纽（每篇被库内 ≥3 篇引用，
 多数 ≥8 篇）。书目信息转录自库内论文参考文献并交叉核对；不确定字段标 [?]。
+
+## 原文论文转排库（2026-08-26 生成）
+
+papers/ 下新增 **50 篇精华论文的原文 LaTeX 转排库**：每篇一对目录——
+`<Slug>_latex/`（英文 article 转排）+ `<中文名>_latex/`（中文 ctexart 译本）。
+底稿取 arXiv 官方源归一化改造（49/50；Wilson74 复用 books/ 已验证转排），
+100 个目录 xelatex 两遍编译零错误，合计 2455 页。
+索引：`papers/INDEX.md`；结构约定与质量说明：`papers/AGENTS.md`。
+5 篇前印本经典（Gross-Wilczek/Altarelli-Parisi/HMC/Collins-Soper/Parisi-Wu）
+因无开放获取底稿暂缺。

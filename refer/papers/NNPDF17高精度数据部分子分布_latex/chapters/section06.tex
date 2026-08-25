@@ -1,0 +1,344 @@
+\section{总结与展望}
+\label{sec:conclusion}
+NNPDF3.1 是 NNPDF 家族新的主版本 PDF 发布。
+%
+通过纳入许多新观测量的约束，它相对于 NNPDF3.0 是一大进步；得益于相应 NNLO QCD 修正在近期变为可用，
+其中若干观测量首次进入全局 PDF 确定。突出的例子有 $t\bar{t}$ 微分分布与 $Z$ 玻色子 $p_T$ 谱。
+%
+从理论角度看，最主要的改进是把粲 PDF 放到与轻夸克 PDF 同等的地位上。
+%
+独立参数化粲 PDF 化解了 ATLAS 规范玻色子产生与 HERA 单举结构函数数据之间本会存在的张力，
+改善了与 LHC 数据的符合程度，并把微扰生成粲对极点粲质量的强依赖转化为 PDF 不确定度——因为大部分质量依赖被重新吸收进初始 PDF 形状。
+
+NNPDF3.1 集合也是首个以多种格式交付 PDF 的集合：首先它们同时以 Hessian 与蒙特卡罗形式发布；
+其次默认集合经过优化与压缩，使得较少的蒙特卡罗副本或 Hessian 误差集合即可重现大得多的底层副本集合的统计特征。
+下面我们讨论如何从大量蒙特卡罗副本产生 Hessian 与蒙特卡罗缩减集合；
+随后总结通过 LHAPDF 接口公开的全部 PDF 集合；
+最后对未来发展作简短展望。
+
+\subsection{NNPDF3.1 缩减集合的验证}
+\label{sec:compression}
+
+  默认 NNPDF3.1 NLO 与 NNLO PDF（中心值 $\alpha_s(m_Z)=0.118$）连同第~\ref{sec:results-mc}
+  节讨论的微扰粲修改版，都以 $N_{\rm rep}=1000$ 副本集合产生。这些大副本样本随后经两种缩减策略处理：
+  其一是压缩蒙特卡罗（CMC）算法~\cite{Carrazza:2015hva}，得到基于较少副本数的蒙特卡罗表示；
+  其二是 MC2H 算法~\cite{Carrazza:2015aoa}，以固定数目的误差集合实现底层 PDF 概率分布的最优 Hessian 表示。
+  具体地，我们由此构造了 $N_{\rm rep}=100$ 副本的 CMC-PDF 集合与 $N_{\rm eig}=100$ 个（对称）本征矢量的 MC2H 集合。
+
+  图~\ref{fig:cmc-mc2h-validation} 比较 NNPDF3.1 NNLO 输入集合（$N_{\rm rep}=1000$ 副本）的 PDF
+        与相应的缩减集合：$N_{\rm rep}=100$ 副本的 CMC-PDF 与 $N_{\rm eig}=100$
+        本征值的 MC2H Hessian PDF。
+        %
+        各种情形下输入的 $N_{\rm rep}=1000$ 副本 MC PDF 与两个缩减集合都符合很好。
+        %
+        由构造可知，MC2H 集合在中心值与 PDF 方差上的符合略好，
+        因为 CMC-PDF 集合还力图重现概率分布的更高矩乃至可能的非高斯特征，而 Hessian 集合按构造是高斯的。
+        %
+        沿用文献~\cite{Carrazza:2015aoa,Carrazza:2015hva}的分析，
+        我们核实了 PDF 之间的关联也被高度准确地重现。
+        
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[t]
+  \begin{center}
+     \includegraphics[scale=0.32]{images/plots/xu-cmc-mc2h-nnlo-fc.pdf}
+     \includegraphics[scale=0.32]{images/plots/xd-cmc-mc2h-nnlo-fc.pdf}
+     \includegraphics[scale=0.32]{images/plots/xubar-cmc-mc2h-nnlo-fc.pdf}
+     \includegraphics[scale=0.32]{images/plots/xdbar-cmc-mc2h-nnlo-fc.pdf}
+     \includegraphics[scale=0.32]{images/plots/xsp-cmc-mc2h-nnlo-fc.pdf}
+     \includegraphics[scale=0.32]{images/plots/xc-cmc-mc2h-nnlo-fc.pdf}
+     \includegraphics[scale=0.32]{images/plots/xsinglet-cmc-mc2h-nnlo-fc.pdf}
+     \includegraphics[scale=0.32]{images/plots/xg-cmc-mc2h-nnlo-fc.pdf}
+     \caption{\small 三者的比较：$N_{\rm rep}=1000$ 副本的 NNPDF3.1 NNLO 输入集合 PDF、
+       $N_{\rm rep}=100$ 副本的压缩蒙特卡罗 CMC-PDF、以及 $N_{\rm eig}=100$ 对称
+       本征值的 MC2H Hessian PDF。
+    \label{fig:cmc-mc2h-validation}}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+为了验证 CMC-PDF 算法从初始 $N_{\rm rep}=1000$ 副本压缩到 $N_{\rm rep}=100$ 副本的效率，
+图~\ref{fig:cmc-mc2h-validation-nrep} 按照文献~\cite{Carrazza:2015hva}描述的程序给出统计估计量的汇总：
+比较由 $N_{\rm rep}=1000$ 副本的 NNPDF3.1 NNLO 输入集合定义的概率分布的特定性质与相应压缩集合的性质，
+表示为缩减集合副本数 $\widetilde{N}_{\rm rep}$（从 $\widetilde{N}_{\rm rep}=100$ 起）的函数。
+        %
+        我们把压缩算法的结果与从原 1000 个副本随机抽取 $\widetilde{N}_{\rm rep}$ 个的做法比较：
+        图中给出对应中心值、标准差、峰度与偏度、关联以及 Kolmogorov 距离的误差函数 ERF。
+        %
+        这些结果表明一个 100 副本的 CMC-PDF 集合大致重现了随机抽取的 $\widetilde{N}_{\rm rep}=400$
+        PDF 集合所含的信息。
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[t]
+  \begin{center}
+    \includegraphics[scale=0.35]{images/plots/cmc_cv.pdf}\includegraphics[scale=0.35]{images/plots/cmc_std.pdf}
+    \includegraphics[scale=0.35]{images/plots/cmc_skewness.pdf}\includegraphics[scale=0.35]{images/plots/cmc_kurtosis.pdf}
+    \includegraphics[scale=0.35]{images/plots/cmc_kolmogorov.pdf}\includegraphics[scale=0.35]{images/plots/cmc_correlation.pdf}
+
+     \caption{\small 由 $N_{\rm
+          rep}=1000$ 副本的 NNPDF3.1 NNLO 输入集合计算的与由 $\widetilde{N}_{\rm rep}$ 副本压缩集合计算的
+       概率分布估计量的比较，表示为 $\widetilde{N}_{\rm rep}$ 的函数。
+       图示为对应中心值、标准差、峰度、偏度、关联与 Kolmogorov 距离的误差函数（ERF）。
+    \label{fig:cmc-mc2h-validation-nrep}
+  }
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+
+
+
+\subsection{交付清单}
+\label{sec:delivery}
+
+现在完整列出将通过 {\sc\small LHAPDF6}
+接口~\cite{Buckley:2014ana}公开发布的 NNPDF3.1 PDF 集合：
+\begin{center}
+{\bf \url{http://lhapdf.hepforge.org/}~} 。
+\end{center}
+正如文中反复提到的，与这些 PDF 集合相关的大量结果可从存储库获得：
+\begin{center}
+{\bf \url{http://nnpdf.hepforge.org/html/nnpdf31/catalog}~} 。
+\end{center}
+所有集合都以 $N_{\rm rep}=100$ 的蒙特卡罗集合提供。
+对基线集合而言，它们由更大的 $N_{\rm rep}=1000$ 副本集合构造而来，后者同样公开。
+基线集合还以含 100 个误差集合的 Hessian 集合形式提供。
+
+完整清单如下：
+
+\begin{itemize}
+
+\item {\it 基线 NLO 与 NNLO NNPDF3.1 集合}
+
+基线 NLO 与 NNLO NNPDF3.1 集合基于全局数据集，$\alpha_s(m_Z)=0.118$，
+变味数方案最多五个活跃味道。这些集合含 $N_{\rm rep}=1000$ 个 PDF 副本。
+\begin{flushleft}
+\tt NNPDF31\_nlo\_as\_0118\_1000 \\
+\tt NNPDF31\_nnlo\_as\_0118\_1000.\\
+\end{flushleft}
+粲为微扰生成（如同以往 NNPDF 集合）的修改版也已发布，同样含 $N_{\rm rep}=1000$ 个 PDF 副本：
+\begin{flushleft}
+\tt NNPDF31\_nlo\_pch\_as\_0118\_1000 \\
+\tt NNPDF31\_nnlo\_pch\_as\_0118\_1000.\\
+\end{flushleft}
+由它们出发构造了优化的 $N_{\rm rep}=100$ 蒙特卡罗集合
+\begin{flushleft}
+\tt NNPDF31\_nlo\_as\_0118 \\
+\tt NNPDF31\_nnlo\_as\_0118 \\
+\tt NNPDF31\_nlo\_pch\_as\_0118 \\
+\tt NNPDF31\_nnlo\_pch\_as\_0118,
+\end{flushleft}
+以及 $N_{\rm eig}=100$ 本征矢量的 Hessian 集合
+\begin{flushleft}
+\tt NNPDF31\_nlo\_as\_0118\_hessian \\
+\tt NNPDF31\_nnlo\_as\_0118\_hessian \\
+\tt NNPDF31\_nlo\_pch\_as\_0118\_hessian \\
+\tt NNPDF31\_nnlo\_pch\_as\_0118\_hessian,
+\end{flushleft}
+如上文第~\ref{sec:compression} 节所述。
+
+在这些基础上，可用 {\tt SM-PDF} 工具~\cite{Carrazza:2016htc}
+构造为特定观测量计算而优化的小型本征矢量集合。
+具体地，可为一系列预定义观测量生成优化集合并经由网页界面~\cite{Carrazza:2016wte}下载：
+\begin{center}
+{\bf \url{https://smpdf.mi.infn.it}~} 。
+\end{center}
+
+
+
+
+
+\item {\it 味数变化}
+
+我们产生了 NLO 与 NNLO 的集合，其最大味数不同于默认的 5：或扩展至六，或冻结在四：
+\begin{flushleft}
+  \tt NNPDF31\_nlo\_as\_0118\_nf\_4 \\
+  \tt NNPDF31\_nlo\_as\_0118\_nf\_6 \\
+  \tt NNPDF31\_nnlo\_as\_0118\_nf\_4 \\
+  \tt NNPDF31\_nnlo\_as\_0118\_nf\_6. \\
+\end{flushleft}
+微扰生成粲变体同样可用，此时还有 $n_f=3$ 固定味数方案：
+\begin{flushleft}
+  \tt NNPDF31\_nlo\_pch\_as\_0118\_nf\_3 \\
+  \tt NNPDF31\_nlo\_pch\_as\_0118\_nf\_4 \\
+  \tt NNPDF31\_nlo\_pch\_as\_0118\_nf\_6 \\
+  \tt NNPDF31\_nnlo\_pch\_as\_0118\_nf\_3 \\
+  \tt NNPDF31\_nnlo\_pch\_as\_0118\_nf\_4 \\
+  \tt NNPDF31\_nnlo\_pch\_as\_0118\_nf\_6. \\
+\end{flushleft}
+
+
+
+
+\item {\it $\alpha_s$ 变化。}
+
+我们产生了下列 $\alpha_s(m_Z)$ 值的 NNLO 集合：0.108、0.110、0.112、0.114、0.116、0.117、0.118、0.119、0.120、0.122、0.124（原文首项"1.110"系笔误）：
+\begin{flushleft}
+  \tt NNPDF31\_nnlo\_as\_0108 \\
+  \tt NNPDF31\_nnlo\_as\_0110 \\
+  \tt NNPDF31\_nnlo\_as\_0112 \\
+  \tt NNPDF31\_nnlo\_as\_0114 \\
+  \tt NNPDF31\_nnlo\_as\_0116 \\
+  \tt NNPDF31\_nnlo\_as\_0117 \\
+  \tt NNPDF31\_nnlo\_as\_0118 \\
+  \tt NNPDF31\_nnlo\_as\_0119 \\
+  \tt NNPDF31\_nnlo\_as\_0120 \\
+  \tt NNPDF31\_nnlo\_as\_0122 \\
+  \tt NNPDF31\_nnlo\_as\_0124. \\
+\end{flushleft}
+
+对 $\alpha_s(m_Z)=0.116$ 与 $\alpha_s(m_Z)=0.120$ 还产生了 NLO 集合：
+\begin{flushleft}
+  \tt NNPDF31\_nlo\_as\_0116 \\
+  \tt NNPDF31\_nlo\_as\_0120, \\
+%  \tt NNPDF31\_nnlo\_as\_0116 \\
+%  \tt NNPDF31\_nnlo\_as\_0120,\\
+\end{flushleft}
+以及 NLO 与 NNLO 的微扰粲变体：
+\begin{flushleft}
+  \tt NNPDF31\_nlo\_pch\_as\_0116 \\
+  \tt NNPDF31\_nlo\_pch\_as\_0120 \\
+\tt NNPDF31\_nnlo\_pch\_as\_0116\\
+\tt NNPDF31\_nnlo\_pch\_as\_0120.\\
+\end{flushleft}
+
+
+为便于计算 PDF+$\alpha_s$ 组合不确定度，我们还提供了针对 $\alpha_s(m_Z)=0.118\pm0.002$ 的
+PDF+$\alpha_s$ 打包变化集合。它们既有蒙特卡罗形式也有 Hessian 形式。
+\begin{flushleft}
+  \tt
+NNPDF31\_nlo\_pdfas	\\
+NNPDF31\_nnlo\_pdfas	\\
+NNPDF31\_nlo\_pch\_pdfas \\	
+NNPDF31\_nnlo\_pch\_pdfas  \\	
+NNPDF31\_nlo\_hessian\_pdfas \\
+NNPDF31\_nnlo\_hessian\_pdfas \\	
+NNPDF31\_nlo\_pch\_hessian\_pdfas \\	
+NNPDF31\_nnlo\_pch\_hessian\_pdfas. \\
+\end{flushleft}
+它们的构造方式如下：
+\begin{enumerate}
+\item 中心值（PDF 成员 0）即对应 $\alpha_s(m_Z)=0.118$ 集合的中心值。
+\item PDF 成员 1 至 100 对应来自 $\alpha_s(m_Z)=0.118$ 集合的 $N_{\rep}=100$
+  （$N_{\rm eig}=100$）个蒙特卡罗副本（Hessian 本征矢量）。
+\item PDF 成员 101 与 102 分别是 $\alpha_s(m_Z)=0.116$ 与 $\alpha_s(m_Z)=0.120$ 集合的中心值。
+\end{enumerate}
+注意因此在 Hessian 情形成员 0 是中心集合，其余打包成员 $1-102$ 都是误差集合；
+而在蒙特卡罗情形，成员 $1-100$ 为蒙特卡罗副本，成员 0、$101$、$102$
+为中心集合（副本平均）。如何用它们计算 PDF+$\alpha_s$ 组合不确定度见例如文献~\cite{Butterworth:2015oua}。
+
+
+\item {\it 粲质量变化}
+
+
+我们提供不同极点粲质量 $m_c^{\rm pole}$ 取值的集合。
+  它们仅在 NNLO 提供，取 $m_c^{\rm pole}=1.38$ GeV 与 $m_c^{\rm pole}=1.64$ GeV。
+  \begin{flushleft}
+    {\tt NNPDF31\_nnlo\_as\_0118\_mc\_138}\\
+    {\tt NNPDF31\_nnlo\_as\_0118\_mc\_164}.\\
+\end{flushleft}
+供比较，相应的微扰粲修改版也可用：
+  \begin{flushleft}
+     {\tt NNPDF31\_nnlo\_pch\_as\_0118\_mc\_138}\\
+    {\tt NNPDF31\_nnlo\_pch\_as\_0118\_mc\_164}.\\
+\end{flushleft}
+
+
+\item {\it 强制正定性集合}
+
+我们提供 PDF 非负的集合：
+  \begin{flushleft}
+    {\tt NNPDF31\_nlo\_as\_0118\_mc}\\
+     {\tt NNPDF31\_nlo\_pch\_as\_0118\_mc}\\
+     {\tt NNPDF31\_nnlo\_as\_0118\_mc}\\
+      {\tt NNPDF31\_nnlo\_pch\_as\_0118\_mc}\\
+\end{flushleft}
+它们的构造很简单：凡 PDF 出现负值即置零。因此这只是一种近似，
+为方便与那些遇到负 PDF 即失效的程序配合使用而提供。
+
+\item {\it LO 集合} 
+
+领头阶 PDF 集合以 $\alpha_s = 0.118$ 与 $\alpha_s = 0.130$ 提供：
+  \begin{flushleft}
+    {\tt NNPDF31\_lo\_as\_0118}\\
+    {\tt NNPDF31\_lo\_as\_0130}\\
+\end{flushleft}
+相应的微扰粲变体同样提供：
+  \begin{flushleft}
+    {\tt NNPDF31\_lo\_pch\_as\_0118}\\
+    {\tt NNPDF31\_lo\_pch\_as\_0130}.
+\end{flushleft}
+
+
+\item {\it 缩减数据集}
+
+从完整 NNPDF3.1 子集确定的 PDF（第~\ref{sec:impactzpt}--\ref{sec:collideronly} 节讨论）同样可用，具体为：
+  \begin{flushleft}
+  \begin{tabular}{ll}
+  {\tt NNPDF31\_nnlo\_as\_0118\_noZpt} & 无 $Z$ $p_T$ 数据，见第~\ref{sec:impactzpt} 节； \\
+  {\tt NNPDF31\_nnlo\_as\_0118\_notop} & 无 $t\bar{t}$ 产生数据，见第~\ref{sec:impacttop} 节； \\
+  {\tt NNPDF31\_nnlo\_as\_0118\_nojets} & 无喷注数据，见第~\ref{sec:jetdata} 节； \\
+  {\tt NNPDF31\_nnlo\_as\_0118\_wEMC} & 加入 EMC 粲数据，见第~\ref{sec:emc} 节；\\
+  {\tt NNPDF31\_nnlo\_as\_0118\_noLHC} & 无 LHC 数据，见第~\ref{sec:nolhc} 节；  \\
+  {\tt NNPDF31\_nnlo\_as\_0118\_proton}  & 仅质子靶数据，见第~\ref{sec:nonucl} 节；\\
+  {\tt NNPDF31\_nnlo\_as\_0118\_collider} & 仅对撞机数据，见第~\ref{sec:collideronly} 节。\\
+  \end{tabular}
+  \end{flushleft}
+\end{itemize}
+
+除此之外，本文讨论的其他任何 PDF 集合均可应请求提供。
+
+\subsection{展望}
+\label{sec:outlook}
+
+这里给出的 NNPDF3.1 PDF 确定是对 NNPDF3.0 的更新，却在方法学与数据集两方面都包含实质创新，
+产生了精度与准确性都显著提高的 PDF 集合。得益于此，可以推进多项衍生项目：
+或旨在更新以往基于旧版 NNPDF 发布的结果，或因为更高的准确性使以前不可能或不感兴趣的项目变得可行。
+
+这些衍生项目包括：
+\begin{itemize}
+\item 强耦合常数 $\alpha_s(m_Z)$ 的精密确定。
+%
+与既往 NNPDF 确定~\cite{Lionetti:2011pw,Ball:2011us}相比，我们预期精度与准确性都会显著提高。
+具体地，得益于在 NNLO 纳入众多同时对胶子与 $\alpha_s(m_Z)$ 有直接依赖的对撞机观测量，
+彻底弃用核靶与低标度数据可能反而有利，即把 $\alpha_s$ 确定建立在第~\ref{sec:collideronly} 节的
+仅对撞机数据集、甚或更保守的数据集之上。
+\item 粲质量 $m_c$ 的确定。这将首次基于一个粲 PDF 被独立参数化的 PDF 确定，
+从而避免把 $m_c$ 认作决定粲 PDF 大小的参数所带来的偏差。
+  %
+\item 包含光子 PDF $\gamma(x,Q^2)$ 的 NNPDF3.1QED 集合，从而更新以往的
+  NNPDF2.3QED~\cite{Ball:2013hta} 与 NNPDF3.0QED~\cite{Bertone:2016ume} 集合。
+  该更新应纳入近期的理论进展：具体包括直接从核子结构函数确定光子 PDF 的“LuxQED”
+  约束~\cite{Manohar:2016nzj}；
+以及现已包含在 {\tt APFEL}~\cite{Bertone:2013vaa}中的 PDF 演化与 DIS 系数函数的 NLO QED 修正。
+\item 包含小 $x$ 重求和的 PDF 集合，基于文献~\cite{Altarelli:2005ni,Ball:2007ra,Altarelli:2008aj}
+发展的、已在 {\tt HELL} 程序~\cite{Bonvini:2016wki}中实现并联接 {\tt APFEL} 的形式。
+%
+这将回应一个长期悬而未决的问题：固定阶微扰演化能否恰当描述小 $x$ 的单举 HERA
+数据~\cite{Caola:2010cy,Caola:2009iy}，并最终有助于更好地控制小 $x$ 理论不确定度。
+\end{itemize}
+
+更长远的时期里，预期数据集与方法学都将有进一步的重要改进。
+一方面，到目前为止我们基本上局限于 LHC 8 TeV 数据。未来版本将纳入大量 13 TeV 测量——
+其中若干来自 ATLAS、CMS 与 LHCb 的测量已经可用。具体设想纳入更多目前不在数据集之内、
+对 PDF 有重大潜在影响且高阶修正已经具备的过程。其中包括瞬发光子产生~\cite{Aaboud:2017cbm}——
+其 NNLO 修正现已成为可用~\cite{Campbell:2016lzl}，且其对 PDF 的影响众所周知~\cite{d'Enterria:2012yj}；
+单顶产生（NNLO 也已知~\cite{Brucherseifer:2014ama}）；以及可能的前向 $D$ 介子产生或更一般的含末态
+$D$ 介子的过程，例如最近由 ATLAS 测量的 $W+D$ 产生~\cite{Aad:2014xca}——
+其对 PDF 的重要性曾被反复强调~\cite{Zenaiev:2015rfa,Gauld:2015yia,Gauld:2016kpd}。
+
+数据集的进一步扩充很可能要求 PDF 确定方法学的实质性改进。同时也很可能导致 PDF 不确定度的进一步缩小，
+从而要求对理论不确定度更好的控制。我们特别预期两个方向上的重要进展。
+其一，目前尚未纳入、靠运动学切割加以控制的电弱修正，必须以更系统的方式纳入。
+其二，缺失高阶修正导致的理论不确定度也必须予以估计。事实上第~\ref{sec:thunc} 节的初步估计表明：
+当前未计入 PDF 不确定度的缺失高阶不确定度很可能很快变得不可忽略，在某些运动学区域甚至会占据主导。
+所有这些改进都将成为未来一次重大 PDF 发布的组成部分。
+
+\bigskip
+\bigskip
+\begin{center}
+\rule{5cm}{.1pt}
+\end{center}
+\bigskip
+\bigskip

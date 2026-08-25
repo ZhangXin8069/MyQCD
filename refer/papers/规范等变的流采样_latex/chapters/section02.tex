@@ -1,0 +1,10 @@
+\section{基于流的采样}
+基于流的生成模型允许从一个有表达力的分布族中抽样，其做法是把可逆函数 $f$ 应用到来自某个固定的、简单的先验分布（由密度 $r(\prsample)$ 定义）的样本 $\prsample$ 上~\cite{papamakarios2019normalizing}。得到的样本 $U' = f(\prsample)$ 按照模型密度 $q(U')$ 分布。该可逆函数经过特别构造，使得对任一给定的样本都能高效地计算雅可比因子，从而每抽取一个样本就同时给出相应的归一化概率密度
+%
+\begin{equation} \label{eqn:norm-flow}
+  q(U') = q(f(\prsample)) = r(\prsample) \left| \det \frac{\partial f(\prsample)}{\partial \prsample} \right|^{-1},
+\end{equation}
+%
+这一特性使得可以通过最小化模型概率密度 $q(U')$ 与目标密度 $p(U')$ 之间按所选度量的距离来训练流模型（即优化函数 $f$）。由于模型不完美而产生的对真实分布的任何偏离都可以用若干技术加以修正；在本工作中，我们采用 Metropolis 独立抽样~\cite{Albergo2019FlowMCMC}。\footnote{也可以使用重加权的可观测量~\cite{Ferrenberg:1988yz,mller2018neural}。当作用量的测量比可观测量的测量更昂贵时，这是高效的。}
+
+定义一个灵活的可逆函数 $f$ 的一个强大方法是通过若干\emph{耦合层}的复合：$f := g_m \circ \dots \circ g_1$。耦合层作用于样本 $U$ 的方式是：对分量子集 $U^{A} := \left\{ U^{i} : i \in A \right\}$ 施加一个解析可逆的变换（例如缩放），其中上标 $i$ 标记多维样本 $U$ 的分量，集合 $A$ 指明被变换的分量。其余（未被修改的）分量 $U^B$ 由 $U^B = U \setminus U^A$ 定义，作为输入送入对该变换进行参数化的前馈神经网络。这种变量切分保证了可逆性，尽管使用了本身不可逆的前馈网络。

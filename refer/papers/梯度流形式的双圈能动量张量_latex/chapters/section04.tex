@@ -1,0 +1,271 @@
+\section{Wilson 系数的计算}\label{sec:calc}
+
+\subsection{投影方法}
+
+为计算系数 $\zeta_{ij}(t)$，我们使用所谓的``投影方法''\,\cite{Gorishnii:1983su,Gorishnii:1986gn}：
+构造外态 $|k\rangle$ 和微分算符 $D_k$，使得
+\begin{equation}
+  \begin{split}
+    P_{k}[\calo_{i} (x) ] \equiv D_{k}\langle
+    0|\calo_{i} (x) |k\rangle =
+    \delta_{ik}\,,
+    \label{eq:projectors}
+  \end{split}
+\end{equation}
+这里为方便起见略去了洛伦兹指标；并且我们把矩阵元定义为只包含关于（w.r.t.）
+QCD 粒子为单粒子不可约（1\abbrev{PI}）的图。将 $P_{k}$ 作用于
+\eqn{eq:zetas} 两边，得到
+\begin{equation}
+  \begin{split}
+    P_{k}[\tcalo_{i}(t,x)] =
+    \zeta_{ij}(t)P_{k}[\calo_{j}(x)]\,.
+    \label{eq:project}
+  \end{split}
+\end{equation}
+由于 $\zeta_{ij}(t)$ 只依赖流时间 $t$ 和重正化标度 $\mu$，我们可以任意选取
+此方程中其他一切有量纲参数的值。把它们置零后，右边所有高阶修正都变成无质量
+蝌蚪图，因此只需在树图层面要求 \eqn{eq:projectors} 成立。于是得到
+\begin{equation}
+  \begin{split}
+    \zeta_{ij}(t) = P_j[\tcalo_i(t,x)]\Big|_{p=m=0}\,,
+  \end{split}
+\end{equation}
+其中 $m$ 与 $p$ 统称所有质量和外动量。这样右边给出真空图，其唯一的有量纲
+标度是 $t$。
+
+为了找到合适的投影符，我们先对算符的相关项推导费曼规则。例如（脚注：本文
+所有费曼图均用 Ti\textit{k}Z-Feynman 绘制~\cite{Ellis:2016jkw}。）
+\begin{align}
+  \calo_{1,\mu\nu} &= \partial_\mu A_\rho^c\partial_\nu A_\rho^c +
+  \cdots&\Rightarrow&&
+  \begin{gathered}
+	\includegraphics{images/O1.pdf}
+  \end{gathered} =
+  - p_{1,\mu} p_{2,\nu} \delta_{\alpha\beta}\delta^{ab},
+\end{align}
+其中动量定义为外向。这提示我们采用
+\begin{equation}
+  \begin{split}
+    P_{1}[X] = - \frac{\delta^{ab}}{N_A} P_{\alpha \beta |
+      \rho \mu | \sigma \nu}
+    \deriv{}{p_{1,\rho}}
+    \deriv{}{p_{2,\sigma}}
+    \langle 0 | A_\alpha^a (p_1) A_\beta^b (p_2) X_{\mu\nu}| 0 \rangle\,,
+    \label{eq:p1}
+  \end{split}
+\end{equation}
+其中 $N_A$ 是规范群伴随表示的维数；对 SU($N_c$)，有 $N_A=N_c^2-1$。到洛伦兹
+结构上的投影符定义为
+\begin{equation}
+  \begin{split}
+    P_{\alpha_1\beta_1|\cdots|\alpha_n\beta_n}
+    T_{\alpha_1\beta_1\cdots\alpha_n\beta_n} = \left\{\begin{array}{ll}
+    1\phantom{\Bigg(}\quad &\text{当}\quad
+    T_{\alpha_1\beta_1\cdots\alpha_n\beta_n}=\delta_{\alpha_1\beta_1}
+    \cdots\delta_{\alpha_n\beta_n}\,,\\[.3em]
+    0& \text{对任何其他线性}\\[-.1em]
+    & \text{无关的洛伦兹张量。}
+    \end{array}\right.
+  \end{split}
+\end{equation}
+
+在附录中可以找到其余算符费曼规则的相关部分，类似地由它们可导出投影符
+\begin{equation}
+  \begin{split}
+    P_2[X] &=  - \frac{\delta^{ab}}{4 N_A} P_{\alpha \beta
+      | \mu \nu | \rho \sigma}
+    \deriv{}{p_{1,\rho}}
+    \deriv{}{p_{2,\sigma}}
+    \langle 0 | A_\alpha^a (p_1) A_\beta^b (p_2) X_{\mu \nu} | 0
+    \rangle \,,\\
+    P_{3_f}[X] &= -i \frac{\delta^{i j}}{4 N_c} P_{\rho
+      \mu | \sigma \nu} \deriv{}{p_{2,\sigma}} \text{Tr} \left[
+      \gamma_{\rho}
+    \langle 0 | \psi_f^j (p_2) \bar{\psi}_f^i (p_1) X_{\mu \nu}
+    | 0 \rangle \right]\,,\\
+    P_{4_f}[X] &= -i \frac{\delta^{i j}}{4 N_c} P_{\mu \nu
+      | \sigma \rho} \deriv{}{p_{2,\sigma}} \text{Tr} \left[
+      \gamma_{\rho} \langle 0 | \psi_f^j (p_2) \bar{\psi}_f^i (p_1)
+      X_{\mu \nu} | 0 \rangle \right] \\
+    & \qquad - \frac{1}{2} \frac{\delta^{i j}}{4 N_c} P_{\mu
+      \nu} \deriv{}{m_0} \text{Tr} \left[ \langle 0 | \psi_f^j (p_2)
+      \bar{\psi}_f^i (p_1) X_{\mu \nu} | 0 \rangle \right]\,,
+    \label{eq:pj}
+  \end{split}
+\end{equation}
+其中 $N_c$ 是规范群基本表示的维数，即颜色数，$i$、$j$ 为相应的指标。
+投影符 $P_{3_f}$ 与 $P_{4_f}$ 中出现的迹是对格林函数的自旋指标取的，
+$f$ 表示相应的夸克味。注意 $P_{4_f}$ 的构造满足
+\begin{equation}
+  \begin{split}
+    P_{4_f}[\calo_4 + 2\calo_5] = 0
+  \end{split}
+\end{equation}
+以保证只有那些依据 \eom\ 不为零的费米子算符被计入，见 \eqn{eq:eom}。
+
+用这一流程得到的混合矩阵区分不同夸克味。为避免与对所有味求和后的算符间混合
+矩阵 $\zeta_{ij}(t)$ 混淆，我们把它记作 $\Omega_{ij}(t)$。该矩阵定义为
+\begin{equation}
+	\tcalo_{i, \mu \nu} (t, x) = \Omega_{i j} (t) \calo_{j, \mu \nu} (x) \, ,
+\end{equation}
+其中此表达式中的双重指标对 $\{1, 2,
+3_1,\ldots, 3_{n_F}, 4_1,\ldots,4_{n_F}\}$ 求和（见 \eqn{eq:ops}），
+与 \eqn{eq:emtflow} 中双重指标只对 $\{1, 2, 3, 4\}$ 求和不同。其一般结构由
+\begin{equation}
+	\Omega =
+	\begin{pmatrix}
+		\Omega_{1 1} & \Omega_{1 2} & \underline{\Omega_{1 3}}^T & \underline{\Omega_{1 4}}^T \\
+		\Omega_{2 1} & \Omega_{2 2} & \underline{\Omega_{2 3}}^T & \underline{\Omega_{2 4}}^T \\
+		\underline{\Omega_{3 1}} & \underline{\Omega_{3 2}} & \underline{\underline{\Omega_{3 3}}} & \underline{\underline{\Omega_{3 4}}} \\
+		\underline{\Omega_{4 1}} & \underline{\Omega_{4 2}} & \underline{\underline{\Omega_{4 3}}} & \underline{\underline{\Omega_{4 4}}}
+	\end{pmatrix} \, ,
+	\label{eq:Omega}
+\end{equation}
+给出，其中元素 $\Omega_{i j}$ 表示计入个别味道时 $\calo_i$ 与 $\tcalo_j$
+之间的混合。因此，单下划线元素表示 $n_F$ 维矢量，双下划线元素表示
+$n_F \times n_F$ 维矩阵，它们的元素描写不同味道之间的混合。由于夸克不可
+分辨，\eqn{eq:Omega} 中出现的 $n_F$ 维与 $n_F^2$ 维对象各自可以用两个独立
+参数 $\omega_{ij}$ 与 $\bar{\omega}_{ij}$ 刻画：
+\begin{equation*}
+	\begin{split}
+		\Omega_{i j} = \omega_{i j} \quad \text{当} \quad i,j <
+                3, \qquad
+		\underline{\Omega_{i j}} = \omega_{i j}
+		\begin{pmatrix}
+			1 \\
+			\vdots \\
+			1
+		\end{pmatrix} \quad \text{当} \quad i < 3,\
+                j > 2 \quad \text{或} \quad i > 2,\ j < 3\,,
+	\end{split}
+\end{equation*}
+\begin{equation}
+	\begin{split}
+		\underline{\underline{\Omega_{i j}}} =
+		\begin{pmatrix}
+			\omega_{i j} & \overline{\omega}_{i j} &
+                        \overline{\omega}_{i j} & \dots &
+                        \overline{\omega}_{i j} \\
+			\overline{\omega}_{i j} & \omega_{i j} &
+                        \overline{\omega}_{i j} & \dots &
+                        \overline{\omega}_{i j} \\
+			\overline{\omega}_{i j} & \overline{\omega}_{i j}
+                        & \omega_{i j} & \dots & \overline{\omega}_{i j}
+                        \\
+			\vdots & \vdots & \vdots & \ddots & \vdots \\
+			\overline{\omega}_{i j} & \overline{\omega}_{i
+                          j} & \overline{\omega}_{i j} & \dots &
+                        \omega_{i j}
+		\end{pmatrix} \quad \text{当} \quad i,j > 2\, .
+	\end{split}
+\end{equation}
+对 \eqn{eq:Omega} 中出现的不同味道求和后，$\Omega (t)$ 与 $\zeta (t)$
+之间的关系容易建立为
+\begin{align}
+	\zeta_{i j} &= \omega_{i j} & \text{当} &\quad i < 3 \, , \\
+	\zeta_{i j} &= n_F \, \omega_{i j} & \text{当} &\quad i > 2, \, j < 3 \, , \\
+	\zeta_{i j} &= \omega_{i j} + (n_F - 1) \, \overline{\omega}_{i j} & \text{当} &\quad i > 2, \, j > 2 \, .
+\end{align}
+
+\subsection{计算方法}
+
+微扰论中的梯度流形式可以用拉格朗日场论表述，其中流方程 (\ref{eq:flow})
+借助拉格朗日乘子场实现~\cite{Luscher:2011bx}。常规 QCD 费曼规则与梯度流形式
+中费曼规则的关键差别在于出现了指数因子 $\exp(-sp^2)$，其中 $s$ 是一个
+``流时间变量''，$p$ 是 $D$ 维外动量和/或圈动量的线性组合。涉及流动场的顶点
+诱导对相应流时间变量全部正值的积分，不过该积分被拉格朗日乘子场的``传播子''
+从上方截断，因为后者引入流时间变量的阶跃函数。
+
+我们已把这些费曼规则实现在程序
+\texttt{qgraf}\,\cite{Nogueira:1991ex,Nogueira:2006pq}中，它为目标矩阵元生成
+费曼图。其输出再由
+\texttt{q2e/exp}\,\cite{Harlander:1997zb,Seidensticker:1999bb}转换为
+\texttt{FORM}\,\cite{Vermaseren:2000nd,Kuipers:2012rf} 记号。一组自有的
+\texttt{FORM} 例程插入费曼规则，按照 \eqn{eq:p1} 与 \noeqn{eq:pj} 的 $P_j$
+向相关色结构与洛伦兹结构投影，并用 \texttt{color}
+包\,\cite{vanRitbergen:1998pn}计算狄拉克与色迹。结果随后被表示为如下一般
+形式的积分的线性组合：
+\begin{equation}
+  \begin{split}
+    I_l( &(d_1, \dots, d_f ), (b_1, \dots, b_n ), ( a_1, \dots, a_n ))
+    \\ &\equiv \frac{1}{\pi^{lD/2}} \, t^{lD/2-\sum_{j=1}^n a_j} \left[\prod_{i=0}^f
+     \int_0^1 \mathrm{d}u_i u_i^{d_i} \right]
+    \left[\prod_{r=1}^l\int\dd^Dk_r\right]\frac{\exp(-t \sum_{j=1}^n b_j
+      q_j^2)}{(q_1^2)^{a_1}\dots (q_n^2)^{a_n}}\,,
+    \label{eq:fl}
+  \end{split}
+\end{equation}
+其中 $a_i$ 与 $d_i$ 是整数（$d_i\geq 0$），$f$ 与 $l$ 分别是流时间积分和圈
+积分的数目，$b_j$ 是（重新标度的）流时间参数 $u_i$ 的多项式，而 $q_i$ 是圈
+动量 $k_j$ 的线性组合。对所考虑的问题与微扰阶，有 $0\leq f\leq 4$、
+$1 \leq l\leq 2$、$0 \leq n \leq 3$。注意 \eqs{eq:p1} 与 \noeqn{eq:pj} 定义
+的投影符消除了对外动量和质量的全部依赖，因此在对积分的指标结构作出合适拟设
+之后，只需计算标量真空积分。利用恒等式\,\cite{Chetyrkin:1981qh}
+\begin{equation}
+  \begin{split}
+    &\int\dd^D k \left(\deriv{}{k}\cdot q\right) f(k,q,\ldots) =
+    0\,,
+    \label{eq:ibp}
+  \end{split}
+\end{equation}
+以及流时间积分的类似关系式
+\begin{equation}
+  \begin{split}
+    \qquad\int_0^1\dd s \deriv{}{s} f(s,\ldots) =
+    f(1,\ldots)-f(0,\ldots)\,,
+    \label{eq:ibpflow}
+  \end{split}
+\end{equation}
+通过在左边被积函数中显式完成求导，可以导出这些积分之间的关系。这些所谓的
+``分部积分（\abbrev{IBP}）关系式''被输入
+\texttt{Kira}\,\cite{Maierhoefer:2017hyi}，它使我们能把出现的所有积分约化为
+单圈水平的单个主积分，以及借助 Laporta
+算法\,\cite{Laporta:2001dd}在双圈水平得到的六个主积分。（脚注：用
+\texttt{Kira} 1.0 做约化在 8 个 CPU 线程上耗时约 20 分钟，内存少于
+13\,GB。）沿 \citere{Luscher:2010iy} 的路线可以解析地求出它们：
+\begin{equation}
+  \begin{split}
+    I_1((),(2),(0)) &= 2^{-D/2} \,,\phantom{\Bigg[} \\[10pt]
+    I_2((),(0,2,2),(0,0,0)) &= 2^{-D} \,,\phantom{\Bigg[} \\[10pt]
+    I_2((),(1,1,1),(0,0,0)) &= 3^{-D/2} \,,\phantom{\Bigg[} \\[10pt]
+    I_2((),(1,1,1),(1,1,0)) &= \frac{1}{D-2} \Bigg[ - 2 \pi \csc \left( \frac{D \pi}{2} \right) \\
+    & \qquad \qquad+ \frac{3^{2 - D/2}}{D - 4} \, {_2F}_1 \left(1, 1; 3 - \frac{D}{2}; \frac{3}{4} \right) \Bigg] \,,\\[10pt]
+    I_2((),(0,0,2),(1,1,0)) &= - \frac{2^{3 - D} \pi}{D - 2} \csc \left( \frac{D \pi}{2} \right) \,, \phantom{\Bigg[} \\[10pt]
+    I_2((0),(2-u_1,u_1,u_1),(0,0,0)) &= 2^{2 - 2D} B_{1/4} \left( 1 - \frac{D}{2}, 1 - \frac{D}{2} \right) \,,\phantom{\Bigg[} \\[10pt]
+    I_2((0),(1+u_1,1+u_1,1-u_1),(0,0,0)) &= 2^{2 - 2 D} \Bigg[ B_{3/4} \left( 1 - \frac{D}{2}, 1 - \frac{D}{2} \right) \\
+    & \qquad \qquad - B_{1/2} \left( 1 - \frac{D}{2}, 1 - \frac{D}{2} \right) \Bigg] \,.
+    \label{eq:masters}
+  \end{split}
+\end{equation}
+这些表达式中使用了 $\csc(z)=1/\sin(z)$，以及超几何函数的定义
+\begin{equation}
+  \begin{split}
+    _2F_1(a,b;c;z) \equiv
+    \sum_{n=0}^\infty\frac{(a)_n(b)_n}{(c)_n}\frac{z^n}{n!}\,,
+  \end{split}
+\end{equation}
+和 Pochhammer 记号
+\begin{equation}
+	(x)_n \equiv \frac{\Gamma ( x + n)}{\Gamma(x)} \,.
+\end{equation}
+此外，不完全贝塔函数定义为
+\begin{equation}
+  B_z (a, b) \equiv \int_0^z\dd t\, t^{a-1}(1-t)^{b-1}
+\end{equation}
+且可表达为
+\begin{equation}
+  \begin{split}
+    B_z(a,b) =  z^a \sum_{n = 0}^\infty \frac{(1 - b)_n}{n! (a + n)} z^n
+    = \frac{z^a}{a}\ {}_2F_1(a,1-b;a+1;z)\,.
+  \end{split}
+\end{equation}
+超几何函数在 $\ep\to 0$ 极限下的展开可借助
+\texttt{Mathematica}\,\cite{Mathematica11.3} 包
+\texttt{HypExp}\,\cite{Huber:2005yg,Huber:2007dx} 得到。
+
+关于我们框架部分内容的更详细描述将在后续出版物\,\cite{Artz:2019bpr}中给出。
+作为检验，我们把关联函数 $\langle G_{\mu\nu}^aG_{\mu\nu}^a\rangle$、
+$\langle \bar\chi\chi\rangle$ 与 $\langle \bar\chi \slashed D \chi\rangle$
+算到 \nlo。它们给出的主积分集合与 \eqn{eq:masters} 相同。把我们的结果与
+\citere{Luscher:2010iy} 及 \citere{Makino:2014taa} 比较（脚注：我们与其
+\texttt{arXiv} 第 2 版和第 5 版进行比较。），发现完全一致。

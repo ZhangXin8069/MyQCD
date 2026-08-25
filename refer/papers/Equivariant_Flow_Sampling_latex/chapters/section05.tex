@@ -1,0 +1,54 @@
+\section{Application to U(1) gauge theory}
+Gauge theory with a $\Uone$ gauge group defined in two spacetime dimensions is the quenched limit of $1+1D$ electrodynamics, i.e.~the Schwinger model~\cite{Schwinger:1962tp}. The full Schwinger model reproduces many features of quantum chromodynamics (confinement, an axial anomaly, topology, and chiral symmetry breaking) while being analytically tractable. Even in the quenched limit, the well-defined gauge field topology results in severe critical slowing down of MCMC methods for sampling lattice discretizations of the model as the coupling is taken to criticality. We consider the lattice discretization given by the Wilson gauge action~\cite{Wilson:1974sk},
+%
+\begin{equation}\label{eq:action}
+    S(U) := -\beta \sum_x \Re P(x),
+\end{equation}
+%
+where $P(x)$ is the plaquette at $x$ defined in terms of link variables $U_\mu(x) \in \Uone$,
+%
+\begin{equation} \label{eq:plaquette}
+\quad P(x) := U_{0}(x) U_1(x+\hat{0}) U^\dagger_{0}(x+\hat{1}) U^\dagger_{1}(x),
+\end{equation}
+%
+and $x = (x_0, x_1)$ runs over coordinates in an $L \times L$ square lattice with periodic boundary conditions. Physical information may be extracted from the model by considering expectation values of observables $\obs$ under the Euclidean time path integral,
+\begin{equation}
+  \left< \obs \right> := \frac{1}{Z} \int \D{U} \obs(U) e^{-S(U)},
+\end{equation}
+where $\int \D{U}$ denotes integration over the product of Haar measures for each link, and $Z=\int\D{U} e^{-S(U)}$.
+In this study, three key observables were considered:
+%
+\begin{enumerate}
+
+    \item Expectation values of powers of plaquettes.
+
+    \item Expectation values of $\ell \times \ell$ Wilson loops $W_{\ell \times \ell} = \prod_{x \in \ell \times \ell} P(x)$.
+
+    \item Topological susceptibility $\chi_Q = \langle Q^2 / V \rangle$, where topological charge $Q := \frac{1}{2\pi} \sum_x \arg\left(P(x)\right)$ is defined in terms of plaquette phase in the principal interval, $\arg\left(P(x)\right) \in [-\pi, \pi]$.
+
+\end{enumerate}
+
+To investigate critical slowing down, we studied the theory at a fixed lattice size, $L = 16$, using seven choices of the parameter $\beta = \{ 1,2,3,4,5,6,7 \}$; the theory approaches the continuum limit as $\beta \rightarrow \infty$. For each parameter choice, we trained gauge invariant flow-based models using a uniform prior distribution and a composition of 24 gauge-equivariant coupling layers. The kernels $h$ were chosen to be mixtures of Non-Compact Projections~\cite{rezende2020normalizing}, which are suitable for $\Uone$ group elements; in particular, we used 6 components for each mixture and parameterized each transformation with a convolutional neural network. The model architecture was held fixed across all choices of $\beta$, ensuring identical cost to draw samples for each parameter choice. To train the models, we minimized the Kullback-Leibler divergence between the model density $q(U)$ and the target density $e^{-S(U)} / Z$. Training was halted when the loss function reached a plateau. For this proof-of-principle study, we did not perform extensive optimization over the variable splitting pattern, neural network architecture, or training hyperparameters, and it is likely that better models can be trained.
+
+After training, the flow-based models were used to generate proposals for a Metropolis independence Markov chain~\cite{Albergo2019FlowMCMC}, producing ensembles of $100,000$ samples each.
+For comparison, ensembles of identical size were produced using the HMC and Heat Bath algorithms. For all choices of $\beta$, we fixed the HMC trajectory length to achieve $> 80\%$ acceptance rate when using a leapfrog integrator with $5$ steps. Each HB step was defined as one sweep, i.e.~a single update of every link.
+To within $10\%$, the computational cost per HMC trajectory was equal to the cost per proposal from the flow-based model in a single-threaded CPU environment, while the cost per Heat Bath step was half that of HMC or flow.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{images/ens_b567_obs.pdf}
+    \caption{Left: estimates of average Wilson loops $\langle W_{\ell \times \ell} \rangle$ measured on the finest ensemble studied here ($\beta = 7$). Right: estimates of topological susceptibility measured on the three finest ensembles studied here ($\beta = 5,6,7$).  All values are plotted as ratios to the exact results. The flow-based estimates are consistent with the exact values, while the HMC and Heat Bath estimates have larger uncertainties and also significantly deviate from the exact values in some cases.
+    }
+    \label{fig:compare_obs}
+\end{figure}
+
+Using samples from a flow-based model as proposals within a Markov chain ensures unbiased estimates after thermalization; at the finite ensemble size used here, all observables were found to agree with analytical results within statistical uncertainties. Of the observables we studied, local quantities like powers of plaquettes and expectation values of small Wilson loops were estimated more precisely by HMC and HB than with the flow-based algorithm. However, Fig.~\ref{fig:compare_obs} shows that for observables with larger extent such as $W_{\ell \times \ell}$ with $\ell \geq 4$, and particularly for $\chi_Q$, large autocorrelations in the HMC and HB samples result in estimates that deviate from the exact values and have lower precision than the flow-based estimates.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.85\linewidth]{images/tint_Q_vs_beta.pdf}
+    \caption{Integrated autocorrelation time for the topological charge, $\tint_Q$, measured on ensembles of $16 \times 16$ lattices generated using HMC, Heat Bath, and the flow-based algorithm. Ten replicas of each ensemble were used to estimate errors, which are smaller than the plot markers for most points.}
+    \label{fig:tint_hmc_vs_flow}
+\end{figure}
+
+For Markov chain methods, the characteristic length of autocorrelations for an observable $\obs$ can be defined by the integrated autocorrelation time $\tint_\obs$~\cite{Madras:1988ei}. Fig.~\ref{fig:tint_hmc_vs_flow} compares $\tint_Q$ for HMC and HB to that in the flow-based algorithm as an indicator of how well the three methods explore the distribution of topological charge. For all three methods, $\tint_Q$ grows as $\beta$ is increased towards the continuum limit. However, this problem is far less severe for the flow-based algorithm than for HMC or HB. For example, the autocorrelation time in the flow-based algorithm is approximately $10$ at the largest value of $\beta$, whereas $\tint_Q \approx 4000$ for HB and $\tint_Q \approx 15000$ for HMC. Accounting for the relative cost per step of each Markov chain, the flow-based Metropolis sampler is therefore roughly $1500$ times more efficient than HMC and $200$ times more efficient than Heat Bath in determining topological quantities. A promising possibility for further development is mixing flow-based Markov chain steps with HMC trajectories or Heat Bath sweeps to gain the benefits of standard Markov chain steps for local observables and of the flow-based algorithm for extended and topological observables.

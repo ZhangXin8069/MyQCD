@@ -1,0 +1,214 @@
+\section{基于流的马尔可夫链蒙特卡洛算法}
+\label{sec:flowMCMC}
+
+\begin{figure*}
+  \centering
+  \begin{minipage}{.76\linewidth}
+  \centering
+  \subfloat[先验分布与输出分布之间的归一化流]{
+  \includegraphics[width=.97\linewidth]{images/FlowsDiagLabelled_taller.pdf}
+  \label{subfl:norm-flow}
+  }
+  \end{minipage}%
+  \begin{minipage}{.23\linewidth}
+  \centering
+  \subfloat[逆耦合层]{
+  \includegraphics[height=5.5cm]{images/coupling_layer.pdf}
+  \label{subfl:inverse-coupling}
+  }
+  \end{minipage}
+  \caption{ 在 \protect\subref{subfl:norm-flow} 中，归一化流把来自先验分布 $r(z)$ 的样本 $z$ 变换为按 $\netp(\phi)$ 分布的样本 $\phi$。映射 $f^{-1}(z)$ 由式~\eqref{eq:inv-affine-coupling} 定义的逆耦合层 $g_i^{-1}$ 复合而成，其中涉及神经网络 $s_i$ 与 $t_i$，其示意见图 \protect\subref{subfl:inverse-coupling}。通过优化每个耦合层内的神经网络，可使 $\netp(\phi)$ 近似某个感兴趣的分布 $p(\phi)$。}
+  \label{fig:flowdiag}
+\end{figure*}
+
+在格点场论中，马尔可夫链蒙特卡洛（MCMC）过程是一种高效产生场构型 $\phi \in \mathbb{R}^D$ 的方法，使其按目标概率分布
+\begin{equation}
+\begin{aligned}
+    p(\phi) = e^{-S(\phi)} / Z, \quad
+    \text{with}\quad Z =\int \prod_{j=1}^D d\phi_j \,e^{-S(\phi)},
+\end{aligned}
+\end{equation}
+分布，其中 $j$ 标记 $\phi$ 的 $D$ 个分量，$S(\phi)$ 是定义理论的作用量，$Z$ 是配分函数。这里，$\phi$ 定义为一个由 $D$ 个实分量构成的向量，表示场 $\phi(x,\alpha)$ 在有限、离散时空格点上取值时的内部 $(\alpha)$ 自由度与时空 $(x)$ 自由度的组合（向规范场的推广在第~\ref{sec:summary} 节讨论）。MCMC 过程从任意初始构型 $\phi^{(0)}$ 出发，通过在构型空间中的步进来生成链 $\phi^{(0)} \rightarrow \phi^{(1)} \rightarrow \ldots \phi^{(N)}$。这些步进是随机的，由与每个可能跃迁 $\phi \rightarrow \phi'$ 相关联的概率 $T(\phi,\phi')$ 决定。
+这些概率必须非负且归一化：
+%
+\begin{equation}
+    T(\phi,\phi')\ge 0
+    \quad \text{and} \quad
+    \int\prod_{j=1}^D d\phi'_j \, T(\phi,\phi') = 1.
+\end{equation}
+%
+它们还必须满足{\it 遍历性}（ergodicity）与{\it 平衡性}（balance）条件，以保证链中的样本在热化后收敛于分布 $p(\phi)$。为使链遍历，必须能从初始构型 $\phi$ 经有限步跃迁到任何其他构型 $\phi'$，即
+%
+\begin{equation}
+    \Exists n \text{ such that } T^n(\phi,\phi')> 0 \text{ for all } \phi, \phi',
+\end{equation}
+%
+%
+且链不能有周期；为此只需存在一个自跃迁概率非零的态即可，即
+%
+\begin{equation}
+    \Exists \phi \text{ such that } T(\phi,\phi) > 0.
+\end{equation}
+%
+平衡性是指 $p(\phi)$ 为该跃迁的平稳分布：
+%
+\begin{equation}
+    \int \prod_{j=1}^D d\phi_j \, p(\phi) T(\phi,\phi') = p(\phi').
+\end{equation}
+%
+任何满足上述条件的流程，在马尔可夫链足够长的极限下，都会产生按 $p(\phi)$ 分布的场构型 $\{\phi^{(i)}\}$。
+
+\subsection{结合生成模型的 Metropolis-Hastings 方法}
+\label{subsec:generative-metropolis}
+%
+给定一个可以从已知概率分布 $\tilde{p}(\phi)$ 抽样的模型，可以通过独立 Metropolis 采样器——Metropolis-Hastings 方法的一个特例~\cite{tierney1994}——为期望概率分布 $p(\phi)$ 构造一条马尔可夫链。对链的第 $i$ 步，通过从 $\tilde{p}(\phi)$ 抽样生成一个与前一个构型无关的{\it 更新提议} $\phi'$。该提议以下列概率被接受
+%
+\begin{equation}
+A(\phi^{(i-1)},\phi') = \min\paren{1, \frac{\tilde{p}(\phi^{(i-1)}) }{ p(\phi^{(i-1)})} \frac{p(\phi')}{\tilde{p}(\phi')}}.
+\label{eq:acc-rej}
+\end{equation}
+%
+%
+若提议被接受，则 $\phi^{(i)} = \phi'$，否则 $\phi^{(i)} = \phi^{(i-1)}$。这一流程定义了马尔可夫链的跃迁概率。
+
+一般的 Metropolis-Hastings 算法已被证明对任意提议方案都满足平衡性~\cite{hastings70}。对于独立 Metropolis 采样器，若进一步要求每个态 $\phi$ 的提议密度与期望密度均非零，
+%
+\begin{equation}
+    \tilde{p}(\phi) > 0, \; p(\phi) > 0 \text{ for all } \phi,
+\end{equation}
+%
+则该马尔可夫链还是遍历的，从而保证收敛到期望分布~\cite{tierney1994}。
+
+可以直观地把这条马尔可夫链视为将近似分布 $\tilde{p}(\phi)$ 修正为期望分布 $p(\phi)$ 的方法。Metropolis-Hastings 算法的接受/拒绝统计可作为近似分布与期望分布接近程度的诊断量；若两分布相等，则提议以概率 1 被接受，此时马尔可夫链过程等价于对期望分布的直接抽样。这一点将在第~\ref{subsec:autocorr} 节精确阐述。
+
+
+\subsection{利用归一化流采样}
+\label{subsec:normalizing-flows}
+本文使用一种{\it 归一化流模型}来为生成式 Metropolis-Hastings 算法定义提议分布 $\tilde{p}(\phi)$。归一化流~\cite{rezende2015nf} 是针对从复杂、难解分布中抽样这一任务的机器学习方法。其做法是学习一个映射：从易于抽样的输入分布映到近似期望分布的输出分布。归一化流模型同时给出样本及其相应的概率密度，使得式~\eqref{eq:acc-rej} 中的接受概率可以计算。
+
+归一化流通过变量替换实现分布间的变换\footnote{使用 $f^{-1}$ 表示变量替换的约定源于归一化流的典型应用。}：一个光滑的双射函数 $f^{-1}: \mathbb{R}^D \rightarrow \mathbb{R}^D$ 把来自先验分布 $r(z)$ 的样本 $z$ 映为 $\phi = f^{-1}(z)$。由变量替换公式，该映射定义了输出分布 $\netp(\phi)$：
+\begin{align}
+\label{eq:flowlikelihood}
+\netp(\phi) = r(f(\phi))\left| \det  \frac{\partial f(\phi)}{\partial \phi} \right|.
+\end{align}
+通常先验分布是简单且可解析理解的分布（例如正态分布）。虽然期望分布 $p(\phi)$ 往往复杂而难以直接抽样，但优化函数 $f$ 可以使人从 $\netp(\phi) \approx p(\phi)$ 中生成样本。函数 $f$ 被选为具有易处理的雅可比行列式，使概率密度 $\netp(\phi)$ 能按式~\eqref{eq:flowlikelihood} 精确计算。
+%
+
+
+
+
+%
+要把从简单分布 $r(z)$ 到复杂分布 $\netp(\phi)$ 的映射编码出来，映射 $f$ 必须具有高度表达能力，同时还要可逆并具有可计算的雅可比行列式。本文采用{\it 实值非保体积（real non-volume-preserving, real NVP）流}~\cite{Dinh2016} 这一机器学习方案：$f$ 由若干{\it 仿射耦合层}复合而成，每层一次只对一半输入分量进行缩放和平移；数据中哪些分量被变换属于层定义的一部分。按此选择把 $D$ 维向量 $\phi$ 拆分为两个 ($D/2$) 维片段 $\phi_a$ 与 $\phi_b$ 后，单个耦合层 $g_i$ 通过下式把 $\phi$ 变换为 $z = g_i (\phi)$：
+%
+\begin{align}\label{eq:affinecoupling}
+    g_i(\phi) := \begin{cases}
+    z_a = \phi_a  \\
+    z_b = \phi_b \odot e^{s_i(\phi_a)} + t_i(\phi_a),
+    \end{cases}
+\end{align}
+%
+其中 $s_i$ 与 $t_i$ 是从 $\mathbb{R}^{D/2}$ 映到 $\mathbb{R}^{D/2}$ 的神经网络，$\odot$ 表示逐元素乘法。重要的是，每一层 $g_i$ 都可逆，且无需对神经网络 $s_i$ 或 $t_i$ 求逆：
+%
+\begin{align}\label{eq:inv-affine-coupling}
+    g_i^{-1}(z) := \begin{cases}
+    \phi_a = z_a  \\
+    \phi_b = (z_b - t_i(z_a)) \odot e^{-s_i(z_a)}.
+    \end{cases}
+\end{align}
+%
+雅可比矩阵是下三角形的，其行列式易于计算。对耦合层 $g_i$：
+%
+\begin{equation}
+    \left| \det \pbp{g_i(\phi)}{\phi} \right| = \prod_{j=1}^{D/2} e^{\sq{s_i(\phi_a)}_j},
+\end{equation}
+其中 $j$ 标记 $s_i$ 输出的 $D/2$ 个分量。
+%
+把许多交替变换数据不同一半的耦合层 $g_1, \dots, g_n$ 堆叠起来，函数 $f$ 定义为
+%
+\begin{equation}
+    f(\phi) = g_1 (g_2 ( \dots g_{n} (\phi) \dots ) ).
+\end{equation}
+%
+利用链式法则，$f$ 的雅可比行列式是各 $g_i$ 贡献的乘积。通过增加耦合层的数量以及网络 $s_i$、$t_i$ 的复杂度，可以使 $f$ 系统地变得更具表达力和一般性。图~\ref{fig:flowdiag} 展示了复合多个耦合层如何逐步把一个易于抽样的先验分布修改为一个逼近感兴趣分布的更复杂的输出分布。
+
+对固定的初始分布 $r(z)$，可以对 $f$ 中每个仿射耦合层内的神经网络进行训练，使 $\netp(\phi)$ 接近期望分布 $p(\phi)$。这一训练通过最小化一个{\it 损失函数}来完成。本文使用的损失函数是一个平移后的 Kullback-Leibler（KL）散度\footnote{该训练范式是概率密度蒸馏（Probability Density Distillation）的一个具体实例~\cite{Oord2017WaveNet, Li2018}。
+}，介于形如 $p(\phi) = e^{-S(\phi)}/Z$ 的目标分布与提议分布 $\netp(\phi)$ 之间：
+%
+\begin{equation}
+\begin{aligned}\label{eq:loss}
+L(\netp) &:= D_{KL}(\netp || p) - \log Z \\
+&= \int \prod_j d\phi_j \, \netp(\phi) \paren{\log\netp(\phi) - \log p(\phi) - \log Z} \\
+&=  \int \prod_j d\phi_j \, \netp(\phi) \paren{\log\netp(\phi) + S(\phi)}.
+\end{aligned}
+\end{equation}
+%
+该损失函数已在相关的统计格点模型生成式方案中成功应用~\cite{DBLP:journals/corr/abs-1809-10188,Li2018}。式~\eqref{eq:loss} 中形式上的 $\log{Z}$ 平移消除了计算真实配分函数的需要，并且不影响梯度或极小值的位置。由 KL 散度的非负性可知损失的下界为 $-\log{Z}$，且当且仅当 $\netp = p$ 时恰好达到该最小值。
+实践中，损失通过从模型抽取大小为 $M$ 的样本批 $\curly{\phi^{(i)} \sim \netp}$ 并计算样本均值来随机估计：
+%
+\begin{equation}
+\begin{aligned}\label{eq:loss-batch}
+    \widehat{L\paren{\netp}} =
+    \frac{1}{M} \sum_{i=1}^M \paren{\log \netp(\phi^{(i)}) + S(\phi^{(i)})}.
+\end{aligned}
+\end{equation}
+%
+随后可用随机优化技术进行损失最小化，例如随机梯度下降或包括 Adam 与 Nesterov 在内的基于动量的方法~\cite{Kingma2015Adam,nesterov1983}。
+
+按构造，流模型可以高效地从 $\netp$ 抽样。因此训练过程可以靠模型自身产生的样本来完成，而不必以期望分布的现成样本作为训练数据。这种自训练是所提出的场论蒙特卡洛采样方案的关键特点，因为在场论中从期望分布获取样本往往计算代价高昂。若现成样本确实存在，也可用来对网络做``预训练''，不过在本文开展的数值研究中并未发现这比仅用自训练在网络优化上明显更高效。
+
+给定训练好的、分布为 $\netp(\phi) \approx p(\phi)$ 的模型，可以把来自 $\netp$ 的样本作为提议，用上文描述的生成式 Metropolis-Hastings 算法推进马尔可夫链。这就是本文提出的\emph{基于流的 MCMC} 算法的基础：
+\begin{enumerate}
+    \item 训练一个基于流的生成模型（此处为 real NVP 模型），采用式~\eqref{eq:loss} 给出的平移 KL 损失，使其输出分布满足 $\netp(\phi) \approx p(\phi)$；
+    \item 通过从基于流的模型抽样产生 $N$ 个提议 $\curly{\phi'^{(i)} \sim \netp}$（可并行进行），并对每个提议计算相应作用量 $S(\phi')$；
+    \item 从任意初始构型出发，用式~\eqref{eq:acc-rej} 给出的 Metropolis-Hastings 算法依次接受或拒绝每个提议样本，构建长度为 $N$ 的马尔可夫链。
+\end{enumerate}
+%
+当先验分布 $r(z)$ 严格为正时，$f$ 的可逆性与连续性保证了生成的分布 $\netp(\phi)$ 也严格为正。对所有作用量有限（从而 $p(\phi) > 0$）的模型，按第~\ref{subsec:generative-metropolis} 节的论证，所得马尔可夫链因而是遍历的。
+
+
+\subsection{生成式 Metropolis-Hastings 的自相关时间}
+\label{subsec:autocorr}
+
+对任何经由生成式 Metropolis-Hastings 算法（带独立更新提议）构造的马尔可夫链，都可以由链的接受/拒绝统计定义一个与观测量无关的自相关时间估计量。它既可用于度量提议分布与期望分布的相似程度，也使格点观测量的正确误差估计成为可能~\cite{Wolff2003}。
+
+确切地说，对所有观测量而言，马尔可夫链间隔 $\tau$ 处的自相关由连续出现 $\tau$ 次拒绝的概率给出：
+%
+\begin{equation}
+p_{\tau\text{rej}} \equiv \avg{\prod_{i = 1}^\tau \mathbbm{1}_{\text{rej}}(i)} = \rho(\tau)/\rho(0),
+\end{equation}
+%
+其中 $\mathbbm{1}_{\text{rej}}(i)$ 是示性变量：当 Metropolis-Hastings 算法中从 $i-1$ 到 $i$ 的提议步被拒绝时取值 $1$，否则取 $0$。实践中，对长度为 $N$ 的近平衡有限马尔可夫链，一个有限样本估计量为 $\rho(\tau)/\rho(0)$ 提供了良好近似：
+%
+\begin{equation}
+\widehat{\rho(\tau)/\rho(0)}_{\text{acc}} = \frac{1}{N-\tau} \sum_{j=1}^{N-\tau} \prod_{i = 1}^\tau \mathbbm{1}_{\text{rej}}(i+j).
+\end{equation}
+%
+这种自相关度量与通常的定义一致；附录~\ref{app:bounds} 中证明了任意给定观测量 $\obs$ 的自相关标准估计量
+%
+\begin{equation}
+\widehat{\rho(\tau)/\rho(0)}_\obs
+=  \frac{\frac{1}{N-\tau} \sum_{i=0}^{N-\tau-1} (\obs_i - \bar{\obs})(\obs_{i+\tau}-\bar{\obs})}{\frac{1}{N} \sum_{i=0}^{N-1} \paren{\obs_i - \bar{\obs}}^2},
+\end{equation}
+%
+在极限 $N\rightarrow \infty$ 下同样收敛到 $p_{\tau\text{rej}}$。
+
+接受率与自相关之间的定性关系为刻画马尔可夫链的自相关特征提供了便利的度量。确切地说，距离 $\tau$ 处的自相关可用平均接受率 $a = 1 - \mathbb{E}\sq{p_\text{rej}}$ 来下界估计：
+\begin{equation}
+\rho(\tau)/\rho(0) = \expt{\phi \sim p}\sq{p_{\text{rej}}^\tau(\phi)} \geq \paren{\expt{\phi \sim p}\sq{p_{\text{rej}}(\phi)}}^\tau = (1-a)^\tau.
+\label{eq:mean-acc-bound}
+\end{equation}
+因此，提高独立 Metropolis 采样器的接受率是减小自相关的必要条件。此外，当且仅当提议分布与期望分布相等时 $a = 1$。此时对每个 $\phi$ 都有 $p_\text{rej}(\phi) = 0$，不存在自相关。虽然把 $a$ 提升到接近 $1$ 并不给出自相关的上界，但从平均上看，随机地改进一个度量分布间距离的损失函数预期会降低自相关。实践中，应把自相关作为测试指标与训练损失一起评估，以确认训练过程中模型的持续改善。损失最小化、接受率与自相关之间的对应关系将在第~\ref{sec:phi4} 节结合 $\phi^4$ 理论进行研究，那里观察到 $a$ 与 $\rho(\tau)/\rho(0)$ 之间存在明显的相关性。
+
+\subsection{临界慢化}
+\label{subsec:CSD-theory}
+
+当用一个自相关时间很大的马尔可夫链对分布抽样时，需要很多次更新才能产生去关联的样本。临界慢化（CSD）定义为：当逼近参数空间中的临界点时，马尔可夫链抽样的自相关时间发散~\cite{Wolff:1989wq}。
+%
+马尔可夫链特征自相关时间的一个数值稳定的定义是\emph{积分自相关时间}：
+%
+\begin{equation}
+    \tau_\mathcal{O}^\text{int} = \frac{1}{2} + \lim_{\tau_\text{max} \rightarrow \infty}\sum_{\tau=1}^{\tau_\text{max}} \frac{\rho_\mathcal{O}(\tau)}{\rho_\mathcal{O}(0)}.
+\end{equation}
+随着临界点的逼近，对格点模型标准局域更新算法的分析表明，$\tau_\mathcal{O}^\text{int}$ 通常可用格距的幂律很好地描述；或在固定物理体积下，用每维格点数 $L$ 的幂律描述。动力学临界指数 $z_\mathcal{O}$ 于是由沿固定物理参量线（line of constant physics）拟合 $\tau_\mathcal{O}^\text{int} = \alpha_\mathcal{O} L^{z_\mathcal{O}}$ 来定义。临界指数为零的更新算法不受 CSD 影响。
+
+在任何生成式 Metropolis-Hastings 模拟中，自相关时间完全由期望的接受/拒绝统计决定，而后者又源自提议分布与期望分布的结构。对以积分自相关时间的目标值作为停止准则训练的模型而言，与马尔可夫链抽样相联系的 CSD 因此被轻易消除，代价是前期训练开销。CSD 的困难本质上被转移到模型的训练上，即提议分布的优化上。本文研究的 $\phi^4$ 理论中这一优化任务的代价与标度行为，以及将该方案扩展到更复杂理论的前景，在第~\ref{subsec:training-cost} 节中讨论。

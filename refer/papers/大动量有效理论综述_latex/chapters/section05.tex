@@ -1,0 +1,641 @@
+\section{横动量依赖 PDF}
+\label{sec:tmd}
+%------------------------------------------------------------------------------
+横动量依赖（TMD）部分子分布函数（TMDPDF）是共线 PDF 向同时包含部分子纵向与横向动量的自然推广。原则上它们是概率分布 $f_i(x,\vec{k}_\perp,\sigma)$：在强子态内找到给定种类 $i$、纵横向动量 $(xP^+,\vec{k}_{\perp})$、极化 $\sigma$ 的部分子的概率。TMDPDF 在理解强子部分子结构与高能散射方面正扮演日益重要的角色。
+
+TMD 部分子密度由 Collins 与 Soper 于 1980 年代首先引入~\cite{Collins:1981uk,Collins:1981va,Collins:1982wa,Collins:1984kg,Collins:1985ue,Bodwin:1984hc}，用以理解 Drell-Yan（DY）与 $e^{+}e^{-}$ 湮灭过程，并在~\cite{Ji:2004wu,Ji:2004xq}推广到半 inclusive 深度非弹性散射（SIDIS）。TMD 因子化后来在 SCET 框架中被重新分析，其中各模式通过有效场显式化~\cite{Bauer:2000yr,Bauer:2001yt,Manohar:2006nz,Becher:2010tm,GarciaEchevarria:2011rb,Echevarria:2012js,Chiu:2012ir}。各种 TMD 因子化表述最终收敛于可以定义方案无关 TMDPDF 的标准形式~\cite{Echevarria:2012js,Collins:2012uy,Collins:2017oxh}。
+
+TMD 部分子密度对理解测量终态粒子横动量的实验过程很重要。例如，在 DY 对与 $W, Z$ 产生中已知微分截面 $d\sigma/dQ_T^2$ 通常在相对较小的横动量处出现峰值。当 $Q\sim 10 $ GeV 时，峰一般位于 $Q_\perp\sim 1 $ GeV，那里非微扰效应很重要~\cite{Collins:1984kg}。因此，对 TMD 部分子密度的充分了解对确定截面和微扰 QCD 预言的精度检验至关重要。
+
+除在理解高能实验数据中的重要性外，TMD 部分子密度本身也很重要，因为它们在描述强子结构中起关键作用。借助它们，可以同时通过纵向 $x$ 依赖研究快速运动的共线物理，并通过横向 $\vec{k}_\perp$ 依赖研究非微扰效应。此外，TMDPDF 对软辐射等效应敏感，因此存在横向自由度时的物理相当丰富。在自旋依赖现象的研究中尤其如此——可以通过 Lorentz 分解定义各种 TMDPDF（见 Sec. V.B）。一个例子是横向极化质子的 Sivers 函数 $\epsilon_{ij}k^i_\perp S^i_\perp f^{\perp}_{1T}(x,k_\perp)$，它是朴素时间反演奇的，被预言在 DY 与 SIDIS 过程之间变号~\cite{Collins:2011zzd}。类似性质也存在于 Boer-Mulders 函数~\cite{Boer:1997nt}中，后者涉及未极化强子中横向极化的部分子分布。这两个函数都与单横向自旋不对称相关。若把 TMDPDF 推广到包含碰撞参数依赖，还可进一步定义 Wigner 函数、部分子轨道角动量分布等~\cite{Belitsky:2003nz, Lorce:2011ni}。因此 TMDPDF 允许对强子结构作更完整精细的三维描述（或断层成像）~\cite{Burkardt:2000za, Boer:2011fh}。
+质子的三维断层成像是 EIC 项目的主要物理目标之一。TMDPDF 对理解小 $x$ 物理也很重要~\cite{Kuraev:1977fs,Balitsky:1978ic,Balitsky:1995ub,Kovchegov:1999yj,Kovchegov:2012mbw}。
+
+我们目前关于 TMDPDF 的知识主要来自对实验数据的拟合~\cite{Landry:1999an,Konychev:2005iy,Su:2014wpa,Echevarria:2014xaa,Kang:2015msa,Bacchetta:2017gcc,Scimemi:2017etj,Bertone:2019nxa,Scimemi:2019cmh,Bacchetta:2019sam}。由于数据稀少，这仍相当原始。虽然未来的 EIC 将弥补缺口、产生更多 TMD 测量数据，但发展确定非微扰 TMDPDF 的第一性原理方法仍然重要——它可以作为检验，或为全局拟合提供有用的约束输入。
+LaMET 提供了从格点计算提取 TMDPDF 的系统途径。早期研究~\cite{Ji:2014hxa,Ji:2018hvs,Ebert:2018gzl,Ebert:2019okf}尝试在格点上构造准 TMDPDF，但由于软函数的复杂性，其与物理 TMDPDF 的关系预期是非微扰的~\cite{Ebert:2019okf}。近期工作~\cite{Ji:2019sxk,Ji:2019ewn}给出了计算软函数的表述，从而可以在准 TMDPDF 与物理 TMDPDF 之间建立微扰匹配公式，使得后者可以从格点 QCD 完全确定。本节综述 LaMET 在非微扰 TMDPDF 上的应用。该研究仍处于早期阶段，尤其在格点计算与匹配方面还有很多有待探索。
+
+第一小节介绍 TMDPDF 并讨论相关的快度发散。随后小节在有限动量质子中定义准 TMDPDF（TMD 动量分布），研究其动量 RGE 与 UV 重正化性质；过程中引入离光锥软函数。然后给出准 TMDPDF 到光锥 TMDPDF 与离光锥软函数的因子化，并给出各种单圈结果及相关 RGE。最后一个小节讨论离光锥软函数的性质：证明它与一对带电色源的形状因子有关，为其在欧氏格点上的计算铺平道路。
+
+\subsection{TMDPDF 与快度发散引论}
+\label{sec:lightconetmd}
+
+如 \sec{lamet} 所解释，通过在夸克或胶子双线性之间选取不同的规范链可以定义各种 TMDPDF。与高能现象相关的是用类光 Wilson 线定义的那一个。链代表高能带色粒子的传播，是构成规范不变非局域算符的关键~\cite{Belitsky:2002sm}。如前几节所论证，这类算符是取质子无穷动量极限所得 EFT 描述（SCET 中更明显）的结果。因此自然会期待它们需要额外的正规化与重正化。
+
+以非单态夸克非极化 TMDPDF 为例。略去场论的微妙之处，分布为
+\begin{align}\label{eq:beam}
+	& f(x,\vec{k}_\perp) = \frac{1}{2P^+}\int\frac{d\lambda}{2\pi}\frac{d^2\vec{b}_\perp}{(2\pi)^2}
+	e^{-i\lambda x+i\vec{k}_\perp \cdot \vec{b}_\perp}\\
+	& \times \langle P| \bar \psi(\lambda n/2 +\vec{b}_\perp)\gamma^+{\cal W}_n(\lambda n/2+\vec{b}_\perp)\psi(-\lambda n/2)|P\rangle  \ ,\nn
+\end{align}
+其中 ${\cal W}_n(\lambda n+\vec{b}_\perp)$ 是形如下式的钉书形规范链
+\begin{align}
+	&{\cal W}_n(\xi)=W^{\dagger}_{n}(\xi)W_{\perp}W_{n}(-\xi \cdot p n) \label{eq:staplen} \ , \\
+	&W_{n}(\xi)= {\cal P}\exp\left[-ig\int_{0}^{-\infty} d\lambda n\cdot A(\xi+\lambda n)\right] \ ,
+\end{align}
+沿光锥方向 $n^\mu$ 延伸，如图 Fig.~\ref{Fig:tmdpdf} 所示。$W_\perp$ 是光锥无穷远处的横向规范链，用于保持规范不变性。
+若使用 LFQ 并忽略横向规范链，上述分布在 $x>0$ 时就是 $\langle P|b^\dagger (x,\vec{k}_\perp)b(x,\vec{k}_\perp)|P\rangle$，正如所料。
+
+
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.9\columnwidth]{images/tmd-TMDDY_fig10.pdf}
+	\caption{DY 与 SIDIS 过程 TMDPDF 的时空图像。圆圈叉号表示夸克—链顶点。注意顶点位于 $\lambda n+\vec{b}_\perp$ 和 $0$，这与 Eq.~(\ref{eq:beam}) 的对称选择给出相同结果。}
+	\label{Fig:tmdpdf}
+\end{figure}
+
+然而上述定义有若干需要限定之处。第一，类光规范链 ${\cal W}_{n}$ 按 DY 运动学取指向过去，但对 SIDIS 应取指向未来，如图 Fig.~\ref{Fig:tmdpdf} 所示。对非极化 TMDPDF 两种选择无区别，但对自旋依赖的 TMDPDF 规范链的方向会产生物理后果。
+
+第二，无限长的类光规范链带来一种新类型的发散。这些发散源于与链共线的胶子辐射，无法用标准 UV 调节子正规化。一个例子是维数正规化（DR）中的如下积分~\cite{Ebert:2019okf}：
+\begin{equation}\label{eq:RD}
+	I = \int dk^+dk^- \frac{f(k^+k^-)}{(k^+k^-)^{1+\epsilon}} = \frac{1}{2}
+	\int \frac{dy}{y} \int dm^2 \frac{f(m^2)}{m^{2+2\epsilon}}\,,
+\end{equation}
+$m^2=k^+k^-$，$y = k^+/k^-$ 是快度相关变量。$y$ 中的发散来自大 $y$ 与小 $y$ 区域，在那里积分未被调节。$k^+=0$ 处的贡献在 LFQ 中称为光零模（light-zero mode），也称光锥发散，会引发相当多的问题。
+
+为调节光锥或快度发散，文献中引入了多种方法（综述见~\cite{Ebert:2019okf}）。它们可分为两类：on-light-cone（保持光锥上的）调节子与 off-light-cone（离开光锥的）调节子。前者的规范链在正规化后仍沿光锥方向 $n^\mu$。例如所谓的 {\it $\delta$ 调节子}~\cite{Echevarria:2015usa,Echevarria:2015byo}把规范链正规化为：
+\begin{align}
+	&W_n(\xi)\rightarrow W_{n}(\xi)|_{\delta^-}\nonumber \\
+	&={\cal P}{\rm exp}\left[-ig\int_0^{-\infty} d\lambda A^+(\xi+\lambda n)e^{-\frac{\delta^-}{2p^+} |\lambda|}\right] \,,
+\end{align}
+共轭方向类似。$\delta$ 调节子破坏规范不变性，但保持推进不变性 $\delta^{\pm}\rightarrow e^{\pm Y}\delta^{\pm}$（$Y$ 为 Lorentz 推进的快度）。其他 on-light-cone 调节子包括指数调节子~\cite{Li:2016axz}、$\eta$ 调节子~\cite{Chiu:2012ir}、解析调节子~\cite{Becher:2010tm} 等。本节其余部分凡需 on-light-cone 调节子之处均以 $\delta$ 调节子为代表。
+
+off-light-cone 调节子在 ~\cite{Collins:1981uk,Ji:2004wu,Ji:2004xq,Collins:2011zzd} 引入，也用于 ~\cite{Ji:2004wu}。这一类调节子选择偏离光锥的方向以避免快度发散。例如可以把规范链变形到类空区：
+\begin{align}
+	n\rightarrow n_Y=n-e^{-2Y}\frac{p}{(p^+)^2}\,.
+\end{align}
+这里 $Y$ 充当快度调节子的角色，因为 $Y \rightarrow \infty$ 时 $n_Y \rightarrow n$。某些情形下也可把 $n_Y$ 变形到类时区~\cite{Collins:2004nx}。
+
+on-light-cone 调节子符合部分子物理的精神，因此适合定义不依赖 COM 动量的部分子密度。而 off-light-cone 调节子遵循与 LaMET 相似的精神，因而可用于实际的格点 QCD 计算，如下一小节所示。
+
+从现在起为了避免光锥发散，我们在光锥 TMDPDF 的定义中加入快度调节子。对动量空间与坐标空间中的 TMDPDF 都沿用记号 $f$：
+\begin{align}
+	&f(\lambda,b_\perp,\mu,\delta^-/P^+)\\
+	&= \langle P| \bar \psi(\lambda n/2+\vec{b}_\perp)\slashed{n}{\cal W}_{n}(\lambda n/2+\vec{b}_\perp)|_{\delta^-}\psi(-\lambda n/2) |P\rangle  \,,\nn
+\end{align}
+其中 $\mu$ 是 UV 重正化的 $\MS$ 标度。
+由转动不变性，上面定义的裸 TMDPDF 是 $b_\perp=|\vec{b}_\perp|$ 的函数，故在 $f$ 中省去 $\vec{b}_\perp$ 的矢量箭头，下文讨论软函数、准 TMDPDF 等时同样处理。下标 $\delta^-$ 表示钉书形规范链 ${\cal W}$ 在光锥负方向由 $\delta$ 调节子调节。$f$ 在 $\delta^- \rightarrow 0$ 时对数发散，其有限部分也依赖快度调节子。要定义物理的 TMDPDF，需要去除 $f$ 中所有发散及对快度正规化方案的依赖，方式类似于消除物理量中的 UV 发散。
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.9\columnwidth]{images/tmd-soft_fig11.pdf}
+	\caption{作为 DY 与 SIDIS 过程因子化中出现的时空 Wilson 圈的软函数 $S(b_\perp,\mu,\delta^+,\delta^-)$。}
+	\label{Fig:soft1}
+\end{figure}
+
+TMDPDF 的快度发散可以用软函数移除；软函数在 TMD 因子化中也扮演重要角色。直观地说，软函数表示快速运动的带电粒子向终态辐射软胶子的截面。它带有与光锥方向相联系的快度发散，最终与质量奇点相关。对应 Drell-Yan 过程的 TMD 软函数定义为~\cite{Collins:2011ca,Echevarria:2015byo}
+\begin{align}\label{eq:soft}
+	& S(b_\perp,\mu,\delta^+,\delta^-)\nonumber \\
+	&=\frac{{\rm Tr}\langle 0|{\cal \bar T}W_p(\vec{b}_\perp)|_{\delta^+}W_n^{\dagger}(\vec{b}_\perp)|_{\delta^-}{\cal T} W_n(0)|_{\delta^-}W^{\dagger}_p(0)|_{\delta^+}|0\rangle }{N_c} \nonumber \\
+	&=\frac{{\rm tr}\langle 0|{\cal W}_{n}(\vec{b}_\perp)|_{\delta^+} {\cal W}^{\dagger}_{p}(\vec{b}_\perp)|_{\delta^-}|0\rangle}{N_c} \,,
+\end{align}
+${\cal T}/\bar{\cal T}$ 表示时序/反时序。第一个等号用割图把软函数定义为振幅平方。既然 DY 过程的软函数与时序无关，也可以只用单一时序或不加时序来定义它，即得第二个等式。钉书形规范链 ${\cal W}_n$ 定义见 Eq.~(\ref{eq:staplen})，
+而钉书形规范链 ${\cal W}_p$ 类似地定义为：
+\begin{align}
+	&{\cal W}_p(\xi)=W^{\dagger}_{p}(\xi)W_{\perp}W_{p}(0) \label{eq:staplep} \ , \\
+	&W_{p}(\xi)= {\cal P}{\rm exp}\left[-ig\int_{0}^{-\infty} d\lambda p\cdot A(\xi+p \lambda)\right] \ .
+\end{align}
+软函数作为 Minkowski 空间中的 Wilson 圈示于 Fig.~\ref{Fig:soft1}。
+
+如果快度发散是乘性的，就可以用 $S$ 作为 \eq{beam} 所定义 TMDPDF 的快度重正化因子。在 $\delta$ 正规化等 on-light-cone 方案中，文献~\cite{Vladimirov:2017ksc}基于共形变换论证了位置空间中快度发散确实是乘性的。对每条钉书形类光规范链，快度发散正比于 $\exp\left[-(1/2)K(b_\perp,\mu)\ln \left(\mu^2/2(\delta^{\pm})^2\right)\right]$，其中 $K(b_\perp,\mu)$ 是非微扰 Collins-Soper 演化核~\cite{Collins:1981uk}。于是小 $\delta^{\pm}$ 时可写
+\begin{equation}
+	S(b_\perp,\mu,\delta^+,\delta^-)=e^{\ln \frac{\mu^2}{2\delta^+\delta^-}K(b_\perp,\mu)+{\cal D}_2(b_\perp,\mu)} \ \ ,
+\end{equation}
+${\cal D}_2(b_\perp,\mu)$ 是依赖 $b_\perp$ 但与快度无关的函数。注意由于我们对光锥矢量的归一化，这里 $\delta^{\pm}$ 的定义与 Ref.~\cite{Echevarria:2015byo} 差一个 $\sqrt{2}$ 因子。
+
+$\delta$ 正规化下的软函数满足重正化群方程
+\begin{align}
+	&\mu^2\frac{d}{d\mu^2}\ln S(b_\perp,\mu,\delta^+,\delta^-)\nonumber \\
+	&=-\Gamma_{\rm cusp}(\alpha_s)\ln \frac{\mu^2}{2\delta^+\delta^-} + \gamma_s(\alpha_s)\ ,
+\end{align}
+$\Gamma_{\rm cusp}(\alpha_s) $ 是类光尖点反常量纲~\cite{Polyakov:1980ca,Korchemsky:1987wg}，$\gamma_s(\alpha_s)$ 是软反常量纲~\cite{Korchemskaya:1992je}。Collins-Soper 核与快度无关部分 ${\cal D}_2$ 满足 RGE：
+\begin{align}
+	\mu^2\frac{d}{d\mu^2} K(b_\perp,\mu)=-\Gamma_{\rm cusp}(\alpha_s) \label{eq:cusp}\ ,\\
+	\mu^2\frac{d}{d\mu^2} {\cal D}_2(b_\perp,\mu)=\gamma_s(\alpha_s)-K(b_\perp,\mu) \label{eq:ad_d2}\ .
+\end{align}
+
+一圈时软函数 $S(b_\perp,\mu,\delta^+,\delta^-)$ 为~\cite{Echevarria:2012js}：
+\begin{align}
+	&S(b_\perp,\mu,\delta^+,\delta^-)\nonumber \\ &=1+\frac{\alpha_s C_F}{2\pi}\left(L_b^2-2L_b \ln \frac{\mu^2}{2\delta^+\delta^-}+\frac{\pi^2}{6}\right) \ ,
+\end{align}
+$L_b=\ln\left(\mu^2 b_\perp^2e^{2\gamma_E}/4\right)$。
+因此在领头阶
+\begin{align}
+	K(b_\perp,\mu)&=-\frac{\alpha_sC_F}{\pi} L_b  \,,\\
+	{\cal D}_2(b_\perp,\mu)&=\frac{\alpha_s C_F}{2\pi}\left(L_b^2+\frac{\pi^2}{6}\right) \ ,
+\end{align}
+且 $\Gamma_{\rm cusp}=\alpha_s C_F/\pi +{\cal O}(\alpha_s^2)$、$\gamma_s={\cal O}(\alpha_s^2)$。值得指出的是，$K$~\cite{Li:2016ctv,Vladimirov:2016dll} 与 ${\cal D}_2$~\cite{Li:2016ctv} 已知到指数正规化方案下的三圈阶。
+
+有了上述软函数，可以取其平方根对裸 TMD 关联做快度重正化。平方根可以这样理解：$S$ 含两条钉书链而 $f$ 只含一条，故 $S$ 中的快度发散及方案依赖是 $f$ 中的两倍。由此得到重正化后物理 TMDPDF 的定义~\cite{Echevarria:2012js,Collins:2012uy}：
+\begin{align}\label{eq:TMD}
+	f^{\rm TMD}(x,b_\perp,\mu,\zeta)=\lim_{\delta^- \rightarrow 0}\frac{f(x,b_\perp,\mu,\delta^-/P^+)}{\sqrt{S(b_\perp,\mu,\delta^- e^{2y_n},\delta^-)}} \ ,
+\end{align}
+其中快度标度为
+\begin{align} \label{zeta}
+	\zeta=2(xP^+)^2 e^{2y_n} \ .
+\end{align}
+Eq.~(\ref{eq:TMD}) 右端分子的快度依赖形如 $\exp[-\frac{1}{2}K(b_\perp,\mu)\ln \frac{(\delta^-)^2}{(xP^+)^2}]$，分母则表现为 $\exp[\frac{1}{2}K(b_\perp,\mu)\ln \frac{\mu^2}{2(\delta^-)^2e^{2y_n}}]$。比值中 $\delta^-$ 依赖相消，剩下对快度标度的依赖 $\exp[-\frac{1}{2}K(b_\perp,\mu)\ln \frac{\mu^2}{2(xP^+)^2e^{2y_n}}]$，受所谓 Collins-Soper 演化方程控制：
+\begin{align}\label{eq:cs}
+	2\zeta \frac{d}{d\zeta} \ln  f^{\rm TMD}(x,b_\perp,\mu,\zeta)=K(b_\perp,\mu) \ .
+\end{align}
+$\zeta$ 依赖来自初态夸克的辐射，对大 $b_\perp$ 本质上是非微扰的。$f^{\rm TMD}(x,b_\perp,\mu,\zeta)$ 是 LaMET 中要匹配到的标准对象。
+
+应当强调，尽管 $f^{\rm TMD}$ 不含快度发散，它确实包含来自初态带电粒子的软辐射。考察未减除 $f$ 的 Feynman 图并对胶子作软近似即可清楚看到这一点。出于物理过程因子化的要求，$f$ 中软贡献的``一半''被减除掉以定义物理的 $f^{\rm TMD}$。剩余的软辐射还带有与 $\ln(xP^+)$ 相关的自然快度截断，体现在 $\zeta$ 依赖上。然而值得注意的是，$f^{\rm TMD}$ 与快度调节子无关。虽然在微扰论所有阶的一般证明超出本综述范围，但这源于 $f$ 中软物理的因子化与指数化，方案抵消可以在指数中系统地完成。值得一提，在老式或 SCET 式的做法中，可以定义只含共线物理的``减除''TMDPDF 或``束流函数''；但它们一般依赖方案，必须与额外的软函数一起出现在因子化定理中。一圈水平上，外部夸克态的方案无关单圈 TMDPDF 为
+\begin{align}\label{eq:ftmd_1loop}
+	&f^{\rm TMD}(x,b_\perp,\mu,\zeta) = \delta(1-x)\nonumber \\
+	&+\frac{\alpha_sC_F}{2\pi}F(x,\epsilon_{\tiny\mbox{IR}},b_\perp,\mu)\theta(x)\theta(1-x)+\frac{\alpha_sC_F}{2\pi}\delta(1-x)\nonumber \\
+	&\times \left[-\frac{1}{2}L_b^2+\left(\frac{3}{2}-\ln \frac{\zeta}{\mu^2}\right)L_b+\frac{1}{2}-\frac{\pi^2}{12}\right] \ ,
+\end{align}
+其中
+\begin{align}
+	F(x,\epsilon_{\tiny\mbox{IR}},b_\perp,\mu)=\left[-\left(\frac{1}{\epsilon_{\tiny\mbox{IR}}}+L_b\right)\frac{1+x^2}{1-x}+1-x\right]_+\,.
+\end{align}
+TMDPDF 两圈结果见~\cite{Catani:2011kr,Catani:2012qa,Gehrmann:2014yya,Luebbert:2016itl,Echevarria:2016scs,Luo:2019hmp}，三圈结果见~\cite{Luo:2019szz}。
+
+物理 TMDPDF 还满足 RG 方程
+\begin{align}
+	\gamma_\mu(\mu,\zeta)&=\mu^2\frac{d}{d\mu^2}\ln f^{\rm TMD}(x,b_\perp,\mu,\zeta) \nonumber \\
+	&\equiv \frac{1}{2}\Gamma_{\rm cusp}(\alpha_s)\ln \frac{\mu^2}{\zeta}-\gamma_H(\alpha_s)  \ ,
+\end{align}
+其中 $\gamma_H$ 称为硬反常量纲。一圈时尖点与硬反常量纲为
+\begin{align}\label{eq:ad_hard}
+	\Gamma_{\rm cusp}(\alpha_s) =\frac{\alpha_s C_F}{\pi}; ~~~~~
+	\gamma_H(\alpha_s) =-\frac{3\alpha_sC_F}{4\pi}  \ .
+\end{align}
+最近尖点反常量纲已被算到四圈~\cite{Henn:2019swt,vonManteuffel:2020vjv}。
+
+结合 TMDPDF 的 RGE 与快度演化方程可得一致性条件：
+\begin{align}
+	\mu^2 \frac{d}{d\mu^2} K(b_\perp,\mu)
+	&= -2 \zeta \frac{d}{d\zeta} \gamma_\mu(\mu,\zeta) =- \Gamma_{\rm cusp}(\alpha_s(\mu)) \ ,
+\end{align}
+由此得到 Collins-Soper 核的重求和形式：
+\begin{align}
+	K(b_\perp,\mu) &= -2 \int_{1/b_\perp}^\mu \frac{d\mu'}{\mu'} \Gamma_{\rm cusp}(\alpha_s(\mu')) + K(\alpha_s(1/b_\perp)) \ .
+\end{align}
+$K(\alpha_s(1/b_\perp))$ 同时含微扰与非微扰贡献。不同标度的 TMDPDF 由下式联系：
+\begin{align} \label{eq:tmd_evolution}
+	&f^{\rm TMD}(x, b_\perp, \mu, \zeta) = f^{\rm TMD}(x, b_\perp, \mu_0, \zeta_0) \\
+	& \times\exp\biggl[ \int_{\mu_0}^\mu \frac{d\mu'}{\mu'} \gamma_\mu(\mu',\zeta_0) \biggr]
+	\exp\biggl[ \frac12 K(b_\perp,\mu) \ln\frac{\zeta}{\zeta_0} \biggr]  \ . \nn
+\end{align}
+$\mu-\zeta$ 平面内面向唯象学的双标度演化近期在~\cite{Scimemi:2018xaf}研究过。有了上面定义的方案无关物理 TMDPDF，$s=(P_A+P_B)^2$ 且小 $Q_\perp$ 处的 DY 截面可因子化为
+\begin{align}
+	&\frac{d\sigma}{dQ_\perp^2}=\int dx_Adx_B d^2b_\perp e^{i\vec{b}_\perp \cdot \vec{Q}_\perp}\hat \sigma(x_Ax_Bs,\mu)\nonumber \\ &\times f_A^{\rm TMD}(x_A,b_\perp,\mu,\zeta_A)f_B^{\rm TMD}(x_B,b_\perp,\mu,\zeta_B)+ ... \ .
+\end{align}
+快度标度满足 $\zeta_A\zeta_B= Q^4\equiv(x_Ax_Bs)^2$。大而有限 $Q^2$ 处剩余的项称为幂次修正或``高扭度''贡献；对 TMD 因子化幂次修正的详细研究超出本综述范围，除非特别说明，方程中将省略全部幂次修正。硬截面 $\hat{\sigma}$ 的 QCD 部分在一圈为
+\begin{align}
+	\hat \sigma(x_A,x_B)=\left|1+\frac{\alpha_sC_F}{4\pi}\left(-L^2_{Q}+3L_Q-8+\frac{\pi^2}{6}\right)\right|^2 \ ,
+\end{align}
+$L_Q=\ln \frac{-Q^2-i0}{\mu^2}$；该结果现已知到三圈（参见~\cite{Moch:2005tm,Baikov:2009bg,Lee:2010cga,Gehrmann:2010ue} 及其中的文献）。SIDIS 过程类似地有
+\begin{align}
+	\frac{d\sigma}{dQ_\perp^2}&=\int dxdz d^2b_\perp e^{i\vec{b}_\perp \cdot \vec{Q}_\perp}H(x,z,\mu,Q)\nonumber \\
+	&\quad \times f^{\rm TMD}(x,b_\perp,\mu,\zeta_A)d^{\rm TMD}(z,b_\perp,\mu,\zeta_B) \ ,
+\end{align}
+$d^{\rm TMD}(z,b_\perp,\mu,\zeta_B)$ 是 TMD 碎裂函数，$H$ 是硬核。
+
+%------------------------------------------------------------------------------
+
+
+\subsection{格点准 TMDPDF 与匹配}
+\label{sec:quasitmd}
+%------------------------------------------------------------------------------
+LaMET 之前已有通过计算 TMDPDF 各 $x$ 矩之比从格点 QCD 触及 TMD 物理的努力~\cite{Hagler:2009mb,Musch:2010ka,Musch:2011er,Engelhardt:2015xja,Yoon:2017qzo}，它们不受软函数复杂性的困扰，可与某些实验观测量比较。而在 LaMET 中，我们更关心获得 TMDPDF 完整的 $x$ 与 $\vec{k}_\perp$ 依赖~\cite{Ji:2014hxa,Ji:2018hvs,Ebert:2018gzl,Ebert:2019okf,Ji:2019sxk,Ji:2019ewn}，因此恰当处理软函数减除与匹配至关重要。最早在~\cite{Ji:2014hxa}提出、后续~\cite{Ebert:2019okf}跟进的弯曲软函数在一圈具有正确的 IR 对数，但预计在更高圈失效~\cite{Ji:2019sxk}，因而无法进行微扰匹配。另一个建议采用朴素矩形 Wilson 圈~\cite{Ji:2018hvs,Ebert:2019okf}也不具备正确的 IR 物理。不过，文献~\cite{Ebert:2018gzl}在从两个不同大动量的准 TMDPDF 之比计算非微扰 Collins-Soper 核 $K(b_\perp,\mu)$ 上取得了重要进展。最近本文部分作者证明~\cite{Ji:2019sxk,Ji:2019ewn}：结合约化软函数的准 TMDPDF 在所有阶捕捉正确的 IR 物理，从而允许与物理 TMDPDF 进行微扰匹配。
+
+构造这样的准 TMDPDF 时，共线部分可用类似共线 PDF 的方式处理，而软的部分更具挑战性。我们的出发点是：物理的 $f^{\rm TMD}$ 与快度调节子无关，所以可以使用 $f$ 与 $S$ 中规范链都离开光锥的方案，如~\cite{Collins:2011zzd}所用。此时可以利用 Lorentz 对称性把 $f$ 中的钉书形规范链 ${\cal W}_n$ 推进为纯类空、无时间依赖的钉书链。但这个技巧只能用在 $S$ 的一条钉书链上（比如 ${\cal W}_n$），另一条 ${\cal W}_p$ 仍是时间依赖的。换言之，仅靠 Lorentz 推进无法完全消去 $S$ 中的时间依赖。这是自然的，因为 $S$ 实际上代表 $S$ 矩阵的平方，本质上是 Minkowski 型的。然而，运用 LaMET 原理——算符的时间依赖可通过大动量外部物理态模拟——我们发现 $S$ 确实可以在离光锥方案中以形状因子的形式在格点上计算，详见下一小节。这里假定其为真，讨论准 TMDPDF 与物理 TMDPDF 之间的匹配。
+
+首先定义沿 $z$ 方向带钉书形规范链的准 TMDPDF~\cite{Ji:2014hxa,Ji:2018hvs,Ebert:2019okf,Ji:2019ewn}：
+\begin{align}\label{eq:quasi_TMD}
+	& \tilde f(\lambda ,b_\perp,\mu,\zeta_z) \\
+	&=\! \lim_{L \rightarrow \infty}  \frac{\langle P| \bar \psi\big(\frac{\lambda n_z }{2}\!+\!\vec{b}_\perp\big)\gamma^z{\cal W}_{z}(\frac{\lambda n_z}{2}\!+\!\vec{b}_\perp;L)\psi\big(\!-\!\frac{\lambda n_z}{2}\big) |P\rangle}{\sqrt{Z_E(2L,b_\perp,\mu)}} \ , \nonumber
+\end{align}
+隐含 $\MS$ 重正化，且
+\begin{align}\label{eq:staplez}
+	&{\cal W}_z(\xi;L)=W^{\dagger}_{z}(\xi; L)W_{\perp}W_{z}(-\xi^zn_z;L)  \ ,\\
+	&W_{z}(\xi;L)= {\cal P}{\rm exp}\Big[-ig\int_{\xi^z}^{L} d\lambda n_z\cdot A(\vec{\xi}_\perp\!+\!n_z \lambda)\Big] \ .
+\end{align}
+这里 $\xi^z=-\xi\cdot n_z$，$\zeta_z=(2xP^z)^2$ 是准 TMDPDF 的 Collins-Soper 标度。$W_{\perp}$ 插在 $z=L$ 处以保持显式规范不变性。$\sqrt{Z_E(2L,b_\perp,\mu,0)}$ 是沿 $n_z$ 方向长 $2L$ 宽 $b_\perp$ 的扁平矩形欧氏 Wilson 圈真空期望值的平方根：
+\begin{align}\label{eq:Z_E}
+	Z_E(2L,b_\perp,\mu)=\frac{1}{N_c}{\rm Tr}\langle 0|W_{\perp}{\cal W}_z(\vec{b}_\perp;2L)|0\rangle \ .
+\end{align}
+同样，$\gamma^z$ 可换成 $\gamma^t$（如共线准 PDF 那样）。$\tilde f$ 与 $Z_E$ 的图示见 Fig.~\ref{fig:quasiTMD}。
+
+因子 $Z_E$ 的目的如下：大 $L$ 时 Eq.~(\ref{eq:quasi_TMD}) 分母中的朴素准 TMD 关联含有形如 $e^{-LE(b_\perp,\mu)}$ 的发散，其中 $E(b_\perp)$ 是静态重夸克对的基态能量；$E(b_\perp,\mu)=2\delta m+ V(b_\perp,\mu)$ 既包含线性发散的质量修正 $2\delta m$ 也包含相互作用导致的重夸克势 $V(b_\perp,\mu)$。文献中 $LV(b_\perp,\mu)$ 部分有时被称为``夹断极点奇异性''（pinch pole singularity）。因此我们引入长度加倍、宽 $b_\perp$ 的矩形 Wilson 圈平方根 $Z_E(2L,b_\perp,\mu)$ 以抵消这些发散并保证减除后 $L\to\infty$ 极限存在。引入 $\sqrt{Z_E}$ 同时还去除了横向规范链带来的额外贡献。避免夹断极点奇异性的另一种途径见~\cite{Li:2016amo}。应指出：虽然 $\sqrt{Z_E}$ 减除去掉了所有线性发散，对数 UV 发散仍然存在，因此仍需在格点上对 $\tilde f$ 作非微扰重正化——RI/MOM 方案的研究见~\cite{Shanahan:2019zcq}，其到 $\MS$ 方案的一圈匹配已算出~\cite{Constantinou:2019vyb,Ebert:2019tvc}。
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.8\columnwidth]{images/tmd-quasiTMD_fig12.pdf}.
+	\caption{准 TMDPDF（上）与欧氏 Wilson 圈 $Z_E(2L,b_\perp,\mu,0)$（下）。图中 $A=\lambda n_z/2+\vec{b}_\perp/2$，$B=-\lambda n_z/2-\vec{b}_\perp/2$，$C=Ln_z+{\vec b}_\perp$。叉号表示夸克—链顶点。}
+	\label{fig:quasiTMD}
+\end{figure}
+
+
+上面定义的准 TMDPDF 满足如下 RGE~\cite{Collins:1981uk,Ji:2014hxa,Ji:2019ewn}
+\begin{align}
+	\mu^2 \frac{d}{d\mu^2}\ln \tilde f(x,b_\perp,\mu,\zeta_z)=\gamma_{F}(\alpha_s(\mu)) \ ,
+\end{align}
+$\gamma_F$ 是 \sec{renorm-nl} 中重到轻流的反常量纲。原因在于自能减除后的准 TMDPDF 只剩与夸克—Wilson 线顶点相关的对数 UV 发散。$\MS$ 方案下动量为 $(p^z,0,0,p^z)$ 的外部夸克态的单圈准 TMDPDF 为~\cite{Ji:2018hvs,Ebert:2019okf}
+\begin{align}
+	&\tilde f(x,b_\perp,\mu,\zeta_z)=\nonumber \\ &1+\frac{\alpha_sC_F}{2\pi}F(x,\epsilon_{\tiny \mbox{IR}},b_\perp,\mu)\theta(x)\theta(1-x)+\frac{\alpha_sC_F}{2\pi}\delta(1-x) \nonumber \\
+	& \times \Bigg[-\frac{1}{2}L_b^2+L_b\Big(\frac{5}{2}-L_z\Big)-\frac{3}{2}-\frac{1}{2}L_z^2+L_z\Bigg]\ ,
+\end{align}
+$L_z=\ln(\zeta_z/\mu^2)$。如所预期，大 $L$ 极限下 $L$ 依赖已相消。
+
+$\tilde f$ 中没有类光规范链，因此不需要额外的快度调节子；代之以对强子动量（能量）的显式依赖，类似于共线准 PDF 的动量 RGE。$\tilde f$ 的动量（快度）演化方程为~\cite{Collins:1981uk,Ji:2014hxa,Ji:2019ewn}：
+\begin{align}
+	P^z\frac{d}{dP^z}\ln \tilde f(x,b_\perp,\mu,\zeta_z) \!=\! K(b_\perp,\mu)\!+\!{\cal G}\Big(\frac{(P^z)^2}{\mu^2}\Big) \ ,
+\end{align}
+${\cal G}(\zeta_z/\mu^2)$ 是微扰量，$K(b_\perp,\mu)$ 是 Collins-Soper 核。类似的方程曾在~\cite{Collins:1981uk}对离光锥 TMD 碎裂函数得到证明。由该方程显而易见：要与任意 $\zeta$ 的 $f^{\rm TMD}(x,b_\perp,\mu,\zeta)$ 正确匹配，必须包含 $K(b_\perp,\mu)$ 来补偿 $P^z$ 依赖。
+
+匹配其实还有一个要求：必须去除一种快度方案依赖，因为准 TMDPDF 可以视为沿 $z$ 方向用了离光锥调节子。为理解这种依赖，再看离光锥正规化下的 $f$，那里存在快度发散。该发散由离光锥软函数 $S_{\rm DY}(b_\perp,\mu,Y,Y')$ 的平方根抵消，$Y,Y'$ 是离光锥类空矢量 $p\rightarrow p_Y= p-e^{-2Y}(p^+)^2n $ 与 $n \rightarrow n_{Y'}=n-e^{-2Y'}p/(p^+)^2$ 的快度。示意性地：
+\begin{align}\label{eq:S_DY}
+	S_{\rm DY}(b_\perp,\mu,Y,Y')= \frac{{\rm tr}\langle 0|{\cal W}_{n_{Y'}}(\vec{b}_\perp) {\cal W}^{\dagger}_{p_Y}(\vec{b}_\perp)|0\rangle}{N_c\sqrt{Z_E}\sqrt{Z_E}}  \ ,
+\end{align}
+${\cal W}_{n_{Y'}}(\vec{b}_\perp)$ 与 ${\cal W}^{\dagger}_{p_Y}(\vec{b}_\perp)$ 分别是 $n_{Y'}$、$p_Y$ 方向的钉书形规范链。引入 $\sqrt{Z_E}$ 以减除离光锥钉书链的夹断极点奇异性。记 $\ln \rho^2=2(Y+Y')$，有时也把这个软函数写作 $S_{\rm DY}(b_\perp,\mu,\rho)$。大 $\rho $ 时
+\begin{align}
+	S_{\rm DY}(b_\perp,\mu,Y,Y')= e^{(Y+Y') K(b_\perp,\mu)+{\cal D}(b_\perp,\mu)}+... \,.
+\end{align}
+可以对 \eq{S_DY} 中的 ${\cal W}_{n_{Y'}}(\vec{b}_\perp) {\cal W}^{\dagger}_{p_Y}(\vec{b}_\perp)$ 做 Lorentz 推进：其一（如 ${\cal W}_{n_{Y'}}$）被推进为 $\tilde f$ 中的等时版本 ${\cal W}_z$，另一条 ${\cal W}_{n_{Y}}$ 被推进为 ${\cal W}_{n_{Y+Y'}}$。软函数变为 $S_{\rm DY}(b_\perp,\mu,Y+Y',0)$，它在 $p_{Y+Y'}$ 方向含光锥发散，但因推进不变性仍等于同一个 $S_{\rm DY}(b_\perp,\mu,Y,Y')$。有限部分 $e^{{\cal D}(b_\perp,\mu)}$
+的平方根正是抵消快度方案依赖所需。我们把与快度无关的部分定义为约化软函数：
+\begin{align}\label{eq:reduced}
+	S_r(b_\perp,\mu)\equiv e^{-{\cal D}(b_\perp,\mu)} \,.
+\end{align}
+基于非类光 Wilson 圈的重正化性质，约化软函数满足 RG 方程
+\begin{align}
+	\mu^2 \frac{d}{d\mu^2} \ln S_r(b_\perp,\mu)=\Gamma_S(\alpha_s) \,,
+\end{align}
+$\Gamma_S$ 是离光锥软函数在大双曲尖点角 $Y+Y'$ 处尖点反常量纲的常数部分：
+\begin{align}
+	&\mu^2 \frac{d}{d\mu^2} \ln S_{\rm DY}(b_\perp,\mu,Y,Y')\nonumber \\
+	&\qquad\qquad=-(Y+Y')\Gamma_{\rm cusp}(\alpha_s)-\Gamma_S(\alpha_s)\,.
+\end{align}
+一圈时~\cite{Ebert:2019okf}
+\begin{align}
+	S^{(1)}_{\rm DY}(b_\perp,\mu,Y,Y')=\frac{\alpha_sC_F}{2\pi}\big[2-2(Y+Y')\big]L_b \ ,
+\end{align}
+$\Gamma_S^{(1)} (\alpha_s)= \alpha_s C_F/\pi$。基于 RGE，两圈的 ${\cal D}(b_\perp,\mu)$ 可预言为
+\begin{align}
+	{\cal D}^{(2)}(b_\perp,\mu)=c_2+\Gamma_S^{(2)}L_b-\frac{\alpha_s^2\beta_0C_F}{2\pi}L_b^2 \ ,
+\end{align}
+其中
+\begin{align}
+	\Gamma_S^{(2)}=-\frac{\alpha_s^2}{\pi^2}\Big[C_FC_A\big(-\frac{49}{36}+\frac{\pi^2}{12}-\frac{\zeta_3}{2}\big)+C_FN_F\frac{5}{18}\Big]\nn
+\end{align}
+是可从~\cite{Grozin:2015kna}提取的 $S_r$ 两圈反常量纲，$\beta_0=-\left(\frac{11}{3}C_A-\frac{4}{3}N_f T_F\right)/(2\pi)$ 是一圈 $\beta$ 函数系数，$c_2$ 是待显式计算的常数。
+
+计入约化软函数之后，现在可以写下准 TMDPDF 与方案无关 TMDPDF 之间的匹配公式~\cite{Ji:2019ewn}：
+\begin{align}\label{eq:quasiTMDmatch}
+	&f^{\rm TMD}(x,b_\perp,\mu,\zeta)\\
+	&=H\left(\frac{\zeta_z}{\mu^2}\right) e^{-\ln (\frac{\zeta_z}{\zeta})K(b_\perp,\mu)}\tilde f(x,b_\perp,\mu,\zeta_z)S_r^{\frac{1}{2}}(b_\perp,\mu)+...\ ,\nn
+\end{align}
+幂次修正为 ${\cal O}\left(\Lambda_{\rm QCD}^2/\zeta_z,M^2/(P^z)^2,1/(b^2_\perp\zeta_z) \right)$ 阶。
+除 $S_r(b_\perp,\mu)$ 定义之外的上式关系曾在~\cite{Ebert:2019okf}被论证成立——那里 Eq.~(5.3) 中的未知函数 $g_q^S$ 即应认定为这里的约化软函数；该关系最近也在~\cite{Vladimirov:2020ofp}得到确认。
+
+
+下面解释公式中的各个因子。
+
+\begin{enumerate}
+	\item 因子 $ H(\zeta_z/\mu^2)$ 是微扰匹配核，是 $\zeta_z/\mu^2=(2xP^z)^2/\mu^2$ 的函数。该核负责动量 RG 方程中 ${\cal G}(\zeta_z/\mu^2)$ 项生成的 $P^z$ 大对数。与准 PDF 不同，准 TMDPDF 与 TMDPDF 的动量份额相同。原因是在 $1/\zeta_z$ 展开的领先幂次，$k_\perp$ 积分自然被 $k_\perp \sim 1/b_\perp \ll P^z$ 附近的横向间隔截断，动量份额只能被共线模修正，而对共线模而言 $x=k^z/P^z$ 与 $x=k^+/P^+$ 无区别。相比之下，积掉 $\vec{k}_\perp$ 的准 PDF 中 $k_\perp \ge P^z$ 区域会在物理区域之外产生重要的 $x$ 依赖。这也与准 TMDPDF 的动量演化方程在 $x$ 空间局域而非卷积的事实一致。
+	\item 因子 $\exp\big[\ln (\frac{\zeta_z}{\zeta})K(b_\perp,\mu)\big]$ 涉及 Collins-Soper 演化核。从动量演化方程看，大 $P^z$ 时显然存在 $K(b_\perp,\mu)\ln \frac{\zeta_z}{\mu^2}$ 形式的对数，$\zeta_z$ 是自然的 Collins-Soper 标度。因此要与任意 $\zeta$ 的 TMDPDF 匹配，需要因子 $\exp\big[\ln (\frac{\zeta_z}{\zeta})K(b_\perp,\mu)\big]$ 补偿差别。该性质的一个重要推论是：可以通过构造两个不同动量（或 $\zeta_z$）的准 TMDPDF 之比获得 Collins-Soper 核 $K(b_\perp,\mu)$~\cite{Ebert:2018gzl}：
+	\begin{align}
+		\label{eq:TMD-CS_kernel}
+		\ \ \quad\frac{\tilde f(x,b_\perp,\mu,\zeta_{z,1})}{\tilde f(x,b_\perp,\mu,\zeta_{z,2})}=\frac{H\left(\frac{\zeta_{z,2}}{\mu^2}\right)}{H\left(\frac{\zeta_{z,1}}{\mu^2}\right)}\left(\frac{\zeta_{z,1}}{\zeta_{z,2}}\right)^{K(b_\perp,\mu)} \ .
+	\end{align}
+	于是给定两个快度标度处的 $\tilde f$，即可得到 Collins-Soper 核 $K(b_\perp)$。
+
+\end{enumerate}
+
+合并准 TMDPDF $\tilde f$、约化软函数 $S_r$ 与物理 TMDPDF $f^{\rm TMD}$ 的 RGE，可得匹配核 $H\left(\frac{\zeta_z}{\mu^2}\right)$ 的 RGE~\cite{Ji:2019ewn}：
+\begin{align}
+	\mu^2 \frac{d}{d\mu^2} \ln H^{-1}\left(\frac{\zeta_z}{\mu^2}\right)=\frac{1}{2}\Gamma_{\rm cusp}(\alpha_s)  \ln\frac{\zeta_z}{\mu^2}\!+\!\frac{\gamma_C(\alpha_s)}{2}  \ ,
+\end{align}
+$\gamma_C(\alpha_s)=2\gamma_F(\alpha_s)+\Gamma_S(\alpha_s)+2\gamma_H(\alpha_s)$。匹配核与快度演化核 ${\cal G}\left(\frac{\zeta_z}{\mu^2}\right)$ 的微扰部分密切相关：
+\begin{align}
+	2\zeta_z\frac{d}{d\zeta_z}\ln H^{-1}\left(\frac{\zeta_z}{\mu^2}\right)={\cal G}\left(\frac{\zeta_z}{\mu^2}\right) \ .
+\end{align}
+再次可见 ${\cal G}\left(\frac{\zeta_z}{\mu^2}\right)$ 的反常量纲是 $\Gamma_{\rm cusp}(\alpha_s)$。
+
+方便起见把 $H$ 写成指数形式 $H=e^{-h}$。汇总以上结果，一圈时~\cite{Ji:2018hvs,Ebert:2019okf}
+\begin{align}
+	h^{(1)}\left(\frac{\zeta_z}{\mu^2}
+	\right)=\frac{\alpha_sC_F}{2\pi}\left(-2+\frac{\pi^2}{12}-\frac{L_z^2}{2}+L_z\right) \ .
+\end{align}
+与前文类似，两圈贡献 $h^{(2)}$ 可预言为
+\begin{align}
+	&h^{(2)}\left(\frac{\zeta_z}{\mu^2}\right)=c'_2-\frac{1}{2}\left(\gamma^{(2)}_C-\alpha_s^2\beta_0 c_1\right)\ln\frac{\zeta_z}{\mu^2}\\
+	&-\frac{1}{4}\left(\Gamma^{(2)}_{\rm cusp}-\frac{\alpha_s^2\beta_0 C_F}{2\pi}\right)\ln^2\frac{\zeta_z}{\mu^2}-\frac{\alpha_s^2\beta_0C_F}{24\pi}\ln^3\frac{\zeta_z}{\mu^2} \ ,\nn
+\end{align}
+$c_1=\frac{C_F}{2\pi}\left(-2+\frac{\pi^2}{12}\right)$，$c'_2$ 又是一个待两圈微扰论确定的常数。
+
+最后，把当前表述与以往格点 TMDPDF 途径比较。首先评论~\cite{Hagler:2009mb,Musch:2010ka,Musch:2011er,Engelhardt:2015xja,Yoon:2017qzo}的发展：那里从准 TMDPDF 的比值提取 TMDPDF 各 $x$ 矩。由 Eq.~(\ref{eq:quasiTMDmatch}) 可见，匹配核 $H$ 与 Collins-Soper 核的指数因子都非平凡地依赖 $x$，因此即便软函数相消，简单取准 TMDPDF 矩的比值也不足以重现 TMDPDF 相同的矩比。这一观察最近也见于 Ref.~\cite{Ebert:2020gxr}。其次，用朴素矩形软函数（即 $Z_E$）定义的准 TMDPDF 就是 \eq{quasi_TMD} 中的 $\tilde f$，显然它仍需约化软函数 $S_r$ 才能匹配到 $f^{\rm TMD}$。至于~\cite{Ji:2014hxa,Ebert:2019okf}的另一提议，是把 $\tilde f$ 中的 $Z_E$ 换成 $S_{\rm bent}$——每个交叉点张角为 $\pi/2$ 的类空弯曲 Wilson 圈的真空矩阵元——并且不含 \eq{quasiTMDmatch} 中的 $S^{1\over2}_r$。虽然 $\sqrt{S_{\rm bent}/Z_E}$ 在一圈阶与 $S_r^{-1\over2}$ 一致~\cite{Ji:2018hvs,Ebert:2019okf}，预计高阶会不同。事实上，通过
+\begin{align}
+	\Gamma_{\frac{\pi}{2}}(\alpha_s) \equiv \mu^2\frac{d}{d\mu^2} \ln \left(\frac{S_{\rm bent}(L,b_\perp,\mu)}{Z_E(2L,b_\perp,\mu)}\right) \,,
+\end{align}
+定义的反常量纲 $\Gamma_{\pi\over2}$ 从两圈开始偏离 $\Gamma_S(\alpha_s)$~\cite{Grozin:2015kna}：
+\begin{align}
+	-\Gamma_S(\alpha_s)&=\frac{\alpha_sC_F}{\pi} \\
+	&+\frac{\alpha_s^2}{\pi^2}\left[C_FC_A\left(-\frac{49}{36}+\frac{\pi^2}{12}-\frac{\zeta_3}{2}\right)+C_FN_F\frac{5}{18}\right]  \,, \nn \\
+	\Gamma_{\frac{\pi}{2}}(\alpha_s)&=\frac{\alpha_sC_F}{\pi} \\
+	&+\frac{\alpha_s^2}{\pi^2}\left[C_FC_A\left(-\frac{49}{36}+\frac{\pi^2}{24}\right)+C_FN_F\frac{5}{18}\right] \,. \nn
+\end{align}
+式中 $\zeta_3=\sum_{n=1}^{\infty}(1/n^3) \ne \pi^2/12$，故两个反常量纲不同。反常量纲的差别会导致 $b_\perp$ 上不同的对数行为——因为软函数无量纲、只依赖 $b_\perp$ 与 $\mu$。在大 $b_\perp$ 处这将导致微扰论无法控制的不同的 IR 物理。
+
+把约化软函数与准 TMDPDF 结合起来，可以有效地因子化 DY 截面：
+\begin{align}
+	&\sigma = \int dx_A dx_B d^2b_\perp e^{i\vec{Q}_\perp \cdot \vec{b}_\perp}\hat \sigma(x_A,x_B,Q^2,\mu)\nonumber \\ &\times \tilde f(x_A,b_\perp,\mu,\zeta_A) \tilde f(x_B,b_\perp,\mu,\zeta_B) S_r(b_\perp,\mu) \ .
+\end{align}
+其中所有非微扰量都不涉及光锥，可以在格点上计算。
+
+自旋依赖的 TMDPDF 同样在物理上重要。它们可用 LaMET 计算~\cite{Ebert:2020gxr}；与自旋无关情形一样可以定义准分布。对一般的质子靶 $|PS\rangle$ 和一般自旋结构 $\Gamma$，母体 TMDPDF 定义为：
+\begin{align}\label{eq:parent_TMD}
+	&f_{[\Gamma]}^{\rm TMD}(x,\vec{k}_\perp,\mu,\zeta)=\frac{1}{2P^+}\int\frac{d\lambda}{2\pi}\int\frac{d^2 \vec{b}_\perp}{(2\pi)^2}e^{-i\lambda x + i\vec{k}_\perp\cdot \vec{b}_\perp}\nonumber\\
+	&\times \lim_{\delta^- \rightarrow 0}\frac{\langle PS|\bar\psi(\lambda n+\vec{b}_\perp)\Gamma\, {\cal W}_n(\lambda n +\vec{b}_\perp)|_{\delta^-}\psi(0)|PS\rangle}{\sqrt{S(b_\perp,\mu,\delta^-e^{2y_n},\delta^-)}} \,,
+\end{align}
+$\zeta=2(P^+)^2e^{2y_n}$ 是快度标度；软函数减除的细节见 \sec{tmd}。各个自旋依赖的 TMD 分布通过 Lorentz 分解获得~\cite{Tangerman:1994eh,Ralston:1979ys,Mulders:1995dh}：
+\begin{align}\label{eq:TMDPDF}
+	f_{[\gamma^+]}^{\rm TMD}&=f_1-\frac{\epsilon^{ij}k^i S^j_\perp}{M}f_{1T}^\perp   \,,\\
+	f_{[\gamma^+\gamma_5]}^{\rm TMD}&=S^+ g_1+\frac{\vec{k}_\perp\cdot \vec{S}_\perp}{M}g_{1T} \,, \\
+	f_{[i\sigma^{i+}\gamma_5]}^{\rm TMD}&=S_\perp^i h_1+\frac{(2k^i k^j-\vec{k}_\perp^2\delta^{ij})S^j_\perp}{2M^2}h_{1T}^\perp\nn\\
+	&\qquad+\frac{S^+ k^i}{M}h_{1L}^\perp+\frac{\epsilon^{ij} k^j}{M}h_1^\perp \,,
+\end{align}
+所有分布的宗量 $(x,\vec{k}_\perp,\mu,\zeta)$ 已省略；
+$f_1$、$g_1$、$h_1$ 分别是非极化、螺旋度与横性 TMDPDF；指标 $i,j$ 位于 $\vec{k}_\perp$ 的横向空间；$S^+$ 与 $S^i_\perp$ 是纵向与横向自旋分量。
+
+注意 Sivers 函数 $f^\perp_{1T}$~\cite{Sivers:1989cc} 与 Boer-Mulders 函数 $h^\perp_1$~\cite{Boer:1997nt} 是 $T$ 奇的。规范链的取向对这两个函数有重要影响~\cite{Collins:2002kn,Collins:2011zzd}：它们在 DY 与 SIDIS 之间变号。在光锥规范中这些贡献来自无穷远处的横向规范链~\cite{Belitsky:2002sm}。它们与唯象上有趣的单横向自旋不对称相关~\cite{Boer:1997nt,Efremov:2004tp,Collins:2005ie,Collins:2005wb}。
+
+\subsection{离光锥软函数}
+\label{sec:offlight}
+前面小节引入软函数以定义快度方案无关的 TMDPDF。引入软函数的主要动机是捕捉快速运动色荷软胶子辐射带来的非微扰效应。对许多 inclusive 过程软辐射在总截面中相消；但对测量小横动量的特定过程，这种抵消可能不完全并造成可测后果。在这类情形下引入 TMD 软函数以计入软胶子效应，它出现在 Drell-Yan (DY)~\cite{Collins:1984kg,Collins:1988ig} 与半 inclusive DIS (SIDIS)~\cite{Ji:2004wu,Ji:2004xq} 的因子化定理中。
+
+要非微扰地计算 TMD 物理，给出软函数的欧氏表述至关重要。既然软函数实际上是一个截面、实且正定，它满足蒙特卡罗模拟的必要条件。本小节给出在重夸克有效理论（HQET）中计算它的途径~\cite{Ji:2019sxk}。另有工作提议从一个轻介子形状因子提取约化软函数 $S_r$~\cite{Ji:2019sxk}，可避开 HQET 的许多微妙之处。基于轻介子框架的约化软函数首个格点计算已在近期工作~\cite{Zhang:2020dbb}完成。
+
+%------------------------------------------------------------------------------
+由于 DY 与 SIDIS 过程的时空图像不同，二者的软函数彼此也不同，如图 Fig.~\ref{Fig:soft1} 所示。定义软函数还需指定时序约定。既然它是截面，就涉及一个时序与一个反时序（或割图）；但在光锥极限下时序无关紧要。真正要紧的是快度正则化方案。文献~\cite{Vladimirov:2017ksc}对 $\delta$ 调节子证明了：除整体相位因子外时序并不重要，两个过程的软函数相等。该方法稍加修改也适用于离光锥方案。因此第一步是通过施加单一时序把割图转化为 Feynman 图，这样软函数便可视为散射振幅。
+
+在离光锥方案中，离光锥矢量取类空还是类时又带来进一步的复杂性。幸运的是可以证明：在光锥极限下，类空与类时的选择在相差整体相位因子的意义下等价~\cite{future}。于是我们用记号 $S(b_\perp,\mu,Y,Y')$ 表示满足需要的任意离光锥软函数。
+
+据此我们将证明：离光锥软函数 $S(b_\perp,\mu,Y,Y')$ 等价于快速运动色源的等时形状因子，可以在欧氏格点上表述。由上一小节的匹配公式 Eq.~(\ref{eq:quasiTMDmatch})，一旦知道离光锥软函数，就可把它与格点计算的准 TMDPDF 结合成物理 TMDPDF。因此小横动量区域的 DY 截面~\cite{Collins:1984kg}变得可以从第一性原理预言~\cite{Ji:2019sxk}。
+
+首先定义如图 Fig.~\ref{fig:S} 所示 Wilson 圈的散射振幅：
+\begin{align}\label{eq:W_t}
+	&W(t,t',b_\perp,Y,Y')\nonumber \\
+	&=\frac{1}{N_c}{\rm Tr\,}\langle0|{\cal T} \left[{\cal W}^{\dagger}_{v'}(\vec{b}_\perp,t'){\cal W}_{v}(\vec{b}_\perp,t)\right]|0\rangle
+\end{align}
+$|0\rangle$ 是 QCD 真空态，$N_c$ 是颜色数，${\rm Tr}$ 是色迹。
+
+类时四矢量 $v^\mu=\gamma(1,\beta,\vec 0_\perp)$ 与 $v'^\mu=\gamma'(1,-\beta',\vec 0_\perp)$ 在 $\beta$、$\beta' \to 1$ 时趋于光锥。快度 $Y$ 与速率 $\beta$ 通过 $\beta = {\rm tanh} Y$ 相联；用光锥矢量 $p$、$n$ 表示，速度为 $v=\frac{e^Y}{\sqrt{2}}\left(\frac{p}{p^+}+e^{-2Y}p^+n \right)$ 与 $v'=\frac{e^Y}{\sqrt{2}}\left(e^{-2Y}\frac{p}{p^+}+ p^+ n \right)$。${\cal W}_{v}(\vec{b}_\perp,t)$ 是沿 $v$ 方向的钉书形规范链，与 Eqs.~(\ref{eq:staplep}) 和 (\ref{eq:staplez}) 定义的类似；$t$ 与 $t'$ 是两条钉书链 $t$ 分量的长度。
+%
+单一时序约定赋予 $S$ 作为时间先后过程的物理解释。
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=0.7\columnwidth]{images/tmd-S_fig13.pdf}
+	\caption{Wilson 圈 ${\cal W}$：一对正反夸克在 $t=0$ 散射。}
+	\label{fig:S}
+\end{figure}
+与准 TMDPDF 类似，Eq.~(\ref{eq:W_t}) 中的 Wilson 圈在大 $t$、$t'$ 时带有与初末态时间演化相联系的夹断极点奇异性。
+%
+因此需要用矩形 Wilson 圈把它们减除~\cite{Collins:2008ht,Ji:2018hvs}。
+%
+这样得到软函数的离光锥实现：
+\begin{align}\label{eq:S_t}
+	& S(b_\perp,\mu,Y,Y')\nonumber \\
+	&=\lim_{\substack{t\to\infty\\t'\to\infty}}\frac{W(t,t',b_\perp,\mu,Y,Y')}{\sqrt{Z(2t,b_\perp,\mu,Y)Z(2t',b_\perp,\mu,Y')}} \ ,
+\end{align}
+$Z(2t,b_\perp,Y)$ 是矩形 Wilson 圈的真空期望值，与 $W$ 类似只需置 $v'=v$、$t'=t$，即 $Z(2t,b_\perp,Y)=W(t,t,b_\perp,Y,-Y)$。
+%
+因子 $Z$ 有清晰的物理解释：可视为入射或出射色源的波函数重正化。
+%
+经 $Z$ 减除后，$S(b_\perp,\mu,Y,Y')$ 仅存的 UV 发散是双曲角 $Y+Y'$ 的尖点发散。
+
+应当提到，DY 过程更常见的软函数定义 $S_{\rm DY}(b_\perp,\mu,Y,Y')$ 见~\cite{Collins:2011ca,Collins:2011zzd}：用类空矢量 $u^\mu=\gamma(\beta,1,0,0)$ 与 $u'^\mu=\gamma'(-\beta',1,0,0)$ 替代类时的 $v $、$v'$ 来定义 DY 软函数。该软函数已在上一小节 Eq.~(\ref{eq:S_DY}) 定义。$u$ 与 $u'$ 在相差整体归一化因子下等于 $p_Y$、$n_{Y'}$。
+
+虽然 $S$ 与 $S_{\rm DY}$ 定义不同，利用解析性~\cite{future}可以证明
+\begin{align}\label{eq:S_t=S}
+	S(b_\perp,\mu,Y,Y')=S_{\rm DY}(b_\perp,\mu,Y,Y')
+\end{align}
+这里聚焦于具有简单欧氏实现的 Eq.~(\ref{eq:S_t}) 中的 $S$。
+
+定义好软函数 $S$ 之后，现在说明它等于一个形状因子。在 HQET 中，色源的传播子等价于沿其运动方向的规范链。
+%
+因此 $W(t,t',b_\perp,\mu,Y,Y')$ 可以用 HQET 的场表达，拉氏量为
+\begin{align}
+	{\cal L_{\rm HQET}}=Q_v^{\dagger}(x)(iv \cdot D)Q_v(x)+ \bar Q_v^{\dagger}(x)(iv \cdot D)\bar Q_v(x) \ ,
+\end{align}
+$Q_v$ 与 $\bar Q_v$ 分别处于基础与反基础表示的夸克与反夸克；$v^\mu=\gamma(1,\beta,\vec 0_\perp)$ 是四速度；$D$ 是协变导数。
+%
+注意 HQET 中的夸克可视为色源。
+%
+若考虑胶子软函数，重夸克应置于伴随表示。
+
+
+在 HQET 中，相距 $\vec b$ 的色单态重夸克对在基态生成重夸克势 $V(|\vec b|)$，谱在其上方还有带隙的连续谱。
+%
+该态还可以有残余动量 $\delta\vec P$，由重参数化不变性它是任意的~\cite{Luke:1992cs,Manohar:2000dt}；为简单计总是取 $\delta\vec P=0$。
+%
+当源以速度 $v$ 运动时，基态可标记为 $|\overline Q Q,\vec{b},\delta \vec P\rangle_v$，残余动量 $\delta\vec P=\vec{P}_{\rm total}-2m_Q\gamma\vec\beta$ 是总动量 $\vec{P}_{\rm total}$ 与重夸克动能学动量之差。
+%
+该态的残余能量为 $E=\gamma^{-1}V(|\vec b_{\perp}|)+\vec{\beta}\cdot \delta\vec P$。
+
+考虑入射与出射态分别是相距 ${\vec b}_\perp$、速度分别为 $v$ 与 $v'$ 的重夸克对的过程。
+%
+这样的态由插值场产生：
+\begin{align}
+	{\cal O}_v(t,{\vec b}_\perp)=\int d^3\vec r \, Q_v^{\dagger}(t,\vec r\,) {\cal U}(\vec r,\vec r\,',t) \bar Q_v^{\dagger}(t,\vec r\,')  \ ,
+\end{align}
+$\vec r\,'=\vec r+\vec b_\perp$，${\cal U}(\vec r,\vec r\,',t)$ 是时刻 $t$ 连接 $\vec r\,'$ 与 $\vec r$ 的规范链。
+%
+${\cal O}_v$ 产生的重夸克对被强制处于相对间隔 $\vec{b}_\perp$ 且残余动量 $\delta \vec P=0$。
+%
+在入射与出射态之间，于 $t=0$ 插入两个局域等时算符的乘积：
+\begin{align}
+	J(v,v',\vec{b}_\perp)= \bar Q^\dagger_{v'}(\vec{b}_\perp)\bar Q_v(\vec{b}_\perp)Q_{v'}^\dagger(0)Q_v(0)
+\end{align}
+%
+于是 $W$ 可以用 $v,v'$ 方向的 HQET 传播子（即规范链）表达。
+%
+积掉重夸克场后，在相差整体体积因子的意义下~\cite{Ji:2019sxk}：
+\begin{align}\label{eq:W_HQ}
+	&W(t,t',b_\perp,\mu,Y,Y')  \\
+	&=\frac{1}{N_c} \langle0|{\cal O}^{\dagger}_{v'}(t',{\vec b}_\perp) J(v,v',\vec{b}_\perp) {\cal O}_v(-t,\vec{b}_\perp)|0\rangle \nonumber\\
+	&\xrightarrow[\substack{t\to\infty\\t'\to\infty}]{} \frac{1}{N_c}\Phi^\dagger(b_\perp,\mu) S(b_\perp,\mu,Y,Y') \Phi(b_\perp,\mu)e^{-iE't'-iEt}  \ , \nn
+\end{align}
+其中
+\begin{align}\label{eq:S_HQ}
+	\Phi(b_\perp,\mu)&=\lim_{T\to\infty}{}_v\langle \overline QQ,\vec{b}_\perp|{\cal O}_v(T,\vec{b}_\perp)|0\rangle\,,\\
+	S(b_\perp,\mu,Y,Y')&={{}_{v'}}\langle\overline QQ,\vec{b}_\perp|J(v,v',\vec{b}_\perp)|\overline QQ,\vec{b}_\perp\rangle_v \ . \nn
+\end{align}
+%
+在 Eq.~(\ref{eq:W_HQ}) 最后一行中，我们在 $J$ 前后插入了重夸克对态的完备组。
+%
+大 $t$、$t'$ 时，由 Riemann-Lebesgue 引理~\cite{zuazo2001fourier}，连续谱的贡献被阻尼掉，只有残余能量 $E=\gamma^{-1}V(|\vec b_\perp|)$ 的 $|\overline QQ,\vec{b}_\perp,\delta \vec{P}=0\rangle_v$ 贡献存活。
+%
+于是得到 Eqs.~(\ref{eq:W_HQ})---(\ref{eq:S_HQ})，为简洁省去了态标签 $\delta \vec{P}=0$。
+%
+或者，也可以给 $t$、$t'$ 加一个小的负虚部（与时序一致），使大 $t$、$t'$ 时除 $|\overline QQ,\vec{b}_\perp\rangle_v$ 外的所有态都被阻尼。
+%
+注意 $\Phi(\vec{b}_\perp,\mu)$ 与 $Y$ 无关，因为它具有推进不变性。
+
+类似地，$Z$ 也可以在 HQET 中表述为
+\begin{align}\label{eq:Z_HQ}
+	Z(2t,b_\perp,Y)&=\frac{1}{N_c}\langle0|{\cal O}^\dagger_{v'}(t,{\vec b}_\perp){\cal O}_v(-t,\vec{b}_\perp)|0\rangle \nonumber\\
+	&\xrightarrow[\substack{t\to\infty}]{}\frac{1}{N_c}\Phi^\dagger({\vec b}_\perp,\mu)\Phi({\vec b}_\perp,\mu)e^{-2iEt}\,,
+\end{align}
+其 $t$ 分量长度为 $2t$。
+%
+$Z$ 的 $Y$ 依赖隐含在能量 $E$ 中。
+%
+结合 Eqs.~(\ref{eq:W_HQ}) 与 (\ref{eq:Z_HQ}) 就得到 Eq.~(\ref{eq:S_t}) 定义的 $S$。要强调 Eq.~(\ref{eq:S_t}) 可以看作 LSZ 约化公式：我们截去外部重夸克对态 $|\overline QQ,{\vec b}_\perp\rangle_v$ 的外腿。
+
+作为一个等时可观测量，$S(b_\perp,\mu,Y,Y')$ 可以直接在欧氏时间实现：
+\begin{align}\label{eq:S_lattice}
+	&S(b_\perp,\mu,Y,Y') \\
+	&=\lim_{\substack{T\to\infty\\T'\to\infty}}\frac{W_E(T,T',b_\perp,\mu,Y,Y')}{\sqrt{Z_E(2T,b_\perp,\mu,Y)Z_E(2T',b_\perp,\mu,Y')}}  \ , \nn
+\end{align}
+下标 $E$ 表示量定义在欧氏时间，相应变量为 $T$、$T'$。由推进不变性，因子 $Z_E(T,b_\perp,\mu,Y)$ 与 Eq.~(\ref{eq:Z_E}) 沿 $n_z$ 方向定义的矩形 Wilson 圈有关系 $Z_E(2T,b_\perp,\mu,Y)=Z_E(2\gamma^{-1}T,b_\perp,0)$。
+%
+相关矩阵元现用格点版 HQET 计算，拉氏量为~\cite{Aglietti:1993hf,Hashimoto:1995in,Horgan:2009ti}
+\begin{align}\label{eq:L_HQ}
+	&{\cal L}_{{\rm HQET}}^E  \\
+	&=Q_v^\dagger(x) (i\tilde v\cdot D_E)Q_v(x)+\bar Q_v^\dagger(x) (i\tilde v\cdot D_E)\bar Q_v(x) \ , \nn
+\end{align}
+下标 $E$ 表示欧氏空间，$i\tilde v\cdot D_E=\gamma(D^\tau-i\beta )D^z$，$\tilde v^\mu=\gamma(-i,-\beta,\vec 0_\perp)$。我们已在欧氏微扰论中对一圈阶显式验证了 Eq.~(\ref{eq:S_lattice})。
+
+软函数不能靠简单地把 Eq.~(\ref{eq:W_t}) 中的 Minkowski 规范链换成有限条欧氏规范链而在格点计算。通过 HQET 我们找到了软函数的时间无关表述，开启了直接格点计算的可能。
+
+\subsection{光前波函数振幅与来自介子形状因子的软函数}
+\label{sec:others}
+%------------------------------------------------------------------------------
+
+光前量子化（LFQ）或形式是部分子物理的自然语言：部分子在计算的每个阶段都显式出现。它倾向于像非相对论量子力学那样用哈密顿量途径处理 QCD，即对角化哈密顿量
+\begin{equation}
+	\hat P^-|\Psi_n\rangle = \frac{M^2_n+{\vec P_\perp}^2}{2P^+}|\Psi_n\rangle \ ,
+\end{equation}
+以获得 QCD 束缚态的波函数~\cite{Brodsky:1997de}。
+如此得到的光前波函数（LFWF）原则上可用于计算所有部分子密度与关联函数。而且，如同凝聚态系统那样，知道量子多体波函数使人得以理解量子相干与纠缠等有趣的方面以及量子系统的基本性质。因此，光前量子化纲领的实际实现显然会是理解质子基本结构的重大一步。
+
+
+然而，从场论的角度看，波函数并不是最自然的对象：真空不平庸、UV 发散以及 Lorentz 对称性要求空间与时间平权，这些都构成障碍。质子或其他强子是 QCD 真空的激发，而真空本身因著名的手征对称破缺与色禁闭现象而极为复杂。在这个真空之上构建质子，自然会问：波函数的哪一部分反映质子性质、哪一部分反映真空？正是二者的差别给出实验上可测的质子性质。除非像凝聚态系统中常用做法那样用真空中不存在的基本激发或准粒子构建质子，否则没有干净的方式实现这种分离。
+
+IMF 中的部分子在某种程度上避免了上述问题。事实上，由于运动学效应，IMF 中真空中所有部分子的纵向动量 $k^+=0$；而在一定精度内质子由 $k^+\ne 0$ 的部分子组成。自由度（DOF）的这种天然分离格外受欢迎，使 IMF 中波函数式的质子描述比任何其他参考系都更自然有趣。
+
+为实现上述 DOF 分离，一种可能是假设光前真空的平庸性。它在多大程度上成立多年来一直争论不休。人们先验地知道相对论性 QFT 中真空态是推进不变、参考系无关的。事实上，~\cite{Nakanishi:1976yx,Nakanishi:1976vf}证明了不仅真空不可能平庸，甚至完整理论的 Green 函数也不能对零平面 $\xi^+=c$ 施加普遍有意义的限制。真空零模确实含有非平庸的动力学并对质子性质有贡献~\cite{Ji:2020baz}。不过，可以采取有效理论的观点，干脆截掉零模并把它们的物理归入重正化常数；在某些简单情形零模可以被显式处理~\cite{Heinzl:1991myy,Yamawaki:1998cy}。
+
+在有效 Hilbert 空间对 $k^+\ge \epsilon$ 施加 IR 截断，$k^+=\epsilon$ 以下的全部物理都由重正化常数承担。于是得到真空平庸的有效 LF 理论：
+\begin{equation}
+	a_{k\lambda}|0\rangle = b_{p\sigma}|0\rangle = d_{p\sigma}|0\rangle=0 \ .
+\end{equation}
+$|0\rangle $ 是 LFQ 的真空。因此质子可在 LF 规范 $A^+=0$ 下展开为 Fock 态的叠加~\cite{Brodsky:1997de}：
+\begin{align}
+	|P\rangle=\sum_{n=1}^{\infty} \int d\Gamma_n \psi^0_n(x_i,\vec{k}_{i\perp})\prod a^{\dagger}_i(x_i, \vec{k}_{i\perp})|0\rangle \ .
+\end{align}
+$a^\dagger$ 是光前上的一般夸克与胶子量子，相空间积分 $d\Gamma_n=\prod \frac{dk^+d^2k_\perp}{2k^+(2\pi)^3}$。$\psi_n(x_i,\vec{k}_{i\perp})$ 是 LFWF 振幅（简称 WF 振幅），$x_i$ 记从 $x_1$ 到 $x_n$ 的动量份额集合。它们是描述质子部分子图景的一整套非微扰量。原则上可以通过哈密顿量对角化计算这些振幅，但如 Sec.~\ref{sec:lamet-frame} 所解释，LFQ 中直接的系统解并不实际。
+
+LaMET 提供了计算这些 WF 振幅的另一条路径。得益于截断 $k^+\ge \epsilon$ 后真空的平庸性，它们可以写成不变矩阵元的形式——把上面的展开反过来即可：
+\begin{align}
+	\psi^0_n(x_i,\vec{k}_{i\perp})=\langle 0|\prod a_i(x_i,\vec{k}_{i\perp})|P\rangle \ .
+\end{align}
+恰当恢复规范不变性并施加正规化后，它们成为光锥关联的矩阵元，与 TMDPDF 中的类型相同。因此 LaMET 方法适用于它们，使我们能够通过大动量系中的瞬时量子化有效地获得光前量子化的结果。
+
+要实现这一目标，LFWF 振幅也与 TMDPDF 一样需要快度重正化。本小节说明如何把 LFWF 振幅与一个特殊的轻介子形状因子结合起来得到约化软函数 $S_r$，而不是如上一节那样作为 HQET 中的形状因子。基于轻介子框架的格点计算已在~\cite{Zhang:2020dbb}进行。
+
+考虑如下赝标量轻介子态（组分 $\overline\psi\eta$）的形状因子：
+\begin{align}
+	F(b_\perp,P,P',\mu)=\langle P'|\overline\eta(\vec b_\perp)\Gamma'\eta(\vec b_\perp) \overline\psi(0)\Gamma\psi(0)|P\rangle
+\end{align}
+$\psi$ 与 $\eta$ 是不同味的轻夸克场；$P^\mu=(P^t,0,0,P^z)$ 与 $P'^\mu=(P^t,0,0,-P^z)$ 是在 $P^z\to\infty$ 极限下趋近两个相反类光方向的大动量；
+$\Gamma$ 与 $\Gamma'$ 是 Dirac gamma 矩阵，可选 $\Gamma=\Gamma'=1$、$\gamma_5$ 或
+$\gamma_\perp$ 与 $\gamma_\perp\gamma_5$，使夸克场在各自光锥上拥有领先分量。
+
+大动量时形状因子经由 TMD 因子化分解为 LFWF 振幅。为引出该因子化，需要以与 SIDIS 及 Drell-Yan 类似的方式考察 IR 发散的领先区域~\cite{Ji:2004wu,Collins:2011ca}，结果示于 Fig.~\ref{fig:reduced_form}。
+\begin{figure}
+	\includegraphics[width=0.7\columnwidth,angle=90]{images/wf-reduced_form_fig14.pdf}
+	\caption{\label{fig:reduced_form} 介子大动量形状因子 $F$ 的约化图。两个 $H$ 表示空间上被 $\vec{b}_\perp$ 分开的两个硬核，$C$ 是共线子图，$S$ 是软子图。}
+\end{figure}
+有两个分别负责 $+$ 与 $-$ 方向共线模的共线子图，和一个负责软贡献的软子图。此外还有两个 IR 自由的硬核，局域在 $(0,0,0,0)$ 与 $(0,\vec{b}_\perp,0)$ 附近。协变规范下可以有任意多条纵向极化的共线与软胶子连接到硬子图与共线子图。基于区域分解，接下来循标准流程完成向 LF 量的因子化~\cite{Collins:2011ca}。
+
+先因子化软发散。这可以用软函数 $S(b_\perp,\mu,\delta^+,\delta^-)$ 完成：它对快速运动色荷的软胶子辐射求和。直观地说，软胶子不影响快速运动带色部分子的速度，部分子传播子 eikonal 化为沿其运动轨迹的直规范链。
+
+再因子化共线发散。对入射方向，共线发散由入射部分子的 LFWF 振幅 $\psi_{\bar q q}(x,b_\perp,\mu,\delta^{'-})$ 捕获，后者用指向未来的规范链定义：
+\begin{align}
+	&\psi_{\bar q q}(x,b_\perp,\mu,\delta^{'-})=\int\frac{d\lambda}{4\pi}e^{-ix\lambda}\\
+	&\langle 0|\bar \psi(\lambda n/2 +\vec{b}_\perp)\gamma^+{\cal W}_n(\lambda n/2+\vec{b}_\perp)|_{\delta^{'-}}\psi(-\lambda n/2)|P\rangle \ ,\nn
+\end{align}
+钉书形规范链 $W_n$ 的定义与 Eq.~(\ref{eq:staplen}) 类似，唯一例外是 $W_n$ 应指向 $+\infty$ 而不是 $-\infty$。
+
+然而朴素的 LFWF 振幅也含软发散；为避免重复计数，必须用软函数 $S(b_\perp,\mu,\delta^+,\delta^{'-})$ 把软贡献从裸共线 WF 振幅中减除，得到入射方向的共线函数 $\psi_{\bar q q}(x,b_\perp,\mu,\delta^{'-})/S(b_\perp,\mu,\delta^+,\delta^{'-})$。类似地，出射方向得到共线函数 $\psi^{\dagger}(x',b_\perp,\mu,\delta^{'+})/S(b_\perp,\mu,\delta^{'+},\delta^{-})$。
+
+这里简要评论软函数与 WF 振幅中规范链方向的选取。朴素地，沿 $p$ 方向的规范链须指向过去；但仿照~\cite{Collins:2004nx}对 SIDIS 过程基于共线发散时空图像的论证，也可以选沿 $p$ 方向指向未来的规范链。当所有规范链都指向未来时，软函数等于明显为实的 $S^-$，而入射与出射强子的 WF 振幅互为复共轭。
+
+除共线与软函数外还需要硬核 $H_F(Q^2,\bar Q^2,\mu^2)$，其中 $Q^2=xx'P\cdot P'$，$\bar Q^2=\bar x\bar x' P\cdot P'$，并默认对动量份额 $x$、$x'$ 积分。合起来便得到形状因子向硬、共线与软函数的 TMD 因子化：
+\begin{align}\label{eq:form_fac_bare}
+	&F(b_\perp,P,P',\mu)=\int dx dx' H_F(Q^2,\bar Q^2,\mu^2) \\ &\times \left[\frac{\psi_{\bar q q}^{\dagger}(x',b_\perp,\mu,\delta^{'+})}{S(b_\perp,\mu,\delta^{'+},\delta^-)}\right]\left[\frac{\psi_{\bar q q}(x,b_\perp,\mu,\delta^{'-})}{S(b_\perp,\mu,\delta^+,\delta^{'-})}\right]\nonumber \\
+	&\times S(b_\perp,\mu,\delta^+,\delta^-) \ . \nn
+\end{align}
+所有 WF 振幅与软函数中的快度调节子都被抵消。
+
+来看一个一圈例子。入射强子态由动量为 $x_0P^+$ 的自由夸克与动量为 $\bar x_0 P^+$ 的自由反夸克组成；出射态类似地由动量为 $x'_0P^{'-}$、$\bar x'_0 P^{'-}$ 的一对自由正反夸克组成。入射态的自旋投影算符正比于 $\gamma^5 \gamma^-$，出射态正比于 $\gamma^5 \gamma^+$。树图形状因子归一化为 1。一圈时取矢量流 $\Gamma=\gamma^{\mu}$、$\Gamma'=\gamma_{\mu}$（对 $\mu$ 求和）的赝标量形状因子为：
+\begin{align}
+	F(b_\perp,P,P',\mu)=1+\frac{\alpha_s C_F}{2\pi}F^{(1)}(b_\perp,Q^2,\bar Q^2,\mu^2)\ ,
+\end{align}
+$Q^2=2x_0x_0'P^+P^{'-}$，$\bar Q^2=2\bar x_0\bar x_0'P^+P^{'-}$，
+\begin{align}
+	&F^{(1)}(b_\perp,Q^2,\bar Q^2,\mu^2) \\
+	&=-7+\left(-\frac{1}{2}\ln^2 b^2_\perp Q^2+\frac{3}{2}\ln b^2_\perp Q^2+\left(Q \rightarrow \bar Q\right)\right) \ . \nn
+\end{align}
+该结果可以从一圈 DY 结构函数~\cite{DAlesio:2014mrz}经代换 $\ln^2(-Q^2b^2_\perp)\rightarrow \frac{1}{2}\ln^2 Q^2b^2_\perp+\ln^2 \bar Q^2b^2_\perp$ 与 $\ln(-Q^2b^2_\perp)\rightarrow \frac{1}{2}\ln Q^2b^2_\perp+\ln \bar Q^2b^2_\perp$ 得到。与 SIDIS、DY 过程的 TMD 因子化类似，还要注意硬核 $H_F(Q^2,\bar Q^2,\mu^2)$ 可从类空 Sudakov 形状因子的得到：
+\begin{align}
+	H_F(Q^2,\bar Q^2,\mu^2)=H^{\rm sud}(-Q^2)H^{\rm sud}(-\bar Q^2) \ ,
+\end{align}
+$H^{\rm sud}(-Q^2)$ 见~\cite{Collins:2017oxh}。一圈时有：
+\begin{align}
+	& H_F(Q^2,\bar Q^2,\mu^2)=1\nonumber \\
+	&+\frac{\alpha_s}{4\pi}\left(-16+\frac{\pi^2}{3}+3L_Q+3L_{\bar Q}-L_Q^2-L_{\bar Q}^2\right)  \ ,
+\end{align}
+$L_Q=\ln \frac{Q^2}{\mu^2}$、$L_{\bar Q}=\frac{\bar Q^2}{\mu^2}$。
+
+现在用准 WF 振幅、约化软函数与硬贡献构造该因子化的欧氏版本。准 WF 振幅的定义方式与 Eq.~(\ref{eq:quasi_TMD}) 类似：
+\begin{align}
+	&\tilde \psi_{\bar q q}(x,b_\perp,\mu,\zeta_z)=\int \frac{d\lambda}{4\pi}e^{ix\lambda}\nonumber\\
+	&\frac{\langle 0| \bar \psi\big(\frac{\lambda n_z }{2}\!+\!\vec{b}_\perp\big)\gamma^z{\cal W}_{z}(\frac{\lambda n_z}{2}\!+\!\vec{b}_\perp;L)\psi\big(\!-\!\frac{\lambda n_z}{2}\big) |P\rangle}{Z_E(2L,b_\perp,\mu)} \ ,
+\end{align}
+钉书形规范链 ${\cal W}_z$ 定义见 Eq.~(\ref{eq:staplez})。规范链应指向 $+z$ 方向，与光锥侧 $+\infty$ 的选择一致。
+
+向 LFWF 振幅的因子化遵循与前述准 TMDPDF 类似的推理。也可以用在 on-light-cone 快度方案定义的量来因子化：
+\begin{align}\label{eq:quasifac_bare}
+	\tilde \psi_{\bar q q}(x,b_\perp,\mu,\zeta_z)&=H^+_1\left(\zeta_z/\mu^2,\bar \zeta_z/\mu^2\right)\\ &\times \left[\frac{\psi_{\bar q q}(x,b_\perp,\mu,\delta^-)}{S(b_\perp,\mu,\delta^+,\delta^-)}\right]S(b_\perp,\mu,\delta^+) \ . \nn
+\end{align}
+这一因子化是对准 WF 振幅作类似领先区域分析的结果。$\psi_{\bar q q}(x,b_\perp,\mu,\delta^-)/S(b_\perp,\mu,\delta^+,\delta^-)$ 对全部共线发散求和，而软函数 $S(b_\perp,\mu,\delta^+)$ 含沿 ${n_z}$ 的一个离光锥方向，它对准 WF 振幅的软发散求和。软函数 $S(b_\perp,\mu,\delta^+,\delta^-)$ 与 $S(b_\perp,\mu,\delta^+)$ 减除掉裸 LFWF 振幅引入的调节子依赖。Eq.~(\ref{eq:quasifac_bare}) 右端的整体组合与快度方案无关。与形状因子情形类似，可以选取入射共线方向的所有规范链都指向未来。
+
+合并 Eqs.~(\ref{eq:form_fac_bare}) 与 (\ref{eq:quasifac_bare})，并用关系 $\zeta \zeta'= \zeta_z \zeta'_z$，得到形状因子因子化：
+\begin{align}
+	& F(b_\perp,P,P',\mu)\\
+	&= \int dx dx' H(x,x')\tilde \psi_{\bar q q}^{\dagger}(x',b_\perp)\tilde \psi_{\bar q q}(x,b_\perp)S_{r}(b_\perp,\mu)\ ,\nn
+\end{align}
+这里只保留了 WF 振幅的 $x,b_\perp$ 依赖而省去其他变量，硬核 $H$ 为：
+\begin{align}
+	&H(x,x')=H(\zeta_z,\zeta'_z,\bar \zeta_z,\bar \zeta'_z,\mu^2)\nonumber \\
+	&\qquad=\frac{H_F(Q^2,\bar Q^2,\mu^2)}{H^+_1\left(\zeta_z/\mu^2,\bar \zeta_z/\mu^2\right)H^+_1\left(\zeta'_z/\mu^2,\bar \zeta'_z/\mu^2\right)} \ ,
+\end{align}
+$Q^2=\sqrt{\zeta_z\zeta'_z}$，$\bar Q^2=\sqrt{\bar \zeta_z\bar\zeta'_z}$。约化软函数为
+\begin{align}
+	S_{r}(b_\perp,\mu)=\lim_{\delta^+,\delta^-\rightarrow 0}\frac{S(b_\perp,\mu,\delta^+,\delta^-)}{S(b_\perp,\mu,\delta^+)S(b_\perp,\mu,\delta^-)} \ .
+\end{align}
+基于离光锥软函数的性质可以证明此处定义的 $S_r$ 与 Eq.~(\ref{eq:reduced}) 定义的一致。
+
+因此，利用非微扰量 $F$ 与 $\psi^+$，得到约化软函数
+\begin{equation}
+	S_{r}(b_\perp,\mu)=\frac{F(b_\perp,P,P',\mu)}{\int dx dx' H(x,x')\tilde \psi_{\bar q q}^{\dagger}(x',b_\perp)\tilde \psi_{\bar q q}(x,b_\perp)} \ ,
+	\label{eq:form_qfac}
+\end{equation}
+其中 $H$ 可由微扰论获得。
+
+基于形状因子、准 WF 振幅与约化软函数的一圈结果，可以提取矢量流的一圈匹配核：
+\begin{align}
+	&H(\zeta_z,\zeta'_z,\bar \zeta_z,\bar \zeta'_z,\mu^2)=1+ \frac{\alpha_sC_F}{2}i\ln \frac{\sqrt{\zeta_z\bar\zeta_z}}{\sqrt{\zeta'_z\bar\zeta'_z}}  \\
+	&+\frac{\alpha_sC_F}{4\pi}\left(-8+\ln^2\frac{\sqrt{\zeta_z}}{\sqrt{\zeta'_z}}+\ln \frac{\sqrt{\zeta_z\zeta'_z}}{\mu^2}+(\zeta \rightarrow \bar \zeta)\right)\nonumber \ ,
+\end{align}
+$H$ 的重正化群方程为：
+\begin{align}
+	\mu^2\frac{d}{d\mu^2}\ln H(\zeta_z,\zeta'_z,\bar \zeta_z,\bar \zeta'_z,\mu^2)=-2\gamma_F(\alpha_s)-\Gamma_{S}(\alpha_s) \ ,
+\end{align}
+$\gamma_F$ 与 $\Gamma_S$ 已在前文定义。
+
+这里简要评论端点行为。当 $x\sim 0$，硬核在端点附近按 $ 1+\alpha_s \ln^2 x$ 对数发散，但准 WF 振幅在大、小 $x$ 处线性趋零，因此端点区域的行为为 $x\ln^2 x$，没有电磁形状因子 $k_T$ 因子化~\cite{Li:1992nu}的那些问题。另外，可以把每个顶点的 $z$ 分量动量转移固定为 $P^z$，这意味着 $x+x'=1$；此端点行为改善为 $x^2\ln^2 x$。
+
+%------------------------------------------------------------------------------
