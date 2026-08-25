@@ -1,0 +1,184 @@
+\chapter{The Renormalization Battle}
+
+The Wilson line of \cref{eq:quasipdf} is a self-energy divergent object:
+beyond the usual logarithms it carries a \emph{linear} UV divergence,
+proportional to its length $z$. Whether and how this can be tamed decided
+the fate of lattice parton physics. This chapter follows the battle in
+seven papers: from the veteran renormalization scheme that made lattice
+matrix elements respectable, through the proofs of renormalizability, to
+the practical schemes (ratio/RI/MOM hybrids, auxiliary fields,
+self-renormalization) in daily use inside this library.
+
+% ----------------------------------------------------------------------
+\section{RI/MOM: The Veteran Scheme}
+\papercard{G.\ Martinelli, C.\ Pittori, C.\ T.\ Sachrajda, M.\ Testa,
+A.\ Vladikas}
+{A general method for nonperturbative renormalization of lattice operators}
+{Nucl.\ Phys.\ B \textbf{445}, 81--108 (1995)}
+{arXiv:hep-lat/9411010 | DOI: 10.1016/0550-3213(95)00126-D}
+\whyselected{The founding scheme of nonperturbative operator
+renormalization ($\sim$8 explicit citations plus universal implicit use):
+every RI/MOM or SMOM renormalized matrix element in the library descends
+from it.}
+\physics{Renormalize an operator $O$ by imposing a renormalization
+condition on its matrix element in a family of off-shell Landau-gauge
+momentum-subtraction states,
+\begin{equation}
+  Z_O(\mu,a)\,\Lambda_O(p)\big|_{p^2=\mu^2} = \Lambda_O^{tree}(p),
+  \qquad p^2 \gg \Lambda_{\rm QCD}^2 ,
+\end{equation}
+computed in lattice perturbation-free simulations. The scheme is
+renormalization-group closed with computable conversion factors to
+$\overline{\rm MS}$, and --- crucially for later chapters --- extends
+verbatim to bilocal operators, where its momentum-space amputated vertex
+became the diagnostic instrument for the linear divergence of Wilson
+lines.}
+\impact{All early quasi-PDF extractions in the library (Liu et al.,
+helicity at physical mass, isovector systematic study) renormalize
+RI/MOM-style; the TMD papers document where it fails (Chapter~6 context),
+which is itself part of this paper's legacy: you can only diagnose a
+scheme's limits because the scheme exists.}
+\cardend
+
+% ----------------------------------------------------------------------
+\section{Renormalizability Proved}
+\papercard{T.\ Ishikawa, Y.-Q.\ Ma, J.-W.\ Qiu, S.\ Yoshida}
+{Renormalizability of quasiparton distribution functions}
+{Phys.\ Rev.\ D \textbf{96}, 094019 (2017)}
+{arXiv:1707.03107 | DOI: 10.1103/PhysRevD.96.094019}
+\whyselected{First general proof that quasi-PDF operators are
+renormalizable ($\sim$13/99): the license without which the program might
+have been a numerical artifact.}
+\physics{Analyzing all one-loop diagrams of the bilocal operator, the
+paper shows that every power divergence localizes in the cusp-less part
+of the Wilson-line self-energy --- i.e.\ the operator renormalizes
+multiplicatively up to mixing among operators of equal dimension with
+same quantum numbers, and no new nonlocal counterterm is required.
+Combined with a gauge-invariant UV regulator argument, the result
+guarantees that a continuum limit of suitably renormalized quasi-PDFs
+exists. The companion PRL by Ma--Qiu (arXiv:1404.6860 lineage; ``good
+lattice cross sections'') framed the same logic as a general strategy:
+compute at short distances where the lattice is reliable, match to the
+long-distance observable.}
+\impact{Every renormalization proposal in this library --- ratio schemes,
+auxiliary-field subtraction, hybrid schemes --- cites this proof as its
+theoretical warrant.}
+\cardend
+
+% ----------------------------------------------------------------------
+\section{Taming the Linear Divergence}
+\papercard{J.-W.\ Chen, X.\ Ji, J.-H.\ Zhang}
+{Improved quasi parton distribution through Wilson line renormalization}
+{Nucl.\ Phys.\ B \textbf{915}, 1--9 (2017)}
+{arXiv:1609.08102 | DOI: 10.1016/j.nuclphysb.2016.12.011}
+\whyselected{Origin of the auxiliary-field (mass counterterm) cure for the
+linear divergence ($\sim$11/99): cited by essentially every
+renormalization-oriented article in the corpus.}
+\physics{Introduce an auxiliary field $\phi$ whose quadratic term carries
+a mass $m_0$; the open Wilson line re-expresses as expectation values in
+an enlarged theory where the linear divergence appears solely as the
+self-energy of $\phi$, absorbed by
+\begin{equation}
+  m_0^2(z,a)=m^2 + \frac{c_1}{a} + \cdots .
+\end{equation}
+After subtraction the improved quasi-distribution contains only logarithmic
+divergences at any order in perturbation theory, and admits standard
+nonperturbative renormalization. The paper also computed the first
+lattice-regularized one-loop matching kernel, exposing how discretization
+artifacts enter $K$.}
+\impact{This construction is the seed of Green--Jansen--Steffens'
+implementation and of the hybrid schemes below; conceptually it converts
+``subtracting a linear divergence'' from a numerics problem into a mass
+renormalization problem --- solvable by fitting $m_0(z)$ across $z$.}
+\cardend
+
+% ----------------------------------------------------------------------
+\section{The Renormalization Program Formalized}
+\papercard{X.\ Ji, J.-H.\ Zhang, Y.\ Zhao}
+{Renormalization in large momentum effective theory of parton physics}
+{Phys.\ Rev.\ Lett.\ \textbf{120}, 112001 (2018)}
+{arXiv:1706.08962 | DOI: 10.1103/PhysRevLett.120.112001}
+\whyselected{The programmatic statement of LaMET renormalization
+($\sim$13/99): the reference for auxiliary-field formalism and for the
+Wilson-line anomalous dimension entering matching at NNLO.}
+\physics{The letter systematizes the two-step logic now used everywhere:
+(i)~renormalize the quasi-operator nonperturbatively within a chosen
+scheme (RI/MOM, ratio, or auxiliary-field mass), rendering the matrix
+element finite in the continuum limit; (ii)~convert to $\overline{\rm MS}$
+and match to the light-cone distribution with kernels that include the
+cusp logarithm $\ln(P^z/\mu)$. It also computes the one-loop conversion
+factors and demonstrates scheme independence of the final light-cone PDF
+order by order.}
+\impact{The library's hybrid-renormalization applications (transversity,
+Boer--Mulders, gluon PDFs) cite this letter as their definitional
+framework; its notation is the de facto standard across LP3 papers.}
+\cardend
+
+% ----------------------------------------------------------------------
+\section{Auxiliary Fields Implemented}
+\papercard{J.\ Green, K.\ Jansen, F.\ Steffens}
+{Nonperturbative renormalization of nonlocal quark bilinears from lattice QCD}
+{Phys.\ Rev.\ Lett.\ \textbf{121}, 022004 (2018)}
+{arXiv:1707.07152 | DOI: 10.1103/PhysRevLett.121.022004}
+\whyselected{First numerical demonstration that the auxiliary-field scheme
+works on realistic ensembles ($\sim$14/99): the bridge between the
+Chen--Ji--Zhang idea and everyday practice.}
+\physics{On $N_f=2+1$ domain-wall ensembles the paper measures the
+quasi-PDF operator's Green function, fits the linearly divergent
+$\phi$-field mass $m_0(z,a)$ over a range of separations and spacings,
+subtracts it, and shows the residual matrix element scales
+logarithmically toward a finite continuum limit --- then supplies the
+conversion factors to $\overline{\rm MS}$. The fit-based extraction of a
+power-divergent quantity, with its correlated systematics, became the
+template that self-renormalization (below) would generalize.}
+\impact{Within the library, the ETMC and LPC lines quote this paper when
+justifying hybrid short-distance treatments; its error-analysis patterns
+reappear in every modern extraction.}
+\cardend
+
+% ----------------------------------------------------------------------
+\section{The Complete Prescription}
+\papercard{C.\ Alexandrou, K.\ Cichy, M.\ Constantinou, K.\ Hadjiyiannakou,
+K.\ Jansen, H.\ Panagopoulos, F.\ Steffens}
+{A complete non-perturbative renormalization prescription for quasi-PDFs}
+{Nucl.\ Phys.\ B \textbf{923}, 394--415 (2017)}
+{arXiv:1706.00265 | DOI: 10.1016/j.nuclphysb.2017.08.010}
+\whyselected{The most complete single-scheme treatment ($\sim$10/99): the
+ETMC school's standard, shared by many library papers including the
+twisted-mass gluon PDF.}
+\physics{For unpolarized, helicity and transversity quasi-PDFs the paper
+constructs the full RI$'$ prescription: renormalization conditions for
+all relevant tensor structures, subtraction of the linear divergence via
+the $z$-dependent mass term, inclusion of the mixing with the scalar
+operator for twist-3 structures, and perturbative conversion factors
+$\mathrm{RI}'\to\overline{\rm MS}$ at one loop. The result is a recipe
+that a simulation can follow end-to-end --- matrix element, $Z$ factors,
+matching, extrapolations --- which explains its role as the field's
+practical benchmark.}
+\impact{In this library it anchors the ETMC proton gluon-PDF calculation
+and provides the comparison point against hybrid-ratio schemes; the
+gauge-fixing-precision paper quantifies exactly how much care its
+Landau-gauge step demands.}
+\cardend
+
+% ----------------------------------------------------------------------
+\section{Gluon Operators Renormalize Multiplicatively}
+\papercard{Z.-Y.\ Li, Y.-Q.\ Ma, J.-W.\ Qiu}
+{Multiplicative renormalizability of operators defining quasiparton distributions}
+{Phys.\ Rev.\ Lett.\ \textbf{122}, 062002 (2019)}
+{arXiv:1809.01836 | DOI: 10.1103/PhysRevLett.122.062002}
+\whyselected{The rigorous basis for gluon quasi-PDFs ($\sim$8/99): quoted
+by nearly every gluon-PDF article of the library.}
+\physics{Classifying all gauge-invariant bilocal adjoint operators with a
+Wilson line, the paper proves --- using a gauge-invariant UV regulator so
+that only genuine UV singularities appear --- that the full set of 36
+gluon quasi-parton operators has localized UV divergences and renormalizes
+\emph{multiplicatively}: each operator maps onto a finite combination
+fixed by symmetry, with no operator mixing beyond the trivial ones. This
+completes, for gluons, what Ishikawa et al.\ proved for quarks, and
+certifies that lattice gluon quasi-PDFs define continuum quantities.}
+\impact{Together with Zhang et al.'s matching analysis (next chapter),
+this theorem is why ``first gluon PDF from the lattice'' papers can exist
+at all. The library's gluon-quasi-PDF line cites it at every
+methodological juncture.}
+\cardend
