@@ -1,0 +1,507 @@
+\section{动量涂抹与强子两点函数}
+\label{sec:wuppertal}
+我们以迭代涂抹算法的一个一般性例子回顾 Wuppertal 涂抹。
+然后为澄清记号，我们讨论强子两点函数的标准构造，
+再按上述方式引入动量平移以推广该涂抹。这一讨论可以容易地推广到一般的强子以及
+$n\geq 2$ 的 $n$ 点函数。
+最后我们就如何进一步改进该方法提出建议。这对迭代次数会变得很大的精细格点
+十分重要。在附录中
+我们讨论如何实现一个附加的洛伦兹 boost 因子。
+
+\subsection{Wuppertal 涂抹}
+\label{sec:wup}
+最著名的涂抹函数规范协变实现是
+Wuppertal 涂抹~\cite{Gusken:1989ad,Gusken:1989qx}，其中
+$F=\Phi^n$，$\Phi$ 定义为
+\begin{equation}
+(\Phi q)_{\vect{x}} = \frac{1}{1+2d\wupc} \left[q_{\vect{x}}+\wupc \sum_{j=\pm 1}^{\pm d} U_{\vect{x},j} q_{\vect{x}+\unitj}\right]\,. \label{fermsmear}
+\end{equation}
+同样 $d=3$ 表示空间维数。规范输运子
+\begin{align}\label{eq:gausssmear}
+U_{x,-j} = U^{\dagger}_{x-\unitj,j}\,,\quad U_{\vect{x},j}=U_{x,j}\quad\text{（固定 $x_4$）}\,,
+\end{align}
+也可以是经空间 APE 涂抹的
+链接~\cite{Falcioni:1984ei,Alexandrou:1990dq,Bali:2005fu}。
+$\unitj$ 表示长度为一个格距 $a$、指向方向 $j$ 的矢量。在式~\eqref{fermsmear} 中我们略去了指标 $x_4$，
+因为涂抹在时间上是对角的。$\wupc$ 是正常数，任意归一化因子 $1/(1+2d\wupc)$
+的引入是为了避免大迭代次数
+$n$ 时的数值溢出。
+
+$\Phi$（从而 $\Phi^n$）是自伴的，是旋量空间的单位矩阵，
+并按 $O_h$ 及其小群的 $A_1$ 表示变换。\footnote{对沿晶轴的动量（$C_{4v}$）、空间对角线（$C_{3v}$）
+或面对角线（$C_{2v}$）的动量，$O_h$ 对称性将约化为 $C_{nv}$，
+参见例如文献~\cite{Hamermesh:100343}。}
+因此替换 $q\mapsto \Phi^n q$ 不会干扰
+任何内插算符的对称性质。
+
+涂抹算符 $\Phi$ 与离散化的协变拉普拉斯算子 $\Laplace$ 相关：
+\begin{align}
+\Phi\,q&=q+\frac{\wupc}{1+2d\wupc}a^2\Laplace q\,,\\
+a^2\left(\Laplace q\right)_{\vect{x}}
+&=-2d\, q_{\vect{x}}+\sum_{j=\pm 1}^{\pm d} U_{\vect{x},j} q_{\vect{x}+\unitj}\,.\label{eq:laplace}
+\end{align}
+引入虚拟时间 $\tau=n\Delta\tau$ 并定义
+$q(\tau)=\Phi^nq(0)$，即 $q(\tau+\Delta\tau)=\Phi q(\tau)$，
+便得到扩散（热）方程
+\begin{equation}
+\frac{\partial q(\tau)}{\partial\tau}\approx
+\frac{q(\tau+\Delta\tau)-q(\tau)}{\Delta\tau}=\alpha\Laplace q(\tau)\,,\label{eq:diffuse}
+\end{equation}
+其中
+\begin{equation}
+\alpha=\frac{a^2}{\Delta\tau}\frac{\wupc}{1+2d\wupc}\,.
+\label{eq:alphadef}
+\end{equation}
+该方程由 $q(\tau)\approx \exp\left(\alpha\tau\Laplace\right)q(0)$ 求解。
+从位置与颜色空间中的 $\delta$-源
+$q_{\vect{x}}^a(0)=\delta_{\vect{x}\vect{0}}\delta^{ab}$ 出发，
+假设自由情形 $U_{\vect{x},j}=\mathds{1}_3$
+以及大距离 $r=|\vect{x}|\gg a$，式~\eqref{eq:diffuse}
+显然由一个高斯解出，其中
+\begin{equation}
+\sigma(\tau)=\sqrt{2\alpha\tau}=\sqrt{2na^2}\sqrt{\frac{\wupc}{1+2d\wupc}}\label{eq:width}
+\end{equation}
+为方差的平方根，
+即该涂抹对应于涂抹核式~\eqref{eq:smgauss}。
+在协变拉普拉斯算子
+式~\eqref{eq:gausssmear} 与 \eqref{eq:laplace}
+中采用接近单位元的平行输运子，
+例如 $d$ 维 APE 涂抹规范链接，
+意味着这一高斯形状是很好的近似，参见例如文献~\cite{Bali:2011rd}。
+
+扩散系数 $\alpha$ 显然在参数 $\wupc$
+较大时最大（当 $\wupc\rightarrow\infty$ 时 $\alpha\rightarrow \frac16 a^2/\Delta\tau$）。
+对于小的值（$\alpha\approx \wupc\, a^2/\Delta\tau$），达到给定涂抹半径\footnote{注意在 $d$ 维中均方根半径为
+$\sqrt{d}\sigma$。另需注意规范不变组合
+$q^{\dagger}_{\vect{x}}q_{\vect{x}}$ 式~\eqref{density}
+的宽度小一个因子 $\sqrt{2}$。}
+$\sqrt{3}\sigma$ 所需的迭代次数
+$n$ 更大，但所得波函数会更光滑。方程~\eqref{eq:width} 突出表明：为了保持涂抹半径在物理单位下固定，
+迭代次数需要按格距平方的反比增加。显然，
+随着趋向连续极限，这将耗费大量机时。我们指出，在小格距下
+扩散方程~\eqref{eq:diffuse} 应当用比迭代应用
+式~\eqref{eq:gausssmear} 定义的涂抹算符
+$\Phi$ 更聪明的办法求解。我们将在第~\ref{sec:improve} 节回到这一点。
+
+\subsection{两点函数的构造}
+作为例子我们讨论动量投影的
+$\pi$ 介子和核子两点函数的构造：
+\begin{align}
+C_{\pi}(\vect{p},t)
+&=\langle \pi_{\vect{p}} (t) \pi^{\dagger}_{\vect{p}} (0)\rangle\,,\nonumber\\
+C_{N}(\vect{p},t)&=
+\langle N_{\vect{p}}^{\alpha} (t) \overline{N}_{\vect{p}}^{\beta}(0)\rangle \mathbb{P}^{\alpha\beta}\,,
+  \label{interpol}
+\end{align}
+其中 $\mathbb{P}=\frac{1}{2}(\mathds{1}+\gamma_4)$ 表示到正宇称上的投影。\footnote{注意当 $\vect{p}\neq\vect{0}$
+时该投影算符不能完全去除负宇称贡献。
+为改进这一点，可以改用斜投影算符（oblique projector）~\cite{Lee:1998cx}
+$\mathbb{P}_{\vect{p}}=\frac{1}{2}\{\mathds{1}+[m_{N^*}/E_{N^*}(\vect{p})]\gamma_4\}$，
+其中 $m_{N^*}$ 与 $E_N^*$ 表示
+核子负宇称伙伴的质量与能量。由于该态质量高于
+核子，为简单起见此处不作此尝试。}
+无涂抹时 $\pi$ 介子与核子内插算符
+是定域的夸克双线性型与三线性型：
+\begin{align}
+\pi_{\vect{p}}= a^3\sum_{\vect{x}}e^{i\vect{p}\cdot\vect{x}} \bar{u}_{\vect{x}}\gamma_5 d_{\vect{x}}\,,\\
+N^{\alpha}_{\vect{p}} = a^3\sum_{\vect{x}} e^{i\vect{p}\cdot\vect{x}} \left[ u^t_{\vect{x}} C \gamma_5 d_{\vect{x}} \right]u^{\alpha}_{\vect{x}}\,,
+\end{align}
+其中 $C$ 是电荷共轭算符，$u_{\vect{x}}$ 与
+$d_{\vect{x}}$ 分别在空间位置 $\vect{x}$ 处湮灭上、下夸克。
+
+对 $\pi$ 介子进行 Wick 收缩得到
+\begin{align}
+C_{\pi}(\vect{p},t)
+&= -L^3a^3\sum_{\vect{x}}
+e^{i \vect{p}\cdot\vect{x}} \left\langle\bar{u}_x \gamma_5 d_{x} d^{\dagger}_0 \gamma_5
+\bar{u}^{\dagger}_0\right\rangle\label{eq:contract} \\\nonumber
+&=-L^3a^3\sum_{\vect{x}}\left\langle\tr\left[(d\bar{d})_{x0}\gamma_5
+(u\bar{u})_{0x}\gamma_5\right]\right\rangle e^{i \vect{p}\cdot\vect{x}}\\
+&=-L^3a^3\left\langle\sum_{\vect{x}}\tr\left(M^{-1\dagger}_{x0}M^{-1}_{x0}
+\right)e^{i \vect{p}\cdot\vect{x}}\right\rangle\,,\nonumber
+\end{align}
+其中 $x=(\vect{x},t)$，迹遍及自旋与颜色。
+由于期望值的平移对称性，
+源端的动量投影并不必要，
+$L^3=N^3a^3$ 表示对应于这个被省略求和的三维体积。
+$M$ 是类 Wilson 的格点 Dirac 矩阵，
+夸克质量 $m_u=m_d$，并且
+我们利用了\footnote{注意约定
+$\bar{d}=d^{\dagger}\gamma_4$ 虽然方便，
+但在欧氏时空中并不自洽——那里
+Dirac 算符是 $\gamma_5$-而非
+$(\gamma_4=\gamma_0)$-厄米的。
+这正是式~\eqref{eq:contract} 中负号的原因。
+在模拟中，我们校正了这个相位并得到
+正的两点函数。} $d^\dagger\gamma_5\bar{u}^\dagger=d^\dagger
+\gamma_5\gamma_4u=-\bar{d}\gamma_5u$、夸克场的产生与湮灭算符的格拉斯曼性质，
+并用
+$\langle d\bar{d}\rangle_d=\langle u\bar{u}\rangle_u=M^{-1}$ 替换，
+其中下标 $d$、$u$ 表示在给定规范背景上积掉相应的
+格拉斯曼场。最后一步我们还利用了 $\gamma_5$-厄米性：
+$\gamma_5M^{-1}\gamma_5={M^{-1}}^{\dagger}$。
+对核子可以容易地写出含
+$\epsilon^{abc}\epsilon^{a'b'c'}(M^{-1})_{x0}^{aa'}
+(M^{-1})_{x0}^{bb'}(M^{-1})_{x0}^{cc'}$
+的类似表达式，其中我们略去了
+旋量指标，$a,b,c,a',b',c'\in\{1,2,3\}$ 遍及基础表示的颜色。
+现在可以求解线性系统
+\begin{equation}
+\sum_{x,\alpha, a}M^{\beta' b'\alpha a}_{x'x}S^{\alpha a \beta  b}_x=\delta_{x'0}\delta^{b\beta'\beta}\delta^{b'b}\label{eq:prop}
+\end{equation}
+来计算式~\eqref{eq:contract}：对十二个 $\delta$-源
+（每个源自旋 $\beta$ 和颜色 $b$ 各一）求解，得到汇位置、自旋和颜色指标分别为
+$x$、$\alpha$ 与 $a$ 的 point-to-all（点到全）传播子 $S$。于是
+\begin{equation}
+C_{\pi}(\vect{p},t)\propto\left\langle\sum_{\vect{x}}\tr\left(S^{\dagger}_xS_x\right)e^{i\vect{p}\cdot\vect{x}}
+\right\rangle\,,\label{eq:picontract}
+\end{equation}
+其中再次有 $x_4=t$。由三个 point-to-all 传播子
+构造类似的核子两点函数是直截了当的。注意那种情形不会出现厄米共轭。
+
+涂抹在欧氏时间上是对角的（因此
+我们略去了 $t$ 依赖），并且在 Dirac 自旋上是平凡的。
+所以显然涂抹算符 $F=\Phi^n$ 与任何 $\Gamma$ 结构对易，
+但它不与强子内插算符中可能出现的协变导数对易。
+涂抹可以在源端容易地实现：
+用 $S^F=M^{-1}F\delta$ 替换 $S=M^{-1}\delta$，见式~\eqref{eq:prop}。
+注意由于 $F$ 是旋量空间的单位矩阵，
+同一个涂抹源可用于全部四个
+旋量分量。
+为得到所谓的
+涂抹-涂抹（smeared-smeared）两点函数，通常将式~\eqref{eq:picontract} 中求和的宗量替换为
+$\tr[(FS^{F})^{\dagger}_{x}(FS^{F})_{x}]e^{i\vect{p}\cdot\vect{x}}$：
+每次源端涂抹都要求新的求逆，而汇端涂抹则需要在所有感兴趣的时间片上进行。\\
+
+我们指出，动量源的使用已有相当长的历史，参见例如
+文献~\cite{Gockeler:1998ye,Brown:2012tm,Bali:2015msa}。
+向夸克源注入动量是必要的（而且已经这样做了），其背景是文献~\cite{Sommer:1994gg,Foster:1998wu}
+的单端技巧（one-end-trick）：
+人们通常采用颜色对角的（复）$\mathbb{Z}_N$ 或
+$\textmd{U}(1)$ 随机源。将其推广为
+$\textmd{SU}(3)$ 噪声事实上等价于使用非固定规范的壁源~\cite{Billoire:1985yn}，这不改变期望
+值。不过文献~\cite{Detmold:2012wc,Basak:2012py}
+（``color wave propagator''）也将动量注入了固定规范的壁源，
+这不仅有利地影响统计误差，也改善了基态重叠。虽然这些工作与我们有部分共同动机，
+但本文提出的方法相当不同。例如在我们的情形中，
+强子的总动量仍需
+在源端注入，且 $\vect{k}$ 不量子化。\\
+
+最后我们指出，只在汇端进行位置求和的不对称性常被利用来减小重轻介子关联函数的统计误差：
+不用每个夸克都以 $F$ 涂抹，而是只用
+$F^2=FF$ 在源端涂抹重夸克。
+显然，若对每个感兴趣的动量涂抹参数只需重新计算重夸克传播子，那将是有利的。遗憾的是，动量涂抹（以及传统涂抹）作为
+一种操作不与动量投影对易，除非
+$\vect{p}=\vect{0}$。因此在各夸克之间不同地分配涂抹
+将导致不同、且不一定最优的基态重叠。
+
+\subsection{动量（Wuppertal）涂抹}
+\label{sec:newsmear}
+如第~\ref{sec:basic} 节所解释的，
+如果我们向强子注入动量 $\vect{p}$，
+把它至少部分地分配给各个夸克可能是好主意。
+它们的涂抹函数因此理想上应围绕某个值 $\vect{k}\neq\vect{0}$ 居中，其中 $\vect{k}$ 是
+$\vect{p}$ 的某个比例，以便最好地与我们想产生的物理态波函数相似。\\
+
+动量空间中以 $\vect{k}$ 为中心的高斯型的傅里叶变换读作
+\begin{equation}
+f^{\sigma}_{(\vect{k})\,\vect{x}-\vect{y}}\propto
+\exp\left[-\frac{(\vect{x}-\vect{y})^2}{2\sigma^2}-i\vect{k}\cdot(\vect{x}-\vect{y})\right]\,.\label{eq:momsf}
+\end{equation}
+类似地，动量也可以注入到其他形状的涂抹函数中，这一可能性我们不在此探讨。
+$q(\tau)=F_{(\vect{k})}^{\sigma(\tau)}q(0)$
+求解带常数漂移项的热方程
+\begin{equation}
+\label{eq:drift}
+\frac{\partial q(\tau)}{\partial\tau}=
+\alpha\left(\vect{\nabla}+i\vect{k}\right)^2 q(\tau)\,.
+\end{equation}
+
+类比第~\ref{sec:wup} 小节的讨论，
+在自由情形上述涂抹函数可以由``动量''高斯涂抹步迭代构造，
+$F_{(\vect{k})} =\Phi_{(\vect{k})}^n$，即在式~\eqref{fermsmear} 中引入相位：
+\begin{equation}
+(\Phi_{(\vect{k})} q)_{\vect{x}} = \frac{1}{1+2d\wupc} \left[q_{\vect{x}}+\wupc \sum_{j=\pm 1}^{\pm d} U_{\vect{x},j}e^{i\vect{k}\cdot\unitj} q_{\vect{x}+\unitj}\right]\,, \label{fermsmear2}
+\end{equation}
+其中 $\Phi_{(\vect{0})}=\Phi$。
+容易证明方差 $\sigma^2(\tau)$ 仍如
+式~\eqref{eq:width} 所给。而且如预期那样
+$\Phi_{(\vect{k})}$ 保持自伴：
+
+\begin{align}
+\Phi_{(\vect{k})\vect{x}\vect{y}}&=\frac{1}{1+2d\wupc}\left\{\delta_{\vect{x},\vect{y}}+
+\wupc \sum_{j=1}^{3} \left[\delta_{\vect{x}+\unitj,\vect{y}}
+U_{\vect{x},j} e^{i\vect{k}\cdot\unitj}
++\delta_{\vect{y}+\unitj,\vect{x}}U^{\dagger}_{\vect{y},j} e^{-i\vect{k}\cdot\unitj}
+\right]\right\}\,,\nonumber\\
+\Phi_{(\vect{k})\vect{y}\vect{x}}^{\dagger}
+&=
+\frac{1}{1+2d\wupc}\left\{\delta_{\vect{y},\vect{x}}+
+\wupc \sum_{j= 1}^{3} \left[\delta_{\vect{y}+\unitj,\vect{x}}
+U_{\vect{y},j}^{\dagger} e^{-i\vect{k}\cdot\unitj}
++\delta_{\vect{x}+\unitj,\vect{y}}U_{\vect{x},j} e^{i\vect{k}\cdot\unitj}
+\right]\right\}
+=\Phi_{(\vect{k})\vect{x}\vect{y}}\,.\label{eq:transpose}
+\end{align}
+
+我们对夸克与反夸克使用相同的涂抹。对 $\pi^-$ 介子这相当于在式~\eqref{eq:contract} 内做替换
+$d\mapsto \Phi^n_{(\vect{k})}d$、
+$u\mapsto \Phi^n_{(-\vect{k})}u$、$\bar{d}\mapsto \bar{d}\Phi^n_{(\vect{k})}$
+及 $\bar{u}\mapsto \bar{u}\Phi^n_{(-\vect{k})}$。注意之所以需要 $\Phi^n_{(-\vect{k})}$ 涂抹，
+是因为在与动量投影的收缩中
+$(\delta_{\vect{x}\vect{x}'}e^{i\vect{p}\cdot\vect{x}})
+\Phi^n_{(\vect{k})\vect{x}\vect{y}}\Phi^n_{(\vect{k})\vect{x}'\vect{y}'}$，
+转置第一个涂抹算符指标的次序在自由情形给出
+$\Phi^n_{(\vect{k})\vect{x}\vect{y}}=\Phi^n_{(-\vect{k})\vect{y}\vect{x}}$，
+见式~\eqref{eq:freec}。
+利用 $\Phi^n_{\vect{k}}$ 的厄米性，我们得到
+\begin{align}
+C_{\pi}(t)
+\propto\sum_{\vect{x}}&\left\langle\!\tr\!\left\{\left[\left(\Phi^n_{(-\vect{k})}M^{-1}\Phi^n_{(-\vect{k})}\right)_{x0}\right]^{\dagger}\right.\right.\nonumber\\
+&\qquad\times\left.\left.\left(\Phi^n_{(\vect{k})}M^{-1}\Phi^n_{(\vect{k})}\right)_{x0}
+\right\}\right\rangle e^{i \vect{p}\cdot\vect{x}}\,.
+\end{align}
+相比之下，对重子两点函数——所有夸克都向前传播——只出现 $\Phi^n_{(+\vect{k})}$。
+$\pi$ 介子两点函数现在可以类比
+式~\eqref{eq:picontract} 从
+\begin{equation}
+C_{\pi}(\vect{p},t)\propto\left\langle\!\sum_{\vect{x}}\tr\!\left[
+\left(\Phi^n_{(-\vect{k})}S_{(-\vect{k})}\right)^{\!\dagger}_{\!x}\!\!\left(
+\Phi^n_{(\vect{k})}S_{(\vect{k})}\right)_{\!x}\right]\!e^{i\vect{p}\cdot\vect{x}}\!
+\right\rangle\,,
+\end{equation}
+构造，其中源端涂抹的
+point-to-all 传播子定义为 [见式~\eqref{eq:prop}]
+\begin{equation}
+{S_{(\vect{k})}}^{\alpha a \beta  b}_x=
+\sum_{x',\alpha',a',z,c}\!\!\!\!\!\left(M^{-1}\right)^{\alpha a\alpha' a'}_{x,x'}\!\!\delta^{\alpha'\beta}
+{\Phi^n_{(\vect{k})}}_{x'z}^{a'c}
+\delta_{z0}\delta^{cb}\,,
+\end{equation}
+或简写为：$S_{(\vect{k})}=M^{-1}\Phi_{(\vect{k})}^n\delta$。
+对介子需要对以 $\Phi_{(\vect{k})}^n$ 以及
+$\Phi_{(-\vect{k})}^n$ 涂抹的 $\delta$-源分别求解上述十二个线性系统，
+而对重子用
+$\Phi_{(\vect{k})}^n$ 涂抹就足够了。
+
+我们指出，动量涂抹式~\eqref{fermsmear2} 极易实现：
+把（APE 涂抹的）输运子替换为
+$U_{\vect{x},j}\mapsto U_{\vect{x},j}e^{i\vect{k}\cdot\unitj}$，
+然后在这些修改后的
+$\textmd{U}(3)$ 链接上迭代通常的 Wuppertal 涂抹
+式~\eqref{fermsmear}。
+
+\subsection{自由场研究}
+\label{freefield}
+定义了涂抹以及收缩应如何进行之后，我们现在可以回答应当选择多大 $\vect{k}$
+的问题。朴素地，人们可能预期对由简并夸克组成、总动量为
+$\vect{p}$ 的介子与重子分别取 $\vect{k}\approx \vect{p}/2$
+和 $\vect{k}\approx\vect{p}/3$ 最优。
+这正是我们在非相互作用情形中将发现的结果。
+相互作用情形与此略有偏离，见下文
+第~\ref{sec:results} 节。
+
+在式~\eqref{fermsmear2} 中令 $U_{\vect{x},j}=\mathds{1}$
+给出自由情形的涂抹函数式~\eqref{eq:momsf}，
+条件是大体积 $L^3\gg\sigma^3$ 以及使 $\sigma\gg a$ 的涂抹次数。
+在汇端分别以 $F_{(\vect{k})}$
+和 $F_{(-\vect{k})}$ 涂抹夸克与反夸克湮灭算符，
+我们得到动量投影的涂抹 $\pi$ 介子内插算符：
+\begin{align}
+\pi_{\vect{p}}&\propto
+\sum_{\vect{x}, \vect{y},\vect{y}^{\prime}}
+\bar{u}_{\vect{y}'}f_{(-\vect{k})\vect{y}'-\vect{x}} e^{i\vect{p}\cdot\vect{x}}
+f_{(\vect{k})\vect{x}-\vect{y}}\gamma_5d_{\vect{y}}\nonumber\\
+&\propto\sum_{\vect{x}, \vect{y},\vect{y}^{\prime}}\exp\left[-\frac{(\vect{y}-\vect{x})^2+(\vect{y}'-\vect{x})^2}{2\sigma^2}\right]
+ e^{i\vect{p}\cdot\vect{x}}e^{-2i\vect{k}\cdot\vect{x}} e^{i\vect{k}\cdot(\vect{y}+\vect{y}^{\prime})} \left[\bar{u}_{\vect{y}^{\prime}} \gamma_5 d_{\vect{y}}\right]\label{eq:freec}\\\nonumber
+&\propto \exp\left[-\frac{\sigma^2}{2}(\vect{p}-2 \vect{k})^2\right]
+\sum_{\vect{Z},\vect{\Delta}}
+\exp\left[-\frac{\vect{\Delta}^2}{\sigma^2}\right]
+e^{i\vect{p}\cdot \vect{Z}} \left[\bar{u}_{\vect{Z}+\vect{\Delta}} \gamma_5 d_{\vect{Z}-\vect{\Delta}}\right]\,,
+\end{align}
+其中我们定义了质心与相对坐标
+\begin{align}
+\vect{Z} = \frac{\vect{y}+\vect{y}^{\prime}}{2}\,,\quad
+\vect{\Delta} =\frac{\vect{y}^{\prime}-\vect{y}}{2}\,.
+\end{align}
+注意 $\vect{Z}/a$ 与 $\vect{\Delta}/a$
+的分量可为整数值或半整数值，受约束
+$(Z_j+\Delta_j)/a\in\mathbb{Z}$。
+式~\eqref{eq:freec} 的结果确实在
+$\vect{k}=\vect{p}/2$ 时最大化：
+在自由情形 $\vect{k}=\vect{p}/2$ 是
+质量简并价夸克介子的最优涂抹参数，而传统的
+$\vect{k}=\vect{0}$ 涂抹会遇到 $\vect{p}^2$ 方向上的指数压制。
+坐标空间中的波函数越宽，
+正确选择 $\vect{k}$ 就越重要，这从式~\eqref{eq:freec} 的第一个指数（以及
+式~\eqref{kerfour}）可见。
+不出所料，对重子内插算符最优选择是
+$\vect{k}=\vect{p}/3$。
+
+我们已经证明在自由情形 $\vect{k}$ 可以解释为
+被涂抹夸克所携带的动量。如果各夸克的质量不同，
+或者像核子的例子那样内插算符
+对夸克味不对称，
+那么向不同的夸克场注入不同的 $\vect{k}$ 值
+可能是明智的。在相互作用情形
+解释就不那么直截了当了：
+内插算符既不直接与任何通常定义的波函数相关，
+也不是全部动量都由价夸克携带。
+
+\subsection{非迭代（动量）涂抹}
+\label{sec:improve}
+我们提议用一个更精巧的方法替代迭代次数随连续极限 $a^{-2}$ 发散的
+迭代涂抹。
+在此背景下我们展示如何
+在文献~\cite{Peardon:2009gh} 的 ``distillation''（即 Laplacian-Heaviside）方法中引入相位因子（及形状函数）。
+尽管我们在此已给出该方法的基本要点，系统性
+测试尚待完成。另一个自然的推广是
+对涂抹函数作洛伦兹助推（boost），我们将
+在第~\ref{sec:results} 节数值研究它。
+
+我们定义在一个固定欧氏时间、带有（涂抹的）规范输运子的协变拉普拉斯算子的本征矢 $|v_{\ell}\rangle$ 与本征值 $-\omega_{\ell}^2$：
+\begin{equation}
+\label{eq:eigen}
+\left(\Laplace +\omega_\ell^2\right)|v_{\ell}\rangle=0\,.
+\end{equation}
+由于拉普拉斯算子是自伴的，bra-ket 记号在本语境中很方便。
+对每时间片 $N^d$ 个点的格点（$L=Na$），存在
+$3N^d$ 个线性无关的本征矢 $|v_{\ell}\rangle$，分量记作 $v^{a}_{\ell\vect{x}}$。
+这类本征矢例如在文献~\cite{Peardon:2009gh} 中被使用。
+热方程~\eqref{eq:diffuse} 由下式求解：
+\begin{align}
+|q(\tau)\rangle&=\exp\left(\alpha\tau\Laplace\right)|q(0)\rangle\nonumber\\
+&=\sum_{\ell}| v_{\ell}\rangle\exp\left(-\alpha\tau\omega_{\ell}^2\right)\langle v_{\ell}|q(0)\rangle
+\,.\label{eq:noniter}
+\end{align}
+如果我们从 $\tau=0$ 的 $\delta$-函数出发，则得到方差 $\sigma^2=2\alpha\tau$ 的
+高斯。
+
+为实现动量涂抹，可以在协变拉普拉斯算子 $\Laplace\mapsto\Laplace_{(\vect{k})}\sim
+(\vect{\nabla}+i\vect{k})^2$ 内轻易地把
+$U_{\vect{x},j}\mapsto U_{\vect{x},j}e^{i\vect{k}\cdot\unitj}$
+替换，然后重新计算本征矢与本征值：
+\begin{equation}
+\label{eq:eigen2}
+\left(\Laplace_{(\vect{k})} +\omega_{(\vect{k})\ell}^2\right)|v_{(\vect{k})\ell}\rangle=0\,.
+\end{equation}
+对运动粒子，式~\eqref{eq:noniter} 的自然推广读作：
+\begin{equation}
+|q_{(\vect{k})}(\tau)\rangle
+=\sum_{\ell}| v_{(\vect{k})\ell}\rangle\exp\left(-\alpha\tau\omega_{(\vect{k})\ell}^2\right)\langle v_{(\vect{k})\ell}|q(0)\rangle
+\,.
+\label{eq:noniter2}
+\end{equation}
+
+计算协变拉普拉斯算子本征矢的动机是在满足 $\omega_{\ell_{\max}+1}^2>\omega_{\max}^2$ 的值 $\ell_{\max}$ 处截断
+式~\eqref{eq:noniter} 或 \eqref{eq:noniter2}。
+由于 $\alpha\tau=\sigma^2/2$，要获得因子 $e^{-2}$ 的压制需要
+$\omega_{\max}\approx 2/\sigma$。
+一般而言，坐标空间中涂抹函数越宽，
+所需的本征矢越少。极端相反的
+极限 $\alpha\tau=0\Rightarrow\sigma=0$ 对应于文献~\cite{Peardon:2009gh} 提出的
+Laplacian-Heaviside 方法：对所有
+本征矢求和最终给出位置空间中的 $\delta$-函数，而在某个有限 $\ell_{\max}$ 截断
+则给出钟形~\cite{Peardon:2009gh}。（在自由情形
+模方将是正弦函数之和。）文献~\cite{Brown:2012tm} 提出的源对应于
+非相互作用拉普拉斯算子本征矢之和，结论相同。
+
+在自由情形——人们遇到的基本上是一个一维问题——容易算出更多细节。
+例如取 $\omega= j (2\pi/L)\gtrsim 2/\sigma$，
+其中 $j\in\mathbb{Z}\setminus\{0\}$，
+意味着
+$|j|\gtrsim L/(\pi\sigma)$。因此在 $d$ 维中
+$\ell_{\max}\gtrsim 3\times[\pi^{d/2}/\Gamma(d/2+1)]\times[L/(\pi\sigma)]^d$，其中
+因子 $3$ 来自颜色，下一个因子是
+$d$ 维单位球的体积（$d=3$ 时为 $4\pi/3$）：所需本征矢的数目按物理单位下的
+空间体积成比例增加，
+但与格距 $a$ 无关。
+相反，对迭代涂抹，在固定的 $\sigma$ 下减小格距会使迭代次数
+按 $a^{-2}$ 增加，与体积无关。
+对我们的涂抹尺寸 $\sigma\approx0.45\units{fm}$ 与空间体积
+$L^3=(6\units{fm})^3$——即使在物理质量点也能保证 $Lm_{\pi}>4$——我们得到
+$\ell_{\max}\approx 960$；而对 $(3\,\units{fm})^3$ 的盒子
+约 120 个本征矢就应当足够。
+因此，采用数量适中的本征矢似乎就能在基态重叠方面获得满意的结果。目前这正在研究中。
+
+非高斯形状也容易建模，例如乘上一个``自由形式''权重函数
+$\left(|v_{\ell}\rangle\langle v_{\ell}|\right)_{\vect{x}\vect{y}}
+\mapsto \sum_{\vect{xy}}h_{\vect{x}\vect{y}}\exp\left[\alpha\tau(\vect{x}-\vect{y})^2\right]\left(|v_{\ell}\rangle\langle v_{\ell}|\right)_{\vect{x}\vect{y}}$，
+类比文献~\cite{vonHippel:2013yfa}。
+然而，对每个时间片和每个本征矢，此操作的数值复杂度为
+$\mathcal{O}(N^{2d})$。在源端，如果解只需对固定的 $\delta$-源位置
+$|q(0)\rangle=|\delta_{\vect{y}_0}^a\rangle$ 求，复杂度可降至 $\mathcal{O}(N^{d})$
+（$\langle\vect{y},b|\delta_{\vect{y}_0}^a\rangle=(|\delta_{\vect{y}_0}^a\rangle)_{\vect{y}}^b=\delta_{\vect{y}\vect{y}_0}\delta^{ba}$）。
+其他数值上更廉价的选择包括
+把 $\omega^2_{\ell}$ 的非线性函数放入
+式~\eqref{eq:noniter} 与 \eqref{eq:noniter2} 的指数中、采用高斯函数的线性组合，或在式~\eqref{eq:eigen} 与 \eqref{eq:eigen2} 中用不同的
+算符替代协变拉普拉斯算子，例如
+引入各向异性。
+
+一旦 APE 或 HYP
+涂抹协变拉普拉斯算子的本征矢
+（式~\eqref{eq:eigen} 或
+式~\eqref{eq:eigen2}）已被算出，
+任何涂抹半径都能实现：在
+式~\eqref{eq:noniter} 或式~\eqref{eq:noniter2} 的指数中以目标值 $\sigma^2/2$
+替换 $\alpha\tau$ 即可。非迭代涂抹的另一个潜在优点是：
+不必求解从
+$\delta$-源 $|q(0)\rangle=|\delta_{\vect{y}_0a}\rangle$ 演化而来的涂抹源
+$|q_{(\vect{k})}(\tau)\rangle$，
+还可以直接把逆格点 Dirac 算符作用到
+本征矢上，从而
+构造所谓的 perambulator~\cite{Peardon:2009gh}：
+\begin{equation}
+{\tau_{(\vect{k})}}^{\alpha\beta}_{m t\, \ell 0}=\left\langle v_{(\vect{k})m t}\left|\left(M^{-1}\right)^{\alpha\beta}_{t0}\right|v_{(\vect{k})\ell 0}\right\rangle\,.
+\end{equation}
+上面的内积遍及空间位置与颜色，
+把这些指标替换为本征矢标签：汇端的 $\ell$ 与源端的 $m$。相应的
+欧氏时间作为附加的本征矢（perambulator）下标显式标出。
+这些 perambulator 之后可以在构造强子 $n$ 点函数时
+与适当的本征值高斯进行折叠。
+
+我们不再重复文献~\cite{Peardon:2009gh} 中如何从这些 perambulator 构造强子两点
+函数的步骤，因为只有一处差别：在对 $\ell$ 与 $m$ 的收缩中应引入权重因子
+$\exp(-\sigma^2\omega_{(\vect{k})\ell 0}^2/2)$
+与 $\exp(-\sigma^2\omega_{(\vect{k})m t}^2/2)$，
+其中 $\omega_{(\vect{k})m t}^2$ 表示定义在时间片 $t$ 上
+负协变拉普拉斯算子的第 $m$ 个本征值。
+
+一方面，与从 $\delta$-源出发相比，使用 perambulator 将要求更多次求逆
+和计算上更昂贵的收缩。
+另一方面，由于体积平均，perambulator 方法的统计误差会更小，且该方法允许后续强子
+$n$ 点函数的构造具有更大灵活性。
+究竟使用 perambulator
+还是传统的（涂抹的）point-to-all 传播子更好，
+取决于手头的问题，特别是取决于我们感兴趣的强子种类数。我们已经
+证明两种情形都可以采用同一夸克涂抹。
+
+最后我们指出，在某些情形对不同 $\vect{k}$ 值重新计算本征矢
+是可以避免的。在相互作用情形，规范协变导数
+$\nabla^2_j$ 将依赖于所有空间坐标，包括
+$i\neq j$ 的 $x_i$，因而彼此不对易。
+然而我们的直觉基于自由情形，且空间 APE~\cite{Falcioni:1984ei}
+或 HYP~\cite{Hasenfratz:2001hp} 涂抹的规范协变输运子也接近单位元。
+假设平移不变性，坐标可以分离，本征矢分量读作
+$v^a_{\vect{x}}\propto\sin(\omega_1^ax_1)\cdots\sin(\omega_d^ax_d)$，
+其中 $\omega_j^a=2\pi m_j^a/L$，$m_j^a$ 取整数值。
+负拉普拉斯算子的相应本征值为 $\omega^2=\vect{\omega}^2$，不同颜色分量的频率受约束：
+$\vect{\omega}^2:={\vect{\omega}^1}^2={\vect{\omega}^2}^2={\vect{\omega}^3}^2$。定义
+\begin{equation}
+|\tilde{v}_{(\vect{k})\ell}\rangle=e^{-i\vect{k}\cdot\vect{x}}|v_{\ell}\rangle
+\label{eq:phases}
+\end{equation}
+则给出
+$\left[\left(\vect{\nabla}+i\vect{k}\right)^2+\omega_{\ell}^2\right]|\tilde{v}_{(\vect{k})\ell}\rangle=0$。
+
+在相互作用情形这不会精确求解带漂移的热方程~\eqref{eq:drift}，但
+近似 $\omega_{(\vect{k})\ell}\approx\omega_{\ell}$、
+$|v_{(\vect{k})\ell}\rangle\approx|\tilde{v}_{(\vect{k})\ell}\rangle$ 应当
+足以构造带有预期相位因子的规范协变高斯形状。
+注意相位式~\eqref{eq:phases} 同时出现在
+式~\eqref{eq:noniter2} 的 bra 矢与 ket 矢中，
+因此只有两个空间位置之间的相对相位才重要，零点的选取变得无关紧要。显式乘以相位因子式~\eqref{eq:phases} 的明显缺点在于它们
+必须遵守格点周期性，即 $k_j\in (2\pi/L)\mathbb{Z}$。
+不过在大格点上这样的限制或许可以容忍。
+另外引入扭转费米子边界条件~\cite{Bedaque:2004kc,Sachrajda:2004mi}
+也可能提供增加 $\vect{k}$ 选择灵活性的途径。

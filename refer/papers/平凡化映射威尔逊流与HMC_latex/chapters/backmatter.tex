@@ -1,0 +1,496 @@
+\section*{致谢}
+在本工作过程中，Filippo Palombi 与 Stefan Schaefer 就当前格点 QCD 模拟中拓扑翻转缓慢
+相关的诸多问题与作者进行了多次讨论，使作者获益良多。
+作者还感谢 Stefan Schaefer、Rainer Sommer 和 Francesco Virotta
+在发表之前分享其部分模拟结果。
+
+\appendix
+
+\numberwithin{equation}{section}
+
+\section{SU(3) 记号}
+
+\subsection{群生成元}
+
+$\Group$ 的李代数 $\Lie$
+可以等同于全体反厄米、无迹 $3\times3$ 矩阵构成的空间。
+取这类矩阵的一组基 $T^a$（$a=1,\ldots,8$），
+元素 $X\in\Lie$ 便可写为
+\begin{equation}
+  X=X^aT^a,
+\end{equation}
+其中 $(X^1,\ldots,X^8)\in\rz^8$
+（重复的群指标自动求和）。
+
+假定生成元 $T^a$ 满足归一化条件
+\begin{equation}
+  \tr\bigl\{T^aT^b\bigr\}=-\frac{1}{2}\delta^{ab}.
+\end{equation}
+李代数的结构于是编码于对易关系
+\begin{equation}
+  [T^a,T^b]=f^{abc}T^c,
+\end{equation}
+之中，而生成元的完备性则蕴含
+\begin{align}
+  \bigl\{T^a,T^b\bigr\}&=-\frac{1}{3}\delta^{ab}+id^{abc}T^c,
+  \\[1.0ex]
+  T^a_{\alpha\beta}T^a_{\gamma\delta}&=
+  -\frac{1}{2}\left\{
+  \delta_{\alpha\delta}\delta_{\beta\gamma}-\frac{1}{3}\delta_{\alpha\beta}
+  \delta_{\gamma\delta}\right\}.
+\end{align}
+由这些方程可知，结构常数 $f^{abc}$ 与张量 $d^{abc}$ 都是实的。
+此外，$f^{abc}$
+对指标完全反对称，$d^{abc}$ 完全对称且无迹。
+
+
+\subsection{伴随表示}
+
+$\Lie$ 的伴随表示的表示空间就是李代数本身，
+即 $\Lie$ 的元素 $X$ 由线性变换
+\begin{align}
+  &\Ad X:\,\Lie\mapsto\Lie,
+  \\[0.8ex]
+  &\Ad X\cdot Y=[X,Y]\quad\text{（对所有 $Y\in\Lie$）}
+\end{align}
+来表示。
+$\Ad X$ 在群生成元上的作用为
+\begin{equation}
+  \Ad X\cdot T^b=T^a(\Ad X)^{ab},
+\end{equation}
+其中
+\begin{equation}
+  (\Ad X)^{ab}=-f^{abc}X^c
+\end{equation}
+是实反对称 $8\times 8$ 矩阵。
+
+
+\subsection{矩阵范数}
+
+$\Lie$ 中自然的标量积是
+\begin{equation}
+  (X,Y)=X^aY^a=-2\,\tr\bigl\{XY\bigr\}.
+\end{equation}
+特别地，$\|X\|=(X,X)^{1/2}$ 是 $X\in\Lie$ 范数的一个可能定义。
+
+另一个有用的矩阵范数来自复色矢量 $v$ 的平方范数
+\begin{equation}
+  \|v\|_2=\bigl\{|v_1|^2+|v_2|^2+|v_3|^2\bigr\}^{1/2}.
+\end{equation}
+若 $A$ 是任意复 $3\times3$ 矩阵，则定义
+\begin{equation}
+  \|A\|_2=\max_{\|v\|_2=1}\|Av\|_2.
+\end{equation}
+该范数满足
+\begin{equation}
+   \|A+B\|_2\leq\|A\|_2+\|B\|_2,
+   \qquad
+   \|AB\|_2\leq\|A\|_2\|B\|_2,
+\end{equation}
+对所有矩阵 $A,B$ 成立。而且，若 $A$ 是厄米或反厄米的，
+则 $\|A\|_2$ 等于其本征值绝对值中的最大者。
+
+\section{SU(3) 指数函数的性质}
+
+\subsection{Lipschitz 界}
+
+对任意 $X,Y\in\Lie$，由 $\rme^X$ 是幺正的这一事实可得关系式
+\begin{equation}
+  \|\rme^X-\rme^Y\|_2=
+  \|1-\rme^{-X}\rme^Y\|_2.
+\end{equation}
+利用恒等式
+\begin{equation}
+  1-\rme^{-X}\rme^Y=
+  \int_0^1\rmd s\,\rme^{-sX}(X-Y)\rme^{sY}
+\end{equation}
+以及范数的次可加性 (A.13)，便得到 Lipschitz 界
+\begin{equation}
+  \|\rme^X-\rme^Y\|_2\leq\|X-Y\|_2.
+\end{equation}
+
+
+\subsection{指数映射的微分}
+
+设 $X$ 是李代数 $\Lie$ 的一个元素。
+定义线性映射 $J(X):\Lie\mapsto\Lie$ 为
+\begin{equation}
+  J(X)\cdot Y=\rme^{-X}\left.{\rmd\over\rmd t}\rme^{X+tY}\right|_{t=0}
+  \quad\text{（对所有 $Y\in\Lie$）}.
+\end{equation}
+$J(X)$ 被称为指数映射的微分。
+如上所述，把指数用参数 $s$ 标度，
+便得到表示
+\begin{equation}
+  J(X)\cdot Y=
+  \int_0^1\rmd s\,\rme^{-sX}Y\rme^{sX},
+\end{equation}
+从而有展开式
+\begin{equation}
+  J(X)=1+\sum_{k=1}^{\infty}{(-1)^k\over(k+1)!}(\Ad X)^k,
+\end{equation}
+它对任意 $X\in\Lie$ 绝对收敛。
+
+$J(X)$ 在群生成元 $T^a$ 上的作用为
+\begin{equation}
+  J(X)\cdot T^b=T^aJ(X)^{ab},
+\end{equation}
+其中 $J(X)^{ab}$ 是实 $8\times8$ 矩阵。
+注意
+\begin{equation}
+  J(X)^T=J(-X)=\rme^{\Ad X}J(X),
+  \qquad
+  J(X)\Ad X=1-\rme^{-\Ad X}.
+\end{equation}
+此外，式~(B.5) 蕴含
+\begin{equation}
+  \|J(X)\cdot Y\|_2\leq\|Y\|_2,
+\end{equation}
+对所有 $X,Y\in\Lie$ 成立。
+
+\section{欧拉步的雅可比行列式}
+
+欧拉步的雅可比矩阵 (5.11)
+除沿行 $(y,\nu)=(x,\mu)$ 的某些非零元素外都等于单位阵。
+因此其行列式就等于矩阵的 $(x,\mu;x,\mu)$ 元素
+\begin{equation}
+  A^{ac}=\left\{\left(\rme^{\Ad X}\right)^{ac}
+  +\eps J(-X)^{ab}[Z_{*}(U)](x,\mu;x,\mu)^{bc}
+  \right\}_{X=\eps[Z(U)](x,\mu)}
+\end{equation}
+的行列式。
+
+导数 $[Z_{*}(U)](x,\mu;x,\mu)^{bc}$
+可以借由方格和
+\begin{multline}
+  M=\sum_{\nu\neq\mu}\bigl\{
+  U(x,\mu)U(x+\hat{\mu},\nu)U(x+\hat{\nu},\mu)^{-1}U(x,\nu)^{-1}+\\
+  U(x,\mu)U(x+\hat{\mu}-\hat{\nu},\nu)^{-1}U(x-\hat{\nu},\mu)^{-1}
+  U(x-\hat{\nu},\nu)\bigr\}.
+\end{multline}
+显式算出。
+再经几行代数运算便得到表达式
+\begin{equation}
+  A^{ac}=B^{ac}+\frac{1}{2}\eps C^{ab}\Bigl\{
+  id^{bcd}\tr\bigl\{T^d(M+M^{\dagger})\bigr\}
+  -\frac{1}{3}\delta^{bc}\tr\bigl\{M+M^{\dagger}\bigr\}\Bigl\},
+\end{equation}
+其中
+\begin{align}
+  B&=\frac{1}{2}\bigl(\rme^{\Ad X}+1\bigr),
+  \\[0.6ex]
+  C&=J(-X),\qquad X=-\eps\Proj\bigl\{M\bigr\}.
+\end{align}
+特别地，
+\begin{equation}
+  \det A=1-\frac{4}{3}\eps\,\tr\bigl\{M+M^{\dagger}\bigr\}+\rmO(\eps^2),
+\end{equation}
+与式~(3.9) 所预期的一致。
+
+\section{欧拉步的求逆}
+
+\subsection{基本范数界}
+
+对任意复 $3\times3$ 矩阵 $M$，
+不等式
+\begin{equation}
+  \|\Proj\bigl\{M\bigr\}\|_2\leq\frac{4}{3}\|M\|_2
+\end{equation}
+可以在几行之内建立。首先注意到
+\begin{equation}
+  \frac{1}{2}\bigl(M-M^{\dagger}\bigr)=A D A^{-1},
+  \qquad A\in\Group,
+\end{equation}
+其中 $D$ 是对角元素为 $\lambda_1,\lambda_2,\lambda_3$ 的对角矩阵。令
+\begin{equation}
+  \bar{\lambda}=\frac{1}{3}\sum_{k=1}^3\lambda_k,
+\end{equation}
+则估计式
+\begin{multline}
+  \|\Proj\bigl\{M\bigr\}\|_2=\max_k
+  \left|\lambda_k-\bar{\lambda}\right|
+  \\
+  \leq\frac{4}{3}\max_k\left|\lambda_k\right|=
+  \frac{2}{3}\|M-M^{\dagger}\|_2\leq\frac{4}{3}\|M\|_2
+\end{multline}
+表明不等式 (D.1) 对所有矩阵 $M$ 都成立。
+
+界 (D.1) 与 Lipschitz 界 (B.3) 的一个直接推论是：
+\begin{equation}
+  \bigl\|\Proj\bigl\{A\bigl(\rme^X-\rme^Y\bigr)B\bigr\}\bigr\|_2\leq
+  \frac{4}{3}\|X-Y\|_2.
+\end{equation}
+对所有 $A,B\in\Group$ 与 $X,Y\in\Lie$ 成立。
+
+
+\subsection{方程 (5.1) 的解}
+
+对给定的链接 $(x,\mu)$ 与任意固定的 $U'(x,\mu)\in\Group$，
+函数
+\begin{equation}
+  f(X)=\bigl\{[Z(U)](x,\mu)\bigr\}_{
+  U(x,\mu)=\rme^{-\eps X}U'(x,\mu)}
+\end{equation}
+把 $X\in\Lie$ 映回 $\Lie$。回忆式~(5.3)，不等式
+(D.5) 立即蕴含
+\begin{equation}
+  \|f(X)-f(Y)\|_2\leq k\|X-Y\|_2,
+  \qquad k=8|\eps|.
+\end{equation}
+因此，若积分步长 $\eps$ 处于范围 (5.5) 内（从现在起假定如此），
+则函数 $f(X)$ 是一个严格压缩映射。
+
+不难证明，完备度量空间中的严格压缩映射
+具有唯一的不动点
+（例如参见文献~\cite{ReedSimonI}，定理 V.18）。
+在当前情形，不动点 $X_{*}$ 可以如下计算：
+通过递推 $X_{n+1}=f(X_n)$ 生成的序列 $X_0=0,X_1,X_2,\ldots$ 满足
+\begin{equation}
+  \|X_n-X_{*}\|_2\leq k\|X_{n-1}-X_{*}\|_2,
+\end{equation}
+因而迅速收敛到 $X_{*}$。
+于是矩阵
+\begin{equation}
+  U(x,\mu)=\rme^{-\eps X_{*}}U'(x,\mu)
+\end{equation}
+给出式~(5.1) 的一个解。
+而且不存在其他解，
+因为 $f(X)$ 的不动点 $X_{*}$ 唯一。
+
+
+\subsection{雅可比行列式的正性}
+
+为了证明雅可比矩阵 (C.1) 的行列式
+在范围 (5.5) 内的所有 $\eps$ 处均为正，
+只需证明该矩阵没有零模，即
+\begin{equation}
+  A^{ac}Y^c=0
+\end{equation}
+蕴含 $Y=0$。
+为此，先把式~(D.10) 写成形式
+\begin{equation}
+  Y^a=-\eps J(X)^{ab}W^b,
+\end{equation}
+其中
+\begin{equation}
+  X=\eps[Z(U)](x,\mu),\qquad
+  W^b=[Z_{*}(U)](x,\mu;x,\mu)^{bc}Y^c.
+\end{equation}
+回忆式~(5.10)，可以导出公式
+\begin{equation}
+  W=\lim_{t\to0}{1\over t}\left\{
+  \left.[Z(U)](x,\mu)\right|_{U(x,\mu)\to\rme^{tY}U(x,\mu)}-[Z(U)](x,\mu)
+  \right\},
+\end{equation}
+由此推知
+\begin{equation}
+  \|W\|_2\leq 8\|Y\|_2.
+\end{equation}
+这里再次用到了不等式 (D.5)，
+以及范数是从 $\Lie$ 到 $\rz$ 的连续映射这一事实。
+把式~(D.11) 与界 (B.9)、(D.14) 相结合，
+现在便得 $\|Y\|_2\leq k\|Y\|_2$，从而 $Y=0$。
+
+\section{$\Sflow_t$ 的可微性}
+
+作用量 $\Sflow_t$ 求解一个系数光滑的椭圆型偏微分方程，
+因此由椭圆正则性保证它是规范场 $U$ 的可微函数。
+本附录通过把 $\Sflow_t$
+围绕任一固定时刻 $t_0$ 按 $t-t_0$ 的幂展开，
+建立其对时间 $t$ 的联合可微性。
+利用 Sobolev 范数，
+可以证明当 $t$ 充分接近 $t_0$ 时该展开收敛。
+级数及其导数的逐点一致收敛性——从而 $\Sflow_t$ 的可微性——
+随后由 Sobolev 引理得到。
+
+
+\subsection{场流形上的 Sobolev 空间}
+
+紧致流形上 Sobolev 空间的定义相当繁琐，此处不作综述。
+关于该主题的引论以及本小节全部论断的证明，
+可参见例如文献~\cite{Gilkey} 的前三节。
+
+设 $\Cinfty$ 为场流形上可微函数的空间，
+$H_k$ 为相应的 $k$ 阶 Sobolev 空间（$k\in\gz$）。
+后者是 $\Cinfty$ 关于某个范数 $\|\cdot\|_k$ 的完备化。
+这些范数的一个特征性质是：对任意 $p$ 阶、系数光滑的微分算符 $\mathfrak{D}$
+及所有 $\phi\in\Cinfty$，界
+\begin{equation}
+  \|\mathfrak{D}\phi\|_k\leq c_k\|\phi\|_{k+p}
+\end{equation}
+成立，其中常数 $c_k$ 依赖于 $\mathfrak{D}$ 但不依赖于 $\phi$。
+因此这类微分算符可以延拓为从 $H_{k+p}$ 到 $H_k$ 的有界线性算符。
+此外，
+当 $k<l$ 时 $\|\phi\|_k\leq\|\phi\|_l$，
+从而 $H_l\subset H_k$。
+
+当 $k$ 为非负偶数时，可以给出 Sobolev 空间 $H_k$ 相当具体的描述。
+对任意 $t\in\rz$ 与 $j=0,1,2,\ldots$，
+可以通过
+\begin{equation}
+  \|\phi\|_{t,j}=\|\phi\|+\|\Lop^j\phi\|,
+\end{equation}
+定义 $\phi\in\Cinfty$ 的另一范数 $\|\phi\|_{t,j}$，
+其中 $\|\cdot\|$ 是与标量积 (4.7) 相联系的范数。
+$\Lop$ 是二阶椭圆型微分算符这一事实随即蕴含
+\begin{equation}
+  \|\phi\|_{2j}\leq a_{t,j}\|\phi\|_{t,j},
+  \qquad
+  \|\phi\|_{t,j}\leq b_{t,j}\|\phi\|_{2j}
+\end{equation}
+对某些常数 $a_{t,j},b_{t,j}$ 成立。
+特别地，
+$H_{2j}$ 是 $\Cinfty$ 关于范数 $\|\cdot\|_{t,j}$ 的完备化。
+
+
+\subsection{$\Lop$ 之逆的性质}
+
+设 $\Pop$ 为在与标量积 (4.7) 相联系的 Hilbert 空间中
+投影到 $\Lop$ 零模的正交投影算符。
+它在任意函数 $\phi\in\Cinfty$ 上的作用为
+\begin{equation}
+  \Pop\phi=(1,\phi)/(1,1).
+\end{equation}
+注意，$\Pop$ 把 $\phi$ 投影到一个常数，
+但该常数依赖于标量积 $(\cdot\,,\cdot)$ 的定义，因而依赖于 $t$。
+$\Lop$ 之逆 $\Gop$ 在 $\phi$ 上的作用由方程组
+\begin{equation}
+  \Lop\Gop\phi=(1-\Pop)\phi,
+  \qquad
+  \Pop\Gop\phi=0.
+\end{equation}
+确定。
+如 4.2 小节所述，$\Lop$ 的椭圆性与零模的唯一性
+蕴含：对任意固定的 $t$，
+这些方程都有唯一可微解 $\Gop\phi$。
+显然，$\Sflow_t=\Gop S$。
+
+由于 $\Lop$ 在与零模正交的子空间中存在谱隙，
+$\Gop$ 关于范数 $\|\cdot\|$ 是有界算符。
+于是存在常数 $g_t$ 使得
+\begin{equation}
+  \|\Gop\phi\|_{t,j}\leq g_t\|\phi\|_{t,j-1}
+\end{equation}
+对所有 $j=1,2,\ldots$ 及所有 $\phi\in\Cinfty$ 成立。
+此外，回忆不等式 (E.3)，可以得出
+\begin{equation}
+  \|\Gop\phi\|_{2j}\leq g_{t,j}\|\phi\|_{2j-2},
+\end{equation}
+其中 $g_{t,j}$ 为另一些常数。
+
+
+\subsection{$\Sflow_t$ 的展开}
+
+对任意固定时刻 $t_0$，算符 $\Lop$ 可分解为
+\begin{equation}
+  \Lop=\Lopz+\left(t-t_0\right)\Lopp,
+  \qquad
+  \Lopp=\sum_{x,\mu}
+  \left(\du^a_{x,\mu}S\right)\du^a_{x,\mu}.
+\end{equation}
+幂级数
+\begin{equation}
+  \psi_t=\sum_{n=0}^{\infty}\left(t_0-t\right)^n
+  \left(\Gopz\Lopp\right)^n\Gopz S
+\end{equation}
+的每一项都是 $t$ 和 $U$ 的良好定义的可微函数。
+此外，由于
+\begin{multline}
+  \|\Gopz\Lopp\phi\|_{2j}\leq g_{t_0,j}\|\Lopp\phi\|_{2j-2}\leq
+  d_jg_{t_0,j}\|\phi\|_{2j-1}\\
+  \leq d_jg_{t_0,j}\|\phi\|_{2j},
+\end{multline}
+（$j=1,2,\ldots$，$d_j$ 为某些常数），
+显然当 $t$ 充分接近 $t_0$ 时，
+该级数及其所有 $t$ 导数都在范数 $\|\cdot\|_{2j}$ 中一致收敛。
+Sobolev 引理（文献~\cite{Gilkey} 引理 1.3.5 的结论~(c)）
+于是蕴含：级数连同其在 $t$ 方向的所有导数、
+以及在 $U$ 方向直到某个正比于 $j$ 的阶数的所有导数，
+逐点且一致收敛。
+
+若 $t$ 位于 $t_0$ 的某邻域内，
+使得级数及其直到 $l\geq2$ 阶导数的收敛性得到保证，
+则算符 $\Lop$ 的作用与求和可以交换次序，
+并且得到
+\begin{equation}
+  \Lop\psi_t=S-\sum_{n=0}^{\infty}\left(t_0-t\right)^n
+  \Popz\left(\Lopp\Gopz\right)^nS
+  =\left(1-\Pop\right)S,
+\end{equation}
+第二个等号由恒等式 $\Pop\Lop\psi_t=0$ 与 $\Pop\Popz=\Popz$ 蕴含。
+于是
+\begin{equation}
+  \left(1-\Pop\right)\psi_t=\Gop S=\Sflow_t,
+\end{equation}
+这表明 $\Sflow_t$ 在 $t_0$ 的上述邻域内
+关于 $t$ 与 $U$ 为 $l$ 次连续可微。
+由于 $t_0$ 与 $l$ 可以任意选取，
+故 $\Sflow_t$ 的联合可微性在所有时刻 $t$、到所有阶都得到保证。
+
+\begin{thebibliography}{13}
+\setlength{\itemsep}{0.2ex}
+
+\bibitem{NicolaiMap}
+H. Nicolai,
+Phys. Lett. 89B (1980) 341;
+Nucl. Phys. B176 (1980) 419
+
+\bibitem{MoserZehnder}
+J. Moser, E. J. Zehnder,
+{\itshape Notes on Dynamical Systems},
+Courant Lecture Notes, vol.~12 (American Mathematical Society, 2005)
+
+\bibitem{DelDebbioTauQ}
+L. Del Debbio, H. Panagopoulos, E. Vicari,
+JHEP 0208 (2002) 044
+
+\bibitem{StefanConference}
+S. Schaefer, R. Sommer, F. Virotta,
+{\itshape Investigating the critical slowing down of QCD simulations},
+talk given at the XXVII International Symposium on Lattice Field Theory,
+Beijing, China (July 2009), arXiv:0910.1465 [hep-lat],
+to appear in the proceedings
+
+\bibitem{HMC}
+S. Duane, A. D. Kennedy, B. J. Pendleton, D. Roweth,
+Phys. Lett. B195 (1987) 216
+
+\bibitem{DuaneEtAl}
+S. Duane, R. Kenway, B. J. Pendleton, D. Roweth,
+Phys. Lett. B176 (1986) 143;
+S. Duane, B. J. Pendleton,
+Phys. Lett. B206 (1988) 101
+
+\bibitem{ArnoldI}
+V. I. Arnold,
+{\itshape Ordinary Differential Equations}, 3rd ed.\ (Springer-Verlag, Berlin, 2008)
+
+\bibitem{Gilkey}
+P. B. Gilkey,
+{\itshape Invariance Theory, the Heat Equation and the Atiyah-Singer
+Index Theorem}, 2nd ed.\ (CRC Press, Boca Raton, 1995)
+
+\bibitem{Wilson}
+K. G. Wilson,
+Phys. Rev. D10 (1974) 2445
+
+\bibitem{HairerEtAl}
+E. Hairer, C. Lubich, G. Wanner,
+{\itshape Geometric Numerical Integration:
+Structure-Preserving Algorithms for Ordinary Differential Equations},
+2nd ed.\ (Springer, Berlin, 2006)
+
+\bibitem{Stout}
+C. Morningstar, M. Peardon,
+Phys. Rev. D69 (2004) 054501
+
+\bibitem{DDHMC}
+M. L\"uscher,
+Comput. Phys. Commun. 165 (2005) 199
+
+\bibitem{ReedSimonI}
+M. Reed, B. Simon,
+{\itshape Methods of Modern Mathematical Physics}, vol.~I
+(Academic Press, New York, 1972)
+
+\end{thebibliography}

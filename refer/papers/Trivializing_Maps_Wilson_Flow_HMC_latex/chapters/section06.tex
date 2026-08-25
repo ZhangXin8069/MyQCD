@@ -1,0 +1,163 @@
+\section{Proposed simulation algorithm for lattice QCD}
+
+With respect to the QCD simulation algorithms used to date,
+the combination of the transformations obtained
+through the Euler integration of the Wilson flow
+and the HMC algorithm is expected to
+sample the topological sectors more quickly
+and to be generally more efficient.
+The use of the Wilson flow is suggested
+if the gauge action coincides with the Wilson
+plaquette action. For other actions,
+the appropriate flow can be easily constructed
+following the lines of sect.~4.
+
+
+\subsection{Choice of the parameters}
+
+The parameters of the Euler integrator
+are the integration step size $\eps$ and the number $n$ of
+Euler sweeps that are applied. One also needs to choose
+a definite ordering of the links of the lattice.
+
+The step size $\eps$ should be positive
+and not larger than, say, $1/16$ so that
+the in\-ver\-ti\-bi\-lity of the
+Euler integrator is guaranteed within a safe margin.
+Some tuning of the integration time $n\eps$
+will certainly be required in order to maximize
+the efficiency of the algorithm.
+Note that the unit of time differs
+from the one used in subsect.~4.4, i.e.\ setting $t=1$ there
+corresponds to
+an integration time $n\eps=\beta/32$.
+
+The ordering of the links can be chosen arbitrarily.
+One may, for example, first visit the links $(x,0)$
+on all even points $x$, then the links $(x,0)$ on
+all odd points, then the links $(x,1)$ on all even points,
+and so on.
+This ordering is well suited for parallel processing,
+since the link variables in a given direction on the even (odd) sites
+are decoupled from one another and can therefore be updated in parallel.
+
+
+\subsection{Force calculation}
+
+At the beginning of an update cycle,
+the current gauge field
+$U$ is transformed to the field $V=\transne^{-1}(U)$ by applying
+$n$ backward Euler sweeps to $U$.
+The force that drives the molecular-dynamics evolution of $V$
+is then given by
+\begin{equation}
+  F(z,\rho)^c=\hat{\du}^c_{z,\rho}\left\{
+  S(\transne(V))-\ln\det\transnes(V)\right\},
+\end{equation}
+where the action $S(U)$ now includes the usual sea-quark pseudo-fermion actions
+(for simplicity, the dependence on the
+pseudo-fermion fields is suppressed).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=3.6cm]{images/trj.pdf}
+  \caption{%
+The proposed algorithm evolves the field $V$ using the standard
+HMC algorithm (thick line). The force that drives the
+molecular-dynamics evolution
+is obtained by forward integration of the Wilson flow
+and subsequent backward propagation of
+the derivatives of the action and the Jacobian
+of the flow ($n=3$ in this figure).
+}
+  \label{fig:trj}
+\end{figure}
+
+Each time the force is to be calculated,
+the current field $V$ must be transformed
+to $U$ again by applying $n$
+forward Euler sweeps (see fig.~3). The fields
+$U_0,U_{\eps},\ldots,U_{n\eps}$ generated in this process should
+be stored in memory so that they will be available
+when the force is propagated from $U$ to $V$.
+Note that the intermediate fields
+\begin{equation}
+  U_{k\eps,[x,\mu]}(y,\nu)=
+  \begin{cases}
+    U_{k\epsilon}(y,\nu) & \text{if $(y,\nu)\geq(x,\mu)$,}\\[0.8ex]
+    U_{k\epsilon+\epsilon}(y,\nu) & \text{otherwise,}
+  \end{cases}
+\end{equation}
+are then also available.
+
+The factorization (5.14) of the Jacobian implies
+\begin{equation}
+   F(z,\rho)^c=\hat{\du}^c_{z,\rho}S(U_{n\eps})
+   -\sum_{k=0}^{n-1}\sum_{x,\mu}
+  \hat{\du}^c_{z,\rho}\ln\det\euler{x,\mu,*}(U_{k\eps,[x,\mu]}).
+\end{equation}
+Moreover,
+\begin{equation}
+  \hat{\du}^c_{z,\rho}S(U_{n\eps})=
+  \sum_{y,\nu}\left.\du^a_{y,\nu}S(U)\right|_{U=U_{n\eps}}
+  \transnes(y,\nu;z,\rho)^{ac},
+\end{equation}
+and there is a similar formula for the other terms in eq.~(6.3)
+involving the Jacobian matrices of the
+transformations $V\to U_{k\eps,[x,\mu]}$.
+All these matrices, as well as the one in eq.~(6.4),
+are products of the Jacobian matrices of the one-link
+transformations (5.8).
+The force can therefore be computed recursively
+as follows:
+
+\begin{enumerate}[leftmargin=2.2em,itemsep=0.6ex]
+\item Set $U=U_{n\eps}$ and $F(z,\rho)^c=\du^c_{z,\rho}S(U)$.
+
+\item For $k$ from $n-1$ to $0$,
+run through all links $(x,\mu)$ in reverse order,
+set $U=U_{k\eps,[x,\mu]}$
+and update the force according to
+\begin{equation}
+   F(z,\rho)^c\to\sum_{y,\nu}F(y,\nu)^a
+   [\euler{x,\mu,*}(U)](y,\nu;z,\rho)^{ac}
+   -\du^c_{z,\rho}\ln\det\euler{x,\mu,*}(U).
+\end{equation}
+\end{enumerate}
+
+\noindent
+Note that the field $U$ backtracks
+the forward integration of the Wilson flow
+in the course of the recursion.
+Since the Jacobian matrix $\euler{x,\mu,*}(U)$ differs from unity
+only on the links sharing a plaquette with $(x,\mu)$,
+the total computational effort required
+for the propagation (6.5) of the force
+is expected to be similar to the one required for
+$n$ applications of a nearest-neighbour
+gauge-covariant difference operator to the force field.
+
+
+\subsection{Domain-decomposed algorithm}
+
+Field transformations
+can also be combined with the DD-HMC algorithm~\cite{DDHMC}.
+Only the so-called active link variables
+are transformed in this case, but the transformations may depend on
+the inactive field components.
+
+In the pure gauge theory, it is then again possible to
+construct trivializing flows. They operate
+on the active link variables and
+contract the gauge action in each do\-main to a constant
+(i.e.\ an expression depending on the inactive link variables
+only).
+These flows are not the same as the ones constructed
+in sect.~4, but can be obtained by solving
+the differential equations derived there.
+In particular,
+the trivializing flow
+for the Wilson action is, to leading order,
+a slightly modified Wilson flow,
+where the plaquettes containing $\nu$ active links
+are given the weight $4/\nu$.

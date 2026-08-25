@@ -1,0 +1,126 @@
+\section{涂抹的实现}
+\label{sec:implement}
+
+要实现这一解析链接涂抹方案，需要高效地计算 $\exp( i Q)$，其中 $Q$ 是
+无迹厄米 $3\times 3$ 矩阵。Cayley-Hamilton 定理指出，每个矩阵都是其特征
+多项式的零点，于是
+\begin{equation}
+  Q^3 - c_1\ Q - c_0\ I = 0,
+\label{eq:CayHam}
+\end{equation}
+其中
+\begin{eqnarray}
+ c_0 &=&  \det Q=\textstyle\frac{1}{3}\Tr(Q^3),\\
+ c_1 &=& \textstyle\frac{1}{2} \Tr(Q^2)\geq 0.
+\end{eqnarray}
+$Q$ 的厄米性要求 $27c_0^2-4c_1^3\leq 0$，而式~(\ref{eq:Qdef}) 给出的
+$Q$ 的定义限制了 $c_1$ 的可能取值。于是系数 $c_0$ 与 $c_1$ 满足
+\begin{equation}
+ -c_0^{\rm max}\leq c_0 \leq c_0^{\rm max},\qquad
+0 \leq c_1 \leq c_1^{\rm max},
+\end{equation}
+其中对每个 $\mu$ 有
+\begin{eqnarray}
+ c_0^{\rm max}&=&2\left(\frac{c_1}{3}\right)^{3/2},\\
+  c_1^{\rm max} &=& \frac{1}{32}
+  (69+11\sqrt{33})\Bigl(\displaystyle\sum_{\nu\neq\mu}
+\rho_{\mu\nu}\Bigr)^2.
+\end{eqnarray}
+式~(\ref{eq:CayHam}) 意味着：对整数 $n\geq 3$，$Q^n$ 可以用 $Q^2$、$Q$
+与单位矩阵 $I$ 表出。因此可以写
+\begin{equation}
+ e^{i Q} = f_0\ I + f_1\ Q + f_2\ Q^2,
+\label{eq:fexpand}
+\end{equation}
+其中三个标量系数 $f_j=f_j(c_0,c_1)$ 与基底无关，只依赖 $c_0$ 和 $c_1$。
+式~(\ref{eq:fexpand}) 对{\em 任何\/}无迹厄米 $3\times 3$ 矩阵 $Q$ 都成立。
+
+令 $q_1,q_2,q_3$ 表示 $Q$ 的三个本征值。由于 $Q$ 厄米且无迹，它们是满足
+$q_1+q_2+q_3=0$ 的实数。这些本征值是一个三次多项式的三个根，容易定出：
+\begin{eqnarray}
+q_1 &=& 2u,\\
+q_2 &=& -u+w,\\
+q_3 &=& -q_1-q_2=-u-w,
+\end{eqnarray}
+其中
+\begin{eqnarray}
+u &=& \sqrt{\textstyle\frac{1}{3}c_1}
+  \ \cos\left(\textstyle\frac{1}{3}\theta\right),\label{eq:udef}\\
+w &=& \sqrt{c_1}\ \sin\left(\textstyle\frac{1}{3}\theta\right),\label{eq:wdef}\\
+\theta &=& \arccos\left(\frac{c_0}{c_0^{\rm max}}\right).\label{eq:thetadef}
+\end{eqnarray}
+给定这些本征值，矩阵 $Q$ 可写为
+\begin{equation}
+ Q = M\ \Lambda_Q\ M^{-1},\qquad
+\Lambda_Q= \left[\begin{array}{ccc} q_1 &0 & 0\\ 0 & q_2 & 0\\
+ 0 & 0 & q_3\end{array}\right] ,
+\end{equation}
+其中 $M$ 为幺正矩阵。于是容易得到
+\begin{equation}
+  e^{i \Lambda_Q}=f_0 I + f_1\Lambda_Q + f_2\Lambda_Q^2.
+\end{equation}
+明确地，我们有如下线性方程组要求解：
+\begin{equation}
+ \left[\begin{array}{ccc} 1 & q_1 & q_1^2 \\
+  1 & q_2 & q_2^2 \\  1 & q_3 & q_3^2
+ \end{array}\right]\left[\begin{array}{c}
+  f_0\\f_1\\f_2\end{array}\right]=\left[\begin{array}{c}
+ e^{i q_1}\\e^{i q_2}\\e^{i q_3}\end{array}\right].
+\label{eq:system}\end{equation}
+若三个本征值互不相同，该方程组有唯一解；但当两个本征值完全相同时，
+式~(\ref{eq:system}) 的解不唯一，其中一个 $f_j$ 可任意取值。本征值简并
+发生在 $c_0\rightarrow \pm c_0^{\rm max}$ 时。
+
+实践中，数值模拟遇到精确简并的可能性极小。尽管如此，把 $f_j$ 用 $u$
+与 $w$ 表出仍是值得的，以便分离并驯服数值上敏感的部分。可以求得 $f_j$
+因子可写为
+\begin{equation}
+   f_j = \frac{h_j}{(9u^2-w^2)},
+\label{eq:fdef1}
+\end{equation}
+其中 $h_j$ 是行为良好的函数：
+\begin{eqnarray}
+  h_0 &=& (u^2\!-\!w^2)e^{2i u}+e^{-i u}\bigl\{ 8u^2\cos( w)\nonumber\\
+  &&\quad + 2iu(3u^2\!+\!w^2)\xi_0( w)\bigr\}, \\
+  h_1 &=& 2ue^{2i u}-e^{-i u}\bigl\{ 2u\cos( w) \nonumber\\
+  &&\quad - i(3u^2\!-\!w^2)\xi_0( w)\bigr\}, \\
+  h_2 &=& e^{2i u}-e^{-i u}\left\{ \cos( w)
+  + 3iu\xi_0( w)\right\},
+\label{eq:hdef}
+\end{eqnarray}
+并定义
+\begin{equation}
+ \xi_0(w) = \frac{\sin w}{w}.
+\end{equation}
+当 $c_0\rightarrow c_0^{\rm max}$ 时的 $w\rightarrow 0$ 问题已被完全收纳
+于 $\xi_0$ 之中。数值计算该因子时可采用例如
+\[
+ \xi_0(w) = \left\{ \begin{array}{ll}
+  1\!-\!\frac{1}{6}w^2\left(1\!-\!\frac{1}{20}w^2
+  \left(1\!-\!\frac{1}{42}w^2\right)\right) ,
+ & \  \vert w\vert\leq 0.05,\\[2mm]
+  \sin(w)/w, & \ \vert w\vert>0.05.
+ \end{array}\right.
+\]
+然而，当 $c_0\rightarrow -c_0^{\rm max}$ 时 $w\rightarrow 3u\rightarrow
+\sqrt{3}/2$ 的极限尚未被驯服。幸运的是，利用下列 $c_0\rightarrow -c_0$
+下的对称关系可以绕开这一问题：
+\begin{equation}
+   f_j(-c_0,c_1)=(-)^j\ f_j^\ast(c_0,c_1). \label{eq:fsym}
+\end{equation}
+于是，$c_0<0$ 时的 $f_j$ 系数可以这样确定：先计算 $\vert c_0\vert$ 对应的
+系数，再利用式~(\ref{eq:fsym})。这意味着式~(\ref{eq:fdef1}) 中分母接近零
+的情形永远不会遇到。需要强调的是，$f_j$ 系数是 $c_0$ 与 $c_1$ 的光滑、
+无奇点的函数。当 $c_0\rightarrow\pm c_0^{\rm max}$ 时并不存在实际的奇点；
+在这些极限下把 $f_j$ 计算到机器精度只需要格外的细心。
+
+附带一提，若借助八个 Gell-Mann 矩阵 $\lambda^a$ 把 $Q$ 写成
+$Q=\frac{1}{2}\sum_{a=1}^8 Q_a\lambda^a$，则
+\begin{eqnarray}
+  e^{i Q}&=&u_0+\textstyle\frac{1}{2}\sum_{a=1}^8 u_a \lambda^a,\\
+  u_0 &=& f_0+\textstyle\frac{2}{3}c_1f_2,\\
+  u_a &=& f_1 Q_a + \textstyle\frac{1}{2} f_2 d^{abc}Q_bQ_c,\\
+  c_0 &=& \textstyle\frac{1}{12}d^{abc}Q_a Q_bQ_c,\\
+  c_1 &=& \textstyle\frac{1}{4}Q_aQ_a,
+\end{eqnarray}
+其中 $d^{abc}$ 与 $f^{abc}$ 分别是实对称与实反对称结构常数。

@@ -1,0 +1,341 @@
+\section{结果}
+\label{sec:results}
+我们首先描述并检查动量 Wuppertal 涂抹的实现。
+然后在第~\ref{sec:momtest} 节优化涂抹参数
+并检验该方法的有效性。在第~\ref{sec:boo} 节
+我们考察引入附加洛伦兹收缩是否有利，最后在
+第~\ref{sec:dispersion} 节确定分别高达 $1.94\units{GeV}$ 与 $2.82\units{GeV}$
+动量的 $\pi$ 介子与核子色散关系。
+
+\subsection{涂抹的实现}
+我们在第~\ref{sec:simulate} 节描述的
+$d+1=3+1$ 维规范系综上迭代动量 Wuppertal 涂抹，
+在式~\eqref{fermsmear2} 中采用空间 APE 涂抹~\cite{Falcioni:1984ei} 的规范
+输运子。它们如下迭代构造：
+\begin{equation}
+\label{ape}
+U_{\vect{x},i}^{(n+1)}= P_{\textmd{SU}(3)}\!\!\left(U_{\vect{x},i}^{(n)}+\apec\sum_{|j|\neq i}
+U_{\vect{x},j}^{(n)}U^{(n)}_{\vect{x}+\unitj,i}U^{(n)\dagger}_{\vect{x}+\uniti,j}\right),
+\end{equation}
+其中 $i\in\{1,2,3\}$, $j\in\{\pm 1,\pm 2,\pm 3\}$：
+求和遍及环绕
+$U_{\vect{x},i}$ 的四个空间 ``staples''（马镫形路径），再次略去了时间指标，因为
+涂抹在时间上是定域的。$P_{\textmd{SU}(3)}$ 是到 $\textmd{SU}(3)$ 群的规范协变投影，
+由最大化 $\re\tr[A^{\dagger} P_{\textmd{SU}(3)}(A)]$ 定义。
+我们通过对三个对角
+$\textmd{SU}(2)$ 子群迭代来实现这一投影。其他
+投影可能性例如见
+文献~\cite{Morningstar:2003gk,Bali:2005fu}。
+我们以权重因子 $\apec=2.5$
+将式~\eqref{ape} 迭代 15 次。
+
+动量 Wuppertal 涂抹
+式~\eqref{fermsmear2} 的实现方式是：对给定 $\vect{k}$ 值把 APE 涂抹链接乘以相位
+$U_{\vect{x},j}\mapsto U_{\vect{x},j}e^{i\vect{k}\cdot\unitj}$，
+然后在这些链接上迭代通常的 Wuppertal 涂抹
+式~\eqref{fermsmear}。本文中我们设 $\wupc=0.25$，
+以便在可容忍的迭代次数下获得光滑的涂抹函数。
+从空间位置 $\vect{0}$ 处的三个 $\delta$-函数（每个源颜色 $b$ 一个）出发，
+我们可以为三个不同的源颜色定义``波函数''
+\begin{equation}
+\psi_{(\vect{k})\vect{x}}^{ab}=\sum_{\vect{x}',a'}\left(\Phi_{(\vect{k})}^n\right)_{\vect{x}\vect{x}'}^{aa'}\delta_{\vect{x}'\vect{0}}^{a'b}\,,
+\end{equation}
+及与之相联系的规范不变密度：
+\begin{equation}
+\label{density}
+\rho(\vect{x})=\frac{\sum_{ab}|\psi_{(\vect{k})\vect{x}}^{ab}|^2}
+{a^3\sum_{\vect{x},ab}|\psi_{(\vect{k})\vect{x}}^{ab}|^2}\,.
+\end{equation}
+$\rho(\vect{x})$ 不携带任何与 $\textmd{U}(1)$ 相位有关的信息。因此我们定义
+\begin{equation}
+\label{phase}
+\varphi(\vect{x})=\arg\left(\frac{\psi_{(\vect{k})\vect{x}}^{11}}{
+\psi_{(\vect{0})\vect{x}}^{11}}\right)\in[0,2\pi)\,,
+\end{equation}
+作为相对于标准 Wuppertal 涂抹的动量涂抹相位。上面我们挑出了
+一个特定颜色分量，但任何对角分量都会给出相同的相位函数 $\varphi(\vect{x})$。
+在自由构型（即采用平凡链接
+$U_{\vect{x},i}=\mathds{1}$）的情形下，式~\eqref{density}--\eqref{phase}
+化简，因为 $\psi_{(\vect{k})\vect{x}}^{11}=\psi_{(\vect{k})\vect{x}}^{22}
+=\psi_{(\vect{k})\vect{x}}^{33}$ 且颜色非对角元为零。
+此外此时 $\varphi(\vect{x})=\arg(\psi_{(\vect{k})\vect{x}}^{11})$。
+
+图~\ref{fig:smearing} 中我们对二维截面 $x_3=0$、不同设定展示（以格点单位计的）$\rho(\vect{x})$。颜色编码相位 $\varphi(\vect{x})$。
+我们采用 $n=200$ 次、$\wupc=0.25$ 的动量 Wuppertal 涂抹迭代，
+并取 $\vect{K}=(1,1,0)=[L/(2\pi)]\vect{k}$，
+即 $\vect{k}$ 位于图示平面内且其模为
+$|\vect{k}|\approx 0.77\units{GeV}$。除去离散化与
+有限体积效应，由式~\eqref{eq:width} 我们预期自由情形方差为 $\sigma^2\approx (6.3a)^2$，即
+$\rho(|\vect{x}|=6.3a)\approx e^{-1}\rho(0)$。
+左上面板显示来自我们迭代涂抹的自由情形结果，
+与该预期一致。图~\ref{fig:smearing} 右上面板中我们在一条规范构型的一个时间片上重复此实验，此前已对规范链接作了 APE 涂抹。
+所得形状稍窄，其余方面与自由情形无法区分，并且对连续
+转动几乎不变。不过，转动发生在
+颜色空间：绘制 $q^{ab}_{\vect{x}}$ 的单个分量（未显示）呈现较不平滑的行为。
+特别地，非对角分量不再为零。
+规范不变密度 $\rho(\vect{x})$
+的平滑性意味着相对自由情形的差异
+几乎可以被合适的规范变换完全去除。
+
+左下面板中我们把动量 Wuppertal 涂抹应用于原始（未 APE 涂抹）规范链接的一个时间片。此时所得
+密度较不对称、较不平滑。正如平均场
+论证~\cite{Parisi:1980pe} 所预期的那样，平均涂抹半径有所缩小，其方式与把
+$\wupc$ 乘以平均 plaquette（小方块）的四次方根相一致。同样在此情形，$\textmd{U}(1)$ 相位信息完好无损。与
+图~\ref{fig:smearing} 右上面板的比较清楚展示了附加规范链接
+涂抹的优势。
+
+最后，右下面板中我们应用助推（boosted）动量 Wuppertal 涂抹
+（式~\eqref{eq:boostsmear}--\eqref{boostnorm}），
+采用 APE 涂抹链接。我们取
+$\gamma=5.3$，它对应于动量为
+$\vect{p}\approx 2\vect{k}$ 的 $\pi$ 介子能量与 $\pi$ 介子质量 $m_{\pi}=295\units{MeV}$ 的比值。
+涂抹参数按式~\eqref{boosttrans} 转换。确实，中心区域的横向形状基本与上面各面板相比没有改变，而平行于 boost 方向的密度
+按 $\gamma$ 因子收缩。由于该因子数值很大，存在与理论预期的轻微偏差，
+但这些与离散化相关的效应可以通过减小涂抹参数 $\wupc'$ 并增大迭代次数 $n$、
+保持 $\sigma$ 不变来消除，见
+式~\eqref{eq:width} 与 \eqref{boosttrans}。
+
+\subsection{动量涂抹的优化与检验}
+\label{sec:momtest}
+我们现在在不同的格点动量（式~\eqref{quantize}）下计算涂抹-点（smeared-point）与涂抹-涂抹（smeared-smeared）
+$\pi$ 介子和核子两点函数；我们把物理单位的动量与涂抹矢量分别记作
+$\vect{p}$ 与 $\vect{k}$，整数分量的格点动量记作
+$\vect{P}=[L/(2\pi)]\vect{p}$。注意 $\vect{K}=[L/(2\pi)]\vect{k}$
+不必具有整数分量。我们（大多）限于
+\begin{equation}
+\label{eq:zeta}
+\vect{K}=\zeta\vect{P}\,,
+\end{equation}
+朴素预期是 $\zeta=1/2$ 对应 $\pi$ 介子、$\zeta=1/3$ 对应核子，
+见第~\ref{freefield} 小节。从所得的两点函数出发，我们定义有效能量
+\begin{equation}
+\label{effen}
+E_{H,\mathrm{eff}}(\vect{p},t+a/2)=
+\frac{1}{a}\ln\left[\frac{C_H(\vect{p},t)}{C_H(\vect{p},t+a)}\right]\,,
+\end{equation}
+其中 $H\in\{\pi, N\}$。对我们所使用的非微扰改进作用——含耦合相邻时间片的 clover 项——而言，
+有意义的 $t$ 取值范围是 $t\geq 2a$，即我们从
+$2.5a\approx 0.18\units{fm}$ 开始画有效能量。
+
+\begin{figure}
+\includegraphics[width=0.48\textwidth]{zeta_values_mes_094.pdf}
+\caption{$\vect{P}=(1,1,0)$（对应
+$|\vect{p}|\approx 0.94\units{GeV}$）、不同比值
+$\zeta$（见式~\protect\eqref{eq:zeta}）下的有效 $\pi$ 介子能量。
+直线为连续色散关系的预期。
+符号水平错开以便阅读。}
+\label{fig:zeta}
+\end{figure}
+
+我们对动量涂抹与常规 Wuppertal 涂抹实现了不同的迭代次数 $n$。两种情形下，对不同
+动量的 $\pi$ 介子与核子在基态重叠方面获得最佳结果的
+范围都是 $200\lesssim n\lesssim 400$。对本文给出的结果
+我们取 $n=200$、$\varepsilon=0.25$，对应
+$\sigma\approx 6.3a\approx 0.45\units{fm}$，见图~\ref{fig:smearing}。
+$\pi$ 介子两点函数沿前向与后向时间方向取平均（folding，折叠）。对
+核子我们只能利用前向关联函数，
+因为我们只采用了投影算符
+$\mathbb{P}=\frac{1}{2}(\mathds{1}+\gamma_4)$，
+见式~\eqref{interpol}。
+
+图~\ref{fig:zeta} 中我们展示不同 $\zeta$
+值下涂抹-涂抹两点函数的有效能量。此情形 $\zeta=0.8$（红色方块）
+似乎是最佳选择，但把它增减 20\% 结果仍相对稳健。一般地，
+在我们的 $\pi$ 介子质量 $m_{\pi}\approx 295\units{MeV}$
+和高达 $\sim 3\units{GeV}$ 的动量下，最优 $\zeta$ 值为
+$\zeta\approx 0.8>1/2$（$\pi$ 介子）与
+$\zeta\approx 0.45>1/3$（核子）。如第~\ref{freefield} 小节所讨论，
+只有在非相互作用情形我们才能把
+$\vect{k}$ 解释为单个夸克携带的动量。尽管如此，
+发现数值大于而非小于朴素预期有些出乎意料。
+由于对自由场情形的偏离并不均匀——
+$\pi$ 介子的偏离大于核子——把我们的研究推广到非高斯涂抹函数将会很有意义。
+
+\begin{figure}
+  \includegraphics[width=0.48\textwidth]{plot_mes_094.pdf}
+\caption{格点动量
+$\vect{P}=(1,1,1)$（对应 $|\vect{p}|\approx 0.94\units{GeV}$）的有效 $\pi$ 介子能量
+（式~\protect\eqref{effen}）。
+动量涂抹（方块）情形我们取
+$\vect{K}=\zeta\vect{P}$，$\zeta=0.8$。
+实心符号对应涂抹-涂抹、空心符号
+对应涂抹-点两点函数。部分数据点
+水平错开以便阅读。
+连续与格点色散关系的预期分别见
+式~\protect\eqref{eq:disperse} 与 \protect\eqref{eq:dispersepi}。
+符号水平错开以便阅读。}
+\label{fig:mes1}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=0.48\textwidth]{plot_mes_188.pdf}
+\caption{同图~\protect\ref{fig:mes1}，但为
+$\vect{P}=(1,1,1)$（对应 $|\vect{p}|\approx 1.88\units{GeV}$）。
+无动量涂抹的有效能量无法确定，
+原因是误差大到不可行，以及相应两点函数中心值的非单调行为。}
+\label{fig:mes2}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=0.48\textwidth]{plot_nuc_094.pdf}
+\caption{同图~\protect\ref{fig:mes1}，但为核子，
+$\zeta=0.5$。水平线分别对应连续与格点色散关系
+式~\protect\eqref{eq:disperse} 与 \protect\eqref{eq:disperseN} 的预期。}
+\label{fig:nuc1}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=0.48\textwidth]{plot_nuc_188.pdf}
+\caption{同图~\protect\ref{fig:nuc1}，但为
+$\vect{P}=(2,2,2)$（$\zeta=0.4$）与 $\vect{P}=(3,3,3)$（$\zeta=0.44$），
+分别对应
+$|\vect{p}|\approx 1.88\units{GeV}$ 与 $|\vect{p}|\approx 2.82\units{GeV}$。
+同样，常规 Wuppertal 涂抹数据噪声过大，
+无法提取有效能量。}
+\label{fig:nuc2}
+\end{figure}
+
+图~\ref{fig:mes1} 和 \ref{fig:mes2} 中我们把来自涂抹-点（SP）与涂抹-涂抹（SS）关联函数的有效 $\pi$ 介子能量
+与连续及格点色散关系
+式~\eqref{eq:disperse} 和 \eqref{eq:dispersepi} 的预期（水平线，采用
+式~\eqref{eq:masses} 的 $\pi$ 介子质量）进行比较。注意
+SS 有效能量应当是 $t$ 的单调函数，而 SP 能量则未必如此。众所周知
+SP 关联函数的统计误差小于 SS 情形，我们也确认了这一点。对动量涂抹的
+两点函数，数据在 $t\gtrsim 0.5\units{fm}$ 与平台一致，我们发现与预期相符。
+当 $|\vect{p}|\approx 0.94\units{GeV}$（图~\ref{fig:mes1}）时常规涂抹
+两点函数的有效能量也与预期一致，然而误差过大，
+无法作出定量上有意义的陈述。当 $|\vect{p}|\approx 1.88\units{GeV}$
+（图~\ref{fig:mes2}）时，在我们 200 个规范构型一个源位置的统计量内，
+完全无法获得无动量涂抹的有效能量。
+
+核子的同样比较示于
+图~\ref{fig:nuc1} 与 \ref{fig:nuc2}，其中图~\ref{fig:nuc2}
+还包含高达 $|\vect{p}|\approx 2.82\units{GeV}$ 的动量。
+此情形我们展示 Wilson 参数 $r=1$ 自由 Wilson 费米子的
+格点色散关系式~\eqref{eq:disperseN}，核子质量取自
+式~\eqref{eq:masses}。动量涂抹数据的统计误差再次远小于
+无动量涂抹的情形。与 $\pi$ 介子一样，在我们的统计量内
+无法对大于 $1.5\units{GeV}$ 的动量提取有效能量。
+当 $|\vect{p}|\approx 0.94\units{GeV}$ 时数据在 $t\gtrsim 0.6\units{fm}$ 与预期一致，
+而在统计误差更大的更高动量处，数据与始于
+$t\gtrsim 0.45\units{fm}$ 的平台一致。
+对图~\ref{fig:nuc2} 所示的高动量，
+数据似乎偏好连续色散关系甚于格点色散关系式~\eqref{eq:disperseN}。
+
+\begin{figure}
+\includegraphics[width=0.48\textwidth]{extra_diff_dir_nuc.pdf}
+\caption{核子涂抹-涂抹有效能量：动量涂抹同为针对
+$\vect{P}=(2,2,2)$ 优化的 $\vect{K}=(0.8,0.8,0.8)$，
+但动量指向不同方向。
+符号水平错开以便阅读。}
+\label{fig:direction}
+\end{figure}
+
+从上面给出的结果清楚可见，使用动量涂抹收益巨大。除涂抹本身的计算开销之外，唯一的缺点是
+源端采用的每一个参数 $\vect{k}$ 值都要求我们重新计算相应的夸克传播子。
+因此一个自然的问题是：能否用同一个涂抹矢量 $\vect{k}$
+高效地实现若干动量 $\vect{p}$？我们已经从图~\ref{fig:zeta} 知道，
+当 $\vect{p}\parallel \vect{k}$ 时，式~\eqref{eq:zeta} 定义的比例常数
+$\zeta$ 可以变动约 20\% 而不显著恶化；
+若愿意接受折中则可变动更多：
+比较图~\ref{fig:zeta} 与图~\ref{fig:mes1} 可见，即使远非完美的动量涂抹
+相比常规的 $\zeta=0$ 情形也是巨大的改进。我们还可以问：能否（略微）改变
+$\vect{p}$ 相对 $\vect{k}$ 的方向。这当然有潜在危险，
+因为所用内插算符不再按与动量方向相联系的 $O_h$ 小群（或其二重覆盖）的不可约表示
+变换。不过，
+例如如果我们只关心自旋-$0$ 或自旋-$1/2$ 强子的基态质量，
+这不应是主要问题。
+图~\ref{fig:direction} 表明，在一定程度上对固定 $\vect{k}$
+变动动量方向似乎也是可行的。所示全部情形都无法
+在没有动量涂抹时提取任何有意义的有效能量。
+
+\subsection{助推（动量）涂抹的检验}
+\label{sec:boo}
+两个小组~\cite{Roberts:2012tp,DellaMorte:2012xc}
+曾提出引入各向异性从而洛伦兹助推涂抹函数，可能改善高动量内插算符
+与相应强子基态的重叠。我们在附录中把这些想法
+推广到离轴动量方向，并纳入相位因子，见
+式~\eqref{eq:boostsmear}--\eqref{boosttrans}。
+长度收缩依赖于坐标的选择，特别是运动系相对静止系时间差的选取。既然在欧氏时空中所有距离都是类空的、任何真实的时间信息都已丢失，
+我们并不清楚为何空间距离应经受洛伦兹助推。
+我们的数值观察是否定的。
+
+\begin{figure}
+\includegraphics[width=0.48\textwidth]{plot_SS_meson_boosted.pdf}
+\caption{$\vect{P}=(3,0,0)$（对应
+$|\vect{p}|\approx 1.63\units{GeV}$）的有效涂抹-涂抹 $\pi$ 介子能量：
+优化参数 $\zeta=0.8$ 的动量涂抹，以及
+$\gamma\approx 5.6$、$\zeta=0.5,\, 0.8,\, 0$ 的助推动量
+涂抹式~\protect\eqref{eq:boostsmear}。
+符号水平错开以便阅读。}
+\label{fig:boost}
+\end{figure}
+
+图~\ref{fig:boost} 代表了我们的经验，我们展示 $\vect{P}=(3,0,0)$
+（对应 $|\vect{p}|\approx 1.63\units{GeV}$、boost 因子
+$\gamma=E_{\pi}(p)/m_{\pi} \approx 5.6$，接近
+图~\ref{fig:smearing} 右下面板对应的 $\gamma=5.3$）的有效 $\pi$ 介子能量。此情形同样无法用常规 Wuppertal 涂抹提取
+有效能量。
+所有洛伦兹收缩（助推）的内插算符给出的结果都远逊于无助推动量涂抹的结果。
+这对其他收缩因子 $1/\gamma$（未显示）同样成立。
+与此同时，相对不带动量相位因子的无助推 Wuppertal 涂抹，
+boost 增强了信号。
+图中我们展示了不同动量平移下的助推涂抹结果：
+$\vect{k}=\vect{0}$、朴素预期 $\vect{k}=0.5\vect{p}$ 以及
+不加 boost 时接近最优的
+$\vect{k}=0.8\vect{p}$。我们发现
+有效能量及其不确定度对 $\vect{k}$ 值相当不敏感。
+这并不令人惊讶，因为涂抹函数沿动量方向的支撑相当小。同时这一小支撑也许解释了为何 boost 优于
+常规 Wuppertal 涂抹：高动量下宽波函数不利，
+除非引入 $\vect{k}$ 矢量，见式~\eqref{eq:freec}。
+
+总而言之，沿动量方向大幅收缩涂抹函数改善了本文讨论的相位失配。
+因此相对常规各向同性涂抹情形可以获得一定改进。
+然而只有动量涂抹正确处理了这一效应，并且我们没有看到注入动量会改变涂抹函数模的最优形状（式~\eqref{density}）的迹象。
+
+\subsection{与色散关系的比较}
+\label{sec:dispersion}
+我们此处的主要目的是证明动量涂抹的有效性。为此目的，只需考虑
+200 条独立规范构型上的一个源位置就足够了。然而当前的最新做法是在十倍数量的构型上实现多个源。
+不久的将来我们将以增强的统计量计算大量物理上有趣的可观测量。
+式~\eqref{eq:masses} 所示的质量早已由高统计量获得，并且在图~\ref{fig:zeta}--\ref{fig:boost} 中我们已将有效能量与连续及格点色散关系
+式~\protect\eqref{eq:disperse}--\protect\eqref{eq:disperseN} 用这些值进行了比较。
+
+\begin{figure}[ht]
+\includegraphics[width=0.48\textwidth]{mes_disp_SS_8.pdf}
+\caption{不同格点动量下的 $\pi$ 介子能量，
+与连续（实线）及
+格点（虚线连接的点）色散关系
+式~\protect\eqref{eq:disperse} 与
+\protect\eqref{eq:dispersepi} 比较。}
+\label{fig:disppi}
+\end{figure}
+
+\begin{figure}[ht]
+\includegraphics[width=0.48\textwidth]{nuc_disp_SS_8.pdf}
+\caption{不同格点动量下的核子能量，
+与连续（实线）及
+格点（虚线连接的点）色散关系
+式~\protect\eqref{eq:disperse} 与
+\protect\eqref{eq:disperseN} 比较。}
+\label{fig:dispN}
+\end{figure}
+
+所有情形中优化动量涂抹得到的涂抹-涂抹有效能量自
+$t\geq t_{\min}=8.5a\approx 0.61\units{fm}$ 起都与平台一致，其中
+$t=8.5a$ 对应由
+$8a$ 与 $9a$ 处的关联函数得到的有效能量，见式~\eqref{effen}。多数情形下
+$t_{\min}$ 可以取得更小。目前我们保守地以
+$E_H(\vect{p})\approx
+E_{H,\mathrm{eff}}(\vect{p},t_{\min})$ 近似能量。结果随
+$\vect{p}$ 的变化示于图~\ref{fig:disppi} 与 \ref{fig:dispN}，并与色散关系预期比较。对小动量我们还展示了常规涂抹可以得到的
+结果。对本文研究的两点函数，常规结果的精度可以在很小计算开销下通过（对所示绝对动量值）六个、八个或十二个等价方向的平均来改进。
+我们没有这样做，以便对涂抹方法的效率进行``公平''比较。不过从图清楚可见，假定不同动量方向的结果统计无关时可能的最大误差缩减也不会影响我们的任何结论。
+
+我们不指望图~\ref{fig:disppi} 与
+\ref{fig:dispN} 所示的任一参数化能
+完美描述数据，因为格点色散关系是针对假设了特定有效拉氏量形式的点粒子的。不过两函数之差
+指示可能的格点效应的大小。
+$\pi$ 介子情形两种参数化的差异在现有统计精度下不重要，而核子数据
+似乎更好地由连续色散关系描述。不久的将来我们将进一步研究这一点：提高
+统计量并采用第~\ref{sec:improve} 节所述的不同涂抹。

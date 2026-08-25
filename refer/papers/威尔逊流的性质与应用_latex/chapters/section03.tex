@@ -1,0 +1,159 @@
+\section{威尔逊流的格点研究}
+
+在 QCD 中，预期微扰展开~\eqref{eq:E3} 仅在小流时间、即光滑化范围 $\sqrt{8t}$
+至多 $0.3$ fm 左右时才适用。然而在更大的 $t$ 值处，威尔逊流的性质可以利用理论的
+格点表述和数值模拟直接研究。
+
+本节报告的 $\SUthree$ 规范理论模拟主要用于澄清 $\langle E\rangle$
+是否如微扰论所提示的那样标度到连续极限。顺带地，基于观察到的 $\langle E\rangle$
+的性质，将提出一种新的定标方法。
+
+\begin{table}[ht]
+\centering
+\caption{晶格参数、统计量与参考流时间}
+\label{tab:params}
+\begin{tabular}{ccccc}
+\hline
+Lattice & $\beta$ & $a$\,[fm] & $N_{\mathrm{cnfg}}$ & $t_0/a^2$ \\
+\hline
+$48\times24^3$ & $5.96$ & $0.0999(4)$ & $100$ & $\phantom{0}2.7854(62)$ \\
+$64\times32^3$ & $6.17$ & $0.0710(3)$ & $100$ & $\phantom{0}5.489(14)\phantom{0}$ \\
+$96\times48^3$ & $6.42$ & $0.0498(3)$ & $100$ & $11.241(23)$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{模拟参数}
+
+在三个格点上，采用 Wilson 规范作用量和几种知名链更新算法的组合，生成了代表性规范
+场系综。表~\ref{tab:params} 所引晶格间距值由 Guagnelli 等人~\cite{GuagnelliEtAl}
+发表的 Sommer 参考标度 $r_0=0.5$ fm~\cite{SommerScale} 的格点单位结果导出。在所选
+耦合 $\beta=6/g_0^2$ 下，三个格子的间距按因子 $1/\sqrt{2}$ 从大约 $0.1$ fm 递减到
+$0.05$ fm。此外，各格子以物理单位表示的尺寸近似恒定。
+
+为了可靠地抑制所生成的 $N_{\mathrm{cnfg}}$ 个场之间残余的统计关联，相邻场在模拟时间
+上的间隔取为拓扑荷积分自关联时间的至少 $10$ 倍。后者在格点上的定义有一定含糊性，
+但其自关联时间在很大程度上与所作的选择无关，且已知当晶格间距减小时增长得非常
+迅速~\cite{DelDebbioTauQ,StefanConference}。特别地，早在 $a=0.07$ fm 处，
+所有其他常用感兴趣的量在模拟时间上的关联就已远远更弱。
+
+
+\subsection{观测量}
+
+对任意给定的规范场组态 $U(x,\mu)$，可以把流方程~\eqref{eq:wflow}
+数值积分到所需的流时间，然后在该时刻由规范场构造规范不变的局域观测量。特别地，
+\begin{equation}
+  E=2\sum_{p\in P_x}\Re\tr\{1-V_t(p)\}
+  \label{eq:Elattice}
+\end{equation}
+是密度 $E$ 在格点上的一个可能定义，其中 $P_x$ 是左下角位于 $x$
+的无向方格集合。
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.42\textwidth]{images/clover}
+\caption{图中所示的四个方格 Wilson 圈平均值的反厄米无迹部分，可以取作场张量
+$a^2G_{\mu\nu}(x)$ 在格点上的定义。所有的圈都位于 $(\mu,\nu)$ 平面内，取向相同，
+并且都从点 $x$ 出发并终止于该点。}
+\label{fig:clover}
+\end{figure}
+
+$E$ 的另一个更对称的定义，是通过引入场张量 $G_{\mu\nu}(x)$ 的格点版本得到的
+（见图~\ref{fig:clover}）。此时 $E$ 就由连续公式~\eqref{eq:Edens} 直接给出。在现阶
+段，两种定义同样可以接受，因为它们满足所有形式上的要求（特别是定域性和规范不变性），
+并且在经典连续极限下都收敛到正确的表达式。
+
+对于流方程~\eqref{eq:wflow} 的数值积分，原则上任何一种广为人知的积分格式都可以使
+用（例如参见文献~\cite{HairerEtAl}）。文献~\cite{TrivMaps} 中先前讨论过的 Euler
+积分器特别简单，但效率也最低。显然，积分误差应当远小于所计算量的统计误差。一个相
+当简单、数值上稳定、且使该条件易于满足的积分器在附录~\ref{app:C} 中描述。
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.62\textwidth]{images/tsqE}
+\caption{$a=0.05$ fm 处得到的模拟数据：$t^2\langle E\rangle$ 作为流时间 $t$
+的函数（黑线）。统计误差小于 $0.3\%$，在本图的标度下不可见。图中同时给出了由微扰
+级数~\eqref{eq:E3} 与 $\Lambda$ 参量的已知值~\eqref{eq:Lambdaparm}
+所预言的曲线（灰色带）。}
+\label{fig:tsqE}
+\end{figure}
+
+\subsection{$\langle E\rangle$ 的时间依赖性}
+
+在领头阶微扰论中，无量纲组合 $t^2\langle E\rangle$ 是一个正比于规范耦合的常数。
+在下一阶，理论的标度不变性被破坏，$t^2\langle E\rangle$
+对流动时间 $t$ 发展出非平庸的依赖关系。渐近自由实际上蕴含：当 $t\to0$
+时该组合缓慢趋于零。
+
+回顾 $\MSbar$ 方案中 $\Lambda$ 参量的结果
+\begin{equation}
+  \left.\Lambda\right|_{\Nf=0}=0.602(48)/r_0
+  \label{eq:Lambdaparm}
+\end{equation}
+（由 ALPHA 合作组得到~\cite{LambdaParm}），并利用跑动耦合 $\alpha(q)$
+的四圈演化方程~\cite{RitbergenEtAl}，微扰级数~\eqref{eq:E3} 便可在以 $r_0$
+为单位的任意流时间处求值。这样得到的曲线连同由式~\eqref{eq:Lambdaparm}
+中 $\Lambda$ 的误差导出的误差带一起显示于图~\ref{fig:tsqE}。
+
+或许带有几分偶然，$a=0.05$ fm 处得到的模拟结果在相当大的 $t$
+范围内与微扰曲线精确吻合。这里使用的是 $E$ 的对称定义；为清晰起见，图中只画出了
+一个格子的数据（如下文所讨论的，晶格间距效应很小，因此其他格子的数据几乎会落在
+图~\ref{fig:tsqE} 中所绘曲线之上）。
+
+超出微扰区域后，至少在模拟数据覆盖的范围内，$t^2\langle E\rangle$
+随 $t$ 大致线性增长。密度 $\langle E\rangle$
+从微扰的 $1/t^2$ 行为减缓到较平缓的 $1/t$ 行为，这或许可以这样解释：威尔逊流趋于把
+规范场驱动向规范作用量的驻点；在这些场空间的驻点附近，流方程~\eqref{eq:wflow}
+的右端很小，因而 $E$ 随时间变化甚微。
+
+
+\subsection{晶格间距效应}
+
+微扰论提示，密度 $\langle E\rangle$ 像一个量纲为 $4$ 的物理量那样标度到连续极限。
+$\langle E\rangle$ 的标度行为可以通过引入参考标度 $t_0$ 来检验，后者由隐式方程
+\begin{equation}
+  \left\{t^2\langle E\rangle\right\}_{t=t_0}=0.3
+  \label{eq:t0def}
+\end{equation}
+定义（见图~\ref{fig:tsqE}）。若 $\langle E\rangle$ 是物理的，则无量纲比值
+$t_0/r_0^2$ 必须与晶格间距无关（修正项按 $a$ 的幂次消失）。
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.62\textwidth]{images/t0r0}
+\caption{参考标度之比 $\sqrt{8t_0}/r_0$ 向连续极限的外推（空心数据点）。黑色数据
+点用 $E$ 的对称定义得到，灰色点用表达式~\eqref{eq:Elattice} 得到。}
+\label{fig:t0r0}
+\end{figure}
+
+图~\ref{fig:t0r0} 中绘出的数据清楚地表明，参考标度之比平滑地外推到连续极限。正如
+可以猜到的，晶格效应看来是 $a^2$ 阶的；在所考虑的格子上它们至多只有几个百分点，
+而若采用 $E$ 的对称定义则特别小。在其他时间点，标度破坏的行为类似，但在小 $t$
+处趋于增大——那里光滑化范围 $\sqrt{8t}$ 只比晶格间距大两三倍。
+
+
+\subsection{小结}
+
+(a) \textit{连续极限}。对威尔逊流的数值研究有力地支持如下猜想：在正流时间生成的
+规范场是光滑的重正化场（其规范自由度除外）。不过，对于有非零海夸克数的 QCD，
+类似的研究仍有待进行。显然，还希望在微扰论中以及通过对更多观测量
+的考察来获得进一步的确认。
+
+\vspace{0.5ex}
+\noindent
+(b) \textit{定标}。由式~\eqref{eq:t0def} 定义的时间 $t_0$
+可以用作类似 Sommer 半径 $r_0$ 的参考标度。与后者相比，$t_0$
+的优点是其计算不需要任何拟合或外推。此外，仅用 $100$
+个独立的代表性场组态构成的系综，就能以百分之一量级的统计精度确定 $t_0$
+（作为说明，用 $E$ 的对称定义算得的 $t_0/a^2$ 值列于表~\ref{tab:params}）。
+
+\vspace{0.5ex}
+\noindent
+(c) \textit{普适性}。在格点上，诸如 $E$ 这类局域规范不变量的定义并不唯一，但本节
+得到的结果表明，这些差别在连续极限下变得无关紧要（见图~\ref{fig:t0r0}）。这种普
+适性源于下述事实（第 4 节将进一步阐明）：威尔逊流生成的场在晶格间距的尺度上是光
+滑的。因此，由固定 $t/t_0$ 处的规范场构成的局域场的普适类，由这些场在经典连续极
+限下的渐近行为决定。
+
+
+

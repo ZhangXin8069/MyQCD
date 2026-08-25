@@ -1,0 +1,315 @@
+\section{算符构造\label{sec:theory}}
+
+量子场论哈密顿量某个本征态的能量可以这样确定：计算产生与湮灭算符
+$\chi$ 在欧氏时间 $t$ 与 $t'$ 之间的关联函数；
+\begin{equation}
+   C(t',t)  = \Big\langle \chi(t')\,  \chi^\dagger(t) \Big\rangle.
+\end{equation}
+在哈密顿量的完备本征态集合中插入，使 $\hat{H} | k \rangle = E_k  | k\rangle$，
+该关联函数便分解为谱中所有与源算符具有相同量子数的态的贡献之和，
+\begin{equation}
+   C(t',t)  = \sum_k \big|\langle \chi | k \rangle\big|^2 \, e^{-{E_k} (t'-t)}.
+\end{equation}
+要测量低能态的能量，关键在于构造主要与这些轻模式重叠的算符。
+这能在更早的时间间隔上暴露关联器的渐近行为，
+并使能量的测定在统计上更加精确。
+合适算符的构造存在很大的自由度。一旦施加了对称性与时间定域化的约束，
+路径积分中场函数的任何形式原则上都可以使用。
+
+涂抹是定义产生算符构造之第一步的一种成熟手段。不是把产生算符直接作用于场，
+而是先作用一个光滑化函数。该函数应尽可能保持对称性，
+同时有效去除短程模式的成分——它们对低能关联函数的贡献微不足道。
+在当代模拟中，对费米场与规范玻色子耦合的理论，
+这种操作的一个流行形式是 Jacobi 涂抹方法 \cite{Allton:1993wc}。
+
+基于格点拉普拉斯算符的规范协变夸克涂抹，从最简单的二阶三维
+微分算符表示出发
+\begin{equation}
+   -\nabla^2_{xy}(t) = 6 \delta_{xy} - \sum_{j=1}^3
+      \left(
+	  \tilde{U}_j(x,t)         \delta_{x+\hat\jmath,y}
+	 +\tilde{U}^\dagger_j(x-\hat\jmath,t) \delta_{x-\hat\jmath,y}
+	  \right),
+\end{equation}
+其中规范场 $\tilde{U}$ 可由某种适当的协变规范场涂抹算法构造
+\cite{Morningstar:2003gk}。定义了拉普拉斯算符之后，一个简单的涂抹可写为
+\begin{equation}
+  J_{\sigma, n_\sigma}(t) = \left( 1 + \frac{\sigma \nabla^2(t)}{n_\sigma} \right)^{n_\sigma},
+  \label{eqn:smearing}
+\end{equation}
+其中 $\sigma$ 和 $n_\sigma$ 是可调参数，可用于优化对所研究态的投影。
+当 $n_\sigma$ 很大时，这近似于 $\sigma\nabla^2$ 的指数，{\it 即}
+\begin{equation}
+  \lim_{n_\sigma\rightarrow\infty} J_{\sigma, n_\sigma}(t) = \exp\left(\sigma
+      \nabla^2(t)\right).
+\label{eqn:jacobi}
+\end{equation}
+由此对格点拉普拉斯算符较高本征模的指数式压制意味着：
+只有少数最低阶的模式才对 $J$ 有实质贡献。
+
+这一观察提示：可以采用截断到最低模式的本征矢量表示来逼近涂抹算符。
+由于格点计算中使用的涂抹算符已被低秩构造很好地近似，
+可以选择一种使其更加绝对化的涂抹定义。设 $V_M$ 为某时间片上
+带规范群基础表示荷的标量场所构成的向量空间。
+$V_M$ 的秩为 $M = N_c \times N_x \times
+N_y \times N_z$，其中 $N_c$ 是色数，而 $N_x,N_y$ 和 $N_z$
+是格点在三个空间方向上的延伸。现在把涂抹定义为一个精心挑选的、
+秩为 $N \ll M$ 的算符。这类算符将被称为``蒸馏''（distillation）算符。
+这样做有重大好处：若算符的秩足够小，来自该空间的传播矩阵的全部元素
+都能以可负担的计算代价构造出来（正比于该空间的秩 $N$）。
+于是，涉及任意复杂强子产生算符的关联函数
+都可以在固定的求逆开销下测得。
+
+把时间片 $t$ 上的蒸馏算符定义为一个 $M \times
+N$ 矩阵与其厄米共轭的乘积：
+\begin{equation}
+ \Box(t) = V(t) V^\dagger(t)
+\implies \Box_{xy}(t) = \sum_{k=1}^N v_x^{(k)} (t) v_y^{(k)\dag} (t).
+    \label{eqn:box}
+\end{equation}
+在本征矢量按本征值排序后，$V(t)$ 的第 $k^{\rm th}$ 列包含时间片 $t$
+空间规范场背景上 $\nabla^2$ 的第 $k^{\rm th}$ 个本征矢量。
+这是投影到由这些本征模张成的子空间 $V_N$ 的投影算符，
+所以 $\Box^2 = \Box$。
+当所含本征矢量的数目等于 $V_M$ 的维数时，{\em 即} $N = M$，
+蒸馏算符成为恒等算符，被作用的场即为未涂抹的场。
+
+拉普拉斯算符继承了真空的许多对称性。它在转动下如标量般变换，
+在规范变换下协变，且宇称与电荷共轭不变。如果这些对称性之一
+对拉普拉斯算符的作用把 $\nabla^2 $ 映到 $\tilde\nabla^2$，那么
+在 $V_M$ 上存在幺正变换 $R$ 使得
+\beq
+R \tilde\nabla^2 R^\dagger = \nabla^2.
+\eeq
+这意味着若 $v$ 是 $\nabla^2$ 的本征矢量，
+则 $\tilde\nabla^2$ 的本征矢量是 $R v$。
+考虑式~\ref{eqn:box} 给出的蒸馏算符的定义，
+变换后的算符必满足
+\beq
+R \stackrel{\sim}{\Box} R^\dagger = \Box,
+\eeq
+因此用蒸馏场构造的关联函数，与用拉普拉斯涂抹方法构造的关联函数
+在格点上具有相同的对称性。
+
+\subsection{介子两点关联函数}\label{subsec:theory-mesons}
+
+考虑同位旋矢量介子的动量投影产生与湮灭
+算符 $\bar{u} \Gamma^A d$ 和
+$\bar{d} \Gamma^B u$，其中 $\Gamma$ 作用在自旋与色以及坐标空间上。
+将蒸馏算符 $\Box$ 作用到每个夸克场上，
+三动量 $\vec{p}$ 处的产生算符写为
+\begin{equation}
+\chi^\dagger_M(\vec{p},t)
+  = \bar{u}_x(t) \Box_{xy}(t) \cdot e^{-i p\cdot y}\, \Gamma^A_{yz}(t) \cdot \Box_{zw}(t) d_w(t),
+\label{eqn:meson_quark_op}
+\end{equation}
+其中重复的空间指标隐含求和。用简记记号，关联函数可写为
+\begin{equation}
+  C^{(2)}_M(t',t) = \Big\langle \bar{d}(t')\Box(t')\Gamma^B(t')\Box(t')u(t')\,\cdot\,
+                      \bar{u}(t)\Box(t)\Gamma^A(t)\Box(t) d(t)
+    \Big\rangle.
+\end{equation}
+完成夸克场路径积分并代入式~\ref{eqn:box} 中蒸馏算符 $\Box$ 的外积定义后，
+关联器可写为
+\begin{equation}
+  C^{(2)}_M(t',t) = \mbox{Tr} \Bigl[
+      \Phi^B(t') \,
+      \tau(t',t) \,\Phi^A(t) \, \tau(t,t') \Bigr],
+\end{equation}
+其中
+\begin{equation}
+  \Phi^A_{\alpha\beta}(t) = V^\dagger(t) \left[ \Gamma^A(t) \right]_{\alpha\beta} V(t)
+  \equiv V^\dagger(t) {\cal D}^A(t) V(t) S^A_{\alpha\beta} ,
+\label{eqn:meson_op}
+\end{equation}
+以及
+\begin{equation}
+  \tau_{\alpha\beta }(t',t) = V^\dagger(t') M^{-1}_{\alpha\beta}(t',t) V(t),
+\label{eqn:peram}
+\end{equation}
+这里 $M$ 是狄拉克算符的格点表示，
+$\Phi$ 与 $\tau$ 的夸克自旋指标 $\alpha,\beta$ 已显式写出。
+$\Phi$ 具有确定的动量，而 $\tau$ 的定义中没有显式的动量投影。
+通常可以把 $\Phi$ 分解为只在坐标与色空间作用的 ${\cal
+D}^A$ 部分与只在自旋空间作用的 $S^{A}$ 部分。
+注意 $\Phi$ 和 $\tau$ 都是维度 $N \times N_\sigma$ 的方阵，
+其中 $N_\sigma$ 是格点狄拉克旋量的分量数。
+因此只需 $N \times N_\sigma$ 次费米矩阵逆作用于向量的运算，
+就能计算出 $\tau$——``perambulator''（遍历矩阵）——的全部元素。
+还要注意，源与汇算符的选择完全独立于 $\tau$ 的计算；
+一旦 $\tau$ 矩阵的所有元素都已算出并存储，
+任意源汇算符都可以事后加以关联。该方法可直接推广到
+由不同、非简并夸克味组成的介子关联函数的测定。
+
+测定同位旋标量介子关联函数时，需要计算不连通项。
+只要产生与湮灭算符中使用蒸馏场，不连通图也可以类似地表示。
+这样的项将由蒸馏空间上的两个独立迹组成：
+\begin{equation}
+  C^{(2,\mathrm{disc})}_M(t',t) =
+   \mbox{Tr}\Bigl[ \Phi^A(t) \tau(t,t) \Bigr]
+   \mbox{Tr}\Bigl[ \Phi^B(t') \tau^\dagger(t' ,t') \Bigr].
+\end{equation}
+精确确定这个表达式需要对所有时间片 $t$ 计算 $\tau(t,t)$。
+
+由于蒸馏后的单粒子算符在源与汇两端都可投影到确定动量，
+多介子关联器也可以用如下形式的产生与湮灭算符来构造
+\begin{equation}
+\chi_{MM}(\vec{q}=\vec{p}_1 - \vec{p}_2; t) = \chi_M(\vec{p}_1,t)
+  \chi_M(-\vec{p}_2,t),
+\label{eqn:multi_meson_quark_op}
+\end{equation}
+其中 $p_1$ 与 $p_2$ 是式~\ref{eqn:meson_quark_op} 中单粒子算符的三动量。
+对夸克场积分后，所得图仍可通过在蒸馏空间中对构造算符
+与 perambulator 的乘积取迹来计算。
+这些函数的精确结构依赖于源汇算符的夸克味内容，故此处不给出细节。
+与前文相同，这些矩阵相比夸克场空间的维度很小；
+一旦把夸克传播编码进 perambulator，
+这些多强子关联函数便可计算。
+
+\subsection{重子两点关联函数}\label{subsec:theory-baryons}
+
+因子化技术也可应用于重子。
+为说明相关概念，只考虑同位旋 $1/2$ 部分，
+尽管该技术可自然推广到其他重子多重态。
+一个既含位移又含自旋空间系数的湮灭算符写作：
+\begin{equation}
+\chi_B(t) = \epsilon^{abc} S_{\alpha_1\alpha_2\alpha_3}
+({\cal D}_1\Box d)^a_{\alpha_1}
+({\cal D}_2\Box u)^b_{\alpha_2}
+({\cal D}_3\Box u)^c_{\alpha_3}(t),
+\end{equation}
+其中位移算符 ${\cal D}_i$ 所作用的夸克场的色指标
+与反对称张量缩并，重复的自旋指标求和。
+对夸克场积分后，关联函数
+\begin{equation}
+   C^{(2)}_B(t',t) = -\Big\langle \chi_B(t') \, \bar{\chi}_B(t)\Big\rangle
+\end{equation}
+可以因子化为 perambulator 项（式~\ref{eqn:peram}）
+以及产生与湮灭算符，其中后者可写成
+\begin{equation}
+ \Phi^{(i,j,k)}_{\alpha_1\alpha_2\alpha_3}(t) = \epsilon^{abc}
+\left({\cal D}_1 v^{(i)}\right)^{a}
+\left({\cal D}_2 v^{(j)}\right)^{b}
+\left({\cal D}_3 v^{(k)}\right)^{c}(t)\;
+S_{\alpha_1\alpha_2\alpha_3}\ .
+\label{eqn:baryon_op}
+\end{equation}
+自旋部分从矢量 $v$ 的反对称缩并中分离出来。
+
+所得关联函数中有两项涉及产生湮灭算符
+与 perambulator 的张量缩并
+\begin{align}
+C^{(2)}_B[\tau_d,\tau_u,\tau_u](t',t) &=
+  \Phi^{(i,j,k)}(t')
+  \tau_d^{(i,\bar{i})}(t',t)
+  \tau_u^{(j,\bar{j})}(t',t)
+  \tau_u^{(k,\bar{k})}(t',t)
+  \Phi^{(\bar{i},\bar{j},\bar{k})*}(t)
+  \nonumber\\
+ &\quad- \Phi^{(i,j,k)}(t')
+  \tau_d^{(i,\bar{i})}(t',t)
+  \tau_u^{(j,\bar{k})}(t',t)
+  \tau_u^{(k,\bar{j})}(t',t)
+  \Phi^{(\bar{i},\bar{j},\bar{k})*}(t),
+\end{align}
+其中内禀自旋指标上存在隐含的张量缩并，
+而夸克标记 $d$ 与 $u$ 用于标记式~\ref{eqn:peram} 中相应味的
+夸克 perambulator 项。
+
+与介子情形类似，源汇算符的选择独立于
+perambulator $\tau_d$ 与 $\tau_u$ 的计算。
+这些矩阵的计算也可与介子关联器的计算共享。
+利用式~\ref{eqn:baryon_op} 中矢量与位移的收缩可以事后评估重子关联函数，
+这些收缩同样可以在源汇算符之间共享。
+这些收缩不涉及自旋分量，从而使 $\Phi$ 的存储可控。
+
+\subsection{介子三点关联函数}\label{subsec:theory-mesons-3pt}
+
+一般的介子三点函数写作
+\beq
+   C^{(3)}(t_f, t, t_i) = \Big\langle
+\big( \bar{d}\Box \Gamma^B \Box u\big)(t_f) \cdot
+\big(\bar{u}\Gamma u\big)(t) \cdot
+\big(\bar{u} \Box \Gamma^A \Box d \big)(t_i)
+\Big\rangle,
+\eeq
+其中时间片 $t$ 上的算符不做涂抹。
+完全连通的 Wick 收缩可表示为
+\beq
+ C^{(3)}_{\mathrm{conn}}(t_f, t, t_i) = \mbox{Tr}\Bigl[\Phi^B(t_f)\, J(t_f,t,t_i) \,\Phi^A(t_i)\, \gamma_5 \tau^\dag(t_f,t_i) \gamma_5\Bigr]
+\eeq
+其中``广义 perambulator''定义为
+\begin{equation}
+J_{\alpha\beta}(t_f,t,t_i) =  V^\dag(t_f) \left( M^{-1}(t_f,t)\, \Gamma(t) \,
+M^{-1}(t,t_i)  \right)_{\alpha\beta} V(t_i). \label{eqn:genperam}
+\end{equation}
+一般还会出现不连通项；它可以因子化为
+一个两点函数（按第~\ref{subsec:theory-mesons} 节的算法计算）
+与一个不连通插入的乘积。由于不连通迹不涉及蒸馏场，
+此处不再进一步讨论该插入的计算。
+要计算连通三点关联函数，需要两组不同的求逆：
+第一组从源时间片 $t_i$ 的蒸馏矢量出发，
+第二组从汇时间片 $t_f$ 出发。
+然后通过收缩这两组求逆所得的解，
+构造式~\ref{eqn:genperam} 的广义 perambulator。
+流的插入编码在算符 $\Gamma$ 的选择之中。
+在流算符处插入任何动量都需要在每个时间片 $t$ 上做傅里叶变换。
+
+\subsection{重子三点关联函数}\label{subsec:theory-baryons-3pt}
+
+重子三点关联函数也可以用式~\ref{eqn:genperam} 的广义
+perambulator 表示。
+考虑这样一个三点关联函数：重子在时间片 $t_i$ 产生，
+随后在时间片 $t$ 受流算符作用，
+最后在 $t_f$ 湮灭：
+\begin{equation}
+   C^{(3)}_B(t_f, t, t_i) = - \Big\langle B(t_f)\cdot \big(\bar{u}\Gamma u \big)(t) \cdot \bar{B}(t_i) \Big\rangle.
+\end{equation}
+对夸克场积分后，它可以写成一个连通三点贡献
+与``不连通插入乘两点关联器''乘积之和。
+与前文相同，这里的讨论限于同位旋 $1/2$ 的轻重子，
+尽管该技术相当普遍。
+注意不连通插入涉及未涂抹的场，
+必须通过其他某种技术来计算。两点贡献遵循
+第~\ref{subsec:theory-baryons} 节。
+对于关联函数中上夸克处的插入
+\begin{equation}
+\begin{split}
+   C^{(3)}_\mathrm{conn.}(t_f, t, t_i) =& -\epsilon^{abc}\epsilon^{\bar{a}\bar{b}\bar{c}} S_{\alpha_1\alpha_2 \alpha_3} \bar{S}_{\bar{\alpha}_1 \bar{\alpha}_2 \bar{\alpha}_3}\\
+&\quad\quad\Big\langle \big(
+({\cal D}_1\Box d)^a_{\alpha_1}
+({\cal D}_2\Box u)^b_{\alpha_2}
+({\cal D}_3\Box u)^c_{\alpha_3} \big)(t_f)\\&\quad\quad\cdot
+\big(\bar{u}\Gamma u\big)(t)
+\cdot \big( (\bar d\Box\bar{\cal D}_1)^{\bar{a}}_{\bar\alpha_1}
+(\bar u\Box\bar{\cal D}_2)^{\bar{b}}_{\bar\alpha_2}
+(\bar u\Box\bar{\cal D}_3)^{\bar{c}}_{\bar\alpha_3}\big)(t_i)
+\Big\rangle,
+\end{split}
+\end{equation}
+夸克场积分后有四种 Wick 收缩。
+式~\ref{eqn:genperam} 中上夸克的广义 perambulator
+记为
+\begin{equation}
+\widetilde{\tau}_U(t_f,t,t_i)  =
+V^\dagger(t_f) M_u^{-1}(t_f,t)\Gamma(t) M_u^{-1}(t,t_i) V(t_i)
+\end{equation}
+下夸克类似。由于插入中的夸克成对出现，
+连通三点关联器可以写成两个两点关联函数之和，
+依次把每个上夸克 perambulator 替换为相应的广义 perambulator；
+\begin{equation}
+C^{(3)}_u(t_f,t,t_i) = C^{(2)}[\tau_D,\tau_U,\widetilde{\tau}_U](t) +
+C^{(2)}[\tau_D,\widetilde{\tau}_U,\tau_U](t).
+\end{equation}
+下夸克的贡献可写为
+\begin{equation}
+C^{(3)}_d(t_f,t,t_i) = C^{(2)}[\widetilde{\tau}_D,\tau_U,\tau_U](t).
+\end{equation}
+这种构造是三点函数的普遍特征。
+
+如同前面两点与三点关联器的例子，
+源汇算符的选择独立于 perambulator 与广义 perambulator 的计算。
+后者（广义 perambulator）可在介子三点关联器
+计算之间共享。此外，对于简并夸克，
+无论流插在哪条味的夸克线上，都只需计算一个广义 perambulator。
+于是，各种不同三点关联函数的总计算量是可控的。
