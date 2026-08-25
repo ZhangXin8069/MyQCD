@@ -1,0 +1,102 @@
+\chapter{模拟引擎与信号增强}
+
+从 Wilson 作用量到一个物理数字之间隔着机器：一个采样规范场的算法、
+一个改进的费米子离散化，以及让强子信号在部分子物理所需的大动量下
+可见的涂抹技术。本章四篇论文是这台机器的承重构件；另有两篇
+（G\"usken 等 1989 的 Wuppertal 涂抹与 Sheikholeslami--Wohlert 1985
+的 clover 改进项）被库内系综使用得如此普遍，在此一并致意而不单独立条。
+
+% ----------------------------------------------------------------------
+\section{混合蒙特卡洛（HMC）}
+\papercard{S.\ Duane, A.\ D.\ Kennedy, B.\ J.\ Pendleton, D.\ Roweth}
+{Hybrid Monte Carlo}
+{Phys.\ Lett.\ B \textbf{195}, 216--222 (1987)}
+{无 arXiv（印本前时代）| DOI: 10.1016/0370-2693(87)90011-7}
+\whyselected{HMC 是本库所用几乎所有动力学系综（MILC HISQ、CLS、CLQCD
+clover 系综、domain wall）背后的引擎。库内的 HMC 自动调参论文、两篇
+流式采样论文以及粲介子系综论文都明确引用它。}
+\physics{HMC 把分子动力学与 Metropolis 联姻：为场变量附加动量 $p$，
+沿虚拟哈密顿量轨迹积分长度 $\tau$，
+\begin{equation}
+  H = \frac{1}{2}p^2 + S[U], \qquad \dot U = i\!\left[\frac{\partial H}{\partial p}\right]\!U ,
+\end{equation}
+终点以概率 $\min(1,e^{-\Delta H})$ 接受。由于积分子可逆且保体积，
+细致平衡严格成立，而全局提议抑制随机游走行为：去相关随 $\tau$ 增长
+而非随步数增长。其代价——反复求解 Dirac 方程——推动了三十年的求解器
+革新，最终结晶为本库所用的 QUDA 等库中的多重网格与混合精度算法。}
+\impact{本库每项格点 PDF 计算的每个系综都由 HMC 或其直接后代
+（Hasenbusch 质量预处理、多时间标度）生成。第八章的 AI 采样路线把
+自身定义为叠加在同一 Metropolis 逻辑之上的替代提议层——并以本文为其
+基线。}
+\cardend
+
+% ----------------------------------------------------------------------
+\section{解析链涂抹（stout smearing）}
+\papercard{C.\ Morningstar and M.\ Peardon}
+{$SU(3)$ 链变量在格点 QCD 中的解析涂抹}
+{Phys.\ Rev.\ D \textbf{69}, 054501 (2004)}
+{arXiv:hep-lat/0307022 | DOI: 10.1103/PhysRevD.69.054501}
+\whyselected{stout 涂抹作为流的离散祖先贯穿本库的梯度流章节，出现在
+L\"uscher 本人论文的参考文献中（流语料内约 $\sim$7/99）。它也是涂抹
+准 PDF 计算的标准降噪工具。}
+\physics{细链被向 staple 力做一步指数更新而替换为光滑链，
+\begin{equation}
+  U_\mu(n)\;\to\; e^{\,\mathrm{i}\rho\,\Omega_\mu(n)}\,U_\mu(n),\qquad
+  \Omega_\mu = \mathrm{antiherm}\Big(\sum_{\pm\nu\neq\mu}\!U_\nu(n)U_\mu(n+\hat\nu)U^\dagger_\nu(n+\hat\mu)\Big),
+\end{equation}
+迭代数次。更新对链变量解析、按构造规范协变且代价低廉。它与梯度流的
+联系是本质性的：权重 $\rho$ 的 stout 涂抹正是第三章流方程
+（式~\ref{eq:flow}）取流时间步长 $t=\rho$ 的 Euler 离散化。}
+\impact{"stout = 粗粒化的流"这一等价性正是 L\"uscher~2010 论证流之
+物理含义的方式；Monahan 与 Orginos 在用连续流涂抹准 PDF 算符时利用了
+同一结构（第六章）。在本库内它也是核子结构矩阵元的主力涂抹手段。}
+\cardend
+
+% ----------------------------------------------------------------------
+\section{蒸馏（distillation）}
+\papercard{M.\ Peardon, J.\ Bulava, J.\ Foley, C.\ Morningstar, J.\ Juge,
+A.\ J\"uttner, K.\ Orginos, et al.\ (Hadron Spectrum Collaboration)}
+{用于格点 QCD 强子物理的一种新型夸克场产生算符构造}
+{Phys.\ Rev.\ D \textbf{80}, 054506 (2009)}
+{arXiv:0905.2160 | DOI: 10.1103/PhysRevD.80.054506}
+\whyselected{本库原文之一，也是库内整个 HadStruc 伪分布纲领（胶子
+PDF、胶子螺旋度、高动量蒸馏）的使能技术：至少 4 篇库内论文以其为方法
+出处。}
+\physics{与其在源或汇处临时应用 Jacobi 涂抹，不如一劳永逸地固定一个
+由各时间片三维拉普拉斯算符低模构成投影算符，
+\begin{equation}
+  \square^{[N]}(t)=\sum_{k=1}^{N}\lvert v_k(t)\rangle\langle v_k(t)\rvert,\qquad
+  -\square_3\,v_k=\lambda_k v_k,
+\end{equation}
+并把每个夸克传播子通过 \emph{perambulator} $\tau$ 写出——它是每个
+组态只需计算一次的小对象：
+$\langle x|e^{-Ht}|y\rangle = \Phi(x,t)\,\tau(t)\,\Phi^\dagger(y,0)$。
+此后任意多个插符可以\emph{事后}组合成变分矩阵，无需新的 Dirac 求逆。
+L\"uscher--Wolff 变分法因此变得可以规模化使用。}
+\impact{在本库内，Egerer 等人的《高动量下的蒸馏》通过附加动量相位把
+该思想推进到核子动量 3 GeV 以上——恰是伪 ITD 胶子计算（Khan 等、
+Egerer 等）运作的区域。HadStruc 的胶子 PDF 路线离开这篇论文不可想象。}
+\cardend
+
+% ----------------------------------------------------------------------
+\section{动量涂抹（momentum smearing）}
+\papercard{G.\ S.\ Bali, B.\ Lang, B.\ U.\ Musch, A.\ Sch\"afer}
+{格点 QCD 中高动量强子的新型夸克涂抹}
+{Phys.\ Rev.\ D \textbf{93}, 094515 (2016)}
+{arXiv:1602.05525 | DOI: 10.1103/PhysRevD.93.094515}
+\whyselected{本语料库中每个 boosted 强子计算的标准信号增强工具：
+LaMET 螺旋度、横率、氘核样双重子与运动学增强插符等论文均引用
+（约 $\sim$6/99）。}
+\physics{普通空间涂抹优化的是与\emph{静止系}波函数的重叠；高速强子的
+波函数在振荡，重叠随 $P^z$ 幂次衰减。动量涂抹给涂抹核乘上针对目标
+动量调谐的平面波相位，
+\begin{equation}
+  \tilde\psi(\mathbf{x}) = \sum_{\mathbf{y}} e^{\,\mathrm{i}\mathbf{P}\cdot(\mathbf{x}-\mathbf{y})}\,
+  K(\mathbf{x}-\mathbf{y})\,\psi(\mathbf{y}),
+\end{equation}
+使涂抹后的算符追踪运动态。$P^z\sim1$--$2$ GeV 三点函数的信噪比改善数
+倍——常常就是"能提取 PDF"与"不能提取"的分界。}
+\impact{在本库内它与蒸馏结合于 HadStruc 系列；Zhang 等的运动学增强
+插符论文（报告 $P^2$ 增强重叠再带来量级级增益）与之互补，共同定义了
+高动量矩阵元的当前技艺水准。}
+\cardend

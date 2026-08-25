@@ -1,0 +1,92 @@
+\chapter{Stochastic Quantization Reborn: AI Sampling}
+
+The newest pillar of the library is machine-learning sampling. Its
+physical root is forty years older: stochastic quantization represents
+quantum field theory as Langevin diffusion, and generative diffusion
+models are exactly time-reversed Langevin dynamics. Two original articles
+of the library founded the lattice application.
+
+% ----------------------------------------------------------------------
+\section{Stochastic Quantization}
+\papercard{G.\ Parisi, Y.-S.\ Wu}
+{Perturbation theory without gauge fixing}
+{Sci.\ Sinica \textbf{24}, 483 (1981)}
+{No arXiv (preprint era)}
+\whyselected{Root of the entire AI-sampling line ($\sim$3/99 within the
+AI corpus, plus conceptual citations in flow papers): the idea that a
+quantum field theory equals the equilibrium statistics of a stochastic
+process predates, and now powers, the machine-learning era.}
+\physics{Promote fields to functions of a fictitious fifth time $s$
+governed by Langevin dynamics,
+\begin{equation}
+  \frac{\partial A_\mu(x,s)}{\partial s}
+   = -\frac{\delta S[A]}{\delta A_\mu(x,s)} + \eta_\mu(x,s),
+   \qquad
+   \langle\eta_\mu(x,s)\eta_\nu(y,s')\rangle = 2\delta_{\mu\nu}\delta(x-y)\delta(s-s'),
+\end{equation}
+whose equilibrium distribution is $e^{-S}$. Because the drift is gauge
+covariant, no gauge fixing is needed --- perturbation theory proceeds in
+the physical (transverse) subspace automatically, and the Fokker--Planck
+operator generates the renormalization group (Zinn--Justin). The flow-time
+structure will reappear verbatim in L\"uscher's gradient flow, with
+deterministic drift replacing the noise average.}
+\impact{Wang--Aarts--Zhou's diffusion-as-stochastic-quantization paper
+(in the library) makes the correspondence exact and constructive:
+training a score-based diffusion model reproduces the reverse Langevin
+process, yielding Boltzmann-distributed samples of the field theory.}
+\cardend
+
+% ----------------------------------------------------------------------
+\section{Flow-Based MCMC}
+\papercard{M.\ S.\ Albergo, G.\ Kanwar, P.\ E.\ Shanahan}
+{Flow-based generative models for Markov chain Monte Carlo in lattice
+field theory}
+{Phys.\ Rev.\ D \textbf{100}, 034515 (2019)}
+{arXiv:1904.12072 | DOI: 10.1103/PhysRevD.100.034515}
+\whyselected{Founding article of machine-learning sampling for lattice
+field theory, and an original article of this library ($\sim$4/99 within
+its niche): cited by every AI-for-lattice paper of the corpus.}
+\physics{Train an invertible neural network $f_\phi$ as a proposal
+distribution $q_\phi(\phi)=p_0(f_\phi(\phi))|\det J_{f_\phi}|$, then use
+it inside Metropolis--Hastings with acceptance
+$\min(1, e^{-S[\phi]}/e^{-S[f_\phi(\phi)]}\cdot q/p)$: exactness of the
+target distribution survives any imperfection of the learned model.
+Demonstrated on 2d $\phi^4$ theory, the approach suppresses critical
+slowing-down precisely where local algorithms fail, and trains without
+samples of the target distribution --- only the action enters the loss.
+This resolves the classic chicken-and-egg problem of simulation-based
+learning.}
+\impact{Within the library this paper is the common ancestor of the
+equivariant-gauge extension below, of the diffusion-as-stochastic-
+quantization line, and of the physics-driven-learning agenda for inverse
+problems; conceptually it realizes the trivializing-map dream of
+Chapter~3 with learnable maps.}
+\cardend
+
+% ----------------------------------------------------------------------
+\section{Gauge Equivariance at Scale}
+\papercard{G.\ Kanwar, M.\ S.\ Albergo, D.\ Boyda, K.\ Cranmer,
+D.\ C.\ Hackett, S.\ Racani\`ere, D.\ J.\ Rezende, P.\ E.\ Shanahan}
+{Equivariant flow-based sampling for lattice gauge theory}
+{Phys.\ Rev.\ Lett.\ \textbf{125}, 121601 (2020)}
+{arXiv:2003.06413 | DOI: 10.1103/PhysRevLett.125.121601}
+\whyselected{Original article of this library; the demonstration that
+machine learning can attack the hardest sampling problem of lattice QCD
+--- topology ($\sim$3/99 within its niche).}
+\physics{Build the flow from layers that commute with gauge
+transformations (maskings coupling links to plaquette-derived functions,
+coupling kernels projected onto the group through exponentiated traces),
+so that $q_\phi(U^g)=q_\phi(U)$ and the sampled ensemble is manifestly
+gauge invariant. Applied to 2d $U(1)$ pure gauge near the continuum
+limit, trained models reduce the autocorrelation time of the topological
+charge by factors of $\sim1500$ relative to HMC and $\sim200$ relative to
+heat bath --- attacking the exponential freezing of topology that plagues
+fine-lattice QCD simulations cited since L\"uscher's own work on open
+boundary conditions.}
+\impact{The library frames its AI-for-QCD narrative around this result:
+symmetry-respecting architectures are not a constraint but the source of
+the gain --- the same lesson its agentic-computing papers draw when they
+insist that deterministic domain tools must remain in charge of the
+physics while language models orchestrate. The circle back to
+Parisi--Wu and to trivializing maps closes here.}
+\cardend
