@@ -1,0 +1,258 @@
+\section{分子动力学演化}
+\label{sec:force}
+
+stout 链接方案的解析性，使得对用 stout 链接构造的规范场作用量可以使用
+现代蒙特卡罗更新方法。分子动力学演化构成许多马尔可夫过程的核心，这些
+过程用于生成非 quenched（含海夸克）QCD 模拟所需的场配置系综%
+\cite{hmcgauge,hmcfermion,hmc,Ralgorithm}。由于底层规范场的小变化总会导致
+stout 链接的小变化，只要 stout 链接的小变化引起作用量的小变化，底层链接
+上的力项就总是良定义的。最近文献~\cite{flic2} 强调了定义一个允许计算分子
+动力学力项的链接涂抹方案的重要性。
+
+$\Sigma_\mu(x)$ 力场描述的是：当规范场链接变量 $U_\mu(x)$ 变化而动量
+$P_\mu(x)$ 与赝费米子场 $\phi(x)$ 固定时，作用量 $S$ 如何变化。因此在本节
+中把作用量写成 $S=S[U]$，忽略其对赝费米子场的依赖。力场的转置由作用量对
+链接变量的导数定义：
+\begin{equation}
+ \Sigma_\mu(x)=\left(\frac{\partial S[U]}{\partial U_\mu(x)}\right)^T.
+\end{equation}
+设作用量可以写成完全由原始细链接（thin links）构造的项 $S_{\rm th}[U]$
+与完全由 stout 链接构造的项 $S_{\rm st}[\tilde{U}]$ 之和：
+\begin{equation}
+  S[U]=S_{\rm th}[U]+S_{\rm st}[\tilde{U}].
+\end{equation}
+于是力场可写为
+\begin{equation}
+  \Sigma_\mu(x)=\Sigma_\mu^{\rm(th)}(x)+\Sigma_\mu^{(0)}(x),
+\end{equation}
+其中
+\begin{equation}
+ \Sigma_\mu^{\rm(th)}(x)=\left(\frac{\partial S_{\rm th}[U]}{
+  \partial U_\mu(x)}\right)^T\!\!\!, \quad
+ \Sigma_\mu^{\rm(0)}(x)=\left(\frac{\partial S_{\rm st}[\tilde{U}]}{
+  \partial U_\mu(x)}\right)^T\!\!\!.
+\end{equation}
+$\Sigma_\mu^{\rm(th)}(x)$ 的计算通常是直截了当的，无需多加讨论；现在我们
+集中讨论 $\Sigma_\mu^{\rm(0)}(x)$ 的求值。
+
+回顾 stout 链接是从原始链接出发迭代构造的
+$U\rightarrow U^{(1)}\rightarrow U^{(2)}
+ \rightarrow\cdots\rightarrow U^{(n_\rho)}=\tilde{U}$。
+力场的计算同样以迭代方式进行，只是次序颠倒：
+$\tilde\Sigma=\Sigma^{(n_\rho)}\rightarrow\Sigma^{(n_\rho\!-\!1)}
+\rightarrow\cdots\rightarrow\Sigma^{(1)}\rightarrow\Sigma^{(0)}$。
+序列从计算下式开始：
+\begin{equation}
+ \tilde{\Sigma}_\mu(x)=\left(\frac{\partial S_{\rm st}[\tilde{U}]}{
+  \partial \tilde{U}_\mu(x)}\right)^T.
+\end{equation}
+这一步依赖于用 stout 链接表出的规范与费米子作用量的具体形式，通常与计算
+$\Sigma_\mu^{\rm(th)}(x)$ 同样直截了当。在随后的步骤中，用 $\Sigma^{(k)}$
+与 $U^{(k\!-\!1)}$ 计算 $\Sigma^{(k-1)}$，其中第 $k$ 层的有效力定义为
+\begin{equation}
+  \Sigma_\mu^{(k)}(x)=\left(\frac{\partial S_{\rm st}[\tilde{U}]}{
+  \partial U_\mu^{(k)}(x)}\right)^T.
+\end{equation}
+递归映射
+\begin{equation}
+   \left\{  \Sigma^{(k)}, U^{(k-1)}\right\}
+  \longrightarrow \Sigma^{(k-1)}
+\label{eq:mapping}
+\end{equation}
+反复进行，直到最终求出 $\Sigma^{(0)}$。
+
+在基于分子动力学的蒙特卡罗方法中，例如 HMC\cite{hmc} 与
+$R$ 算法\cite{Ralgorithm}，场配置经由哈密顿方程穿越相空间的流动由一个虚拟
+的模拟时间坐标 $\tau$ 参数化。为了确定式~(\ref{eq:mapping}) 的映射，方便
+的做法是用作用量相对该时间坐标 $\tau$ 的变化率来表示力场：
+\begin{equation}
+  \frac{d}{d\tau}S_{\rm st}[\tilde{U}] = 2\sum_{x,\mu} \ReTr \left\{
+        \Sigma_\mu^{(k)}(x)   \;
+        \frac{d}{d\tau} U^{(k)}_\mu(x)
+\right\},
+\end{equation}
+对 $k=0,1,\dots,n_\rho$ 成立。接着使用链式法则：
+\begin{eqnarray}
+\frac{dU^{(k)}_\mu(x)}{d\tau} &=&  e^{i Q^{(k-1)}_\mu(x)}
+   \frac{dU^{(k-1)}_\mu(x)}{d\tau} \nonumber\\
+   &&+ \frac{d(e^{i Q^{(k-1)}_\mu(x)})}{d\tau} U^{(k-1)}_\mu(x).
+\end{eqnarray}
+为简化记号，在下面的计算中把
+$Q^{(k-1)}_\mu(x),\ U^{(k-1)}_\mu(x),\ \Sigma^{(k-1)}_\mu(x)$
+简写作 $Q,U,\Sigma$，并把 $\Sigma^{(k)}_\mu(x)$ 与 $U^{(k)}_\mu(x)$ 简写作
+$\Sigma^\prime$ 与 $U^\prime$。Cayley-Hamilton 定理给出
+\begin{eqnarray}
+    \frac{d(e^{i Q})}{d\tau} &=& \frac{d}{d\tau}
+             \left(f_0 + f_1 Q + f_2 Q^2\right),\nonumber\\
+   &=& \frac{df_0}{d\tau}+\frac{df_1}{d\tau}Q+\frac{df_2}{d\tau}Q^2\nonumber\\
+    &&   + f_1\frac{dQ}{d\tau}+f_2\frac{dQ}{d\tau}Q+f_2Q\frac{dQ}{d\tau}.
+\end{eqnarray}
+由于 $f_j$ 系数只是 $u,w$ 的函数 $f_j=f_j(u,w)$，有
+\begin{equation}
+    \frac{df_j}{d\tau} = \left(\frac{\partial f_j}{\partial u}\right)
+   \frac{du}{d\tau}
+    + \left(\frac{\partial f_j}{\partial w}\right)
+   \frac{dw}{d\tau},
+\end{equation}
+又因 $u,w$ 只是 $c_0,c_1$ 的函数，于是
+\begin{eqnarray}
+ \frac{du}{d\tau} &=& \left(\frac{\partial u}{\partial c_0}\right)
+   \frac{dc_0}{d\tau}
+                     +\left(\frac{\partial u}{\partial c_1}\right)
+   \frac{dc_1}{d\tau},\\
+ \frac{dw}{d\tau} &=& \left(\frac{\partial w}{\partial c_0}\right)
+    \frac{dc_0}{d\tau}
+                     +\left(\frac{\partial w}{\partial c_1}\right)
+   \frac{dc_1}{d\tau}.
+\end{eqnarray}
+接下来可得
+\begin{eqnarray}
+    \frac{dc_0}{d\tau} &=& {\textstyle\frac{1}{3}}
+    \frac{d}{d\tau} \Tr(Q^3) =
+ \Tr\left(Q^2 \frac{dQ}{d\tau}\right),\\
+    \frac{dc_1}{d\tau} &=& {\textstyle\frac{1}{2}}
+   \frac{d}{d\tau} \Tr (Q^2) =
+\Tr\left(Q \frac{dQ}{d\tau}\right),
+\end{eqnarray}
+以及
+\begin{equation}
+\begin{array}{ll}
+\displaystyle\frac{\partial u}{\partial c_0}=\frac{1}{2(9u^2-w^2)}, &
+\ \displaystyle \frac{\partial u}{\partial c_1}=\frac{u}{(9u^2-w^2)}, \\[5mm]
+\displaystyle\frac{\partial w}{\partial c_0}=\frac{-3u}{2w(9u^2-w^2)}, &
+\ \displaystyle \frac{\partial w}{\partial c_1}=\frac{3u^2-w^2}{2w(9u^2-w^2)}.
+\end{array}
+\end{equation}
+现在定义
+\begin{equation}
+r_j^{(1)} = \frac{\partial h_j}{\partial u},\qquad
+r_j^{(2)} =\frac{1}{w}\frac{\partial h_j}{\partial w},
+\end{equation}
+以及
+\begin{eqnarray}
+ b_{1j} &=& \frac{2ur_j^{(1)}+
+    (3u^2\!-\!w^2)r^{(2)}_j-2(15u^2\!+\!w^2)f_j}{2(9u^2-w^2)^2},\\
+ b_{2j}&=& \frac{r_j^{(1)}-3ur^{(2)}_j-24uf_j}{
+   2(9u^2-w^2)^2},
+\end{eqnarray}
+则
+\begin{equation}
+ \frac{df_j}{d\tau}=b_{1j}\Tr\left(Q\frac{dQ}{d\tau}\right)
+   +b_{2j}\Tr\left(Q^2\frac{dQ}{d\tau}\right),
+\end{equation}
+其中
+\begin{eqnarray}
+r^{(1)}_0 &=& 2\Bigl(u+i(u^2\!-\!w^2)\Bigr)e^{2i u}\nonumber\\
+  &&+2e^{-i u}\Bigl\{
+ 4u\bigl(2\!-\!i u  \bigr)\cos w \nonumber\\
+  && +i\bigl(9u^2+w^2-i u( 3u^2+w^2) \bigr)\xi_0( w)
+  \Bigr\}, \\
+r^{(1)}_1 &=& 2(1+2i u)e^{2i u}+e^{-i u}\Bigl\{
+    -2(1-i u) \cos w \nonumber\\
+  &&  +i\bigl( 6u +i(w^2-3u^2) \bigr)\xi_0( w)
+   \Bigr\}, \\
+r^{(1)}_2 &=&  2i e^{2i u}+i e^{-i u}\Bigl\{
+   \cos w -3 (1-i  u)  \xi_0( w)
+   \Bigr\},\\
+r^{(2)}_0 &=& -2e^{2i u}+2i ue^{-i u}\Bigl\{
+  \cos w \nonumber\\
+  && +( 1+4i u) \xi_0( w)
+  +3u^2\xi_1( w)\Bigr\}, \\
+r^{(2)}_1 &=& -i e^{-i u}\Bigl\{
+   \cos w  +(1+2i u)\xi_0( w)\nonumber\\
+  &&-3u^2\xi_1( w)\Bigr\}, \\
+r^{(2)}_2 &=&   e^{-i u}\Bigl\{
+     \xi_0( w)
+   -3i  u \xi_1( w)\Bigr\},
+\end{eqnarray}
+且
+\begin{eqnarray}
+ \xi_0(w) &=& \frac{\sin w}{w},\\
+ \xi_1(w) &=& \frac{\cos w}{w^2}-\frac{\sin w}{w^3}.
+\end{eqnarray}
+综合以上结果，
+\begin{eqnarray}
+\frac{d(e^{i Q})}{d\tau}&=&\Tr\left(Q\frac{dQ}{d\tau}\right) B_1
++\Tr\left(Q^2\frac{dQ}{d\tau}\right) B_2\nonumber\\
+&&+ f_1\frac{dQ}{d\tau}+f_2\frac{dQ}{d\tau}Q+f_2Q\frac{dQ}{d\tau},
+\label{eq:dRdef}
+\end{eqnarray}
+其中
+\begin{equation}
+ B_i = b_{i0}+b_{i1}\ Q + b_{i2}\ Q^2.
+\end{equation}
+数值上敏感的 $w\rightarrow 0$ 极限已被完全吸收进 $\xi_0$ 与 $\xi_1$；
+而 $c_0\rightarrow -c_0^{\rm max}$ 时的数值困难可以利用如下对称关系
+绕开：
+\begin{equation}
+  b_{ij}(-c_0,c_1)=
+  (-)^{i+j+1}\ b_{ij}^\ast(c_0,c_1). \label{eq:bsym}
+\end{equation}
+再次强调，这些系数是行为良好、无奇点的 $c_0,c_1$ 函数。
+
+于是，stout 链接相对模拟时间的变化率为
+\begin{eqnarray}
+  \frac{dU^\prime}{d\tau} &=& e^{i Q} \frac{dU}{d\tau}
+  + \biggl\{  \Tr\left(Q\frac{dQ}{d\tau}\right) B_1
+   +\Tr\left(Q^2\frac{dQ}{d\tau}\right) B_2 \nonumber\\
+   &&\qquad + f_1\frac{dQ}{d\tau}+f_2\frac{dQ}{d\tau}Q+f_2Q\frac{dQ}{d\tau}
+ \biggr\} U,
+\end{eqnarray}
+从而
+\begin{equation}
+\ReTr\left(\Sigma^\prime
+  \frac{dU^\prime}{d\tau}\right)
+ =\ReTr\left(\Sigma^\prime e^{i Q} \frac{dU}{d\tau}\right)
+                    - \ReTr\left(i\Lambda \frac{d\Omega}{d\tau}\right),
+   \label{eqn:diff-stouttrace}
+\end{equation}
+其中定义了
+\begin{eqnarray}
+   \Lambda &=&
+   \frac{1}{2} (\Gamma + \Gamma^\dagger) - \frac{1}{2N}
+      \Tr\left(\Gamma + \Gamma^\dagger\right), \label{eq:Lambda}\\
+  \Gamma &=&
+  \Tr(\Sigma^\prime B_1 U) \; Q
++ \Tr(\Sigma^\prime B_2 U) \; Q^2 \nonumber\\
+&&+ f_1  \; U \Sigma^\prime
++ f_2  \; Q U \Sigma^\prime
++ f_2  \; U \Sigma^\prime Q.
+\label{eqn:gamma-def}
+\end{eqnarray}
+可以看到，$\Gamma^{(k-1)}_\mu(x)$ 从而 $\Lambda_\mu^{(k\!-\!1)}(x)$ 在每条
+格点链接上由链接变量 $U^{(k-1)}_\mu(x)$ 与 $\Sigma^{(k)}_\mu(x)$ 确定。
+此处，$C_\mu(x)$ 中 staple 构造的细节开始介入。给定式~(\ref{eq:Cdef}) 并
+利用迹的循环性与平移不变性，最终得到如下递归关系：
+\begin{eqnarray}
+&&\Sigma_\mu(x) = \Sigma_\mu^\prime(x)
+  \Bigl(f_0I+f_1Q_\mu(x)+f_2Q_\mu^2(x)\Bigr)\nonumber\\
+   &&+iC^\dagger_\mu(x)\Lambda_\mu(x)  -i
+ \displaystyle\sum_{\nu\neq\mu}\Bigl\{
+\nonumber\\ &&
+ \begin{array}[t]{l}
+ \phantom{+} \rho_{\nu\mu}U_\nu(x\!+\!\hat{\mu})
+       U^\dagger_\mu(x\!+\!\hat{\nu})U^\dagger_\nu(x)\Lambda_\nu(x) \\[1ex]
+ +\rho_{\mu\nu}U^\dagger_\nu(x\!-\!\hat{\nu}\!+\!\hat{\mu})
+   U^\dagger_\mu(x\!-\!\hat{\nu})\Lambda_\mu(x\!-\!\hat{\nu})
+   U_\nu(x\!-\!\hat{\nu})    \\[1ex]
++\rho_{\nu\mu}U^\dagger_\nu(x\!-\!\hat{\nu}\!+\!\hat{\mu})
+  \Lambda_\nu(x\!-\!\hat{\nu}\!+\!\hat{\mu})
+  U^\dagger_\mu(x\!-\!\hat{\nu}) U_\nu(x\!-\!\hat{\nu}) \\[1ex]
+-\rho_{\nu\mu} U^\dagger_\nu(x\!-\!\hat{\nu}\!+\!\hat{\mu})
+ U^\dagger_\mu(x\!-\!\hat{\nu}) \Lambda_\nu(x\!-\!\hat{\nu})
+  U_\nu(x\!-\!\hat{\nu}) \\[1ex]
+-\rho_{\nu\mu}  \Lambda_\nu(x\!+\!\hat{\mu})U_\nu(x\!+\!\hat{\mu})
+   U^\dagger_\mu(x\!+\!\hat{\nu})
+   U^\dagger_\nu(x) \\[1ex]
++\rho_{\mu\nu}U_\nu(x\!+\!\hat{\mu})U^\dagger_\mu(x\!+\!\hat{\nu})
+ \Lambda_\mu(x\!+\!\hat{\nu})
+ U^\dagger_\nu(x)
+ \Bigr\},\end{array} \nonumber\\[-6mm]
+\label{eq:sigma}
+\end{eqnarray}
+其中不带撇的量属于第 $(k-1)$ 步，带撇的量属于第 $k$ 步。
+
+尽管力场与底层链接变量之间的关系十分复杂，上述递归计算的每一步却是
+直截了当的，便于在软件中自然、高效地实现。在整个有限复平面上的解析性在
+这里是重要性质：若 $\Sigma^{(k)}_\mu(x)$ 行为良好，则 $\Sigma^{(0)}_\mu(x)$
+必然也如此。注意，上述形式体系可以容易地移植到 $C_\mu(x)$ 的其他定义。

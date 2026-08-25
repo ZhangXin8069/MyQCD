@@ -1,0 +1,151 @@
+\section{威尔逊流的数值积分}
+
+第~1 节的讨论现在提示我们把 HMC 算法与
+上一节构造的平凡化流所生成的场变换结合起来。
+特别是，若采用 Wilson 规范作用量，
+由威尔逊流生成的变换
+可能导致采样效率更高的算法。
+
+
+\subsection{正向积分}
+
+原则上可用于积分威尔逊流的数值积分方法有很多
+（例如参见文献~\cite{HairerEtAl}）。
+下面讨论的欧拉（Euler）格式
+以步长 $\eps$ 进行时间积分，
+并逐一更新链接变量：
+\begin{equation}
+   U(x,\mu)\to U'(x,\mu)=\rme^{\eps [Z(U)](x,\mu)}U(x,\mu),
+\end{equation}
+其中
+\begin{equation}
+   [Z(U)](x,\mu)=T^a\du^a_{x,\mu}\Wl_0(U).
+\end{equation}
+于是，从时刻 $t$ 的规范场 $U_t$ 出发，
+时刻 $t+\eps$ 的场通过遍历格点上所有链接 $(x,\mu)$
+并更新驻留在其上的链接变量而得到。
+注意链接的次序是重要的，
+因为在转向下一条链接之前，
+$U(x,\mu)$ 的旧值已被新值取代。
+
+流的生成元可以显式地写为
+\begin{multline}
+   [Z(U)](x,\mu)=
+   -\sum_{\nu\neq\mu}\Proj\bigl\{
+   U(x,\mu)U(x+\hat{\mu},\nu)U(x+\hat{\nu},\mu)^{-1}U(x,\nu)^{-1}\\
+   +U(x,\mu)U(x+\hat{\mu}-\hat{\nu},\nu)^{-1}U(x-\hat{\nu},\mu)^{-1}
+   U(x-\hat{\nu},\nu)\bigr\},
+\end{multline}
+其中 $\hat{\mu}$ 表示 $\mu$ 方向的单位矢量，而
+\begin{equation}
+   \Proj\bigl\{M\bigr\}=\frac{1}{2}\bigl(M-M^{\dagger}\bigr)-
+   \frac{1}{6}\tr\bigl(M-M^{\dagger}\bigr)
+\end{equation}
+把任意 $3\times3$ 矩阵 $M$ 投影到 $\Lie$ 上。
+因此，威尔逊流的欧拉积分相当于执行若干步``stout 涂抹''（stout smearing）~\cite{Stout}，
+区别在于这里链接变量是逐个更新而非同时更新。
+
+
+\subsection{反向积分}
+
+施加 $n$ 次欧拉扫描
+把初始场 $V=U_0$
+映射到时刻 $t=n\eps$ 的场 $U=U_{n\eps}$。
+若固定 $t$ 而令 $n\to\infty$，该映射收敛于
+精确积分威尔逊流所得的变换。
+然而，HMC 算法原则上也可以与固定 $n$ 和 $\eps$ 下
+由欧拉积分器定义的映射结合。
+要使这一提议切实可行，
+该变换必须可逆，即必须能够按相反次序
+逐条求逆链接更新步骤来回溯欧拉积分。
+
+因此问题便是：给定 $U'(x,\mu)$（并保持所有其他链接变量不变）时，
+式~(5.1) 是否有唯一解 $U(x,\mu)$。
+如附录 D 所解释的，
+答案是肯定的：对场变量的任意取值，只要
+\begin{equation}
+  |\eps|<\frac{1}{8}.
+\end{equation}
+此外，在这一 $\eps$ 范围内，
+解 $U(x,\mu)=\rme^{-\eps X_{*}}U'(x,\mu)$
+可以通过如下不动点迭代求得：
+\begin{align}
+  &X_0=0,
+  \\[1.0ex]
+  &X_{n+1}=\bigl\{[Z(U)](x,\mu)\bigr\}_{
+  U(x,\mu)=\rme^{-\eps X_n}U'(x,\mu)},
+  \qquad
+  n=0,1,2,\ldots,
+\end{align}
+它以指数速率收敛到 $X_{*}$。
+
+附录 D 还证明了
+变换 (5.1) 的雅可比行列式在范围 (5.5) 内严格为正。
+因此，通过对威尔逊流作欧拉积分得到的场变换是场流形的保持定向的微分同胚，
+正如对场空间的可接受映射所要求的那样。
+
+
+\subsection{欧拉积分器的雅可比矩阵}
+
+欧拉步 (5.1) 相当于把场变换
+\begin{equation}
+  [\euler{x,\mu}(U)](y,\nu)=
+  \begin{cases}
+    \rme^{\eps [Z(U)](x,\mu)}U(x,\mu)
+    & \text{若 $(y,\nu)=(x,\mu)$,}\\[1.0ex]
+    U(y,\nu) & \text{其他情形,}
+  \end{cases}
+\end{equation}
+作用于当前规范场。
+于是一次欧拉扫描就是这些变换遍及所有链接 $(x,\mu)$ 的复合积。
+容易证明，复合变换的雅可比矩阵等于各因子雅可比矩阵的乘积。
+因此，欧拉积分器的雅可比矩阵
+是下列单链接变换 (5.8) 的雅可比矩阵的有序乘积：
+\begin{equation}
+  [\euler{x,\mu,*}(U)](y,\nu;z,\rho)^{ac}
+  =-2\,\tr\Bigl\{\du^c_{z,\rho}[\euler{x,\mu}(U)](y,\nu)
+  [\euler{x,\mu}(U)](y,\nu)^{-1}T^a\Bigr\}.
+\end{equation}
+矩阵 (5.9) 可以通过威尔逊流生成元的导数
+\begin{equation}
+  [Z_{*}(U)](y,\nu;z,\rho)^{bc}=
+  \du^c_{z,\rho}[Z(U)]^b(y,\nu)
+\end{equation}
+来表达。
+显式地，利用附录 A 和 B 中列出的 $\Group$ 公式可得
+\begin{multline}
+  [\euler{x,\mu,*}(U)](y,\nu;z,\rho)^{ac}=
+  \delta^{ac}\delta_{yz}\delta_{\nu\rho}
+  +\delta_{xy}\delta_{\mu\nu}
+  \Bigl\{\left(\rme^{\Ad X}-1\right)^{ac}\delta_{yz}\delta_{\nu\rho}\\
+  +\eps J(-X)^{ab}[Z_{*}(U)](y,\nu;z,\rho)^{bc}\Bigr\}_{X=\eps[Z(U)](x,\mu)}.
+\end{multline}
+
+
+\subsection{积分变换的雅可比行列式}
+
+欧拉积分器通过 $n$ 次扫描格点并按规定次序逐一更新链接变量，
+生成一列场
+\begin{equation}
+  V=U_0\to U_{\eps}\to U_{2\eps}\to\ldots\to U_{n\eps}=U.
+\end{equation}
+下文中，从 $U_{k\eps}$ 出发、
+更新所有排在 $(x,\mu)$ 之前的链接上的链接变量后
+得到的中间场组态记为 $U_{k\eps,[x,\mu]}$。
+特别地，若 $(x,\mu)$ 是第一条链接，则 $U_{k\eps,[x,\mu]}=U_{k\eps}$；
+而当 $(y,\nu)$ 在所选链接次序中紧跟 $(x,\mu)$ 之后时，
+\begin{equation}
+  U_{k\eps,[y,\nu]}=\euler{x,\mu}(U_{k\eps,[x,\mu]}).
+\end{equation}
+
+由于变换 $V\to U=\transne(V)$
+是单链接更新步骤的复合积，
+其雅可比行列式
+\begin{equation}
+  \det\transnes(V)=
+  \prod_{k=0}^{n-1}
+  \prod_{x,\mu}\det\euler{x,\mu,*}(U_{k\eps,[x,\mu]})
+\end{equation}
+分解为各步骤雅可比行列式的乘积。
+后者等于某些实 $8\times8$ 矩阵的行列式，
+这些矩阵在附录 C 中被显式给出。

@@ -1,0 +1,154 @@
+\section{场变换}
+
+本文发展的多数概念预期具有广泛的适用性，但如上所述，
+当前直接关心的是格点 QCD。
+因此，下文中规范群取为 $\Group$。
+由于夸克仅充当旁观者的角色，
+只有在第~6 节讨论所提议的格点 QCD 模拟算法时才会把它们加入理论。
+
+\subsection{场空间}
+
+格点理论建立在带有周期性边界条件的有限超立方格点 $\Lambda$ 上。
+为记号方便，格距取为 1。
+按照惯例，规范场变量 $U(x,\mu)\in\Group$
+被假定驻留在格点的链接 $(x,\mu)$ 上
+（其中 $x\in\Lambda$，$\mu=0,\ldots,3$）。
+任意可观测量 $\mathcal{O}(U)$ 的期望值由泛函积分
+\begin{equation}
+  \langle\mathcal{O}\rangle=
+  \frac{1}{\mathcal{Z}}\int\rmD[U]\,\mathcal{O}(U)\,\rme^{-S(U)}
+\end{equation}
+给出，积分遍及规范场空间。在此式中，
+$S(U)$ 表示规范场作用量，
+$\mathcal{Z}$ 为配分函数，
+$\rmD[U]$ 是各链接变量 $U(x,\mu)$
+的归一化 $\Group$ 不变积分测度的乘积。
+
+从纯数学的观点看，
+格点规范场空间是 $\Group$ 的幂，
+因而是紧致连通流形。
+场变换是这个流形到自身的可逆映射。
+此类变换始终要求双向可微且保持定向
+（这里及下文中，``可微''意为``无穷次连续可微''）。
+
+
+\subsection{右不变微分算符}
+
+由于链接变量 $U(x,\mu)$ 取值于李群，
+自然的做法是通过在该群右作用下不变的一组微分算符基
+$\du^a_{x,\mu}$（$a=1,\ldots,8$）
+来表达对它们的微商。
+这些算符作用在规范场的可微函数 $f(U)$ 上的方式为
+\begin{equation}
+  \du_{x,\mu}^af(U)=\left.{\rmd\over\rmd t}
+  f(U_t)\right|_{t=0},\qquad\quad
+  U_t(y,\nu)=
+  \begin{cases}
+    \rme^{tT^a}U(x,\mu) & \text{若 $(y,\nu)=(x,\mu)$,}\\[1.0ex]
+    U(y,\nu)            & \text{其他情形,}
+  \end{cases}
+\end{equation}
+其中 $T^a$ 是 $\Group$ 的生成元（见附录~A）。
+特别地，
+$\du^a_{x,\mu}$ 在 $\Group$ 的左作用下按伴随表示变换。
+
+与算符 $\du^a_{x,\mu}$ 相配的是场流形上的一组 1-形式基，
+\begin{equation}
+  \theta^a_{x,\mu}=-2\,\tr\{\rmd U(x,\mu)U(x,\mu)^{-1}T^a\},
+\end{equation}
+使得对所有函数 $f(U)$ 都有
+\begin{equation}
+  \rmd f(U)=\sum_{x,\mu}\theta^a_{x,\mu}\du^a_{x,\mu}f(U).
+\end{equation}
+
+
+\subsection{雅可比矩阵}
+
+对任一给定的规范场 $V(y,\nu)$，
+变换 (1.1) 给出另一个场
+$U(x,\mu)=[\trans(V)](x,\mu)$。
+考虑这类变换时，
+需要把对 $V$ 的微商与对 $U$ 的微商区分开来。
+相应的 1-形式也必须加以区分。
+下文中，所有带帽符号均表示与 $V$ 相关的量与运算。
+
+雅可比矩阵
+\begin{equation}
+  [\transs(V)](x,\mu;y,\nu)^{ab}=
+  -2\,\tr\{\hat{\du}^b_{y,\nu}U(x,\mu)U(x,\mu)^{-1}T^a\}
+\end{equation}
+可以视为一个线性算符的核，该算符作用于取值在 $\Lie$ 中的链接场。
+特别地，
+\begin{equation}
+  \theta^a_{x,\mu}=\sum_{y,\nu}[\transs(V)](x,\mu;y,\nu)^{ab}
+  \hat{\theta}^b_{y,\nu}.
+\end{equation}
+由于泛函积分测度 $\rmD[U]$
+正比于这些 1-形式的极大乘积，故有
+\begin{equation}
+  \rmD[U]=\rmD[V]\det\transs(V).
+\end{equation}
+因此映射 (1.1) 的雅可比行列式即为 $\det\transs(V)$。
+
+如果变换满足
+\begin{equation}
+  S(\trans(V))-\ln\det\transs(V)=\text{常数},
+\end{equation}
+那么在泛函积分中作积分变量代换 $U\to V$
+便把理论映射到链接变量完全彼此退耦的平凡理论。
+此时期望值 (2.1) 成为
+\begin{equation}
+  \langle\mathcal{O}\rangle=
+  \int\rmD[V]\,\mathcal{O}(\trans(V)).
+\end{equation}
+因此，这类平凡化映射包含理论的全部动力学。
+
+尽管这一评论很可能仍停留在学术层面，
+一个有趣的观察是：积分 (2.9)
+可以通过生成均匀分布的随机规范场来简单地模拟。
+此时相继的场组态之间互不关联，
+因此可观测量 $\mathcal{O}$ 的数据序列中不存在自关联。
+
+
+\subsection{HMC 算法的变换行为}
+
+HMC 算法~\cite{HMC} 运行在与场流形相联系的相空间上。
+特别是，图~1 中 $V\to V'$ 的跃迁
+需要对由哈密顿函数
+\begin{equation}
+  \hat{H}(\hat{\mom},V)=
+  \frac{1}{2}(\hat{\mom},\hat{\mom})+
+  S(\trans(V))-\ln\det\transs(V)
+\end{equation}
+导出的运动方程进行积分，
+其中 $\hat{\mom}(x,\mu)\in\Lie$ 是 $V(x,\mu)$ 的正则动量。
+
+虽然图~1 所描述的场 $U$ 的完整更新算法看起来不同，
+它实际上等价于带非标准哈密顿函数的 HMC 算法。
+注意到从 $V$ 到 $U$ 的变换
+在下述动量变换规则下
+保持辛 2-形式
+\begin{equation}
+  \hat{\Omega}=
+  \sum_{x,\mu}\rmd\{\hat{\mom}^a(x,\mu)\hat{\theta}^a_{x,\mu}\},
+\end{equation}
+即 $\Omega=\hat{\Omega}$，
+便可建立这一等价性：
+\begin{equation}
+  \hat{\mom}^b(y,\nu)
+  =\sum_{x,\mu}[\transs(V)](x,\mu;y,\nu)^{ab}\mom^a(x,\mu).
+\end{equation}
+于是，变换后的场的演化由哈密顿函数
+\begin{equation}
+  H(\mom,U)=
+  \frac{1}{2}(\mom,K(U)\mom)+
+  S(U)-\ln\det\transs(V),
+\end{equation}
+支配，其中
+\begin{equation}
+  K(U)=\transs(V)^T\transs(V),\qquad V=\trans^{-1}(U).
+\end{equation}
+注意，当在泛函积分中对动量积分后，
+式 (2.13) 中的雅可比行列式会抵消。
+因此，图~1 概述的算法相当于采用修改过的哈密顿函数应用 HMC 算法，
+这类做法很久以前已由 Duane 等人~\cite{DuaneEtAl} 考虑过。

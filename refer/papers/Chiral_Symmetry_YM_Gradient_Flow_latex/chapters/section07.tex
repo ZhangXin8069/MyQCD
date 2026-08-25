@@ -1,0 +1,132 @@
+
+
+\lussec 7. Calculation of correlation functions
+
+In numerical lattice QCD,
+correlation functions involving fields 
+at non-zero flow time can be computed
+following the steps usually taken in the 
+case of ordinary hadronic correlation functions.
+The fact that the flow equations must be solved at 
+some point nevertheless represents a complication
+that needs to be carefully considered.
+For illustration, the details are worked out in this section
+for two representative cases.
+
+
+\lussubsec 7.1 Pseudo-scalar two-point function
+
+In practice one is interested in the
+correlation function
+\equation{
+  \langle \Pax^{rs}(x)\Pax_t^{sr}(y)\rangle=
+  -\sum_{v,w}\langle\tr\{
+  [K(t,y;0,v)S(v,x)_{ss}]^{\dagger}K(t,y;0,w)S(w,x)_{rr}\}\rangle
+  \enum
+}
+at vanishing spatial momentum and computes
+its average over a lattice $\Gamma$ of source points,
+using random source fields [\cite{MichaelPeisa}],
+in order to reduce the statistical errors.
+
+If $x$ is taken to be
+the source point, the averaging amounts to the substitution
+\equation{
+  P^{rs}(x)\to {1\over N_{\Gamma}N_s}
+  \sum_{k=1}^{N_s}
+  (\psibar_r,\eta_k)(\eta_k,\dirac{5}\psi_s),
+  \enum
+}
+where $N_{\Gamma}$ is the number of points in $\Gamma$ and
+\equation{
+  \eta_k(x),\quad k=1,\ldots,N_s,
+  \enum
+}
+are randomly chosen complex spinor fields on $\Gamma$ with mean zero
+and variance
+\equation{
+  \langle\eta_k(v)\eta_l(w)^{\dagger}\rangle=
+  \cases{\delta_{kl}\delta_{vw} & if $v,w\in\Gamma$,\cr
+  \noalign{\vskip1.0ex}
+  0 & otherwise.\cr}
+  \enum
+}
+In a QCD simulation,
+the computation of the 
+averaged correlation function at zero spatial momentum,
+\equation{
+  {1\over N_{\Gamma}}\sum_{x\in\Gamma}\sum_{\vec{y}}
+  \langle \Pax^{rs}(x)\Pax_t^{sr}(y)\rangle=
+  -{1\over N_{\Gamma}N_s}\sum_{k=1}^{N_s}
+  \sum_{\vec{y}}\langle\phi_{k,s}(t,y)^{\dagger}\phi_{k,r}(t,y)\rangle,
+  \enum
+}
+then amounts to calculating the functions
+\equation{
+  \phi_{k,h}(t,y)=\sum_{w,x}
+  K(t,y;0,w)S(w,x)_{hh}\eta_k(x)
+  \enum
+}
+for a representative ensemble of gauge fields,
+all $k=1,\ldots,N_s$ and $h=r,s$.
+
+For a given gauge field,
+the computation of $\phi_{k,h}(t,y)$ proceeds in two steps,
+where one first calculates $\phi_{k,h}(0,w)$ by solving
+the lattice Dirac equation with mass $m_{0,h}$ and
+source field $\eta_k(x)$. The calculated field must then 
+be evolved in flow time from time $0$ to time $t$.
+In the direction of increasing flow time,
+the flow equations
+are numerically stable and the solution can easily 
+be obtained, with negligible
+integration errors, using a Runge--Kutta integrator
+(appendix D). 
+
+
+\lussubsec 7.2 Chiral condensate
+
+In the case of the time-dependent quark condensate,
+\equation{
+  \langle S_t^{rr}(x)\rangle=
+  -\sum_{v,w}\langle
+  \tr\{K(t,x;0,v)\left[S(v,w)_{rr}-\cfl\delta_{vw}\right]
+  K(t,x;0,w)^{\dagger}\}\rangle,
+  \enum
+}
+an averaging over the position $x$ is again desirable. 
+Introducing random source fields as above, one is then
+led to the representation
+\equation{
+  {1\over N_{\Gamma}}\sum_{x\in\Gamma}
+  \langle S_t^{rr}(x)\rangle=
+  -{1\over N_{\Gamma}}
+  \sum_{v,w}\langle
+  \xi_k(t;0,v)^{\dagger}\left[S(v,w)_{rr}-\cfl\delta_{vw}\right]
+  \xi_k(t;0,w)\rangle
+  \enum
+}
+in terms of the fields
+\equation{
+  \xi_k(t;s,w)=\sum_x K(t;x;s,w)^{\dagger}\eta_k(x)
+  \enum
+}
+at flow time $s=0$. 
+
+The computation of these fields requires 
+the {\it adjoint flow equation}
+\equation{
+  (\partial_s+\Delta)\xi_k(t;s,w)=0
+  \enum
+}
+to be solved from time $s=t$ (where $\xi_k$ coincides
+with $\eta_k$) to $s=0$. A straightforward Runge--Kutta
+integration should not be used here, because
+the Laplacian $\Delta$ is the one in presence
+of the gauge field determined by the gradient flow at time $s$,
+which would therefore have to be evolved backward in time,
+i.e.~in the unstable direction.
+As explained in appendix E, this difficulty can be overcome
+through a hierarchical scheme that avoids the backward integration
+of the gauge field.
+

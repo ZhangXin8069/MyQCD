@@ -1,0 +1,152 @@
+\section{流方程的迭代解}\label{sec:iterative}
+
+本节引入梯度流，并导出与之相联系的流线图的费曼规则。
+考虑 $D=4-2\eps$ 维欧几里得空间中的纯 $\SUn$ 规范理论，
+基本规范场 $A_{\mu}(x)$ 的归一化取为：在裸耦合 $g_0$ 下其作用量为
+\begin{align}
+  S=-\frac{1}{2g_0^2}\int\rmd^Dx\,\tr\{F_{\mu\nu}(x)F_{\mu\nu}(x)\},
+  \label{eq:2.1}\\[2pt]
+  F_{\mu\nu}=\partial_{\mu}A_{\nu}-\partial_{\nu}A_{\mu}+[A_{\mu},A_{\nu}].
+  \label{eq:2.2}
+\end{align}
+（未加解释的记号见附录~\ref{app:A}。）
+
+\subsection{梯度流的定义}\label{ssec:defflow}
+
+梯度流使规范场作为一个参数 $t\geq0$（称为流时间）的函数而演化。
+从基本规范场出发，
+\begin{equation}
+  \left.B_{\mu}\right|_{t=0}=A_{\mu},
+  \label{eq:2.3}
+\end{equation}
+随时间变化的场 $B_{\mu}(t,x)$ 由微分方程
+\begin{align}
+  \partial_tB_{\mu}=D_{\nu}G_{\nu\mu}+\alpha_0D_{\mu}\partial_{\nu}B_{\nu},
+  \label{eq:2.4}\\[2pt]
+  G_{\mu\nu}=\partial_{\mu}B_{\nu}-\partial_{\nu}B_{\mu}+[B_{\mu},B_{\nu}],
+  \qquad
+  D_{\mu}=\partial_{\mu}+[B_{\mu},\,\cdot\;]
+  \label{eq:2.5}
+\end{align}
+确定。``梯度流''这一名称源于如下事实：式 \eqref{eq:2.4} 右端第一项
+正比于规范作用量沿流的梯度。注意，初始条件 \eqref{eq:2.3}
+与流方程 \eqref{eq:2.4} 都不涉及规范耦合。
+
+式 \eqref{eq:2.4} 右端的第二项是为了阻尼场的规范自由度的演化而加入的。
+与 Langevin 方程的情形 \cite{ZinnZwanziger} 一样，
+这样做可以避免微扰分析中的某些技术性麻烦，
+同时不影响规范不变可观测量的演化。事实上，后者不依赖于参数 $\alpha_0$，
+因为在不同 $\alpha_0$ 值下得到的方程 \eqref{eq:2.4} 的解
+彼此通过一个（依赖时间的）规范变换相联系 \cite{WilsonFlow}。
+
+\subsection{按基本规范场幂次的展开}
+
+可将方程 \eqref{eq:2.4} 分解为线性部分与余项部分：
+\begin{align}
+  \partial_tB_{\mu}=\partial_{\nu}\partial_{\nu}B_{\mu}
+  +(\alpha_0-1)\partial_{\mu}\partial_{\nu}B_{\nu}+R_{\mu},
+  \label{eq:2.6}\\[2pt]
+  R_{\mu}=2[B_{\nu},\partial_{\nu}B_{\mu}]-
+  [B_{\nu},\partial_{\mu}B_{\nu}]+(\alpha_0-1)[B_{\mu},\partial_{\nu}B_{\nu}]
+  +[B_{\nu},[B_{\nu},B_{\mu}]].
+  \label{eq:2.7}
+\end{align}
+线性化后的方程可以利用热核
+\begin{equation}
+  K_t(z)_{\mu\nu}=
+  \int_p{\rme^{ipz}\over p^2}\bigl\{
+  (\delta_{\mu\nu}p^2-p_{\mu}p_{\nu})\rme^{-tp^2}+
+  p_{\mu}p_{\nu}\rme^{-\alpha_0tp^2}\bigr\}
+  \label{eq:2.8}
+\end{equation}
+求解，其中
+\begin{equation}
+  \int_p=\int{\rmd^Dp\over(2\pi)^D}.
+  \label{eq:2.9}
+\end{equation}
+把边界条件 \eqref{eq:2.3} 考虑进去，流方程便可写成积分形式
+\begin{equation}
+  B_{\mu}(t,x)=\int\rmd^Dy\,\Bigl\{
+  K_t(x-y)_{\mu\nu}A_{\nu}(y)
+  +\int_0^t\rmd s\,K_{t-s}(x-y)_{\mu\nu}R_{\nu}(s,y)\Bigr\}.
+  \label{eq:2.10}
+\end{equation}
+由这一表示可以明显看出方程的推迟性质，并且也很清楚：
+场对初值的敏感度随 $t$ 增大而衰减，
+尽管在小动量处衰减得很慢（假定 $\alpha_0$ 为正）。
+
+过渡到动量空间，
+\begin{equation}
+  B_{\mu}(t,x)=\int_p\rme^{ipx}\tilde{B}_{\mu}(t,p),
+  \label{eq:2.11}
+\end{equation}
+积分方程 \eqref{eq:2.10} 成为
+\begin{equation}
+  \tilde{B}_{\mu}(t,p)=\tilde{K}_t(p)_{\mu\nu}\tilde{A}_{\nu}(p)+
+  \int_0^t\rmd s\,\tilde{K}_{t-s}(p)_{\mu\nu}\tilde{R}_{\nu}(s,p).
+  \label{eq:2.12}
+\end{equation}
+此时引入顶点 $\vbulk{2,0}$ 与 $\vbulk{3,0}$ 会带来方便，其定义是
+\begin{align}
+  \tilde{R}_{\mu}^a(t,p)=\sum_{n=2}^3
+  {1\over n!}\int_{q_1}\ldots\int_{q_n}(2\pi)^D\delta(p+q_1+\ldots+q_n)
+  \notag\\[2.5ex]
+  \times\vbulk{n,0}(p,q_1,\ldots,q_n)^{ab_1\ldots b_n}_{\mu\nu_1\ldots\nu_n}
+  \tilde{B}^{b_1}_{\nu_1}(t,-q_1)\ldots\tilde{B}^{b_n}_{\nu_n}(t,-q_n)
+  \label{eq:2.13}
+\end{align}
+并要求它们在动量--指标组合 $(q_1,\nu_1,a_1),\ldots,(q_n,\nu_n,a_n)$
+上全对称。于是，积分方程按基本场幂次的解，
+\begin{align}
+  \tilde{B}_{\mu}^a(t,p)=\tilde{K}_t(p)_{\mu\nu}\tilde{A}_{\nu}^a(p)
+  +\frac{1}{2}\int_0^t\rmd s\,\tilde{K}_{t-s}(p)_{\mu\nu}
+  \int_{q,r}(2\pi)^D\delta(p-q-r)
+  \notag\\[2.5ex]
+  \times
+  \vbulk{2,0}(p,-q,-r)^{abc}_{\nu\rho\sigma}
+  \tilde{K}_{s}(q)_{\rho\delta}\tilde{K}_{s}(r)_{\sigma\tau}
+  \tilde{A}^b_{\delta}(q)\tilde{A}^c_{\tau}(r)+\ldots,
+  \label{eq:2.14}
+\end{align}
+便通过迭代得到，也就是把方程右端递归地代入其自身。
+
+顶点 $\vbulk{2,0}$ 与 $\vbulk{3,0}$ 显式地列于附录~\ref{app:B}。
+注意在式 \eqref{eq:2.13} 中动量--指标组合 $(p,\mu,a)$ 扮演特殊角色；
+特别地，这些顶点只对其余宗量对称。
+
+\begin{figure}[t]
+\centerline{\includegraphics[height=2.7cm]{images/diagram1}}
+\caption{对 $\tilde{B}^a_{\mu}(t,p)$ 有贡献的图是有向树图，
+只有一条外线（在该线末端画有一个小方块）。流线总是从一点顶点
+（带叉的圆圈）或流顶点（圆圈）出发，
+若不是外线则终止于另一个流顶点。每个流顶点有一条朝外的流线，
+它对应于式 \eqref{eq:2.13} 中的动量--指标组合 $(p,\mu,a)$。}
+\label{fig:trees}
+\end{figure}
+
+\subsection{流线图}
+
+对展开式 \eqref{eq:2.14} 中按基本场幂次展开的各项，
+可以用费曼图作图形表示（见图~\ref{fig:trees}）。
+这些图中存在两类顶点：上一小节引入的流顶点 $\vbulk{2,0}$ 与 $\vbulk{3,0}$，
+以及一点顶点
+\begin{equation}
+  \raisebox{-0.45cm}{\includegraphics[width=1.0cm]{images/diagram3}}%
+  \;=\;\tilde{A}^a_{\mu}(p).
+  \label{eq:2.15}
+\end{equation}
+每个流顶点插入在某个从零积到无穷大的流时间处，
+而一点顶点则位于时间为零处。各顶点通过流线
+\begin{equation}
+  \raisebox{-0.55cm}{\includegraphics[width=2.5cm]{images/prop1}}%
+  =\;\delta^{ab}\theta(t-s)\tilde{K}_{t-s}(p)_{\mu\nu}
+  \label{eq:2.16}
+\end{equation}
+连接起来，其中 $t$ 与 $s$ 是线的两端点处的流时间。
+鉴于传播子 \eqref{eq:2.16} 的推迟性质，沿着图中的箭头看去，
+流时间从一点顶点处的零增加到外线外端的时刻 $t$。
+特别地，与各顶点相联系的时间实际上最多只积分到 $t$
+（而不是无穷大）。
+
+就动量、指标收缩和对称因子而言，费曼规则就是通常的那些规则。
+于是不难证明：所有图之和逐阶（按基本场幂次）满足流方程 \eqref{eq:2.12}。

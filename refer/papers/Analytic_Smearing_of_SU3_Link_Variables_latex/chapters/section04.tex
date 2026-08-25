@@ -1,0 +1,294 @@
+\section{Molecular dynamics evolution}
+\label{sec:force}
+
+The analyticity of the stout-link scheme permits the use of modern Monte
+Carlo updating methods for gauge-field actions constructed using stout links.
+Molecular dynamics evolution forms the core of many of the Markov processes
+used to generate ensembles of field configurations needed for unquenched
+QCD simulations\cite{hmcgauge,hmcfermion,hmc,Ralgorithm}.
+Since a small change to the underlying gauge
+fields always leads to a small change in the stout links, then provided
+the small change to the stout links causes small changes to the action of
+the theory, the force term on the underlying links is always well-defined. 
+The importance of defining a link smearing scheme which permits the
+computation of the molecular dynamics force term has been emphasized
+recently in Ref.~\cite{flic2}.
+
+The $\Sigma_\mu(x)$ force field describes how the action $S$ changes
+when the gauge-field link variables $U_\mu(x)$ change, holding the momenta 
+$P_\mu(x)$ and the pseudofermion field $\phi(x)$ fixed.
+For this reason, we shall write the action $S=S[U]$ in this section,
+ignoring its dependence on the pseudofermion field.  The transpose
+of the force field is defined by the derivative of the action with
+respect to the link variables:
+\begin{equation}
+ \Sigma_\mu(x)=\left(\frac{\partial S[U]}{\partial U_\mu(x)}\right)^T.
+\end{equation}
+Assume that the action can be written as a sum of
+a term $S_{\rm th}[U]$ constructed entirely of the original thin
+link variables and a term $S_{\rm st}[\tilde{U}]$ constructed
+completely out of stout links:
+\begin{equation}
+  S[U]=S_{\rm th}[U]+S_{\rm st}[\tilde{U}].
+\end{equation}
+Then the force field may be written
+\begin{equation}
+  \Sigma_\mu(x)=\Sigma_\mu^{\rm(th)}(x)+\Sigma_\mu^{(0)}(x),
+\end{equation}
+where
+\begin{equation}
+ \Sigma_\mu^{\rm(th)}(x)=\left(\frac{\partial S_{\rm th}[U]}{
+  \partial U_\mu(x)}\right)^T\!\!\!, \quad
+ \Sigma_\mu^{\rm(0)}(x)=\left(\frac{\partial S_{\rm st}[\tilde{U}]}{
+  \partial U_\mu(x)}\right)^T\!\!\!.
+\end{equation}
+The computation of $\Sigma_\mu^{\rm(th)}(x)$ is usually
+straightforward, and nothing more about its determination needs
+discussion here.  We now focus on the evaluation of 
+$\Sigma_\mu^{\rm(0)}(x)$. 
+
+Recall that the stout links are constructed iteratively starting
+with the original links 
+$U\rightarrow U^{(1)}\rightarrow U^{(2)}
+ \rightarrow\cdots\rightarrow U^{(n_\rho)}=\tilde{U}$.  
+The computation of the force field proceeds similarly in an
+iterative fashion, except that the order is reversed
+$\tilde\Sigma=\Sigma^{(n_\rho)}\rightarrow\Sigma^{(n_\rho\!-\!1)}
+\rightarrow\cdots\rightarrow\Sigma^{(1)}\rightarrow\Sigma^{(0)}$.
+The sequence starts by computing
+\begin{equation}
+ \tilde{\Sigma}_\mu(x)=\left(\frac{\partial S_{\rm st}[\tilde{U}]}{
+  \partial \tilde{U}_\mu(x)}\right)^T.
+\end{equation}
+This step depends on the form of the gauge and fermion action in terms
+of the stout links and is usually just as straightforward as the
+computation of $\Sigma_\mu^{\rm(th)}(x)$.  In subsequent steps,
+$\Sigma^{(k)}$ and $U^{(k\!-\!1)}$ are used to compute
+$\Sigma^{(k\!-\!1)}$, where the effective force at level $k$ is
+defined by
+\begin{equation}
+  \Sigma_\mu^{(k)}(x)=\left(\frac{\partial S_{\rm st}[\tilde{U}]}{
+  \partial U_\mu^{(k)}(x)}\right)^T.
+\end{equation}
+The recursive mapping
+\begin{equation}
+   \left\{  \Sigma^{(k)}, U^{(k-1)}\right\} 
+  \longrightarrow \Sigma^{(k-1)}
+ \label{eq:mapping}
+\end{equation}
+is repeated until $\Sigma^{(0)}$ is finally evaluated.
+
+In Monte Carlo methods based on molecular dynamics, such as HMC\cite{hmc}
+and the $R$-algorithm\cite{Ralgorithm}, the flow of lattice configurations
+through phase space via Hamilton's equations is 
+parametrized by a fictitious simulation time
+coordinate $\tau$.  To determine the mapping in Eq.~(\ref{eq:mapping}),
+it is convenient to express the force field in terms of the rate of change
+of the action with respect to this time coordinate $\tau$:
+\begin{equation}
+  \frac{d}{d\tau}S_{\rm st}[\tilde{U}] = 2\sum_{x,\mu} \ReTr \left\{ 
+        \Sigma_\mu^{(k)}(x)   \;
+        \frac{d}{d\tau} U^{(k)}_\mu(x) 
+\right\}, 
+\end{equation}
+for $k=0,1,\dots,n_\rho$. One then proceeds using the chain rule of
+differentiation:
+\begin{eqnarray}
+\frac{dU^{(k)}_\mu(x)}{d\tau} &=&  e^{i Q^{(k-1)}_\mu(x)} 
+   \frac{dU^{(k-1)}_\mu(x)}{d\tau} \nonumber\\
+   &&+ \frac{d(e^{i Q^{(k-1)}_\mu(x)})}{d\tau} U^{(k-1)}_\mu(x).
+\end{eqnarray}
+To simplify matters, $Q^{(k-1)}_\mu(x),\ U^{(k-1)}_\mu(x),\ \Sigma^{(k-1)}_\mu(x)$
+shall simply be written as $Q,U,\Sigma$, respectively,
+in the calculations which follow, and $\Sigma^{(k)}_\mu(x)$ and
+$U^{(k)}_\mu(x)$ shall be written as $\Sigma^\prime$ and $U^\prime$,
+respectively.  The Cayley-Hamilton theorem
+gives us
+\begin{eqnarray}
+    \frac{d(e^{i Q})}{d\tau} &=& \frac{d}{d\tau}
+             \left(f_0 + f_1 Q + f_2 Q^2\right),\nonumber\\
+   &=& \frac{df_0}{d\tau}+\frac{df_1}{d\tau}Q+\frac{df_2}{d\tau}Q^2\nonumber\\
+    &&   + f_1\frac{dQ}{d\tau}+f_2\frac{dQ}{d\tau}Q+f_2Q\frac{dQ}{d\tau}.
+\end{eqnarray}
+Since the $f_j$ coefficients are functions $f_j=f_j(u,w)$ of $u$
+and $w$ only, one has
+\begin{equation}
+    \frac{df_j}{d\tau} = \left(\frac{\partial f_j}{\partial u}\right)
+   \frac{du}{d\tau}
+    + \left(\frac{\partial f_j}{\partial w}\right)
+   \frac{dw}{d\tau},
+\end{equation}
+and since $u$ and $w$ are functions of $c_0$ and $c_1$ only, then
+\begin{eqnarray}
+ \frac{du}{d\tau} &=& \left(\frac{\partial u}{\partial c_0}\right)
+   \frac{dc_0}{d\tau}
+                     +\left(\frac{\partial u}{\partial c_1}\right)
+   \frac{dc_1}{d\tau},\\
+ \frac{dw}{d\tau} &=& \left(\frac{\partial w}{\partial c_0}\right)
+    \frac{dc_0}{d\tau}
+                     +\left(\frac{\partial w}{\partial c_1}\right)
+   \frac{dc_1}{d\tau}.
+\end{eqnarray}
+Next, one finds that
+\begin{eqnarray}
+    \frac{dc_0}{d\tau} &=& {\textstyle\frac{1}{3}}
+    \frac{d}{d\tau} \Tr(Q^3) = 
+ \Tr\left(Q^2 \frac{dQ}{d\tau}\right),\\
+    \frac{dc_1}{d\tau} &=& {\textstyle\frac{1}{2}}
+   \frac{d}{d\tau} \Tr (Q^2) = 
+\Tr\left(Q \frac{dQ}{d\tau}\right),
+\end{eqnarray}
+and 
+\begin{equation}
+\begin{array}{ll}
+\displaystyle\frac{\partial u}{\partial c_0}=\frac{1}{2(9u^2-w^2)}, &
+\ \displaystyle \frac{\partial u}{\partial c_1}=\frac{u}{(9u^2-w^2)}, \\[5mm]
+\displaystyle\frac{\partial w}{\partial c_0}=\frac{-3u}{2w(9u^2-w^2)}, &
+\ \displaystyle \frac{\partial w}{\partial c_1}=\frac{3u^2-w^2}{2w(9u^2-w^2)}.
+\end{array}
+\end{equation}
+Now define
+\begin{equation}
+r^{(1)}_j = \frac{\partial h_j}{\partial u},\qquad
+r^{(2)}_j =\frac{1}{w}\frac{\partial h_j}{\partial w},
+\end{equation}
+and
+\begin{eqnarray}
+ b_{1j} &=& \frac{2ur_j^{(1)}+
+    (3u^2\!-\!w^2)r^{(2)}_j-2(15u^2\!+\!w^2)f_j}{2(9u^2-w^2)^2},\\
+ b_{2j}&=& \frac{r_j^{(1)}-3ur^{(2)}_j-24uf_j}{
+   2(9u^2-w^2)^2},
+\end{eqnarray}
+then
+\begin{equation}
+ \frac{df_j}{d\tau}=b_{1j}\Tr\left(Q\frac{dQ}{d\tau}\right)
+   +b_{2j}\Tr\left(Q^2\frac{dQ}{d\tau}\right),
+\end{equation}
+where
+\begin{eqnarray}
+r^{(1)}_0 &=& 2\Bigl(u+i(u^2\!-\!w^2)\Bigr)e^{2i u}\nonumber\\
+  &&+2e^{-i u}\Bigl\{
+ 4u\bigl(2\!-\!i u  \bigr)\cos w \nonumber\\
+  && +i\bigl(9u^2+w^2-i u( 3u^2+w^2) \bigr)\xi_0( w) 
+  \Bigr\}, \\
+r^{(1)}_1 &=& 2(1+2i u)e^{2i u}+e^{-i u}\Bigl\{
+    -2(1-i u) \cos w \nonumber\\
+  &&  +i\bigl( 6u +i(w^2-3u^2) \bigr)\xi_0( w) 
+   \Bigr\}, \\
+r^{(1)}_2 &=&  2i e^{2i u}+i e^{-i u}\Bigl\{
+   \cos w -3 (1-i  u)  \xi_0( w)
+   \Bigr\},\\
+r^{(2)}_0 &=& -2e^{2i u}+2i ue^{-i u}\Bigl\{
+  \cos w \nonumber\\
+  && +( 1+4i u) \xi_0( w) 
+  +3u^2\xi_1( w)\Bigr\}, \\
+r^{(2)}_1 &=& -i e^{-i u}\Bigl\{
+   \cos w  +(1+2i u)\xi_0( w)\nonumber\\ 
+  &&-3u^2\xi_1( w)\Bigr\}, \\
+r^{(2)}_2 &=&   e^{-i u}\Bigl\{
+     \xi_0( w) 
+   -3i  u \xi_1( w)\Bigr\},
+\end{eqnarray}
+with
+\begin{eqnarray}
+ \xi_0(w) &=& \frac{\sin w}{w},\\
+ \xi_1(w) &=& \frac{\cos w}{w^2}-\frac{\sin w}{w^3}.
+\end{eqnarray}
+Given the above results,
+\begin{eqnarray}
+\frac{d(e^{i Q})}{d\tau}&=&\Tr\left(Q\frac{dQ}{d\tau}\right) B_1
++\Tr\left(Q^2\frac{dQ}{d\tau}\right) B_2\nonumber\\
+&&+ f_1\frac{dQ}{d\tau}+f_2\frac{dQ}{d\tau}Q+f_2Q\frac{dQ}{d\tau},
+\label{eq:dRdef}
+\end{eqnarray}
+where
+\begin{equation}
+ B_i = b_{i0}+b_{i1}\ Q + b_{i2}\ Q^2.
+\end{equation}
+The numerically sensitive $w\rightarrow 0$ limit has been
+totally absorbed into $\xi_0$ and $\xi_1$, and
+numerical problems as $c_0\rightarrow -c_0^{\rm max}$ can 
+be circumvented by exploiting the following symmetry relation:
+\begin{equation}
+  b_{ij}(-c_0,c_1)=
+  (-)^{i+j+1}\ b_{ij}^\ast(c_0,c_1). \label{eq:bsym}
+\end{equation}
+Once again, we emphasize that these coefficients are well-behaved,
+non-singular functions of $c_0$ and $c_1$.
+
+The rate of change of the stout links with respect to the simulation
+time is then given by
+\begin{eqnarray}
+  \frac{dU^\prime}{d\tau} &=& e^{i Q} \frac{dU}{d\tau} 
+  + \biggl\{  \Tr\left(Q\frac{dQ}{d\tau}\right) B_1
+   +\Tr\left(Q^2\frac{dQ}{d\tau}\right) B_2 \nonumber\\
+   &&\qquad + f_1\frac{dQ}{d\tau}+f_2\frac{dQ}{d\tau}Q+f_2Q\frac{dQ}{d\tau}
+ \biggr\} U,
+\end{eqnarray}
+and hence, 
+\begin{equation}
+\ReTr\left(\Sigma^\prime
+  \frac{dU^\prime}{d\tau}\right)
+ =\ReTr\left(\Sigma^\prime e^{i Q} \frac{dU}{d\tau}\right)
+                    - \ReTr\left(i\Lambda \frac{d\Omega}{d\tau}\right),
+   \label{eqn:diff-stouttrace}
+\end{equation}
+defining 
+\begin{eqnarray}
+   \Lambda &=& 
+   \frac{1}{2} (\Gamma + \Gamma^\dagger) - \frac{1}{2N} 
+      \Tr\left(\Gamma + \Gamma^\dagger\right), \label{eq:Lambda}\\
+  \Gamma &=& 
+  \Tr(\Sigma^\prime B_1 U) \; Q         
++ \Tr(\Sigma^\prime B_2 U) \; Q^2 \nonumber\\
+&&+ f_1  \; U \Sigma^\prime   
++ f_2  \; Q U \Sigma^\prime 
++ f_2  \; U \Sigma^\prime Q.
+\label{eqn:gamma-def}
+\end{eqnarray}
+One sees that $\Gamma^{(k-1)}_\mu(x)$,
+and hence, $\Lambda_\mu^{(k\!-\!1)}(x)$, are defined on each
+lattice link in terms of the link variables $U^{(k-1)}_\mu(x)$ and 
+$\Sigma^{(k)}_\mu(x)$. At this point, the details of the staple
+construction in $C_\mu(x)$ must be included.  Given Eq.~(\ref{eq:Cdef})
+and utilizing trace cyclicity and translational invariance,
+one eventually obtains the following recursion relation:
+\begin{eqnarray}
+&&\Sigma_\mu(x) = \Sigma_\mu^\prime(x)
+  \Bigl(f_0I+f_1Q_\mu(x)+f_2Q_\mu^2(x)\Bigr)\nonumber\\
+   &&+iC^\dagger_\mu(x)\Lambda_\mu(x)  -i
+ \displaystyle\sum_{\nu\neq\mu}\Bigl\{
+\nonumber\\ &&
+ \begin{array}[t]{l}
+ \phantom{+} \rho_{\nu\mu}U_\nu(x\!+\!\hat{\mu}) 
+       U^\dagger_\mu(x\!+\!\hat{\nu})U^\dagger_\nu(x)\Lambda_\nu(x) \\[1ex]
+ +\rho_{\mu\nu}U^\dagger_\nu(x\!-\!\hat{\nu}\!+\!\hat{\mu})
+   U^\dagger_\mu(x\!-\!\hat{\nu})\Lambda_\mu(x\!-\!\hat{\nu})
+   U_\nu(x\!-\!\hat{\nu})    \\[1ex]
++\rho_{\nu\mu}U^\dagger_\nu(x\!-\!\hat{\nu}\!+\!\hat{\mu})
+  \Lambda_\nu(x\!-\!\hat{\nu}\!+\!\hat{\mu})
+  U^\dagger_\mu(x\!-\!\hat{\nu}) U_\nu(x\!-\!\hat{\nu}) \\[1ex]
+-\rho_{\nu\mu} U^\dagger_\nu(x\!-\!\hat{\nu}\!+\!\hat{\mu})
+ U^\dagger_\mu(x\!-\!\hat{\nu}) \Lambda_\nu(x\!-\!\hat{\nu})
+  U_\nu(x\!-\!\hat{\nu}) \\[1ex]
+-\rho_{\nu\mu}  \Lambda_\nu(x\!+\!\hat{\mu})U_\nu(x\!+\!\hat{\mu})
+   U^\dagger_\mu(x\!+\!\hat{\nu})
+   U^\dagger_\nu(x) \\[1ex]
++\rho_{\mu\nu}U_\nu(x\!+\!\hat{\mu})U^\dagger_\mu(x\!+\!\hat{\nu})
+ \Lambda_\mu(x\!+\!\hat{\nu})
+ U^\dagger_\nu(x) 
+ \Bigr\},\end{array} \nonumber\\[-6mm]
+\label{eq:sigma}
+\end{eqnarray}
+in which unprimed quantities refer to step $(k-1)$ and primed quantities
+refer to step $k$.
+
+Although the force field is related to the underlying link variables in
+a complicated manner, each step in the recursive computation
+of the force field outlined above is straightforward, facilitating a
+natural and efficient implementation in software.  Analyticity in the
+entire (finite) complex plane is an important property here; if 
+$\Sigma^{(k)}_\mu(x)$ is well behaved, then $\Sigma^{(0)}_\mu(x)$ must
+be also.  Note that the above formalism can be easily adapted for other
+definitions of $C_\mu(x)$.
+
