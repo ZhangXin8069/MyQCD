@@ -1,0 +1,54 @@
+\section{在 U(1) 规范理论中的应用}
+定义在两维时空中的、规范群为 $\Uone$ 的规范理论是 $1+1D$ 电动力学的淬火极限，即 Schwinger 模型~\cite{Schwinger:1962tp}。完整的 Schwinger 模型在解析上易于处理，同时复现了量子色动力学的许多特征（禁闭、轴反常、拓扑以及手征对称性破缺）。即使在淬火极限下，良定义的规范场拓扑也使得 MCMC 方法在抽样该模型的格点离散化时，随着耦合趋于临界点而出现严重的临界慢化。我们考虑由 Wilson 规范作用量~\cite{Wilson:1974sk} 给出的格点离散化
+%
+\begin{equation}\label{eq:action}
+    S(U) := -\beta \sum_x \Re P(x),
+\end{equation}
+%
+其中 $P(x)$ 是 $x$ 处的 plaquette，由链接变量 $U_\mu(x) \in \Uone$ 定义为
+%
+\begin{equation} \label{eq:plaquette}
+\quad P(x) := U_{0}(x) U_1(x+\hat{0}) U^\dagger_{0}(x+\hat{1}) U^\dagger_{1}(x),
+\end{equation}
+%
+而 $x = (x_0, x_1)$ 遍历具有周期边界条件的 $L \times L$ 正方格点上的坐标。考虑可观测量 $\obs$ 在欧氏时间路径积分下的期望值，即可从该模型提取物理信息：
+\begin{equation}
+  \left< \obs \right> := \frac{1}{Z} \int \D{U} \obs(U) e^{-S(U)},
+\end{equation}
+其中 $\int \D{U}$ 表示对每个链接的 Haar 测度的乘积积分，$Z=\int\D{U} e^{-S(U)}$。
+在本研究中考虑了三个关键的可观测量：
+%
+\begin{enumerate}
+
+    \item plaquette 幂次的期望值。
+
+    \item $\ell \times \ell$ Wilson 圈 $W_{\ell \times \ell} = \prod_{x \in \ell \times \ell} P(x)$ 的期望值。
+
+    \item 拓扑磁化率 $\chi_Q = \langle Q^2 / V \rangle$，其中拓扑荷 $Q := \frac{1}{2\pi} \sum_x \arg\left(P(x)\right)$ 由主值区间内的 plaquette 相位定义，$\arg\left(P(x)\right) \in [-\pi, \pi]$。
+
+\end{enumerate}
+
+为了研究临界慢化，我们在固定的格点尺寸 $L = 16$ 下、用参数 $\beta$ 的七个取值 $\beta = \{ 1,2,3,4,5,6,7 \}$ 研究了该理论；当 $\beta \rightarrow \infty$ 时理论趋于连续极限。对每个参数取值，我们都使用均匀先验分布和 24 个规范等变耦合层的复合来训练规范不变的基于流的模型。核 $h$ 选为非紧投影（Non-Compact Projections）~\cite{rezende2020normalizing} 的混合，它们适用于 $\Uone$ 群元；具体地，每个混合使用了 6 个分量，并且每个变换都用一个卷积神经网络参数化。模型架构在所有 $\beta$ 取值下保持固定，从而保证每个参数取值下抽取样本的代价完全相同。训练模型时，我们最小化模型密度 $q(U)$ 与目标密度 $e^{-S(U)} / Z$ 之间的 Kullback-Leibler 散度。当损失函数达到平台时即停止训练。作为一项原理验证研究，我们没有对变量切分模式、神经网络架构或训练超参数进行大量的优化，因此很可能能够训练出更好的模型。
+
+训练之后，基于流的模型被用来为一个 Metropolis 独立马尔可夫链产生提议样本~\cite{Albergo2019FlowMCMC}，各自产生了 $100,000$ 个样本组成的系综。
+作为对照，用 HMC 和热浴算法产生了同样大小的系综。对所有 $\beta$ 取值，我们固定 HMC 轨迹长度，使采用 $5$ 步蛙跳积分器时接受率大于 $80\%$。热浴的每一步定义为一次 sweep，即对每个链接的一次完整更新。
+在单线程 CPU 环境下，每条 HMC 轨迹的计算代价与基于流的模型每个提议的代价在 $10\%$ 精度内相等，而每次热浴步骤的代价是 HMC 或流的一半。
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{images/ens_b567_obs.pdf}
+    \caption{左：在本文研究的最细系综（$\beta = 7$）上测得的平均 Wilson 圈 $\langle W_{\ell \times \ell} \rangle$ 的估计值。右：在本文研究的三个最细系综（$\beta = 5,6,7$）上测得的拓扑磁化率的估计值。所有数值都以相对精确结果的比值画出。基于流的估计与精确值一致，而 HMC 与热浴的估计不确定性更大，在某些情形下还显著偏离精确值。
+    }
+    \label{fig:compare_obs}
+\end{figure}
+
+在马尔可夫链中使用来自基于流模型的样本作为提议，保证了热化之后估计的无偏性；在本文使用的有限系综大小下，发现所有可观测量都在统计不确定度内与解析结果一致。在我们研究的可观测量中，plaquette 幂次以及小 Wilson 圈期望值这类局域量，HMC 和 HB 对它们的估计比基于流的算法更精确。然而，图~\ref{fig:compare_obs} 表明，对于范围更大的可观测量，例如 $\ell \geq 4$ 的 $W_{\ell \times \ell}$，尤其是 $\chi_Q$，HMC 与 HB 样本中大的自关联导致其估计偏离精确值，且精度低于基于流的估计。
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.85\linewidth]{images/tint_Q_vs_beta.pdf}
+    \caption{拓扑荷的积分自关联时间 $\tint_Q$，在使用 HMC、热浴和基于流算法生成的 $16 \times 16$ 格点系综上的测量结果。每个系综使用十个副本估计误差；对大多数数据点而言误差小于图中标记的大小。}
+    \label{fig:tint_hmc_vs_flow}
+\end{figure}
+
+对马尔可夫链方法而言，一个可观测量的自关联的特征长度可以用积分自关联时间 $\tint_\obs$ 来刻画~\cite{Madras:1988ei}。图~\ref{fig:tint_hmc_vs_flow} 将 HMC 和 HB 的 $\tint_Q$ 与基于流算法的进行比较，以此作为三种方法探索拓扑荷分布好坏程度的指标。对这三种方法来说，随着 $\beta$ 增大趋于连续极限，$\tint_Q$ 都在增长。但是对基于流的算法而言，这个问题远不如 HMC 或 HB 严重。例如，在最大的 $\beta$ 处，基于流算法的自关联时间约为 $10$，而 HB 为 $\tint_Q \approx 4000$、HMC 为 $\tint_Q \approx 15000$。计入每条马尔可夫链各步骤的相对代价，基于流的 Metropolis 抽样器在确定拓扑量时的效率约比 HMC 高 $1500$ 倍、比热浴高 $200$ 倍。一个有前景的发展方向是把基于流的马尔可夫链步骤与 HMC 轨迹或热浴 sweep 混合起来，从而兼得标准马尔可夫链步骤对局域可观测量之利和基于流算法对延展及拓扑可观测量之利。

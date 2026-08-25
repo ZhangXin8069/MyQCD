@@ -1,0 +1,13 @@
+许多重要的物理理论都由这样的拉格朗日量描述：它在构成李群的局域对称变换下不变；这类理论被称为\emph{规范理论}。例如，粒子物理标准模型——我们对自然界在最短尺度上最精确的描述——是一个围绕三个规范群的作用而建立起来的量子场论~\cite{Weinberg:1967,Salam:1968rm,Greenberg:1964,Han:1965}，而且若干重要的凝聚态物质体系可以用有效规范理论来描述~\cite{Kogut1979SpinSystems, Seiberg2016GaugeCMTDuality,Sachdev2018EmergentGauge,Guo2020EmergentGauge}。在强耦合极限下，这些理论是非微扰的，而在离散时空格点上的数值表述提供了从第一性原理计算感兴趣的物理量的唯一已知途径。
+
+格点框架内的计算通常这样进行：利用马尔可夫链蒙特卡罗（MCMC）从热力学分布或欧氏时间路径积分中抽样，从而估计可观测量的期望值。在这两种情形下，样本 $U$（通常是高维的）都从指数加权分布 $p(U) = e^{-S(U)} / Z$ 中抽取，其中物理内容编码在能量或作用量泛函 $S(U)$ 之中，而归一化常数 $Z$ 是未知的。当从分布 $p(U)$ 出发的 MCMC 抽样高效时，就可以由该理论得到精确的物理预言。然而，当模型参数被调向临界点时——例如为了描述凝聚态理论的普适性质，或者为了到达量子场论的连续极限——临界慢化（critical slowing down, CSD）会使抽样的计算代价发散~\cite{Wolff:1989wq}。
+
+针对特定理论，人们已经发展出避免临界慢化的专门方法~\cite{Kandel:1988zz,Bonati:2017woi,Wolff:1988uh,Hasenbusch:2017unr,Hasenbusch:2018ztj,Swendsen:1987ce,Prokofev:2001ddj,Kawashima2004,Bietenholz:1995zk,Luscher:2011kk}。然而对若干感兴趣的理论，临界慢化阻碍了计算。格点化的量子色动力学（QCD）尤其如此~\cite{Aoki:2006,Schaefer:2009xx,McGlynn:2014}，它使人们能够计算源于粒子物理标准模型的非微扰现象。近来，可以被训练来直接从给定概率分布产生样本的\emph{基于流的}生成模型取得了进展；在玻色物质理论、自旋系统、分子系统以及布朗运动的情形中已经演示了早期的成功~\cite{LiWang2018NNRG,ZhangEWang2018Monge,Albergo2019FlowMCMC,Hartnett:2020,khler2019equivariant,Noeeaaw1147,li2019neural,madhawa2019graphnvp,liu2019graph,shi2020graphaf,both2019temporal}。这一进展建立在基于流的方法在图像、文本和结构化对象生成方面的巨大成功之上~\cite{Dinh:2014,Dinh:2016,Kingma:2018,Ho:2019, tran2019discrete,ziegler2019latent,kumar2019videoflow,gu2019pointflow}，也建立在应用于物理抽样的非基于流的机器学习技术之上~\cite{Huang:2017,Wang2017,Wu:2019,zhang2019chem, Carrasquilla_2019}。如果基于流的算法能够以最先进计算的规模被设计和实现，它们将使当前受临界慢化阻碍的格点理论中的高效抽样成为可能。
+
+\begin{figure}[t]
+\includegraphics{images/sample_hmc_topo_history.pdf}
+\caption{与本工作引入的基于流的方法相比，对 $\Uone$ 规范理论进行 MCMC 抽样的标准方法（HMC 和 HB）探索拓扑荷 $Q$ 分布的速度非常缓慢。结果对应耦合 $\beta=7$、$16\times 16$ 格点的情形，见式~\eqref{eq:action}。马尔可夫链历史的前（后）一半显示的是 HMC（HB）。}
+\label{fig:topo_freezing}
+\end{figure}
+
+在本快报（Letter）中，我们为包括格点 QCD 在内的格点规范理论发展了一个可证明正确的基于流的抽样算法。我们演示了该方法在两维时空 $\Uone$ 规范理论中的应用。该理论是可解的，因此提供了一个可以检验数值方法精度的试验场。两种标准的 MCMC 方法——杂交蒙特卡罗（HMC）~\cite{Duane1987HMC} 和热浴（HB）~\cite{Creutz:1979dw,Cabibbo:1982zn,Kennedy:1985nu}——在该理论中都受到临界慢化的困扰；例如，图~\ref{fig:topo_freezing} 展示了在接近连续极限处抽样的马尔可夫链历史，两种方法探索拓扑扇区都非常缓慢。使用我们基于流的算法，场组态的独立样本以适当的频率从每个拓扑扇区产生，使得在给定计算代价下对拓扑量的估计精确得多。该方法成功的关键在于在基于流的分布中强制实现精确的规范对称性：当对称性被强制施加时，我们能够在一系列接近临界的参数下成功训练基于流的模型；而没有它时，同等规模的模型在同一训练流程下无法学会这些分布。

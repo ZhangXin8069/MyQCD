@@ -1,0 +1,177 @@
+
+\section{Diffusion Models for Lattice $\phi^4$ Scalar Fields}
+\label{sec:phi4}
+
+Lattice scalar field theories have been studied extensively, with applications spanning a wide range of topics. Scalar fields are frequently employed to showcase the efficacy of numerical algorithms, including with machine learning. Here we will implement a DM to generate configurations for a two-dimensional scalar field theory with quartic interaction, both in the broken and the symmetric phase. 
+
+We consider a real scalar field in $d$ \textit{Euclidean} dimensions with the action, 
+\begin{equation}
+S_E = \int \text{d}^{d}x\left( \frac{1}{2}\sum_{\mu=1}^d\left(\partial_\mu\phi_0\right)^2 + \frac{1}{2} m_0^2\phi_0^2 + \frac{\lambda_0}{4!}\phi_0^4 \right),
+\end{equation}
+where the subscript specifies bare quantities, including mass $m_0$, coupling $\lambda_0$, and field $\phi_0(x)$. Discretising the derivative on a lattice with lattice spacing $a$ in all directions,   $\partial_\mu\phi_0(x)=[\phi_0(x+a\hat\mu)-\phi(x)]/a$, with $\hat{\mu}$ the unit vector along the $\mu-$direction, and redefining the field and parameters to yield dimensionless combinations, gives the lattice action (see e.g.\ Ref.~\cite{Smit:2002ug})
+\begin{equation}
+S_E = \sum_x \left[  -2\kappa \sum_{\mu = 1}^d\phi(x)\phi(x+\hat{\mu}) + (1-2\lambda)\phi^2(x) + \lambda\phi^4(x) \right],
+\label{eq:phi4action}
+\end{equation}
+where $\kappa$ is the hopping parameter, related to the bare mass parameter via
+\begin{equation}
+     (am_0)^2 = \frac{1-2\lambda}{\kappa} - 2d,
+\end{equation}
+and $\lambda=a^{4-d}\kappa^2\lambda_0/6$ denotes the dimensionless coupling constant describing field interactions. Both parameters are positive. The field has been rescaled according to $a^{d/2-1}\phi_0=(2\kappa)^{1/2}\phi$.
+
+In the case of $d\geq2$, for each coupling $\lambda$ the hopping parameter exhibits a critical value $\kappa_c(\lambda)$, at which a second-order phase transition occurs. This quantum phase transition corresponds to a spontaneous $\mathbb{Z}_2$ symmetry broken above the critical point in continuum limit~\cite{Akiyama:2021zhf}. When the mass term becomes negative, the broken phase emerges classically.  At the classical level, the critical value for the hopping parameter is given by
+\begin{equation}
+    \kappa_\text{c}^{\rm cl}(\lambda) = \frac{1-2\lambda}{2d},\label{eq:kc}
+\end{equation}
+which is determined by the vanishing of the mass term,  but quantum fluctuations will change the value \cite{Smit:2002ug}. As $\kappa$ decreases across the critical value, the system transitions from the broken phase to the symmetric phase.
+
+
+\subsection{Configuration Generation and Model Setups}
+
+To implement the DM, we first prepare field configurations of the scalar $\phi^4$-theory in $d=2$ dimensions on a $32 \times 32$ lattice, at fixed $\lambda = 0.022$, as defined above. To evaluate the performance of the model, we generated 5120 samples for training and 1024 samples for testing in the broken and symmetric phases at $\kappa = 0.5$ and $\kappa = 0.21$ respectively. The reason to choose these specific paramter values is that at $\lambda = 0.022$ the phase transition occurs at approximately $\kappa_c \simeq 0.239$, as derived from Eq.~\eqref{eq:kc}.
+
+\textbf{Hybrid Monte Carlo set-up.} In order to prepare the dataset, we employ the Monte Carlo Markov Chain (MCMC) approach. The classical Metropolis-Hastings algorithm for local updating often suffers from long autocorrelation times, so we instead opt for the hybrid Monte Carlo (HMC) method. By incorporating classical Hamiltonian equations of motion~\cite{neal2011mcmc}, the HMC method improves the performance of the MCMC and allows larger steps to be taken while maintaining acceptable acceptance rates. In our setup, using a chosen set of action parameters, we prepare a 2-dimensional lattice of size $32 \times 32$. For each trajectory in the HMC, we initiate with a "100-trajectory burn-in sequence" for thermalization. Following this, after 64 additional trajectories, we select the outcome of the final trajectory update as a configuration. Each trajectory utilizes a well-established HMC integrator such as the leapfrog, with a certain stepsize $\Delta t$. The total length of each trajectory is determined by $\tau = n_\text{step} \times \Delta t$, with $n_\text{step}$ representing the number of times the integrator is applied within a single HMC trajectory (commonly set so that $\tau = 1$). Each configuration in the training dataset originates from one different Markov chain.
+
+\textbf{Diffusion Model set-up.} We adopt the variance expanding DM as shown in Eq.~\eqref{eq:sbm} with $\sigma = 25$. The diffusion time is set as $T = 1$. 
+In the training procedure the stepsize is not fixed, but we randomly sample the time points in the interval $[0,T]$, with the number of time points equal to the batch size in each batch optimization. The batch size is 64, and the maximum number of epochs for training is 250 to ensure convergence.  In the sampling procedure, we use the Euler-Maruyama approach to solve the reverse-time SDE with time stepsize $T/N = 0.002$. The U-Net architecture~\cite{Ronneberger:2015unet} is utilized to represent $\mathbf{s}_\theta$ in Eq.~\eqref{eq:objective}; more details can be found in App.~\ref{app:unet}. Unless otherwise indicated, we generated 1024 samples from the well-trained DM to demonstrate its performance.
+
+{We deployed the HMC and DM algorithms on different devices. For the chosen parameter values ($\kappa = 0.21, \lambda = 0.022, 32\times 32$ lattice), the HMC generates samples on CPU (Intel Xeon Gold 6226R @ 2.90GHz) with 1.57 configuration/s. The DM generates samples on GPU (Nvidia GeForce RTX 3090 @ 1.40Ghz) with 97.52 configuration/s.}
+
+\subsection{Broken Phase}
+
+We start in the broken phase. Here one expects large clusters, in which field configurations fluctuate around a positive or negative average value, usually referred to as the vacuum expectation value, order parameter or magnetisation. We demonstrate that the clustering behavior of field configurations can be successfully captured by the well-trained DM. Fig.~\ref{fig:sample} visualizes the denoising process. Each row in the figure represents a different sample, and each column represents a different time point in the denoising process. The first column represents noise samples randomly drawn from the prior distribution, i.e., $p \approx \mathcal{N}\bigg(\phi; \mathbf{0}, \frac{1}{2\log \sigma}(\sigma^{2} - 1) \mathbf{I}\bigg)$, while the fifth column represents the generated samples obtained by denoising. The arrow at the bottom of Fig.~\ref{fig:sample} indicates the direction of time evolution in the stochastic differential equation, as per Eq.~\eqref{eq:rsde}. 
+
+The order parameter or magnetization is defined as
+\begin{equation}
+    \left\langle M\right\rangle = \frac{1}{V}\left\langle \sum_{x}\phi(x)\right\rangle,
+\end{equation}
+where $V= N^d$ denotes the number of lattice sites. A comparison between HMC generated testing samples and DM generated samples is shown in Fig.~\ref{fig:brokenphase}, where we see consistency between the distributions containing 1024 samples each.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[!htbp]
+    \begin{minipage}{0.50\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{images/DM_samples.pdf}
+    \caption{The denoising process for generating four independent configurations from a well-trained DM.}\label{fig:sample}
+    \end{minipage}
+\hfill
+    \begin{minipage}{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{images/mag_k0.5_testing.pdf}
+    \caption{Comparison of the distribution of the magnetization with 1024 samples generated from the well-trained DM and using HMC.}\label{fig:brokenphase}
+    \end{minipage}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Symmetric Phase}
+\label{sec:sym_phase}
+We now turn to the symmetric phase and take $\kappa=0.21$, below but near the critical value. In the thermodynamic limit, the phase transition can be characterized by a divergence in the connected two-point susceptibility. This susceptibility is a measure of how a system responds to small perturbations and is defined as
+\begin{equation}
+    \chi_2 = V\left( \langle M^2 \rangle - \langle M \rangle^2 \right).
+\end{equation}
+In addition, the Binder cumulant~\cite{Binder:1981zz} is a dimensionless quantity often used to identify phase transitions, defined as a ratio of moments of a distribution,
+\begin{equation}
+    U_L = 1- \frac{1}{3}\frac{\langle M^4 \rangle}{\langle M^2 \rangle^2}.
+\end{equation}
+It is sensitive to the shape of the distribution, i.e., the kurtosis of the order parameter, and is particularly useful for detecting and analyzing phase transitions in finite-size systems.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/mag_k0.21_testing.pdf}
+\caption{Comparison of the distribution of the magnetization in the symmetric phase from the test data-set (HMC) and from the well-trained DM. The number of independent configurations is 1024 in both cases. 
+}\label{fig:k021}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table*}[!htbp]
+\centering
+\begin{tabular}{c|c|c|c}
+\hline\hline
+    data-set&$\langle M \rangle$ & $\chi_2$ & $U_L$ \\
+\hline
+    Training (HMC)& 0.0012$\pm$ 0.0007&  2.5160 $\pm$ 0.0457 & 0.1042 $\pm$ 0.0367\\
+    Testing (HMC)& 0.0018 $\pm$ 0.0015& 2.4463 $\pm$ 0.1099 & -0.0198 $\pm$ 0.1035\\
+    Generated (DM)& 0.0017$\pm$ 0.0015 &  2.4227 $\pm$ 0.1035 & 0.0484 $\pm$ 0.0959\\
+\hline\hline
+\end{tabular}
+\caption{Comparison of observables calculated on different datasets with lower error bounds determined using the statistical jackknife method. The sample size is comparable for the bottom two rows and a factor of 5 larger for the training set (top row).
+}
+\label{tab:observables}
+\end{table*}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In Fig.~\ref{fig:k021} we compare the distributions of the magnetization obtained independently from the trained DM and using HMC. Good consistency between the distributions is observed. To make this more quantitative we present in Table~\ref{tab:observables} the magnetization $\langle M\rangle$, two-point susceptibility $\chi_2$, and the Binder cumulant $U_L$ obtained using both the trained DM and with HMC. For the latter, expectation values are shown both for the training set and the testing set, with the former having a factor of five more configurations, which is reflected in the uncertainty. We conclude that the DM is capable of accurately capturing the statistical properties of the system, as reflected by these observables, and is in good agreement with HMC, a well-established method for sampling from the target distribution. {A study of the dependence on the size of the training set and the generated data set can be found in the Appendix~\ref{app:sta}.} We note that no accept-reject step has been applied in the DM.
+
+
+The likelihood computation method described in Section~\ref{subsec:continious} enables us to estimate the action for the field configurations generated by the trained DM. By comparing the action estimation from the trained DMs with the true action, see Eq.~(\ref{eq:phi4action}), we can confirm whether the DM has captured the underlying physics correctly. For this purpose, we first generate an ensemble of field configurations using the trained DM. We then compute the likelihoods, $q(\phi)$, for these configurations using the probability flow ODE approach. By applying the change-of-variable formula, we are able to compute the action values for these field configurations, as
+\begin{equation}
+    S_\text{eff} = -\log q(\phi),
+\end{equation}
+where the constant term $Z$ has been omitted. In Fig.~\ref{fig:action} we compare the evaluated effective action with the one obtained directly from the physical action, i.e., Eq.~\eqref{eq:phi4action}.  The black dashed line means the $x-$axis is proportional to the $y-$axis, and the green sites are action values estimated from the probabilistic ODE (on the $x-$axis) and calculated from the physical action (on the $y-$axis).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[width=0.6\textwidth]{images/action_k0.21.pdf}
+\caption{Correlation between the effective action estimated from the trained DM using the probabilistic ODE and from the physical action on 1024 samples.}\label{fig:action}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+The coefficient of determination, $R^2$, is a useful metric for quantitatively measuring how well the estimated action values, denoted as $S_{\rm eff}(\phi_i)$,  match the actual ones, denoted as $S(\phi_i)$. Here $i$ indicates the index in sampled configurations. We use
+\begin{equation}
+  R^2 = 1 - \frac{\sum_i\left[ S(\phi_i) - S_\text{eff}(\phi_i)\right]^2}{\sum_i \left[S(\phi_i) - \overline{S}(\phi)\right]},
+\end{equation}
+where $\overline{S}(\phi)$ is the average value for the actual action,
+\begin{equation}
+    \overline{S}(\phi) =\frac{1}{N}\sum_{i=1}^N S(\phi_i).
+\end{equation}
+It measures the proportion of variation in the dependent variable (in this case, the action) that is predictable from the independent variable (in this case, the DM-generated samples). $R^2$ values close to 1 indicate that the DM provides an accurate estimate of the action, suggesting that the trained DM has effectively learned the underlying physics of the scalar field theory correctly. 
+In Fig.~\ref{fig:action}, with the default dataset size, i.e., 5120 samples for training, the $R^2$ value is 0.960 calculated on the 1024 generated configurations. 
+
+{
+\subsection{Autocorrelation Time}
+
+Critical slowing down~\cite{Wolff:1989wq} emerges when simulations approach a critical point and the correlation length of the system diverges. This should be explored at $\kappa$ values close to the phase transition, which is located at $\kappa_c \simeq 0.27$ (for $L = 32, \lambda = 0.022$); see e.g.~Refs.~\cite{Pawlowski:2017rhn,Pawlowski:2018qxs,Bachtis:2020ajb}.
+
+Critical slowing down can be studied using the autocorrelation function of an observable $O$, defined as
+\begin{equation}
+    C_{O}(t) = \left\langle (O_{t_0} - \left\langle O_{t_0} \right\rangle)(O_{t_0+t} - \left\langle O_{t_0+t} \right\rangle) \right\rangle 
+            = \left\langle O_{t_0}O_{t_0+t} \right\rangle - \left\langle O_{t_0} \right\rangle\left\langle O_{t_0+t} \right\rangle,
+\end{equation}
+where $t_0$ is the starting time and $t$ denotes the time along the Markov chain. In an exponential fit, $C_O(t)\sim \exp\{ -t/t_c\}$, the characteristic time $t_c$ should scale as a power of the correlation length $\xi$ around the critical point, i.e., $t_c\sim \xi^z$ (the correlation length $\xi$ should not be confused with the time variable in the forward SDE). The normalized autocorrelation functions, $\bar{C}_O(t) \equiv C_O(t)/C_O(0)$ can be used for a clearer comparison.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[width=0.7\textwidth]{images/autocor_L32_k0.27_l0.022_num5120_nm1.pdf}
+\caption{Comparison of the normalized autocorrelation function of $|M|$ for the Metropolis-Hastings MC algorithm, HMC, and DM-based MC, using 1024 samples at $\kappa = 0.27, \lambda  = 0.22$ and $L = 32$}.
+\label{fig:autocor}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+We investigate this for the ``absolute value'' of the magnetization, defined as 
+\begin{equation}
+|M| = \frac{1}{V} \left\langle  \sum_x \left|\phi(x) \right|\right\rangle,
+\end{equation}
+and compare various updates. Because the likelihood of samples can be computed, as shown in the previous section, we can use the Metropolis-Hastings (MH) algorithm to construct the asymptotically exact Markov chain sampler with the well-trained DM. We refer to this as the DM-based Monte-Carlo method, following the convention of flow-based models. The acceptance criterion is corrected as 
+\begin{equation}
+p_\text{accept}(\phi_\text{proposal}\mid \phi^{i-1}) = \text{min} \left ( 1, \frac{q(\phi^{i-1})}{p(\phi^{i-1})}\frac{p(\phi_\text{proposal})}{q(\phi_\text{proposal})} \right ),
+\end{equation}
+where $\phi^{i-1}$ is the previous configuration and $\phi_\text{proposal}$ is sampled from the well-trained DM. Further, we can estimate the efficiency gain of the DM by comparing the behavior of the autocorrelation function $C_{|M|}(t)$ with the one obtained using a Metropolis-Hastings Monte-Carlo (MC) and the HMC algorithm on 1024 configurations, as shown in Fig.~\ref{fig:autocor}. {A more comprehensive discussion on the dependence of the acceptance rate on the parameters and the number of training epochs can be found in Appendix~\ref{app:acc}}.
+
+Beside, one can compute the integrated autocorrelation time~\cite{Schaefer:2010hu,Pawlowski:2018qxs,DelDebbio:2021qwf} for a more quantitative comparision. It is defined as
+\begin{equation}
+    \tau_{O,{\mathrm{int}}}={\frac{1}{2}}+{\frac{1}{C_{O}(0)}}\sum_{t=1}^{t_\text{max}}C_{O}(t).
+\end{equation}
+For the algorithms discussed, integrated autocorrelation times are $ \tau_{|M|,{\mathrm{int}}}\text{(MC)} = 79.984$, $\tau_{|M|,{\mathrm{int}}}\text{(HMC)} = 41.354$, and $\tau_{|M|,{\mathrm{int}}}\text{(DM-MC)} = 2.360$, where we calculated the autocorrelation time with $t_\text{max} = 100$ MC trajectories on 1024 configurations. To get a more precise estimation with uncertainties, one can also choose the automatic windowing procedure in the computation~\cite{Wolff:2003sm,Joswig:2022qfe}. These comparisons demonstrate that our proposed method has the potential to significantly suppress autocorrelations along a Markov chain.}
+

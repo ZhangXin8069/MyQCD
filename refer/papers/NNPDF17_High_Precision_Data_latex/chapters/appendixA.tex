@@ -1,0 +1,83 @@
+\section{Code development and benchmarking}
+\label{sec:benchmarking}
+
+In all previous NNPDF releases, including NNPDF3.0, PDF evolution and
+deep-inelastic scattering were computed using the internal {\tt
+  FKgenerator} code.  As discussed in Sect.~\ref{sec:expdata}, in
+NNPDF3.1 PDF evolution is now performed using the public {\tt APFEL}
+code. Deep-inelastic scattering and fixed-target Drell Yan are also
+computed using {\tt APFEL}.
+As far as perturbative evolution is concerned, {\tt APFEL} has been
+extensively tested against other publicly available codes, such as
+{\tt HOPPET}~\cite{Salam:2008qg} and {\tt QCDNUM}~\cite{Botje:2010ay}
+for the PDF evolution and {\tt OpenQCDrad}~\cite{Alekhin:2013nda} for
+the calculation of heavy-quark structure functions in the massive
+scheme.
+
+We have performed an extensive benchmarking of {\tt APFEL} and {\tt
+  FKgenerator}, also involving deep-inelastic structure function (as
+already mentioned in Ref.~\cite{Ball:2016neh}) and Drell-Yan cross-sections.
+In the process of this benchmarking, two bugs were found in
+the {\tt FKgenerator} implementation of the DIS structure functions
+(one related to target-mass corrections, the other in the expressions
+of the $\mathcal{O}(\alpha_s)$ charge-current massive coefficient
+functions): we checked explicitly that none of them produced an effect
+on NNPDF3.0 PDFs that could be distinguished from a statistical
+fluctuation.
+
+Representative results of the benchmarking of deep-inelastic structure
+functions are shown in Fig.~\ref{fig:benchmarking}, where we show the
+relative difference between {\tt FKgenerator} and {\tt APFEL}
+implementation, using NNPDF3.0 as input PDF set, for the CHORUS
+charged current neutrino-nucleus reduced cross-sections, the NMC
+proton reduced cross-sections and neutral and charged current cross-sections
+ from the H1 experiments from the HERA-II dataset.  In each
+case, we show theoretical predictions calculations at LO and in the FONLL-A,
+-B and -C general-mass schemes. The two codes are in good agreement, with
+differences at most being at the 1\% level, typically much smaller.
+%
+This statement holds for all perturbative orders.
+
+%%%%%%%%%%%%%%
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.46\textwidth]{images/plots/CHORUSNU.pdf}
+\includegraphics[width=0.46\textwidth]{images/plots/NMC.pdf}
+\includegraphics[width=0.46\textwidth]{images/plots/H1HERA2NCEM.pdf}
+\includegraphics[width=0.46\textwidth]{images/plots/H1HERA2CCEP.pdf}
+\caption{\small Relative difference in the DIS structure functions
+  computed with {\tt FKgenerator} and {\tt APFEL}, using NNPDF3.0 as
+  input PDF set, for the CHORUS charged current neutrino-nucleus
+  reduced cross-sections, the NMC proton reduced cross-sections and
+  neutral and charged current cross-sections from the H1 experiments
+  from the HERA-II dataset. Datasets are as in Tab.~1 of
+  Ref.~\cite{Ball:2014uwa}.  For each dataset, we compare the
+  theoretical calculations at LO and in the FONLL-A, B and
+  C~\cite{Forte:2010ta} heavy-quark mass schemes.
+  \label{fig:benchmarking}}
+\end{figure}
+%%%%%%%%%%%%%%%%%%
+
+
+The benchmarking of Drell-Yan cross-sections is illustrated in
+Fig.~\ref{fig:benchmarking2}, where we show the relative difference
+between the {\tt FKgenerator} and {\tt APFEL} calculations at LO, NLO
+and NNLO for the E605 $pd$ and E866 $pp$ cross-sections, again using
+NNPDF3.0 as input.  Again, differences are at most at the 2\% level
+and typically much smaller. We have traced these residual differences
+were to the fact that the coverage of the large-$x$ region was
+sub-optimal in the {\tt FKgenerator} calculation, and is now improved
+in {\tt APFEL} thanks to of a better choice of input $x$ grid.
+
+%%%%%%%%%%%%%%
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.49\textwidth]{images/plots/60x_DYE605_fixed.pdf}
+\includegraphics[width=0.49\textwidth]{images/plots/60x_DYE886R_P.pdf}
+\caption{\small Same as Fig.~\ref{fig:benchmarking} for fixed-target
+  Drell-Yan cross-sections: results are shown at LO, NLO and NNLO for
+  the E605 $pA$ and E866 $pp$ cross-sections datasets, as given in
+  Tab.~2 of Ref.~\cite{Ball:2014uwa}.
+ \label{fig:benchmarking2}} 
+\end{figure}
+%%%%%%%%%%%%%%%%%%

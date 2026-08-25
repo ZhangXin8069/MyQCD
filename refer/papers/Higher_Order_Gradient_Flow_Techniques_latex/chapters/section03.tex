@@ -1,0 +1,275 @@
+\label{sec:implementation}
+\subsection{Generation of Feynman diagram expressions}
+
+We generate the Feynman diagrams including symmetry factors and signs
+(from closed fermion loops) with the help of the program
+\texttt{qgraf}\,\cite{Nogueira:1991ex,Nogueira:2006pq}. In the notation
+of this program, the propagators for the gluon, the ghost, and a single
+quark flavor can be defined as
+\begin{verbatim}
+[g,g,+], [c,C,-], [fq,fQ,-].
+\end{verbatim}
+The sign in the third entry of each square bracket
+denotes whether the particle is a boson or a fermion.
+
+The flow lines for the gluon and the quark are implemented by
+introducing separate fields \texttt{b}, \texttt{fr}, and \texttt{fs} for
+$L$, $\lambda$, and $\bar\lambda$, respectively. They are implemented as
+\begin{verbatim}
+[b,B,+], [fr,fR,-], [fs,fS,-],
+\end{verbatim}
+where the latter two represent the $\langle\chi\bar\lambda\rangle$ and
+$\langle\lambda\bar\chi\rangle$ bilinears (see \eqs{eq:chibarlambda} and
+\noeqn{eq:lambdabarchi}). With these fields, we can then define the
+regular as well as the flow vertices. For example, for the trilinear
+flow vertex of the pure gauge theory defined in \eqn{eq:3gvert}, we
+define
+\begin{verbatim}
+[B,b,b], [B,b,g], [B,g,g],
+\end{verbatim}
+which corresponds to the three combinations of
+\fig{fig:3gcomb}.
+
+Already in regular \qcd\ it is convenient to separate the color
+structure from the rest of the calculation. This becomes non-trivial in
+cases which involve the four-gluon vertex. It is thus convenient to
+introduce an auxiliary ``particle'' $\Sigma_{\mu\nu}^{a}$ whose
+``propagator'' is given by\,\cite{Chetyrkin-priv}
+\begin{align}
+  &
+  \begin{gathered}
+    \includegraphics{images/sigma_propagator.pdf}
+  \end{gathered}
+  & = &
+  \begin{split}
+    \delta^{ab}\delta_{\mu\rho}\delta_{\nu\sigma} \,.
+  \end{split}
+  & &
+  %% \label{eq:}
+\end{align}
+The four-gluon vertex can then be replaced by a trilinear $gg\Sigma$
+vertex whose Feynman rule reads
+\begin{align}
+  &
+  \begin{gathered}
+    \includegraphics{images/sigma_vertex.pdf}
+  \end{gathered}
+  & = &
+  \begin{split}
+    \frac{\mathrm{i}g}{\sqrt{2}} f^{abc}\left(\delta_{\mu\rho}\delta_{\nu\sigma}-\delta_{\nu\rho}\delta_{\mu\sigma}\right) \,.
+  \end{split}
+  & &
+  %% \label{eq:}
+\end{align}
+This allows to factorize the color factor off all Feynman diagrams,
+albeit at the cost of increasing their number. We proceed
+correspondingly for the quartic gluon flow vertices by introducing an
+additional $\Sigma$ particle which is directed in flow time. It forms
+trilinear vertices with gluons and gluon flow lines, as shown
+explicitly in Appendix\,\ref{sec:frules}. Again, they contain
+exactly one outgoing ($\Sigma$ or gluon) flow line.
+
+By default, \texttt{qgraf} also generates diagrams with closed flow-line
+loops.  We use a \texttt{Perl} script to parse the \texttt{qgraf} output
+in order to eliminate such diagrams before the actual calculation. They
+vanish trivially algebraically though, as discussed earlier.  In
+the same way we multiply diagrams by a factor $\NF$ for each closed
+fermion loop.  We then process the diagrams with the help of
+\texttt{q2e/exp}\,\cite{Harlander:1997zb, Seidensticker:1999bb} in order
+to insert the Feynman rules and convert the diagrams to \texttt{FORM}
+code.
+
+Within \texttt{FORM}\,\cite{Vermaseren:2000nd, Kuipers:2012rf}, we
+contract the Lorentz indices, take the fermion traces, and simplify the
+resulting expressions to a standard form of scalar integrals, as defined below.
+  The color factor is evaluated separately with the
+help of the \texttt{color} package\,\cite{vanRitbergen:1998pn}.
+
+
+For example at the three-loop level (as needed for the results in this paper)
+the flow-time integrals can be described in the following form
+\begin{equation}
+\begin{split}
+&I(t,\mathbf{n},\mathbf{a},\mathbf{c},D) =
+  \left(\prod_{r=1}^N\int_0^{t_{r}^\text{up}}\dd
+  t_r\,t_r^{c_r}\right)\int_{p_1,p_2,p_3} \frac{\exp[\sum_{k,i,j}
+      a_{kij} t_k p_i \cdot p_j] }{p_1^{2n_1}p_2^{2n_2}p_3^{2n_3}
+    p_4^{2n_4}p_5^{2n_5}p_6^{2n_6}}\,,
+\label{eq:intrep}
+\end{split}
+\end{equation}
+where
+\begin{equation}
+\begin{split}
+\mathbf{n} &= \{n_1,\ldots,n_6\}\,,\qquad\mathbf{c} = \{c_1,\ldots,c_N\}\,,\\
+\mathbf{a} &= \{a_{kij}:k=0,\ldots, N\,;\,i=1,2,3\,;j=1,2,3\}\,,\\
+\end{split}
+\end{equation}
+are sets of integers, $N\leq 4$, $t_0\equiv t$, and the upper limits for
+the flow-time integrations are linear combinations of the other
+flow-time variables, $t_r^\text{up}=t_r^{\text{up}}(t_0,\ldots,
+t_{r-1})$. Initially, all the $c_i$ are zero. It is helpful to introduce
+these parameters for the subsequent discussion though.  The momenta
+$p_4$, $p_5$, $p_6$ are linear combinations of the integration momenta
+$p_1$, $p_2$, $p_3$.  For the three-loop quantities considered
+in this paper, the flow time $t$ is the only dimensionful external scale.
+A generalization of this notation to a different number of loops and to additional external
+scales is straightforward.
+
+\subsection{\abbrev{IBP} reduction of flow-time loop integrals}\label{sec:reduction}
+
+In the first step, we reduce all occurring integrals to so-called master
+integrals by employing integration-by-parts (\abbrev{IBP}) identities\,\cite{Tkachov:1981wb,Chetyrkin:1981qh}.
+They are based on the
+observation that integrals over total derivatives vanish in dimensional
+regularization. Applying the operator
+\begin{equation}
+  \begin{split}
+    \mathcal{D}_{ij} \equiv \frac{\partial}{\partial p_i}\cdot p_j =
+    \delta_{ij}\,D+ p_j\cdot \frac{\partial}{\partial p_i}
+    \label{eq:dij}
+  \end{split}
+\end{equation}
+to the integrand of $I(t,\mathbf{n},\mathbf{a},\mathbf{c},D)$ in
+\eqn{eq:intrep} thus results in a vanishing integral for all
+$i,j\in\{1,2,3\}$. On the other hand, explicitly acting with the
+derivative on the integrand leads to a sum of integrals where some of the
+indices $n_i$ and $c_r$ are shifted by $\pm 1$.\footnote{To be
+  precise: At most one $n_i$ is shifted by $-1$ and at most one of the
+  $n_i$ and at most one of the $c_r$ are shifted by $+1$.} Repeated
+application of the $\mathcal{D}_{ij}$ thus leads to linear relations
+among integrals with different $\mathbf{n}$ and $\mathbf{c}$.
+However, the number of flow-time integrations and the exponential
+function in the integrand still remain unaltered by this procedure.
+
+We may apply an analogous strategy for the flow-time parameters though.
+Inserting a derivative with respect to one of the flow-time integration
+variables, one arrives at the sum of two integrals with fewer flow-time
+integrations and an altered exponential,
+\begin{equation}
+  \int_0^{t_{r}^\text{up}}\dd t_r \deriv{}{t_r} f(t_r,\ldots) = f(t_{r}^\text{up},\ldots)-f(0,\ldots)\,.
+  \label{eq:ibpflow}
+\end{equation}
+On the other hand, explicit evaluation of the derivative at the
+integrand level either reduces one of the indices $c_k$ or one of the indices $n_i$
+by one. One therefore arrives at linear relations among integrals with
+different $\mathbf{n}$, $\mathbf{c}$, $\mathbf{a}$, and different
+number of flow-time integrations $N$.
+
+Applying the above operations to ``seed integrals'', i.e., integrals
+with fixed numerical values for the $\mathbf{n}$, $\mathbf{c}$, and
+$\mathbf{a}$, allows one to build a system of linear relations among the
+$I(t,\mathbf{n},\mathbf{a},\mathbf{c},D)$. Defining an ordering
+(complexity) criterion allows one to solve the system using a Gaussian elimination
+type reduction for a minimal set of integrals (master integrals) \cite{Laporta:2001dd}.
+Through this procedure all integrals of the type defined in \eqn{eq:intrep}
+are reduced to the minimal set of master integrals, which are simplest
+by the ordering criterion introduced. The system of linear relations
+is process dependent and for the observables in this study we construct it
+in \texttt{Mathematica}\,\cite{Mathematica11.3}. We use the specialized software
+\texttt{Kira}\,\cite{Maierhoefer:2017hyi,Maierhofer:2018gpa} for the reduction of
+such linear equation systems to solve it.
+
+While \texttt{Kira} alone is sufficient
+for the reduction of all our integrals at the two-loop level (see
+e.g.\ \citere{Harlander:2018zpi}), we find that the algebraic solution
+of the system at the three-loop level would require more than
+750\,GiB of \abbrev{RAM} and thus exceeds our available computing
+resources.\footnote{This calculation was performed before the release of
+  \texttt{Kira 1.2}\,\cite{Maierhofer:2018gpa}. It is well possible that
+  these statements could change with the newly implemented features.}
+Using finite field and
+reconstruction techniques, which
+over the last decade have gained an increased use for higher-order
+perturbative calculations (see,
+e.g.\ \citeres{Kauers:2008zz,Kant:2013vta,Peraro:2016wsq}), one can improve on the required computational resources as
+follows.
+
+Since $t$
+is the only dimensionful scale and can thus be factored out, the
+coefficients of the integrals in the linear system are simply
+polynomials in $D$. The individual steps for the reduction of the linear system only involve
+elementary arithmetic operations, which means that the coefficients of the master
+integrals are rational functions in $D$. One can then solve the linear system
+numerically over a finite field using a sufficiently large number of different integer
+values for $D$ (``probes'') and reconstruct the rational functions in $D$ exactly. With this approach
+the size of the coefficients remain simple numbers and the requirements on computational
+resources can be improved.
+
+While \texttt{Kira} already uses \texttt{pyRed} as a first step to remove
+linearly dependent equations over a finite field, in our approach \texttt{pyRed} is used
+to reduce the system itself multiple times over a finite field.
+The resulting numbers are processed with the
+library \texttt{FireFly}\,\cite{Klappert:2019emp}, which provides an
+efficient implementation of interpolation\,\cite{Zippel:1990,Cuyt:2011}
+and rational-reconstruction
+algorithms\,\cite{Wang:1981,Monagan:2004}.\footnote{We remark that
+  \texttt{FireFly} also works for multi-variate rational functions.}  In
+our case, we require 201 probes, chosen from three different finite
+fields, defined as prime fields $\mathbb{Z}_p$ with $p$ a 63-bit prime
+number, to reconstruct all coefficients, plus one additional probe in a
+fourth prime field to verify the reconstruction. For each probe, the
+solution of the system with \texttt{Kira} now just requires about 70\,GiB of
+\abbrev{RAM} and takes about three \abbrev{CPU} hours.  In total, the reduction took
+less than three days, using ten threads on two Intel Xeon Gold 6138
+processors.
+
+For the observables considered further below in this paper at the three-loop level we start
+with a total of 3195 integrals and can reduce them to a minimal set of 188 master integrals.\footnote{When our
+	observables are expressed in terms of the master integrals, the dependence of six of them drops out.}
+Their numerical evaluation is described in the next section.
+
+\subsection{Numerical computation of flow-time loop integrals}
+
+As a first step of the numerical evaluation of the gradient-flow integrals given by \eqn{eq:intrep},
+we express the propagators through Schwinger-parameter integrals and map them from $x\in(0,\infty)$ to
+$y\in(0,1)$ using the simple transformation $x=y/(1-y)$.
+Momentum integrations are performed as $D$-dimensional Gaussian integrals after a diagonalization.
+Similarly, all
+flow-time integrations are mapped to the unit interval with simple
+linear transformations. The overall result is an integral over a unit hypercube.
+
+The integrand typically involves a number of (overlapping)
+singularities, which we factorize using
+\texttt{FIESTA}\,\cite{Smirnov:2013eza}, an implementation of the sector
+decomposition algorithm\,\cite{Binoth:2003ak}.  As opposed to regular
+Feynman integrals where sector decomposition is typically employed in
+combination with Feynman parameterization, it appears that we cannot
+restrict the singularities to the lower integration bound
+only.\footnote{To identify cases where singularities appear at the upper
+  bound, we determine the degree of divergence for each subset of
+  integration variables at the level of the Schwinger parameterization
+  \cite{Panzer:2014gra}.} If an integral involves singularities both at the
+lower and the upper bound, we split all integration intervals in the
+middle, and map the singularities to the lower bound by an appropriate
+change of variable.
+
+The sector decomposed integrals obtained from \texttt{FIESTA} are then
+integrated with our implementation of fully symmetric integration rules
+of order 13\,\cite{GenzMalik,Harlander:2016vzb}, which can handle
+integrable logarithmic-like singularities at the integration boundaries
+very well. We perform all arithmetic with 256-bit precision using the
+\texttt{MPFR} library\,\cite{Fousse:2007}, and used a local adaptive
+bisection in the direction of the largest fourth difference. A high
+precision arithmetic turns out to be necessary to achieve a relative
+numerical accuracy of $10^{-10}$ or better. The integration uncertainty
+is estimated by the difference between the integration results of rules
+of order 13 and 11.
+
+As a check of our results further below, we apply the numerical integration method
+to our unreduced set of $3195$ integrals as well as to the set of $188$ master integrals.
+Finding full agreement for the results obtained with both sets within numerical uncertainties
+serves as a check of the numerical integration as well as for the reduction procedure.
+
+\paragraph{Analytical computation.}
+For some master integrals we can find analytical results either
+through elementary methods with the help of
+\texttt{Mathematica}\,\cite{Mathematica11.3} or by using
+\texttt{HyperInt} \cite{Panzer:2014caa}.
+The integration with \texttt{Mathematica} sometimes yields hypergeometric functions which can be expanded with the package \texttt{HypExp}\,\cite{Huber:2005yg,Huber:2007dx}.
+For example as shown further below, we
+find analytical results for all contributions which contain at least one factor
+of $\TR$ in the color structure. A fully
+analytical calculation of integrals with other color factors requires a more
+detailed investigation. However, for all practical purposes, the
+numerical results provided in this paper are (more than) sufficient.

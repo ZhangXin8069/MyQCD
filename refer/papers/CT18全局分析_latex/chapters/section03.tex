@@ -1,0 +1,220 @@
+\section{\label{sec:Theory} CT18 的理论输入
+\label{sec:Theory}}
+
+现代全球拟合从大量数据点（CT18 为 $N_\mathit{pt}\! >\! 3600$）出发确定 PDF；这些数据点由种类繁多的实验测量提供（CT18 为 39 个数据集），并涉及数千次多元拟合迭代，其中理论截面按 NNLO 计算。
+在 CT18 拟合中，输入 PDF 在初始标度 $Q_0$（取为粲夸克的极点质量）处的 $x$ 依赖性由 Bernstein 多项式参数化，再乘以决定小 $x$ 与大 $x$ 渐近行为的标准因子 $x^a$ 与 $(1-x)^b$。在这些函数中，除奇异夸克外每个部分子味有 5--8 个独立拟合参数；附加参数可由动量与味求和规则确定，或在约束不佳时固定于物理合理的数值。
+
+在本节中，我们回顾理论设置的核心组成部分：Sec.~\ref{sec:chi2} 的拟合优度函数、Sec.~\ref{sec:calcs} 中各过程（N)NLO 计算用的计算机程序，以及 Sec.~\ref{sec:Paramstudies} 中 PDF 的输入参数化形式。最优拟合 CT18 PDF 的显式参数化形式在 Appendix~\ref{sec:AppendixParam} 给出。
+
+\subsection{拟合优度函数与协方差矩阵}
+\label{sec:chi2}
+CTEQ-TEA 分析用对数似然函数~\cite{Pumplin:2002vw} 量化对一个含 $N_{pt}$ 个数据值的实验数据集 $E$ 的拟合优度：
+\begin{equation}
+\chi_{E}^{2}(a,\lambda)=\sum_{k=1}^{N_{pt}}\frac{1}{s_{k}^{2}}\left(D_{k}-T_{k}(a)-\sum_{\alpha=1}^{N_{\lambda}}\lambda_{\alpha}\beta_{k\alpha}\right)^{2}+\sum_{\alpha=1}^{N_{\lambda}}\lambda_{\alpha}^{2}.\label{Chi2sys}
+\end{equation}
+第 $k$ 个数据通常给为中心值 $D_{k},$、非关联统计误差 $s_{k,\mbox{\scriptsize stat}}$，可能还有非关联系统误差 $s_{k,\mbox{\scriptsize uncor sys}}$。于是 $s_{k}\equiv \sqrt{s_{k,\mbox{\scriptsize stat}}^{2}+s_{k,\mbox{\scriptsize uncor sys}}^{2}}$ 是测量 $D_{k}$ 的总非关联误差。
+
+$T_{k}$ 是依赖于 PDF 参数 $\left\{a_1,a_2,...\right\}\equiv a$ 的相应理论值。此外，第 $k$ 个数据可能依赖于 $N_{\lambda}$ 个关联系统不确定度，而这些不确定度可以在所有数据点之间完全关联。为估计这类误差，常见做法是把每个关联误差源与一个独立的随机讨厌（nuisance）参数 $\lambda_{\alpha}$ 相联系，除非另有了解，假定其服从标准正态分布。实验并不告诉我们 $\lambda_{\alpha}$ 的取值，但可以给出在变动 $\lambda_{\alpha}$ 时 $D_k$ 的改变量 $\beta_{k\alpha}\lambda_\alpha$。知道了 $\beta_{k\alpha}$，就能估计 $\lambda_{\alpha}$ 的可能取值，以及在 $\lambda_{\alpha}$ 合理范围内 PDF 参数的不确定度。
+
+
+对于那些提供 $\beta_{k\alpha}$ 的实验 $E$，我们发现在全局极小点 $a_0$ 处，最优拟合 $\chi^2$ 值为
+\begin{equation}
+\chi^{2}_E (a_{0},\overline \lambda(a_0))=
+\sum_{i=1}^{N_{pt}} r_i^2(a_0)
++\sum_{\alpha=1}^{N_\lambda}\overline\lambda^2_\alpha(a_0) \label{Chi2a0l0}
+\end{equation}
+其中用到最优拟合的{\it 平移后残差}（shifted residuals）
+\begin{equation}
+  r_{i}(a_0)\  =\ s_{i}\sum_{j=1}^{N_{\mathit{pt}}}(\mathrm{cov}^{-1})_{ij}\,\left(D_{j}-T_{j}(a_0)\right),\label{eq:res-cov}
+\end{equation}
+以及最优拟合讨厌参数
+\begin{equation}
+\overline{\lambda}_{\alpha}(a_0) =\sum_{i,j=1}^{N_{\mathit{pt}}}(\mathrm{cov}^{-1})_{ij}\frac{\beta_{i\alpha}}{s_{i}}\frac{\left(D_{j}-T_{j}(a_0)\right)}{s_{j}},
+\label{eq:lam-cov}
+\end{equation}
+这里
+\begin{equation}
+(\mathrm{cov}^{-1})_{ij}\ =\ \left[\frac{\delta_{ij}}{s_{i}^{2}}\,-\,\sum_{\alpha,\beta=1}^{N_{\lambda}}\frac{\beta_{i\alpha}}{s_{i}^{2}}A_{\alpha\beta}^{-1}\frac{\beta_{j\beta}}{s_{j}^{2}}\right]\ ,\label{eq:covmat}
+\end{equation}
+且
+\begin{equation}
+A_{\alpha\beta}\ =\ \delta_{\alpha\beta}\,+\,\sum_{k=1}^{N_{\mathit{pt}}}\frac{\beta_{k\alpha}\beta_{k\beta}}{s_{k}^{2}}\ .
+\end{equation}
+这些关系在 Appendix~\ref{sec:chi2_app} 中推导。
+
+另一个富有启发性的形式用平移后的数据值 $D_i^{sh}\equiv D_i -
+\sum_{\alpha=1}^{N_{\lambda}}\overline \lambda_{\alpha}(a_0) \beta_{k\alpha}$ 表达 $r_i(a_0)$：
+\begin{equation}
+r_{i}(a_0) = \frac{D_{i}^{sh}(a_0)-T_{i}(a_0)}{s_{i}}. \label{riShifted}
+\end{equation}
+
+有时，我们会额外采取措施，把已发表的关联不确定度表格转换为按式~(\ref{Chi2sys}) 格式组织的 $\beta_{k\alpha}$ 矩阵。例如，当实验区分正向与负向系统涨落时，为与正态分布的 $\lambda_{\alpha}$ 保持一致，我们对每个数据点取这两种变化的平均。{[}我们已经核实，平均步骤的具体选择不会明显影响结果，例如把中心值移到原不对称区间的中点等情形。{]}
+
+在少数实验出版物中，只给出基于协方差矩阵 $\left(\mbox{cov}\right)_{ij}$ 的形式来代替式~(\ref{Chi2sys})：
+\begin{equation}
+\chi_{E}^{2}(a)=\sum_{i,j=1}^{N_{pt}}\left(\mbox{\mbox{cov}}^{-1}\right)_{ij}\left(D_{i}-T_{i}(a)\right)\left(D_{j}-T_{j}(a)\right).\label{Chi2CovMat1}
+\end{equation}
+虽然我们可以直接用式~(\ref{Chi2CovMat1}) 计算 $\chi^2$，但在推导 PDF 时，我们更愿意回到由非关联误差 $s_i$ 加上 $\beta_{k\alpha}$ 提供的关联贡献构成的形式：
+\begin{equation}
+  (\mbox{cov})_{ij} \approx s_i^2 \delta_{ij}
+  +\sum_{\alpha=1}^{N_\lambda} \beta_{i\alpha}\beta_{j\alpha}.\label{covapprox}
+\end{equation}
+构造具有足够精度的这类表示的算法在 Appendix~\ref{sec:chi2_app} 末尾给出。在所有相关情形中，我们都检验过：输入协方差矩阵 $(\mbox{cov})_{ij}$ 与其分解形式 (\ref{covapprox}) 给出相近的 $\chi^2$ 值。借助后一表示，我们还能考察平移后的数据值与平移后残差（式~(\ref{riShifted})），以探究与单个数据点的符合情况。
+
+本文总体沿用 CTEQ 方法学，直接从 CTEQ-TEA 拟合程序获得 $r_{i}(a_0)$，连同最优讨厌参数 $\overline{\lambda}_{\alpha}(a_0)$ 与平移后的中心数据值 $D_{i}^{sh}(a).$
+
+\subsection{理论计算与程序 \label{sec:calcs}}
+\subsubsection{概述
+\label{sec:TheorySettings}}
+
+对于深度非弹性散射观测量，我们采用自 CT10 NNLO~\cite{Gao:2013xoa} 以来沿用的 SACOT-$\chi$ 重夸克方案~\cite{Aivazis:1993pi,Aivazis:1993kh,Kramer:2000hn,Tung:2001mv} 的 NNLO 实现~\cite{Guzzi:2011ew} 进行计算。计算时可用极点质量或 $\overline{\mathrm{MS}}$ 夸克质量作为输入~\cite{Gao:2013wwa}；夸克质量的默认选择为 CT18、A、X 中 $m_c^{pole}=1.3$ GeV（CT18Z 中 $m_c^{pole}=1.4$ GeV）、$m_b^{pole}=4.75$ GeV。中性流 DIS 截面在拟合代码中直接按 NNLO 计算。对于带电流 DIS 截面，重夸克的 NNLO 截面可通过基于文献~\cite{Berger:2016inr} 计算的预生成网格快速插值得到。NNLO 贡献对带电流双缪子 DIS 数据描述的影响将在 Sec.~\ref{sec:Qualitydimuon} 进一步讨论。
+
+NNLO 矩阵元的计算复杂性使其无法在每次拟合迭代中直接求值，考虑到 CT18 所拟合数据集的庞大规模尤其如此。因此，对新纳入的 LHC 高精度数据，我们用 \texttt{MCFM}~\cite{Campbell:2010ff}、\texttt{NLOJet++}~\cite{Nagy:2003tz} 与 \texttt{aMCfast}~\cite{Bertone:2014zva} 等程序生成了 \texttt{ApplGrid}~\cite{Carli:2010rw} 与 \texttt{fastNLO}~\cite{Wobisch:2011ij} 快速插表，使得 PDF 参数变动时矩阵元可以被快速求值。随后，NNLO 截面利用由快速插表和 \texttt{NNLOJET}~\cite{Buza:1997mg,Ridder:2015dxa,Gehrmann-DeRidder:2017mvr,Currie:2016bfm,Currie:2017ctp}、\texttt{FEWZ}~\cite{Gavin:2010az,Gavin:2012sy,Li:2012wna}、\texttt{MCFM}~\cite{Campbell:2010ff,Boughezal:2016wmq,MCFM8}、\texttt{DYNNLO}~\cite{Catani:2007vq,Catani:2009sm} 等 NNLO 程序确定的逐点 NNLO/NLO $K$ 因子来计算。一个例外是 ATLAS 与 CMS 的顶夸克数据，其 NNLO 截面的 \texttt{fastNNLO} 插表由相关作者提供~\cite{Czakon:2016dgf,Czakon:2018nun}。每个数据集所用截面计算程序汇总于表~\ref{Theory-Calc-II}。我们对部分数据集考察过标度选择与不同 NNLO 程序带来的影响，但由于种种原因，这类变动未计入 PDF 不确定度。更多细节见本文其余部分。
+
+\begin{table}[b]
+\begin{tabular}{|c|c|c|c|c|c|c| }
+\hline
+Expt. ID\# & Process   &   Expt.   & fast table  & NLO code &  NNLO $K$-factors  & $\mu_{R,F}$\\
+\hline
+245  & \multirow{5}{*}{$W/Z$}  & LHCb 7 TeV    & \multirow{5}{*}{\texttt{APPLgrid}}   & \multirow{5}{*}{\texttt{MCFM/aMCfast}}   & \multirow{2}{*}{\texttt{FEWZ/MCFM}}   &  \multirow{5}{*}{$M_{W},M_{\ell \bar \ell}$}  \\
+246  &  & LHCb 8 TeV $Z\rightarrow e^+e^-$    &  &  &  &  \\
+248  &  & ATLAS 7 TeV  &  &  & \texttt{FEWZ/MCFM/DYNNLO}  &  \\
+249  &  & CMS 8 TeV $A(\mu)$   &  &  & \multirow{2}{*}{\texttt{FEWZ/MCFM}} &  \\
+250  &  & LHCb 8 TeV   &  &  &  &  \\
+\hline
+253 & high-$p_T$ $Z$  & ATLAS 8 TeV   & \texttt{APPLgrid} &  \texttt{MCFM} & \texttt{NNLOJET}  & $\sqrt{(p_{T,  \ell \bar \ell})^{2}+M_{\ell \bar \ell}^{2}}$ \\
+\hline
+542 &\multirow{3}{*}{Incl. jet} & CMS 7 TeV   & \texttt{fastNLO}  & \multirow{3}{*}{  \texttt{NLOJet++} }  & \multirow{3}{*}{ \texttt{NNLOJET}}   &  \multirow{ 3}{*}{$p_{T}$}    \\
+544 &  &  ATLAS 7 TeV & \texttt{APPLgrid} & & &  \\
+545 &  & CMS 8 TeV   & \texttt{fastNLO}  &  &   &      \\
+\hline
+573 & \multirow{2}{*}{$t\bar{t}$} &  CMS 8 TeV  &
+\multicolumn{3}{|c|}{\multirow{2}{*}{\texttt{fastNNLO} }  } &
+\multirow{2}{*}{ $\frac{H_{T}}{4}$, $\frac{m_{T}}{2}$}\\
+580 &   &   ATLAS 8 TeV & \multicolumn{3}{|c|}{} & \\
+\hline
+\end{tabular}
+\caption{CT18(Z) 全球拟合新纳入的 LHC 高精度数据的理论计算。从 \texttt{xFitter} 提取的 ATL7WZ（ID 248）的 $K$ 因子用 \texttt{DYNNLO} 计算，并在 App. \ref{sec:Appendix4xFitter} 中与 \texttt{FEWZ} 和 \texttt{MCFM} 比较。
+\label{Theory-Calc-II}}
+\end{table}
+
+在 CT18 分析可用的关于高 $p_T$ $Z$ 与单举喷注产生的最新 NNLO 计算中，由于蒙特卡洛（MC）积分引入的统计不确定性，NNLO 修正在实验分箱之间并不完全光滑。由此造成的人为涨落（幅度小于中心截面值的百分之一的若干分之一）抬高了这些精密测量的 $\chi^2$ 值。通过考察 NNLO/NLO $K$ 因子的运动学依赖性，我们识别出全部此类情形，并在 PDF 拟合中用光滑函数近似这些 $K$ 因子。为计入 $K$ 因子光滑化引入的不确定度，我们在受影响过程中加入了等于中心数据值 0.5\% 的非关联{\it MC 误差}，见 Secs.~\ref{sec:TheoryJets} 与 \ref{sec:LHCEWbosons}。MC 误差降低了这些过程的 $\chi^2$ 值，但不改变中心 PDF 拟合。MC 误差由各个 $K$ 因子值相对相应光滑函数的最大偏离估计得出，0.5\% 是对一部分拟合数据点达到的保守上界。
+
+误差传播必须计入这类数值理论误差。一些 NNLO 预言中不可忽略的 MC 误差也已被其他 PDF 拟合组注意到。例如 NNPDF 组在其分析中采取了类似做法~\cite{Ball:2017nwa}：对单举喷注数据，他们用 NLO 计算作为理论预言，再加上一个由重正化与因子化标度变化估计出的附加关联不确定度；对高 $p_T$ $Z$ 玻色子数据，一项基于 NNPDF 的分析也额外加入 1\% 的非关联不确定度，以计及 NNLO/NLO $K$ 因子数值的蒙特卡洛涨落~\cite{Boughezal:2016wmq}。
+
+对于已包含在 CT14 与 \CTHERAII{} 中的电弱玻色子产生的传承数据，
+我们沿用表~\ref{Theory-Calc-VB} 概括的原 CTEQ 计算。
+NLO 计算由 CT 拟合代码直接完成，逐点 $K$ 因子则用
+\texttt{Vrap}~\cite{Anastasiou:2003ds,Anastasiou:2003yy}、\texttt{ResBos}~\cite{Ladinsky:1993zn,Konychev:2005iy} 与
+\texttt{FEWZ}~\cite{Gavin:2010az,Gavin:2012sy,Li:2012wna} 计算。
+
+\begin{table}[tb]
+\begin{tabular}{|c|c|c|c|c| }
+\hline
+Expt. ID\# & Experiment   &  NLO code &  NNLO $K$-factors  & $\mu_{R,F}$\\
+\hline
+201 &  E605 DY  &  \multirow{3}{*}{ \texttt{CTEQ}}  & \multirow{3}{*}{ \texttt{FEWZ}  }   & \multirow{3}{*}{$M_{\ell \bar \ell}$} \\
+203  & E866 DY $\sigma_{pd}/\sigma_{pp}$  &  &    & \\
+204  & E866 DY $\sigma_{pp}$  &  &    & \\
+\hline
+225 & CDF Run-1 $A(e)$  &  \multirow{4}{*}{ \texttt{CTEQ}}  &  \multirow{4}{*}{ \texttt{ResBos}}  &  $M_{\ell \bar \ell}$   \\
+227 & CDF Run-2 $A(e)$ &     &  &  \multirow{3}{*}{$M_{W}$} \\
+234 &  D$\varnothing$ Run-2 $A(\mu)$  &    && \\
+281 & D$\varnothing$ Run-2 $A(e)$  &   &&  \\
+\hline
+260 &   D$\varnothing$ Run-2 $y_{Z}$ &   \multirow{2}{*}{ \texttt{CTEQ}}  &  \multirow{2}{*}{\texttt{Vrap}}  &
+\multirow{2}{*}{ $M_{\ell \bar \ell}$ } \\
+261 &  CDF Run-2 $y_{Z}$ &        &  &\\
+\hline
+266 & CMS 7 TeV $A(\mu)$   &   \multirow{3}{*}{\texttt{CTEQ} }  &\multirow{3}{*}{ \texttt{ResBos}} & \multirow{2}{*}{ $M_{W}$}   \\
+267  & CMS 7 TeV $A(e)$  &        &  &\\
+268 &  ATLAS 7 TeV 2011 $W/Z$  &   &   & $M_{W},M_{\ell \bar \ell}$ \\
+\hline
+\end{tabular}
+\caption{CT14 与 \CTHERAII{} 电弱矢量玻色子产生传承数据的理论计算。
+\label{Theory-Calc-VB}}
+\end{table}
+
+即便使用了存储网格对矩阵元做快速求值，速度上仍需显著改进。CT 拟合代码已升级为多层并行化的多线程版本：一是重新安排极小化算法，二是重新分配数据集。结果是计算速度最高提升了 10 倍。详情见
+Appendix~\ref{sec:AppendixCodeDevelopment}。
+
+下面我们描述 CT18(Z) 拟合中纳入的每个新 LHC 过程的理论计算。
+
+\subsubsection{LHC 单举喷注数据
+\label{sec:TheoryJets}
+}
+
+LHC 单举喷注数据有不同的喷注半径可用。我们选择两种名义喷注半径中较大的一个——ATLAS 为 0.6、CMS 为 0.7——以减少对重求和/簇射与强子化效应的依赖~\cite{Bellm:2019yyh}。在低喷注横动量处，分别取单举喷注 $p_T$ 或领头喷注 $p_T$（$p_{T1}$）作为动量标度的两种 NNLO 理论预言之间存在不可忽略的差异~\cite{Currie:2018xkj}。CTEQ-TEA 组采用的名义选择是单举喷注 $p_T$。我们观察到，即使在这两种标度选择的 NNLO 预言差异重要的运动学区域，拟合出的胶子 PDF 对此选择也不太敏感。
+
+文献~\cite{Dittmaier:2012kx} 的电弱修正已被应用于喷注截面；在最中央快度区最高横动量分箱处修正可达 10\%，但随快度增加和喷注横动量降低而迅速减小。此外，按照上一小节的做法，QCD NNLO/NLO $K$ 因子用光滑曲线拟合，并对每个数据值加入相对数据评估的 0.5\% 理论误差，以计及 \texttt{NNLOJET} 提供的 NNLO 截面积分中的涨落。
+
+
+\subsubsection{LHC 电弱规范玻色子的强子产生
+\label{sec:LHCEWbosons}}
+CT18(Z) 全球分析中 Drell-Yan 过程的 NNLO 理论计算如下：
+
+\begin{itemize}
+\item ATLAS 7 TeV、积分亮度 4.6 fb$^{-1}$ 的 $e$ 与 $\mu$ 衰变道 $W^{\pm}$ 和 $Z/\gamma^{*}$ 产生截面测量~\cite{Aaboud:2016btc}：
+NLO 理论预言由 \texttt{MCFM}~\cite{Campbell:2010ff} 生成的 \texttt{APPLgrid}~\cite{Carli:2010rw} 快速插表得到，并与接合 \texttt{MadGraph5\_aMC@NLO}~\cite{Alwall:2014hca} 的 \texttt{aMCfast}~\cite{Bertone:2014zva} 校验。NNLO 修正取自文献~\cite{Aaboud:2016btc} 发表的 \texttt{xFitter} 分析。这些修正用 \texttt{DYNNLO-1.5} 程序~\cite{Catani:2007vq,Catani:2009sm} 获得，并与 \texttt{FEWZ-3.1.b2}~\cite{Gavin:2010az,Gavin:2012sy,Li:2012wna} 和 \texttt{MCFM-8.0}~\cite{Boughezal:2016wmq} 程序核对。发现这些程序之间存在一定差异（可达 $\sim\!1\%$）。然而这些分歧并未在 $\chi^2$ 等计算结果中引起显著差别。更多细节见 Appendix~\ref{sec:Appendix4xFitter}。
+
+
+\item CMS 8 TeV、$18.8 \mbox{ fb}^{-1}$ 的缪子电荷不对称测量~\cite{Khachatryan:2016pev}：
+NLO 理论预言来自 \texttt{MCFM} 生成的 \texttt{APPLgrid}，而 NNLO 修正采用 \texttt{FEWZ-3.1} 计算的 $K$ 因子。这些预言也已用 \texttt{MCFM-8.0} 校验。
+
+\item LHCb 7 TeV $W/Z$ 截面、积分亮度 1 fb$^{-1}$ 的 $W$ 电荷不对称测量~\cite{Aaij:2015gna}，以及包含电子道~\cite{Aaij:2015vua} 与缪子道~\cite{Aaij:2015zlq} 的 LHCb 8 TeV 测量：
+NLO 理论计算由 \texttt{MCFM} 生成的 \texttt{APPLgrid} 快速插表得到，并与 \texttt{MadGraph5\_aMC@NLO} + \texttt{aMCfast} 校验。NNLO 修正用 \texttt{FEWZ} 计算并由 \texttt{MCFM} 校验。
+
+\item ATLAS~\cite{Aad:2014xaa,Aad:2015auj} 与 CMS~\cite{Khachatryan:2015oaa} 在 7 TeV 和/或 8 TeV 对 Drell-Yan 轻子对横动量的测量。
+CT18(Z) 拟合仅包含 ATLAS 8 TeV 绝对微分截面测量。NLO 理论计算用 \texttt{MCFM} 生成的 \texttt{APPLgrid} 完成。NNLO 修正由 \texttt{NNLOJET} 组提供~\cite{Ridder:2015dxa,Gehrmann-DeRidder:2017mvr}。
+我们用光滑曲线拟合 NNLO/NLO $K$ 因子，并加入 0.5\% 的 MC 误差以计及 NNLO 计算的涨落。
+另外，我们施加运动学割断 $45\!<\!p_{T,  \ell \bar \ell}\!<\!150$ GeV 以保证固定阶计算的可靠性。
+低 $p_{T,  \ell \bar \ell}$ 区域因 QCD 软胶子重求和的贡献不可忽略而被舍弃，高 $p_{T,  \ell \bar \ell}$ 区域则因预期电弱修正会增长而被舍弃~\cite{Hollik:2015pja,Kallweit:2015fta}。
+
+\end{itemize}
+
+\begin{figure}[p]
+        \center
+	\hspace*{-0.5cm}\includegraphics[width=0.51\textwidth]{images/glu_CT18par.pdf}
+        \includegraphics[width=0.51\textwidth]{images/u_CT18par.pdf}\\
+        \hspace*{-0.5cm}\includegraphics[width=0.51\textwidth]{images/d_CT18par.pdf}
+        \includegraphics[width=0.51\textwidth]{images/s_CT18par.pdf}\\
+        \hspace*{-0.5cm}\includegraphics[width=0.51\textwidth]{images/ubar_CT18par.pdf}
+        \includegraphics[width=0.51\textwidth]{images/dbar_CT18par.pdf}
+        \caption{
+	为理解 CT18 拟合中的参数化依赖性，我们用大范围备选函数形式的 $f_a(x,Q_0)$ 进行了 $\mathcal{O}(250)$ 个候选 PDF 分析。上图各面板中的绿色曲线展示了各种候选拟合所得中心拟合结果的散布范围，以其相对中心 CT18 拟合的比值表示。
+		}
+\label{fig:params}
+\end{figure}
+
+
+\subsubsection{正反顶夸克对产生
+\label{sec:TheoryTop}
+}
+LHC 8 TeV 顶夸克对微分分布的理论预言通过 \texttt{fastNNLO} 表~\cite{Czakon:2017dip,fastnnlo:grids} 在 QCD NNLO 实现。
+在 CT18 全球拟合中，顶夸克质量取为 $m_t^{\rm pole}=173.3$ GeV。受~\cite{Czakon:2016dgf} 启发，对顶夸克 $p_T$ 谱我们选默认中心标度
+$\mu_{F,R}\equiv \mu =1/2\sqrt{m_t^2 + p_{T,t}^2}$，其余分布则用
+$\mu=1/4\left(\sqrt{m_t^2 + p_{T,t}^2} + \sqrt{m_t^2 + p_{T,\bar{t}}^2}\right)$ 得到。
+电弱修正对 $t \bar{t}$ 微分分布理论预言的影响已在~\cite{Czakon:2017wor} 中研究，那里还考察了组合 QCD 与电弱修正的相加与相乘两种途径的差异。QCD $\times$ EW/QCD 贡献的解析拟合给出的 EW $K$ 因子是可得的~\cite{EW:kfac}。
+CT18 全球分析未在 $\bar{t} t$ 产生中纳入电弱修正。在当前考虑的微分分布运动学范围内，其对拟合 PDF 的影响预计很小。
+
+电弱修正对 CMS 13 TeV 处 CT18 理论预言的影响见 Sec.~\ref{sec:StandardCandles}。在该情形中，CT18 理论预言包含用~\cite{Czakon:2017wor} 的相乘方法计算的电弱修正，并且（不做数据拟合）采用推荐值 $m_t^{\rm pole}=172.5$ GeV 将理论与 CMS 数据比较。
+
+\subsection{参数化形式、系统误差与最终 PDF 不确定度}
+\label{sec:Paramstudies}
+
+\subsubsection{非微扰参数化形式\label{sec:ParamForms}}
+CTEQ PDF 分析中不确定度的一个重要来源与 QCD 演化下边界处被拟合分布的参数化形式选择有关，即 $f_a(x,\Q\! =\! Q_0)$。理论对何种 PDF 参数化最为恰当指导有限，因此最好在不过度拟合实验数据的前提下保证最大程度的参数灵活性~\cite{Kovarik:2019xvh}。App.~\ref{sec:AppendixParam} 给出 CT18 所用的显式参数化形式。照例，更高标度 $Q>Q_0$ 处的 PDF 用 NNLO 的 Dokshitser-Gribov-Lipatov-Altarelli-Parisi（DGLAP）方程计算，分裂核取自文献~\cite{Moch:2004pa,Vogt:2004mw}。\footnote{这些核的独立近期计算见 \cite{Ablinger:2014nga,Ablinger:2017tan}。}
+
+\subsubsection{实验系统误差的处理\label{sec:SystErrors}} 实验系统误差通常以百分比表的形式发表，分为两类：相加型与相乘型。相加误差指其绝对数值已知者，例如堆积（pileup）能量或底事件能量的不确定度。但多数误差是相乘型的，即误差由该分箱实验截面的比例确定，典型例子是喷注能量刻度不确定度。评估这两类系统误差有多种做法。这一主题在以前的 CT 论文中有深入探讨~\cite{Stump:2003yu,Nadolsky:2008zw,Lai:2010vv,Ball:2012wy,Gao:2013xoa,Dulat:2015mca,Hou:2016nqm}。
+
+最自然的选择似乎是将某一系统误差对应的比例不确定度直接乘以该分箱的实验截面。然而由于涨落，这种选择可能导致偏向中心值较低的实验数据点的偏差，即所谓 D'Agostini 偏差~\cite{DAgostini:1993arp,DAgostini:1999gfj}。因此在 CT18 中，如同 CT14 与 CT10，我们采用所谓的``扩展-$T$''选项：每个相乘项的系统误差由比例不确定度乘以该分箱的理论预言来确定，后者不受同样涨落的影响。理论预言从而相乘误差会在全局 PDF 拟合的每次迭代中重新计算。在单举喷注产生情形中，我们观察到对实验系统误差的相加式处理会产生在 $x>0.1$ 明显偏软的胶子 PDF，这一模式在 CT10 NNLO 分析中已经出现（参见 \cite{Gao:2013xoa} 第 VI.D 节图 18 与图 19）。
+
+
+\subsubsection{最终 PDF 不确定度\label{sec:FinalPDFuncertainty}}
+为估计参数化依赖性，我们用大量（超过 250 个）拟合参数数目相当的不同初始参数化形式多次重复 CT 拟合。一些候选拟合基于 App.~\ref{sec:AppendixParam} 所示类型的函数形式，但对 Bernstein 多项式的阶、$x$ 与 $y$ 变量之间的关系、Bernstein 系数 $a_i$ 之间的关系作了备选选择。
+在这 250 个拟合的许多之中，我们把某些味的 Bernstein 多项式自由参数数目增加到 6 或 7，或采用式~(\ref{eq:fiQ0}) 之后、式~(\ref{eq:s_param}) 之前定义的变量 $y$ 的不同形式，或不要求 $u_v$ 与 $d_v$ 的 $a_2$ 相同，类似地有时也放宽 $\bar u$、$\bar d$、$\bar s$ 的 $a_1$ 相等关系。
+
+此外，我们还随机地把一些实验系统误差的处理方式从相乘改为相乘的反面（相加）来重复部分拟合。另一类候选拟合同样通过在高 $p_T$ $Z$ 玻色子产生等敏感实验中选取备选 QCD 标度，或选用不同程序计算 NNLO $K$ 因子得到，参见 Appendix~\ref{sec:Appendix4xFitter}。
+最终 PDF 采用固定的参数化形式与系统的参数设定获得，而不确定度则按文献~\cite{Lai:2010vv,Gao:2013xoa} 采用的两级（two-tier）约定计算，以覆盖备选选择下所得解的主体。该研究的结果示于图~\ref{fig:params}：图中在已发布 CT18 版本的不确定度带（68\% 置信水平）之上叠加了一组针对不同备选拟合形式以及 LHC 与 Tevatron 喷注产生中相乘/相加系统误差选择的中心拟合（绿色实线）。
+
+随着自由 PDF 参数数目增加，只要被拟合的自由参数 $\lesssim\! 30$ 个，通常会看到全局 $\chi^2$ 或个别 $S_E$ 值的温和改善（最多几十个单位）。参数多于约 30 个时，扩展的参数化试图去描述统计噪声，拟合趋于不稳定。最终 PDF 基于总共 29 个自由参数的参数化。对四个拟合中的每一个，我们都提供两倍数量的 Hessian 误差 PDF，以便按 CTEQ6 主公式~\cite{Pumplin:2002vw} 评估 PDF 不确定度。

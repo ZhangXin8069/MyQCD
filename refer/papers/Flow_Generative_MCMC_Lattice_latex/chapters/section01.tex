@@ -1,0 +1,31 @@
+\section{Introduction}
+\label{sec:intro}
+
+%
+A key problem in lattice field theory and statistical mechanics is the evaluation of integrals over field configurations, referred to as path integrals. Typically, such integrals are evaluated via a Markov chain Monte Carlo (MCMC) approach: field configurations are sampled from the desired probability distribution, dictated by the action of the theory, using a Markov chain.
+%
+A significant practical concern is the existence of correlations between configurations in the chain. Critical slowing down~\cite{Wolff:1989wq} refers to the divergence of the associated autocorrelation time as a critical point in parameter space is approached. This behavior drastically increases the computational cost of simulations in these parameter regions~\cite{DelDebbio:2004xh,Meyer:2006ty}. For some models, algorithms have been found which significantly reduce or eliminate this slowing down~\cite{Kandel:1988zz,Bonati:2017woi,PhysRevD.98.054502,SwendsenWang87,Wolff1989,ProkofevSvistunov01,KawashimaHarada04,Bietenholz1995MeronCluster}, enabling efficient simulation. For field theories, a number of methods have been proposed to circumvent critical slowing down by variations of Hybrid Monte Carlo (HMC) techniques~\cite{Ramos:2012bb,Gambhir:2015rha,Cossu:2017eys,Jin2019QNHMC}, multi-scale updating procedures~\cite{Endres:2015yca,Detmold:2016rnh,Detmold:2018zgk}, open boundary conditions or non-orientable manifolds~\cite{Luscher:2012av,Mages:2015scv,Burnier:2017osu}, metadynamics~\cite{Laio:2015era}, and machine learning tools~\cite{Tanaka:2017niz,Shanahan:2018vcv}. In important classes of theories, however, critical slowing down remains limiting; for example, in lattice formulations of Quantum Chromodynamics (QCD, the piece of the Standard Model describing the strong nuclear force) it is a major barrier to simulations at the fine lattice spacings required for precise control of the continuum limit.
+
+Here, a new \emph{flow-based MCMC} approach is proposed and is applied to lattice field generation. The resulting Markov chain has autocorrelation properties that are systematically improvable by an optimization (training) step before sampling.
+In this method, samples $z$ are drawn from a simple distribution and then transformed by a change-of-variables (or ``flow'') $\phi = f^{-1}(z)$, resulting in samples $\phi$ with a new effective distribution $\netp$. The mapping $f^{-1}$ is chosen to be efficient to compute, making it easy to draw samples $\phi$, and is optimized within a variational family to produce a distribution $\netp$ close to the desired one.
+To guarantee asymptotic exactness of sampling, a Markov chain is constructed using Metropolis-Hastings steps with $\tilde{p}_{f}$ taken as a proposal distribution. Since proposed samples are independent of the previous samples in the chain, the autocorrelation time and acceptance rate are coupled; the autocorrelation time drops to zero as the acceptance rate approaches $1$. This is true even in regions of parameter space where standard algorithms exhibit critical slowing down. Under mild conditions (detailed in Section~\ref{sec:flowMCMC}), this approach is guaranteed to generate samples from the desired probability distribution in the limit of a large number of updates.
+
+This method has several features that make it attractive for the evaluation of path integrals in lattice field theories:
+%
+\begin{enumerate}
+    \item The autocorrelation time of the Markov chain can be systematically decreased by training the model;
+    \item
+    Each step of the Markov chain requires only the model evaluation and an action computation;
+    \item Each update proposal is independent of the previous sample, thus proposals can be generated in parallel and efficiently composed into a Markov chain;
+    \item The model is trained using samples produced by the model itself, without the need for existing samples from the desired probability distribution.
+\end{enumerate}
+
+Several other machine learning approaches have been applied to MCMC, for statistical mechanics systems, synthetic distributions, and simple lattice quantum field theories. Self-learning Monte Carlo (SLMC) methods have been applied fairly successfully to one- to three-dimensional Ising and fermionic systems. These methods construct, by a variety of techniques, an effective Hamiltonian for a theory that can be more easily sampled than the original Hamiltonian~\cite{Huang2017,Liu2017SLMC,Liu2016SLMCFermion, Nagai2017SLMCCT,Shen2018SLMCDNN}.
+The effective Hamiltonian is learned using supervised learning techniques based on training data drawn from a combination of existing MCMC simulations, randomly-mutated samples, and the accelerated Markov chain itself (hence the term ``self-learning'').
+Flow-based methods have been used for Monte Carlo sampling in the two-dimensional Ising model~\cite{Li2018}, many-body systems~\cite{NoeBoltzmannGenerators2018}, and
+synthetic distributions~\cite{Song2017,Levy2017GenHMC}, and generative adversarial methods have been applied to two-dimensional scalar field theory~\cite{Urban2018,Zhou2018}.
+
+In contrast to these approaches, the method proposed here focuses on directly generating samples from a close approximation to the true distribution in such a way that the exact likelihood of each produced sample is known. The direct generation allows self-learning as in SLMC, and the known likelihood allows use of a Metropolis-Hastings acceptance step to ensure exactness.
+
+
+The proposed flow-based MCMC algorithm is detailed in Section~\ref{sec:flowMCMC}. A numerical study of its effectiveness in the context of two-dimensional $\phi^4$ theory is presented in Section~\ref{sec:phi4}. Finally, Section~\ref{sec:summary} outlines the further development and scaling of the approach that will be required for applications to theories defined in a larger number of spacetime dimensions and to more complicated field theories such as QCD.

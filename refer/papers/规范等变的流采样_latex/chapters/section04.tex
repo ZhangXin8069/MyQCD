@@ -1,0 +1,36 @@
+\section{规范等变耦合层}
+我们通过把输入变量切分为子集 $U^A$ 和 $U^B$，构造了一个显式规范等变且可逆的耦合层 $g: G^{N_d V} \rightarrow G^{N_d V}$。就这两个子集而言，我们把耦合层的作用定义为 ${g(U^A, U^B) = ({U'}^A, U^B)}$，其中链接 $U^i \in U^A$ 被映射为
+%
+\begin{equation} \label{eqn:gauge-equiv-coupling}
+{U'}^i = h(U^i S^i | I^i) {S^i}^{\dagger},
+\end{equation}
+%
+其中 $h: G \rightarrow G$ 是一个可逆的\emph{核}（kernel），它显式地由从 $U^B$ 的元素构造的一组规范不变量 $I^i$ 参数化。这里 $S^i$ 是若干链接的乘积，使得 $U^i S^i$ 构成一个起点与终点为同一点 $x$ 的圈，因此在规范对称性下它变换为 $\Omega(x) \, U^i \Omega^\dagger(x+\hat{\mu}) \, \Omega(x+\hat{\mu}) S^i \Omega^\dagger(x) = \Omega(x) \, U^i S^i \, \Omega^\dagger(x)$。在这个定义下，只要核满足
+%
+\begin{equation} \label{eqn:kernel-transform}
+    h(X W X^\dagger) = X \, h(W) \, X^\dagger, \quad \forall X, W \in G,
+\end{equation}
+%
+耦合层就是规范等变的；这意味着 ${U'}^i \rightarrow {\widetilde{U}}^{\prime i}$ 按照式~\eqref{eqn:gauge-transform} 变换：
+\begin{equation}
+\begin{aligned}
+    {\widetilde{U}}^{\prime i} &= h\left( \Omega(x) \, U^i S^i \, \Omega^\dagger(x) | I^i \right) \; \Omega(x) {S^i}^\dagger \Omega^\dagger(x+\hat{\mu}) \\
+    &= \Omega(x) {U'}^i \Omega^\dagger(x+\hat{\mu}).
+\end{aligned}
+\end{equation}
+为了保证可逆性，链接乘积 $S^i$ 不得包含 $U^A$ 中的任何链接。
+
+对阿贝尔群而言，式~\eqref{eqn:kernel-transform} 中的变换性质对任何核都平凡地成立。因此，在下文考虑的 $\Uone$ 规范理论中，我们用神经网络参数化的可逆流来定义核。对非阿贝尔理论，已有结果表明可以在球面上构造可逆函数~\cite{rezende2020normalizing}、在一般李群上构造满射函数~\cite{falorsi19lie}。如果这些方法能够推广为具有收敛幂级数展开的可逆函数，它们将满足所需的核变换性质，因为 ${h(X W X^\dagger) = \sum_n \alpha_n (X W X^\dagger)^n = X \, h(W) \, X^\dagger}$。
+
+图~\ref{fig:equiv_masking} 所描绘的模式给出了一个既适合阿贝尔也适合非阿贝尔规范理论的变量切分的例子。在这个例子中，被更新的链接集合 $U^A$ 由彼此间隔 4 个格点的竖直链接组成，而乘积 $U^i S^i$ 是与每个 $U^i$ 相邻的 $1\times1$ 圈。这个切分足够稀疏，使得每个 $S^i$ 都独立于 $U^A$ 中所有被更新的链接，并且可以构造出一组非平凡的 invariant $I^i$（例如所有不与被更新链接相邻的求迹 $1\times1$ 圈）来参数化该变换。通过对该模式进行旋转和错位来复合多个耦合层，便可以使所有链接都被更新。\footnote{例如，复合 8 个这样的层就足以更新二维中的所有链接。}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.8\linewidth]{images/shifted-w-passive-with-flow-repeat-cblind-fewerdots-latex-open-notheta.pdf}
+
+    \caption{一个基于平铺的 $4\times 1$ 图案的变量切分的例子：在 $x$ 处有一个主动更新的链接 $U^i \equiv U_\mu(x)$ 和一个 $1\times1$ 圈 $U^i S^i \equiv P_{\mu\nu}(x)$，在 $\widetilde{x}=x-\hat{\nu}$ 处有一个被动更新的 $1\times1$ 圈，并且在 $x+\hat\nu$ 与 $x+2\hat\nu$ 处有两个冻结的求迹 $1\times1$ 圈被包含进集合 $I^i$。
+    }
+    \label{fig:equiv_masking}
+\end{figure}
+
+以这种由核构造的规范等变耦合层为基础，推广了文献~\cite{Luscher:2009eq} 提出的``平凡化映射''（trivializing map）。在那里，反复应用一个基于作用量梯度的特定核，理论上可以把规范理论平凡化，即把欧氏时间分布映射为均匀分布。这里定义的规范等变流的家族，在耦合层数目很大且核任意有表达力的极限下包含了该平凡化映射，这表明在此极限情形下可以实现文献~\cite{Luscher:2009eq} 所描述的精确抽样。不过，这里提出的方法允许对 $h$ 采用更一般、更廉价的参数化。可以对这些参数化进行优化，产生同样能使理论平凡化的流，而且其求值代价可能低于解析平凡化映射的实现~\cite{Engel2011TestTrivMap}。

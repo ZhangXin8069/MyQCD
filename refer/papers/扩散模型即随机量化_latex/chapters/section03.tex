@@ -1,0 +1,175 @@
+\section{扩散模型}
+\label{sec:dm}
+
+
+转向深度学习，DMs 指一类深度生成算法，它们模拟一个随机过程来生成服从期望目标分布的样本~\cite{sohl-dickstein:2015deep}。DMs 的基本概念是通过连续时间扩散过程或离散时间马尔可夫链对数据分布建模，其间噪声被逐步加入数据或从数据中移除。这一生成式框架在近期工作中获得重视，例如基于分数的模型（SBMs）~\cite{NEURIPS2019_3001ef25,song2021scorebased} 与去噪扩散概率模型（DDPMs）~\cite{ho:2020denoising}；全面综述见文献~\cite{yang:2022diffusion}。本节先介绍 DMs 的去噪视角，再指出 DMs 与 SQ 的联系。
+
+\subsection{去噪模型}
+
+在 DMs 的语境中，去噪模型可视为一个映射，它借助扩散过程的施加从数据的含噪变体重构原始数据。与上文引入的朗之万动力学类似，第一个过程（也称为前向过程）逐渐向数据中加入噪声，有效地``光滑化''数据的底层（通常未知）概率分布。随后，去噪模型旨在学习其\textit{逆过程}，即通过消除所加噪声来为数据去噪。训练完成后，仅执行逆向扩散过程，去噪模型便可用于生成服从数据分布的样本。该采样过程从随机噪声出发，迭代地应用训练好的去噪模型将其``清洁''直至收敛，最终得到代表目标数据分布的样本。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[tbp]
+\begin{center}
+\includegraphics[width=1.0\textwidth]{images/SDE.pdf}
+\caption{前向扩散过程（左图）与逆向去噪过程（右图）示意图。这两个随机过程由两个随机微分方程描述。目标分布通常是未知的，需从训练数据中学得。
+}
+\label{fig:dm}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+在连续时间的极限下，前向过程遵循随机微分方程（SDE），
+\begin{equation}
+\frac{d \phi}{d\xi } = f(\phi, \xi) + g(\xi) \eta(\xi),
+\label{eq:sde}
+\end{equation}
+其中 $\xi\in[0,T]$ 是朗之万时间，$\eta$ 是噪声项，满足{$\langle \eta(\xi)\eta(\xi')\rangle=2\alpha \delta(\xi-\xi')$，按机器学习社区的约定 $\alpha \equiv 1/2$}；$f(\phi, \xi)$ 是漂移项。注意噪声项和漂移项与场 $\phi$ 具有相同的尺寸。最后，$g(\xi)$ 的平方是依赖时间的标量\textit{扩散系数}。
+只要漂移项与扩散系数选取适当，前向扩散过程便可建模为这类一般 SDE 的解。
+
+如图~\ref{fig:dm} 所示，其目标是从先验分布 $p_T$ 的样本出发、逆转上述扩散过程，从而得到数据分布 $p_0$ 的样本。这通过求解逆时 SDE 实现——它表示一个沿时间反向演化的扩散过程~\cite{anderson:1982reversetime}
+\begin{equation}
+  \frac{d\phi}{dt} = \left[ f(\phi, t) - g^2(t)\nabla_{\phi}\log p_t(\phi) \right]
+  + g(t) \bar{\eta}(t),
+  \label{eq:rsde}
+\end{equation}
+其中逆时变量 $t \equiv T-\xi$，$\bar{\eta}$ 是逆时间方向的噪声项。重要的是，漂移项现在包含两项，其中有 $p_t(\phi)$（前向扩散过程中时刻 $t$ 的概率分布）的对数的梯度。一旦给定了前向 SDE 的漂移项与扩散系数，并对每个 $t\in[0, T]$ 确定了 $\log p_t(\phi)$ 的梯度，这个逆时 SDE 就可以计算。
+
+
+实现去噪模型的关键在于：在一个设计良好的 式~\eqref{eq:sde} 前向扩散过程下准确估计概率分布 $p_t(\phi)$。在基于分数的模型~\cite{NEURIPS2019_3001ef25,song2021scorebased} 中，$\nabla_{\phi}\log p_t(\phi)$ 被称为每个样本的\textit{分数}（score）。常规做法是为每个前向扩散步引入一个微扰核\footnote{向样本加上一系列尺度为 $\sigma_\text{min} = \sigma_1<\sigma_2<\cdots<\sigma_N = \sigma_\text{max}$ 的高斯噪声；当 $\sigma_\text{min}$ 足够小时起点为 $p_1(\phi_1)\simeq p_0(\phi_0)$，当 $\sigma_\text{max}$ 足够大时终点为 $p_N(\phi)\simeq \mathcal{N}(\phi ; \mathbf{0}, \sigma_\text{max}^2 \mathbf{I})$。下文中我们把 $\phi(\xi)$ 缩写为 $\phi_\xi$，离散情形则记作 $\phi_i$。}
+$p_\xi(\phi_\xi | \phi_0)  \equiv \mathcal{N}(\phi_\xi ; \phi_0, \sigma_\xi^2 \mathbf{I})$，其中 $\phi_0\sim p_0 $。于是，\textit{分数}可由
+%
+\begin{equation}
+    p_{\xi}(\phi_\xi) = \int p_{\xi}(\phi_\xi|\phi_0) p_0(\phi_0) d\phi_0.
+\end{equation}
+%
+计算。可以方便地训练神经网络 $s_\theta(\phi,t)$ 来近似\textit{分数}，这被称为\textit{分数匹配}（score matching）~\cite{Aapo:2005scb,Vincent:2011scb}。神经网络的参数以下述目标函数优化：
+\begin{equation}
+    %\hat{\theta}=\arg\operatorname*{min}_{\theta} \sum_{i=1}^{N}\sigma_{i}^{2}\mathbb{E}_{p_0(\phi_0)}\mathbb{E}_{p_i(\phi_i\mid\phi_0)}\bigl[ \Vert\mathbf{s}_\theta(\phi_i,\xi)-\nabla_{\phi_i}\log p_i(\phi_i\mid\phi_0)\Vert_{2}^{2} \bigr].\label{eq:objective}
+    \mathcal{L}_{\theta}= \sum_{i=1}^{N}\sigma_{i}^{2}\mathbb{E}_{p_0(\phi_0)}\mathbb{E}_{p_i(\phi_i\mid\phi_0)}
+    \left[ \left\Vert s_\theta(\phi_i,\xi)-\nabla_{\phi_i}\log p_i(\phi_i|\phi_0)\right\Vert_{2}^{2}
+    \right],
+    \label{eq:objective}
+\end{equation}
+其中区间 $T$ 已被划分为以 $i$ 为指标的 $N$ 段（更多细节见下文）。最优的基于分数的模型 $s_{\hat{\theta}}(\phi,t)$（$\hat{\theta}=\arg\operatorname*{min}_{\theta}\mathcal{L}_{\theta}$）应在每个时间步都匹配分数。采样归结为求解 式~\eqref{eq:rsde} 所示的逆时 SDE，并把\textbf{分数}替换为 $s_{\hat{\theta}}(\phi,t)$：
+\begin{equation}
+  \frac{d\phi}{dt} = \left[ f(\phi, t) - g^2(t)s_{\hat{\theta}}(\phi,t) \right] + g(t) \bar{\eta}(t).
+\end{equation}
+
+作为一个具体而简洁的例子，将前向漂移项 $f(\phi,\xi)$ 取为零并简化扩散系数（参见文献~\cite{song2021scorebased}），取 $g(\xi) \equiv \sigma^{\xi}$，便得到一个\textit{方差扩张}的前向过程，其转移核仍保持高斯形式，
+\begin{equation}
+    p_{\xi}(\phi_\xi | \phi_0) = \mathcal{N}\bigg(\phi_\xi; \phi_0, \frac{1}{2\log \sigma}(\sigma^{2\xi} - 1) \mathbf{I}\bigg).
+    \label{eq:sbm}
+\end{equation}
+
+
+我们注意到，式~\eqref{eq:sde} 和~\eqref{eq:rsde} 都是朗之万方程。\footnote{这一方法已在贝叶斯学习中作为随机梯度朗之万动力学被使用~\cite{welling:2011bayesian}。与标准的随机梯度下降（SGD）算法不同，随机梯度朗之万动力学把随机性引入参数更新，从而避免陷入局部极小。}就逆时 SDE 而言，给定梯度 $\nabla_{\phi}\log p(\phi,t)$，便可方便地在{一个随机演化过程（如\ref{subsec:sim} 节所述）中从先验分布生成样本。}
+
+
+\subsection{作为随机量化的扩散模型}
+
+DMs 的逆时 SDE 在数学上与朗之万动力学相关。为了更细致地探究 DMs 与随机量化的联系，我们选取 DMs 的\textit{方差扩张}图像。其去噪过程把 $\phi_T$ 送回 $\phi_0$，边缘密度与前向过程相同，但按照
+\begin{equation}
+    \frac{d\phi}{dt} =  - g(t)^2 \nabla_\phi \log{p_t(\phi)} +  g(t) \bar{\eta}(t),
+\end{equation}
+演化，其中时间 $t$ 从 $T$ 向 0 反向流动。重新定义时间 $\tau\equiv T-t$（$d\tau \equiv -dt$），并记前向过程的 $g_\tau=g(T-\tau)$、$q_{\tau}(\phi)=p_{T-\tau}(\phi)$，SDE 变为
+\begin{equation}
+    \frac{d\phi}{d\tau} = g_\tau^2\nabla_\phi \log{q_{\tau}(\phi)} + g_\tau\bar{\eta}(\tau) \label{eq:dmle}\\
+\end{equation}
+其离散化形式为
+\begin{equation}
+    \phi(\tau_{n+1}) = \phi(\tau_n) +  g_{\tau_n}^2\nabla_\phi \log{q_{\tau_n}[\phi(\tau_n)]} \Delta\tau +  g_{\tau_n}\sqrt{\Delta\tau}\bar{\eta}(\tau_n),
+\end{equation}
+其中噪声项 $\langle\bar{\eta}(\tau_n)\rangle = 0, \langle\bar{\eta}(\tau_n)\bar{\eta}(\tau_{n'})\rangle = 2\bar\alpha\delta_{nn'}$，{按量子场论的约定 $\bar{\alpha} \equiv \hbar =1$}。由于噪声项均值仍为零，噪声项前的符号与随机过程无关。
+我们指出，$g^2(\tau)$ 被称为核，它同时对漂移项与噪声项的方差进行重标度~\cite{Damgaard:1987rr}。
+其效果可以通过用 $g^2(\tau)$ 重标度时间来吸收，或等价地把它吸收进时间步长 $ g_\tau^2\Delta\tau$。
+
+相应 Fokker--Planck 方程的推导直截了当，可得
+%More details of deriving the related Fokker-Planck equation can be found in App.~\ref{app:der-FP}. In essence, one can introduce a new noise scale, $\langle\bar{\eta}^2\rangle \equiv 2\bar{\alpha}$, as in the Langevin dynamics as described by Eq.\eqref{eq:sq}. Consequently, the Fokker-Planck equation for the reverse SDEs becomes,
+\begin{equation}
+    \frac{\partial p_{\tau}(\phi)}{\partial \tau} =
+    \int d^nx \left\{g^2_{\tau}  \frac{\delta}{\delta \phi}
+    \left( \bar{\alpha}\frac{\delta }{\delta \phi} + \nabla_\phi S_\text{DM} \right)\right\} p_{\tau}(\phi),
+    \label{eq:fp}
+\end{equation}
+其中
+\begin{equation}
+  \nabla_\phi S_\text{DM}\equiv -\nabla_\phi \log{q_{\tau}(\phi)}
+\end{equation}
+是在前向扩散过程上训练得到的分数，而 $p_{\tau}(\phi)$ 是逆扩散过程中 $\phi_{\tau}$ 的概率密度。可以立即导出如下局域于时间的平衡条件：
+\begin{equation}
+    p_\text{eq}(\phi) \propto e^ {-S_\text{DM}/\bar{\alpha}},
+    \label{eq:dmsq}
+\end{equation}
+这里回顾 $\bar\alpha=1$，且 $S_\text{DM}$ 是将在 DMs 中学到的有效作用量。当噪声尺度与量子尺度相当，即 $O(\bar{\alpha})\sim O(\hbar)$ 时，式~\eqref{eq:dmsq} 涵盖了式~\eqref{eq:equ} 中展现的量子涨落。在 $\tau\rightarrow T$ 极限下，$ p_{\tau=T}(\phi) \rightarrow P[\phi,T]$，而 $P[\phi,T]$ 正是 SQ 中 PDF 的时间演化。这意味着 SQ 的``平衡态''可以从一个朴素分布出发经去噪达到。同时，从 SQ 视角看，从 DM 采样等价于优化一条随机轨迹，使之在给定朴素分布的条件下逼近式~\eqref{eq:equ} 中的``平衡态''。
+
+然而，把噪声组态还原为物理组态是一个高度复杂的过程。原则上，可以求解 式~\eqref{eq:dmle} 的逆时 SDE 来刻画这一去噪过程，但计算``随时间变化''的漂移项仍是棘手的。本文采用一类特殊的深度神经网络，即 U-Net。该网络的结构在附录~\ref{app:unet} 中有更详细的讨论。U-Net 被定制用来参数化\textit{分数函数} $\hat{\mathbf{s}}_\theta(\phi,\tau)$，以估计这个随时间变化的漂移项 $-\nabla_\phi \log{q_{\tau}(\phi)}$。它被设计成接受两个输入：时间以及轨迹内一个随时间变化的组态；其输出与输入（场组态）尺寸相同。
+
+\subsection{{构建有效作用量}}
+\label{subsec:continious}
+
+{要在 DMs 中推导量子场的有效作用量，需要\textit{概率流} ODE 表述~\cite{Maoutsa:2020ode,song2021scorebased}，它提供了计算场组态负对数似然的定量途径。}假设存在可微的一一映射 $\mathbf{h}$，把数据样本 $\phi_0 \sim p_0$ 变换为先验分布中的样本 $\mathbf{h}(\phi_0) = \phi_T \sim p_T$，则利用换元公式可计算 $p_0(\phi_0)$ 的似然：
+\begin{equation}
+p_0(\phi_0) = p_T(\mathbf{h}(\phi_0)) |\operatorname{det}(J_\mathbf{h}(\phi_0))|,\label{eq:mapping}
+\end{equation}
+其中 $J_\mathbf{h}$ 表示映射 $\mathbf{h}$ 的雅可比矩阵，并假定先验分布 $p_T$ 易于求值。ODE 轨迹同样定义了从 $\phi_0$ 到 $\phi_T$ 的一一映射。在我们的情形，{对于量子场论，\footnote{推导可见文献~\cite{risken1996fokker} 及文献~\cite{song2021scorebased} 的附录 D.1。$g(t)^2$ 前系数的差异源于量子场论中 $\bar{\alpha}= 1$ 的约定。} }
+\begin{equation}
+\frac{d\phi}{dt} = \left[f(\phi, t) - g(t)^2 \nabla_\phi \log p_t(\phi)\right].
+\label{eq:ode}
+\end{equation}
+它的目的是寻找状态变量 $\phi$ 的轨迹，使其具有与 SDE（即 式~\eqref{eq:sde}）所描述的随机过程相同的边缘概率密度 $p_t(\phi)$。可以推导出一个瞬时换元公式来联系 $p_0(\phi_0)$ 与 $p_T(\phi_T)$ 的概率，即,{
+\begin{equation}
+p_0 (\phi_0) = \exp\left[\int_0^T dt\,\mathbf{\nabla}\cdot \tilde{f}(\phi_t, t) \right] p_T(\phi_T),\label{eq:jacobian}
+\end{equation}
+其中散度是雅可比矩阵的迹，并重新定义了 $\tilde{f}(\phi_t, t)\equiv f(\phi, t) - g(t)^2 \nabla_\phi \log p_t(\phi)$}。迹的实际计算可在附录~\ref{app:she} 中用 Skilling-Hutchinson 估计器完成~\cite{grathwohl2018scalable}。
+
+从概率流守恒的视角看，我们在上一节导出的随机过程内在地与基于流的模型相关联，后者近来在格点计算中被广泛探索~\cite{Albergo:2021vyo,Zhou:2023pti}。在基于流的模型中，{可以用参数为 $\{\theta\}$ 的神经网络构造流映射，它表示物理分布 $p(\phi)$ 与某个先验分布之间的双射变换}，例如
+$z\sim \mathcal{N}(\mathbf{0},\mathbf{I})$。虽然常见做法是以离散步骤构建流映射，{如下变换 $\tilde{f}$
+\begin{equation}
+    \log p(\phi) = \log p(\mathbf{z}) - \log \left|\text{det}\frac{\partial \tilde{f}}{\partial \mathbf{z}}\right|, \label{eq:flow_mapping}
+\end{equation}
+}也可以设计成连续步骤。\footnote{事实上，若强制 $\log p(\mathbf{z}) = \text{const.}$，该变换便成为\textit{平凡化}（trivializing）流，详见文献~\cite{Luscher:2009eq,DelDebbio:2021qwf,Bacchio:2022vje,Albandea:2023wgd}。}这就是连续归一化流~\cite{Gerdes:2022eve}，其中参数化映射{$\tilde{f}_{\hat{\theta}}$ 是如下神经常微分方程（neural ODE）在时间 $t\in [0,T]$ 的解，
+\begin{equation}
+    \frac{d \phi(t)}{ dt} = \tilde{f}_\theta(\phi(t),t),\label{eq:flow_ode}
+\end{equation}
+边界条件为：$\phi(0) \equiv \mathbf{z}$，$\phi(T)\equiv \phi$。在此，可引入带参数的神经网络 $\tilde{f}_\theta(\phi,t)$ 来表示动力学核。概率流满足
+
+\begin{equation}
+    \frac{d \log p(\phi(t))}{ dt} = - \left(\nabla_\phi\cdot \tilde{f}_\theta\right)(\phi(t),t)\label{eq:flow_action},
+\end{equation}
+边界为 $p(\phi(0)) \equiv p(\mathbf{z})$。比较 式~\eqref{eq:mapping}、\eqref{eq:ode} 中的映射与 ODE 和 式~\eqref{eq:flow_mapping}、\eqref{eq:flow_ode} 中的对应物，可以立即发现 DMs 的流映射 $\tilde{f}_\theta(\phi(t),t)$ 等价于 式~\eqref{eq:jacobian} 中的 $\tilde{f}(\phi_t,t)$。}
+
+
+\subsection{玩具模型中的有效作用量}
+
+由式~\eqref{eq:dmle} 与 \eqref{eq:fp} 可见一个``随时间变化''的随机过程。在方差扩张的 DM 中，式~\eqref{eq:sde} 的前向过程带有预定的时间依赖扩散噪声，记为 $\sigma^{T-\tau}$，它保证场组态最终约化为噪声组态。有效作用量及相应的去噪过程可以从场形变的视角理解：\textit{场沿着一个随机过程从噪声分布连续形变为物理分布}。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[hbtp!]
+    \centering
+    \includegraphics[width = 0.95\textwidth]{images/dm00_s_f.pdf}
+    \caption{DM 学到的漂移项（上排）与有效作用量（中排）随 $\phi$ 的变化，涵盖单井（左列）与双井（右列）作用量以及随机过程中不同的时刻 $\tau$。作用量平移了一个常数 $\Delta S_0$。虚线标示精确值。底排展示分别用精确方法与 DM 生成的 1024 个样本。}
+    \label{fig:learned}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+为了演示这一点，我们引入一个过度简化的 0+0 维场论，即只有一个自由度的玩具模型，
+\begin{equation}
+    S(\phi) = \frac{\mu^2}{2}\phi^2 + \frac{g}{4!}\phi^4,
+    \qquad
+    f(\phi) = -\frac{\partial S(\phi)}{\partial\phi} = - \mu^2 \phi - \frac{g}{3!}\phi^3,
+\end{equation}
+物理作用量与漂移项由参数 $\mu^2$ 和 $g$ 决定。我们制备了 5120 个组态作为两组设置下的训练数据集：$\mu_1^2 = 1.0, g_1 = 0.4$（单井作用量）与 $\mu_2^2 = -1.0, g_2 = 0.4$（双井作用量）。实现了一个带时间嵌入的一一对应神经网络来表示分数函数 $\mathbf{s}_\theta(\phi,\tau)$。
+
+
+经过 500 轮（epoch）训练后，学到的分数函数 $\hat{\mathbf{s}}_\theta(\phi,\tau)$ 可近似漂移项 $f_\tau(\phi)$，见图~\ref{fig:learned} 上排。
+图中实蓝线表示起始时刻（$\tau = 0$）的分数函数，
+彩色线表示不同的 $\tau > 0$（右侧色条标示），而实红线表示训练良好的 DM 逆向过程中结束时刻（$\tau = 0.99$）的分数函数。
+学到的有效作用量 $S_\text{DM}(\phi,\tau) = \int^{\phi}\hat{s}_\theta(\tilde{\phi},\tau) d\tilde{\phi} $ 示于图~\ref{fig:learned} 中排；随着 $\tau$ 增大它逼近物理作用量。我们用常数 $\Delta S_0$ 平移了 $S_\text{DM}$，该常数为 $\min[S(\phi)]$ 与 $\min[S_\text{DM}(\phi,\tau)]$ 之差。总体而言，无论单井还是双井情形，在 $\phi\sim 0$ 附近学到的漂移项与有效作用量都是准确的近似。用训练好的 DM 生成的样本与底层理论的样本的比较见图~\ref{fig:learned} 底排。
+
+DM 的演化轨迹类似于精确的重整化群（RG）流及其逆。一种直观的理解是：（DM 前向过程中）坐标空间里逐渐增大的噪声尺度隐含地对应 RG 中逐渐减小的动量尺度 $\Lambda$。\footnote{由式~(\ref{eq:sbm})，可以对给定初始场 $\phi_0$ 采样得到前向过程中任一时刻的演化场 $\phi_{\tau}({\bf x})=\phi_{0}({\bf x}) + \sqrt{\frac{\sigma^{2\tau}-1}{2\log\sigma}}\epsilon({\bf x})$，其中 $\epsilon\sim\mathcal{N}({\bf 0},{\bf I})$ 是高斯分布随机噪声；其在动量空间为 $\phi_{\tau}(p)=\phi_{0}(p)+\sqrt{\frac{\sigma^{2\tau}-1}{2\log\sigma}}\epsilon(p)$。考虑到物理场动量模式的自然分布，随着噪声水平逐渐升高，上述演化会更快地微扰（涂抹/smear）高动量模式。这在某种程度上类似于泛函重整化群（FRG）逐步积出高动量模式的程序。反之，在逆向去噪过程中，低动量的红外物理首先生成，紫外细节只在较晚时刻才由去噪模型填补，如图~\ref{fig:sample} 所示。}当 $g_{\tau \rightarrow T} = \sigma^{T-\tau} \rightarrow 1$、$\Lambda \rightarrow \infty$ 时，完整的量子理论得以恢复。尽管已有工作从朗之万过程中的有色噪声视角讨论过跑动噪声尺度~\cite{Bern:1986xc,Pawlowski:2017rhn}，训练良好的 DM 在\textit{虚构}时间空间中提供了一个精确的 RG 流：
+\begin{equation}
+    \frac{\partial S_\text{DM}(\phi,\tau)}{\partial \tau} = \frac{\partial}{\partial \tau} \int^{\phi}\hat{s}_\theta(\tilde{\phi},\tau) d\tilde{\phi}.
+\end{equation}
+由于概率密度正定，当 $\partial p_\tau(\phi)/\partial\tau = 0$ 时方程有不动点。RG 流就是系统从 $\tau = 0$ 的平庸分布到 $\tau = T$ 平衡态的演化轨迹，这已示于图~\ref{fig:learned} 中间一排。
