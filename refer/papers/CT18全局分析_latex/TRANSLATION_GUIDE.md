@@ -15,9 +15,9 @@
   strangeness suppression→奇异性压低、intrinsic charm→内禀粲、standard candle→标准烛光。
 
 ## 图表与妥协点（继承英文版的已声明妥协）
-- 图片直接复制自英文目录 `images/`（76 个文件）；每章仅收录前 4 个 figure 环境，
-  其余图形位置保留占位框（"[figure unavailable -- see original paper]"），
-  caption 已译出。表格全部保留原码，表头/表注已译。
+- 图片复用英文目录 `images/`（现已含全量 234 张：2026-08-26 自 arXiv 源补齐，
+  中英两版 145×2 处占位框均按原图原参还原）；caption 已译出。
+  表格全部保留原码，表头/表注已译。
 - 补充材料按原文顺序置于参考文献之后（chapters/backmatter.tex）。
 
 ## 编译

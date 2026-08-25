@@ -24,9 +24,11 @@ cd <目录> && xelatex -interaction=nonstopmode -halt-on-error -output-directory
 ## 索引与质量
 
 - 总索引：`INDEX.md`（50 行：目录对 / 实测页数 / arXiv 底稿 / 备注）。
-- 100 个目录全部 xelatex 两遍编译通过、日志零错误；合计 2455 页。
-- 已声明妥协（PARTIAL）2 处：`CT18_Global_Analysis_latex`（收录 36/88 图，余为占位）、
-  `NNPDF17_High_Precision_Data_latex`（中文版 5 张大表以英文原表嵌入）。
+- 100 个目录全部 xelatex 两遍编译通过、日志零错误；合计 2460 页。
+- 原 PARTIAL 2 处已于 2026-08-26 收尾修复：CT18 中英版补齐全量 234 图
+  （arXiv:1912.10053 源、原始参数还原，EN 143→146 页 / ZH 140→143 页）；
+  NNPDF17 中文版 5 类大表原生还原（xeCJK「bad native font flag」根因=数学上标内
+  老式 `\rm` 组含 `\bar{希腊}`，改写为 `\mathrm{CC},\bar{\nu}` 等价形式后消除）。
 - 未收录 5 篇前印本经典（无开放获取底稿）：Gross–Wilczek/Politzer 1973、
   Altarelli–Parisi 1977、Duane et al. 1987(HMC)、Collins–Soper 1981、Parisi–Wu 1981。
 - 书目勘误：文选卡片中 Morningstar–Peardon 的 arXiv id 应为 hep-lat/0311018（非 0307022）。
