@@ -36,7 +36,8 @@ cd <dir>/build && xelatex -interaction=nonstopmode -halt-on-error ../main.tex  #
 papers/ 下新增 **50 篇精华论文的原文 LaTeX 转排库**：每篇一对目录——
 `<Slug>_latex/`（英文 article 转排）+ `<中文名>_latex/`（中文 ctexart 译本）。
 底稿取 arXiv 官方源归一化改造（49/50；Wilson74 复用 books/ 已验证转排），
-100 个目录 xelatex 两遍编译零错误，合计 2455 页。
+100 个目录 xelatex 两遍编译零错误，合计 2460 页。原 PARTIAL 2 处（CT18 缺图、
+NNPDF17 中文大表图嵌入）已于 2026-08-26 修复。
 索引：`papers/INDEX.md`；结构约定与质量说明：`papers/AGENTS.md`。
 5 篇前印本经典（Gross-Wilczek/Altarelli-Parisi/HMC/Collins-Soper/Parisi-Wu）
 因无开放获取底稿暂缺。

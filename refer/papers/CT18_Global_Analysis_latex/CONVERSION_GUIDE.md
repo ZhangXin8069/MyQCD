@@ -15,12 +15,13 @@
 - 参考文献：源 `main.bbl`（apsrev4-1，205 条）逐字放入 `chapters/backmatter.tex`。
 - Supplemental Material 按原文顺序置于参考文献之后（同在 backmatter.tex）。
 
-## 图来源与妥协点（已声明）
+## 图来源与妥协点（已修复）
 - 源共 88 个 figure 环境 / 234 个独立图片文件（全部为 PDF 位图化矢量图）。
-- 按调度方策略仅收录每章前 4 个 figure 环境（共 36 个环境，76 个图片文件，
-  复制于 `images/`，路径 `images/<原文件名>`）；其余 145 处
-  `\includegraphics` 以占位框替换（保留原 caption 与 label，框内注明
-  "[figure unavailable -- see original paper]" 及原文件名）。
+- 初版按调度方策略仅收录每章前 4 个 figure 环境（36 环境/76 文件），其余 145 处
+  `\includegraphics` 以占位框替换。2026-08-26 go-on 收尾时已自 arXiv 官方源
+  （e-print/1912.10053）全量还原：290 处占位（中英双版）按原文件名与原始宽度参数
+  还原为 `\includegraphics`，Supplemental Material 部分取自源 `fig/SuppMat/`，
+  `images/` 现含全部 234 张图。
 - 表格全部保留 LaTeX 原码；公式、脚注、附录逐字保留。
 
 ## 已知问题

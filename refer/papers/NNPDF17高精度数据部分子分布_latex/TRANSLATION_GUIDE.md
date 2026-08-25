@@ -14,7 +14,11 @@
 - 人名、机构、程序名、PDF 集合名、URL 与参考文献列表保留英文。
 
 ## 妥协点（重要）
-1. **五张共享大表以英文原表 PDF 嵌入**（images/A1–A3.pdf=数据集总表×3、B.pdf=运动学切割、
+1. ~~五张共享大表以英文原表 PDF 嵌入~~ **已修复（2026-08-26）**：5 类大表（数据集总表×3、
+   运动学切割、chi² 表×2）已整体移植原生 table 环境并保留中文 caption；根因为 ctexart/
+   xeCJK 下数学上标内老式 `\rm` 组含 `\bar{\nu}` 触发 XeTeX「bad native font flag」内部
+   错误，将该单元格改写为 `\sigma^{\mathrm{CC},\bar{\nu}}$` 等价形式后消除。原降级嵌入
+   的 images/A1–D.pdf 已无引用（文件保留未删）。历史记录：初版因
    C/D.pdf=两张 chi² 表）。原因：ctexart/xeCJK 环境下这三类 tabular 触发 XeTeX
    "bad native font flag" 内部错误（英文原表同样复现，article 类正常），三轮排错未果，
    按 SPEC 降级处理。表中 label 移入中文 caption，交叉引用与编号保持一致；

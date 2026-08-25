@@ -34,8 +34,8 @@
 | 28 | `Quasi_PDF_Gradient_Flow_latex` | `准部分子分布与梯度流_latex` | 13 | 11 | arXiv:1612.01584 |  |
 | 29 | `Self_Renorm_Quasi_LightFront_latex` | `准光前关联函数的自重正化_latex` | 48 | 44 | arXiv:2103.02965 |  |
 | 30 | `Hybrid_Renorm_Quasi_LightFront_latex` | `准光前关联的混合重正化方案_latex` | 28 | 24 | arXiv:2008.03886 |  |
-| 31 | `CT18_Global_Analysis_latex` | `CT18全局分析_latex` | 143 | 140 | arXiv:1912.10053 | PARTIAL：收录36/88图，余为已声明占位 |
-| 32 | `NNPDF17_High_Precision_Data_latex` | `NNPDF17高精度数据部分子分布_latex` | 104 | 101 | arXiv:1706.00428 | PARTIAL：中文版5张大表以英文原表嵌入 |
+| 31 | `CT18_Global_Analysis_latex` | `CT18全局分析_latex` | 146 | 143 | arXiv:1912.10053 | 全量图已按 arXiv 源补齐（234 图，原参数还原） |
+| 32 | `NNPDF17_High_Precision_Data_latex` | `NNPDF17高精度数据部分子分布_latex` | 104 | 100 | arXiv:1706.00428 | 中文版5类大表已原生还原（xeCJK 兼容修复） |
 | 33 | `Flow_Generative_MCMC_Lattice_latex` | `基于流的格点MCMC生成模型_latex` | 20 | 17 | arXiv:1904.12072 |  |
 | 34 | `Equivariant_Flow_Sampling_latex` | `规范等变的流采样_latex` | 12 | 11 | arXiv:2003.06413 |  |
 | 35 | `Lattice_EMT_Fermion_Fields_latex` | `含费米子场的格点能动量张量_latex` | 30 | 31 | arXiv:1403.4772 |  |
