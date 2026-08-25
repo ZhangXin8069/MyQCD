@@ -1,0 +1,10 @@
+\section{Flow-based sampling}
+Flow-based generative models allow sampling from an expressive family of distributions by applying an invertible function $f$ to samples $\prsample$ from a fixed, simple prior distribution defined by a density $r(\prsample)$~\cite{papamakarios2019normalizing}. The resulting samples $U' = f(\prsample)$ are distributed according to a model density $q(U')$. The invertible function is constructed specifically to allow efficient evaluation of the Jacobian factor for any given sample, so that the associated normalized probability density,
+%
+\begin{equation} \label{eqn:norm-flow}
+  q(U') = q(f(\prsample)) = r(\prsample) \left| \det \frac{\partial f(\prsample)}{\partial \prsample} \right|^{-1},
+\end{equation}
+%
+is returned with each sample drawn. This feature enables training the flow model, i.e.~optimizing the function $f$, by minimizing the distance between the model probability density $q(U')$ and the desired density $p(U')$ using a chosen metric. Any deviation from the true distribution due to an imperfect model can be corrected by a number of techniques; in this work, we apply Metropolis independence sampling~\cite{Albergo2019FlowMCMC}.\footnote{Reweighted observables can also be used~\cite{Ferrenberg:1988yz,mller2018neural}. This is efficient when measurements of the action are more costly than measurements of observables.}
+
+A powerful approach to defining a flexible invertible function $f$ is through composition of several \emph{coupling layers}, $f := g_m \circ \dots \circ g_1$. Coupling layers act on samples $U$ by applying an analytically invertible transformation (such as a scaling) to a subset of the components $U^{A} := \left\{ U^{i} : i \in A \right\}$, where the superscript $i$ indexes components of the multi-dimensional sample $U$ and the set $A$ indicates the components that are transformed. The remaining (unmodified) components $U^B$, defined by $U^B = U \setminus U^A$, are given as input to a feed-forward neural network that parameterizes the transformation. This variable splitting guarantees invertibility despite the use of non-invertible feed-forward networks.

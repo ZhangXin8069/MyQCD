@@ -1,0 +1,18 @@
+\section{Gauge-invariant flows}
+Lattice gauge theories can be defined in terms of one gauge variable $U_\mu(x)$ per nearest-neighbor link $(x,x+\hat{\mu})$ of the lattice. Samples thus live in the compact manifold $G^{N_d V}$, where $G$ is the manifold of the gauge group, $N_d$ is the spacetime dimension, and $V$ is the lattice volume. The physical distribution $p(U)$ is exactly invariant under a discrete translational symmetry group with $V$ elements and a continuous $V$-dimensional gauge symmetry group, meaning that the density associated with any transformed field configuration $\widetilde{U}$ is identical to that of the untransformed configuration, $p(\widetilde{U}) = p(U)$. Under a \emph{gauge transformation}, links $U_\mu(x)$ are transformed by a group-valued field $\Omega(x)$ as
+%
+\begin{equation} \label{eqn:gauge-transform}
+  U_{\mu}(x) \; \rightarrow \; \widetilde{U}_\mu(x) = \Omega(x) U_{\mu}(x) \Omega^\dagger (x+\hat{\mu}).
+\end{equation}
+%
+
+In the flow-based approach, symmetries correspond to flat directions of the probability density that must be reproduced by the model. Exactly encoding symmetries in machine learning models can improve training and model quality compared with learning the symmetries over the course of training~\cite{CohenWelling2016,Cohen:2019,khler2019equivariant,rezende2019equivariant,wirnsberger2020targeted, ZhangEWang2018Monge,Finzi:2020}. The incorporation of translational symmetries into models is possible using convolutional architectures, as studied for example in Ref.~\cite{CohenWelling2016}. To address gauge symmetry, one could attempt to use a gauge-fixing procedure to select a single configuration from each gauge-equivalent class, leaving only physical degrees of freedom; however, the only known gauge fixing procedures that preserve translational invariance are based on implicit differential equation constraints~\cite{DeGrand:2006zz}, which do not have a straightforward implementation in flows. Here, we instead introduce a method to preserve exact gauge invariance in flow-based models.
+
+When a flow-based model is defined in terms of coupling layers, its output distribution will be invariant under a symmetry group if two conditions are met:
+%
+\begin{enumerate}
+    \item The prior distribution is symmetric.
+    \item Each coupling layer is \emph{equivariant} under the symmetry, i.e.~all transformations commute through application of the coupling layer~\cite{Hinton:2011,kivinen2011transformation,schmidt2012learning,CohenWelling2016,rezende2019equivariant}.
+\end{enumerate}
+%
+Choosing a prior distribution that is symmetric is typically straightforward, for example a uniform distribution with respect to the Haar measure over gauge links is both translationally and gauge invariant. Using gauge-equivariant coupling layers with such a prior distribution then defines a gauge-invariant flow-based model.

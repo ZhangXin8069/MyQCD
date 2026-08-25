@@ -1,0 +1,208 @@
+\section{Application of flow-based MCMC to $\phi^4$ theory}
+\label{sec:phi4}
+
+The theory with a massive scalar field $\phi(x)$ and a quartic self-interaction is one of the simplest interacting field theories that can be constructed. It is thus a convenient testing ground for new algorithms for lattice field theory, such as the flow-based MCMC approach proposed here.
+
+In a $d$-dimensional Euclidean spacetime, a discretized formulation of $\phi^4$ theory can be defined on a lattice with sites $x_\mu = a n_\mu$, where $a$ denotes the lattice spacing, $\mu \in \curly{1, \dots, d}$ labels spacetime dimension, and $n_\mu \in \mathbb{Z}^d$. Here, a finite lattice volume $V=(aL)^d$ is considered, with periodic boundary conditions in all dimensions. The lattice action (in units where $a=1$) can be expressed as
+%
+\begin{equation}\small
+    S(\phi) = \sum_{x} \left( \sum_y\phi(x)\Box(x,y)\phi(y) + m^2\phi(x)^2 + \lambda \phi(x)^4\right),
+\end{equation}
+%
+where the parameters $m^2$ and $\lambda$ are the bare mass squared and bare coupling, respectively, and the lattice d'Alembert operator is defined by
+%
+\begin{equation}
+    \sum_y\Box(x,y)\phi(y) = \sum_\mu \left(2\phi(x) -\phi({x-\hat{\mu}}) - \phi({x+\hat{\mu}})\right).
+\end{equation}
+%
+By taking expectation values over the distribution $p(\phi) = e^{-S(\phi)}/Z$, observables in the theory can be estimated.
+%
+
+%%% Better float placement
+\begin{table}[h]
+    \centering
+    \begin{tabular}{c|ccccc}\hline\hline
+    & E1 & E2 & E3 & E4 & E5\\\hline
+         $L$ & $6$ & $8$ & $10$ & $12$ & $14$ \\
+         $m^2$ & $-4$ & $-4$ & $-4$ & $-4$ & $-4$ \\
+         $\lambda$ & $6.975$ & $6.008$ & $5.550$ & $5.276$ & $5.113$ \\
+         $m_p L$ & $3.96(3)$ & $3.97(5)$ & $4.00(4)$ & $3.96(5)$ & $4.03(6)$ \\\hline\hline
+    \end{tabular}
+    \caption{Parameters $\{m^2,\lambda\}$ of $\phi^4$ theory on $L\times L$ lattices used for numerical study of the flow-based MCMC algorithm proposed here. The coupling constants $\lambda$ have been chosen to approximately maintain constant $m_pL$ as $L$ is varied.}
+    \label{tab:lattice-params}
+\end{table}
+
+%%% Better float placement
+\begin{figure*}
+    \centering
+    \subfloat[Flow-based MCMC trained to 50\% mean acceptance.]{
+    \includegraphics[width=0.46\linewidth]{images/ml50_hist_acc.pdf}}
+    \hfill
+    \subfloat[Flow-based MCMC trained to 70\% mean acceptance and HMC tuned to 70\% mean acceptance.]{
+    \includegraphics[width=0.46\linewidth]{images/ml70_hist_acc.pdf}}
+    \caption{Histograms of length of consecutive runs of Metropolis rejections in machine-learned (ML) models at both 50\% and 70\% mean acceptance. Also shown is the same statistic for Markov chains generated via HMC, where mean acceptance was tuned to 70\%. The frequency of long runs of rejections is consistently reduced for models trained to reach higher average acceptance. The ML and HMC ensembles at 70\% acceptance display very similar distributions of rejection streaks.}
+    \label{fig:accepthistograms}
+\end{figure*}
+
+
+The observables studied here are the connected two-point Green's function
+%
+\begin{equation}
+\begin{aligned}
+    G_c(x) &= \frac{1}{V} \sum_y \big( \langle \phi(y)\phi(y+x) \rangle - \langle \phi(y) \rangle \langle \phi(y+x) \rangle \big)
+\end{aligned}
+\end{equation}
+%
+and its momentum-space representation
+%
+\begin{equation}
+    \tilde{G}_c(\vec{p},t) = \frac{1}{L^{d-1}} \sum_{\vec{x}} e^{i\vec{p}\cdot\vec{x}}G_c(\vec{x},t),
+\end{equation}
+where $x_\mu = (\vec{x}, t)$,
+%
+as well as the corresponding pole mass
+%
+\begin{equation}
+    m_p = -\partial_t \log \avg{\tilde{G}_c(0,t)},
+\end{equation}
+and the two-point susceptibility
+%
+\begin{equation}
+    \chi_2 = \sum_x G_c(x).
+\end{equation}
+%
+In the limit $\lambda \rightarrow \infty$, with $m^2/\lambda < 0$ fixed, scalar $\phi^4$ theory reduces to an Ising model.
+Another observable of interest is therefore the average Ising energy density~\cite{vierhaus}, defined by
+%
+\begin{equation}
+E = \frac{1}{d} \sum_{1\le \mu \le d} G_c(\hat{\mu}),
+\end{equation}
+%
+where the sum runs over single-site displacements in all dimensions.
+
+The action of $\phi^4$ theory is invariant under the discrete symmetry $\phi(x) \rightarrow -\phi(x)$. Depending on the value of the parameters $m^2$ and $\lambda$, this symmetry can be spontaneously broken. The theory thus has two phases: a symmetric phase and a broken-symmetry phase.
+
+
+
+\subsection{Model definition and training}
+\label{subsec:model}
+
+For this proof-of-principle study, the flow-based MCMC algorithm detailed in Section~\ref{sec:flowMCMC} was applied to $\phi^4$ theory in two dimensions with $L=\{6,8,10,12,14\}$ lattice sites in each dimension. The parameters $m^2$ and $\lambda$ were chosen to fix  $m_p L \approx 4$ for each lattice size; their numerical values are given in Table~\ref{tab:lattice-params}. For simplicity in this initial work, all parameters were chosen to lie in the symmetric phase. In principle, the flow-based MCMC algorithm can be applied with identical methods to the broken-symmetry phase of the theory, but it remains to be shown that models can be trained for such choices of parameters.
+
+%%% Better float placement
+\begin{figure*}
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/corr_L14.pdf}
+    \caption{Zero-momentum Green's functions evaluated for parameter set E5. Results computed using $10^6$ configurations from the HMC, local Metropolis, and machine-learned (ML) ensembles are consistent within statistical errors. Error bars indicate 68\% confidence intervals estimated using bootstrap resampling with bins of size $100$.}
+    \label{fig:observables-1}
+\end{minipage}
+\hspace{0.02\textwidth}
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/meff_L14.pdf}
+    \caption{Effective pole masses evaluated for parameter set E5, defined by the arccosh estimator given in the main text. Results computed using $10^6$ configurations from the HMC, local Metropolis, and machine-learned (ML) ensembles are consistent within statistical errors. Error bars indicate 68\% confidence intervals estimated using bootstrap resampling with bins of size $100$.}
+    \label{fig:observables-2}
+\end{minipage}
+\end{figure*}
+
+For each set of parameters, real NVP models were defined using 8--12 affine coupling layers (see Sec.~\ref{subsec:normalizing-flows}). The coupling layers were defined to update half of the lattice sites in a checkerboard pattern; successive layers alternately updated the odd and even sites. The neural networks $s_i$ and $t_i$ used in coupling layer $g_i$ (see Eq.~\eqref{eq:affinecoupling}) were constructed from two to six fully-connected layers, each defined as multiplication by a rectangular matrix followed by pointwise application of a nonlinear function (here, a leaky rectified linear unit~\cite{Nair2010}). Intermediate vectors (hidden units) had sizes ranging between 100--1024. The prior distribution $r(z)$ was chosen to be an uncorrelated Gaussian distribution
+\begin{equation}
+    r(z) \propto \prod_i e^{-z_i^2 / 2}.
+\end{equation}
+The models were trained to minimize the shifted KL loss between the output distribution $\netp(\phi)$ and the desired distribution $p(\phi) = e^{-S(\phi)}/Z$ using gradient-based updates with the Adam optimizer~\cite{Kingma2015Adam}, a specific variety of gradient descent with momentum. A mean absolute error loss, defined in Appendix~\ref{app:mae-loss}, was optimized before training in the case of the $14^2$ model where it was found to accelerate convergence to the KL loss minimum.
+
+An exhaustive study of the optimal choice of prior distribution $r(z)$, model depth, architecture and initialization of the neural networks, and of the mode of coupling of the affine layers, is beyond the scope of this proof-of-principle study. The parameters used here, however, proved to define sufficiently expressive models such that the Metropolis-Hastings algorithm applied to output from the trained models easily achieved acceptance rates of well over 50\%.
+%
+With further investment in hyperparameter optimization, higher rates of acceptance could be achieved. In any Markov chain using the Metropolis-Hastings algorithm, there is a tradeoff between computational cost and correlations resulting from low acceptance rates. The optimal acceptance rate minimizes the cost per decorrelated sample from the chain. Here, the cost of training, and not just model evaluation, must be considered, and the optimal level of training in future applications will depend on many factors, such as the desired ensemble size.
+
+%%% Better float placement
+\begin{figure*}
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/all_susc.pdf}
+
+    \includegraphics[width=\linewidth]{images/all_e.pdf}
+    \caption{Susceptibility ($\chi_2$) and Ising energy ($E$) estimated on all ensembles. Results computed using $10^6$ configurations from the HMC, local Metropolis, and machine-learned (ML) ensembles are consistent within statistical errors. Errors indicate 68\% confidence intervals estimated using bootstrap resampling with bins of size $100$.}
+    \label{fig:observables-3}
+\end{minipage}
+\hspace{0.02\textwidth}
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/susc_sqrtn_L14.pdf}
+
+    \includegraphics[width=\linewidth]{images/e_sqrtn_L14.pdf}
+    \caption{Statistical error varying with number of samples $N$ in two candidate observables, $\chi_2$ and $E$, for the HMC, local Metropolis, and machine-learned (ML) ensembles. The red dashed line shows a $1/\sqrt{N}$ curve normalized by the average error estimate of the three approaches at $N=1000$. Central values were estimated as 68\% confidence intervals on each observable by bootstrap resampling ensemble subsets of size $N$. Error bars indicate 68\% confidence intervals estimated using an external bootstrap resampling step.}
+    \label{fig:errorscaling}
+\end{minipage}
+\end{figure*}
+
+For each set of parameters studied, instances of the model were trained to reach both 50\% and 70\% average Metropolis acceptance. Figure~\ref{fig:accepthistograms} shows histograms of the number of updates between accepted configurations for models at both levels of training. Models trained to reach the higher acceptance rate are seen to have shorter runs of consecutive rejections.
+Because autocorrelation is related to rejections by $\rho(\tau)/\rho(0) = p_{\tau \text{rej}}$ for independence Metropolis sampling, a reduced frequency of rejection runs with length longer than $\tau$ directly implies a reduction in $\rho(\tau)/\rho(0)$. Implications for critical slowing down of the generation of decorrelated configurations are discussed in Section~\ref{subsec:CSD}.
+
+For comparison, ensembles of $10^6$ lattice configurations were generated using the machine-learned models in flow-based MCMC as well as standard local Metropolis~\cite{Wolff1996} and Hybrid Monte Carlo (HMC)~\cite{Duane1987HMC} algorithms at matched parameters. The local Metropolis algorithm employed a fixed order of sequential updates to each site, with proposed updates to $\phi(x)$ sampled uniformly from the interval $[\phi(x)-\delta, \phi(x)+\delta]$ followed by a Metropolis-Hastings accept/reject step; for all parameters considered, the width $\delta$ was tuned to achieve a 70\% acceptance rate. The HMC method was implemented using a leapfrog integrator with a fixed division of trajectory length $\tau$ into $10$ steps; the trajectory length $\tau$ was also tuned to achieve a 70\% acceptance rate. In both the local Metropolis and HMC methods, samples were saved after every 10th update.
+
+
+\subsection{Tests: physical observables and error scaling}
+\label{subsec:tests}
+
+Since the flow-based MCMC algorithm satisfies ergodicity and balance, it is guaranteed to produce samples from the desired probability distribution in the limit of an infinite chain. To test the performance of the algorithm for a finite number of samples, each of the physical observables defined above was computed on ensembles of configurations at the parameters of Table~\ref{tab:lattice-params}, generated both using standard HMC and local Metropolis methods, as well as with the trained flow-based MCMC algorithm. Figures~\ref{fig:observables-1}--\ref{fig:observables-3} compare the observables computed on ensembles generated using all three methods.
+
+To estimate the pole mass $m_p$, an effective mass is defined based on the zero-momentum Green's functions at various time separations:
+\begin{equation}
+    m^\text{eff}_p(t) = \text{arccosh}\paren{\frac{\tilde{G}_c(0,t-1) + \tilde{G}_c(0,t+1)}{2 \tilde{G}_c(0,t)}}.
+\end{equation}
+For all observables, the values computed using the flow-based MCMC ensembles are consistent within statistical uncertainties with those computed using the standard methods.
+%
+Moreover, Figure~\ref{fig:errorscaling} shows that the statistical uncertainties of the observables scale as $1 / \sqrt{N}$ with the number of samples $N$, as expected for decorrelated samples.
+
+\subsection{Critical slowing down}
+\label{subsec:CSD}
+
+\begin{figure*}
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \subfloat[HMC ensembles]{
+        \includegraphics[width=\linewidth]{images/hmc_csd.pdf}
+        }
+    \end{minipage}\hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \subfloat[Local Metropolis ensembles]{
+        \includegraphics[width=\linewidth]{images/hb_csd.pdf}
+        }
+    \end{minipage}\hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \subfloat[Flow-based MCMC ensembles]{
+        \label{subfl:ml-auto}
+        \includegraphics[width=\linewidth]{images/all_ml_csd.pdf}
+        }
+    \end{minipage}
+  \caption{
+  Scaling of integrated autocorrelation time with respect to lattice size for HMC, local Metropolis, and flow-based MCMC. In \protect\subref{subfl:ml-auto} the upper sets of points in blue correspond to models trained to a mean acceptance rate of 50\%, while the lower sets of points in green correspond to models trained to a mean acceptance rate of 70\%. Dashed red lines display power law fits to $L = \curly{10,12,14}$ with labels $L^z$ specifying the scaling. The HMC and local Metropolis methods demonstrate power-law growth of $\tau_{\mathrm{int}}$, while $\tau_{\mathrm{int}}$ for the flow-based MCMC is consistent with a constant in $L$ and decreases as mean acceptance rate increases. Dot-dashed blue and green lines for the flow-based ensembles display lower bounds in terms of mean acceptance rate based on Eq.~\eqref{eq:mean-acc-bound}. Error bars indicate 68\% confidence intervals estimated by bootstrap resampling and error propagation.}
+  \label{fig:compare_autocorr}
+
+\end{figure*}
+
+For $\phi^4$ theory, a number of algorithms have been developed that mitigate CSD to various extents, such as worm algorithms~\cite{vierhaus}, multigrid methods~\cite{GoodmanSokal89}, Fourier-accelerated Langevin updates~\cite{Batrouni87} and cluster updates via embedded Ising dynamics~\cite{BrowerTamayo89}. The path towards generalizing those algorithms to more complicated theories such as QCD, however, is not clear. Algorithms such as HMC and local Metropolis, which are also used for studies of QCD and pure gauge theory, exhibit CSD for $\phi^4$ (as well as more complicated theories) as the continuum limit is approached.
+
+The parameter sets chosen for the study of $\phi^4$ theory in this work (Table~\ref{tab:lattice-params}) correspond to a critical line with constant $m_pL$ as $L\rightarrow \infty$. For the flow-based MCMC approach proposed here, as well as for ensembles generated using the HMC and local Metropolis algorithms, the autocorrelation times of the set of physical observables discussed previously were fit to leading-order power laws in $L$ to determine the dynamical critical exponents $z_\mathcal{O}$ for that observable.
+%
+Figure~\ref{fig:compare_autocorr} shows the autocorrelation times for each observable for each approach to ensemble generation. The absolute values of $\tau_\text{int}$ are not directly comparable between methods because the cost per update differs. The scaling with lattice size, on the other hand, indicates the sensitivity of each method to critical slowing down. For both HMC and local Metropolis, the critical behavior and consequently the performance of the algorithm was found to depend on the observable. In each case, the critical exponent was $0.3\lesssim z_\mathcal{O}\lesssim 2.0$. In comparison, for the flow-based MCMC ensembles at a fixed acceptance, the critical exponent was found to be consistent with zero, with the autocorrelation time observable-independent and in agreement with the acceptance-based estimator defined in Section~\ref{subsec:autocorr}.
+
+Since the the mean acceptance rate was used as the stopping criterion for training these models, it was not guaranteed a priori that the measured integrated autocorrelation time would be constant across the different models used. The results in Figure~\ref{fig:compare_autocorr}, however, suggest that beyond the simple lower bound from Eq.~\eqref{eq:mean-acc-bound} there is a strong correlation between the mean acceptance rate and integrated autocorrelation time for models trained using a shifted KL loss. This is further confirmed by the similarity of the rejection run histograms across lattice sizes for flow-based MCMC, as shown in Figure~\ref{fig:accepthistograms}.
+
+\subsection{Training costs}
+\label{subsec:training-cost}
+While CSD in the sampling step for the flow-based MCMC is eliminated, training the generative model introduces an additional up-front cost, as discussed in Section~\ref{subsec:CSD-theory}. Since this cost is amortized over the ensemble, this approach will naturally be computationally advantageous in the limit of generating a large number of samples. For a finite target ensemble size, the potential acceleration offered depends crucially on the training time.
+
+In this work, all models were trained using one to two GPU-weeks, with the larger lattices incurring the most computational cost.
+For the simple fully-connected architecture used in this work, the scaling of both the sampling and training time is controlled by dense matrix-vector multiplications which require $O(V^2)$ floating point operations each. The number of epochs used to train the largest lattice was also roughly $10\times$ that of the smallest lattice. This asymptotic scaling is a result of the simple model architecture used in this proof-of-principle study. For related methods applied  to image generation, using convolutional neural networks and a multi-scale architecture reduced training and sampling costs significantly and improved scaling to $O(V)$~\cite{Dinh2016}. There are physical grounds to expect these tools to apply equally well to the present application. Convolutional networks use only local information to update values in each layer, exploiting locality in the system, and use identical weights for each point on the lattice, manifestly preserving translational invariance. A multi-scale architecture learns coarse-grained distributions and fine-graining procedures in separate layers; this is an effective division of tasks for renormalizable quantum field theories, where simple coarse-grained descriptions are expected to arise. Generative models, and in particular flow-based models, are also rapidly evolving towards more efficient representation capacity. Complex coupling layers have been implemented~\cite{Dinh2015, Dinh2016}, as have generalized convolutions~\cite{Kingma2018, Hoogeboom2019} and transformations with continuous dynamics that are not dependent on restricted coupling layers~\cite{Grathwohl2019}. These developments allow models to better capture a distribution within a given number of training steps.
+%
+%
+
+For complex applications, it is also critical that larger models with many coupling layers can be trained without exceeding memory bounds. The algorithm proposed here can be trained with constant memory cost as the number of layers is increased~\cite{Grathwohl2018}, alleviating the storage limitations that can arise in gradient-based optimization. Memory costs can be further reduced by distributing samples within each training batch across many machines.
+
+
+Finally, typical applications seek to produce ensembles at many different choices of parameters, and often require parameter tuning. Training costs can therefore by amortized further; models trained with respect to an action at a given set of parameter values can either be used to initialize training or as a prior distribution for models targeting that action at nearby parameter values.

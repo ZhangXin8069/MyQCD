@@ -1,0 +1,341 @@
+\section{广义共线部分子观测量}
+\label{sec:gpo}
+%------------------------------------------------------------------------------
+上一节我们广泛讨论了刻画质子在纵向动量空间中一维结构的领头扭度共线 PDF。还存在各种其他部分子观测量提供互补的信息。本节聚焦于由共线部分子关联函数定义的观测量，即只有共线的夸克与胶子模有贡献的情形，对应 QCD 因子化中的所谓{\it 共线展开}~\cite{Sterman:1994ce,Collins:2011zzd}。我们把它们称为``广义共线部分子观测量''（GCPO），并讨论其在 LaMET 框架下的计算。至于由含横向间隔的部分子关联定义的观测量——特别是 TMDPDF、Wigner 函数与 LFWF——将在后续章节考虑。
+
+重要的 GCPO 之一是~\cite{Mueller:1998fv}引入、并因与质子自旋结构的联系而被重新发现的 GPD~\cite{Ji:1996ek}。
+%
+它们描述质子内部部分子的横向位置与纵向动量之间的关联，从而为质子的三维成像提供重要信息。人们用 GPD 的矩导出了质子自旋求和规则，激发了对 GPD 的普遍兴趣。还发现在所谓零偏斜极限或纵向动量转移为零时，GPD 在碰撞参数空间具有概率解释~\cite{Burkardt:2000za}。
+%
+一般情形下，它与量子相空间分布或 Wigner 函数相关联~\cite{Ji:2003ak,Belitsky:2003nz}。实验上，GPD 可通过硬 exclusive 过程测量，如最初在~\cite{Ji:1996ek,Ji:1996nm}提出的深度虚 Compton 散射（DVCS）或介子产生（DVMP）。HERA、COMPASS 与 JLab 等已完成及进行中的实验投入了大量精力测量这类过程。关于 GPD 更全面的讨论可参阅综述~\cite{Ji:1998pc,Ji:2004gf,Diehl:2003ny,Belitsky:2005qn}。
+%
+尽管 GPD 的运动学依赖及其与实验观测量的关系更复杂，文献中已提出多种拟合方法来拟合现有的 DVCS 与 DVMP 数据~\cite{Kumericki:2016ehc,Favart:2015umi}。与此同时，也可以从其各阶矩的格点计算提取某些 GPD 信息~\cite{Hagler:2007xi,Gockeler:2003jfa,Alexandrou:2019ali}，但由于 PDF 矩的格点计算存在同样的困难，这种方式同样非常受限。对 JLab 12 GeV 项目与未来的 EIC 而言，从第一性原理计算 GPD 并更好地理解不同运动学变量下的物理图景至关重要。
+
+
+一个更简单但密切相关的 GCPO 是部分子分布振幅（DA）：它是光锥算符在强子态与 QCD 真空之间的共线矩阵元，代表在强子中找到给定 Fock 态的概率振幅。它们可在某些 exclusive 过程中被探测~\cite{Brodsky:2002st}，是测量标准模型基本参数和探索新物理的相关过程的关键输入。关于该主题（尤其是 $\pi$ 介子 DA）有大量文献；综述见 \cite{Brodsky:1989pv,Grozin:2005iz,Braun:2006hn}。
+
+另一类 GCPO 是高扭度部分子分布。它们由多部分子关联函数定义，以纵向动量关联的方式量化质子结构~\cite{Jaffe:1982pm,Ellis:1982cd,Jaffe:1991ra}。虽然物理上有趣，但它们在理论上难以与领头扭度分布分离（因为存在混合）~\cite{Mueller:1984vh,Ji:1994md}，实验上也因幂次压低而难以提取~\cite{Ji:1993ey}。在压低被放松的运动学区域，高扭度效应可能变得重要。此外，某些三阶扭度分布 $g_T$ 与 $h_L$ 有所不同：它们没有可与之混合的领头扭度对应物，并在自旋相关可观测量中占主导~\cite{Jaffe:1991ra}。三阶扭度 GPD 还与研究质子部分子 OAM 相关~\cite{Hatta:2012cs,Ji:2012ba,Courtoy:2013oaa}，可通过 DVCS 过程访问~\cite{Penttinen:2000dg,Kiptily:2002nx}。
+
+
+原则上，上述所有 GCPO 都可以在 LaMET 中计算。
+%
+此外，领头扭度 PDF 的精确 LaMET 展开也需要计算准高扭度矩阵元。
+下面我们先讨论味非单态夸克 GPD 与强子 DA（其计算流程已经成熟），然后对高扭度分布作一般性讨论，最后讨论提取领头扭度夸克 PDF 所需的幂次压低贡献——后者已用不同方法研究过，但尚未在数值计算中实现。
+
+
+%------------------------------------------------------------------------------
+\subsection{广义部分子分布}
+\label{sec:others-gpd}
+%------------------------------------------------------------------------------
+
+定义 GPD 的算符与定义 PDF 的算符相同。因此，PDF 的 LaMET 计算可以相当直接地推广到计入非前向运动学的 GPD~\cite{Liu:2018tox}。为说明其运作方式，以核子的非单态非极化夸克 GPD 为例。
+
+
+非极化夸克 GPD 由如下矩阵元定义~\cite{Ji:2004gf}
+\begin{align}\label{eq:GPD}
+	F&=\frac{1}{2{\bar P}^+}\int \frac{d\lambda}{2\pi}e^{-i x\lambda}\langle P'S'|O_{\gamma^+}(\lambda n)|PS\rangle\nn\\
+	&=\frac{1}{2{\bar P}^+}\bar{u}(P'S')\bigg[H\gamma^+
+	+E\frac{i\sigma^{+\mu}\Delta_\mu}{2M}\bigg]u(PS)\,,
+\end{align}
+其中为简洁省略了 $F$、$H$ 与 $E$ 的宗量 $(x,\xi,t, \mu)$。算符
+\begin{align}
+	O_{\gamma^+}(\lambda n)=\bar\psi(\frac{\lambda n} 2)\gamma^+ W(\frac{\lambda n}{2},-\frac{\lambda n}{2})\psi(-\frac{\lambda n} 2)
+\end{align}
+（$n^\mu=1/\sqrt 2(1/{\bar P}^+, 0,0, -1/{\bar P}^+)$）就是用来定义非极化夸克 PDF 的同一个算符；$M$ 是核子质量。
+%
+动量份额 $x\in [-1,1]$，
+\begin{align}\label{eq:kinematic_variable}
+	\Delta\equiv P'-P,\;\; t\equiv \Delta^2,\;\; \xi\equiv -\frac{P'^+-P^+}{P'^++P^+}=-\frac{\Delta^+}{2{\bar P}^+}\,,
+\end{align}
+不失一般性，选取使平均动量取如下形式的 Lorentz 参考系：
+\begin{align}
+	{\bar P}^\mu\equiv\frac{P'^\mu+P^\mu}{2}=({\bar P}^0,0,0,{\bar P}^z)\,.
+\end{align}
+由于 $P^+, P'^+\ge0$，偏斜参数 $\xi\in[-1,1]$。另外，$\vec \Delta^2_\perp\ge 0$ 还给出对 $\xi$ 的另一个运动学约束：
+\beq\label{eq:sklimit}
+\xi\le\xi_{\rm max}(t)=\sqrt{\frac{-t}{-t+4M^2}}\,.
+\eeq
+下文也不失一般性地假定 $\xi>0$。在这些运动学约束下，GPD 可以划分为若干物理诠释不同的运动学区域。如 \fig{gpdkin} 所示，区域 $\xi<x<1\, (-1<x<-\xi)$ 描述一个夸克（反夸克）的发射与再吸收，而区域 $-\xi<x<\xi$ 表示一对正反夸克的产生。第一个区域类似于普通 PDF 中的情形，称为 DGLAP 区；第二个区域类似于稍后在本节讨论的介子 DA 中的情形，称为 Efremov-Radyushkin-Brodsky-Lepage（ERBL）区。看清楚这一点的最简单方式是在光锥量子化与光锥规范下，把定义 GPD 的矩阵元改写为部分子产生湮灭算符的形式，详见 e.g.~\cite{Ji:2004gf}。
+
+\begin{figure}
+	\centering
+	\includegraphics[width=.9\linewidth]{images/gpd-gpd_fig09.pdf}
+	\caption{不同运动学区域下 GPD 的部分子诠释。}
+	\label{fig:gpdkin}
+\end{figure}
+
+上面定义的夸克 GPD 具有一系列显著性质（见 e.g.~\cite{Ji:1998pc,Ji:2004gf,Diehl:2003ny,Belitsky:2005qn}），这些性质对下面定义的夸克准 GPD 或同样成立或有类似对应。除物理意义外，这些性质也是 GPD 相关计算的有用检验。
+
+
+按照 LaMET，上面定义的非极化夸克 GPD 可以通过计算如下准 GPD 来确定：
+\begin{align}\label{eq:quasiGPD}
+	\tilde F&=\frac{1}{2{\bar P}^0}\int \frac{d\lambda}{2\pi}e^{i y\lambda }\langle P'S'|{O}_{\gamma^0}(z)|PS\rangle\nn\\
+	&=\frac{1}{2{\bar P}^0}\bar{u}(P'S')\bigg\{\tilde H\gamma^0
+	+\tilde E\frac{i\sigma^{0\mu}\Delta_\mu}{2M}\bigg\}u(PS)\,,
+\end{align}
+这里同样省略了 $\tilde F$、$\tilde H$、$\tilde E$ 的宗量 $(y,\tilde{\xi},t,{\bar P}^z, \mu)$。算符 ${O}_{\gamma^0}(z)=\bar\psi(\frac{z}{2})\gamma^0 W(\frac z 2,-\frac z 2)\psi(-\frac z 2)$ 就是定义非极化夸克准 PDF 的同一算符，且 $\lambda=z {\bar P}^z$。
+%
+如同准 PDF 的情形，准 GPD 的动量份额 $y$ 从 $-\infty$ 延伸到 $\infty$。准 GPD 的偏斜参数
+\begin{align}
+	\tilde{\xi}=-\frac{P'^z-P^z}{P'^z+P^z}=-\frac{\Delta^z}{2{\bar P}^z} =  \xi +\mathcal{O}\left({M^2\over ({\bar P}^z)^2},{t\over ({\bar P}^z)^2}\right)
+\end{align}
+与光锥偏斜度 $\xi$ 相差幂次压低修正。而且，$\vec\Delta_\perp^2\ge0$ 带来的约束变为~\cite{Ji:2015qla}
+\begin{align}
+	{\tilde \xi}\le\frac{1}{2{\bar P}^{z}}\sqrt{\frac{-t\left[({\bar P}^{z})^{2}+M^{2}-t/4\right]}{M^{2}-t/4}},
+\end{align}
+与 \eq{sklimit} 的约束相差 $\mathcal O(M^2/({\bar P}^z)^2, t/({\bar P}^z)^2)$ 的修正。我们可以用 $\xi$ 替换 $\tilde \xi$，把差别归入一般的幂次压低贡献。
+
+
+上面定义的准 GPD 可以重正化：注意到其 UV 发散只依赖定义它的算符而不依赖外部态。既然 ${O}_{\gamma^0}(z)$ 是乘法重正化的，可以选用与准 PDF 相同的重正化因子~\cite{Stewart:2017tvs,Liu:2018uuj} 来重正化准 GPD。
+%
+重正化之后，准 GPD 再通过因子化公式匹配到通常的 GPD。
+
+准 GPD 的因子化最早在~\cite{Ji:2015qla,Xiong:2015nua}提出并在单圈阶得到验证，那里分别用横动量截断与夸克质量作为 UV 与 IR 调节子。随后文献~\cite{Liu:2019urm}给出了基于 OPE 的详细推导。与准 PDF 的 OPE 相比，一个关键差别是算符的全导数可以登场：夹在非前向外部态之间时它直接给出动量转移因子，因而非零。换言之，Eq.~(\ref{eq:ope-tq}) 那样的局域扭度二算符在重正化下会与带全导数的算符混合。
+%
+支配这种混合的 RGE 为~\cite{Braun:2003rp}
+\begin{align} \label{eq:rge}
+	&\mu^2 {d\over d\mu^2}O^{{\mu}_0 {\mu}_1 \ldots {\mu}_n}(\mu) = \sum_{m=0}^{[n/2]}\Gamma_{nm}\\
+	&\times\left[i\partial^{(\mu_1}\cdots i\partial^{\mu_{2m}} \bar{\psi} \gamma^{\mu_0}i\overleftrightarrow{D}^{\mu_{2m+1}}\cdots i\overleftrightarrow{D}^{\mu_n)}\psi-{\rm trace}\right]\,,\nn
+\end{align}
+其中 $\Gamma_{nm}$ 是相关算符的反常量纲，$\overleftrightarrow{D}=(\overrightarrow{D}-\overleftarrow{D})/2$，$\overrightarrow{D} (\overleftarrow{D})$ 表示向右（左）作用的协变导数。选择恰当的算符基可以把上式对角化；这样的算符基已在文献中研究过，称为``重正化群改进''的共形算符~\cite{Braun:2003rp,Mueller:1993hg}。用这些算符的矩阵元表示：
+\begin{align}\label{eq:ope-twist2}
+	&\langle P'|{O}_{\gamma^0}(z)|P\rangle  =  2P^0\sum_{n=0}^\infty C_n ({\mu}^2 z^2){\cal F}_n(-\lambda)\sum_{m=0}^n{\cal B}_{nm}(\mu)\nn\\
+	&\hspace{3em}\times\xi^n\int_{-1}^1 dx\ C_m^{3/2}\left({x\over \xi}\right) F(x,\xi,t,\mu)+\ldots\,,
+\end{align}
+其中 ${\cal F}_n(-\lambda)$ 是分波多项式，其显式形式在强子光锥 DA 的流—流关联共形 OPE 中已知~\cite{Braun:2007wv}；${\cal B}_{nm}$ 见~\cite{Braun:2003rp,Mueller:1993hg}；$\ldots$ 表示高扭度贡献 $\mathcal{O}\left({M^2/ ({\bar P}^z)^2},{t/ ({\bar P}^z)^2},z^2\Lambda_{\rm QCD}^2\right)$。
+
+把上式左端 Fourier 变换到动量空间并按 $\alpha_s$ 逐阶反解，就得到非极化夸克 GPD 的 EFT 展开：
+\begin{align}\label{eq:gpdfact}
+	&F(x,\xi,t,\mu) \\
+	&\hspace{0.5em}=  \int_{-\infty}^\infty {dy\over |\xi|}\bar{C}\left({x\over \xi}, {y\over \xi}, {\mu \over \xi {\bar P}^z }\right){\tilde F}(y,\xi,t, {\bar P}^z,\mu) +\ldots\nn\\
+	&\hspace{0.5em}= \int_{-\infty}^\infty {dy\over |y|}C\left({x\over y}, {\xi\over y}, {\mu \over y{\bar P}^z }\right){\tilde F}(y,\xi,t,{\bar P}^z,\mu)+ \ldots\,,\nn
+\end{align}
+其组织精神与前几节 PDF 的因子化一致。两种形式都在文献中使用过~\cite{Ji:2015qla,Xiong:2015nua,Liu:2019urm}，匹配系数之间的关系为
+\beq
+C\left({x\over y}, {\xi\over y}, {\mu \over y{\bar P}^z }\right) = \left|{y\over \xi}\right|\bar{C}\left({x\over \xi}, {y\over \xi}, {\mu \over \xi {\bar P}^z }\right)\,,
+\eeq
+$\ldots$ 表示高扭度贡献，其幂次计数与 Eq.~(\ref{eq:ope-twist2}) 相同，只是 $z^2$ 换成 $1/(x{\bar P}^z)^2$。对螺旋度与横性夸克准 GPD，因子化公式具有与 \eq{gpdfact} 相同的形式~\cite{Liu:2019urm}。
+
+匹配系数可以这样获得：把 Eqs. (\ref{eq:GPD}) 与 (\ref{eq:quasiGPD}) 中的强子态换成携带动量 $p+\Delta/2$ 与 $p-\Delta/2$（$p^\mu=(p^0,0,0,p^z)$）的夸克态，然后在微扰论中计算夸克矩阵元。
+%
+$\mathcal O(\alpha_s)$ 匹配系数的显式表达式见~\cite{Liu:2019urm}。
+%
+该结果的一个重要特征是：准 GPD 在所有 $y$ 区域都不为零，但一圈的共线奇点只出现在 DGLAP 与 ERBL 区。它们与光锥 GPD 中的完全相同，因此在匹配系数中相消。此外，还可以为准 GPD 导出动量 RGE，经匹配程序转化为 GPD 标度依赖的 RGE。
+
+
+作为本小节的结束，对上面的夸克 GPD EFT 公式作几点评论。第一，零偏斜 $\xi=0$ 时
+\begin{align} \label{eq:zeroskew}
+	F(x,0,t,\mu)&=\!\! \int_{-\infty}^\infty\! {dy\over |y|}C\!\left({x\over y}, 0, {\mu \over y{P}^z }\right)\! {\tilde F}(y,0,t,P^z,\mu)\nn\\
+	&\qquad +\ldots\,,
+\end{align}
+匹配核 $C(x/y,0,\mu/(yP^z))$ 与准 PDF 的匹配系数完全相同~\cite{Izubuchi:2018srq}，即便 $t\neq0$。原因在于：零偏斜时纵向动量转移与能量转移都为零，动量转移纯为横向，因而不受沿纵向 $z$ 方向 Lorentz 推进的影响。于是大 $P^z$ 极限不需要与 $t$ 相关的额外匹配，匹配保持与准 PDF 情形相同。若再取前向极限 $\Delta \to0$，Eq.~(\ref{eq:zeroskew}) 就严格约化为 PDF 的 EFT 展开公式~\cite{Ji:2015qla,Izubuchi:2018srq}。
+
+第二，在极限 $\xi\to1$ 且 $t\to0$ 下，准 GPD 约化为下一小节将讨论的准 DA，相应的匹配核也约化为准 DA 的匹配核。
+
+
+%------------------------------------------------------------------------------
+\subsection{强子分布振幅}
+\label{sec:others-da}
+%-----------------------------------------------------------------------------
+
+在 LaMET 内，质子及其他强子的 DA 也可以通过适当选择的准 DA 的格点模拟来提取。本小节说明这在实践中如何实现。作为示例，取领头扭度 $\pi$ 介子 DA。推广到其他强子~\cite{Chen:2017gck,Wang:2019msf}是类似的。
+
+
+$\pi$ 介子的领头扭度 DA 是最简单也是研究最充分的强子 DA。它表示在 $\pi$ 介子中找到一个价 $q\bar q$ Fock 态（夸克携带总动量的份额 $x$）的概率振幅，定义为
+\begin{align}\label{eq:pionDA}
+	\phi_{\pi}(x)&={\frac{1}{if_{\pi}}}\int \frac{d\lambda}{2\pi P^+}e^{-i (x-\frac 1 2)\lambda}\langle 0|O_{\gamma^+\gamma_5}(\lambda n)|\pi(P)\rangle\,,
+\end{align}
+归一化为 $\int_0^1 dx\, \phi_\pi(x)=1$。这里 $f_\pi$ 是衰变常数；$O_{\gamma^+\gamma_5}(\lambda n)$ 与 Eq.~(\ref{eq:GPD}) 中所用结构相同，只是 $\gamma^+$ 换成 $\gamma^+\gamma_5$。$\pi$ 介子 DA 可由 BaBar 和 Belle 对 $\gamma \gamma* \rightarrow \pi^0$ 等过程的测量加以约束~\cite{Aubert:2009mc,Uehara:2012ag}，进而用作其他测量（如 $\pi$ 介子形状因子~\cite{Efremov:1978rn,Farrar:1979aw}）检验 QCD 的输入。众所周知，在渐近极限下 $\pi$ 介子 DA 取 $6 x(1-x)$ 的形式~\cite{Efremov:1978rn,Lepage:1979zb}；但它在较低标度下的形状仍有争议（见 e.g.~\cite{Chernyak:1981zz}）。
+%
+用 LaMET 以可控的系统误差计算 $\pi$ 介子 DA，将为它的形状带来新的认识，从而深化我们对 $\pi$ 介子结构的理解。
+
+
+循着与前文相同的策略，可以通过研究如下准 DA 来获取 $\pi$ 介子 DA 的 $x$ 依赖~\cite{Ji:2015qla,Zhang:2017bzy}：
+\begin{align}\label{eq:quasiDA}
+	\tilde\phi_{\pi}(y, P^z)&={\frac{1}{if_{\pi}}}\int \frac{d\lambda}{2\pi P^z}e^{i (y-\frac 1 2) \lambda}\langle 0|{O}_{\gamma^z\gamma_5}(z)|\pi(P)\rangle\,,
+\end{align}
+纵向与横向极化矢量介子的准 DA 可以类似地定义：把上式中的 $\gamma^z\gamma_5$ 分别换成 $\gamma^0$、$\gamma^z\gamma_\perp$~\cite{Liu:2018tox}。
+
+
+定义准 DA 的夸克双线性算符遵循与准 PDF、准 GPD 相同的重正化模式。文献中首批介子 DA 的 LaMET 计算采用了 Wilson 线质量减除方案~\cite{Zhang:2017bzy,Chen:2017gck}，更近期的工作采用 RI/MOM 方案~\cite{Zhang:2020gaj}。
+
+在 $\MS$ 方案中，DA 的 LaMET 表达式形如~\cite{Ji:2015qla,Liu:2018tox}
+\begin{align}\label{eq:matching2}
+	\phi_\pi(x,\mu) &=\int_{-\infty}^\infty dy\, C_{\pi}\left(x,y,P^z/\mu\right) \tilde\phi_\pi(y,P^z,\mu)+\ldots\,.
+\end{align}
+准 DA 的匹配系数可以这样得到：把 Eqs. (\ref{eq:pionDA}) 与 (\ref{eq:quasiDA}) 中的介子态 $| \pi(P)\rangle$ 换成最低 Fock 态 $| q(y P) \bar q((1-y)P)\rangle$ 并计算夸克矩阵元，其中 $y P$ 与 $(1-y)P$ 分别是夸克 $q$ 与反夸克 $\bar q$ 的动量。其在 $\MS$ 与 RI/MOM 方案中的一圈结果均已计算~\cite{Liu:2018tox}，与 \eq{gpdfact} 中准 GPD 的匹配系数~\cite{Ji:2015qla,Xiong:2015nua,Liu:2019urm}在代换 $\xi\to 1/(2y-1)$、$x/\xi\to 2x-1$、外部动量 $p^z\to p^z/2$ 后一致。
+
+除动量空间的 LaMET 途径外，$\pi$ 介子 DA 的形状也用坐标空间中等时的流—流关联研究过~\cite{Bali:2017gfr,Bali:2018spj}：
+\begin{align}
+	&\langle 0 | T\Big\{J_\mu\Big(\frac{z}{2}\Big) J_\nu\Big(-\frac{z}{2}\Big)\Big\}| \pi^0(P)\rangle \nn\\
+	& \hspace{3em}= \frac{2i\, f_\pi}{3 \pi^2 z^4} \epsilon_{\mu\nu\alpha\beta} P^\alpha z^\beta \Phi_\pi(\lambda, z^2)\,,
+	\label{eq:pigg-in-z-space}
+\end{align}
+其中 $\Phi_\pi(\lambda, z^2)$ 可因子化为
+\begin{align} \label{twist_decomposition_heuristic}
+	\Phi_\pi(\lambda, z^2) &= C_2 (\lambda,z^2\mu^2, x)\otimes \phi_\pi(x,\mu)+\cdots\,.
+\end{align}
+这里的匹配系数 $C_2$ 依赖流的选取，显式表达式见~\cite{Bali:2018spj}。上述因子化的控制参数为 ${\mathcal O}(z^2\Lambda_{\rm QCD}^2)$，幂次修正记为``$\cdots$''。文献~\cite{Bali:2018spj}对若干流—流关联作了联合分析，并用~\cite{Braun:1989iv,Ball:2006wn}的模型估计纳入了扭度四的贡献。{领头扭度的 $\pi$ 介子 DA 从数据的全局拟合中被提取出来，其二阶矩也以受控精度拟合成功}，二者都表明在 $2$ GeV 标度下其形状明显宽于渐近 DA。要获取大 $\lambda$ 处的信息需要较大的 $\pi$ 介子动量，这样才能提取更大范围的 $x$ 或更高阶矩~\cite{Bali:2017gfr}。
+
+%------------------------------------------------------------------------------
+\subsection{高扭度分布}
+\label{sec:others-ht}
+%------------------------------------------------------------------------------
+
+高扭度分布之所以备受关注，是因为它们描述质子中夸克—胶子的相干关联。与领头扭度分布相比，我们对高扭度分布的理解相当贫乏：一方面它们常常依赖不止一个部分子动量份额；另一方面，对其形态缺乏物理直觉，特别是对小 $x$ 和大 $x$ 的渐近行为~\cite{Braun:2011aw}。已有研究把它们与 DIS 结构函数、各种强子产生中的横向单自旋不对称、与夸克胶子 OAM 相关的 GPD、部分子 DA 等联系起来。LaMET 将提供从格点获取它们的可能，从而带来新的认识。
+
+高扭度贡献也出现在 LaMET 展开中，其压低来自强子动量平方的幂次。前面各节给出的所有因子化中都只计入了捕捉强子动量对数依赖的领头扭度项，并假设高扭度贡献很小。当强子动量不够大和/或接近端点区（$x\to0$ 与 $x\to1$）时，高扭度贡献可能变得不可忽略，其结构与影响都需要理解。
+
+
+\subsubsection{高扭度共线部分子可观测量}
+
+超出领头扭度，与未极化、横向极化和纵向极化质子相关的三个最简单的三阶扭度夸克分布是
+$e(x)$、$g_T(x)$ 与 $h_L(x)$~\cite{Jaffe:1991ra}：
+\begin{align}
+	e(x) &= \frac{1}{2M}\int \frac{d\lambda}{2\pi}e^{ix\lambda} \\
+	&\quad\times \langle PS|\psi^\dagger_+(0)\gamma_0\psi_-(\lambda n)|PS\rangle + {\rm h.c.}  \,, \nn\\
+	g_T(x)& = \frac{1}{2M}\int \frac{d\lambda}{2\pi}e^{ix\lambda}  \\
+	&\quad\times \langle PS_\perp|\psi^\dagger_+(0)\gamma_0\gamma_\perp\gamma_5\psi_-(\lambda n)|PS_\perp\rangle + {\rm h.c.} \,,\nn\\
+	h_L(x)&  =\frac{1}{2M}\int \frac{d\lambda}{2\pi} e^{ix\lambda} \\
+	&\quad\times \langle PS_z|\psi^\dagger_+(0)\gamma_0\gamma_5\psi_-(\lambda n)|PS_z\rangle + {\rm h.c.}  \,,\nn
+	\label{eq:twist3}
+\end{align}
+这里再次使用了 Sec.~\ref{sec:lc} 中夸克场的分解 $\psi=\psi_+ +\psi_-$ 以及光锥规范 $A^+=0$；``h.c.''表示厄米共轭。
+
+三阶扭度分布在某些实验观测量中可以作为领先效应出现。例如 $g_T(x)$ 与 $h_L(x)$ 可作为极化 Drell-Yan 过程纵—横自旋不对称中的领先效应被测量。
+
+由于 $\psi_-$ 是依赖 $\psi_+$ 的非动力学分量，可以证明上述全部分布都与更复杂的夸克—胶子关联函数有关~\cite{Ji:1990br,Balitsky:1996uh}。一套完整的这类关联函数已在~\cite{Qiu:1991pp,Ji:1992eu,Ji:2001bm,Kang:2008ey}给出，其中横向极化质子中的夸克—胶子关联形如
+\begin{align}
+	&T_q(x_1, x_2)=\frac{1}{(P^+)^2}\int\frac{d\lambda d\zeta}{(2\pi)^2}e^{i\lambda x_1+i\zeta(x_2-x_1)}\\
+	&\hspace{2em}\times\langle PS_\perp|\bar\psi(0)\gamma^+ \epsilon^{+-S_\perp i}g F^{+i}(\zeta n)\psi(\lambda n)|PS_\perp\rangle,\nn\\
+	&T_{\Delta q}(x_1, x_2)=\frac{1}{(P^+)^2}\int\frac{d\lambda d\zeta}{(2\pi)^2}e^{i\lambda x_1+i\zeta(x_2-x_1)}\\
+	&\hspace{2em}\times\langle PS_\perp|\bar\psi(0)i\gamma^+\gamma_5 S^i_\perp g F^{+i}(\zeta n)\psi(\lambda n)|PS_\perp\rangle\,.\nn
+\end{align}
+在未极化和纵向极化质子中也有相应的对象。推广到非前向运动学，所得的三阶扭度 GPD 还与夸克、胶子对质子自旋的 OAM 贡献相关~\cite{Hatta:2012cs,Ji:2012ba}。
+
+类似 Eq. (\ref{eq:twist3})，让两个夸克场都用 $\psi_-$，还可以定义四阶扭度分布。更一般的四阶扭度分布会涉及三个光锥变量，并对例如 DIS 中的 $1/Q^2$ 项有贡献~\cite{Jaffe:1982pm,Ellis:1982cd,Jaffe:1991ra,Ji:1993ey}。
+
+原则上，以上所有高扭度分布以及未列出的其他分布都可以用 LaMET 途径计算：选择合适的准 LF 关联即可。例如 $g_T(x)$ 的首个探索性格点计算已在~\cite{Bhattacharya:2020cen}完成，将在 \sec{lattice-other_distributions} 讨论。不过，由于其结构复杂，预期会有额外的复杂性。例如，处理领头扭度分布时不会遇到的光锥零模在这里开始起作用。最近，本文作者之一展示了如何在 LaMET 中从格点模拟研究这些零模的性质~\cite{Ji:2020baz}。另外，高扭度分布的混合模式也更复杂~\cite{Ji:1990br,Balitsky:1996uh}；因此从相应准分布出发的匹配必须计入这些混合，使其比计算扭度二 PDF 更具挑战性。三阶扭度分布匹配的单圈研究已在~\cite{Bhattacharya:2020xlt,Bhattacharya:2020jfj}进行。
+
+
+\subsubsection{准 PDF 的高扭度贡献}
+
+现在转向用 LaMET 提取领头扭度夸克 PDF 时出现的幂次压低高扭度贡献。这类贡献有两个不同的来源。为理解它们，回顾 \eq{ope} 中准 LF 关联的 OPE（此处为简单起见忽略重正化）。
+%
+恢复领头扭度夸克 PDF 需要去掉该式中两类迹项的贡献。\eq{ope} 右端导致 $M^2/(P^z)^2$ 幂次压低贡献的迹项被称为运动学幂次贡献或靶质量修正。在 DIS 中，它们可通过把标度变量 $x$ 换成 Nachtmann 变量来处理~\cite{Nachtmann:1973mr}。在 LaMET 情形中其处理略有不同，见下文。第二类幂次修正来自 \eq{ope-tq} 右端算符中的迹项，一般给出 $\mathcal O(\Lambda^2_{\rm{QCD}}/(P^z)^2)$ 的贡献。这是真正的高扭度贡献，涉及多部分子关联，有时也称动力学高扭度贡献。夸克准 PDF 的靶质量修正已在所有 $M^2/(P^z)^2$ 阶计算~\cite{Chen:2016utp,Radyushkin:2017ffo}；真正的高扭度贡献则用两条不同途径研究过~\cite{Chen:2016utp,Braun:2018brg}。
+
+
+按照~\cite{Chen:2016utp}，$M^2/(P^z)^2$ 修正可以从比值获得
+%
+\begin{align}
+	K_m  &\equiv
+	\frac{n_{(\mu_1}\cdots n_{\mu_m)}
+		P^{\mu_1}\cdots P^{\mu_m}}{n_{\mu_1}\cdots n_{\mu_m}
+		P^{\mu_1}\cdots P^{\mu_m}} = \sum_{i=0}^{i_\text{max}} C_{m-i}^i c^i   \label{Kn}\,,
+\end{align}
+其中 $i_\text{max}=(m-\text{Mod}[m,2])/2$，$C$ 是二项式函数，$c=-n^2 M^2/4\left(n\cdot P\right)^2 = M^2/4 (P^z)^2$，$n^\mu = (0,0,0,-1)$、$n \cdot P=P^z$。
+
+代入 \eq{ope} 的树图 OPE 公式后，上述因子可以转化为非极化 PDF 与准 PDF 之间的如下关系~\cite{Chen:2016utp}：
+\begin{align}
+	q(x)&=\sqrt{1+4c}\sum_{n=0}^\infty \frac{(4c)^n}{f_+^{2n+1}}\Big[(1+(-1)^n)\tilde q\Big(\frac{f_+^{2n+1}x}{2(4c)^n}\Big)\nn\\
+	&\qquad+(1-(-1)^n)\tilde q\Big(\frac{-f_+^{2n+1}x}{2(4c)^n}\Big)\Big],
+\end{align}
+其中 $f_{+}=\sqrt{1+4c}+ 1$。值得注意的是，上式保持了夸克数守恒。纵向与横向极化准 PDF 的靶质量修正可以类比导出。
+
+\eq{ope-tq} 右端的迹部分是真正的高扭度效应。可以尝试从 OPE 构造高扭度算符的非局域形式。领先的迹项是扭度四效应，已在~\cite{Chen:2016utp}研究（另见~\cite{Balitsky:1987bk}），并被证明给出一个扭度四 PDF：
+\begin{align}\label{tildeq-twist4}
+	&{q}_\text{4}(x,P^z)
+	=  \int_{-\infty}^\infty \!\frac{d\lambda}{8\pi P^z}\,
+	\Gamma_0\left(-ix\lambda\right)
+	\left\langle P\left\vert  O_\text{tr}(z)\right\vert P\right\rangle ,
+\end{align}
+其中
+\begin{align}
+	&O_\text{tr}(z) =
+	\int_0^z \!dz_1\, \bar{\psi}(0) \Big[
+	\Gamma^\nu W\left(0,z_1\right) D_\nu W\left(z_1,z\right)\\
+	&\hspace{-.5em}+ \int_0^{z_1} \!\! \! dz_2\,  n \cdot  \Gamma\,
+	W\left(0,z_2\right) D^\nu W\left(z_2,z_1\right) D_\nu
+	W\left(z_1,z\right) \Big] \psi(z n)\,,\nn
+\end{align}
+对非极化、螺旋度与横性 PDF 分别有 $\Gamma^{\mu}=\gamma^{\mu}, \gamma^{\mu}\gamma^5, \gamma^\perp\gamma^{\mu}\gamma^5$。$\Gamma_0$ 是不完全 Gamma 函数
+\begin{equation}
+	\Gamma_0\left(-ix\right) = \int_0^1 \frac{dt}{t} e^{ix/t} \,.
+\end{equation}
+要从准 PDF 中去掉上述扭度四贡献才能恢复领头扭度 PDF。它也为格点上的实际计算提供了可能。然而，作为一个包含更多规范链与协变导数的多部分子关联，其格点计算相当困难，现有工作尚未实现。
+
+
+另一种用于估计夸克准 PDF 相关幂次修正的方法是重正子模型（全面综述见~\cite{Beneke:1998ui}）。
+%
+其出发点是观察到准 PDF 匹配系数的微扰展开随圈数呈阶乘发散，意味着它只在某个幂次精度内良定义。这就是重正子模糊性，必须由高扭度贡献中的项抵消。
+
+
+文献~\cite{Braun:2018brg}证明，重正子模糊性的抵消要求领先的高扭度（扭度四）贡献取如下形式：
+\begin{align}
+	\label{eq:Q4-cutoff}
+	{q}_4(y,P^z,\mu) = \mu^2 \int_{-1}^1 \!\frac{dx}{|x|} D\Big(\frac{y}{x}\Big) q(x,\mu) + q'_4(y,P^z,\mu)\,,
+\end{align}
+其中右端第一项抵消领头扭度匹配系数的重正子模糊性，$q'_4$ 至多对数地依赖 $\mu$。既然第一项只是为了抵消匹配系数中的类似贡献，它不进入任何物理可观测量。幂次修正的重正子模型~\cite{Beneke:1995pq,Dokshitzer:1995qm,Dasgupta:1996hh,Dasgupta:1996ki,Beneke:1997sr,Braun:2004bu}基于如下假设：把 $\mu$ 换成合适的非微扰标度后，该项反映实际幂次压低贡献的阶数与函数形式。这就是~\cite{Braun:1995tp,Beneke:1998ui,Beneke:2000kc}所称的``紫外支配''。在此假设下得到估计
+\begin{equation}
+	{q}_4(y,P^z,\mu) = \kappa
+	\Lambda_{\rm QCD}^2 \int_{-1}^1 \!\frac{dx}{|x|} D\Big(\frac{y}{x}\Big)\, q(x,\mu)\,,
+	\label{UV_Lambda_int}
+\end{equation}
+其中 $\kappa$ 是 $\mathcal O(1)$ 的无量纲系数，无法在理论内确定，仍是自由参数。
+
+
+详细分析~\cite{Braun:2018brg}表明对准 PDF 有
+\begin{align}
+	\label{t4-Qparallel}
+	& {q}_4(y,P^z) =\frac{\kappa  \Lambda_{\rm QCD}^2}{y^2(1-y) (P^z)^2}\\
+	&\hspace{-.2em}\times \hspace{-.2em}(1-y)\!\Big[\!\!
+	\int_{|y|}^1 \!\!\frac{dx}{x} \Big[\frac{x^2}{(1-x)_+}\!-\!2x^2\Big]q\Big(\frac{y}{x}\Big)\!
+	+\! 2q(y)\! -\! |y|q'(y) \Big]\,,\nn
+\end{align}
+积分中的第一项在最近关于准 PDF 重正子效应的分析~\cite{Liu:2020rqi}中得到重现。可以看到，若 $\lim_{y\to1}q(y)\sim (1-y)^a$（$a>0$），则第二行在 $y\to1$ 时像 $q(y)$ 一样消失。这给出了 Eq.~(\ref{eq:fact_0}) 右端扭度四贡献的估计，意味着高扭度贡献分别在 $y\sim 0$ 与 $y\sim 1$ 处被 $1/y^2$ 与 $1/(1-y)$ 增强。对 pseudo-PDF 也可做类似分析。上述结果可作为以 $\kappa$ 为唯一参数对扭度四建模的方式。
+
+\subsection{质子中部分子的轨道角动量}
+\label{sec:spin}
+%------------------------------------------------------------------------------
+
+过去三十年，围绕质子自旋的起源与结构开展了大量实验与理论研究，多篇综述已深入覆盖~\cite{Filippone:2001ux,Bass:2004xa,Aidala:2012mv,Leader:2013jra,Ji:2016djn,Deur:2018roz,Ji:2020ena}。
+
+除自旋依赖的 PDF 与 TMD 外，GCPO——尤其是 GPD——在理解质子自旋结构中也扮演重要角色。既然 GPD 描述质子内部夸克胶子的横向位置与纵向动量之间的关联，它们提供了从实验研究轨道角动量（OAM）的独特渠道。
+
+文献中有两个广为人知的 OAM 定义。一是质子自旋规范不变、参考系无关求和规则中的动力学（kinetic）OAM~\cite{Ji:1996ek,Ji:1996nm}，它与扭度二 GPD 的一阶矩相关，可以从对称 QCD 能动张量的形状因子计算；其格点计算的综述见~\cite{Ji:2020ena}。另一个定义与动力学 OAM 相比具有清晰的部分子诠释，是基于 QCD 角动量自由场形式的朴素部分子求和规则中的正则（canonical）OAM~\cite{Jaffe:1989jz}：
+\begin{align}\label{eq:jmam}
+	\vec{J} &= \int d^3\xi\ \psi^\dagger \frac{\vec{\Sigma}}{2} \psi + \int d^3\xi\ \psi^\dagger\left[\vec{\xi}\times (-i\vec{\nabla} )\right]\psi \nn\\
+	&\ \ \ \ \ + \int d^3\xi\ \vec{E}\times\vec{A} + \int d^3\xi\ E^i\ \left(\vec{\xi}\times\vec{\nabla}\right) A^{i} \ ,
+\end{align}
+$i$ 是空间 Lorentz 指标。除第一项外，其余三个算符都是规范依赖的，其矩阵元一般也依赖参考系。在高能散射中有一个特殊的参考系与规范：IMF 与光前规范 $A^+=0$。因此质子自旋的朴素部分子求和规则可写为~\cite{Jaffe:1989jz}
+\beq\label{eq:jm}
+\frac{1}{2}= \frac{1}{2}\Delta \Sigma(\mu)  + l^z_q(\mu) + \Delta G(\mu) + l^z_g(\mu) \,,
+\eeq
+其中 $l^z_q(\mu)$ 与 $l^z_g(\mu)$ 分别是夸克与胶子部分子的正则 OAM。$l_q^z$ 与 $l_g^z$ 都可与三阶扭度 GPD 联系起来~\cite{Hatta:2011ku,Ji:2012ba,Hatta:2012cs}，后者可通过硬 exclusive 过程中的自旋不对称测量~\cite{Ji:2016jgn,Hatta:2016aoc,Bhattacharya:2017bvs,Bhattacharya:2018lgm}（见近期综述~\cite{Ji:2020ena}）。
+
+要全面理解质子的部分子自旋结构，还需要确定夸克与胶子的正则 OAM $l^z_q$、$l^z_g$。LaMET 允许像 \sec{deltaG} 综述的胶子螺旋度那样，从格点计算提取 $l_q^z$ 与 $l_g^z$。
+
+准部分子 OAM 算符可选为固定在属于普适类的规范中的自由场算符~\cite{Hatta:2013gta}。其矩阵元 $\tilde l^z_q$ 与 $\tilde l^z_g$ 可从相关能动张量的非前向矩阵元计算~\cite{Zhao:2015kca}，例如
+\begin{align}
+	\tilde l^z_q(2S^z) &= \lim_{\Delta\to0} \epsilon^{ij}{\partial \over \partial i\Delta^i}\langle P'S| \psi^\dagger (0) i\partial^j \psi(0)|PS\rangle \Big|_{\vec{\nabla}\cdot \vec{A}=0}\,.
+\end{align}
+运动学与 \eq{kinematic_variable} 相同。
+
+连同 $\Delta G$，$\tilde l^z_q$ 与 $\tilde l^z_g$ 可以通过因子化公式匹配到 Jaffe-Manohar 求和规则中定义的部分子量：
+\begin{align}\label{eq:oammatching}
+	\tilde l^z_q(P^z,\mu)  &= P_{qq}  l^z_q(\mu) + P_{gq} l^z_g(\mu) \nn\\
+	&\qquad+ p_{qq} \Delta \Sigma(\mu) + p_{gq}\Delta G(\mu) + ...\, ,\\
+	\tilde l^z_g(P^z,\mu)  &= P_{qg}  l^z_q(\mu) + P_{gg} l^z_g(\mu) \nn\\
+	&\qquad+ p_{qg} \Delta \Sigma(\mu) + p_{gg}\Delta G(\mu) + ...\, ,
+\end{align}
+其中 $\cdots$ 是被动量 $P^z$ 压低的幂次修正；库仑规范下右端各项前的一圈匹配系数已计算~\cite{Ji:2014lra}。由于准部分子算符是规范变化的、需固定在特定规范中，它们可能与 Lorentz 或规范对称性不允许的新算符混合。例如，规范依赖的势角动量 $\psi^\dagger(\vec{r}\times \vec{A})\psi$ 开始起作用~\cite{Wakamatsu:2014zza,Ji:2015sio}。要在格点重正化中获得正则 OAM 的受控计算，必须计入这类混合。
+
+除上述途径外，还有人建议从钉书形夸克 Wilson 线算符非前向矩阵元的导数计算 $l_q^z$ 与价夸克数之比~\cite{Engelhardt:2017miy}，其定义见下文 \eq{quasi_TMD}。该方法的首批格点计算已在~\cite{Engelhardt:2017miy,Engelhardt:2019lyy}进行，显示动力学与正则 OAM 效应大小不同。{为了系统性改进该计算，应在夸克场横向间隔趋于零的极限下把这些矩阵元匹配到物理的 $l_q^z$。}
+
+对横向极化而言，自然可以定义夸克的二阶扭度部分子横向角动量密度~\cite{Hoodbhoy:1998yb,Ji:2012sj,Ji:2020hii,Ji:2020ena}
+\begin{equation}
+	J^{q}_\perp (x) = x\left[q(x)+ E_q(x)\right]/2,
+\end{equation}
+胶子情形类似；这里 $q(x)$ 是非极化夸克/反夸克分布，$E_{q,g}(x)$ 是本节前面定义的 GPD。因此，要从第一性原理获得质子横向自旋的简单部分子图像，用 LaMET 计算 GPD $E(x)$ 十分重要。
+
+%------------------------------------------------------------------------------

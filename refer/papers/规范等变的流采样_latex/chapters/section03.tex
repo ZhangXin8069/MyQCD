@@ -1,0 +1,18 @@
+\section{规范不变的流}
+格点规范理论可以这样定义：格点的每个最近邻链接 $(x,x+\hat{\mu})$ 上有一个规范变量 $U_\mu(x)$。于是样本生活在紧致流形 $G^{N_d V}$ 上，其中 $G$ 是规范群的流形，$N_d$ 是时空维数，$V$ 是格点体积。物理分布 $p(U)$ 在具有 $V$ 个元素的离散平移对称群以及连续的 $V$ 维规范对称群下严格不变，也就是说，任何一个变换后的场组态 $\widetilde{U}$ 所对应的密度都与未变换组态相同：$p(\widetilde{U}) = p(U)$。在\emph{规范变换}下，链接 $U_\mu(x)$ 被群值场 $\Omega(x)$ 变换为
+%
+\begin{equation} \label{eqn:gauge-transform}
+  U_{\mu}(x) \; \rightarrow \; \widetilde{U}_\mu(x) = \Omega(x) U_{\mu}(x) \Omega^\dagger (x+\hat{\mu}).
+\end{equation}
+%
+
+在基于流的方法中，对称性对应于概率密度的平坦方向，模型必须复现它们。与在训练过程中学习对称性相比，在机器学习模型中精确编码对称性可以改善训练效果和模型质量~\cite{CohenWelling2016,Cohen:2019,khler2019equivariant,rezende2019equivariant,wirnsberger2020targeted, ZhangEWang2018Monge,Finzi:2020}。借助卷积架构可以把平移对称性纳入模型，例如文献~\cite{CohenWelling2016} 中所研究的。为了处理规范对称性，一种尝试是使用规范固定步骤从每个规范等价类中选出一个组态，只留下物理自由度；然而，已知的保持平移不变性的规范固定步骤都基于隐式微分方程约束~\cite{DeGrand:2006zz}，它们在流中没有直接的实现方式。这里我们不这样做，而是引入一种在基于流模型中保持精确规范不变性的方法。
+
+当基于流的模型用耦合层定义时，只要满足两个条件，其输出分布就会在一个对称群下不变：
+%
+\begin{enumerate}
+    \item 先验分布是对称的。
+    \item 每个耦合层在该对称性下是\emph{等变的}（equivariant），即所有变换都能穿过耦合层的作用而互易~\cite{Hinton:2011,kivinen2011transformation,schmidt2012learning,CohenWelling2016,rezende2019equivariant}。
+\end{enumerate}
+%
+选取对称的先验分布通常很直接，例如关于规范链接 Haar 测度均匀的分布既是平移不变的也是规范不变的。把规范等变的耦合层与这样的先验分布结合起来，便定义了一个规范不变的基于流的模型。

@@ -1,0 +1,67 @@
+% ---- Acknowledgements + Appendices + References ----------------------
+
+\section*{Acknowledgements}
+
+We thank J.-W. Chen, K.~Cranmer, W.~Detmold, R.~Melko, D.~Murphy, A.~Pochinsky, and B.~Trippe for helpful discussions.
+%
+This work is supported in part by the U.S.~Department of Energy, Office of Science, Office of Nuclear Physics under grant Contract Number DE-SC0011090. This research used resources of the Argonne Leadership Computing Facility, which is a DOE Office of Science User Facility supported under Contract DE-AC02-06CH11357, under the ALCF Aurora Early Science Program. Some work was undertaken at the Kavli Institute for Theoretical Physics, supported by the National Science Foundation under Grant No.~NSF PHY-1748958.
+PES is supported by the National Science Foundation under CAREER Award 1841699, GK is supported by the U.S.~Department of Energy under the SciDAC4 award DE-SC0018121, and PES and MSA are supported in part by NSERC and the Perimeter Institute for Theoretical Physics. Research at the Perimeter Institute is supported by the Government of Canada through the Department of Innovation, Science and Economic Development and by the Province of Ontario through the Ministry of Research and Innovation.
+
+
+\appendix
+
+\section{Acceptance rate estimator for autocorrelation}
+\label{app:bounds}
+
+Here it is shown that the standard estimator for the autocorrelation of an observable $\mathcal{O}$ converges in the limit of infinite path length to  $p_{\tau \mathrm{rej}}$, as claimed in Section~\ref{subsec:autocorr}. The standard estimator is defined by:
+%
+\begin{align}
+& \lim_{N\rightarrow\infty} \expt{}\sq{\widehat{\rho(\tau)/\rho(0)}_O} \\
+=\,&
+    \lim_{N\rightarrow\infty} \expt{} \sq{\frac{\frac{1}{N-\tau} \sum_{i=0}^{N-\tau-1} (\obs_i - \bar{\obs})(\obs_{i+\tau}-\bar{\obs})}{\frac{1}{N} \sum_{i=0}^{N-1} \paren{\obs_i - \bar{\obs}}^2}} \\
+=\,& \lim_{N\rightarrow\infty} \expt{} \sq{\frac{(\obs_i - \bar{\obs})(\obs_{i+\tau}-\bar{\obs})}{\frac{1}{N} \sum_{i=0}^{N-1} \paren{\obs_i - \bar{\obs}}^2}},
+\end{align}
+%
+where the final equality is true assuming the Markov chain is initialized with a sample from the stationary distribution $p(\phi)$ (i.e., it is assumed that enough prior iterations were discarded that the chain is thermalized). The expectation value can then be split by cases and, conditioning on the fixed accept/reject pattern, the expectation values can be computed by identifying the distributions of observables $\mathcal{O}_i$ and $\mathcal{O}_{i+\tau}$:
+%
+% \begin{widetext} removed (single-column normalized layout)
+\begin{align}
+\lim_{N\rightarrow\infty} \expt{}\sq{\widehat{\rho(\tau)/\rho(0)}_O}
+&= \lim_{N\rightarrow \infty} p_{\tau\text{rej}} \expt{} \sq{\frac{(\obs_i - \bar{\obs})(\obs_{i+\tau}-\bar{\obs})}{\frac{1}{N} \sum_{i=0}^{N-1} \paren{\obs_i - \bar{\obs}}^2}
+    \Bigg| \text{all proposals } i+1, \dots, i+\tau \text{ rejected}} + \nonumber\\
+    &\qquad\qquad (1-p_{\tau\text{rej}}) \expt{} \sq{\frac{(\obs_i - \bar{\obs})(\obs_{i+\tau}-\bar{\obs})}{\frac{1}{N} \sum_{i=0}^{N-1} \paren{\obs_i - \bar{\obs}}^2}
+    \Bigg| \text{some proposal } i+1, \dots, i+\tau \text{ accepted}} \\
+&= p_{\tau\text{rej}} \lim_{N\rightarrow\infty} \expt{\phi\sim p} \sq{\frac{(\obs[\phi] - \bar{\obs})^2}{\frac{1}{N} \sum_{j \notin [i,i+\tau]} (\obs_j - \bar{\obs})^2 + O(\tau/N)}} + \nonumber\\
+    &\qquad\qquad (1-p_{\tau\text{rej}}) \lim_{N\rightarrow\infty} \expt{\phi\sim p} \expt{\phi' \sim \tilde{p}} \sq{ \frac{(\obs[\phi] - \bar{\obs})(\obs[\phi'] - \bar{\obs})}{\frac{1}{N} \sum_{j \notin [i,i+\tau]} (\obs_j - \bar{\obs})^2 + O(\tau/N)}} \\
+&= p_{\tau\text{rej}} \frac{\rho(0)}{\rho(0)} + (1-p_{\tau\text{rej}}) \frac{\cancel{\expt{\phi\sim p} \sq{\obs[\phi] - \bar{\obs}}} \expt{\phi'\sim \tilde{p}} \sq{\obs[\phi'] - \bar{\obs}}}{\rho(0)} = p_{\tau\text{rej}}.
+\end{align}
+% \end{widetext}
+%
+The limit $N \rightarrow \infty$ is used to drop biases arising from conditioning on behavior within the region $[i,i+\tau]$.
+
+
+\section{Mean absolute error loss}
+\label{app:mae-loss}
+The mean absolute error (MAE) loss optimized before training some models is defined by:
+%
+\begin{equation}
+L_\text{MAE}(\netp) := \int \prod_j d\phi_j \, \netp(\phi) \left| \log{\netp(\phi)} - \log{p(\phi)} \right|.
+\end{equation}
+%
+It is bounded below by the KL divergence $D_{KL}(\netp || p)$ and has global minima exactly where the KL loss does, when $\netp = p$.
+
+In practice, the loss is stochastically estimated by drawing batches of $M$ samples from the model $\curly{\phi^{(i)} \sim \netp}$ and computing the sample mean:
+%
+\begin{equation}
+\begin{aligned}
+\widehat{L_\text{MAE}(\netp)} &= \frac{1}{M} \sum_{i=1}^M \left| \log{\netp(\phi^{(i)})} - \log{p(\phi^{(i)})} \right| \\
+&= \frac{1}{M} \sum_{i=1}^M \left| \log{\netp(\phi^{(i)})} + S(\phi^{(i)}) + \log{Z} \right|.
+\end{aligned}
+\end{equation}
+To employ this loss, the partition function must either be estimated ahead of time, or initialized as a trainable parameter. In this study, a multistage method~\cite{ValleauFreeEnergy72} was used to estimate and fix the partition function value used while optimizing $L_\text{MAE}$.
+
+\setlength{\parskip}{2pt}
+This loss is appealing due to the point-by-point potential driving the distribution towards the correct one. Any errors in computing $\log{Z}$, however, result in a minimum at which the model distribution $\netp(\phi)$ does not necessarily agree with the desired distribution $p(\phi)$. This loss was therefore only used prior to training with the shifted KL loss.
+
+% ---- References (from the original main.bbl, unchanged) ---------------
+\input{chapters/references}

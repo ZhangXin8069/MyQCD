@@ -1,0 +1,81 @@
+\section{Strategy of data analysis at asymptotic distances}
+\label{sec:regge}
+
+For finite hadron momentum, lattice calculations of quasi-LF correlations always end up with data at
+finite $\lambda_{\rm L}=P^zz_{\rm L}$ where $z_{\rm L}$ is usually smaller than the lattice size due to increasing finite volume corrections and worse signal-to-noise ratios at large $z$. However, to reconstruct the full parton distribution, we need the correlations at all quasi-LF distances.
+
+At finite momentum, the quasi-LF correlation in general has a finite correlation length (in the $\MS$ or hybrid scheme) and exhibits an exponential decay at large $z$. This is similar to the case of density-density~\cite{Burkardt:1994pw} or current-current correlation since the quasi-LF correlation can be viewed as the product of two heavy-to-light currents in the auxiliary field formalism~\cite{Samuel:1978iy,Gervais:1979fv,Arefeva:1980zd,Dorn:1986dt}. As a consequence, its Fourier transform converges fast at finite $z$ or $\lambda$, as compared to that of the LF or twist-2 correlation which only decays algebraically at large $\lambda$ due to the Regge behavior. If $z_{\rm L}$ is large enough such that the quasi-LF correlation falls close to zero, we can do a truncated Fourier transform up to $z_{\rm L}$ to obtain the quasi-PDF, and the resulting systematic uncertainty is negligible compared to other sources.
+
+However, in practical lattice calculations, the choice of $z_L$ is limited by fast-growing errors of quasi-LF correlations. This is particularly true for large hadron momentum.
+Thus, when we choose a $z_L$ or $\lambda_{\rm L}$ with a target error, the quasi-LF correlation may still have a sizeable nonzero value at that point. In this case, a truncated Fourier transform will lead to an unphysical oscillation and inaccurate small-$x$ result in the quasi-PDF, which can be formulated as an inversion problem~\cite{Karpie:2019eiq}. Several strategies have been adopted in the literature to address this issue, e.g., the Backus-Gilbert method~\cite{Karpie:2019eiq,Bhat:2020ktg}, neural network and Bayesian reconstructions~\cite{Karpie:2019eiq}, the Gaussian reweighting method that suppresses the long-range correlations~\cite{Ishikawa:2019flg}, the derivative method~\cite{Lin:2017ani} which amounts to doing integration-by-parts and ignoring the boundary terms at the truncation point, or the Bayes-Gauss-Fourier transform which reconstructs a continuous form of the quasi-LF correlation over the whole domain by employing Gaussian process regression~\cite{Alexandrou:2020tqq}. However, the assumptions employed in these strategies are mostly based on mathematical rather than physical reasons. Here we propose to use the knowledge of the asymptotic behavior of quasi-LF correlations and perform a physically motivated extrapolation to $\lambda\!=\!\infty$.
+After the extrapolation, one can perform a discrete Fourier transform for $|z|\le z_{\rm L}$, where the discretization error can be studied with the lattice spacing dependence, while for the extrapolated part one can perform the Fourier transform analytically. Therefore, the mathematical inverse problem is solved by physics considerations.
+Although this extrapolation does not provide a first-principle prediction of the small-$x$ PDF, it helps remove the unphysical oscillation and offers a reasonable way to estimate the systematic uncertainties in this region.
+
+Depending on how large the momentum is, we propose to use either the exponential or algebraic decay form for the extrapolation. In the following, we discuss them in detail and describe how to estimate the corresponding uncertainty.
+
+
+\subsection{Exponential extrapolation at moderately large $P^z$}
+
+As mentioned above, for a moderately large momentum $P^z$, the quasi-LF correlations in general have a finite correlation
+length $\xi_z \sim 1/\Lambda_{\rm QCD}$ in the coordinate $z$ space or
+$\xi_\lambda \sim P^z/\Lambda_{\rm QCD}$ in the LF distance $\lambda$ space. This
+is due to the confinement property of non-perturbative QCD and spacelike nature of the correlation. The finite correlation length is associated with an exponential decay $\exp(-z/\xi_z)$, which becomes significant at large $z$. Before the quasi-LF correlation exhibits the exponential decay behavior, it is dominated by the leading-twist contribution which evolves slowly in $P^z$. In the $\lambda$ space, the quasi-LF correlations at different $P^z$ can be qualitatively described by \fig{extr}. As $P^z$ increases, the quasi-LF correlation evolves closer to leading-twist contribution, and starts to exhibit the exponential decay at larger $\lambda$ values. In the limit of $P^z\to\infty$, $\xi_\lambda$ approaches infinity and the quasi-LF correlation only includes the leading-twist contribution that decays algebraically at large $\lambda$.
+
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{images/extrapolation}
+\caption{Qualitative behavior of the quasi-LF correlation in $\lambda$ space at different $P^z$. For finite $P^z$, at short $\lambda$ the correlation is approximated by the leading-twist contribution and evolves slowly in $P^z$. At large $\lambda$, the correlation starts to exhibit the exponential decay behavior, and both the starting point and correlation length $\xi_\lambda$ increase with respect to $P^z$. In the $P^z\to\infty$ limit, $\xi_\lambda$ approaches infinity and the quasi-LF correlation only includes leading-twist contribution which decays algebraically.}
+\label{fig:extr}
+\end{figure}
+
+Therefore, when $P^z$ is not very large, e.g., about 2--5 GeV for the proton, we propose to use the exponential decay form $\sim e^{-\lambda/\xi_\lambda}$ to do the extrapolation (although some algebraic behavior can be added on the top to better represent the $\lambda$-dependence of the quasi-LF correlations). Note that to make the extrapolation under control, it is critical for the lattice data to exhibit the exponential decay before the error becomes too big. This shall be achieved with larger lattice volume and/or higher statistics of measurements, which are feasible for contemporary computing resources. In the ideal case, at large enough $z$ or $\lambda$, the quasi-LF correlation would become practically zero within the target error, and the extrapolation will barely affect the final result except for the extremely small-$x$ region. In more practical scenarios, the lattice data shows the exponential drop, but still has a statistically significant nonzero value at $\lambda_{\rm L}$, then we can perform the exponential extrapolation to $\lambda=\infty$.
+
+Note that although the exponential form is physically motivated, it remains unclear at what values of $z$ or $\lambda$ the lattice data should be included for the fitting, as the large-$z$ data still includes leading-twist contribution which may obscure the result. Namely, one may fit to different values of the correlation length $\xi_\lambda$ with different choices of the fitting range. Nevertheless, the variation in $\xi_\lambda$ will mainly affect the region with very small $x$, which are anyway less predictive due to power corrections. Therefore, it is not a prerequisite to fit $\xi_\lambda$ precisely. Instead, one should utilize this property by varying the fitting range, e.g., within $z_{\rm L}-5a\le z \le z_{\rm L}$, and test the stability of the final result with different $\xi_{\lambda}$.
+
+Last but not the least, the Fourier transform of an exponentially decaying correlation always leads to a finite quasi-PDF at $x=0$, which is different from the Regge behavior of PDFs at small $x$. Besides, since the PDF at large $x$ ($x\to1$) is also sensitive to the long-range LF correlation which decays algebraically, the quasi-PDF shall deviate from the PDF in this region, too. These indicate the significance of power corrections in the end-point regions as $x\to0$ and $x\to1$, which gives us the hint on how to estimate the systematic uncertainty from the exponential extrapolation. To be specific, we can perform an algebraic extrapolation (see the section below) for the same range of data, which is essentially equivalent to ignoring all the power corrections at large $z$, and choose its difference to the exponential extrapolation as the error. One can anticipate that this estimate will lead to increasingly large systematic errors as $x$ approaches the end points, which is consistent with the accuracy of the momentum-space expansion.
+
+\subsection{Algebraic extrapolation at very large $P^z$}
+
+When $P^z$ becomes very large with future lattice resources,
+ $\xi_\lambda$ also becomes very large and it will take larger $\lambda$ values to see the exponential decay in lattice data. We expect that the decay behavior follows more like an algebraic law rather than an exponential one as $\lambda\sim\lambda_{\rm L}$. In other words, the quasi-LF correlation is very close to the leading-twist correlation since the power corrections for $\lambda \le \lambda_{\rm L}$ are expected to be well suppressed. In this case, we can use an algebraic form to extrapolate to $\lambda=\infty$.
+
+
+The algebraic decay of leading-twist correlation is a consequence of its infinite correlation length $\xi_\lambda$, and is associated with the asymptotic Regge behavior~\cite{Regge:1959mz}. At small $x$, it is well-known that parton distributions behave asymptotically like $x^a$, as suggested by Regge theory. For the non-singlet combination, the leading Regge trajectory indicates that $a\sim-1/2$. For the singlet combination, its mixing with gluon distributions under evolution makes things more subtle. In the so-called soft pomeron model, one has $a\sim -1$. However, scattering data at large momentum transfer indicate a more singular asymptotic behavior, reflecting the potential need for a contribution of the hard pomeron~\cite{Devenish:2004pb}. At large $x$, the asymptotic behavior is dictated by the quark counting rules~\cite{Brodsky:1973kr}. As $x\to 1$, the hadron momentum is carried by the struck quark and no momentum is left for other spectator partons. The asymptotic behavior is then predicted to be $(1-x)^b$, where $b=2n_s-1+2|\Delta S^z|$ with $n_s$ being the minimum number of spectator partons and $\Delta S^z$ the difference of the spin projections for the struck parton and the parent hadron~\cite{Devenish:2004pb,Brodsky:2005wx}. For example, for a valence quark in the proton $b=3\, (5)$ if the struck quark has helicity parallel (antiparallel) to the proton as $n_s=2$ and $|\Delta S^z|= 0\, (1)$, while for the pion one has $b=2$ since $n_s=1$ and $|\Delta S^z|=1/2$. The above features have been widely used in global fits of PDFs, where one parameterizes the PDFs such that they behave as $x^a$ for $x\to 0$ and $(1-x)^b$ for $x\to 1$ and fit the powers $a, b$ to a large variety of experimental data.
+The role of such a power law behavior in global fits has been examined in detail in Refs.~\cite{Ball:2016spl,Nocera:2014uea}.
+
+When Fourier transformed to coordinate space, the asymptotic behavior described above implies that the correlation in the longitudinal space decays algebraically as $\lambda^{-\alpha}$ ($\alpha$ is a positive number related to $a, b$) rather than exponentially, and thus has an infinite correlation length. A similar algebraic decay behavior was also observed in a recent analysis of the LF wave functions~\cite{Brodsky:1997de} when Fourier transformed to conjugating coordinate space~\cite{Miller:2019ysh}.
+
+To see how the asymptotic behavior can help with the extrapolation of quasi-LF correlations at large momentum, let us begin with the following simple form of PDFs that incorporates the $x\sim 0, 1$ behavior,
+\begin{equation}
+     x^a (1-x)^b \ .
+\end{equation}
+The coordinate space matrix element can be defined as
+\begin{equation}
+h(\lambda)=\int_0^1 dx \, e^{i x\lambda}x^a (1-x)^b,
+\end{equation}
+from which it follows that at large $\lambda$
+\begin{align}\label{asympt_coord}
+h(\lambda)\sim\frac{\Gamma(1+a)}{(-i|\lambda|)^{a+1}}+e^{i\lambda}\frac{\Gamma(1+b)}{(i|\lambda|)^{b+1}} \ ,
+\end{align}
+whose real (imaginary) part is even (odd) in $\lambda$, ensuring that parton distributions are real functions in momentum space. Therefore, the conjugate LF correlations behave at large $\lambda$ as $\lambda^{-\alpha(a,b)}$ with
+\begin{align}
+\alpha(a,b)=\text{\rm min}(a+1,b+1).
+\end{align}
+In most cases we are interested in, $\alpha(a,b)=a+1$. Applying the matching in Eq.~(\ref{matching}) converts the light-cone correlations to quasi-LF correlations, and also induces logarithmic corrections to the asymptotic behavior. In regions where the factorization is valid, such corrections can be resummed as $\sim \exp(\gamma \ln z^2\mu^2)=(\lambda^2\mu^2/(p^z)^2)^\gamma$ to leading logarithmic (LL) accuracy, which modifies the asymptotic behavior of the quasi-LF correlation as
+\begin{align}\label{asymphtilde}
+\tilde h(\lambda,z)\sim e^{\gamma \ln z^2\mu^2}\frac{1}{|\lambda|^{\alpha(a,b)}}\sim |\lambda|^{-\alpha(a,b)+2\gamma }  \,.
+\end{align}
+This provides a useful approximation to the quasi-LF correlations at large $\lambda$ with sufficiently large $P^z$, and is consistent with previous discussions based on the correlation length.
+Now we can use the following algebraic form to extrapolate the quasi-LF correlation to infinite $\lambda$ (taking $\lambda>0$ as an example)
+\begin{equation}\label{extrap}
+\frac{c_1}{(-i \lambda)^{d_1}}+e^{i\lambda}\frac{c_2}{(i \lambda)^{d_2}},
+\end{equation}
+which accommodates the two different structures in Eq.~(\ref{asympt_coord}). The parameters $c_i, d_i$ can be fitted in the same way as that in the exponential extrapolation. Finally, we can use the uncertainty in these parameters to estimate the systematic error from extrapolation.
+
+
+
+
+
+By supplementing lattice data with the above extrapolation strategy, we expect the final PDF result to be free of unphysical oscillation and converge better to the physical region $0<x<1$.

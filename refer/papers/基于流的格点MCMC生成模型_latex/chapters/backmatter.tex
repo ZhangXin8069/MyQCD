@@ -1,0 +1,67 @@
+% ---- 致谢 + 附录 + 参考文献 -------------------------------------------
+
+\section*{致谢}
+
+我们感谢 J.-W. Chen、K.~Cranmer、W.~Detmold、R.~Melko、D.~Murphy、A.~Pochinsky 与 B.~Trippe 的有益讨论。
+%
+本工作部分受到美国能源部科学办公室核物理办公室资助（合同编号 DE-SC0011090）。本研究使用了阿贡领导计算设施的资源，该设施是美国能源部科学用户设施，依合同 DE-AC02-06CH11357 获得支持；相关工作属于 ALCF Aurora 早科学计划。部分工作在 Kavli 理论物理研究所完成，该所受美国国家科学基金会资助（基金号 NSF PHY-1748958）。
+PES 受美国国家科学基金会 CAREER 奖 1841699 支持；GK 受美国能源部 SciDAC4 项目 DE-SC0018121 支持；PES 与 MSA 部分受 NSERC 及 Perimeter 理论物理研究所支持。Perimeter 研究所的研究由加拿大政府通过创新、科学与经济发展部以及安大略省通过研究与创新部提供支持。
+
+
+\appendix
+
+\section{自相关的接受率估计量}
+\label{app:bounds}
+
+本附录证明，正如第~\ref{subsec:autocorr} 节所述，观测量 $\mathcal{O}$ 自相关的标准估计量在无穷长路径的极限下收敛到 $p_{\tau \mathrm{rej}}$。标准估计量定义为：
+%
+\begin{align}
+& \lim_{N\rightarrow\infty} \expt{}\sq{\widehat{\rho(\tau)/\rho(0)}_O} \\
+=\,&
+    \lim_{N\rightarrow\infty} \expt{} \sq{\frac{\frac{1}{N-\tau} \sum_{i=0}^{N-\tau-1} (\obs_i - \bar{\obs})(\obs_{i+\tau}-\bar{\obs})}{\frac{1}{N} \sum_{i=0}^{N-1} \paren{\obs_i - \bar{\obs}}^2}} \\
+=\,& \lim_{N\rightarrow\infty} \expt{} \sq{\frac{(\obs_i - \bar{\obs})(\obs_{i+\tau}-\bar{\obs})}{\frac{1}{N} \sum_{i=0}^{N-1} \paren{\obs_i - \bar{\obs}}^2}},
+\end{align}
+%
+其中最后一步等式成立的前提是马尔可夫链以平稳分布 $p(\phi)$ 的样本初始化（即假定已丢弃足够多的先前迭代使链热化）。随后可以把期望值按情形拆分，并在固定接受/拒绝模式的条件下，通过辨认观测量 $\mathcal{O}_i$ 与 $\mathcal{O}_{i+\tau}$ 的分布来计算期望值：
+%
+% \begin{widetext} 已移除（单栏归一化排版）
+\begin{align}
+\lim_{N\rightarrow\infty} \expt{}\sq{\widehat{\rho(\tau)/\rho(0)}_O}
+&= \lim_{N\rightarrow \infty} p_{\tau\text{rej}} \expt{} \sq{\frac{(\obs_i - \bar{\obs})(\obs_{i+\tau}-\bar{\obs})}{\frac{1}{N} \sum_{i=0}^{N-1} \paren{\obs_i - \bar{\obs}}^2}
+    \Bigg| \text{all proposals } i+1, \dots, i+\tau \text{ rejected}} + \nonumber\\
+    &\qquad\qquad (1-p_{\tau\text{rej}}) \expt{} \sq{\frac{(\obs_i - \bar{\obs})(\obs_{i+\tau}-\bar{\obs})}{\frac{1}{N} \sum_{i=0}^{N-1} \paren{\obs_i - \bar{\obs}}^2}
+    \Bigg| \text{some proposal } i+1, \dots, i+\tau \text{ accepted}} \\
+&= p_{\tau\text{rej}} \lim_{N\rightarrow\infty} \expt{\phi\sim p} \sq{\frac{(\obs[\phi] - \bar{\obs})^2}{\frac{1}{N} \sum_{j \notin [i,i+\tau]} (\obs_j - \bar{\obs})^2 + O(\tau/N)}} + \nonumber\\
+    &\qquad\qquad (1-p_{\tau\text{rej}}) \lim_{N\rightarrow\infty} \expt{\phi\sim p} \expt{\phi' \sim \tilde{p}} \sq{ \frac{(\obs[\phi] - \bar{\obs})(\obs[\phi'] - \bar{\obs})}{\frac{1}{N} \sum_{j \notin [i,i+\tau]} (\obs_j - \bar{\obs})^2 + O(\tau/N)}} \\
+&= p_{\tau\text{rej}} \frac{\rho(0)}{\rho(0)} + (1-p_{\tau\text{rej}}) \frac{\cancel{\expt{\phi\sim p} \sq{\obs[\phi] - \bar{\obs}}} \expt{\phi'\sim \tilde{p}} \sq{\obs[\phi'] - \bar{\obs}}}{\rho(0)} = p_{\tau\text{rej}}.
+\end{align}
+% \end{widetext}
+%
+极限 $N \rightarrow \infty$ 用于丢弃因以区域 $[i,i+\tau]$ 内的行为为条件而产生的偏差。
+
+
+\section{平均绝对误差损失}
+\label{app:mae-loss}
+在训练部分模型之前优化的平均绝对误差（MAE）损失定义为：
+%
+\begin{equation}
+L_\text{MAE}(\netp) := \int \prod_j d\phi_j \, \netp(\phi) \left| \log{\netp(\phi)} - \log{p(\phi)} \right|.
+\end{equation}
+%
+它以 KL 散度 $D_{KL}(\netp || p)$ 为下界，且其全局极小点恰与 KL 损失相同，即 $\netp = p$ 处。
+
+实践中，损失通过从模型抽取大小为 $M$ 的样本批 $\curly{\phi^{(i)} \sim \netp}$ 并计算样本均值来随机估计：
+%
+\begin{equation}
+\begin{aligned}
+\widehat{L_\text{MAE}(\netp)} &= \frac{1}{M} \sum_{i=1}^M \left| \log{\netp(\phi^{(i)})} - \log{p(\phi^{(i)})} \right| \\
+&= \frac{1}{M} \sum_{i=1}^M \left| \log{\netp(\phi^{(i)})} + S(\phi^{(i)}) + \log{Z} \right|.
+\end{aligned}
+\end{equation}
+使用这一损失时，配分函数必须预先估计，或被初始化为一个可训练参数。在本研究中，采用多阶段方法~\cite{ValleauFreeEnergy72} 来估计并固定优化 $L_\text{MAE}$ 时使用的配分函数值。
+
+\setlength{\parskip}{2pt}
+这一损失的吸引力在于存在逐点的势，驱使分布趋向正确的分布。然而，$\log{Z}$ 计算中的任何误差都会导致一个模型分布 $\netp(\phi)$ 未必与期望分布 $p(\phi)$ 一致的极小点。因此该损失仅在以平移 KL 损失正式训练之前使用。
+
+% ---- 参考文献（原 main.bbl 原样保留英文） -----------------------------
+\input{chapters/references}

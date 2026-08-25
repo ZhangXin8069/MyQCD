@@ -1,0 +1,36 @@
+\section{Gauge-equivariant coupling layers}
+We construct an explicitly gauge-equivariant and invertible coupling layer $g: G^{N_d V} \rightarrow G^{N_d V}$ by splitting the input variables into subsets $U^A$ and $U^B$. In terms of these subsets, we define the action of the coupling layer to be ${g(U^A, U^B) = ({U'}^A, U^B)}$, where link $U^i \in U^A$ is mapped to
+%
+\begin{equation} \label{eqn:gauge-equiv-coupling}
+{U'}^i = h(U^i S^i | I^i) {S^i}^{\dagger},
+\end{equation}
+%
+in which $h: G \rightarrow G$ is an invertible \emph{kernel} which is explicitly parameterized by a set of gauge-invariant quantities $I^i$ constructed from the elements of $U^B$. Here, $S^i$ is a product of links such that $U^i S^i$ forms a loop that starts and ends at a common point $x$, and therefore transforms under the gauge symmetry to $\Omega(x) \, U^i \Omega^\dagger(x+\hat{\mu}) \, \Omega(x+\hat{\mu}) S^i \Omega^\dagger(x) = \Omega(x) \, U^i S^i \, \Omega^\dagger(x)$. With this definition, the coupling layer is gauge equivariant if the kernel satisfies
+%
+\begin{equation} \label{eqn:kernel-transform}
+    h(X W X^\dagger) = X \, h(W) \, X^\dagger, \quad \forall X, W \in G,
+\end{equation}
+%
+which implies that ${U'}^i \rightarrow {\widetilde{U}}^{\prime i}$ transforms according to Eq.~\eqref{eqn:gauge-transform},
+\begin{equation}
+\begin{aligned}
+    {\widetilde{U}}^{\prime i} &= h\left( \Omega(x) \, U^i S^i \, \Omega^\dagger(x) | I^i \right) \; \Omega(x) {S^i}^\dagger \Omega^\dagger(x+\hat{\mu}) \\
+    &= \Omega(x) {U'}^i \Omega^\dagger(x+\hat{\mu}).
+\end{aligned}
+\end{equation}
+To ensure invertibility, the product of links $S^i$ must not contain any links in $U^A$.
+
+For an Abelian group, the transformation property in Eq.~\eqref{eqn:kernel-transform} is trivially satisfied by any kernel. In the $\Uone$ gauge theory considered below, we therefore define the kernel using invertible flows parameterized by neural networks. For non-Abelian theories, it has been shown that it is possible to construct invertible functions on spheres~\cite{rezende2020normalizing} and surjective functions on general Lie groups~\cite{falorsi19lie}. If these approaches can be generalized to produce invertible functions with convergent power expansions, they will satisfy the necessary kernel transformation property, since ${h(X W X^\dagger) = \sum_n \alpha_n (X W X^\dagger)^n = X \, h(W) \, X^\dagger}$.
+
+An example of a variable splitting suitable for both Abelian and non-Abelian gauge theories is given by the pattern depicted in Fig.~\ref{fig:equiv_masking}. In this example, the set of updated links $U^A$ consists of vertical links spaced by 4 sites, and the products $U^i S^i$ are $1\times1$ loops adjacent to each $U^i$. This is sufficiently sparse such that every $S^i$ is independent of all updated links in $U^A$, and a non-trivial set of invariants $I^i$ (e.g.~all traced $1\times1$ loops that are not adjacent to updated links) can be constructed to parametrize the transformation. Composing coupling layers using rotations and offsets of the pattern allows all links to be updated.\footnote{For example, composing 8 such layers is sufficient to update all links in $2D$.}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.8\linewidth]{images/shifted-w-passive-with-flow-repeat-cblind-fewerdots-latex-open-notheta.pdf}
+
+    \caption{An example of a variable splitting based on a tiled $4\times 1$ pattern with an actively updated link $U^i \equiv U_\mu(x)$ and $1\times1$ loop $U^i S^i \equiv P_{\mu\nu}(x)$ located at $x$, a passively updated $1\times1$ loop at $\widetilde{x}=x-\hat{\nu}$, and two frozen traced $1\times1$ loops at $x+\hat\nu$ and $x+2\hat\nu$ included in the set $I^i$.
+    }
+    \label{fig:equiv_masking}
+\end{figure}
+
+Using gauge-equivariant coupling layers constructed in terms of kernels generalizes the ``trivializing map'' proposed in Ref.~\cite{Luscher:2009eq}. There, repeatedly applying a specific kernel based on gradients of the action theoretically trivializes a gauge theory, i.e.~maps the Euclidean time distribution to a uniform one. The family of gauge equivariant flows defined here includes the trivializing map in the limit of a large number of coupling layers and arbitrarily expressive kernel, indicating that in this limiting case exact sampling as described in Ref.~\cite{Luscher:2009eq} is possible. However, the approach presented here allows for more general and inexpensive parametrizations of $h$. These can be optimized to produce flows that similarly trivialize the theory, and which may have a lower cost of evaluation than implementations of the analytical trivializing map~\cite{Engel2011TestTrivMap}.

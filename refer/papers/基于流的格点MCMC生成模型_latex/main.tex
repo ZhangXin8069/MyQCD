@@ -1,0 +1,94 @@
+% ======================================================================
+% 基于流的格点场论马尔可夫链蒙特卡洛生成模型（中文译本）
+% 原文：M. S. Albergo, G. Kanwar, P. E. Shanahan,
+%       "Flow-based generative models for Markov chain Monte Carlo
+%        in lattice field theory", Phys. Rev. D 100, 034515 (2019)
+%       [arXiv:1904.12072]
+%
+% 本中文版由英文版 LaTeX 转排目录逐节翻译而成
+% （英文版见 ../Flow_Generative_MCMC_Lattice_latex/）。
+% 章节、公式、图表编号与英文版一一对应；参考文献保留英文。
+% 用 XeLaTeX 编译两遍：
+%   xelatex -interaction=nonstopmode -halt-on-error -output-directory=build main.tex
+% ======================================================================
+\documentclass[11pt]{ctexart}
+
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{url}
+\usepackage{cancel}
+\usepackage[hidelinks]{hyperref}
+
+% 中文字体（XeLaTeX）
+\setCJKmainfont{AR PL UMing CN}
+\setCJKsansfont{Droid Sans Fallback}
+\setCJKmonofont{Droid Sans Fallback}
+
+\linespread{1.05}
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{1.5em}
+% 放宽行内公式断行惩罚，避免长公式溢出页边
+\setlength{\emergencystretch}{3em}
+
+% ---- 记号宏（同英文版，照抄不改） --------------------------------------
+\newcommand{\paren}[1]{\left(#1\right)}
+\newcommand{\curly}[1]{\left\{ #1 \right\}}
+\newcommand{\netp}[0]{\tilde{p}_f}
+\newcommand{\expt}[1]{\underset{#1}{\mathbb{E}}}
+\newcommand{\pbp}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\sq}[1]{\left[ #1 \right]}
+\newcommand{\avg}[1]{\left\langle #1 \right\rangle}
+\newcommand{\expp}[1]{\exp\paren{#1}}
+\newcommand{\obs}[0]{\mathcal{O}}
+\providecommand{\mathbbm}[1]{\mathbf{#1}} % bbm 替代
+
+\DeclareMathOperator{\Exists}{\exists}
+\DeclareMathOperator{\Forall}{\forall}
+
+% ---- 极简 subfloat 替代宏（同英文版） ---------------------------------
+\newcounter{subfigure}[figure]
+\renewcommand{\thesubfigure}{\alph{subfigure}}
+\makeatletter
+\newcommand{\subfloat}[2][]{%
+  \stepcounter{subfigure}%
+  \def\@currentlabel{\thesubfigure}%
+  {\centering #2\par}\nobreak\smallskip
+  {\small\textbf{(\thesubfigure)} #1\par}\medskip
+}
+\makeatother
+\DeclareRobustCommand{\subref}[1]{\ref{#1}}
+
+\begin{document}
+
+% ---- 标题块 -----------------------------------------------------------
+\begin{center}
+  {\LARGE\bfseries 格点场论中马尔可夫链蒙特卡洛的基于流的生成模型\par}
+  \vspace{1.3em}
+  {\large M.~S.~Albergo,$^{1,2,3}$ G.~Kanwar,$^{4}$ and P.~E.~Shanahan$^{4,1}$\par}
+  \vspace{0.9em}
+  {\small
+   $^{1}$Perimeter Institute for Theoretical Physics, Waterloo, Ontario N2L 2Y5, Canada\\
+   $^{2}$Cavendish Laboratories, University of Cambridge, Cambridge CB3 0HE, U.K.\\
+   $^{3}$University of Waterloo, Waterloo, Ontario N2L 3G1, Canada\\
+   $^{4}$Center for Theoretical Physics, Massachusetts Institute of Technology, Cambridge, MA 02139, U.S.A.\par}
+\end{center}
+\vspace{0.6em}
+\footnotetext{Phys.\ Rev.\ D \textbf{100}, 034515 (2019)；arXiv:1904.12072；
+doi:10.1103/PhysRevD.100.034515；预印本编号 MIT-CTP/5114。本文档为 arXiv 源的
+归一化 LaTeX 中文译本；数学公式与参考文献保持原文。}
+
+\begin{abstract}
+本文提出一种在格点场论中进行蒙特卡洛采样的马尔可夫链更新方案，它使用一个机器学习的\emph{基于流的生成模型}。该生成模型可被优化（训练），以从近似于所研究理论的格点作用量所决定的期望玻尔兹曼分布中产生样本。对模型的训练能系统地改善马尔可夫链中的自相关时间，即便在标准马尔可夫链蒙特卡洛算法产生去关联更新时呈现临界慢化的参数区域也是如此。此外，该模型无需来自期望分布的现成样本即可训练。在二维 $\phi^4$ 理论中，将该算法与 HMC 及局域 Metropolis 抽样进行了比较。
+\end{abstract}
+
+\input{chapters/section01}
+\input{chapters/section02}
+\input{chapters/section03}
+\input{chapters/section04}
+\input{chapters/backmatter}
+
+\end{document}

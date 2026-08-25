@@ -1,0 +1,179 @@
+
+\section{Diffusion Models}
+\label{sec:dm}
+
+
+Turning now to deep learning, DMs denote a class of deep generative algorithms that simulate a stochastic process to generate samples following a desired target distribution~\cite{sohl-dickstein:2015deep}. The fundamental concepts underlying DMs involve modeling the data distribution through a continuous-time diffusion process or a discrete-time Markov chain, wherein noise is incrementally added to or removed from the data. This generative framework has gained prominence in recent works, such as score-based models (SBMs)~\cite{NEURIPS2019_3001ef25,song2021scorebased} and denoising diffusion probabilistic models (DDPMs) \cite{ho:2020denoising}; for a comprehensive review, see Ref.~\cite{yang:2022diffusion}. In this section, we will first introduce the denoising perspective of DMs and then point out the connections of DMs to SQ.
+
+\subsection{Denoising Model}
+
+In the context of DMs, the denoising model can be perceived as a mapping that reconstructs the original data from its noisy variant, which is attained through the application of a diffusion process. Similar to the Langevin dynamics introduced above, the first process (also called forward process) gradually introduces noise to the data, effectively ``smoothing'' the underlying (but typically unknown) probability distribution of data. Then the denoising model aims to learn its \textit{inverse process}, i.e., denoising the data by eliminating the added noise. Upon training, the denoising model can be employed to generate samples following the data distribution by executing the reverse diffusion process only. This sampling process commences with random noise and iteratively applies the trained denoising model to ``clean'' it until convergence, resulting in a sample representative of the target data distribution.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[tbp]
+\begin{center}
+\includegraphics[width=1.0\textwidth]{images/SDE.pdf}
+\caption{A sketch of the forward diffusion process (left panel) and the reverse denoising process (right panel). The two stochastic processes are described by two stochastic differential equations. The target distribution is typically unknown but learnt from the training data.
+}
+\label{fig:dm}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+In the limit of continuous time, the forward process follows a stochastic differential equation (SDE),
+\begin{equation}
+\frac{d \phi}{d\xi } = f(\phi, \xi) + g(\xi) \eta(\xi),
+\label{eq:sde}
+\end{equation}
+where $\xi\in[0,T]$ is the Langevin time, $\eta$ is the noise term, satisfying {$\langle \eta(\xi)\eta(\xi')\rangle=2\alpha \delta(\xi-\xi')$ with $\alpha \equiv 1/2$ as a convention in the machine learning community}, and $f(\phi, \xi)$ is the drift term. Note that the noise and drift term have the same size as the field $\phi$. Finally, the square of $g(\xi)$ is the time-dependent scalar \textit{diffusion coefficient}. 
+The forward diffusion process can be modeled as the solution of such a generic SDE, provided the drift and diffusion coefficient are chosen appropriately.
+
+As Fig.~\ref{fig:dm} demonstrates, the aim is to obtain a sample from the data distribution $p_0$ by starting from a sample of the prior distribution $p_T$ and reversing the above diffusion process. This is achieved by solving a reverse SDE, representing a diffusion process evolving backward in time, which reads~\cite{anderson:1982reversetime}
+\begin{equation}
+  \frac{d\phi}{dt} = \left[ f(\phi, t) - g^2(t)\nabla_{\phi}\log p_t(\phi) \right] 
+  + g(t) \bar{\eta}(t),
+  \label{eq:rsde}
+\end{equation}
+where the reverse time $t \equiv T-\xi$ and $\bar{\eta}$ is a noise term in the reverse time direction. Importantly, the drift term now contains two terms, including the gradient of the logarithm of $p_t(\phi)$, the probabilistic distribution at time $t$ in the forward diffusion process. This reverse SDE can be computed once we have specified the drift term and diffusion coefficient of the forward SDE, and determined the gradient of $\log p_t(\phi)$ for each $t\in[0, T]$. 
+
+
+The key to implementing a denoising model lies in accurately estimating the probability distribution, $p_t(\phi)$, under a well-designed forward diffusion process of Eq.~\eqref{eq:sde}. In score-based models~\cite{NEURIPS2019_3001ef25,song2021scorebased}, $\nabla_{\phi}\log p_t(\phi)$ is named as the \textit{score} of each sample. Routinely, one can introduce a perturbation kernel for each forward diffusion step\footnote{By 
+adding to samples a sequence of Gaussian noise with scales, $\sigma_\text{min} = \sigma_1<\sigma_2<\cdots<\sigma_N = \sigma_\text{max}$, so the starting point is $p_1(\phi_1)\simeq p_0(\phi_0)$ when $\sigma_\text{min}$ is small enough, and the end point is $p_N(\phi)\simeq \mathcal{N}(\phi ; \mathbf{0}, \sigma_\text{max}^2 \mathbf{I})$ when $\sigma_\text{max}$ is large enough. Hereafter, we abbreviate $\phi(\xi)$ as $\phi_\xi$, or $\phi_i$ for the discretised case.} 
+as $p_\xi(\phi_\xi | \phi_0)  \equiv \mathcal{N}(\phi_\xi ; \phi_0, \sigma_\xi^2 \mathbf{I})$, where $\phi_0\sim p_0 $. Thus, the \textit{score} can be computed from 
+%
+\begin{equation}
+    p_{\xi}(\phi_\xi) = \int p_{\xi}(\phi_\xi|\phi_0) p_0(\phi_0) d\phi_0.    
+\end{equation} 
+%
+A neural network $s_\theta(\phi,t)$ can be trained to approximate the \textit{score} conveniently, which is named as \textit{score matching}~\cite{Aapo:2005scb,Vincent:2011scb}. The parameters of the neural network are optimized with the objective,
+\begin{equation}
+    %\hat{\theta}=\arg\operatorname*{min}_{\theta} \sum_{i=1}^{N}\sigma_{i}^{2}\mathbb{E}_{p_0(\phi_0)}\mathbb{E}_{p_i(\phi_i\mid\phi_0)}\bigl[ \Vert\mathbf{s}_\theta(\phi_i,\xi)-\nabla_{\phi_i}\log p_i(\phi_i\mid\phi_0)\Vert_{2}^{2} \bigr].\label{eq:objective}
+    \mathcal{L}_{\theta}= \sum_{i=1}^{N}\sigma_{i}^{2}\mathbb{E}_{p_0(\phi_0)}\mathbb{E}_{p_i(\phi_i\mid\phi_0)}
+    \left[ \left\Vert s_\theta(\phi_i,\xi)-\nabla_{\phi_i}\log p_i(\phi_i|\phi_0)\right\Vert_{2}^{2}
+    \right],
+    \label{eq:objective}
+\end{equation}
+where the interval $T$ has been divided into $N$ segments with index $i$ (further details are given below). The optimal score-based model $s_{\hat{\theta}}(\phi,t)$ with $\hat{\theta}=\arg\operatorname*{min}_{\theta}\mathcal{L}_{\theta}$ should match the score at every time-step. Sampling turns to solving the reverse SDE shown in Eq.~\eqref{eq:rsde}, with the \textbf{score} replaced with $s_{\hat{\theta}}(\phi,t)$,
+\begin{equation}
+  \frac{d\phi}{dt} = \left[ f(\phi, t) - g^2(t)s_{\hat{\theta}}(\phi,t) \right] + g(t) \bar{\eta}(t).
+\end{equation}
+
+For a concrete and concise example, by putting the forward drift term $f(\phi,\xi)$ to zero and simplifying the diffusion coefficient, see, e.g., Ref.~\cite{song2021scorebased}, as $g(\xi) \equiv \sigma^{\xi}$, one gets a \textit{variation expanding} forward process whose transition kernel remains Gaussian,
+\begin{equation}
+    p_{\xi}(\phi_\xi | \phi_0) = \mathcal{N}\bigg(\phi_\xi; \phi_0, \frac{1}{2\log \sigma}(\sigma^{2\xi} - 1) \mathbf{I}\bigg).
+    \label{eq:sbm}
+\end{equation}
+
+
+We note that both Eqs.~\eqref{eq:sde} and~\eqref{eq:rsde} are Langevin equations.\footnote{This approach has been utilized in Bayesian learning as stochastic gradient Langevin dynamics \cite{welling:2011bayesian}. In contrast to standard stochastic gradient-descent (SGD) algorithms, stochastic gradient Langevin dynamics introduces stochasticity into the parameter updates, thereby avoiding collapses into local minima.} In the context of the reverse SDE, given the gradients $\nabla_{\phi}\log p(\phi,t)$, it is convenient to generate samples from a prior distribution in {a stochastic evolution process, as introduced in Sec.~\ref{subsec:sim}.}
+
+
+\subsection{Diffusion Model as Stochastic Quantization}
+
+The reverse SDEs of DMs are mathematically related to the Langevin dynamics. To explore the connection of DMs to stochastic quantization in more detail, we choose the \textit{variance expanding} picture of the DMs. Its denoising process transfers $\phi_T$ back to $\phi_0$ with the same marginal densities as the forward process, but evolving according to
+\begin{equation}
+    \frac{d\phi}{dt} =  - g(t)^2 \nabla_\phi \log{p_t(\phi)} +  g(t) \bar{\eta}(t),
+\end{equation}
+where time $t$ flows backward from $T$ to 0. With the redefinition of time, $\tau\equiv T-t$ ($d\tau \equiv -dt$), and denoting $g_\tau=g(T-\tau)$, $q_{\tau}(\phi)=p_{T-\tau}(\phi)$ of the forward process, the SDE now reads
+\begin{equation}
+    \frac{d\phi}{d\tau} = g_\tau^2\nabla_\phi \log{q_{\tau}(\phi)} + g_\tau\bar{\eta}(\tau) \label{eq:dmle}\\ 
+\end{equation}
+and in discretised form
+\begin{equation}    
+    \phi(\tau_{n+1}) = \phi(\tau_n) +  g_{\tau_n}^2\nabla_\phi \log{q_{\tau_n}[\phi(\tau_n)]} \Delta\tau +  g_{\tau_n}\sqrt{\Delta\tau}\bar{\eta}(\tau_n),
+\end{equation}
+where the noise term $\langle\bar{\eta}(\tau_n)\rangle = 0, \langle\bar{\eta}(\tau_n)\bar{\eta}(\tau_{n'})\rangle = 2\bar\alpha\delta_{nn'}$, { with $\bar{\alpha} \equiv \hbar =1$ as a convention in quantum field theories}. Because the mean value of the noise term remains zero, the sign in front of the noise term is unrelated to the stochastic process. 
+We note that $g^2(\tau)$ is referred to as a kernel, rescaling both the drift term and the variance of the noise term \cite{Damgaard:1987rr}.
+Its effect can be absorbed by rescaling time with $g^2(\tau)$, or equivalently absorb it in the time step, $ g_\tau^2\Delta\tau$.
+
+The derivation of the corresponding Fokker-Planck is straightforward and one finds
+%More details of deriving the related Fokker-Planck equation can be found in App.~\ref{app:der-FP}. In essence, one can introduce a new noise scale, $\langle\bar{\eta}^2\rangle \equiv 2\bar{\alpha}$, as in the Langevin dynamics as described by Eq.\eqref{eq:sq}. Consequently, the Fokker-Planck equation for the reverse SDEs becomes,
+\begin{equation}
+    \frac{\partial p_{\tau}(\phi)}{\partial \tau} = 
+    \int d^nx \left\{g^2_{\tau}  \frac{\delta}{\delta \phi}
+    \left( \bar{\alpha}\frac{\delta }{\delta \phi} + \nabla_\phi S_\text{DM} \right)\right\} p_{\tau}(\phi),
+    \label{eq:fp}
+\end{equation}
+where 
+\begin{equation}
+  \nabla_\phi S_\text{DM}\equiv -\nabla_\phi \log{q_{\tau}(\phi)}    
+\end{equation}
+is the score trained on the forward diffusion process, and $p_{\tau}(\phi)$ is the probability density of $\phi_{\tau}$ in the reverse diffusion process. One can immediately derive the following equilibrium condition, locally in time, 
+\begin{equation}
+    p_\text{eq}(\phi) \propto e^ {-S_\text{DM}/\bar{\alpha}},
+    \label{eq:dmsq}
+\end{equation}
+where we recall that $\bar\alpha=1$ and that $S_\text{DM}$ is an effective action that will be learned in DMs. When the noise scales are on par with the quantum scale, that is, $O(\bar{\alpha})\sim O(\hbar)$, Eq.~\eqref{eq:dmsq} encompasses the quantum fluctuations exhibited in Eq.~\eqref{eq:equ}. In the $\tau\rightarrow T$ limit, $ p_{\tau=T}(\phi) \rightarrow P[\phi,T]$, where $P[\phi,T]$ is nothing but the time evolution of the PDF in SQ. This implies that the “equilibrium state” of SQ can be achieved by denoising from a naive distribution. Concurrently, sampling from a DM is equivalent to optimizing a stochastic trajectory to approach the “equilibrium state” in Eq.~\eqref{eq:equ} given a naive distribution from the SQ perspective.
+
+However, reverting the noise configuration back to the physics configuration is a highly intricate process. In principle, one could solve the reverse SDE of Eq.~\eqref{eq:dmle} to depict this denoising process, while computing the ``time-dependent" drift term remains intractable. A particular type of deep neural network, known as the U-Net, is used here. The architecture of this network is discussed in more detail in the App.~\ref{app:unet}. The U-Net is tailored to parameterize the \textit{score function}, $\hat{\mathbf{s}}_\theta(\phi,\tau)$, for estimating this time-dependent drift term, $-\nabla_\phi \log{q_{\tau}(\phi)}$. It is designed to accept two inputs: time and a time-dependent configuration within a trajectory, while its output is the same size as the input (field configuration).
+
+\subsection{{Building Effective Actions}}
+\label{subsec:continious}
+
+{To derive effective actions for quantum fields in DMs requires the \textit{probability flow} ODE formulation~\cite{Maoutsa:2020ode,song2021scorebased}, which provides a quantitative way to compute the negative log-likelihood of the field configuration.} Assuming a differentiable one-to-one mapping $\mathbf{h}$ that transforms a data sample $\phi_0 \sim p_0$ to one from a prior distribution $\mathbf{h}(\phi_0) = \phi_T \sim p_T$, the likelihood of $p_0(\phi_0)$ can be computed using the change-of-variable formula as
+\begin{equation}
+p_0(\phi_0) = p_T(\mathbf{h}(\phi_0)) |\operatorname{det}(J_\mathbf{h}(\phi_0))|,\label{eq:mapping}
+\end{equation}
+where $J_\mathbf{h}$ denotes the Jacobian of the mapping $\mathbf{h}$, and it is assumed that the prior distribution $p_T$ is easy to evaluate. ODE trajectories also define a one-to-one mapping from $\phi_0$ to $\phi_T$. In our case, {for quantum field theories,\footnote{The derivations can be found in Ref.~\cite{risken1996fokker} and Appendix D.1 of Ref.~\cite{song2021scorebased}. The difference for the factors in front of $g(t)^2$ is due to the convention of $\bar{\alpha}= 1$ in quantum field theories.} }
+\begin{equation}
+\frac{d\phi}{dt} = \left[f(\phi, t) - g(t)^2 \nabla_\phi \log p_t(\phi)\right].
+\label{eq:ode}
+\end{equation}
+It aims to find the trajectory of the state variable $\phi$ that has the same marginal probability density $p_t(\phi)$ as the stochastic process described by the SDE, i.e., Eq.~\eqref{eq:sde}. An instantaneous change-of-variable formula can be derived to connect the probability of $p_0(\phi_0)$ and $p_T(\phi_T)$, as,{
+\begin{equation}
+p_0 (\phi_0) = \exp\left[\int_0^T dt\,\mathbf{\nabla}\cdot \tilde{f}(\phi_t, t) \right] p_T(\phi_T),\label{eq:jacobian}
+\end{equation}
+where the divergence is the trace of the Jacobian, with redefinition of $\tilde{f}(\phi_t, t)\equiv f(\phi, t) - g(t)^2 \nabla_\phi \log p_t(\phi)$}. The practical computation of the trace can be found in App.~\ref{app:she} by using the Skilling-Hutchinson estimator~\cite{grathwohl2018scalable}. 
+
+From the perspective of probability current conservation, the stochastic process we derived in the previous section intrinsically connects with flow-based models, which have recently been widely explored in current lattice calculations~\cite{Albergo:2021vyo,Zhou:2023pti}. In a flow-based model, {one can construct a flow mapping with a neural network whose parameters are $\{\theta\}$, which represents a bijective transformation} between the physical distribution $p(\phi)$ and a prior distribution, e.g., 
+$z\sim \mathcal{N}(\mathbf{0},\mathbf{I})$. Although it is common to build the flow mapping in discrete steps, {the transformation $\tilde{f}$ which follows,  
+\begin{equation}
+    \log p(\phi) = \log p(\mathbf{z}) - \log \left|\text{det}\frac{\partial \tilde{f}}{\partial \mathbf{z}}\right|, \label{eq:flow_mapping}
+\end{equation}
+}can also be designed in continuous steps.\footnote{In fact, if one enforces $\log p(\mathbf{z}) = \text{const.}$, the transformation becomes the \textit{trivializing} flow, see more details in Refs.~\cite{Luscher:2009eq,DelDebbio:2021qwf,Bacchio:2022vje,Albandea:2023wgd}.} It refers to the continuous normalizing flow~\cite{Gerdes:2022eve}, in which the parameterized mapping, {$\tilde{f}_{\hat{\theta}}$, is the solution to a neural ODE for time $t\in [0,T]$,
+\begin{equation}
+    \frac{d \phi(t)}{ dt} = \tilde{f}_\theta(\phi(t),t),\label{eq:flow_ode}
+\end{equation}
+with boundary conditions: $\phi(0) \equiv \mathbf{z}$, $\phi(T)\equiv \phi$. In which, a neural network with parameters, $\tilde{f}_\theta(\phi,t)$, can be introduced to represent the dynamical kernel. The probabilistic flow follows,
+
+\begin{equation}
+    \frac{d \log p(\phi(t))}{ dt} = - \left(\nabla_\phi\cdot \tilde{f}_\theta\right)(\phi(t),t)\label{eq:flow_action},
+\end{equation}
+with boundary $p(\phi(0)) \equiv p(\mathbf{z})$. Comparing the mapping and ODEs in \Eqsref{eq:mapping}{eq:ode} with \Eqsref{eq:flow_mapping}{eq:flow_ode}, one can immediately find that the flow mapping, $\tilde{f}_\theta(\phi(t),t)$, is equivalent to $\tilde{f}(\phi_t,t)$ in Eq.~\eqref{eq:jacobian} for DMs.}
+
+
+\subsection{Effective Action in a Toy Model}
+
+From Eqs.~\eqref{eq:dmle} and \eqref{eq:fp}, one can find a ``time-dependent" stochastic process. In  the variance-expanding DM, the forward process of Eq.~\eqref{eq:sde} features a predetermined time-dependent diffusion noise denoted as $\sigma^{T-\tau}$, which ensures field configurations will eventually be reduced to a noise configuration. The effective action and the corresponding denoising process can be understood from a field deformation perspective: \textit{the field is continuously deformed following a stochastic process from the noise distribution to the physical distribution}. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[hbtp!]
+    \centering
+    \includegraphics[width = 0.95\textwidth]{images/dm00_s_f.pdf}
+    \caption{Drift terms (upper row) and effective actions (middle row) learned by the DM as a function of $\phi$ in both single-well (left column) and double-well (right column) actions, for various values of the time $\tau$ during the stochastic process. The action is shifted by a constant $\Delta S_0$. The dashed lines indicate the exact values. 1024 samples generated using the exact and the DM are shown in the bottom row. }
+    \label{fig:learned}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+To demonstrate this in action, we introduce an over-simplified 0+0-dimensional field theory, i.e., a toy model which only has one degree of freedom,
+\begin{equation}
+    S(\phi) = \frac{\mu^2}{2}\phi^2 + \frac{g}{4!}\phi^4,
+    \qquad
+    f(\phi) = -\frac{\partial S(\phi)}{\partial\phi} = - \mu^2 \phi - \frac{g}{3!}\phi^3,
+\end{equation}
+where the physical action and drift term are determined by the parameters, $\mu^2$ and $g$. We prepared 5120 configurations as training data-sets in two set-ups: $\mu_1^2 = 1.0, g_1 = 0.4$ (single-well action), and $\mu_2^2 = -1.0, g_2 = 0.4$ (double-well action). A one-to-one neural network with time-embedding is implemented to represent the score function $\mathbf{s}_\theta(\phi,\tau)$.
+
+
+After 500 epochs of training, the learned score function $\hat{\mathbf{s}}_\theta(\phi,\tau)$ is seen to approximate the drift term $f_\tau(\phi)$ in the upper row of Fig.~\ref{fig:learned}. 
+Here the solid blue line represents the score function at the starting time ($\tau = 0$), 
+the rainbow-colored lines indicate different $\tau > 0$ with a color-bar at rightest, while the solid red line indicates the score function at the end time ($\tau = 0.99$) in a backward process of the well-trained DM. 
+The learned effective action $S_\text{DM}(\phi,\tau) = \int^{\phi}\hat{s}_\theta(\tilde{\phi},\tau) d\tilde{\phi} $ is shown in the middle row of Fig.~\ref{fig:learned}; it approximates the physical action as $\tau$ increases. We have shifted $S_\text{DM}$ with a constant $\Delta S_0$, which is the difference between $\min[S(\phi)]$ and $\min[S_\text{DM}(\phi,\tau)]$.  Generally, the learned drift terms and effective actions are accurate approximations in both the single and double-well cases, around $\phi\sim 0$. Samples generated with the trained DM are compared with samples from the underlying theory in the bottom row of Fig.~\ref{fig:learned}. 
+
+The evolution trajectory of DM resembles an exact renormalizing group (RG) flow and its inversion. One intuitive understanding is that the gradually increasing noise scale (in the forward process of the DM) in coordinate space implicitly corresponds to a gradually decreasing momentum scale $\Lambda$ in an RG.\footnote{From Eq.~(\ref{eq:sbm}), one can sample to get the evolving field (for a given initial field $\phi_0$) at any time during the forward process as $\phi_{\tau}({\bf x})=\phi_{0}({\bf x}) + \sqrt{\frac{\sigma^{2\tau}-1}{2\log\sigma}}\epsilon({\bf x})$ with $\epsilon\sim\mathcal{N}({\bf 0},{\bf I})$ a Gaussian distributed random noise, which in momentum space is $\phi_{\tau}(p)=\phi_{0}(p)+\sqrt{\frac{\sigma^{2\tau}-1}{2\log\sigma}}\epsilon(p)$. Considering the natural distribution of momentum modes for the physical fields, the above evolution will perturb (smear) higher momentum modes faster because of the gradually increasing noise level. This resembles somehow the functional renormalization group (FRG) procedure to progressively integrate out the high momentum modes. Conversely, in the reverse denoising process, the low momentum IR physics will be first generated, and only at a later time the UV details are filled by the denoising model, as seen in Fig.~\ref{fig:sample}.} With $g_{\tau \rightarrow T} = \sigma^{T-\tau} \rightarrow 1$, $\Lambda \rightarrow \infty$, the full quantum theory is recovered. Although some works have discussed the running noise scales from a colored noise perspective in a Langevin process~\cite{Bern:1986xc,Pawlowski:2017rhn}, the well-trained DM provides an exact RG flow in the \textit{fictitious} time space,
+\begin{equation}
+    \frac{\partial S_\text{DM}(\phi,\tau)}{\partial \tau} = \frac{\partial}{\partial \tau} \int^{\phi}\hat{s}_\theta(\tilde{\phi},\tau) d\tilde{\phi}.
+\end{equation}
+Because the probability density is positive-definite, the equation has a fixed point when $\partial p_\tau(\phi)/\partial\tau = 0$.  The RG flow is the evolution trajectory of the system from the trivial distribution at $\tau = 0$ to the equilibrium state at $\tau = T$, which has been shown in the middle panel of Fig.~\ref{fig:learned}.
+
+%%%%%%% SECTION %%%%%%%%%%%%%%%%%

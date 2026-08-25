@@ -1,0 +1,285 @@
+\section{格点矩阵元的自重正化}\label{sec:StrtoRe}
+\subsection{方法策略}\label{Strategy}
+
+非微扰矩阵元包含以下几类重要贡献：a) 线性发散；b) 来自非微扰重整子物理的有限项；c) 编码内禀非微扰物理的剩余贡献。正是 c) 部分用于提取部分子结构信息。因此，重要的是以系统且高精度的方式把后者与前两者分离开来。
+
+这里我们发展一种自重正化方法：直接从矩阵元自身提取内禀非微扰物理与重正化因子，而不使用另一个不同的矩阵元。剩余项的提取远比线性发散项困难，因为在取矩阵元的对数之后（式~(\ref{eq:logM_s})），线性发散项占主导地位，剩余项对减除极其敏感。我们需要恰当地处理数据的精细特征，包括对数发散和离散化误差。
+
+基于式~(\ref{eq:ZO_RS_higher})，我们把拟合函数式~(\ref{eq:logM_s}) 修改为
+\begin{align}\label{eq:logM}
+\ln \mathcal{M}(z,a) = \frac{k z}{a \ln[a \Lambda_{\rm QCD}]}
++ g(z) + f_{1,2}(z)a \nonumber\\
++ \frac{3 C_{F}}{b_0} \ln \bigg[\frac{\ln [1 /(a \Lambda_{\rm QCD})]}{\ln [\mu / \Lambda_{\rm QCD}]}\bigg]+\ln \bigg[1+\frac{d}{\ln (a \Lambda_{\rm QCD})}\bigg],
+\end{align}
+其中第一项线性发散。$g(z)$ 是剩余项，包含非微扰的 $m_{0}$ 效应和内禀的非微扰物理。$f_{1,2}(z)a$ 计入离散化误差，我们允许其对 MILC 与 RBC 数据有所不同（$f_{1}(z)$ 对应 MILC，$f_{2}(z)$ 对应 RBC）。最后两项来自领头与次领头对数发散的重整化求和，它们只影响不同格点间距下的整体归一化。
+
+我们用式~(\ref{eq:logM}) 对每个 $z$ 的裸矩阵元对数进行拟合。$z$ 点可以选在一个较大的范围内，使格点离散化误差较小、同时统计误差有限。拟合对 $a$ 的依赖时，把 $g(z)$、$f_{1}(z)$、$f_{2}(z)$ 作为自由参数，并把 $\mu$ 固定为我们选用的重正化标度 2 GeV。$k$ 与 $\Lambda_{\rm QCD}$ 将在第~\ref{ReUncer} 节详细讨论，$d$ 在第~\ref{sec:d} 节讨论。由拟合即得剩余项 $g(z)$。
+
+这样得到的 $g(z)$ 并不对应微扰 $\overline{\rm MS}$ 方案中的量，因为它包含非微扰的 $m_{0}$ 效应。我们需要通过在短距离 $z$ 处把格点结果匹配到连续方案来消除这一效应。基于式~(\ref{eq:Reoperator}) 与式~(\ref{eq:m0})，我们在窗口 $a \ll z < 1/\mu$ 内用下式提取 $m_{0}$：
+\bea\label{eq:gztoMS}
+g(z) - \ln[Z_{\overline{\mathrm{MS}}}(z,\mu, \Lambda_{\overline{\mathrm{MS}}})] = m_{0} z,
+\eea
+其中 $Z_{\overline{\mathrm{MS}}}$ 是 $\overline{\mathrm{MS}}$ 方案下的微扰矩阵元。对 $\pi$、核子和离壳夸克态中的 $O_{\gamma_t}(z)$ 矩阵元，我们从算符乘积展开出发取单圈的~\cite{Izubuchi:2018srq}
+\bea\label{eq:ZMS}
+Z_{\overline{\mathrm{MS}}}(z, \mu, \Lambda_{\overline{\mathrm{MS}}}) = 1+\frac{\alpha_{s}(\mu,\Lambda_{\overline{\mathrm{MS}}}) C_{F}}{2 \pi}\bigg[\frac{3}{2} \ln \frac{z^{2} \mu^{2}}{4 e^{-2 \gamma_{E}}}+\frac{5}{2}\bigg]\ , \nonumber\\
+\eea
+其中 $\mu$ 固定为 2 GeV，$\Lambda_{\overline{\mathrm{MS}}}$ 固定为 0.3 GeV。重正化的物理矩阵元则由
+\bea\label{eq:gz-m0}
+\mathcal{M}(z)_{R} = \exp[g(z) - m_{0}z],
+\eea
+得到，并预期它在小 $z$ 处与 $Z_{\overline{\mathrm{MS}}}$ 一致。
+
+也可以考虑更高阶的 $\overline{\mathrm{MS}}$ 矩阵元来做匹配，包括对大对数求和。此处我们不这样做，因为这不影响后续分析的流程，也不会改变本文的主要结论。不过，要获得高精度的物理结果，可能需要更仔细地考察这一点。
+
+于是我们定义重正化因子
+\begin{align}\label{eq:ZRm0}
+Z(z,a)_{R} = \exp\Big[\frac{k z}{a \ln[a \Lambda_{\rm QCD}]}
++ m_{0}z + f_{1,2}(z)a \nonumber\\
++\frac{3 C_{F}}{b_0} \ln \bigg[\frac{\ln [1 /(a \Lambda_{\rm QCD})]}{\ln [\mu / \Lambda_{\rm QCD}]}\bigg]+\ln [1+\frac{d}{\ln (a \Lambda_{\rm QCD})}]\Big]\ ,
+\end{align}
+它同时把离散化误差也包括进来。
+这里的所有参数要么固定、要么拟合、要么在重正化流程中由矩阵元 $\mathcal{M}(z,a)$ 自身精细调节而得。用裸矩阵元 $\mathcal{M}(z,a)$ 除以 $Z(z,a)_{R}$ 得到
+\bea\label{eq:M/Z}
+\mathcal{\widetilde{M}}_{R}(z) = \mathcal{M}(z,a)/Z(z,a)_{R}.
+\eea
+如果我们的流程消除了全部发散与离散化误差，那么应当预期 $\mathcal{\widetilde{M}}_{R}(z)$ 与 $a$ 无关，并与 $\mathcal{M}(z)_{R}$（式~(\ref{eq:gz-m0})）相同。符合的程度可以作为对自重正化流程的一种检验。
+
+
+\subsection{重整子不确定性}\label{ReUncer}
+
+现在讨论式~(\ref{eq:logM}) 中的参数 $k$ 与 $\Lambda_{\rm QCD}$。在式~(\ref{eq:logM}) 中，我们只保留了线性发散的领头阶微扰项而忽略了更高阶项；后者可以通过适当选取 $\Lambda_{\rm QCD}$ 部分地计入。
+例如，不同 $\Lambda$ 取法下的耦合常数可由微扰论相互联系~\cite{Lepage:1992xa},
+\bea\label{eq:alpha_s_series}
+\alpha_{s}(Q,\Lambda_{\rm QCD}) \sim \alpha_{s}(Q,\Lambda) + c_{2} \alpha_{s}^2(Q,\Lambda) \nonumber\\ + c_{3} \alpha_{s}^3(Q,\Lambda) + ...
+\eea
+原则上 $\Lambda_{\rm QCD}$ 依赖于具体的格点作用量，要建立二者之间的联系需要做多圈计算。在我们的分析中，将 $\Lambda_{\rm QCD}$ 当作一个拟合参数，因而它可以有效地计入某些高阶效应。
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=9cm]{images/fitting_clover_Pion.pdf}
+\caption{用式~(\ref{eq:logM}) 拟合 clover 作用量、无 HYP 涂抹时 $\pi$ 态中的裸 $O_{\gamma_t}(z)$ 矩阵元。蓝点为插值数据，彩色曲线为每个 $z$ 的拟合曲线；由于允许 $f_{1}(z)$ 与 $f_{2}(z)$ 不同，拟合曲线为折线。$k$、$\Lambda_{\rm QCD}$ 和 $d$ 分别固定为 7.4 GeV$^{-1}$fm$^{-1}$（无量纲时为 1.46）、0.09 GeV 和 $-1$。各 $z$ 拟合的 $\chi^{2}/{\rm d.o.f.}$ 列于图例。
+}
+\label{fig:fitting_clover_Pion}
+\end{figure}
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=9cm]{images/chisqmap_clover_Pion.pdf}
+\caption{
+$\chi^{2}$ 随 $k$ 与 $\Lambda_{\rm QCD}$ 的分布图。$\langle  \chi^{2}/{\rm d.o.f.} \rangle_{z}$ 是各 $z$ 拟合的 $\chi^{2}/{\rm d.o.f.}$ 的平均值。“小卡方带”表明 $k$ 与 $\Lambda_{\rm QCD}$ 强烈关联，且对所选数据而言二者各自的不确定度较大。
+}
+\label{fig:chisqmap_clover_Pion}
+\end{figure}
+
+接下来讨论线性发散系数 $k$。QCD 微扰论不仅预言 $1/a$ 依赖和线性的 $z$ 依赖（已在第~\ref{sec:test} 节检验过），还给出 $k$ 的数值。比较式~(\ref{eq:delta_m}) 与式~(\ref{eq:logM})，得到 $k$ 的单圈微扰值：
+\bea\label{eq:k}
+k~=~\frac{(2 \pi)^2}{3 b_{0}} = 1.46 = 7.4 {\rm GeV^{-1} fm^{-1}}.
+\eea
+下面检验这个数值是否与我们的数据一致。
+
+我们用式~(\ref{eq:logM}) 拟合 clover 作用量、无 HYP 涂抹时 $\pi$ 态中的裸 $O_{\gamma_t}(z)$ 矩阵元，把 $g(z)$、$f_{1}(z)$、$f_{2}(z)$ 作为拟合参数。若取 ($k$, $\Lambda_{\rm QCD}$) 为一组数值，例如 (7.4 GeV$^{-1}$fm$^{-1}$, 0.09 GeV)，便可对每个 $z$ 进行一次拟合，如图~\ref{fig:fitting_clover_Pion} 所示。每个 $z$ 处的拟合都有一个 $\chi^{2}/{\rm d.o.f.}$，我们对它们求平均，记作 $\langle \chi^{2}/{\rm d.o.f.} \rangle_{z}$。
+变动 ($k$, $\Lambda_{\rm QCD}$) 即生成一张 $\chi^{2}$ 分布图，见图~\ref{fig:chisqmap_clover_Pion}。
+
+小 $\chi^{2}$ 的 ($k$, $\Lambda_{\rm QCD}$) 参数组位于一条带内，我们称之为“小卡方带”。这意味着 $k$ 与 $\Lambda_{\rm QCD}$ 强烈关联，而二者单独来看都有很大的不确定度。
+如果从“小卡方带”中选取若干组参数做拟合，会发现拟合残差 Exp[$g(z)$] 差别很大，如图~\ref{fig:Egz} 所示。然而在消除非微扰 $m_{0}$ 效应之后，重正化矩阵元 Exp[$g(z) - m_{0} z$] 全都相同（见图~\ref{fig:Egz_m0}）。因此，$k$ 与 $\Lambda_{\rm QCD}$ 的不确定度不会显著影响最终的物理结果。
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=8cm]{images/Egz.pdf}
+\caption{
+沿“小卡方带”不同 ($k$, $\Lambda_{\rm QCD}$) 参数组的拟合残差 Exp[$g(z)$]。
+}
+\label{fig:Egz}
+\end{figure}
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=8cm]{images/Egz_m0.pdf}
+\caption{
+沿“小卡方带”不同 ($k$, $\Lambda_{\rm QCD}$) 参数组的重正化矩阵元 Exp[$g(z)-m_{0} z$]。
+}
+\label{fig:Egz_m0}
+\end{figure}
+
+这种不确定性的根源在于 $\frac{k}{a \ln[a \Lambda_{\rm QCD}]}$（式~(\ref{eq:logM}) 中与线性发散相关的项）在我们数据的 $a$ 范围内的行为。沿“小卡方带”变动相当于把 $\frac{k}{a \ln[a \Lambda_{\rm QCD}]}$ 平移一个常数 $C$，见图~\ref{fig:linearf}。拟合时 $Cz$ 项会自动被吸收进 $g(z)$，因此 $k$ 与 $\Lambda_{\rm QCD}$ 存在较大的不确定度。但当我们消除 $m_{0}$ 效应时，$Cz$ 项已被计入，最终结果不变。
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=8cm]{images/LinearTermPlot.pdf}
+\caption{
+在我们数据的 $a$ 范围内，沿“小卡方带”不同 ($k$, $\Lambda_{\rm QCD}$) 参数组对应的线性发散项。
+}
+\label{fig:linearf}
+\end{figure}
+
+另一种理解方式是：$k$ 的微扰值落在“小卡方带”之内，因此与拟合并行不悖。这样一来，在后续分析中我们可以把 $k$ 固定在其单圈微扰值 7.4 ${\rm GeV^{-1}fm^{-1}}$（无量纲时为 1.46）。即使如此选定 $k$，$\Lambda_{\rm QCD}$ 仍可在合理的 $\chi^2$ 范围内变动，而物理结果则由 $m_0$ 的选取稳定下来。我们把 $\Lambda_{\rm QCD}$ 与 $m_0$ 之间的这种关联称为“唯象重整子不确定性”，其含义是：$\Lambda_{\rm QCD}$ 刻画微扰级数不同截断/重整化方案的特征，而非微扰的 $m_0$ 补偿了这些差异带来的影响~\cite{Ji:1995tm,Beneke:1998ui,Bauer:2011ws,Bali:2013pla}。
+
+\subsection{调节参数 d 以匹配连续方案}\label{sec:d}
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=8cm]{images/gz-lnZMS_d0.pdf}
+\includegraphics[width=8cm]{images/gz-lnZMS_d.pdf}
+\caption{
+clover 作用量、无 HYP 涂抹的离壳夸克态裸 $O_{\gamma_t}(z)$ 矩阵元基于式~(\ref{eq:gztoMS}) 提取 $m_{0}$ 的拟合。红点是 $g(z) - \ln[Z_{\overline{\mathrm{MS}}}]$，其中 $g(z)$ 由式~(\ref{eq:logM}) 拟合裸矩阵元数据得到，$Z_{\overline{\mathrm{MS}}}$ 由式~(\ref{eq:ZMS}) 给出。蓝线是红点的线性拟合（拟合函数为 $m_{0} z + C_0$），拟合得到的 $m_{0}$ 列于图例。$k$ 固定为 7.4 GeV$^{-1}$fm$^{-1}$（无量纲时为 1.46），$\Lambda_{\rm QCD}$ 取最佳拟合值 0.118 GeV。
+上图中 $d$ 为零，此时 $g(z) - \ln[Z_{\overline{\mathrm{MS}}}]$ 与 $z$ 呈线性关系但不正比于 $z$（不过原点）；下图则细调 $d$ 使 $g(z) - \ln[Z_{\overline{\mathrm{MS}}}]$ 正比于 $z$。
+}
+\label{fig:gz-lnZMS_d}
+\end{figure}
+
+原则上，式~(\ref{eq:logM}) 中的参数 $d$ 由格点作用量决定。我们的数据中有两套不同的动力学系综（MILC 与 RBC）和两种不同的价费米子作用量（overlap 与 clover）。这里我们把 $d$ 当作一个微调参数，以确保式~(\ref{eq:gztoMS}) 中的 $( g(z) - \ln[Z_{\overline{\mathrm{MS}}}(z,\mu, \Lambda_{\overline{\mathrm{MS}}})] )$ 在窗口 $a \ll z < 1/\mu$ 内正比于 $z$。
+如图~\ref{fig:gz-lnZMS_d} 所示，这样做相当有效。
+我们还检验过，$d$ 对 $\chi^2$ 影响甚微，因为调节 $d$ 只是把 $g(z)$ 平移了一个常数。
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=8cm]{images/nonpert_clover_quark.pdf}
+\caption{
+clover 作用量、无 HYP 涂抹时离壳夸克态的重正化 $O_{\gamma_t}(z)$ 矩阵元。蓝点为重正化矩阵元 Exp[$g(z)-m_{0}z$]，黑色曲线为 $Z_{\overline{\mathrm{MS}}}$，红点为二者的比值。$k$ 固定为 7.4 GeV$^{-1}$fm$^{-1}$（无量纲时为 1.46），$\Lambda_{\rm QCD}$ 取最佳拟合值 0.118 GeV，参数 $d$ 细调为 $-1.184$。
+}
+\label{fig:nonpert_clover_quark}
+\end{figure}
+
+图~\ref{fig:nonpert_clover_quark} 表明，clover 夸克的重正化矩阵元 Exp[$g(z)-m_{0}z$]（蓝）在小 $z$ 处与 $Z_{\overline{\mathrm{MS}}}$（黑）一致；但在大 $z$ 处，Exp[$g(z)-m_{0}z$] 与 $Z_{\overline{\mathrm{MS}}}$ 之间存在显著偏差。这意味着在以往常用的 RI/MOM 和比值重正化方案中，大 $z$ 处存在显著的非微扰效应。
+据我们所知，这是文献中首次研究这一差别。
+该发现支持了近期提出的混合重正化流程~\cite{Ji:2020brr}。
+\subsection{自重正化流程}\label{sec:reofpro}
+
+前面几小节发展的流程构成了我们的自重正化策略。这一流程能够克服线性发散重正化中因误差被指数放大所带来的数值不确定性导致的若干问题。
+整个流程分为三步：
+
+1. 用式~(\ref{eq:logM}) 拟合裸矩阵元 $\mathcal{M}$ 的数据。对每个 $z$（此处 $z$ 可在较宽范围内选取，$\ln\mathcal{M}(z,a)$ 的数据可能需要对 $z$ 作线性插值）拟合其对 $a$ 的依赖：将 $\Lambda_{\rm QCD}$ 作为全局参数（对所有 $z$ 相同），$g(z)$、$f_{1}(z)$、$f_{2}(z)$ 作为拟合参数，并固定 $k$=7.4 GeV$^{-1}$fm$^{-1}$（无量纲时为 1.46）、$\mu$=2 GeV。细调 $d$ 以确保 $g(z) - \ln[Z_{\overline{\mathrm{MS}}}]$ 在窗口 $a \ll z < 1/\mu$ 内正比于 $z$。经拟合获得剩余项 $g(z)$；
+
+2. 用式~(\ref{eq:gztoMS}) 在窗口 $a \ll  z < 1/\mu$ 内拟合其对 $z$ 的依赖，提取 $m_{0}$；然后计算重正化矩阵元 Exp[$g(z)-m_{0}z$]（式~(\ref{eq:gz-m0})），认为它在很宽的 $z$ 范围内有效；
+
+3. 计算 $\mathcal{M}(z,a)/Z(z,a)_{R}$（式~(\ref{eq:M/Z})），考察它是否仍依赖于格点常数 $a$，并与 Exp[$g(z)-m_{0}z$] 比较。
+
+在第 1、2 步中还有另一种获得 $d$ 与 $m_{0}$ 的途径：把式~(\ref{eq:logM}) 中的 $g(z)$ 替换为 ($\ln[Z_{\overline{\mathrm{MS}}}(z,\mu, \Lambda_{\overline{\mathrm{MS}}})] + m_{0} z$)，再用修改后的拟合函数在小 $z$ 处拟合裸矩阵元以提取 $d$ 和 $m_{0}$。这种方法应与上述流程等价，本文不采用。
+
+在第 3 步中，需要计算 $Z(z,a)_{R}$ 并估计其误差。我们不把 $\Lambda_{\rm QCD}$ 的拟合误差传播到 $Z(z,a)_{R}$ 中，因为如第~\ref{ReUncer} 节所讨论的，$\Lambda_{\rm QCD}$ 微小变动的效应可以由 $m_{0}$ 补偿，不会影响我们的结果。
+
+由于所用的格点数据不含系统误差，我们在拟合时给数据加入一个虚拟的系统误差 $\delta_{\rm sys}$~\cite{Zhang:2020rsx}
+\bea\label{eq:error}
+(\sigma_{\ln \mathcal{M}})_{\rm new} = \sqrt{(\sigma_{\ln \mathcal{M}})_{\rm old}^{2} + (\delta_{\rm sys} a \mu)^{2}},
+\eea
+其中我们还假定存在 $a\mu$ 依赖。
+这样做的目的是让小格点间距的数据在拟合中获得更大的权重。
+
+\subsection{不同作用量与矩阵元结果的比较}\label{sec:cmpactions}
+
+在本小节中，我们将自重正化方法应用于无 HYP 涂抹、价 clover 与 overlap 作用量的 $\pi$、核子及离壳夸克态中的 $O_{\gamma_t}(z)$ 矩阵元，并比较重正化因子和物理结果。我们发现，除 clover 价费米子的 RI/MOM 矩阵元情形之外，其余所有重正化因子都彼此相近。尽管重正化因子存在这一差别，物理结果却与费米子作用量无关。
+
+
+\begin{figure*}[tbp]
+\centering
+\panel{a}{width=0.48\textwidth}{images/overlap_quark_chisqline.pdf}
+\panel{b}{height=5.5cm,width=0.48\textwidth}{images/overlap_quark_lnMfitting.pdf}
+\panel{c}{width=0.48\textwidth}{images/overlap_quark_gzmlnZMS.pdf}
+\panel{d}{height=5.5cm,width=0.48\textwidth}{images/overlap_quark_Expgzmm0z.pdf}
+\panel{e}{width=0.48\textwidth}{images/overlap_quark_Expgzmm0zdd.pdf}
+\panel{f}{width=0.48\textwidth}{images/overlap_quark_MoZ.pdf}
+\caption{
+用式~(\ref{eq:logM}) 对无 HYP 涂抹、overlap 作用量计算的离壳夸克态 $O_{\gamma_t}(z)$ 关联函数进行自重正化。(a) 显示 $\langle  \chi^{2} \rangle_{z} - [\langle  \chi^{2} \rangle_{z}]_{\rm min}$ 随 $\Lambda_{\rm QCD}$ 的变化，由此可估计最佳拟合的 $\Lambda_{\rm QCD}$ 及其误差。(b)、(c) 和 (d) 给出获得重正化矩阵元 Exp[$g(z)-m_{0}z$] 的过程：(b) 为提取 $g(z)$ 对裸矩阵元的拟合，蓝点为插值数据、彩色曲线为拟合曲线；(c) 为提取 $m_{0}$ 的拟合；(d) 中 Exp[$g(z)-m_{0}z$]（蓝）与 $Z_{\overline{\mathrm{MS}}}$（黑）进行比较。(e) 是不同 $\delta_{\rm sys}$ 下 Exp[$g(z)-m_{0}z$] 的比较。(f) 是裸矩阵元与重正化因子之比（实线连接）同 Exp[$g(z)-m_{0}z$]（虚线连接）的比较。
+}
+\label{fig:Re_overlap_quark}
+\end{figure*}
+
+
+\begin{figure*}[tbp]
+\centering
+\panel{a}{width=0.48\textwidth}{images/clover_quark_chisqline.pdf}
+\panel{b}{height=5.5cm,width=0.48\textwidth}{images/clover_quark_lnMfitting.pdf}
+\panel{c}{width=0.48\textwidth}{images/clover_quark_gzmlnZMS.pdf}
+\panel{d}{height=5.5cm,width=0.48\textwidth}{images/clover_quark_Expgzmm0z.pdf}
+\panel{e}{width=0.48\textwidth}{images/clover_quark_Expgzmm0zdd.pdf}
+\panel{f}{width=0.48\textwidth}{images/clover_quark_MoZ.pdf}
+\caption{
+同图~\ref{fig:Re_overlap_quark}，但离壳夸克态的 $O_{\gamma_t}(z)$ 关联函数用 clover 作用量计算。
+}
+\label{fig:Re_clover_quark}
+\end{figure*}
+
+
+\begin{figure*}[tbp]
+\centering
+\panel{a}{width=0.48\textwidth}{images/overlap_Pion_chisqline.pdf}
+\panel{b}{height=5.5cm,width=0.48\textwidth}{images/overlap_Pion_lnMfitting.pdf}
+\panel{c}{width=0.48\textwidth}{images/overlap_Pion_gzmlnZMS.pdf}
+\panel{d}{height=5.5cm,width=0.48\textwidth}{images/overlap_Pion_Expgzmm0z.pdf}
+\panel{e}{width=0.48\textwidth}{images/overlap_Pion_Expgzmm0zdd.pdf}
+\panel{f}{width=0.48\textwidth}{images/overlap_Pion_MoZ.pdf}
+\caption{同图~\ref{fig:Re_overlap_quark}，但为零动量 $\pi$ 态准光前关联函数，采用 overlap 费米子作用量计算。
+}
+\label{fig:Re_overlap_Pion}
+\end{figure*}
+
+
+\begin{figure*}[tbp]
+\centering
+\panel{a}{width=0.48\textwidth}{images/clover_Pion_chisqline.pdf}
+\panel{b}{height=5.5cm,width=0.48\textwidth}{images/clover_Pion_lnMfitting.pdf}
+\panel{c}{width=0.48\textwidth}{images/clover_Pion_gzmlnZMS.pdf}
+\panel{d}{height=5.5cm,width=0.48\textwidth}{images/clover_Pion_Expgzmm0z.pdf}
+\panel{e}{width=0.48\textwidth}{images/clover_Pion_Expgzmm0zdd.pdf}
+\panel{f}{width=0.48\textwidth}{images/clover_Pion_MoZ.pdf}
+\caption{同图~\ref{fig:Re_overlap_quark}，但为零动量 $\pi$ 态准光前关联函数，采用 clover 费米子作用量计算。
+}
+\label{fig:Re_clover_Pion}
+\end{figure*}
+
+
+\begin{figure*}[tbp]
+\centering
+\panel{a}{width=0.48\textwidth}{images/clover_Nucleon_chisqline.pdf}
+\panel{b}{height=5.5cm,width=0.48\textwidth}{images/clover_Nucleon_lnMfitting.pdf}
+\panel{c}{width=0.48\textwidth}{images/clover_Nucleon_gzmlnZMS.pdf}
+\panel{d}{height=5.5cm,width=0.48\textwidth}{images/clover_Nucleon_Expgzmm0z.pdf}
+\panel{e}{width=0.48\textwidth}{images/clover_Nucleon_Expgzmm0zdd.pdf}
+\panel{f}{width=0.48\textwidth}{images/clover_Nucleon_MoZ.pdf}
+\caption{同图~\ref{fig:Re_overlap_quark}，但为零动量核子态准光前关联函数，采用 clover 费米子作用量计算。
+}
+\label{fig:Re_clover_Nucleon}
+\end{figure*}
+
+
+图~\ref{fig:Re_overlap_quark} 至图~\ref{fig:Re_clover_Nucleon} 展示了在不同情形下应用自重正化方法的详细结果。对 overlap 与 clover 费米子的 RI/MOM 因子，我们分析了来自两类规范系综的八档格点间距；对 overlap 作用量计算的 $\pi$ 矩阵元，我们分析了 MILC 系综的三档格点间距；clover $\pi$ 情形使用了来自两套规范系综的六档格点间距；clover 费米子作用量的核子矩阵元则分析了 MILC 系综的五档格点间距。
+
+每幅图的子图 (a) 用于估计全局参数 $\Lambda_{\rm QCD}$ 的最佳拟合值及其误差。对每个选定的 $\Lambda_{\rm QCD}$，我们可以用式~(\ref{eq:logM}) 拟合裸矩阵元；每个 $z$ 的拟合给出一个独立的 $\chi^{2}$，对不同 $z$ 取平均记作 $\langle  \chi^{2} \rangle_{z}$。子图 (a) 显示 $\langle  \chi^{2} \rangle_{z} - [\langle  \chi^{2} \rangle_{z}]_{\rm min}$ 随 $\Lambda_{\rm QCD}$ 的变化：等于 0 给出最佳拟合的 $\Lambda_{\rm QCD}$，等于 1 给出其误差。如果不同 $z$ 的数据点相互独立，就应当用各 $z$ 拟合的总 $\chi^{2}$ 来估计 $\Lambda_{\rm QCD}$ 的误差；但由于我们对原始数据点做过线性插值，部分点之间是相互关联的，因此这里只用 $\langle  \chi^{2} \rangle_{z}$ 来估计。$z$ 的范围从 0.18 fm 开始而不是 0.06 fm，因为 $z$ = 0.06 或 0.12 fm 的 $\chi^{2}$ 远大于其他情形。$d$ 固定为 $-1$，因为它对 $\chi^{2}$ 影响很小。
+
+对 $\delta_{\rm sys}=0.002$，overlap 夸克、clover 夸克、overlap $\pi$、clover $\pi$ 和 clover 核子五种关联的最佳拟合 $\Lambda_{\rm QCD}$ 分别为 0.1086(17)、0.1350(21)、0.093(10)、0.086(14)、0.0926(61) GeV。可以看到，除 clover 夸克态的关联外，它们的取值相当接近。系统误差的大小对夸克情形的关联有一定影响，但对物理态的关联几乎没有影响。
+
+每幅图的子图 (b)：取 $\Lambda_{\rm QCD}$ 为最佳拟合值后，用式~(\ref{eq:logM}) 拟合裸矩阵元以提取 $g(z)$。overlap 夸克情形 $z$ 的范围取 0.06 fm 到 1.02 fm 共 17 个不同 $z$ 值；overlap $\pi$ 与 clover $\pi$ 情形取 0.06 fm 到 1.14 fm 共 19 个不同 $z$ 值；clover 夸克情形取 0.06 fm 到 0.96 fm 共 16 个不同 $z$ 值；clover 核子情形取 0.06 fm 到 0.9 fm 共 15 个不同 $z$ 值。我们细调 $d$ 以确保 $g(z) - \ln[Z_{\overline{\mathrm{MS}}}]$ 在窗口 0.06 fm $\leq z \leq$ 0.24 fm 内正比于 $z$。五种情形细调后的 $d$ 值分别为 $-1.29, -1.35, -1.17, -0.92, -0.97$，都在 $-1$ 附近。
+
+每幅图的子图 (c) 展示提取 $m_{0}$ 的拟合。对 $\delta_{\rm sys}=0.002$，五种情形拟合得到的 $m_{0}$ 分别为 0.2339(81)、0.7667(83)、$-$0.181(24)、$-0.363(25)$ 和 $-0.257(20)$ fm$^{-1}$，都与 $\Lambda_{\rm QCD} \sim 0.1$ GeV（约 0.5 fm$^{-1}$）同量级。这支持了第~\ref{sec:theory} 节的论断，即 $m_{0}$ 源于非微扰的重整子效应。
+
+在每幅图的子图 (d) 中，我们用蓝色数据点连线展示重正化矩阵元 Exp[$g(z)-m_{0}z$]。随着 $z$ 增大，Exp[$g(z)-m_{0}z$] 先按微扰结果上升，然后大约从 $z$ = 0.25 fm 起转为下降。所有情形下，Exp[$g(z)-m_{0}z$] 在小 $z$ 处都与 $Z_{\overline{\mathrm{MS}}}$ 一致；但在大 $z$ 处二者存在显著偏差。这说明以往常用的 RI/MOM 与比值重正化方案在大 $z$ 处存在大的非微扰效应，支持近期提出的混合重正化流程~\cite{Ji:2020brr}。这一点已在第~\ref{sec:d} 节简要讨论过。
+
+子图 (e) 展示不同 $\delta_{\rm sys}$ 下的重正化矩阵元 Exp[$g(z)-m_{0}z$]。除 clover $\pi$ 外，$\delta_{\rm sys}$ 的改变对多数情形 Exp[$g(z)-m_{0}z$] 的中心值没有影响；在 clover $\pi$ 情形中，增大 $\delta_{\rm sys}$ 会略微降低重正化矩阵元 Exp[$g(z)-m_{0}z$]。
+
+最后，子图 (f) 展示裸矩阵元与重正化因子之比 $\mathcal{M}(z,a)/Z(z,a)_{R}$ 及其与 Exp[$g(z)-m_{0}z$] 的比较。这里的 $Z(z,a)_{R}$ 不是从另一个不同的矩阵元提取的，而是从 $\mathcal{M}(z,a)$ 自身得到的，因此该子图是对我们方法的一种一致性检验。所有情形中，$\mathcal{M}(z,a)/Z(z,a)_{R}$ 在误差范围内对 $a$ 的依赖都很小，并且与 Exp[$g(z)-m_{0}z$] 一致。
+因此，我们的自重正化方法能以合理的精度把内禀剩余物理与线性发散、重整子不确定性、对数发散以及离散化误差分离开来。
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=8.5cm]{images/overlap_clover_Pion_d0_Expgzmm0z.pdf}
+\includegraphics[width=8.5cm]{images/overlap_clover_Pion_d0.002_Expgzmm0z.pdf}
+\caption{
+无 HYP 涂抹时零动量 $\pi$ 态重正化 $O_{\gamma_t}(z)$ 关联函数在 overlap 与 clover 作用量之间的比较。实线连接的数据点为重正化矩阵元 Exp[$g(z)-m_{0}z$]，黑色曲线为 $Z_{\overline{\mathrm{MS}}}$。上图中 $\delta_{\rm sys}=0$，下图中 $\delta_{\rm sys}=0.002$。
+}
+\label{fig:Re_overlap_clover_Pion}
+\end{figure}
+
+虽然比值 $\mathcal{M}(z,a)/Z(z,a)_{R}$ 对多数格点间距表现良好，但在小格点间距（如 0.0318 fm 或 0.0574 fm）处可能有较大误差。因此我们不建议把 $\mathcal{M}(z,a)/Z(z,a)_{R}$ 直接用作重正化矩阵元。由于 Exp[$g(z)-m_{0}z$] 是通过拟合获得的，大误差数据点对它的影响很小；我们把它取作重正化矩阵元，而只将 $\mathcal{M}(z,a)/Z(z,a)_{R}$ 用于一致性检验。
+
+我们在图~\ref{fig:Re_overlap_clover_Pion} 中展示了 $\pi$ 态重正化 $O_{\gamma_t}(z)$ 关联函数在 overlap 与 clover 两种作用量之间的比较。在加入系统误差之前，两个结果显示出明显的差别，这可能意味着两种不同的价费米子会导致不同的结果。而在拟合中加入一个小的虚拟系统误差之后，两种情形的关联给出相近的结果。这说明系统误差很重要——只要恰当地把它计入，内禀剩余非微扰物理便与价夸克形式无关。
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=8.5cm]{images/All_d0.002_Expgzmm0z.pdf}
+\caption{
+无 HYP 涂抹的所有情形重正化 $O_{\gamma_t}(z)$ 关联的比较。实线连接的数据点为重正化矩阵元 Exp[$g(z)-m_{0}z$]，黑色曲线为 $Z_{\overline{\mathrm{MS}}}$。
+}
+\label{fig:Re_all}
+\end{figure}
+
+最后，出于完备性考虑，我们在图~\ref{fig:Re_all} 中展示了所研究的所有情形的重正化关联以及与发散相关的参数。如前所述，overlap 夸克、overlap $\pi$、clover $\pi$ 与 clover 核子的拟合 $\Lambda_{\rm QCD}$ 彼此相近，而 clover 夸克的则明显不同。其原因尚不清楚，可能是手征对称性破缺与线性发散夸克质量联合效应所致。我们计划将来研究这个问题；但目前至少可以理解，为什么 clover 作用量下无法用 RI/MOM 消除线性发散~\cite{Zhang:2020rsx}。令人相当惊讶的是，overlap 夸克、$\pi$ 与核子的内禀剩余非微扰关联彼此非常相似，这一点我们也未完全理解。

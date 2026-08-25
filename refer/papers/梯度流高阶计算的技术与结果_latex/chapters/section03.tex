@@ -1,0 +1,201 @@
+\section{自动化实现}\label{sec:implementation}
+\subsection{费曼图表达式的生成}
+
+我们借助程序 \texttt{qgraf}\,\cite{Nogueira:1991ex,Nogueira:2006pq} 生成
+费曼图（包括对称因子以及来自闭合费米子圈的符号）。在该程序的记号下，胶子、
+鬼以及单味夸克的传播子可定义为
+\begin{verbatim}
+[g,g,+], [c,C,-], [fq,fQ,-].
+\end{verbatim}
+每个方括号第三项中的符号标明该粒子是玻色子还是费米子。
+
+胶子与夸克的流线通过引入独立的场 \texttt{b}、\texttt{fr} 与 \texttt{fs}
+来实现，它们分别代表 $L$、$\lambda$ 与 $\bar\lambda$：
+\begin{verbatim}
+[b,B,+], [fr,fR,-], [fs,fS,-],
+\end{verbatim}
+其中后两者代表 $\langle\chi\bar\lambda\rangle$ 与
+$\langle\lambda\bar\chi\rangle$ 双线性（见 \noeqn{eq:chibarlambda} 与
+\noeqn{eq:lambdabarchi}）。有了这些场，我们便可定义常规顶点与流顶点。例如，
+对纯规范理论中定义于 \noeqn{eq:3gvert} 的三线性流顶点，我们定义
+\begin{verbatim}
+[B,b,b], [B,b,g], [B,g,g],
+\end{verbatim}
+它对应 \fig{fig:3gcomb} 的三种组合。
+
+即便在常规 \qcd\ 中，把色结构与其余计算分离开来也是方便的；而在涉及四胶子顶
+点的情形下这一点变得非平凡。因此，方便的做法是引入辅助``粒子''
+$\Sigma_{\mu\nu}^{a}$，其``传播子''由下式给出\,\cite{Chetyrkin-priv}
+\begin{align}
+  &
+  \begin{gathered}
+    \includegraphics{images/sigma_propagator.pdf}
+  \end{gathered}
+  & = &
+  \begin{split}
+    \delta^{ab}\delta_{\mu\rho}\delta_{\nu\sigma} \,.
+  \end{split}
+  & &
+  %% \label{eq:}
+\end{align}
+于是四胶子顶点可替换为一个三线性 $gg\Sigma$ 顶点，其费曼规则为
+\begin{align}
+  &
+  \begin{gathered}
+    \includegraphics{images/sigma_vertex.pdf}
+  \end{gathered}
+  & = &
+  \begin{split}
+    \frac{\mathrm{i}g}{\sqrt{2}} f^{abc}\left(\delta_{\mu\rho}\delta_{\nu\sigma}-\delta_{\nu\rho}\delta_{\mu\sigma}\right) \,.
+  \end{split}
+  & &
+  %% \label{eq:}
+\end{align}
+这样虽然增加了图的数目，却能把色因子从所有费曼图中分解出来。我们对四次胶子
+流顶点采取同样的做法：引入一个沿流时间定向的额外 $\Sigma$ 粒子，它与胶子及
+胶子流线构成三线性顶点，如附录\,\ref{sec:frules} 中明确所示。同样，它们都恰
+含一条外向（$\Sigma$ 或胶子）流线。
+
+默认情况下，\texttt{qgraf} 也会生成含闭合流线圈的图。我们用一个
+\texttt{Perl} 脚本解析 \texttt{qgraf} 输出，以便在实际计算之前剔除这类图。
+不过如前所述，它们在代数上是平庸地为零的。同样地，我们对每个闭合费米子圈给
+图乘以因子 $\NF$。随后我们借助 \texttt{q2e/exp}\,\cite{Harlander:1997zb,
+Seidensticker:1999bb} 处理这些图：插入费曼规则并把图转换为 \texttt{FORM}
+代码。
+
+在 \texttt{FORM}\,\cite{Vermaseren:2000nd, Kuipers:2012rf} 中，我们收缩洛伦
+兹指标、取费米子迹，并把所得表达式简化为下文定义的标量积分的标准形式。色因
+子则借助 \texttt{color} 程序包\,\cite{vanRitbergen:1998pn} 单独求值。
+
+
+例如在三圈层次（本文结果所需），流时间积分可以写成如下形式
+\begin{equation}
+\begin{split}
+&I(t,\mathbf{n},\mathbf{a},\mathbf{c},D) =
+  \left(\prod_{r=1}^N\int_0^{t_{r}^\text{up}}\dd
+  t_r\,t_r^{c_r}\right)\int_{p_1,p_2,p_3} \frac{\exp[\sum_{k,i,j}
+      a_{kij} t_k p_i \cdot p_j] }{p_1^{2n_1}p_2^{2n_2}p_3^{2n_3}
+    p_4^{2n_4}p_5^{2n_5}p_6^{2n_6}}\,,
+\label{eq:intrep}
+\end{split}
+\end{equation}
+其中
+\begin{equation}
+\begin{split}
+\mathbf{n} &= \{n_1,\ldots,n_6\}\,,\qquad
+\mathbf{c} = \{c_1,\ldots,c_N\}\,,\\
+\mathbf{a} &= \{a_{kij}:k=0,\ldots, N\,;\,i=1,2,3\,;j=1,2,3\}\,,\\
+\end{split}
+\end{equation}
+为整数集合，$N\leq 4$，$t_0\equiv t$，且各流时间积分的上限是其余流时间变量
+的线性组合，$t_r^\text{up}=t_r^{\text{up}}(t_0,\ldots,
+t_{r-1})$。起初所有 $c_i$ 均为零，但为后续讨论引入这些参数是有帮助的。动量
+$p_4$、$p_5$、$p_6$ 是积分动量 $p_1$、$p_2$、$p_3$ 的线性组合。对本文考虑的
+三圈量而言，流时间 $t$ 是唯一有量纲的外部标度。把这一记号推广到其他圈数以及
+额外的外部标度是直截了当的。
+
+\subsection{流时间圈积分的 \abbrev{IBP} 约化}\label{sec:reduction}
+
+第一步，我们利用分部积分（integration-by-parts，\abbrev{IBP}）
+恒等式\,\cite{Tkachov:1981wb,Chetyrkin:1981qh} 把出现的所有积分约化为所谓的
+主积分（master integrals）。这类恒等式基于如下观察：在维数正则化中，全导数
+的积分为零。把算符
+\begin{equation}
+  \begin{split}
+    \mathcal{D}_{ij} \equiv \frac{\partial}{\partial p_i}\cdot p_j =
+    \delta_{ij}\,D+ p_j\cdot \frac{\partial}{\partial p_i}
+    \label{eq:dij}
+  \end{split}
+\end{equation}
+作用于 \noeqn{eq:intrep} 中 $I(t,\mathbf{n},\mathbf{a},\mathbf{c},D)$ 的被积
+函数，便对所有 $i,j\in\{1,2,3\}$ 得到零积分。另一方面，显式地把导数作用于被
+积函数会给出一些积分之和，其中部分指标 $n_i$ 与 $c_r$ 移动了 $\pm
+1$。\footnote{准确地说：至多一个 $n_i$ 移动 $-1$，且至多一个 $n_i$ 与至多一
+  个 $c_r$ 移动 $+1$。}反复施加 $\mathcal{D}_{ij}$ 便得到具有不同
+$\mathbf{n}$、$\mathbf{c}$ 的积分之间的线性关系。然而，这一过程并不改变流时
+间积分的数目与被积函数中的指数函数。
+
+不过，我们可以对流时间参数采用类似的策略。插入对一个流时间积分变量的导数，
+得到两个流时间积分更少、指数有所改变的积分之和：
+\begin{equation}
+  \int_0^{t_{r}^\text{up}}\dd t_r \deriv{}{t_r} f(t_r,\ldots) = f(t_{r}^\text{up},\ldots)-f(0,\ldots)\,.
+  \label{eq:ibpflow}
+\end{equation}
+另一方面，在被积函数层面显式求导会使某个指标 $c_k$ 或某个 $n_i$ 减一。于
+是，我们得到在不同 $\mathbf{n}$、$\mathbf{c}$、$\mathbf{a}$ 以及不同流时间
+积分个数 $N$ 的积分之间的线性关系。
+
+把上述操作应用于``种子积分''（seed integrals），即对 $\mathbf{n}$、
+$\mathbf{c}$、$\mathbf{a}$ 取定数值的积分，可以建立
+$I(t,\mathbf{n},\mathbf{a},\mathbf{c},D)$ 之间的线性关系系统。在定义一个排序
+（复杂度）判据之后，即可用高斯消元式的约化对该系统求解，得到一个最小积分集
+（主积分）\cite{Laporta:2001dd}。经过这一过程，\noeqn{eq:intrep} 所定义类型
+的一切积分都被约化为按所引入排序判据而言最简单的主积分集。这一线性关系系统
+依赖于具体过程；对本研究的可观测量，我们在
+\texttt{Mathematica}\,\cite{Mathematica11.3} 中构造它。我们使用专门软件
+\texttt{Kira}\,\cite{Maierhoefer:2017hyi,Maierhofer:2018gpa} 来约化并求解这
+类线性方程组。
+
+虽然仅用 \texttt{Kira} 就足以完成两圈层次上我们全部积分的约化（例如文献
+\citere{Harlander:2018zpi}），但我们发现三圈层次的系统若作代数求解需要超过
+750\,GiB 的内存（\abbrev{RAM}），超出了我们可用的计算资源。\footnote{该计算
+  在 \texttt{Kira 1.2}\,\cite{Maierhofer:2018gpa} 发布之前完成。随着新实现
+  的功能，这些论述有可能发生变化。}有限域与重构技术在近十年的高阶微扰计算中
+应用日益广泛（例如文献
+\citeres{Kauers:2008zz,Kant:2013vta,Peraro:2016wsq}），利用它们可以按下述方
+式改善所需的计算资源。
+
+由于 $t$ 是唯一有量纲的标度因而可以被提出，线性系统中积分的系数只是 $D$ 的
+多项式。约化的每一步只涉及初等算术运算，这意味着主积分的系数是 $D$ 的有理
+函数。于是可以在有限域上取足够多个不同的整数值 $D$（``探针''）数值求解线性
+系统，再精确重构 $D$ 的有理函数。这样一来系数始终保持为简单的数字，对计算资
+源的要求得以降低。
+
+虽然 \texttt{Kira} 已经自带 \texttt{pyRed} 作为第一步去除有限域上线性相关的
+方程，在我们的做法中，\texttt{pyRed} 被用来在有限域上多次约化系统本身。所得
+数字交由程序库 \texttt{FireFly}\,\cite{Klappert:2019emp} 处理，它提供了插
+值\,\cite{Zippel:1990,Cuyt:2011}与有理重构算法\,\cite{Wang:1981,Monagan:2004}
+的高效实现。\footnote{我们指出，\texttt{FireFly} 同样适用于多元有理函数。}
+在本例中，我们从三个不同的有限域（定义为素域 $\mathbb{Z}_p$，$p$ 为 63 位素
+数）中共选取 201 个探针来重构全部系数，另在第四个素域中取一个额外探针以验证
+重构。对每个探针，用 \texttt{Kira} 求解系统现在只需约 70\,GiB 内存与大约三个
+CPU 小时。总体而言，整个约化在两颗 Intel Xeon Gold 6138 处理器的十个线程上
+用时不到三天。
+
+对本文稍后考虑的三圈可观测量，我们从总共 3195 个积分出发，能把它们约化为
+188 个主积分的最小集合。\footnote{当我们的可观测量用主积分表达时，其中有六
+	个的依赖性消掉了。}其数值计算在下节描述。
+
+\subsection{流时间圈积分的数值计算}
+
+作为对 \noeqn{eq:intrep} 给出的梯度流积分进行数值求值的第一步，我们把传播子
+写成 Schwinger 参数积分，并用简单变换 $x=y/(1-y)$ 把 $x\in(0,\infty)$ 映射
+到 $y\in(0,1)$。动量积分在对角化之后按 $D$ 维高斯积分完成。类似地，所有流时
+间积分经简单线性变换映射到单位区间。最终结果是单位超立方体上的一个积分。
+
+被积函数通常带有若干（相互重叠的）奇异性，我们用
+\texttt{FIESTA}\,\cite{Smirnov:2013eza}——扇形分解算法\,\cite{Binoth:2003ak}
+的一个实现——将其因式化。常规费曼积分通常将扇形分解与费曼参数化结合使用；
+与此相反，在这里我们似乎无法把奇异性只限制在下积分限。\footnote{为识别奇异
+  性出现在上限的情形，我们在 Schwinger 参数化层面确定每个积分变量子集的发散
+  度\,\cite{Panzer:2014gra}。}若某个积分在下限与上限都有奇异性，我们就把所
+有积分区间从中点分开，并通过适当的变量替换把奇异性移到下限。
+
+然后用我们自己实现的 13 阶完全对称求积规则\,\cite{GenzMalik,Harlander:2016vzb}
+积分经扇形分解后的积分，它能很好地处理积分边界上可积的对数型奇异性。所有算
+术都借助 \texttt{MPFR} 库\,\cite{Fousse:2007} 以 256 位精度进行，并沿最大四
+阶差分方向实施局部自适应二分。要达到 $10^{-10}$ 或更好的相对数值精度，高精
+度算术是必要的。积分不确定度由 13 阶与 11 阶规则的结果之差估计。
+
+作为对下文结果的检验，我们把数值积分方法同时应用于未约化的 3195 个积分集合
+以及 188 个主积分集合。两套集合所得结果在数值不确定度内完全一致，这既检验了
+数值积分，也检验了约化过程。
+
+\paragraph{解析计算.}
+对某些主积分，我们能得到解析结果：或借助
+\texttt{Mathematica}\,\cite{Mathematica11.3} 用初等方法，或使用
+\texttt{HyperInt}\,\cite{Panzer:2014caa}。\texttt{Mathematica}
+的积分有时给出超几何函数，可用程序包 \texttt{HypExp}\,\cite{Huber:2005yg,
+Huber:2007dx} 展开。如下文所示，我们得到了色结构中至少含一个因子
+$\TR$ 的全部贡献的解析结果。对其余色因子的积分作完全解析的计算需要更细致的
+研究。但对一切实际目的而言，本文提供的数值结果已经（绰绰）足够。

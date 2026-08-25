@@ -1,0 +1,178 @@
+\section{ATLAS 7 TeV $W/Z$ 数据的 Hessian 剖析}
+\label{sec:Appendix4xFitter}
+
+
+{\bf \texttt{xFitter} 与 \texttt{ePump} 的 $\chi^{2}$ 定义。}
+作为把新数据直接放进完整 QCD 全球拟合之外的替代方案，Hessian PDF 剖析技术为探索新数据对给定 PDF 组的影响提供了快速灵活的途径；\texttt{xFitter} 与 \texttt{ePump} 框架都提供此类剖析方法。
+在 \texttt{xFitter} 中，$\chi^{2}$ 函数同时包含实验与理论不确定度~\cite{Paukkunen:2014zia,Camarda:2015zba,xFmanual}：
+\begin{equation}\label{eq:chi2xfitter}
+\chi^{2}(\vec{\lambda}_{\textrm{exp}},\vec{\lambda}_{\textrm{th}})=
+\sum_{i=1}^{N_{pt}}\frac{\left[D_{i}+\sum_{\alpha}\beta^{\textrm{exp}}_{i,\alpha}\lambda_{\alpha,\textrm{exp}}-
+T_i-\sum_{\alpha}\beta_{i,\alpha}^{\textrm{th}}\lambda_{\alpha,\textrm{th}}
+\right]^{2}}{s_{i}^{2}}+\sum_{\alpha}\lambda_{\alpha,\textrm{exp}}^{2}+\sum_{\alpha}T^2\lambda_{\alpha,\textrm{th}}^{2}.
+\end{equation}
+这里 $D_{i}$ 与 $T_i$ 分别是第 $i$ 个实验数据与相应理论预言，指标 $i$ 跑遍给定实验的全部 $N_\mathit{pt}$ 个点。
+$s_{i}$ 表示总非关联不确定度，$\beta_{i,\alpha}^{\textrm{exp}}\, (\beta_{i,\alpha}^{\textrm{th}})$ 代表关联的实验（理论）不确定度，
+$\lambda_{\alpha,\textrm{exp}}\, (\lambda_{\alpha,\textrm{th}})$ 是相应的讨厌参数。此时指标 $\alpha$ 跑遍实验的 $N_\lambda$ 个关联系统不确定度，或 PDF 误差组的 $N_\mathit{ev}$ 个 Hessian 本征矢方向。理论不确定度按基于相应 PDF 误差组 $f_\alpha^\pm$ 的预言确定为
+\begin{equation}
+\beta_{i,\alpha}^{\textrm{th}}=\frac{T_i(f_{\alpha}^{+})-T_i(f_{\alpha}^{-})}{2},
+\end{equation}
+其中 $f_{\alpha}^{\pm}$ 是沿本征矢 $\alpha$ 正负变动的 PDF 误差组。若 PDF 误差组定义于 68\%（90\%）C.L.，容忍参数 $T$ 取 1（1.645）。不同于文献~\cite{xFmanual} 把理论不确定度 $\beta^{\textrm{th}}_{i,\alpha}$ 缩小，我们等价地把相应讨厌参数 $\lambda_{\alpha,\textrm{th}}$ 放大，以便与 \texttt{ePump}~\cite{Schmidt:2018hvu,Hou:2019gfw} 更透明地比较。
+
+式~(\ref{eq:chi2xfitter}) 的 $\chi^{2}$ 函数可转换为 \texttt{ePump}~\cite{Schmidt:2018hvu,Hou:2019gfw} 定义的形式：
+\begin{equation}\label{eq:chi2ePump}
+\Delta\chi^{2}(\vec{\lambda}_{\textrm{th}})
+=\sum_{i,j=1}^{N_\mathit{pt}}
+[D_i-T_{i}(\vec{\lambda}_{\textrm{th}})]
+\textrm{cov}_{ij}^{-1}[D_j-T_{j}(\vec{\lambda}_{\textrm{th}})]
++\sum_{\alpha}T^2\lambda_{\alpha,\textrm{th}}^{2},
+\end{equation}
+其中 $\textrm{cov}_{ij}^{-1}$ 是由 $s_i$ 与 $\beta_{i,\alpha}^{\textrm{exp}}$ 构造的逆实验协方差矩阵~\cite{Gao:2013xoa}。
+更一般地，\texttt{ePump} 还提供所谓``动态容忍度''$T^{(\alpha)}$~\cite{Schmidt:2018hvu,Hou:2019gfw} 选项，其具体取值依赖相应的 PDF 本征矢方向 $\alpha$，目的在于计及对 PDF 误差组的附加约束。
+例如在 CTEQ-TEA 方案中，沿给定本征矢方向的位移要么受全局 $\chi^2$ 增加 100 单位（90\% 概率水平）约束，要么受某个实验 $\chi^2_E$ 增加过大时的第二级惩罚~\cite{Lai:2010vv,Gao:2013xoa} 约束，后者导致 $T^{(\alpha)}<100$。动态容忍度也应用于 MMHT PDF，那里各实验分别给出约束~\cite{Harland-Lang:2014zoa}。
+
+
+$\chi^{2}$
+函数的极小值量化理论与数据的相容性；极小化 $\chi^{2}$ 则优化 PDF 以描述数据~\cite{Paukkunen:2014zia,Schmidt:2018hvu}。
+在线性近似下，``更新后''（用 \texttt{xFitter} 的话说``剖析后''）的中心 PDF 组 $f_{0}^{'}$ 可由 $\chi^{2}$ 极小处的讨厌参数
+$\lambda_{\alpha,\textrm{th}}^{\textrm{min}}$ 表示：
+\begin{equation}\label{eq:updatePDF}
+f_{0}'=f_{0}+\sum_{\alpha} \lambda^{\textrm{min}}_{\alpha,\textrm{th}}\frac{f_{\alpha}^{+}-f_{\alpha}^{-}}{2}.
+\end{equation}
+\texttt{xFitter} 剖析的 PDF 还包含二阶对角项 \linebreak
+$\sim\! \frac{1}{2}(\lambda^{\textrm{min}}_{\alpha,\textrm{th}})^{2}(f_\alpha^{+}+f_\alpha^{-}-2f_0)$。
+注意非对角项 $\sim\! \lambda^{\textrm{min}}_{\alpha,\textrm{th}}\lambda^{\textrm{min}}_{\alpha^\prime,\textrm{th}}$（$\alpha\neq \alpha^\prime$）目前未被包含，
+因为非对角二阶偏导数无法仅凭 Hessian PDF 误差组构造~\cite{Hou:2016sho}。
+
+
+
+ \begin{table}
+\centering
+\caption{使用 CT14 与 CT18 PDF 时，ATLAS 7 TeV $W/Z$ 数据在 \texttt{xFitter} 剖析与 \texttt{ePump} 更新前后的 $\chi^2$ 值。
+}
+\label{tab:chi2}
+\begin{tabular}{c||c|c||c|c|c}
+\hline\hline
+Program & \multicolumn{2}{c||}{\texttt{xFitter}} & \multicolumn{3}{c}{\texttt{ePump}} \\
+\hline
+ PDFs & input & profiled & input &
+ $\begin{array}{c}
+ \mbox{updated with}\\
+ T^2=1.645^2,\\
+ \mbox{as in \texttt{xFitter}}
+ \end{array}
+ $&
+ $\begin{array}{c}
+ \mbox{updated with}\\
+ \mbox{dynamical tolerance,}\\
+ \mbox{as in CT18 fit}
+ \end{array}
+ $
+ \\
+\hline
+\multicolumn{6}{c}{All the 7 measurements, $N_{\textrm{pt}}=61$}\\
+\hline
+CT14     & 290 & 106  & 285  & 104  &197  \\
+CT18     & 362 & 104  & 356  & 103 &  199   \\
+\hline
+\multicolumn{6}{c}{$W^{+},W^{-}$, $Z$-peak DY (central), $N_{\textrm{pt}}=34$}\\
+\hline
+CT14     & 224 & 66  & 220  &  66  & 140\\
+CT18     & 294 & 63 & 289  &  63 &  144\\
+\hline
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}
+\includegraphics[width=0.45\textwidth]{images/CT18_ATL7WZ_xFitter_ePump_gluon_100GeV_2nd.pdf}
+\includegraphics[width=0.45\textwidth]{images/CT18_ATL7WZ_xFitter_ePump_strange_100eV_2nd.pdf}
+\caption{$Q=100$ GeV 处 CT18（90\% C.L.）与 CT18A 全球拟合的胶子与奇异性 PDF，与经 \texttt{ePump} 动态容忍度更新以及 ATLAS 7 TeV $W/Z$ 产生数据剖析 CT18 所得中心 PDF 比较。
+\texttt{xFitter} 剖析的 PDF 以 $T=1.645$ 得到并含对角二阶项。
+    }\label{fig:epxf-strange}
+\end{figure}
+
+{\bf ATLAS $W/Z$ 数据的影响。}
+此处我们用 \texttt{xFitter} 的 Hessian 剖析方法与 \texttt{ePump} 更新，考察 ATLAS 7 TeV 单举 $W/Z$ 产生数据（Expt.~ID=248、~\cite{Aaboud:2016btc}）
+对若干 PDF 组的影响。各 PDF 组在以 ATLAS 7 TeV $Z/W$ 产生数据剖析/更新前后总 $\chi^{2}$ 值的变化见表~\ref{tab:chi2}。
+首先考察全部 7 项测量（共 $N_\textit{pt}=61$ 个数据点）：中央与前向选择下低质量、$Z$ 峰与高质量区的 $W^{+}$、$W^{-}$ 及中性流 DY。此情形可与 ATLAS~\cite{Aaboud:2016btc} 与 MMHT~\cite{Thorne:2019mpt} 分析直接比较。
+第二种情形只取 3 项最精确的测量，即中央选择的 $W^{+}, W^{-}$ 与 $Z$ 峰 DY 数据（共 $N_{\textit{pt}}=34$ 个数据点），它们被纳入 NNPDF3.1~\cite{Ball:2017nwa} 与 CT18A(Z) 全球分析。这些数据在 CT18A(Z)、NNPDF3.1 与 MMHT 中拟合 $\chi^2/N_{\textit{pt}}$ 值的比较见 Sec.~\ref{sec:CT18Z_qual}。
+
+表~\ref{tab:chi2} 显示，CT14 在 \texttt{xFitter} 剖析前后的 $\chi^{2}$ 值与文献~\cite{Aaboud:2016btc} 报告的结果符合良好。
+由于 CT PDF 按 90\%
+C.L.~定义~\cite{Dulat:2015mca,Hou:2016nqm}，在 \texttt{xFitter} 中应取容忍度 $T=1.645$。
+如文献~\cite{Hou:2019gfw} 所示，当容忍度设为 $T\! =\! 1.645$ 时，\texttt{ePump}
+代码可复现相同结果。但如~\cite{Hou:2019gfw} 清楚讨论的那样，对 CT PDF 在 \texttt{ePump} 计算中设 $T=1.645$ 相当于给纳入拟合的新数据集赋予极大的权重（约 $100/1.645^2$）。
+因此使用 CT PDF 时，\texttt{xFitter} 剖析一般会高估新数据集的影响。
+同时，普适的容忍值（$T=1.645$）无法捕捉确定 CT PDF 误差组的第二级惩罚约束。
+以任何新实验数据更新既有 CT PDF 组的恰当方式是采用动态容忍度。
+如此一来，\texttt{xFitter} 剖析给出的 $\chi^2$（63）小于采用动态容忍度的 \texttt{ePump} 更新（144），比较表~\ref{tab:chi2} 末行最右条目即可见。
+该结论在使用 \texttt{xFitter} 剖析 MMHT~\cite{Harland-Lang:2014zoa} 与 PDF4LHC15~\cite{Butterworth:2015oua} PDF 时同样成立。
+
+34 个最高精度 ATLAS 7 TeV $W/Z$ 产生数据点的 $\chi^2$ 在 CT18A 全球拟合中为 $\chi^2\!=\!87.6$，参见表~\ref{tab:CMN}。与之比较的是采用动态容忍度的 \texttt{ePump} 更新所得到的相应值 $\chi^2\!=\!144$（表~\ref{tab:chi2}）。
+该数值包含两个不同的贡献：来自 ATLAS 7 TeV $W/Z$ 产生本身理论-数据之差的 $\chi^2_1=104$，以及理论讨厌参数平方和 $\chi^2_2=\sum_\alpha \lambda_{\alpha,\rm{th}}^2=40$——后者可解读为 CT18 拟合中其他（``先验''）数据集 $\chi^2$ 的增加。
+\texttt{ePump} 更新后 $\chi^2_2$ 大增，表明 ATLAS 7 TeV $W/Z$ 产生
+数据与先验数据集之间存在张力，如 CCFR/NuTeV SIDIS 双缪子数据~\cite{Hou:2019gfw}，参见图~\ref{fig:lm_wht}。
+
+CT18A（87.6）与动态容忍度 \texttt{ePump} 更新（104）的 $\chi^2$ 差异表明：Hessian 更新方法应用于此情形时其线性近似失效。检查更新后的中心 PDF 组即可证实失效。图~\ref{fig:epxf-strange} 给出 CT18（含 90\% C.L.~误差）与 CT18A 全球拟合在 $Q=100$ GeV 处的胶子与奇异性 PDF，并与用 ATLAS 7 TeV $W/Z$ 产生数据作 \texttt{ePump} 动态容忍度更新及 \texttt{xFitter} 剖析 CT18 的结果比较。
+相对 CT18 PDF，可以看到 \texttt{ePump} 更新的 $g,s$ PDF 与 CT18A PDF 相似，只是在数据敏感区 $10^{-3}\! <\! x\! <\! 10^{-1}$ 内移动稍小。相反，默认 \texttt{xFitter} 剖析使 $g,s$ PDF 都比 CT18A 全球拟合移动大得多。结果是 \texttt{xFitter} 剖析造成过大的 $s$-PDF 变化，使其中心预言在 $x\! >\! 0.02$ 处触及 CT18 的上误差带。
+我们在比较其他味 PDF 时发现类似特征：默认 \texttt{xFitter} 程序在更新既有 PDF 时一般高估新数据集的影响~\cite{Hou:2019gfw}。
+
+\begin{figure}[bhtp]
+\begin{center}
+\includegraphics[width=0.8\textwidth]{images/ATL7WZ_KF.pdf}
+\caption{用 \texttt{DYNNLO}、\texttt{FEWZ} 与 \texttt{MCFM} 计算的 ATLAS 7 TeV $W/Z$ 数据 $K$ 因子的比较。误差棒表示理论蒙特卡洛不确定度。\texttt{DYNNLO} 曲线提取自 \texttt{xFitter} 并含 NLO EW 修正。}
+\label{fig:Kfactors}
+\end{center}
+\end{figure}
+
+\begin{table}
+\caption{
+在不同 NNLO 预言下，ATLAS 7 TeV $W/Z$ 产生数据（共 34 个数据点）在 \texttt{xFitter} 剖析与 \texttt{ePump} 动态容忍度更新前后的 $\chi^2$ 值。（细节见正文。）
+我们不更新 CT18A(Z) 拟合，以免重复计入 ATLAS 7 TeV $W/Z$ 产生数据的影响。
+}
+\label{tab:chi2Kfactors}
+\begin{tabular}{c|c|c|c|c|c|c}
+\hline
+ &  \multicolumn{2}{c|}{\texttt{DYNNLO}} &    \multicolumn{2}{c|}{\texttt{MCFM}} &  \multicolumn{2}{c}{\texttt{FEWZ}}  \\
+\hline
+\multicolumn{7}{c}{\texttt{xFitter} profiling}\\
+\hline
+PDF & before & after   & before & after   & before & after \\
+\hline
+CT18 & 294 & 63    &  277 & 65  & 225  &  62   \\
+CT18A & 87  & --   & 92   & --  & 109  & --    \\
+CT18Z & 88 &   --  &  94  & --  & 109  &  --  \\
+\hline
+\multicolumn{7}{c}{\texttt{ePump} dynamic-tolerance updating}\\
+\hline
+CT18 & 289 & 144   &  273  & 144    & 223   & 135    \\
+CT18A & 87 & --   &  91  & --  &  109 &  --  \\
+CT18Z & 88 &   --   &  94  & --  &  109 & --  \\
+\hline
+\end{tabular}
+\end{table}
+
+{\bf 不同 NNLO 预言的比较。}
+除上述研究外，我们还用 \texttt{xFitter} 与 \texttt{ePump} 框架考察 ATLAS 7 TeV $W/Z$ 数据理论计算的各个方面。
+%
+在 CT18A(Z) 全球拟合中，这些测量的 NNLO 预言用 NNLO/NLO $K$ 因子乘 NLO \texttt{APPLGrid} 预言计算。具体而言，我们 CT18A(Z) 拟合所用 $K$ 因子直接从 \texttt{xFitter} 提取，在那里由 \texttt{DYNNLO} 代码~\cite{Catani:2007vq,Catani:2009sm} 计算。
+ATLAS 合作组在文献~\cite{Aaboud:2016btc} 中指出，NNLO 程序
+\texttt{FEWZ}~\cite{Gavin:2010az,Gavin:2012sy,Li:2012wna} 与 \texttt{DYNNLO}~\cite{Catani:2007vq,Catani:2009sm} 预言的 fiducial 积分 $Z,W^{+},W^{-}$ 截面分别相差约 0.2%、1.2% 与 0.7%。
+图~\ref{fig:Kfactors} 显示略大的差异，因为 \texttt{DYNNLO} 曲线含 NLO EW 修正而另两者不含。
+
+
+接下来，我们希望比较 ATLAS 7 TeV $W/Z$ 产生数据微分截面测量的各种 NNLO 预言。
+首先验证了 \texttt{DYNNLO}、\texttt{MCFM}~\cite{Boughezal:2016wmq,MCFM8}
+与 \texttt{FEWZ} 的 NLO 预言彼此相差不超过 0.2%，这反映三者 NLO 计算都采用偶极子形式体系~\cite{Catani:1996jh,Catani:1996vz}。
+由于 NNLO 预言可表示为 NLO 预言乘以其 $K$ 因子，我们在图 \ref{fig:Kfactors} 对每个 ATLAS 7 TeV $W/Z$ 产生数据点（共 34 个）比较各程序所得 $K$ 因子。
+可见三个 $K$ 因子之间的差异作为 $Z$ 玻色子快度（或 $W$ 衰变带电轻子快度）的函数变化。
+相对于 ATLAS 7 TeV $W/Z$ 数据通常亚百分之一的统计不确定度，这些差异可达 $\gtrsim\!1\%$。
+我们还发现 \texttt{MCFM} 的预言一般介于 \texttt{DYNNLO} 与 \texttt{FEWZ} 之间。这一差异可理解为不同 NNLO 技术的结果：\texttt{FEWZ} 采用扇区分割~\cite{Binoth:2000ps,Anastasiou:2003gr,Anastasiou:2005qj}，\texttt{DYNNLO} 与 \texttt{MCFM}
+则分别基于横向动量（$q_T$）~\cite{Catani:2007vq,Catani:2009sm} 与 $N$-jettiness（$\mathcal{T}_N$）~\cite{Boughezal:2016wmq} 减除。
+
+研究 ATLAS 7 TeV $W/Z$ 拟合质量对 NNLO 计算方案具体选择的依赖也有意义。
+表~\ref{tab:chi2Kfactors} 总结了这类研究的发现。用 \texttt{ePump} 以 ATLAS 7 TeV $W/Z$ 数据更新 CT18 PDF 后，我们发现 ATLAS $W/Z$ 数据集的最终 $\chi^2$ 值在理论分别由 \texttt{DYNNLO}、\texttt{MCFM} 与 \texttt{FEWZ} NNLO 计算预言时分别为 144、144 与 135 单位。
+因此结论是这三种 NNLO 计算给出质量相近的 ATLAS 7 TeV $W/Z$ 数据拟合。使用 \texttt{xFitter} 框架时结论类似，最终 $\chi^2$ 值分别为 63、65 与 62 单位。
+概括地说，默认 \texttt{xFitter} 剖析（容忍度 $T\! =\! 1.645$）在更新 CT18 PDF 时高估了 ATLAS 7 TeV $W/Z$ 数据的影响，解释了它为何给出比 \texttt{ePump} 更新更小的 $\chi^2$ 值。我们还确认：三种 $K$ 因子更新的 PDF 彼此略有差异，但与实验不确定度引起的同样系统移动相比可以忽略。
+总之，同一 PDF 组下 \texttt{DYNNLO}、\texttt{MCFM} 与 \texttt{FEWZ} 对 ATLAS 7 TeV $W/Z$ 数据的 NNLO 理论预言存在可察觉的差异；另一方面，经 \texttt{ePump} 或 \texttt{xFitter} 更新 PDF 后，三者的最终 $\chi^2$ 与 PDF 只显示轻微差异。

@@ -1,0 +1,116 @@
+\section{Stochastic Quantization}
+\label{sec:sq}
+
+In Euclidean quantum field theory, as an alternative quantization scheme, one may invoke stochastic quantization (SQ)~\cite{Parisi:1980ys}. We only consider real actions here, for which SQ is well understood and convergence is guaranteed \cite{Damgaard:1987rr}. Starting from a generic Euclidean path integral with Euclidean action $S_E$,
+\begin{equation}
+    Z = \int D\phi \, e^{-S_E},
+\end{equation}
+SQ introduces a \textit{fictitious} time, $\tau$, for the field, $\phi$, whose evolution is described by Langevin dynamics,
+\begin{equation}
+    \frac{\partial \phi(x,\tau)}{\partial \tau} = - \frac{\delta S_E[\phi]}{\delta \phi(x,\tau)} + \eta(x,\tau),
+    \label{eq:sq}
+\end{equation}
+where the noise term routinely satisfies,
+\begin{equation}
+    \langle \eta(x,\tau) \rangle = 0,\qquad \langle \eta(x,\tau)\eta(x',\tau') \rangle = 2\alpha\delta(x-x')\delta(\tau - \tau'),
+\end{equation}
+with $\alpha$ being the diffusion constant. Denoting the distribution as
+\begin{equation}
+    p(\phi) = \frac{e^{-S_E(\phi)}}{Z},
+\end{equation}
+the drift term in the Langevin equation can be written as
+\begin{equation}
+\label{eq:K}
+    K(\phi)  \equiv  - \frac{\delta S_E}{\delta \phi(x)} = \frac{\delta \log p(\phi)}{\delta \phi(x)}.
+\end{equation}
+In the long-time limit ($\tau\rightarrow \infty$) the system reaches an equilibrium state of the dynamics~\cite{Namiki:1993fd} if the drift term has a damping effect, which is best analysed using the Fokker-Planck equation (see below). In addition, introducing the stochasticity is only one strategy for the quantization. The \textit{fictitious} time itself can serve as a clue to develop microcanonical quantization, which describes a deterministic evolution with an ordinary differential equation~\cite{Callaway:1982eb}. We will revisit this idea and its connection with DMs in Sec.~\ref{subsec:continious}.
+
+\subsection{Fokker-Planck Equation and Observables}
+
+The Fokker-Planck equation~\cite{risken1996fokker} describes the time evolution of the probability distribution of field configurations, subject to a stochastic process, such as the Langevin equation. Also known as the Kolmogorov forward equation, in the context of SQ it describes the time evolution of the probability density function $P[\phi,\tau]$ for field configurations $\phi$ at time $\tau$ \cite{Damgaard:1987rr,Namiki:1992wf}, as follows,
+\begin{equation}
+ \frac{\partial P[\phi, \tau]}{\partial \tau} = \int d^nx \left\{
+ \frac{\delta}{\delta \phi}
+ \left(\alpha\frac{\delta }{\delta \phi} + \frac{\delta S_E}{\delta \phi} \right)
+ \right\} P[\phi, \tau].
+ \label{eq:f-p}
+\end{equation}
+Here $n$ is the dimension of the Euclidean spacetime on which the field theory is formulated.  Given this probability distribution function, the expectation value of an observable $\mathcal{O}[\phi]$ is then given by \cite{Damgaard:1987rr}
+\begin{equation}
+\langle \mathcal{O}[\phi] \rangle_\tau = \int D\phi\,\mathcal{O}[\phi] P[\phi, \tau],
+\end{equation}
+where the left-hand side is understood as an average over many stochastic processes and on the right-hand side the integral is taken over all field configurations $\phi$. 
+
+In the long-time limit, the probability distribution $P[\phi,t]$ {approaches} an equilibrium distribution, which is the stationary solution of the Fokker-Planck equation (\ref{eq:f-p}), 
+\begin{equation}
+P_{\text{eq}}[\phi] \propto e^{-\frac{1}{\alpha}S_E[\phi]}.
+\label{eq:equ}
+\end{equation}
+If $\alpha$ is set (formally) as $\hbar$ and the equilibrium distribution is normalised, expectation values of observables are indeed observables in a quantum theory, with
+\begin{equation}
+\langle \mathcal{O}[\phi] \rangle_{\tau\to\infty} = \frac{\int D\phi \, \mathcal{O}(\phi) e^{-\frac{1}{\hbar}S_E(\phi)}}{\int D\phi \, e^{-\frac{1}{\hbar}S_E(\phi)}}
+= \langle \mathcal{O}[\phi] \rangle_{\text{quantum}},
+\end{equation}
+demonstrating that a stochastic process according to Eq.~(\ref{eq:sq}) can be used to quantize a system.
+% Note that convergence to the stationary solution (\ref{eq:equ}) follows from properties of the Fokker-Planck Hamiltonian associated to the Fokker-Planck equation (\ref{eq:f-p}) \cite{Damgaard:1987rr}. 
+
+{
+Note that convergence to the stationary solution (\ref{eq:equ}) follows from properties of the Fokker-Planck Hamiltonian associated to the Fokker-Planck equation (\ref{eq:f-p}) \cite{Damgaard:1987rr}. In short, writing the time-dependent solution $P[\phi,t]$ as 
+\begin{equation}
+\label{eq:PQ}
+P[\phi,t]=e^{-\frac{1}{2\alpha}S_E[\phi]} Q[\phi,t],
+\end{equation}
+it is easy to show that $Q[\phi,t]$ satisfies the equation
+\begin{equation}
+\label{eq:Q}
+\frac{\partial Q[\phi, \tau]}{\partial \tau}  = -H_{\rm FP}Q[\phi, \tau],
+\end{equation}
+where the Fokker-Planck Hamiltonian reads
+\begin{equation}
+H_{\rm FP} = \int d^nx\, L^\dagger L,
+\end{equation}
+with
+\begin{equation}
+L = \sqrt{\alpha}\frac{\delta}{\delta \phi} + \frac{1}{2\sqrt{\alpha}}\frac{\delta S_E}{\delta\phi}, 
+\qquad\qquad
+L^\dagger = -\sqrt{\alpha}\frac{\delta}{\delta \phi} + \frac{1}{2\sqrt{\alpha}}\frac{\delta S_E}{\delta
+\phi}. 
+\end{equation}
+The Fokker-Planck Hamiltonian is hence bounded from below by zero. Provided its spectrum is gapped, time-dependent components in Eq.~(\ref{eq:Q}) will decay exponentially and only the solution $H_{\rm FP}Q[\phi]=0$ survives. This solution is given by
+\begin{equation}
+LQ[\phi]=0 \qquad \Rightarrow \qquad Q[\phi] \propto 
+e^{-\frac{1}{2\alpha}S_E[\phi]},
+\end{equation}
+which, when combined with Eq.~(\ref{eq:PQ}),
+results again in the equilibrium solution (\ref{eq:equ}), completing the standard proof of convergence.
+}
+
+\subsection{Langevin Simulations}
+\label{subsec:sim}
+
+In most cases, the Fokker-Planck equation cannot be solved analytically. Instead, one solves the stochastic process numerically by discretizing the Langevin equation Eq.~\eqref{eq:sq}. 
+Using It\^o calculus, the simplest discretized Langevin equation, using time step $\Delta\tau$, is
+\begin{equation}
+    \phi(x,\tau_{n+1}) = \phi(x,\tau_n) + K[\phi(x,\tau_n)]\Delta\tau + \sqrt{\Delta\tau}\eta(x,\tau_n),
+    \label{eq:dis-sq}
+\end{equation}
+with $\langle \eta(x,\tau_n)\eta(x',\tau_{n'}) \rangle = 2\alpha\delta(x-x')\delta_{nn'}$. 
+
+A typical calculation includes, firstly, an initial condition to prepare field configurations $\{\phi(x, \tau=0)\}$; secondly, the thermalization procedure, i.e, evolve the system to reach equilibrium by iterating through a sufficient number of time steps with an appropriate time step, $\Delta \tau$; thirdly, after thermalization, record the values of the physical observable $\mathcal{O}[\phi]$ for each configuration in an ensemble, e.g.\ after a time $T$. This is repeated for numerous configurations to improve the statistical accuracy of the ensemble average. 
+Fig.~\ref{fig:simu} demonstrates one such typical Langevin process for a one-dimensional case. 
+The target distribution is encoded via the drift, c.f.\ Eq.~(\ref{eq:K}). 
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[thbp!]
+    \centering
+    \includegraphics[width = 0.8\textwidth]{images/Langevindynamics.pdf}
+    \caption{Sketch of a Langevin simulation. Each line represents a different trajectory, evolving from an initial state at $\tau=0$ to one at a later time, $T$. The initial configurations are sampled from a prior but naive distribution, $\phi\sim P[\phi,\tau=0]$. After the simulation, the final configurations follow the equilibrated distribution, $\phi\sim P[\phi,\tau=T]\sim P_{\rm target}[\phi]$.}
+    \label{fig:simu}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+{This procedure provides an estimate of the quantum expectation value for the observables $\mathcal{O}[\phi]$. Since the simple discretization scheme above results in finite-stepsize errors linear in $\Delta\tau$, one has to repeat the analysis to extrapolate to vanishing stepsize. The Langevin simulation provides an alternative to Monte Carlo approaches and has been used in simulations of lattice QCD~\cite{Batrouni:1985jn}. A characteristic is that no accept/reject step is used, which makes the algorithm not exact (as demonstrated by e.g.,\ the finite-stepsize corrections). This can be remedied by introducing such an accept/reject step, which results in more sophisticated algorithms that outperform the basic Langevin algorithm and are hence favoured (such as Hybrid Monte Carlo). The absence of an accept/reject step is turned into a feature for theories with a complex-valued Boltzmann weight, for which importance sampling is not possible. The application of SQ to these theories is commonly referred to as complex Langevin dynamics~\cite{Parisi:1983mgm}, which is still an active area of research~\cite{Berges:2006xc,Aarts:2008rr,Aarts:2008wh,Seiler:2012wz,Sexty:2013ica,Aarts:2015tyj,Attanasio:2020spv,Berger:2019odf,Nagata:2021ugx,Aarts:2009uq,Aarts:2011ax,Nagata:2016vkn,Aarts:2017vrv,Scherzer:2018hid,WesthHansen:2022iqd,Alvestad:2021hsi,Alvestad:2022abf,Lampl:2023xpb},
+but not further explored here.}
+

@@ -1,0 +1,418 @@
+\section{基于 LaMET 的格点部分子物理}
+\label{sec:lattice}
+%------------------------------------------------------------------------------
+
+格点规范理论在离散化的 4D 欧氏格点上用虚时间模拟连续 QCD。该方法以有限格距 $a$、体积 $L_1\times L_2\times L_3\times T$ 以及强耦合、夸克质量等输入参数为特征。要计算物理量，通常期望取连续极限（$a\to0$）与无穷体积极限（$L_i, T\to\infty$），并把夸克质量调到使 $\pi$ 介子质量等可观测量与 $\sim 140$ MeV 的物理值一致。在格点上实现费米子的方法有多种~\cite{Rothe:1992nt}，导致格点作用量性质不同，例如 Wilson 费米子的手征对称破缺。在强子矩阵元的格点计算中，初末态由源与汇插值算符作用于真空产生，基态贡献通过在足够大的欧氏时间上传播而被滤出。通过在三维空间坐标上作 Fourier 变换向源与汇算符插入动量即可获得推进的强子态。
+
+使用 LaMET 的部分子物理格点 QCD 计算始于对最简单 PDF 与胶子螺旋度的探索性研究~\cite{Lin:2014zya,Alexandrou:2015rja,Yang:2016plb}，结果相当令人鼓舞，表明 LaMET 是一条可行途径。
+%
+后续研究更多关注系统误差，包括建立恰当的重正化与匹配流程、物理 $\pi$ 介子质量下模拟、消除激发态污染等。这些研究大大提高了计算精度，最新结果与唯象 PDF 相当吻合~\cite{Alexandrou:2018pbm,Lin:2018qky,Alexandrou:2018eet,Izubuchi:2019lyk,Gao:2020ito}。与此同时，人们也用坐标空间因子化方法（包括 pseudo-PDF~\cite{Orginos:2017kos,Joo:2019bzr,Joo:2019jct,Joo:2020spy} 与流—流关联~\cite{Bali:2019dqc,Sufian:2019bol,Sufian:2020vzb}）探索了类似的大动量数据。
+%
+不过，配备最先进资源的大规模专门努力尚未出现。基于 LaMET 的格点部分子物理才刚刚破晓。随着美国 EIC 项目的推进，格点计算的新时代即将到来。
+
+本节总结使用 LaMET 的格点计算现状并讨论未来展望。我们先一般性地讨论什么样的格点设置最适合 LaMET 计算，然后简要总结便于此类计算的格点技术；之后回顾迄今已开展的格点计算并指出未来的改进方向。文献~\cite{Cichy:2018mum}提供了很好的互补讨论；其他总结 PDF 格点计算近期进展的综述见~\cite{Monahan:2018euv,Zhao:2020vll,Constantinou:2020pek}。
+
+%------------------------------------------------------------------------------
+\subsection{格点计算的特别考量}
+\label{sec:lattice-lattice}
+%------------------------------------------------------------------------------
+
+本小节讨论 LaMET 中格点计算的挑战，并以共线 PDF 为例估算所需的格点条件。
+
+%------------------------------------------------------------------------------
+\subsubsection{大动量带来的挑战}
+\label{sec:lattice-lattice-challenges}
+%------------------------------------------------------------------------------
+
+除与其他格点计算共同的挑战（取连续与无穷体积极限、在物理 $\pi$ 介子质量下模拟或外推等）之外，LaMET 应用还要求在格点上产生大动量强子。对 LaMET 展开，$1/(xP^z)$ 是展开参数；而对坐标空间因子化，大的准光锥距离 $\lambda$ 需要更大的强子动量。然而实现这一点面临诸多实际困难。第一，直到动量涂抹（momentum smearing）技术被提出之前~\cite{Bali:2016lva}，在格点上生成大动量强子态一直很困难。坐标空间的传统涂抹方法旨在增大与静止基态强子的重叠，因此当强子具有大动量时它效率低下并不奇怪。动量涂抹技术在夸克场上引入额外的相位因子 $e^{i\vec{k}\cdot \vec{z}}$，使其在 Fourier 空间中峰位于非零动量 $\vec{k}$ 处，如~\fig{lattice-momentum-smearing} 所示。这样，经过欧氏时间演化后与大动量态的重叠大幅提高。最近动量涂抹已被纳入蒸馏（distillation）框架~\cite{Egerer:2020hnc}，改进了动量 $\lesssim$ 3 GeV 时基态能量与矩阵元的提取。
+%
+虽然还有别的产生大动量的方法被提出~\cite{Wu:2018tvt}，动量涂抹已成为 LaMET 应用的标准技术。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+	\includegraphics[width=0.9\linewidth]{images/lattice-momentum_smearing_fig15.pdf}
+	\caption{
+		传统涂抹（左）与动量涂抹（右）的对比~\cite{Bali:2016lva}：
+		%
+		传统涂抹与大动量态重叠很小。
+		%
+		动量涂抹把动量移到动量空间的非零值处形成峰值。
+	}
+	\label{fig:lattice-momentum-smearing}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+第二，质子尺寸依赖参考系并随其动量变化。
+%
+在质子静止系中，模拟其结构要求格距远小于 QCD 禁闭标度，即 $a\ll\Lambda_{\rm QCD}^{-1}$。
+%
+当质子快速运动时，它在动量方向经历 Lorentz 收缩，收缩因子为 $\gamma$，因此需要更细的格距 $a\ll(\gamma \Lambda_{\rm QCD})^{-1}$。
+%
+如果研究静止质子最低要求 $a\leq 0.2$ fm，那么要对 5 GeV 质子达到同样的分辨率至少需要 $a\leq 0.04$ fm。
+%
+更小的格距以当前计算资源难以实现，因为它受制于著名的临界慢化问题：接近连续极限时拓扑荷等可观测量的自关联时间增长~\cite{Schaefer:2010hu}，可能远长于蒙特卡罗模拟时间。
+%
+沿欧氏时间方向的规范场采用开放（Neumann）边界条件的格点~\cite{Luscher:2011kk}允许拓扑荷随时间流入流出边界，或许能克服这一问题。
+
+
+第三，由于时间膨胀效应，基态与激发态能量之差变小。
+%
+在质子静止系中，激发态污染按 $e^{-\Delta M \tau}$ 随质量差 $\Delta M$ 与演化时间 $\tau$ 指数衰减。
+%
+在推进系中，衰减因子里的质量差 $\Delta M$ 被能量差 $\Delta E \sim \Delta M/\gamma$ 取代，欧氏时间演化下的衰变由 $e^{-\Delta M \tau} \to e^{-\Delta E \tau}=e^{-\Delta M \tau / \gamma}$ 改变。
+%
+因此对推进态需要更长时间演化（源—汇间隔）。
+%
+例如，若分离动量为 2 GeV 的质子激发态需要 1 fm 的源—汇间隔，那么 5 GeV 的质子将需要 2.5 fm。
+%
+即便采用两态拟合技术，仍需更长的演化时间以保证只有基态和第一激发态主导。
+
+最后同样重要的是，格点计算要求 $P^z\ll 1/a$，以便 ${\cal O}((aP^z)^n)$ 的离散化效应受控。因此必须走向更小的格距才能到达更大动量。LaMET 计算中单独量化 ${\cal O}((aP^z)^n)$ 效应的工作还没有做过——目前所有离散化误差都在连续外推中同等对待。
+
+总之，要在格点上实现推进强子结构的精密计算，细的格距（至少纵向）与时间方向大的盒子尺寸必不可少，当然这还要求在大欧氏时间处控制好信噪比。
+
+%------------------------------------------------------------------------------
+\subsubsection{格点设置的考量}
+\label{sec:lattice-lattice-special}
+%------------------------------------------------------------------------------
+
+
+实际计算中先在坐标空间得到格点上的关联函数，再带相位因子 $e^{i\lambda x}$（$\lambda=zP^z$）Fourier 变换到动量空间。因此可达的最小 $x$ 可由最大 $\lambda$ 粗略估计为 $x\sim 1/\lambda$。
+%
+不过更严格的约束来自要求高扭度贡献 ${\cal O}(\Lambda_{\rm QCD}^2/(xP^z)^2)$ 足够小以保证因子化有效，这意味着 $x\gg \Lambda_{\rm QCD}/P^z$。
+%
+这也给出可达最大 $x$ 的粗略估计（$x\ll 1-\Lambda_{\rm QCD}/P^z$），因为其他部分子携带动量份额 $\sim (1-x)$ 也应受上述估计的下限约束。
+
+
+就当前最先进的模拟而言，格距可以达到 0.04 fm~\cite{Fan:2020nzz,Gao:2020ito}，意味着 $P^z_{\rm max}\sim 5$ GeV，纵向的有效分辨率约 $\gamma a\sim 0.2$ fm。
+%
+因此格点上可提取的有效 $x$ 区域大约是 0.1 到 0.9。
+%
+另一方面，为避免有限体积效应，一般认为需要 $m_\pi L\gtrsim 4$。
+%
+对物理 $\pi$ 介子质量，空间盒子尺寸 $L$ 至少应为 6 fm，即盒边为 150 个格距。迄今 LaMET 计算中最大的盒子为 5.8 fm~\cite{Lin:2018qky}。
+%
+如 Sec.~\ref{sec:lattice-lattice-challenges} 所讨论，$P^z=5$ GeV 需要 2.5 fm 的源—汇间隔。
+%
+所以时间方向的盒子 $T$ 不必比 $L$ 长很多，此设置下 $T=L$ 即可。
+%
+综上，在物理 $\pi$ 介子质量、$a=0.04$ fm 下，要可靠提取 $0.1<x<0.9$ 区域需要 $L^3\times T=150^3\times 150$ 的格点，这在百亿亿次（exa-scale）计算机上是可能的。
+
+有一些降低计算代价的潜在技巧。
+%
+其一，若统计足够并用多态拟合代替两态拟合，所需的源—汇间隔可以缩短。
+%
+但 $n$ 态拟合的拟合参数个数按 $n^2$ 增长，太大的 $n$ 将不可行。
+%
+其二，注意到横向质子结构所需分辨率不受 Lorentz 推进影响，可以在横向方向用较粗的格点 $a_\perp=0.1$ fm。
+%
+所需盒子即为 $L_\parallel\times L_\perp^2\times T=150\times 60^2\times 150$。
+%
+这种非对称格点可以大幅减少大动量所需的资源，因为横向盒尺寸固定。
+%
+不过在这样的格点上生成组态与重正化可能带来新问题，有待进一步研究。
+
+不久的将来，百亿亿次超级计算机有望帮助达到更高的动量（质子达 5 GeV），提升 LaMET 计算精度。要克服模拟困难，还需要理论上的进一步发展以及技术与算法的新思想。
+
+
+%------------------------------------------------------------------------------
+\subsection{非单态 PDF}
+\label{sec:lattice-pdf}
+%------------------------------------------------------------------------------
+
+本小节回顾质子与 $\pi$ 介子味非单态（同位旋矢量）PDF 格点计算的现状。
+%
+非单态情形的优势在于可以避免与胶子的混合以及不连通图的格点计算，从而大幅降低计算难度。它是迄今为止用 LaMET研究得最充分的部分子观测量。
+
+%------------------------------------------------------------------------------
+\subsubsection{质子}
+\label{sec:lattice-pdf-proton}
+%------------------------------------------------------------------------------
+
+质子同位旋矢量夸克 PDF 的开创性格点研究见~\cite{Lin:2014zya,Alexandrou:2015rja}。这些属于原理验证性研究，因为当时准 PDF 的重正化尚未被充分理解。尽管如此，它们的结果鼓舞了关于 LaMET 的后续理论工作，包括适合格点实现的恰当重正化与匹配。
+
+若干格点伪迹也被研究过。例如，虽然准 PDF 算符在格点上没有幂次发散混合，但如果使用 Wilson 型这类非手征格点费米子，仍会出现连续理论中没有的额外算符混合。
+%
+文献~\cite{Constantinou:2017sej,Chen:2017mie}表明在 ${\cal O}(a^0)$ 阶，非极化夸克准 PDF 算符 $O_{\gamma^z}(z)$ 可以与标量算符 $O_{\bf 1}(z)$ 混合，而 $O_{\gamma^t}(z)$ 不会。
+%
+为减小此类混合的系统不确定性，此后非极化夸克 PDF 的格点计算都选用 $\Gamma=\gamma^t$（如 ~\cite{Alexandrou:2017huk,Green:2017xeu,Chen:2017mzz}）。类似地，螺旋度与横性情形应分别选 $\Gamma=\gamma^5\gamma^z$ 与 $\Gamma=i\sigma^{z\perp}=\gamma^\perp\gamma^z$ 以避免混合。
+%
+应注意在 ${\cal O}(a)$ 阶所有 $\tilde{O}_\Gamma(z)$ 都可能与其他算符混合~\cite{Chen:2017mie}；不过细格距可以减轻这些效应。
+
+文献~\cite{Alexandrou:2017huk,Chen:2017mzz,Green:2017xeu}在 RI/MOM 方案~\cite{Martinelli:1994ty}中研究了准 PDF 的非微扰重正化（NPR）。
+%
+该方案有几个优点：通过 RI/MOM 重正化条件可以把格点正规化方案转换到 $\overline{\rm MS}$ 方案；计算代价可负担；系统误差更容易减低或量化等。
+%
+2018 年以前的工作不含 NPR，系统误差未准确量化。
+%
+后来的工作实现了 RI/MOM 方案及相应的微扰匹配~\cite{Constantinou:2017sej,Stewart:2017tvs,Liu:2018uuj}。
+%
+坐标空间方法也在~\cite{Orginos:2017kos,Cichy:2019ebf,Joo:2019jct,Joo:2020spy,Bhat:2020ktg}并行发展。
+%
+%
+Figs.~\ref{fig:lattice-proton_ETMC_2018} 与~\ref{fig:lattice-proton_LP3_2018} 选录了最新的格点结果。
+%
+ETMC 在物理 $\pi$ 介子质量下发表了 $P^z=1.4$ GeV 的质子非极化、螺旋度与横性 PDF~\cite{Alexandrou:2018pbm,Alexandrou:2018eet}；${\rm LP}^3$ 在物理 $\pi$ 介子质量下以前所未有的动量 $P^z=3.0$ GeV 发表了质子螺旋度 PDF~\cite{Lin:2018qky}。最近，细格点上的计算~\cite{Fan:2020nzz,Alexandrou:2020qtt}与到连续极限的外推~\cite{Alexandrou:2020qtt}也已出现。有限体积效应最早在模型中研究~\cite{Briceno:2018lfj}，近期也在格点上考察过~\cite{Lin:2019ocg}：在 $P^z=1.3$ 和 $2.6$ GeV 未观察到明显的体积依赖。
+
+从 LaMET 提取的 PDF 通过提供难以实验测量的运动学区域的输入而有益于唯象学。
+%
+这已引起全局拟合界的注意~\cite{Lin:2017snn,Hobbs:2019gob,Lin:2020rut,Bringewatt:2020ixn}。
+%
+例如有发现表明：在非极化 PDF 的大 $x$ 区域，只要格点结果达到约 $10\%$ 的精度，就能显著改进全局拟合结果~\cite{Lin:2017snn}。
+%
+海夸克不对称~\cite{Geesaman:2018ixo}如今也有望直接在格点上研究。
+%
+对横性 PDF，因实验测量困难，格点结果已能对改进全局拟合乃至作出预言产生影响。除同位旋矢量情形外，奇、粲非极化分布的计算~\cite{Zhang:2020dkn}以及螺旋度 PDF 中轻夸克的味分离~\cite{Alexandrou:2020uyt}近来也有开展。
+%
+从早期展示 PDF 定性行为的探索性结果，到可与全局拟合一较高下的最新结果，这一路走来发展了新技术（动量涂抹、重正化、匹配等），计算资源也稳步增长。
+%
+ETMC 已深入考察了 PDF 格点计算中的系统不确定性~\cite{Alexandrou:2019lfo}。
+%
+对不同格点系综的离散化效应与有限体积效应等系统误差的进一步研究仍然必要。
+%
+未来格点 QCD 有望对核子结构产生重大影响。
+
+
+作为本小节的结束，还要提到：利用 LaMET 对其他重子（具体说是 $\Delta^+$）同位旋矢量 PDF 也有格点研究~\cite{Chai:2020nxw}。
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+	\includegraphics[width=0.45\textwidth]{images/lattice-proton_unpol_ETMC_2018_fig16a.pdf}
+	\includegraphics[width=0.45\textwidth]{images/lattice-proton_transversity_ETMC_2018_fig16b.pdf}
+	\caption{
+		质子同位旋矢量夸克 PDF~\cite{Alexandrou:2018pbm,Alexandrou:2018eet}：
+		%
+		上图为 $P^z$ 从 0.82 到 1.4 GeV 的非极化 PDF，下图为 $P^z=1.4$ GeV 的横性 PDF。
+		%
+		CJ15~\cite{Accardi:2016qay}、ABMP16~\cite{Alekhin:2017kpj}、NNPDF3.1~\cite{Ball:2017nwa} 为全局拟合结果。
+		%
+		SIDIS 是全局拟合；SIDIS$+g_T^{lattice}$ 是带张量电荷 $g_T^{lattice}$ 格点约束的全局拟合~\cite{Lin:2017stx}。
+	}
+	\label{fig:lattice-proton_ETMC_2018}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+	\includegraphics[width=0.45\textwidth]{images/lattice-proton_helicity_LP3_2018_fig17.pdf}
+	\caption{
+		质子同位旋矢量夸克螺旋度 PDF（$P^z=3.0$ GeV）~\cite{Lin:2018qky}，红色带为统计误差，灰色带为统计加系统误差。
+		%
+		NNPDF1.1pol~\cite{Nocera:2014gqa} 与 JAM17~\cite{Ethier:2017zbq} 为全局拟合结果。
+	}
+	\label{fig:lattice-proton_LP3_2018}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%------------------------------------------------------------------------------
+\subsubsection{$\pi$ 介子}
+\label{sec:lattice-pdf-pion}
+%------------------------------------------------------------------------------
+
+$\pi$ 介子价夸克分布已从各种 $\pi$-核子/$\pi$-原子核散射的 Drell-Yan 数据提取，但理论预言与实验提取并不一致，尤其在大 $x$ 区~\cite{Holt:2010vj}。
+%
+只要全部系统误差控制得当，LaMET 计算将为化解这一分歧带来宝贵启示。
+
+原则上计算 $\pi$ 介子价 PDF 比质子 PDF 容易。第一，$\pi$ 介子态更容易产生且夸克收缩数较少。第二，$\pi$ 介子第一激发态与基态的能量差远大于质子。
+%
+因此激发态污染更容易控制。
+%
+模拟首先在~\cite{Chen:2018fwa}进行，采用了与质子 PDF 探索性研究相同的格点设置与流程。
+%
+BNL 的格点 QCD 小组对 $\pi$ 介子价夸克 PDF 做了更彻底的研究~\cite{Izubuchi:2019lyk}。
+%
+值得指出的是，他们用多态拟合深入研究了激发态污染：基态与第一激发态都符合预期的色散关系，说明激发态污染已得到良好控制。
+%
+来自准 PDF、pseudo-PDF 与流—流关联途径的格点结果的比较示于 Fig.~\ref{fig:lattice-pion_valence_pseudo_2019}。
+%
+注意 $\rm LP^3$~\cite{Chen:2018fwa} 的结果是经 Fourier 变换并对因子化公式反演得到的，而其余三组用了参数化模型拟合格点数据。要减小误差还需更专注的努力；在不同算符与分析方法之间进行有意义的比较也是必要的。
+
+
+对其他介子，值得一提的是用 MILC 组态对 K 介子价夸克 PDF 的研究~\cite{Lin:2020ssv}。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+	\includegraphics[width=0.45\textwidth]{images/lattice-pion_valence_pseudo_2019_fig18.pdf}
+	\caption{各种方法得到的 $\pi$ 介子价夸克 PDF：
+		比较 pseudo-PDF [约化 pseudo-ITD~\cite{Joo:2019bzr}]、准 PDF [quasi-PDF-1~\cite{Izubuchi:2019lyk} 与 quasi-PDF-2~\cite{Chen:2018fwa}] 以及流—流关联途径 [LCSs~\cite{Sufian:2019bol}] 的结果。
+	}
+	\label{fig:lattice-pion_valence_pseudo_2019}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%------------------------------------------------------------------------------
+\subsection{胶子螺旋度及其他共线部分子性质}
+\label{sec:lattice-other_distributions}
+%------------------------------------------------------------------------------
+
+本小节总结 LaMET 在其他共线部分子观测量上的应用，包括胶子螺旋度、胶子 PDF、介子 DA 与 GPD。
+
+\subsubsection{总胶子螺旋度}
+\label{sec:lattice-gluon-helicity}
+
+总胶子螺旋度 $\Delta G$ 是理解质子自旋结构的关键成分。它在 RHIC 上已被深入探索，未来将在 EIC 上被专门研究。然而在 LaMET 提出之前，$\Delta G$ 的理论格点计算是不可能的。
+
+
+首个此类努力由 $\chi$QCD 合作组完成~\cite{Yang:2016plb}：在 $2+1$ 味畴壁费米子规范组态上用价 overlap 费米子计算，所用系综包含多种格距与体积（含一个物理 $\pi$ 介子质量的）。
+%
+作者在库仑规范下于多个动量模拟了自由场算符 $(\vec E\times \vec A)^3$ 的质子矩阵元，再用一圈格点微扰论转换到 $\overline{\rm MS}$ 方案。各格点动量处的 $\overline{\rm MS}$ 矩阵元示于~\fig{lattice-gluon_helicity_2016}。虽然要把结果匹配到物理胶子螺旋度需要 LaMET 匹配，但由于担心匹配系数的微扰收敛性~\cite{Ji:2014lra}，作者没有应用它。鉴于 $\overline{\rm MS}$ 矩阵元直至最大动量 $\sim$1.5 GeV 都表现出相当平缓的动量依赖，他们在手征 EFT 激发的模型下把结果外推到无穷大动量以及物理 $\pi$ 介子质量与连续极限。最终结果为 $\Delta G(\mu^2 = 10\ \text{GeV}^2) = 0.251(47)(16)$，即占总质子自旋的 50(9)(3)\%，与 $\Delta g(x)$ 的截断矩~\cite{deFlorian:2014yva,Nocera:2014gqa}在误差内一致。
+
+
+尽管有这些进展，仍须谨慎：该计算在未来还需进一步改进。其中最重要的包括更大质子动量下的模拟、执行 NPR、以及研究 LaMET 匹配的微扰收敛性及其实现。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+	\includegraphics[width=0.45\textwidth]{images/lattice-gluon_helicity_2016_fig19.pdf}
+	\caption{总胶子螺旋度~\cite{Yang:2016plb}：
+		结果作为质子动量 $p_3$ 的函数，已在图中不同颜色数据点所标的全部五个系综上外推到物理 $\pi$ 介子质量与连续极限。
+		%
+	}
+	\label{fig:lattice-gluon_helicity_2016}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%------------------------------------------------------------------------------
+\subsubsection{胶子 PDF}
+\label{sec:lattice-Gluon}
+%------------------------------------------------------------------------------
+
+
+胶子 PDF 不仅对 LHC 的精密物理意义重大，也对理解质子与原子核的胶子结构——以及在未来的 EIC 上理解小 $x$ 动力学——十分重要。
+%
+随着胶子准 PDF 重正化与匹配的近期进展~\cite{Wang:2017eel,Wang:2017qyg,Zhang:2018diq,Li:2018tpe,Wang:2019tgg}或坐标空间``赝分布''~\cite{Balitsky:2019krf}的发展，原则上可以开展胶子 PDF 的系统性格点计算。
+
+在这些理论进展之前，文献~\cite{Fan:2018dxu}对质子与 $\pi$ 介子非极化胶子 PDF 作了探索性格点研究。作者计算了准胶子 LF 关联并与胶子 PDF 的 LF 关联比较。随后，基于某类准胶子 LF 关联选择的乘法可重正性~\cite{Zhang:2018diq}，同一批作者用坐标空间的比值方案~\cite{Balitsky:2019krf}重正化格点矩阵元，并用简单的双参数模型拟合了质子非极化胶子 PDF~\cite{Fan:2020cpa}。虽然结果在大 $x$ 区域与全局分析一致，但要实现胶子 PDF 的受控计算，拟合的模型依赖带来的系统误差仍有待量化。
+
+%------------------------------------------------------------------------------
+\subsubsection{DA}
+\label{sec:lattice-DA}
+%------------------------------------------------------------------------------
+
+根据 \sec{others-da}，LaMET 可以直接用于计算 DA，而且预期所需格点资源比 PDF 更便宜，因为少了一个外部态，减少了夸克传播子的收缩数目。
+%
+迄今已有若干针对介子 DA（特别是 $\pi$ 介子 DA~\cite{Zhang:2017bzy}与 K 介子 DA~\cite{Chen:2017gck}）的探索性研究。
+%
+$\pi$ 介子~\cite{Zhang:2017bzy}与 K 介子 DA~\cite{Chen:2017gck}的格点计算最初未含 NPR 与相应匹配。最近，RI/MOM 方案分析得到的 $\pi$ 介子与 K 介子 DA 已外推到连续极限~\cite{Zhang:2020gaj}，作者最终用双参数模型拟合最终结果。
+%
+上述结果示于~\fig{lattice-pion_DA_LP3_2017}。
+%
+除 LaMET 外，流—流关联方法~\cite{Braun:2007wv,Braun:2015axa,Detmold:2005gg}在 $\pi$ 介子 DA 上也取得很大进展~\cite{Bali:2019dqc,Detmold:2018kwu,Detmold:2020lev}。
+%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+	\includegraphics[width=0.45\textwidth]{images/lattice-pion_DA_LP3_2017_fig20.pdf}
+	\caption{$\pi$ 介子 DA~\cite{Chen:2017gck}：
+		$\phi_\pi$（Lat LaMET）与文献中以往测定结果的比较。
+		%
+		Lat Mom 1 和 2 是对格点矩的参数化拟合~\cite{Braun:2015axa}；
+		DSE 是 Dyson-Schwinger 方程计算~\cite{Chang:2013pq}；
+		Asymp 是渐近形式 $6x(1-x)$；
+		Belle 是对 Belle 数据的拟合~\cite{Agaev:2012tm}；
+		LFCQM 是光前组分夸克模型~\cite{deMelo:2015yxk}。
+	}
+	\label{fig:lattice-pion_DA_LP3_2017}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%------------------------------------------------------------------------------
+\subsubsection{GPD}
+\label{sec:lattice-GPD}
+%------------------------------------------------------------------------------
+
+如 \sec{gpo} 所讨论，尽管已有进展，GPD 的全局拟合仍面临其复杂运动学依赖以及实验观测量信息有限的挑战~\cite{Kumericki:2016ehc,Favart:2015umi}。
+%
+另一方面，以往的格点 QCD 方法只能计算 GPD 最低的几个矩~\cite{Hagler:2009ni}，远不足以重建其完整运动学依赖。
+把 LaMET 用于 GPD 计算将提供重要的 GPD 信息，尤其是现有实验无法企及的运动学区域。
+%
+此外，在格点上可以通过固定其他运动学变量来研究 GPD 对单一变量的依赖。这些都有助于甄别 GPD 参数化中常用的模型。
+
+
+
+计算准 GPD 比准 PDF 需要更多资源，但原则上不需要额外技术。
+%
+况且，如 \sec{gpo} 所论证，准 PDF 的格点重正化因子可以直接沿用于此。
+%
+$\pi$ 介子非极化同位旋矢量夸克 GPD 的首个格点计算见~\cite{Chen:2019lcm}，不过其结果尚不足以区分模型或与实验比较。
+最近 ETMC 完成了质子非极化与螺旋度 GPD 的首次原理验证计算~\cite{Alexandrou:2020zbe}，如 \fig{gpd} 所示，证明在现有计算资源上以受控系统误差提取 GPD 是可行的。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+	\includegraphics[width=0.45\textwidth]{images/lattice_gpd_fig21.pdf}
+	\caption{从 $P_3=1.25$ GeV 的准 GPD 提取的质子非极化同位旋矢量夸克 GPD~\cite{Alexandrou:2020zbe} $H(x,\xi,t)$（$t=-0.69\ {\rm GeV^2}$），与非极化 PDF $f_1(x)$ 比较。
+	}
+	\label{fig:gpd}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+
+\subsubsection{高扭度 PDF}
+
+高扭度 PDF 探测多部分子关联，其在 $x=0$ 处的贡献可为 LF 零模带来启示~\cite{Ji:2020baz}。如 \sec{gpo} 所讨论，此类分布也可以用 LaMET 在格点上计算。
+
+ETMC 用其~\cite{Bhattacharya:2020xlt,Bhattacharya:2020jfj}中计算的一圈匹配系数完成了计算同位旋矢量三阶扭度 PDF $g_T(x)$ 的首次尝试~\cite{Bhattacharya:2020cen}。结果表明与忽略动力学扭度三贡献的 Wandzura-Wilczeck 近似~\cite{Wandzura:1977qf}以及 Burkhardt-Cottingham 求和规则~\cite{Burkhardt:1970ti}一致。不过该计算未考虑 $g_T(x)$ 与其他三阶扭度分布之间的混合；要与光锥 PDF 准确匹配仍需进一步研究。
+
+%------------------------------------------------------------------------------
+\subsection{TMD}
+\label{sec:lattice-TMD}
+%------------------------------------------------------------------------------
+
+EIC 上对 TMDPDF 的实验关注极大——既为研究三维质子结构也为研究胶子饱和——因此从格点 QCD 第一性原理计算 TMDPDF 将通过为所有唯象分析提供有用的非微扰输入而显著推动这一方向。
+
+本小节讨论用 LaMET 计算准 TMDPDF 与软函数的现状与前景。另外要指出，LaMET 之前已有通过研究格点关联函数比值提取 TMD 信息的努力~\cite{Hagler:2009mb,Musch:2010ka,Musch:2011er,Engelhardt:2015xja,Yoon:2017qzo}，过去十年取得了一系列进展。我们由此简要回顾开始。
+
+%------------------------------------------------------------------------------
+\subsubsection{LaMET 之前的研究——格点关联函数之比}
+%------------------------------------------------------------------------------
+
+借助 Lorentz 协变性，TMDPDF 各 $x$ 矩与类空钉书形规范链算符的形状因子相联系，后者可直接在格点上模拟。虽然当时软函数的格点计算尚不可得，人们构造自旋依赖矩阵元与非极化矩阵元之比以消去软函数，从而获得不同 TMDPDF 的有用信息。
+例如可以用横向极化质子态中的钉书形规范链算符研究时间反演奇的 TMDPDF，从而帮助理解单自旋不对称（SSA）的相关性质——SSA 已在 STAR~\cite{Adamczyk:2015gyk}
+与 COMPASS~\cite{Aghasyan:2017jop}上被测量。
+%
+文献~\cite{Musch:2011er,Engelhardt:2015xja}研究了质子与 $\pi$ 介子的 Sivers 与 Boer-Mulders 函数；其他时间反演偶函数如 worm-gear 函数 $g_{1T}$~\cite{Tangerman:1994eh}也已被研究~\cite{Yoon:2017qzo}。
+
+%------------------------------------------------------------------------------
+\subsubsection{准 TMDPDF 与 Collins-Soper 核}
+%------------------------------------------------------------------------------
+
+\eq{quasi_TMD} 定义的准 TMDPDF 的格点计算是直截了当的：钉书形夸克 Wilson 线算符的矩阵元可以像准 PDF 情形那样模拟（只是规范链几何不同），Wilson 圈 $Z_E$ 的计算则是格点 QCD 的标准操作。更具挑战性的部分是准 TMDPDF 的重正化及其到 $\overline{\rm MS}$ 方案的匹配。
+
+借助辅助场论形式可以论证钉书形夸克 Wilson 线算符也是乘法可重正的~\cite{Ebert:2019tvc,Green:2020xco}。在非手征格点上它会与其他夸克双线性算符发生有限混合，一圈格点微扰论对此已有预言~\cite{Constantinou:2019vyb}。文献~\cite{Shanahan:2019zcq}在三个不同格距的 quenched 系综的 RI/MOM 方案中研究了此类带不同 Dirac 矩阵算符的完整混合模式，并通过混合矩阵的对角化来重正化这些算符。与此同时，把 RI/MOM 矩阵元转换到 $\overline{\rm MS}$ 方案的一圈转换因子已在连续微扰论中对 $z=0$~\cite{Constantinou:2019vyb} 与 $z\neq0$~\cite{Ebert:2019tvc} 两种情形算出。
+
+虽然要完全确定物理 TMDPDF 还需要软函数，但 $\MS$ 准 TMDPDF 已经可以根据 \eq{TMD-CS_kernel} 用于提取 Collins-Soper 核~\cite{Ji:2014hxa,Ebert:2018gzl,Ebert:2019okf}。既然 Collins-Soper 核既可以从裸 TMDPDF 也可以从软函数定义，它与外部态无关，可以在开销最小的 $\pi$ 介子上计算。精确到 \eq{quasiTMDmatch} 中被动量压低的质量修正，只要海夸克质量取物理值，该计算也允许使用非物理的价 $\pi$ 介子质量。
+
+用~\cite{Ebert:2018gzl}发展的方法，文献~\cite{Shanahan:2020zxr}在价 $\pi$ 介子质量很重（$m_\pi\sim 1.2$ GeV）的 quenched 格点上进行了 Collins-Soper 核的首个探索性格点计算，结果示于~\fig{lattice-cs}。可见格点预言在 $0.1\ {\rm fm} < b_\perp < 0.8\ {\rm fm}$ 内稳健，覆盖了对全局分析中 TMD 演化重要的非微扰区。另外在小 $b_\perp$ 处，微扰计算可以作为估计系统不确定性的校准，那里存在 ${\cal O}(1/(P^z b_\perp))$ 的幂次修正，只能靠更大的 $P^z$ 来减小。文献~\cite{Zhang:2020dbb}还从 $\pi$ 介子准 TMD DA 提取了 Collins-Soper 核（未做格点重正化），其结果在宽 $b_\perp$ 范围内与~\cite{Shanahan:2020zxr}在误差内一致。
+随着未来更好的格点系综与系统修正，为 TMD 唯象学精确确定 Collins-Soper 核前景可期。
+
+\begin{figure}[htb]
+	\includegraphics[width=0.48\textwidth]{images/lattice-cs_fig22.pdf}
+	\caption{quenched 格点上首个探索性计算得到的 Collins-Soper 核~\cite{Shanahan:2020zxr}。结果由分别用 Hermite 与 Bernstein 多项式基底拟合 $\MS$ 未减除准 TMDPDF 获得。实线与虚线是微扰预言~\cite{Li:2016ctv,Vladimirov:2017ksc}，在 $b_\perp\sim 0.25$ fm 附近触及 Landau 极点。背景阴影密度正比于幂次修正 $1/(b_\perp P^z) + b_\perp /L$ 的朴素估计。
+	}
+	\label{fig:lattice-cs}
+\end{figure}
+
+%------------------------------------------------------------------------------
+\subsubsection{软函数}
+\label{sec:lattice-SF}
+%------------------------------------------------------------------------------
+
+作为通往物理 TMDPDF 的剩余拼图，软函数必须在格点 QCD 中计算。特别地，\eq{reduced} 中的约化软函数消除了离光锥准 TMDPDF 的调节子方案依赖，仅其计算本身就有重大物理意义。按照 \secs{offlight}{others}，已有两种在格点上计算离光锥软函数或约化软函数的方法被提出~\cite{Ji:2019sxk}，如下讨论。一种依赖在格点上模拟 HQET，另一种要求计算横向分开流乘积的轻介子形状因子。
+
+后一方法已在约化软函数的首个探索性格点计算~\cite{Zhang:2020dbb}中实现，包括两个相反大动量外部态的 $\pi$ 介子形状因子模拟以及 $\pi$ 介子准 TMD DA。
+用树图级匹配并忽略格点重正化得到的约化软函数结果示于 \fig{lattice_soft}。可见如预期的那样，它们在小 $b_\perp$ 处与微扰预言在误差内一致，并在 $b_\perp$ 变大时开始偏离。既然准 TMD DA 依赖动量 $P^z$，不同 $P^z$ 下结果的稳定性印证了 \eq{form_qfac} 的有效性。将来要有该量的精密计算，还需更大的统计量以及格点与微扰匹配两方面改进的系统处理。
+
+\begin{figure}[htb]
+	\includegraphics[width=0.48\textwidth]{images/lattice_soft_fig23.pdf}
+	\caption{由 \sec{tmd} 的轻介子形状因子提取的约化软因子随 $b_\perp$ 的变化~\cite{Zhang:2020dbb}。结果用不同 $\pi$ 介子动量 $P^z$ 的准 TMD DA 得到，忽略微扰匹配与幂次修正。虚线是一圈微扰预言，在 $b_\perp\sim 0.3$ fm 触及 Landau 极点；灰色带是把 $\mu$ 变动 $1/\sqrt{2}$ 与 $\sqrt{2}$ 倍的误差。
+	}
+	\label{fig:lattice_soft}
+\end{figure}
+
+
+
+%------------------------------------------------------------------------------

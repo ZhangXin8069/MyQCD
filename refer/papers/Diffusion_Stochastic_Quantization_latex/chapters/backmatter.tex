@@ -1,0 +1,649 @@
+\section*{Acknowledgments}
+
+We thank Profs.\ Tetsuo Hatsuda, Shuzhe Shi and Xu-Guang Huang for helpful discussions. 
+We thank ECT* and the ExtreMe Matter Institute EMMI at GSI, Darmstadt, for support during the ECT*/EMMI workshop {\em Machine learning for lattice field theory and beyond} in June 2023 during the preparation of this paper.
+The work is supported by (i) the CUHK-Shenzhen university development fund under grant No. UDF01003041 and the BMBF funded KISS consortium (05D23RI1) in the ErUM-Data action plan (K.Z.), (ii) the AI grant of SAMSON AG, Frankfurt (K.Z.\ and L.W.), (iii) Xidian-FIAS International Joint Research Center (L.W), (iv) STFC Consolidated Grant ST/T000813/1 (G.A.). K.Z.\ also thanks the donation of NVIDIA GPUs from NVIDIA Corporation. L.W. \ also thanks the Natural Science Foundation of China  (Grant No.12147101) for supporting the computation resources when visiting in Fudan University.
+
+\paragraph{Note added.} Recent related work introduces the stochastic process into the hybrid Monte-Carlo algorithm~\cite{Robnik:2023pgt} and explores the correspondence between the exact renormalizing group (ERG) and DMs based upon the heat equation~\cite{Cotler:2023lem}.
+
+\appendix
+
+
+\section{U-Net Architecture}\label{app:unet}
+
+U-Net architectures are utilized to present $s_\mathbf{\theta}(\phi,t)$ with a time-embedding input. This architecture is widely used in tasks that require semantic segmentation due to its ability to capture both local and global information in an image. The model is initialized with a function that calculates the standard deviation of the perturbation kernel, a list of channels for feature maps at each resolution, and an embedding dimension for Gaussian random feature embeddings. The model consists of an \textbf{encoding path} (contracting path) and a \textbf{decoding path} (expansive path), which are characteristic of the U-Net architecture, as Fig.~\ref{fig:unet} shows. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[!htbp]
+\begin{center}
+\includegraphics[width=0.9\textwidth]{images/U-Net.pdf}
+\caption{Sketch of the U-Net Architecture, where the gray lines with arrows indicate skip connections between encoding paths and decoding paths. In this study, the default shape of the input is set as $(\cdot,1,32,32)$, where the first dimension is the batch size, the second indicates the channel, and the final two represent dimensionalities of the field configuration.}\label{fig:unet}
+\end{center}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The \textbf{encoding path} consists of four convolutional layers (conv1 to conv4), each followed by a dense layer (dense1 to dense4), and a group normalization layer (gnorm1 to gnorm4). The convolutional layers progressively increase the number of channels from 1 to 32, 64, 128, 256. The dense layers incorporate information from the time embedding into the feature maps, and the group normalization layers normalize the feature maps across the channels.
+
+The \textbf{decoding path} consists of four transposed convolutional layers (tconv4 to tconv1), each followed by a dense layer (dense5 to dense7), and a group normalization layer (tgnorm4 to tgnorm2). The transposed convolutional layers progressively decrease the number of channels back to 1. The dense layers incorporate information from the time embedding into the feature maps, and the group normalization layers normalize the feature maps across the channels. The decoding path also includes skip connections from the encoding path, which help the model to better localize and learn representations with less loss of spatial information.
+
+The model uses the Swish activation function, which is a smooth, non-monotonic function that has been found to work better than ReLU in deeper models. In the forward pass, the model first obtains the Gaussian random feature embedding for the input time $t$. It then passes the input $\phi$ through the encoding path, where it applies the convolutional, dense, group normalization, and activation layers sequentially. It then passes the output of the encoding path through the decoding path, where it applies the transposed convolutional, dense, group normalization, and activation layers sequentially, while also adding the skip connections from the encoding path. Finally, it normalizes the output by the standard deviation of the perturbation kernel at time $t$ and returns it.
+
+
+\section{Skilling-Hutchinson Estimator}\label{app:she}
+
+The divergence function in Eq.~\eqref{eq:jacobian} can be hard to evaluate in practice for general vector-valued functions $f$, but we can use an unbiased estimator, named Skilling-Hutchinson estimator~\cite{grathwohl2018scalable}, to approximate the trace. Let $\boldsymbol \epsilon \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$. The Skilling-Hutchinson estimator is based on the fact that
+\begin{equation}
+\mathbf{\nabla}\cdot f(\phi) = \mathbb{E}_{\boldsymbol\epsilon \sim \mathcal{N}(\mathbf{0}, \mathbf{I})}\left[\boldsymbol\epsilon^\intercal  J_f(\phi) \boldsymbol\epsilon\right].
+\end{equation}
+Therefore, we can simply sample a random vector $\boldsymbol \epsilon \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$, and then use $\boldsymbol \epsilon^\intercal J_f(\phi) \boldsymbol \epsilon$ to estimate the divergence of $f(\phi)$. This estimator only requires computing the Jacobian-vector product $J_f(\phi)\boldsymbol \epsilon$, which is typically efficient.
+
+As a result, for our probability flow ODE, we can compute the (log) data likelihood with the following,
+\begin{equation}
+\log p_0(\phi(0)) = \log p_T(\phi(T)) -\int_0^T \frac{d[\sigma^2(t)]}{dt} \mathbf{\nabla}\cdot s_\theta(\phi(t), t) dt.
+\end{equation}
+With the Skilling-Hutchinson estimator, we can compute the divergence via
+\begin{equation}
+\mathbf{\nabla}\cdot s_\theta(\phi(t), t) = \mathbb{E}_{\boldsymbol\epsilon \sim \mathcal{N}(\mathbf{0}, \mathbf{I})}\left[\boldsymbol\epsilon^\intercal  J_{s_\theta}(\phi(t), t) \boldsymbol\epsilon\right].
+\end{equation}
+Subsequently, we can compute the integral using numerical integrators. This provides us with an unbiased estimate of the true likelihood of the data, and we can make this estimate increasingly accurate by running the calculation multiple times and taking the average. The numerical integrator requires $\phi(t)$ as a function of $t$, which can be obtained by the probability flow ODE sampler. In our calculations, we tested different sampling sizes ranging from 1 to 100 and found that it converges when the size is larger than 10. Therefore, we chose the sample size $\boldsymbol\epsilon$ as 10 to ensure the accuracy of the estimation.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[t]
+    \centering
+    \includegraphics[width = 0.8 \textwidth]{images/OBS_train_comp.pdf}
+    \caption{Dependence of four observables and their uncertainties on the size of the training dataset within the symmetric phase ($\kappa = 0.21, \lambda=0.022$), using a fixed number of 1024 generated configurations.}
+    \label{fig:training}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[t]
+    \centering
+    \includegraphics[width = 0.8 \textwidth]{images/OBS_gen_comp.pdf}
+    \caption{Dependence of observables on the number of generated samples obtained from a DM trained on a dataset of 5120 configurations within the symmetric phase ($\kappa = 0.21, \lambda=0.022$). The DM results are compared with predictions from the training set and with those from a larger unused dataset with 51200 configurations. }
+    \label{fig:generated}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{
+
+
+\section{Statistics Examination}\label{app:sta}
+
+In Figure~\ref{fig:training} (with the same physical parameter setup as in Sec.~\ref{sec:sym_phase}), we demonstrate the dependence of four key physical observables including their uncertainties on the size of the training datasets, while the size of the generated dataset remains constant (1024 configurations). The illustration uses gray markers to denote values derived from various training datasets, while colored markers represent values obtained from the generated datasets. The analysis reveals a trend towards convergence in the estimations of observables as the size of the training dataset increases, even with a relatively small generated dataset size. 
+
+In Figure~\ref{fig:generated}, we present the dependence of the observables on the number of generated samples obtained from a DM trained on a dataset of 5120 configurations. The observables' values calculated on the training dataset are traced with black lines, contrasting with gray lines that represent calculations over a larger, unused dataset (51200 configurations). The results show that observables from the generated datasets tend to align with those from the larger dataset as their size increases. 
+
+Although there is a noticeable deviation in the $\langle M \rangle$ estimations towards the training dataset values, it can be conceivably improved by introducing the $\mathrm{Z}_2$ symmetry into the training data-sets explicitly, e.g., data augmentation with flipping all configurations.
+
+
+\section{Acceptance Rate}\label{app:acc}
+
+We investigate the dependence of the acceptance rate on the value of the hopping parameter, the system size and the number of training epochs. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width = 0.5 \textwidth]{images/acc_L32_Train250.pdf}
+    \caption{Dependence of the acceptance rate on the hopping parameter $\kappa$ on a $32\times 32$ lattice. 
+    }
+    \label{app_fig:acc_k}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We have calculated the dependence of the acceptance rate on the hopping parameter, specifically at \(\kappa = 0.1, 0.21, 0.27, 0.4\), using an identical setup as in the main part of the paper, i.e.\ with 250 training epochs, \(T=100\) MC time-steps and 1024 configurations. In Figure~\ref{app_fig:acc_k}, we observe that the acceptance rate lies between 0.4 and 0.6. This observation indicates that the efficacy of the DM-MC method remains robust against the variations in interaction couplings, demonstrating its utility as an efficient sampling technique across a broad range of parameter values.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width = 0.5 \textwidth]{images/acc_k0.27_Train250.pdf}
+    \caption{Dependence of the acceptance rate on the linear lattice size at a fixed hopping parameter \(\kappa = 0.27\).}
+    \label{app_fig:acc_L}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Next we vary the linear size of the lattice, \(L = 16, 24, 32, 48, 64\), at fixed  \(\kappa = 0.27\), using an otherwise identical setup as above. In Figure~\ref{app_fig:acc_k}, we observe that the acceptance rate converges to around 0.6 for larger sizes, suggesting that the efficacy of the DM-MC will not be affected by the system size.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[hbtp!]
+    \centering
+    \includegraphics[width = 0.5 \textwidth]{images/acc_L32_k0.27_Epochs.pdf}
+    \caption{Dependence of the acceptance rate on the number of epochs used for training, at $\kappa = 0.27, L = 32, \lambda = 0.022$.}
+    \label{app_fig:acc_epochs}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The dependence of the acceptance rate of DM-MC on the number of training epochs is shown in Figure~\ref{app_fig:acc_epochs} for parameter values closer to the critical point. It shows that the acceptance rate increases rapidly within the first 200 epochs and converges slowly over the remaining 1800 epochs. Although our choice of 250 epochs used in the main part of the paper yields an acceptance rate slightly below the asymptotic value, it is indeed an acceptable balance between training cost and performance. 
+
+Concerning the dependence of the training cost on the various parameters, we have found that 
+\begin{itemize}
+\item for different $\kappa$ values on a $32\times 32$ lattice the training cost is almost constant (at around 6.54 seconds per epoch on our infrastructure);
+\item increasing the volume results in a longer training time; for linear size \(L =\) 16, 24, 32, 48, 64, the training cost is \(5.80, 6.19, 6.54, 6.97, 8.63\) seconds per epoch on our infrastructure. A rough fit then yields a training time of $L^{0.43} + 2.31$ seconds per epoch.
+\end{itemize}
+}
+
+\providecommand{\href}[2]{#2}\begingroup\raggedright\begin{thebibliography}{10}
+
+\bibitem{Knechtli:2017sna}
+F.~Knechtli, M.~G\"unther and M.~Peardon, \emph{{Lattice Quantum
+  Chromodynamics: Practical Essentials}}, SpringerBriefs in Physics, Springer
+  (2017),
+  \href{https://doi.org/10.1007/978-94-024-0999-4}{10.1007/978-94-024-0999-4}.
+
+\bibitem{Wolff:1989wq}
+U.~Wolff, \emph{{CRITICAL SLOWING DOWN}},
+  \href{https://doi.org/10.1016/0920-5632(90)90224-I}{\emph{Nucl. Phys. B Proc.
+  Suppl.} {\bfseries 17} (1990) 93}.
+
+\bibitem{tomczak:2022deep}
+J.M.~Tomczak, \emph{Deep Generative Modeling}, {Springer International
+  Publishing}, {Cham} (2022),
+  \href{https://doi.org/10.1007/978-3-030-93158-2}{10.1007/978-3-030-93158-2}.
+
+\bibitem{Boyda:2022nmh}
+D.~Boyda et~al., \emph{{Applications of Machine Learning to Lattice Quantum
+  Field Theory}},  in \emph{{Snowmass 2021}}, 2, 2022
+  [\href{https://arxiv.org/abs/2202.05838}{{\ttfamily 2202.05838}}].
+
+\bibitem{Zhou:2018ill}
+K.~Zhou, G.~Endr{\H o}di, L.-G.~Pang and H.~St{\"o}cker, \emph{Regressive and
+  generative neural networks for scalar field theory},
+  \href{https://doi.org/10.1103/PhysRevD.100.011501}{\emph{Phys. Rev. D}
+  {\bfseries 100} (2019) 011501}.
+
+\bibitem{Pawlowski:2018qxs}
+J.M.~Pawlowski and J.M.~Urban, \emph{{Reducing Autocorrelation Times in Lattice
+  Simulations with Generative Adversarial Networks}},
+  \href{https://doi.org/10.1088/2632-2153/abae73}{\emph{Mach. Learn. Sci.
+  Tech.} {\bfseries 1} (2020) 045011}
+  [\href{https://arxiv.org/abs/1811.03533}{{\ttfamily 1811.03533}}].
+
+\bibitem{Albergo:2019eim}
+M.S.~Albergo, G.~Kanwar and P.E.~Shanahan, \emph{Flow-based generative models
+  for {{Markov}} chain {{Monte Carlo}} in lattice field theory},
+  \href{https://doi.org/10.1103/PhysRevD.100.034515}{\emph{Phys. Rev. D}
+  {\bfseries 100} (2019) 034515}
+  [\href{https://arxiv.org/abs/1904.12072}{{\ttfamily 1904.12072}}].
+
+\bibitem{Kanwar:2020xzo}
+G.~Kanwar, M.S.~Albergo, D.~Boyda, K.~Cranmer, D.C.~Hackett, S.~Racani{\`e}re
+  et~al., \emph{Equivariant {{Flow-Based Sampling}} for {{Lattice Gauge
+  Theory}}}, \href{https://doi.org/10.1103/PhysRevLett.125.121601}{\emph{Phys.
+  Rev. Lett.} {\bfseries 125} (2020) 121601}
+  [\href{https://arxiv.org/abs/2003.06413}{{\ttfamily 2003.06413}}].
+
+\bibitem{Nicoli:2020njz}
+K.A.~Nicoli, C.J.~Anders, L.~Funcke, T.~Hartung, K.~Jansen, P.~Kessel et~al.,
+  \emph{Estimation of {{Thermodynamic Observables}} in {{Lattice Field
+  Theories}} with {{Deep Generative Models}}},
+  \href{https://doi.org/10.1103/PhysRevLett.126.032001}{\emph{Phys. Rev. Lett.}
+  {\bfseries 126} (2021) 032001}
+  [\href{https://arxiv.org/abs/2007.07115}{{\ttfamily 2007.07115}}].
+
+\bibitem{Albergo:2021bna}
+M.S.~Albergo, G.~Kanwar, S.~Racani{\`e}re, D.J.~Rezende, J.M.~Urban, D.~Boyda
+  et~al., \emph{Flow-based sampling for fermionic lattice field theories},
+  \href{https://doi.org/10.1103/PhysRevD.104.114507}{\emph{Phys. Rev. D}
+  {\bfseries 104} (2021) 114507}
+  [\href{https://arxiv.org/abs/2106.05934}{{\ttfamily 2106.05934}}].
+
+\bibitem{Albergo:2021vyo}
+M.S.~Albergo, D.~Boyda, D.C.~Hackett, G.~Kanwar, K.~Cranmer, S.~Racani{\`e}re
+  et~al., \emph{Introduction to {{Normalizing Flows}} for {{Lattice Field
+  Theory}}}, {\emph{arXiv:2101.08176 [hep-lat]} (2021) }
+  [\href{https://arxiv.org/abs/2101.08176}{{\ttfamily 2101.08176}}].
+
+\bibitem{DelDebbio:2021qwf}
+L.~Del~Debbio, J.~Marsh~Rossney and M.~Wilson, \emph{Efficient modeling of
+  trivializing maps for lattice $\phi^4$ theory using normalizing flows: {{A}}
+  first look at scalability},
+  \href{https://doi.org/10.1103/PhysRevD.104.094507}{\emph{Phys. Rev. D}
+  {\bfseries 104} (2021) 094507}
+  [\href{https://arxiv.org/abs/2105.12481}{{\ttfamily 2105.12481}}].
+
+\bibitem{Hackett:2021idh}
+D.C.~Hackett, C.-C.~Hsieh, M.S.~Albergo, D.~Boyda, J.-W.~Chen, K.-F.~Chen
+  et~al., \emph{{Flow-based sampling for multimodal distributions in lattice
+  field theory}},  \href{https://arxiv.org/abs/2107.00734}{{\ttfamily
+  2107.00734}}.
+
+\bibitem{Albergo:2022qfi}
+M.S.~Albergo, D.~Boyda, K.~Cranmer, D.C.~Hackett, G.~Kanwar, S.~Racani{\`e}re
+  et~al., \emph{Flow-based sampling in the lattice {{Schwinger}} model at
+  criticality}, \href{https://doi.org/10.1103/PhysRevD.106.014514}{\emph{Phys.
+  Rev. D} {\bfseries 106} (2022) 014514}
+  [\href{https://arxiv.org/abs/2202.11712}{{\ttfamily 2202.11712}}].
+
+\bibitem{Bacchio:2022vje}
+S.~Bacchio, P.~Kessel, S.~Schaefer and L.~Vaitl, \emph{Learning {{Trivializing
+  Gradient Flows}} for {{Lattice Gauge Theories}}},
+  \href{https://doi.org/10.1103/PhysRevD.107.L051504}{\emph{Phys. Rev. D}
+  {\bfseries 107} (2023) L051504}
+  [\href{https://arxiv.org/abs/2212.08469}{{\ttfamily 2212.08469}}].
+
+\bibitem{Caselle:2022acb}
+M.~Caselle, E.~Cellini, A.~Nada and M.~Panero, \emph{Stochastic normalizing
+  flows as non-equilibrium transformations},
+  \href{https://doi.org/10.1007/JHEP07(2022)015}{\emph{JHEP} {\bfseries 07}
+  (2022) 015} [\href{https://arxiv.org/abs/2201.08862}{{\ttfamily
+  2201.08862}}].
+
+\bibitem{Chen:2022ytr}
+S.~Chen, O.~Savchuk, S.~Zheng, B.~Chen, H.~Stoecker, L.~Wang et~al.,
+  \emph{{Fourier-flow model generating Feynman paths}},
+  \href{https://doi.org/10.1103/PhysRevD.107.056001}{\emph{Phys. Rev. D}
+  {\bfseries 107} (2023) 056001}
+  [\href{https://arxiv.org/abs/2211.03470}{{\ttfamily 2211.03470}}].
+
+\bibitem{Gerdes:2022eve}
+M.~Gerdes, P.~de~Haan, C.~Rainone, R.~Bondesan and M.C.N.~Cheng,
+  \emph{{Learning Lattice Quantum Field Theories with Equivariant Continuous
+  Flows}},  \href{https://arxiv.org/abs/2207.00283}{{\ttfamily 2207.00283}}.
+
+\bibitem{Albandea:2023wgd}
+D.~Albandea, L.~Del~Debbio, P.~Hern\'andez, R.~Kenway, J.~Marsh~Rossney and
+  A.~Ramos, \emph{{Learning trivializing flows}},
+  \href{https://doi.org/10.1140/epjc/s10052-023-11838-8}{\emph{Eur. Phys. J. C}
+  {\bfseries 83} (2023) 676}
+  [\href{https://arxiv.org/abs/2302.08408}{{\ttfamily 2302.08408}}].
+
+\bibitem{Singha:2023cql}
+A.~Singha, D.~Chakrabarti and V.~Arora, \emph{Conditional normalizing flow for
+  {{Markov}} chain {{Monte Carlo}} sampling in the critical region of lattice
+  field theory}, \href{https://doi.org/10.1103/PhysRevD.107.014512}{\emph{Phys.
+  Rev. D} {\bfseries 107} (2023) 014512}.
+
+\bibitem{Abbott:2022zsh}
+R.~Abbott et~al., \emph{{Aspects of scaling and scalability for flow-based
+  sampling of lattice QCD}},
+  \href{https://arxiv.org/abs/2211.07541}{{\ttfamily 2211.07541}}.
+
+\bibitem{Nicoli:2023qsl}
+K.A.~Nicoli, C.J.~Anders, T.~Hartung, K.~Jansen, P.~Kessel and S.~Nakajima,
+  \emph{{Detecting and Mitigating Mode-Collapse for Flow-based Sampling of
+  Lattice Field Theories}},  \href{https://arxiv.org/abs/2302.14082}{{\ttfamily
+  2302.14082}}.
+
+\bibitem{Wang:2020hji}
+L.~Wang, Y.~Jiang, L.~He and K.~Zhou, \emph{{Continuous-Mixture Autoregressive
+  Networks Learning the Kosterlitz-Thouless Transition}},
+  \href{https://doi.org/10.1088/0256-307X/39/12/120502}{\emph{Chin. Phys.
+  Lett.} {\bfseries 39} (2022) 120502}
+  [\href{https://arxiv.org/abs/2005.04857}{{\ttfamily 2005.04857}}].
+
+\bibitem{Luo:2023opo}
+D.~Luo, Z.~Chen, K.~Hu, Z.~Zhao, V.M.~Hur and B.K.~Clark,
+  \emph{{Gauge-invariant and anyonic-symmetric autoregressive neural network
+  for quantum lattice models}},
+  \href{https://doi.org/10.1103/PhysRevResearch.5.013216}{\emph{Phys. Rev.
+  Res.} {\bfseries 5} (2023) 013216}.
+
+\bibitem{Favoni:2020reg}
+M.~Favoni, A.~Ipp, D.I.~M{\"u}ller and D.~Schuh, \emph{Lattice {{Gauge
+  Equivariant Convolutional Neural Networks}}},
+  \href{https://doi.org/10.1103/PhysRevLett.128.032003}{\emph{Phys. Rev. Lett.}
+  {\bfseries 128} (2022) 032003}
+  [\href{https://arxiv.org/abs/2012.12901}{{\ttfamily 2012.12901}}].
+
+\bibitem{Aronsson:2023rli}
+J.~Aronsson, D.I.~M\"uller and D.~Schuh, \emph{{Geometrical aspects of lattice
+  gauge equivariant convolutional neural networks}},
+  \href{https://arxiv.org/abs/2303.11448}{{\ttfamily 2303.11448}}.
+
+\bibitem{Abbott:2022zhs}
+R.~Abbott, M.S.~Albergo, D.~Boyda, K.~Cranmer, D.C.~Hackett, G.~Kanwar et~al.,
+  \emph{Gauge-equivariant flow models for sampling in lattice field theories
+  with pseudofermions},
+  \href{https://doi.org/10.1103/PhysRevD.106.074506}{\emph{Phys. Rev. D}
+  {\bfseries 106} (2022) 074506}
+  [\href{https://arxiv.org/abs/2207.08945}{{\ttfamily 2207.08945}}].
+
+\bibitem{Zhou:2023pti}
+K.~Zhou, L.~Wang, L.-G.~Pang and S.~Shi, \emph{{Exploring QCD matter in extreme
+  conditions with Machine Learning}},
+  \href{https://arxiv.org/abs/2303.15136}{{\ttfamily 2303.15136}}.
+
+\bibitem{He:2023zin}
+W.-B.~He, Y.-G.~Ma, L.-G.~Pang, H.-C.~Song and K.~Zhou, \emph{{High-energy
+  nuclear physics meets machine learning}},
+  \href{https://doi.org/10.1007/s41365-023-01233-z}{\emph{Nucl. Sci. Tech.}
+  {\bfseries 34} (2023) 88} [\href{https://arxiv.org/abs/2303.06752}{{\ttfamily
+  2303.06752}}].
+
+\bibitem{yang:2022diffusion}
+L.~Yang, Z.~Zhang, S.~Hong, R.~Xu, Y.~Zhao, Y.~Shao et~al., \emph{Diffusion
+  {{Models}}: {{A Comprehensive Survey}} of {{Methods}} and {{Applications}}},
+  Sept., 2022.
+\newblock 10.48550/arXiv.2209.00796.
+
+\bibitem{Croitoru:2023dm}
+F.-A.~Croitoru, V.~Hondru, R.T.~Ionescu and M.~Shah, \emph{Diffusion models in
+  vision: A survey},
+  \href{https://doi.org/10.1109/TPAMI.2023.3261988}{\emph{IEEE Transactions on
+  Pattern Analysis and Machine Intelligence} (2023) 1}.
+
+\bibitem{2022arXiv220406125R}
+A.~{Ramesh}, P.~{Dhariwal}, A.~{Nichol}, C.~{Chu} and M.~{Chen},
+  \emph{{Hierarchical Text-Conditional Image Generation with CLIP Latents}},
+  {\emph{arXiv e-prints} (2022) }
+  [\href{https://arxiv.org/abs/2204.06125}{{\ttfamily 2204.06125}}].
+
+\bibitem{Rombach_2022_CVPR}
+R.~Rombach, A.~Blattmann, D.~Lorenz, P.~Esser and B.~Ommer,
+  \emph{High-resolution image synthesis with latent diffusion models},  in
+  \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, pp.~10684--10695, June, 2022.
+
+\bibitem{Mikuni:2022xry}
+V.~Mikuni and B.~Nachman, \emph{{Score-based generative models for calorimeter
+  shower simulation}},
+  \href{https://doi.org/10.1103/PhysRevD.106.092009}{\emph{Phys. Rev. D}
+  {\bfseries 106} (2022) 092009}
+  [\href{https://arxiv.org/abs/2206.11898}{{\ttfamily 2206.11898}}].
+
+\bibitem{Mikuni:2023dvk}
+V.~Mikuni, B.~Nachman and M.~Pettee, \emph{{Fast point cloud generation with
+  diffusion models in high energy physics}},
+  \href{https://doi.org/10.1103/PhysRevD.108.036025}{\emph{Phys. Rev. D}
+  {\bfseries 108} (2023) 036025}
+  [\href{https://arxiv.org/abs/2304.01266}{{\ttfamily 2304.01266}}].
+
+\bibitem{Parisi:1980ys}
+G.~Parisi and Y.S.~Wu, \emph{{Perturbation theory without gauge fixing}},
+  {\emph{Sci. China, A} {\bfseries 24} (1980) 483}.
+
+\bibitem{Damgaard:1987rr}
+P.H.~Damgaard and H.~H{\"u}ffel, \emph{Stochastic quantization},
+  \href{https://doi.org/10.1016/0370-1573(87)90144-X}{\emph{Phys. Rept.}
+  {\bfseries 152} (1987) 227}.
+
+\bibitem{Namiki:1993fd}
+M.~Namiki, \emph{{Basic ideas of stochastic quantization}},
+  \href{https://doi.org/10.1143/PTPS.111.1}{\emph{Prog. Theor. Phys. Suppl.}
+  {\bfseries 111} (1993) 1}.
+
+\bibitem{Parisi:1983mgm}
+G.~Parisi, \emph{On complex probabilities},
+  \href{https://doi.org/10.1016/0370-2693(83)90525-7}{\emph{Physics Letters B}
+  {\bfseries 131} (1983) 393}.
+
+\bibitem{Berges:2006xc}
+J.~Berges, S.~Borsanyi, D.~Sexty and I.O.~Stamatescu, \emph{{Lattice
+  simulations of real-time quantum fields}},
+  \href{https://doi.org/10.1103/PhysRevD.75.045007}{\emph{Phys. Rev. D}
+  {\bfseries 75} (2007) 045007}
+  [\href{https://arxiv.org/abs/hep-lat/0609058}{{\ttfamily hep-lat/0609058}}].
+
+\bibitem{Aarts:2008rr}
+G.~Aarts and I.-O.~Stamatescu, \emph{{Stochastic quantization at finite
+  chemical potential}},
+  \href{https://doi.org/10.1088/1126-6708/2008/09/018}{\emph{JHEP} {\bfseries
+  09} (2008) 018} [\href{https://arxiv.org/abs/0807.1597}{{\ttfamily
+  0807.1597}}].
+
+\bibitem{Aarts:2008wh}
+G.~Aarts, \emph{{Can stochastic quantization evade the sign problem? The
+  relativistic Bose gas at finite chemical potential}},
+  \href{https://doi.org/10.1103/PhysRevLett.102.131601}{\emph{Phys. Rev. Lett.}
+  {\bfseries 102} (2009) 131601}
+  [\href{https://arxiv.org/abs/0810.2089}{{\ttfamily 0810.2089}}].
+
+\bibitem{Seiler:2012wz}
+E.~Seiler, D.~Sexty and I.-O.~Stamatescu, \emph{{Gauge cooling in complex
+  Langevin for QCD with heavy quarks}},
+  \href{https://doi.org/10.1016/j.physletb.2013.04.062}{\emph{Phys. Lett. B}
+  {\bfseries 723} (2013) 213}
+  [\href{https://arxiv.org/abs/1211.3709}{{\ttfamily 1211.3709}}].
+
+\bibitem{Sexty:2013ica}
+D.~Sexty, \emph{{Simulating full QCD at nonzero density using the complex
+  Langevin equation}},
+  \href{https://doi.org/10.1016/j.physletb.2014.01.019}{\emph{Phys. Lett. B}
+  {\bfseries 729} (2014) 108}
+  [\href{https://arxiv.org/abs/1307.7748}{{\ttfamily 1307.7748}}].
+
+\bibitem{Aarts:2015tyj}
+G.~Aarts, \emph{{Introductory lectures on lattice QCD at nonzero baryon
+  number}}, \href{https://doi.org/10.1088/1742-6596/706/2/022004}{\emph{J.
+  Phys. Conf. Ser.} {\bfseries 706} (2016) 022004}
+  [\href{https://arxiv.org/abs/1512.05145}{{\ttfamily 1512.05145}}].
+
+\bibitem{Attanasio:2020spv}
+F.~Attanasio, B.~J\"ager and F.P.G.~Ziegler, \emph{{Complex Langevin
+  simulations and the QCD phase diagram: Recent developments}},
+  \href{https://doi.org/10.1140/epja/s10050-020-00256-z}{\emph{Eur. Phys. J. A}
+  {\bfseries 56} (2020) 251}
+  [\href{https://arxiv.org/abs/2006.00476}{{\ttfamily 2006.00476}}].
+
+\bibitem{Berger:2019odf}
+C.E.~Berger, L.~Rammelm\"uller, A.C.~Loheac, F.~Ehmann, J.~Braun and J.E.~Drut,
+  \emph{{Complex Langevin and other approaches to the sign problem in quantum
+  many-body physics}},
+  \href{https://doi.org/10.1016/j.physrep.2020.09.002}{\emph{Phys. Rept.}
+  {\bfseries 892} (2021) 1} [\href{https://arxiv.org/abs/1907.10183}{{\ttfamily
+  1907.10183}}].
+
+\bibitem{Nagata:2021ugx}
+K.~Nagata, \emph{{Finite-density lattice QCD and sign problem: Current status
+  and open problems}},
+  \href{https://doi.org/10.1016/j.ppnp.2022.103991}{\emph{Prog. Part. Nucl.
+  Phys.} {\bfseries 127} (2022) 103991}
+  [\href{https://arxiv.org/abs/2108.12423}{{\ttfamily 2108.12423}}].
+
+\bibitem{Aarts:2009uq}
+G.~Aarts, E.~Seiler and I.-O.~Stamatescu, \emph{Complex {{Langevin}} method:
+  {{When}} can it be trusted?},
+  \href{https://doi.org/10.1103/PhysRevD.81.054508}{\emph{Phys. Rev. D}
+  {\bfseries 81} (2010) 054508}.
+
+\bibitem{Aarts:2011ax}
+G.~Aarts, F.A.~James, E.~Seiler and I.-O.~Stamatescu, \emph{{Complex Langevin:
+  Etiology and Diagnostics of its Main Problem}},
+  \href{https://doi.org/10.1140/epjc/s10052-011-1756-5}{\emph{Eur. Phys. J. C}
+  {\bfseries 71} (2011) 1756}
+  [\href{https://arxiv.org/abs/1101.3270}{{\ttfamily 1101.3270}}].
+
+\bibitem{Nagata:2016vkn}
+K.~Nagata, J.~Nishimura and S.~Shimasaki, \emph{Argument for justification of
+  the complex {{Langevin}} method and the condition for correct convergence},
+  \href{https://doi.org/10.1103/PhysRevD.94.114515}{\emph{Phys. Rev. D}
+  {\bfseries 94} (2016) 114515}.
+
+\bibitem{Aarts:2017vrv}
+G.~Aarts, E.~Seiler, D.~Sexty and I.-O.~Stamatescu, \emph{{Complex Langevin
+  dynamics and zeroes of the fermion determinant}},
+  \href{https://doi.org/10.1007/JHEP05(2017)044}{\emph{JHEP} {\bfseries 05}
+  (2017) 044} [\href{https://arxiv.org/abs/1701.02322}{{\ttfamily
+  1701.02322}}].
+
+\bibitem{Scherzer:2018hid}
+M.~Scherzer, E.~Seiler, D.~Sexty and I.-O.~Stamatescu, \emph{{Complex Langevin
+  and boundary terms}},
+  \href{https://doi.org/10.1103/PhysRevD.99.014512}{\emph{Phys. Rev. D}
+  {\bfseries 99} (2019) 014512}
+  [\href{https://arxiv.org/abs/1808.05187}{{\ttfamily 1808.05187}}].
+
+\bibitem{WesthHansen:2022iqd}
+M.~Westh~Hansen and D.~Sexty, \emph{{Complex Langevin boundary terms in full
+  QCD}}, \href{https://doi.org/10.22323/1.430.0163}{\emph{PoS} {\bfseries
+  LATTICE2022} (2023) 163} [\href{https://arxiv.org/abs/2212.12029}{{\ttfamily
+  2212.12029}}].
+
+\bibitem{Alvestad:2021hsi}
+D.~Alvestad, R.~Larsen and A.~Rothkopf, \emph{{Stable solvers for real-time
+  Complex Langevin}},
+  \href{https://doi.org/10.1007/JHEP08(2021)138}{\emph{JHEP} {\bfseries 08}
+  (2021) 138} [\href{https://arxiv.org/abs/2105.02735}{{\ttfamily
+  2105.02735}}].
+
+\bibitem{Alvestad:2022abf}
+D.~Alvestad, R.~Larsen and A.~Rothkopf, \emph{{Towards learning optimized
+  kernels for complex Langevin}},
+  \href{https://doi.org/10.1007/JHEP04(2023)057}{\emph{JHEP} {\bfseries 04}
+  (2023) 057} [\href{https://arxiv.org/abs/2211.15625}{{\ttfamily
+  2211.15625}}].
+
+\bibitem{Lampl:2023xpb}
+N.M.~Lampl and D.~Sexty, \emph{{Real time evolution of scalar fields with
+  kernelled Complex Langevin equation}},
+  \href{https://arxiv.org/abs/2309.06103}{{\ttfamily 2309.06103}}.
+
+\bibitem{Callaway:1982eb}
+D.J.E.~Callaway and A.~Rahman, \emph{{The Microcanonical Ensemble: A New
+  Formulation of Lattice Gauge Theory}},
+  \href{https://doi.org/10.1103/PhysRevLett.49.613}{\emph{Phys. Rev. Lett.}
+  {\bfseries 49} (1982) 613}.
+
+\bibitem{risken1996fokker}
+H.~Risken, \emph{The Fokker-Planck equation: Methods of solution and
+  application}, Springer (1996).
+
+\bibitem{Namiki:1992wf}
+M.~Namiki, I.~Ohba, K.~Okano, Y.~Yamanaka, A.K.~Kapoor, H.~Nakazato et~al.,
+  \emph{{Stochastic quantization}}, vol.~9, Springer Berlin Heidelberg (1992),
+  \href{https://doi.org/10.1007/978-3-540-47217-9}{10.1007/978-3-540-47217-9}.
+
+\bibitem{Batrouni:1985jn}
+G.G.~Batrouni, G.R.~Katz, A.S.~Kronfeld, G.P.~Lepage, B.~Svetitsky and
+  K.G.~Wilson, \emph{{Langevin Simulations of Lattice Field Theories}},
+  \href{https://doi.org/10.1103/PhysRevD.32.2736}{\emph{Phys. Rev. D}
+  {\bfseries 32} (1985) 2736}.
+
+\bibitem{sohl-dickstein:2015deep}
+J.~{Sohl-Dickstein}, E.A.~Weiss, N.~Maheswaranathan and S.~Ganguli, \emph{Deep
+  unsupervised learning using nonequilibrium thermodynamics},  in \emph{Proc.
+  32nd {{Int}}. {{Conf}}. {{Int}}. {{Conf}}. {{Mach}}. {{Learn}}. - {{Vol}}.
+  37}, {{ICML}}'15, ({Lille, France}), pp.~2256--2265, {JMLR.org}, July, 2015.
+
+\bibitem{NEURIPS2019_3001ef25}
+Y.~Song and S.~Ermon, \emph{Generative modeling by estimating gradients of the
+  data distribution},  in \emph{Adv. {{Neural Inf}}. {{Process}}. {{Syst}}.},
+  H.~Wallach, H.~Larochelle, A.~Beygelzimer, F.~{dAlch{\'e}-Buc}, E.~Fox and
+  R.~Garnett, eds., vol.~32, {Curran Associates, Inc.}, 2019.
+
+\bibitem{song2021scorebased}
+Y.~Song, J.~{Sohl-Dickstein}, D.P.~Kingma, A.~Kumar, S.~Ermon and B.~Poole,
+  \emph{Score-based generative modeling through stochastic differential
+  equations},  in \emph{Int. {{Conf}}. {{Learn}}. {{Represent}}.}, 2021.
+
+\bibitem{ho:2020denoising}
+J.~Ho, A.~Jain and P.~Abbeel, \emph{Denoising diffusion probabilistic models},
+  in \emph{Proc. 34th {{Int}}. {{Conf}}. {{Neural Inf}}. {{Process}}.
+  {{Syst}}.}, {{NIPS}}'20, ({Red Hook, NY, USA}), pp.~6840--6851, {Curran
+  Associates Inc.}, Dec., 2020.
+
+\bibitem{anderson:1982reversetime}
+B.D.O.~Anderson, \emph{Reverse-time diffusion equation models},
+  \href{https://doi.org/10.1016/0304-4149(82)90051-5}{\emph{Stochastic
+  Processes and their Applications} {\bfseries 12} (1982) 313}.
+
+\bibitem{Aapo:2005scb}
+A.~Hyv{{\"a}}rinen, \emph{Estimation of non-normalized statistical models by
+  score matching}, {\emph{Journal of Machine Learning Research} {\bfseries 6}
+  (2005) 695}.
+
+\bibitem{Vincent:2011scb}
+P.~Vincent, \emph{A connection between score matching and denoising
+  autoencoders}, \href{https://doi.org/10.1162/NECO_a_00142}{\emph{Neural
+  Computation} {\bfseries 23} (2011) 1661}.
+
+\bibitem{welling:2011bayesian}
+M.~Welling and Y.W.~Teh, \emph{Bayesian learning via stochastic gradient
+  langevin dynamics},  in \emph{Proc. 28th {{Int}}. {{Conf}}. {{Int}}.
+  {{Conf}}. {{Mach}}. {{Learn}}.}, {{ICML}}'11, ({Madison, WI, USA}),
+  pp.~681--688, {Omnipress}, June, 2011.
+
+\bibitem{Maoutsa:2020ode}
+D.~Maoutsa, S.~Reich and M.~Opper, \emph{Interacting particle solutions of
+  fokker–planck equations through gradient–log–density estimation},
+  {\emph{Entropy} {\bfseries 22} (2020) }.
+
+\bibitem{grathwohl2018scalable}
+W.~Grathwohl, R.T.Q.~Chen, J.~Bettencourt and D.~Duvenaud, \emph{Scalable
+  reversible generative models with free-form continuous dynamics},  in
+  \emph{International Conference on Learning Representations}, 2019.
+
+\bibitem{Luscher:2009eq}
+M.~Luscher, \emph{{Trivializing maps, the Wilson flow and the HMC algorithm}},
+  \href{https://doi.org/10.1007/s00220-009-0953-7}{\emph{Commun. Math. Phys.}
+  {\bfseries 293} (2010) 899}
+  [\href{https://arxiv.org/abs/0907.5491}{{\ttfamily 0907.5491}}].
+
+\bibitem{Bern:1986xc}
+Z.~Bern, M.B.~Halpern and L.~Sadun, \emph{{Continuum Regularization of Quantum
+  Field Theory. 4. Langevin Renormalization}},
+  \href{https://doi.org/10.1007/BF01408455}{\emph{Z. Phys. C} {\bfseries 35}
+  (1987) 255}.
+
+\bibitem{Pawlowski:2017rhn}
+J.M.~Pawlowski, I.-O.~Stamatescu and F.P.G.~Ziegler, \emph{{Cooling Stochastic
+  Quantization with colored noise}},
+  \href{https://doi.org/10.1103/PhysRevD.96.114505}{\emph{Phys. Rev. D}
+  {\bfseries 96} (2017) 114505}
+  [\href{https://arxiv.org/abs/1705.06231}{{\ttfamily 1705.06231}}].
+
+\bibitem{Smit:2002ug}
+J.~Smit, \emph{{Introduction to quantum fields on a lattice: A robust mate}},
+  vol.~15, Cambridge University Press (1, 2011).
+
+\bibitem{Akiyama:2021zhf}
+S.~Akiyama, Y.~Kuramashi and Y.~Yoshimura, \emph{{Phase transition of
+  four-dimensional lattice ${\phi}^4$ theory with tensor renormalization
+  group}}, \href{https://doi.org/10.1103/PhysRevD.104.034507}{\emph{Phys. Rev.
+  D} {\bfseries 104} (2021) 034507}
+  [\href{https://arxiv.org/abs/2101.06953}{{\ttfamily 2101.06953}}].
+
+\bibitem{neal2011mcmc}
+R.M.~Neal et~al., \emph{Mcmc using hamiltonian dynamics}, {\emph{Handbook of
+  markov chain monte carlo} {\bfseries 2} (2011) 2}.
+
+\bibitem{Ronneberger:2015unet}
+O.~Ronneberger, P.~Fischer and T.~Brox, \emph{U-net: Convolutional networks for
+  biomedical image segmentation},  in \emph{Medical Image Computing and
+  Computer-Assisted Intervention -- MICCAI 2015}, N.~Navab, J.~Hornegger,
+  W.M.~Wells and A.F.~Frangi, eds., (Cham), pp.~234--241, Springer
+  International Publishing, 2015.
+
+\bibitem{Binder:1981zz}
+K.~Binder, \emph{{Critical Properties from Monte Carlo Coarse Graining and
+  Renormalization}},
+  \href{https://doi.org/10.1103/PhysRevLett.47.693}{\emph{Phys. Rev. Lett.}
+  {\bfseries 47} (1981) 693}.
+
+\bibitem{Bachtis:2020ajb}
+D.~Bachtis, G.~Aarts and B.~Lucini, \emph{{Mapping distinct phase transitions
+  to a neural network}},
+  \href{https://doi.org/10.1103/PhysRevE.102.053306}{\emph{Phys. Rev. E}
+  {\bfseries 102} (2020) 053306}
+  [\href{https://arxiv.org/abs/2007.00355}{{\ttfamily 2007.00355}}].
+
+\bibitem{Schaefer:2010hu}
+{\scshape ALPHA} collaboration, \emph{{Critical slowing down and error analysis
+  in lattice QCD simulations}},
+  \href{https://doi.org/10.1016/j.nuclphysb.2010.11.020}{\emph{Nucl. Phys. B}
+  {\bfseries 845} (2011) 93} [\href{https://arxiv.org/abs/1009.5228}{{\ttfamily
+  1009.5228}}].
+
+\bibitem{Wolff:2003sm}
+{\scshape ALPHA} collaboration, \emph{{Monte Carlo errors with less errors}},
+  \href{https://doi.org/10.1016/S0010-4655(03)00467-3}{\emph{Comput. Phys.
+  Commun.} {\bfseries 156} (2004) 143}
+  [\href{https://arxiv.org/abs/hep-lat/0306017}{{\ttfamily hep-lat/0306017}}].
+
+\bibitem{Joswig:2022qfe}
+F.~Joswig, S.~Kuberski, J.T.~Kuhlmann and J.~Neuendorf, \emph{{pyerrors: A
+  python framework for error analysis of Monte Carlo data}},
+  \href{https://doi.org/10.1016/j.cpc.2023.108750}{\emph{Comput. Phys. Commun.}
+  {\bfseries 288} (2023) 108750}
+  [\href{https://arxiv.org/abs/2209.14371}{{\ttfamily 2209.14371}}].
+
+\bibitem{Robnik:2023pgt}
+J.~Robnik and U.~Seljak, \emph{{Microcanonical Langevin Monte Carlo}},
+  \href{https://arxiv.org/abs/2303.18221}{{\ttfamily 2303.18221}}.
+
+\bibitem{Cotler:2023lem}
+J.~Cotler and S.~Rezchikov, \emph{{Renormalizing Diffusion Models}},
+  \href{https://arxiv.org/abs/2308.12355}{{\ttfamily 2308.12355}}.
+
+\end{thebibliography}\endgroup

@@ -1,0 +1,146 @@
+\section*{致谢}
+作者感谢与 J.~H.~Zhang 和 Y.~B.~Yang 的讨论。本项目部分受到美国能源部科学办公室核物理办公室项目 DE-FG02-93ER-40762、DE-SC0011090 与 DE-SC0012704 的资助，受到布鲁克海文国家实验室合同 DE-EC0012704 下的实验室主导研发（LDRD）经费资助，受到中国国家自然科学基金（No.~11405104）的资助，并在 TMD Topical Collaboration 框架内开展。
+%
+I.S. 还部分受到 Simons Foundation Investigator grant 327942 的资助。
+T.I. 还受到 JSPS KAKENHI Grant Numbers JP26400261 与 JP17H02906 的资助，并受到 MEXT ``Priority Issue on Post-K computer''（宇宙基本定律与演化的阐明）以及 JICFuS 的资助。
+
+
+\appendix
+
+\section{傅里叶变换}
+\label{sec:ft}
+
+要把式~(\ref{eq:1looppseudo})的裸赝 PDF 傅里叶变换为裸准 PDF，我们使用恒等式
+\begin{align} \label{eq:ft}
+&\int {d \zeta \over 2\pi}\, e^{i x \zeta} (z^2\mu^2)^{\epsilon} \Gamma(-\epsilon) 4^{-\epsilon}\\
+= & \left({\mu^2\over p_z^2}\right)^\epsilon \int {d \zeta \over 2\pi}\, e^{i x \zeta} \int_0^\infty d\alpha\, \alpha^{-1-\epsilon}e^{-\alpha\zeta^2}4^{-\epsilon}\nn\\
+=& \left({\mu^2\over p_z^2}\right)^\epsilon \int_0^\infty {d\alpha\over 2\sqrt{\pi}}\, \alpha^{-3/2-\epsilon}e^{-x^2/(4\alpha)}4^{-\epsilon}\nn\\
+=& \left({\mu^2\over p_z^2}\right)^\epsilon {\Gamma(\epsilon+1/2)\over \sqrt{\pi}} {1\over |x|^{1+2\epsilon}}\,,\nn
+\end{align}
+它对 $\epsilon<0$ 成立。
+
+现在转向 plus 函数 $g(y)^{[0,1]}_{+(1)}$。双重傅里叶变换
+\begin{align}
+& \int {d \zeta \over 2\pi}\, e^{i x \zeta} \int_0^1 dy\, e^{-iy\zeta} g(y)^{[0,1]}_{+(1)} (z^2\mu^2)^{\epsilon} \Gamma(-\epsilon) 4^{-\epsilon}\nn\\
+= &(i\zeta)\int {d \zeta \over 2\pi}\, e^{i (x-1) \zeta} \int_0^1 dy \int_0^1 dt\ y\,g(1-y)\nn\\
+&\times e^{ity\zeta} (z^2\mu^2)^{\epsilon} \Gamma(-\epsilon) 4^{-\epsilon} \nn\\
+=& \left({\mu^2\over p_z^2}\right)^\epsilon {\Gamma(\epsilon+{1\over2})\over \sqrt{\pi}}{\partial\over \partial x} \int_0^1 dy \int_0^1 dt \, {y\,g(1-y) \over |x-1+ty|^{1+2\epsilon}}\,.
+\end{align}
+由于对 $y$ 与 $t$ 的积分给出 $x$ 的分段函数，求导最终会得到一个 plus 函数，因为 $x=1$ 处的不连续性给出 $\delta(1-x)$。
+
+
+\section{准 PDF 的计算}
+\label{sec:quasi}
+
+这里我们引用如下做法得到的纯维数正规化结果：按照文献~\cite{Xiong:2013bka,Stewart:2017tvs}，先对被积函数把 $z$ 傅里叶变换为 $x p^z$ 以获得 $[\delta(p^z-xp^z)-\delta(k^z-xp^z)]$，再进行准 PDF 计算。
+对顶点图与波函数重正化图我们得到
+\begin{widetext}
+
+\begin{align}
+	&\tilde{q}^{(1)}_\text{vertex}(x,p^z,\epsilon)
+	+ \tilde{q}^{(1)}_\text{w.fn.}(x,p^z,\epsilon)\nn\\
+	&={\alpha_sC_F\over 2\pi}\left({\mu^2\over p_z^2}\right)^\epsilon \left[ (1-\epsilon)\int_0^1 dy (1-y){1\over |x-y|^{1+2\epsilon}}{\Gamma(\epsilon+{1\over2})\over\sqrt{\pi}}- \delta(1-x){1\over2} \left({1\over\epsilon_{\mbox{\tiny UV}}} - {1\over \epsilon_{\mbox{\tiny IR}}}\right)\right]\,,
+\end{align}
+而对帆图
+\begin{align}
+	&\tilde{q}^{(1)}_\text{sail}(x,p^z,\epsilon) \nn\\
+	&= {\alpha_sC_F\over 2\pi}\left({4\pi\mu^2\over p_z^2}\right)^\epsilon\left[\int_0^1 dy {x+y\over 1-x}{1\over |x-y|^{1+2\epsilon}}{\Gamma(\epsilon+{1\over2})\over\sqrt{\pi}}-\delta(1-x)\int dx'\int_0^1 dy {x'+y\over 1-x'}{1\over |x'-y|^{1+2\epsilon}}{\Gamma(\epsilon+{1\over2})\over\sqrt{\pi}} \right]\nonumber\\
+	&= {\alpha_sC_F\over 2\pi}\left({\mu^2\over p_z^2}\right)^\epsilon\left[\int_0^1 dy {x+y\over 1-x}{1\over |x-y|^{1+2\epsilon}}{\Gamma(\epsilon+{1\over2})\over\sqrt{\pi}}+\delta(1-x)\left({1\over\epsilon_{\mbox{\tiny UV}}} - {1\over \epsilon_{\mbox{\tiny IR}}}\right)\right.\nn\\
+	&\qquad\left. -\delta(1-x)\int dx'\int_0^1 dy {1+y\over 1-x'}{1\over |x'-y|^{1+2\epsilon}}{\Gamma(\epsilon_{\mbox{\tiny IR}}+{1\over2})\over\sqrt{\pi}}\right]\,,
+	\end{align}
+对蝌蚪图则为
+	\begin{align}
+	&\tilde{q}^{(1)}_\text{tadpole}(x,p^z,\epsilon)\nn\\
+	=& {\alpha_sC_F\over 2\pi}\left({4\pi\mu^2\over p_z^2}\right)^\epsilon \left[-{1\over 1-2\epsilon}{1\over |1-x|^{1+2\epsilon}}{\Gamma(\epsilon+{1\over2})\over\sqrt{\pi}} -\delta(1-x) {1\over 1-2\epsilon}{1\over |1-x|^{1+2\epsilon}}\int_{-\infty}^\infty dx' {1\over |1-x'|^{1+2\epsilon}}{\Gamma(\epsilon+{1\over2})\over\sqrt{\pi}}\right]\nonumber\\
+	=& {\alpha_sC_F\over 2\pi}\left({4\pi\mu^2\over p_z^2}\right)^\epsilon \left[-{1\over 1-2\epsilon}{1\over |1-x|^{1+2\epsilon}}{\Gamma(\epsilon+{1\over2})\over\sqrt{\pi}} +\delta(1-x)\left({1\over\epsilon_{\mbox{\tiny UV}}} - {1\over \epsilon_{\mbox{\tiny IR}}}\right) \right]\,.
+	\end{align}
+
+\end{widetext}
+把这些表达式相加并完成其余对 $y$ 的积分后，我们得到与式~(\ref{eq:1loopquasi})相同的结果。
+
+
+\section{$\epsilon$ 展开与 plus 函数}
+\label{sec:ep}
+
+由于准 PDF 的支撑范围从 $-\infty$ 到 $\infty$，其在 $|x|\to\infty$ 时 $\sim1/|x|$ 的渐近行为蕴含一个可用维数正规化正则化的紫外发散。因此准 PDF 的 $\epsilon$ 展开应顾及这一特点。
+
+一般地我们需要展开
+\beq
+	{\theta(x)\over x^{1+\epsilon}} = {\theta(x)\theta(1-x)\over x^{1+\epsilon}} + {\theta(x-1)\over x^{1+\epsilon}}\,,
+\eeq
+且众所周知
+\begin{align} \label{eq:ident}
+{\theta(x)\theta(1-x)\over x^{1+\epsilon}} = - {1\over\epsilon}\delta(x)+
+\tilde{\mathcal{L}}_0(x) - \epsilon \tilde{\mathcal{L}}_1(x)+ O(\epsilon^2)\,,
+\end{align}
+其中 $\epsilon<0$。
+这里我们遵循文献~\cite{Ligeti:2008ac}，plus 函数 $\mathcal{L}_n(x)$ 定义为
+\begin{align} \label{eq:plus1}
+	\mathcal{L}_n(x)\equiv &\left[ {\theta(x)\ln^nx\over x}\right]_+
+   \\
+	= &\lim_{\beta\to0} \left[{\theta(x-\beta)\ln^n x\over x} + \delta(x-\beta) {\ln^{n+1}\beta \over n+1}\right]
+ \,, \nn
+\end{align}
+并令
+\begin{align}
+  \tilde{\mathcal{L}}_n(x) = \theta(1-x) \mathcal{L}_n(x) \,.
+\end{align}
+注意 $\int_0^1 dx \, {\cal L}_n(x) =0$。
+
+为定义区间 $x\in [1,\infty]$ 上的展开，我们简单地通过 $t=1/x$ 把该区间映射到 $[0,1]$。取任意光滑测试函数 $g(x)$，我们有
+\begin{align}
+	&\int_1^\infty dx {1\over x^{1+\epsilon}} \: g(x)
+    \\
+	=& \int_0^1 dt {1\over t^{1-\epsilon}}  \:  g(1/t)
+   \nn\\
+	=& \int_0^1 dt \left[{1\over\epsilon}\delta(t)+ \mathcal{L}_0(t) + \epsilon \mathcal{L}_1(t)+ O(\epsilon^2)\right] \, g(1/t)
+    \nn\\
+	=& \int_1^\infty\!\! {dx\over x^2}\left[{1\over\epsilon}\delta^+\Bigl({1\over x}\Bigr)+ \mathcal{L}_0\Bigl({1\over x}\Bigr) + \epsilon \mathcal{L}_1\Bigl({1\over x}\Bigr)+ O(\epsilon^2)\right] g(x)
+   \,.\nn
+\end{align}
+这里 $\epsilon>0$，$\delta^+$ 函数上的上标 $+$ 表示其宗量应为正。因此 $\delta^+(1/x)$ 的支撑在 $x=+\infty$ 而非 $x=-\infty$。由于 $g$ 任意，我们可以认定
+\begin{align}
+  {\theta(x-1)\over x^{1+\epsilon}}
+   &= {1\over\epsilon}{1\over x^2}\delta^+\Bigl({1\over x}\Bigr)
+   + \frac{1}{x^2} \tilde{\mathcal{L}}_0\Bigl({1\over x}\Bigr)
+   + \epsilon \frac{1}{x^2} \tilde{\mathcal{L}}_1\Bigl({1\over x}\Bigr)
+  \nn\\
+  &\quad + O(\epsilon^2)\,.
+\end{align}
+合并上述结果并标明哪些 $1/\epsilon$ 极点是紫外或红外发散，我们有
+\begin{align} \label{eq:expansion}
+	{\theta(x)\over x^{1+\epsilon}}
+ = & \left[-\frac{1}{\epsilon_{\mbox{\tiny IR}}}\delta(x) + \frac{1}{\epsilon_{\mbox{\tiny UV}}} {1\over  x^2}\delta^+\Bigl({1\over x}\Bigr)\right]
+    \\
+    & + \left({1\over x}\right)^{[0,1]}_{+(0)}+\left({1\over x}\right)^{[1,\infty]}_{+(\infty)}
+  \nn\\
+	& - \epsilon\left[\left({\ln x\over x}\right)^{[0,1]}_{+(0)}+\left({\ln x\over x}\right)^{[1,\infty]}_{+(\infty)}\right] + O(\epsilon^2)
+   \,, \nn
+\end{align}
+其中定义了分布
+\begin{align}
+  \big(1/x\big)_{+(0)}^{[0,1]} &\equiv  \tilde{{\cal L}}_0(x)
+  \,,  \quad
+  \big(\ln x/x\big)_{+(0)}^{[0,1]} \equiv  \tilde{{\cal L}}_1(x)
+  \,,
+\end{align}
+以及
+\begin{align}\label{eq:plusinfinity}
+ \big(1/x\big)_{+(\infty)}^{[1,\infty]} &\equiv (1/x^2) \tilde{{\cal L}}_0(1/x)
+   \, \\
+\big(\ln x/x\big)_{+(\infty)}^{[1,\infty]} &\equiv -(1/x^2) \tilde{{\cal L}}_1(1/x)
+   \,. \nn
+\end{align}
+注意式~(\ref{eq:expansion})与如下预期结果一致：
+\begin{align}
+ \int_0^\infty \frac{dx}{x^{1+\epsilon}}
+ = \frac{1}{\epsilon_{\mbox{\tiny UV}} }
+  -\frac{1}{\epsilon_{\mbox{\tiny IR}} } \,.
+\end{align}
+
+
+\begingroup
+\makeatletter
+\input{chapters/bbl.tex}
+\makeatother
+\endgroup

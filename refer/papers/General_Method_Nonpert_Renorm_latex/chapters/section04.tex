@@ -1,0 +1,213 @@
+\section{Implementation of the method in numerical simulations}
+\label{sec:duef}
+
+To implement the ideas of the previous section,
+let us consider the generic local two-fermion operator
+\beq O_{\Gamma}(x) = \bar{\psi}(x)\Gamma \psi(x) \label{eq:2ferm} \eeq
+where $\Gamma$ is any Dirac matrix.
+The lattice, bare Green function of $O_{\Gamma}$, between off-shell quark
+states,
+can be obtained from
+\beq
+G_{O}( x, y )=\langle \psi(x) O_{\Gamma}(0)\bar{\psi}(y) \rangle=
+\frac{1}{N}\sum^{N}_{i=1} S_i(x \vert 0) \Gamma S_i(0 \vert y),
+\label{eq:gxy} \eeq
+where $i=1,N$ labels the gauge field configurations and
+$S_i(x \vert 0) $ is the quark propagator on the single configuration $i$,
+obtained by inverting the discretized Dirac operator. We denote by
+ $S_i(x \vert y)$ the inverse Dirac operator, which is not translationally
+invariant, in contrast to $S(x-y)$, which is the usual quark propagator.
+    The gauge field configurations
+are generated with some standard, gauge-invariant algorithm;
+the gauge fields and the quark
+propagators are then rotated into the Landau gauge, which
+will be  defined in sec.\ \ref{sec:nonper}.
+ From eq.\ (\ref{eq:gxy}), using $S_i(x \vert y)= \gamma_5
+S_i(y \vert x )^\dagger \gamma_5$, one gets
+\beq
+G_{O}(pa)&\equiv &\int d^4 x d^4 y  e^{-i \,( p \cdot x- p \cdot y)}
+ G_O( x ,  y ) \nn \\
+&=&\frac{1}{N} \sum_{i=1}^{N} \Bigl(\int d^4 x S_i(x \vert 0)
+e^{-i \, p \cdot x} \Bigr) \Gamma \Bigl(\int d^4 y S_i(0 \vert y)
+e^{i \, p \cdot y} \Bigr)
+\nn \\ &=&\frac{1}{N} \sum_{i=1}^{N}  S_i(p \vert 0)
+\Gamma  \gamma_5 \Bigl(\int d^4 y S^\dagger_i(y \vert 0)
+e^{i \, p \cdot y} \Bigr) \gamma_5
+\nn \\& =&\frac{1}{N} \sum_{i=1}^{N} S_i(p \vert 0)
+ \Gamma  \Bigl( \gamma_5 S^\dagger_i(p \vert  0) \gamma_5
+ \Bigr) ,
+\label{eq:nuovo}
+\eeq
+where we have defined
+\beq
+S_i(p \vert y)=\int d^{4}x S_i(x \vert y)
+e^{-i \,( p \cdot x)},
+\eeq
+because, on a single configuration, the quark propagator
+is not translationally invariant. Traslational invariance is recovered
+after averaging over the configurations. We can then write
+\beq
+S(pa)= \langle S(p \vert 0) \rangle= \frac{1}{N}\sum^{N}_{i=1} S_i(p \vert 0)
+. \label{eq:nuovo1} \eeq
+
+Eqs.\ (\ref{eq:nuovo}) and (\ref{eq:nuovo1}) give $G_O(pa)$ and
+$S(pa)$ in terms of quark propagators, computed by inverting  the Dirac
+operator in the  presence of a background gauge field configuration, generated
+by numerical simulation. With these quantities at hand, one can
+apply the strategy and  the  formulae,
+introduced in sec.\ \ref{sec:idea}. We add some information, that can help
+the reader in practical applications.
+The quark wave-function renormalization constant $Z_\psi$ has been
+ computed using
+\beq
+Z_{\psi}= \Gamma_{V^L} \times Z_{V^L}= \frac{1}{48} {\rm tr}
+\left( \Lambda_{V^L_{\mu}} (p a)\gamma_\mu\right)\vert_{p^2=\mu^2}\times
+  Z_{V^{L}}
+\label{eq:zpsil}
+\eeq
+where $\Lambda_{V_\mu^L}(pa) $ is defined as in eq.\ (\ref{eq:lam});
+the trace
+is taken over colours and spins and $Z_{V^L}$ is the renormalization
+constant of the local vector current $V^L_\mu(x)=\bar \psi(x)
+\gamma_\mu \psi(x)$. Equations (\ref{eq:zpsi})
+and (\ref{eq:zpsil}) are two equivalent definitions of
+$Z_\psi$. We have used eq.\ (\ref{eq:zpsil}) instead
+of eq.\ (\ref{eq:zpsi}), because the former is more convenient when,
+as in our case, one has only computed  quark propagators which
+stem from the  origin. The  three-point ($q-V-q$) Green function is obtained by
+inserting
+the local  vector   current in the origin.    $Z_{V^L}$ can be obtained with
+very high
+accuracy from ratios  of matrix elements of the conserved and
+local currents \cite{ma,msv}.
+{}From the amputated Green functions
+\beq \Gamma_{1}(pa)=\frac{1}{12} {\rm tr} \Bigl( \Lambda_1(pa)\hat 1 \Bigr) ,
+\nn \eeq
+\beq \Gamma_{\gamma_5}(pa)=\frac{1}{12} {\rm tr} \Bigl( \Lambda_
+{\gamma_5}(pa) \gamma_5 \Bigr) , \nn
+\eeq
+\beq \Gamma_{\gamma_\mu \gamma_5}(pa)=\frac{1}{48} {\rm tr} \Bigl( \Lambda_
+{\gamma_\mu \gamma_5}(pa) \gamma_5 \gamma_\mu \Bigr) ,
+\eeq
+ by imposing the renormalization conditions (\ref{eq:zdef}),
+at several
+values of $p^2=\mu^2$, to be specified in sec.\ \ref{sec:nonper},
+we have
+determined $Z_{S,P,A}\Bigl(\mu,g(a)\Bigr)$,
+as functions of $\mu^2$.
+
+If we wish to compute
+  $Z_{V^L}$  using the procedure defined in sec.\ \ref{sec:casivari}
+we clearly cannot take $Z_\psi$ from eq.\ (\ref{eq:zpsil}).
+{}From the Ward identity we have
+\beq Z_\psi = - i \frac{1}{12}
+{\rm tr} \Bigl( \frac{\partial S(p)^{-1}}{\partial \pslash}
+\Bigr)\vert_{p^2=\mu^2} \label{eq:zpsiq}
+\eeq
+where $\partial S(p)^{-1}/\partial \pslash = 1/4 \times
+\gamma_\rho \partial S(p)^{-1}/\partial p_\rho$.
+To avoid derivatives with respect to a discrete variable,
+we have used
+\beq Z_\psi^{\prime}\Bigl(\mu , g(a) \Bigr)= \frac {{\rm tr } \Bigl(
+-i \sum_{\lambda=1,4} \gamma_\lambda \sin( p_\lambda a ) S^{-1}(pa)
+\Bigr)}{4 \sum _{\lambda=1,4} \sin^2 p_\lambda a }\vert_{p^2=\mu^2}.
+\label{eq:zpsi1} \eeq
+In one loop perturbation theory, $Z_\psi^{\prime}=Z_\psi$,
+in the Landau gauge\footnote{In general, they  differ  by a finite
+term of order $\alpha_s$.}. By using
+\beq \Gamma_{\gamma_\mu }(pa)=\frac{1}{48} {\rm tr} \Bigl( \Lambda_
+{\gamma_\mu }(pa) \gamma_\mu \Bigr) , \label{eq:gvl}
+\eeq
+and imposing the renormalization conditions (\ref{eq:zdef}), we have determined
+$Z_{V^L}$ at several $\mu^2$. From the general discussion of the previous
+section, one expects that $Z_{V^L}$, defined through the present procedure,
+ is independent of $\mu^2$, up to
+terms of $O(a)$, as  has been effectively found,
+see sec.\ \ref{sec:nonper}.
+
+In actual numerical simulations, the  renormalization procedure
+could be obscured by lattice artefacts, i.e.\  terms of $O(\mu a)$, which
+are present
+ when one imposes
+the renormalization conditions at large values of $\mu^2$,  required  to avoid
+large
+non-perturbative or higher  order effects.
+ As shown in ref.\ \cite{noi} (we use here the same notation),  in order to
+reduce discretization errors, due to the finite value of the
+lattice spacing, one can compute correlation functions using a
+nearest-neighbour
+improved fermion action \cite{slami} \beq
+S^{I}_{F}=
+S^{W}_{F} +
+a^{4} \sum_{x,\mu \nu} \left[-ig_{0}
+\frac{ar}{4}\bar{\psi}(x)
+\sigma_{\mu \nu}F_{\mu \nu}(x)\psi(x) \right],
+\label{eq:si}
+\eeq
+where $S^{W}_{F}$ is the usual Wilson action, $r$ is the Wilson parameter
+and $F_{\mu\nu}$ is the lattice field strength tensor.
+Moreover,
+it is also necessary to use improved operators
+$O_{\Gamma}^{I}$ defined as
+\beq
+O_{\Gamma}^I(x) =
+\bar{\psi}(x) \overleftarrow{R}_{x}
+\Gamma
+\overrightarrow{R}_{x} \psi(x),
+\label{eq:oi}
+\eeq
+where
+the rotations of the fermion fields
+are defined as
+\beq
+\overrightarrow{R}_{x}=
+\Bigl(1-a {r\over{4}} (\overrightarrow{\Dslash}_{x} - m_0)\Bigr)
+{}~~~,~~~
+\overleftarrow{R}_{y}=
+\Bigl(1+a {r\over{4}} (\overleftarrow{\Dslash}_{y} + m_0)\Bigr).
+\label{eq:rotaz}
+\eeq
+By using the improved action and operators, one  eliminates discretization
+errors of $O(a)$, and only those of  $O(\alpha_s a)$ or $O(a^2)$, or higher,
+remain.
+In eq.\ (\ref{eq:oi}), $\overrightarrow R_x$ and
+ $\overleftarrow R_y$ can be replaced by
+\beq
+\overrightarrow{R^\prime}_{x}=
+1-a {r\over{2}} \overrightarrow{\Dslash}_{x}
+{}~~~,~~~
+\overleftarrow{R^\prime}_{y}=
+1+a {r\over{2}} \overleftarrow{\Dslash}_{y},
+\label{eq:rotaz1}
+\eeq
+in computations of  the hadron spectrum and of on-shell
+operator matrix  elements. As  discussed in refs.\ \cite{tass2,newi},
+ the improvement procedure is equivalent to expressing all correlation
+functions
+in terms of  ``effective'' quark propagators
+\beq
+S^{eff}_i(x \vert 0)=
+\Bigl(1-a{r\over{2}}
+\overrightarrow{\Dslash}_{x} \Bigr)
+S^{I}_i(x \vert 0)
+\Bigl(1+a{r\over{2}}
+\overleftarrow{\Dslash}_{y=0} \Bigr)
+\label{eq:seff}
+\eeq
+where $S^{I}_i(x \vert 0)$ is the fermion propagator of the improved theory
+from the point $x$ to the origin.
+In order to eliminate  terms of $O(a)$ in the
+off-shell correlation functions, used in this study, a further step is
+necessary
+\cite{wi}:
+we have to shift the quark propagator by a local term, which in Fourier space
+appears as a constant, to be added to its diagonal components
+\beq S^{AB}_{\alpha \beta}(pa) = S^{eff,AB}_{\alpha \beta}(pa)
+ + \frac{r}{2}
+\delta^{AB}
+\delta_{\alpha \beta} \nn \eeq
+
+In the following, the vector current  $V^L_\mu$,  the axial vector current
+ $A^L_\mu$, the pseudoscalar density $P$
+and the scalar density  $S$ are improved operators,
+obtained  by using eq.\ (\ref{eq:seff}).
