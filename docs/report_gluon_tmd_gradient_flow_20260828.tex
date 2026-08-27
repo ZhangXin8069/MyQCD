@@ -1,0 +1,820 @@
+% ============================================================
+% 梯度流重整化的核子胶子 TMD-PDF — 16:9 学术汇报
+% ============================================================
+\documentclass[UTF8,aspectratio=169,11pt]{ctexbeamer}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,shapes.geometric}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{hyperref}
+
+\definecolor{primary}{HTML}{17365D}
+\definecolor{accent}{HTML}{1F77B4}
+\definecolor{evidence}{HTML}{1E8449}
+\definecolor{warning}{HTML}{C55A11}
+\definecolor{muted}{HTML}{5B6573}
+\definecolor{panel}{HTML}{F4F7FA}
+\definecolor{linegray}{HTML}{CBD5E1}
+\definecolor{good}{HTML}{EAF5EE}
+\definecolor{warnbg}{HTML}{FFF4E8}
+\definecolor{newblock}{HTML}{8E44AD}
+
+\setbeamersize{text margin left=0.55cm,text margin right=0.55cm}
+\setlength{\emergencystretch}{2em}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{blocks}[rounded][shadow=false]
+\setbeamercolor{normal text}{fg=black!86,bg=white}
+\setbeamercolor{structure}{fg=primary}
+\setbeamercolor{frametitle}{fg=primary,bg=white}
+\setbeamercolor{block title}{fg=primary,bg=panel}
+\setbeamercolor{block body}{fg=black!86,bg=panel}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamerfont{normal text}{size=\normalsize}
+\setbeamertemplate{frametitle}{%
+  \vskip0.12cm\insertframetitle\par\vskip0.08cm}
+\setbeamertemplate{footline}{%
+  \hbox{\begin{beamercolorbox}[wd=\paperwidth,ht=2.3ex,dp=0.9ex,
+    leftskip=0.55cm,rightskip=0.55cm]{author in head/foot}%
+    \scriptsize\color{muted}\insertshortauthor\hfill
+    \insertshorttitle\hfill\insertframenumber/\inserttotalframenumber
+  \end{beamercolorbox}}}
+
+\newcommand{\source}[1]{%
+  \vspace{0.04em}\par{\raggedright\scriptsize\color{muted}来源：#1\par}}
+\newcommand{\verified}{\textcolor{evidence}{确证}}
+\newcommand{\inferred}{\textcolor{accent}{推断}}
+\newcommand{\unverified}{\textcolor{warning}{未验证}}
+\newcommand{\newitem}{\textcolor{newblock}{需新建}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\Tr}{\operatorname{Tr}}
+
+\tikzset{
+  flow/.style={draw=accent,fill=accent!8,rounded corners=2pt,align=center,
+    minimum height=0.68cm,text width=2.22cm,font=\scriptsize},
+  flownew/.style={draw=newblock,fill=newblock!9,rounded corners=2pt,align=center,
+    minimum height=0.68cm,text width=2.22cm,font=\scriptsize},
+  state/.style={draw=primary,fill=primary!7,rounded corners=2pt,align=center,
+    minimum height=0.66cm,text width=2.72cm,font=\small},
+  decision/.style={draw=warning,fill=warning!10,diamond,aspect=2.1,align=center,
+    inner sep=1.5pt,font=\scriptsize},
+  arrow/.style={-{Latex[length=2mm]},draw=primary,semithick},
+  relation/.style={-{Latex[length=1.7mm]},draw=muted,thin,dashed}
+}
+
+\lstset{
+  language=Python,
+  basicstyle=\ttfamily\scriptsize,
+  backgroundcolor=\color{panel},frame=single,
+  breaklines=true,breakatwhitespace=false,keepspaces=true,
+  columns=flexible,firstnumber=auto,
+  keywordstyle=\color{primary}\bfseries,
+  commentstyle=\color{evidence!70!black},
+  stringstyle=\color{accent},
+  numbers=left,numberstyle=\tiny\color{muted}
+}
+\hypersetup{colorlinks=true,linkcolor=accent,urlcolor=accent}
+
+\title[核子胶子 TMD-PDF]{梯度流重整化的核子胶子 TMD-PDF}
+\subtitle{从现有胶子 quasi-PDF 流水线到可验证的空间 staple 算子}
+\author[MyQCD 研究方案]{MyQCD 研究方案}
+\institute{格点 QCD：物理定义、代码路径与验证门槛}
+\date{2026 年 8 月 28 日}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}[t]{核心判断：梯度流可以整合 UV 控制，但不自动完成 TMD 重整化}
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.31\textwidth}
+      \begin{block}{已有坚实基线}
+        \verified\ 梯度流场在 $\tau>0$ 提供 UV 平滑；小流时间展开给出流式算子到
+        $\overline{\rm MS}$ 的匹配框架。
+
+        \verified\ PyQCD 已有 Clover 场强、直线 Wilson 线 OPE、蒸馏质子两点函数。
+      \end{block}
+    \end{column}
+    \begin{column}{0.31\textwidth}
+      \begin{block}{本方案的物理推断}
+        将场强和空间 staple 都置于同一流时间 $\tau$，再用同几何的胶子软因子和
+        小流时间匹配构造核子准 TMD。
+
+        先做非极化胶子 $f_1^g$，再扩展到 helicity。
+      \end{block}
+    \end{column}
+    \begin{column}{0.31\textwidth}
+      \begin{block}{不能提前宣称的部分}
+        \unverified\ 胶子 TMD 的完整 rapidity subtraction、representation 一致的
+        soft factor，以及 staple 算子的完整匹配系数尚未在本项目中推导或实测。
+
+        目前没有本项目的 TMD 数值曲线。
+      \end{block}
+    \end{column}
+  \end{columns}
+  \vfill
+  \begin{beamercolorbox}[wd=\textwidth,sep=0.65em,rounded=true]{block body}
+    \textbf{需要的决策：}先固定非极化通道、空间 staple 几何、软因子方案和伴随/基本表示；
+    随后用规范不变性、$\tau$ 平台、$\ell$ 平台和双动量比值逐级验收。
+  \end{beamercolorbox}
+  \source{梯度流：GF-01/GF-02；胶子算子：G-01/G-02；代码基线：C-01/C-02。状态标签为本项目判断。}
+\end{frame}
+
+\begin{frame}[t]{研究问题与验收标准：目标是 $x$--$b_\perp$ 分辨的核子胶子分布}
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.47\textwidth}
+      \begin{block}{研究对象}
+        \begin{align*}
+          f_{g/N}^{[\Gamma]}(x,\boldsymbol b_\perp;\mu,\zeta)
+          \quad\Longleftarrow\quad
+          h_{g,A}(z,\boldsymbol b_\perp;P_z,\tau,\ell),\\[-0.2em]
+          \tilde f_{g,A}^{\rm quasi}(x,\boldsymbol b_\perp)
+          =\mathcal{N}_g\!\int\!\frac{\dd z}{2\pi}\,
+          e^{\,i x zP_z}h_{g,A}(z,\boldsymbol b_\perp).
+        \end{align*}
+        $x$ 是纵向动量分数，$\boldsymbol b_\perp$ 是横向坐标空间分辨率，
+        $\mu$ 是 UV 标度，$\zeta$ 是 rapidity 标度。
+      \end{block}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{tabularx}{\linewidth}{@{}lX@{}}
+        \toprule
+        验收层 & 必须回答的问题 \\
+        \midrule
+        算子 & 任意规范变换下 $h_{g,A}$ 是否不变？\\
+        流时间 & 存在 $a^2\ll\tau$ 且短于物理分离的窗口吗？\\
+        几何 & $\ell$ 外推、$b_\perp$ 依赖和 $z\to0$ 极限是否稳定？\\
+        外态 & 断连胶子插入能否在质子 2pt 平台上提取？\\
+        重整化 & 软因子、流方案、$\overline{\rm MS}$ 和 TMD 匹配是否闭合？\\
+        演化 & 两个 $P_z$ 的比值能否给出一致的 $K_g(b_\perp,\mu)$？\\
+        \bottomrule
+      \end{tabularx}
+    \end{column}
+  \end{columns}
+  \vfill
+  \begin{center}
+    \textcolor{warning}{本报告交付的是实现闭环与验收门槛；数值结果栏暂不填入假数据。}
+  \end{center}
+  \source{依据：T-01/T-02；Fourier 归一化 $\mathcal{N}_g$ 待 matching convention 固定。}
+\end{frame}
+
+\begin{frame}[t]{TMD 算子的最小结构：横向分离必须由 staple 连接}
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.54\textwidth}
+      \begin{equation*}
+        \begin{aligned}
+        \mathcal O^{g,\tau}_{\mu\nu,\rho\sigma}(z,\boldsymbol b;\ell)
+        &=G^a_{\mu\nu}(x_1;\tau)\\[-0.25em]
+        &\quad\times
+        \big[W_{\rm st}^{\mathcal R}(x_1,x_2;\ell)\big]^{ab}
+        G^b_{\rho\sigma}(x_2;\tau).
+        \end{aligned}
+        \tag{1}
+      \end{equation*}
+      \[
+        x_1=+\frac z2\hat{\boldsymbol z}+\boldsymbol b_\perp,
+        \qquad
+        x_2=-\frac z2\hat{\boldsymbol z}.
+      \]
+      \begin{block}{与直线 quasi-PDF 的本质差别}
+        直线算子只有 $z$ 分离；TMD 还需要 $\boldsymbol b_\perp$ 和 staple 方向。
+        因此不能把现有 \texttt{operators\_new\_z0\_mu2} 直接命名为 TMD。
+      \end{block}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{block}{三个独立尺度}
+        \begin{itemize}
+          \item $z$：纵向 Fourier 变量；
+          \item $b_\perp$：横向坐标空间变量；
+          \item $\ell$：有限 staple 长度，需外推或平台检验。
+        \end{itemize}
+      \end{block}
+      \begin{block}{方案边界}
+        \inferred\ 先固定一条空间 staple，随后对正/反方向做对照。
+
+        \unverified\ staple cusp、rapidity scheme 和胶子 representation 的匹配不能从
+        夸克 TMD 文献直接复制。
+      \end{block}
+    \end{column}
+  \end{columns}
+  \source{几何依据：T-01/G-01；完整行号见附录 E。图为本方案定义草图。}
+\end{frame}
+
+\begin{frame}[t]{流化提供 UV 调节器：先在 $\tau>0$ 定义，再做小流时间外推}
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.57\textwidth}
+      \begin{align}
+        \partial_\tau B_\mu(x,\tau)&=D_\nu G_{\nu\mu}(x,\tau),
+        \qquad B_\mu(x,0)=gA_\mu(x), \label{eq:flow}\\
+        G_{\mu\nu}&=\partial_\mu B_\nu-\partial_\nu B_\mu+[B_\mu,B_\nu],
+        \qquad r_\tau=\sqrt{8\tau}, \label{eq:flowradius}\\
+        {\cal O}^{\rm flow}(\tau)&=
+        C_{\cal O}(\tau,\mu){\cal O}^{\overline{\rm MS}}(\mu)
+        +O(\tau)\quad\text{（含混合时为矩阵式）}. \label{eq:sfte}
+      \end{align}
+      \begin{block}{物理图像}
+        $\tau$ 具有长度平方量纲；流半径 $r_\tau$ 把 UV 噪声压到可控尺度。
+        连续极限必须在固定物理 $\tau$ 下讨论，不能把格点步数当作物理流时间。
+      \end{block}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,sep=0.55em,rounded=true]{block body}
+        \textbf{待扫描的窗口（建议）：}
+        \[
+          a^2\ll\tau\ll
+          \min\!\left\{\Lambda_{\rm QCD}^{-2},\,z^2,\,
+          b_\perp^2,\,P_z^{-2}\right\}.
+        \]
+        对 $z=0$ 或 $b_\perp=0$ 的参考点需单独取极限。
+      \end{beamercolorbox}
+      \vspace{0.35em}
+      \begin{block}{不可跳过的控制}
+        \begin{itemize}
+          \item 固定物理 $\tau$ 比较不同 $a$；
+          \item 观察 $\tau\to0$ 的平台/外推；
+          \item 监测 $r_\tau/b_\perp$、$r_\tau/|z|$ 和 $r_\tau P_z$。
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+  \source{依据：GF-01/GF-02；窗口中的 TMD 约束是本方案实现假设。}
+\end{frame}
+
+\begin{frame}[t]{建议的胶子 staple：场强与链接必须处在同一流时间}
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.48\textwidth}
+      \centering
+      \begin{tikzpicture}[x=0.9cm,y=0.9cm]
+        \node[draw=primary,fill=primary!8,rounded corners,align=center,
+          font=\scriptsize] (x2) at (0,0) {$G(x_2;\tau)$\\$x_2=-z\hat z/2$};
+        \node[draw=primary,fill=primary!8,rounded corners,align=center,
+          font=\scriptsize] (x1) at (3.5,2.0) {$G(x_1;\tau)$\\$x_1=+z\hat z/2+\boldsymbol b$};
+        \coordinate (turn0) at (0,2.0);
+        \coordinate (turnb) at (3.5,0);
+        \draw[arrow] (x2) -- node[left,font=\scriptsize] {$\hat z$} (turn0);
+        \draw[arrow] (turn0) -- node[above,font=\scriptsize] {$\boldsymbol b_\perp$} (turnb);
+        \draw[arrow] (turnb) -- node[right,font=\scriptsize] {$\hat z$} (x1);
+        \draw[dashed,draw=muted] (0,-0.42) -- (0,2.35);
+        \draw[dashed,draw=muted] (3.5,-0.42) -- (3.5,2.35);
+        \node[font=\scriptsize,color=muted] at (1.75,-0.28) {有限 staple 长度 $\ell$};
+        \node[font=\scriptsize,color=muted] at (1.75,2.28) {转角/软因子几何必须一致};
+      \end{tikzpicture}
+      \vspace{0.15em}
+      \[
+        \begin{aligned}
+        W_{\rm st}&=W(x_1,-\ell\hat z+\boldsymbol b)\,
+        W(-\ell\hat z+\boldsymbol b,-\ell\hat z)\\[-0.2em]
+        &\quad\times W(-\ell\hat z,x_2).
+        \end{aligned}
+      \]
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{block}{表示的工程选择}
+        \[
+          W_{\rm adj}^{ab}
+          =2\Tr\!\left[T^a U\,T^b U^\dagger\right].
+        \]
+        物理定义自然使用伴随表示；代码上可先用基本表示迹形式实现，再以伴随链接
+        交叉核验。两条路径的归一化与软因子必须保持一致。
+      \end{block}
+      \begin{block}{退化极限是单元测试}
+        \begin{itemize}
+          \item $b_\perp\to0$：回到纵向非局域胶子算子；
+          \item $z\to0$：检验局部/横向参考点；
+          \item $W\to\mathbf1$：纯规范场或零分离下的颜色结构应退化。
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+  \source{几何依据：T-01/G-01；完整行号见附录 E。图为本方案定义草图。}
+\end{frame}
+
+\begin{frame}[t]{张量投影不能省略：胶子通道存在算子混合}
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.51\textwidth}
+      \begin{equation*}
+        h_{A}(z,\boldsymbol b)
+        =
+        \Pi_{A}^{\mu\nu,\rho\sigma}(P,\hat z,\boldsymbol b)
+        \left\langle P\left|
+        {\cal O}^{g,\tau}_{\mu\nu,\rho\sigma}(z,\boldsymbol b;\ell)
+        \right|P\right\rangle ,
+        \qquad A\in\{U,H,\ldots\}.
+      \end{equation*}
+      \begin{equation*}
+        \begin{aligned}
+        \boldsymbol h^{\,\rm ren}
+        &=\boldsymbol Z^{\,g}(\tau,a,\mu,\ell,b_\perp)\,
+        \boldsymbol h^{\,\rm bare},\\[-0.2em]
+        &\hspace{1.0em}\boldsymbol h=(J_1,J_2,J_3,\ldots).
+        \end{aligned}
+      \end{equation*}
+      \begin{block}{推荐的第一步}
+        先锁定非极化 $U$ 的横向投影，并保留所有可能混合分量；
+        只有在矩阵/投影稳定后，才压缩成单一标量 TMD。
+      \end{block}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \begin{tabularx}{\linewidth}{@{}lX@{}}
+        \toprule
+        检查项 & 物理/代码含义 \\
+        \midrule
+        $\mu,\nu$ 组合 & 时间--横向与双横向分量的独立投影\\
+        $F_{\mu\nu}$ & 四定向 Clover 组合，避免单一 plaquette 偏置\\
+        $\widetilde F_{\mu\nu}$ & helicity 才启用的 Hodge 对偶\\
+        $J_1,J_2,J_3$ & 胶子场强算子的混合基，不能任意线性拼接\\
+        $z\leftrightarrow-z$ & Hermiticity/宇称与统计对照\\
+        \bottomrule
+      \end{tabularx}
+      \vspace{0.35em}
+      \begin{beamercolorbox}[wd=\linewidth,sep=0.5em,rounded=true]{block body}
+        \unverified\ 胶子 TMD 的具体 mixing matrix 与匹配系数需另行微扰推导；
+        现有胶子 quasi-PDF 的 $J_i$ 混合讨论不能直接替代它。
+      \end{beamercolorbox}
+    \end{column}
+  \end{columns}
+  \source{依据：G-02；代码投影：C-01。完整行号见附录 E。}
+\end{frame}
+
+\begin{frame}[t]{端到端实现：新增三个模块，保留现有两条高价值流水线}
+  \centering
+  \begin{tikzpicture}[node distance=0.18cm and 0.15cm]
+    \node[flow] (gauge) {ILDG 规范组态\\$U_\mu(x)$};
+    \node[flownew,right=of gauge] (flowing) {流积分器\\$V_\tau[U]$ 与缓存};
+    \node[flownew,right=of flowing] (op) {流化 $F_{\mu\nu}$\\+ staple $W_{\rm st}$};
+    \node[flownew,right=of op] (soft) {真空胶子软因子\\同几何/同 $\tau$};
+    \node[flow,right=of soft] (nucleon) {质子 2pt/断连插入\\蒸馏与 jackknife};
+    \node[flownew,right=of nucleon] (match) {小流时间匹配\\TMD matching/CS};
+    \draw[arrow] (gauge) -- (flowing);
+    \draw[arrow] (flowing) -- (op);
+    \draw[arrow] (op) -- (soft);
+    \draw[arrow] (soft) -- (nucleon);
+    \draw[arrow] (nucleon) -- (match);
+  \end{tikzpicture}
+  \vspace{0.5em}
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.31\textwidth}
+      \begin{block}{复用}
+        \texttt{read\_gauge\_config}、Clover/对偶场强、
+        Lorentz pair 分发、VVV 质子外态。
+      \end{block}
+    \end{column}
+    \begin{column}{0.31\textwidth}
+      \begin{block}{新增}
+        流链接 $V_\tau$、二维横向 staple、真空软因子和几何/流时间元数据。
+      \end{block}
+    \end{column}
+    \begin{column}{0.31\textwidth}
+      \begin{block}{最终输出}
+        $h_g(z,b_\perp)$、软因子消除后的准 TMD、两个 $P_z$ 的
+        $K_g(b_\perp,\mu)$，以及误差账本。
+      \end{block}
+    \end{column}
+  \end{columns}
+  \source{C-01/C-02 为现有入口；紫色节点为本方案新增设计。}
+\end{frame}
+
+\begin{frame}[t]{代码映射：现有 PyQCD 能支撑外场与外态，但不等于 TMD 实现}
+  \scriptsize
+  \begin{tabularx}{\textwidth}{@{}p{2.25cm}>{\raggedright\arraybackslash}p{3.10cm}X p{1.75cm}@{}}
+    \toprule
+    物理层 & 已有代码证据 & 迁移到 TMD 所需的最小改动 & 状态 \\
+    \midrule
+    组态读入 & \path{read_gauge_config}；ILDG 组态 & 复用；增加流时间/组态元数据 & \verified \\
+    场强张量 & \path{plaquette_clover_all}；四定向 plaquette & 输入改为 $V_\tau$，缓存每个 $\tau$ 的 $F^\tau$ & \shortstack{\verified\\\newitem} \\
+    直线 OPE & \path{operators_new_z0_mu2} & 从一维 $z$ 链改为 $z+\boldsymbol b$ staple & \shortstack{\verified\\\newitem} \\
+    横向数组 & \path{operators_new_z0_mu2_xy} & 当前仅保留横向坐标，仍不是横向链接 & \shortstack{\verified\\\newitem} \\
+    质子外态 & \path{VVV_sink}、perambulator、宇称投影 & 复用 2pt；新增胶子断连插入与比值 & \shortstack{\verified\\\newitem} \\
+    软因子/rapidity & 当前无 TMD soft/CS 代码 & 同几何真空 Wilson loop、方案匹配、双动量比值 & \newitem \\
+    \bottomrule
+  \end{tabularx}
+  \vfill
+  \begin{beamercolorbox}[wd=\textwidth,sep=0.55em,rounded=true]{block body}
+    \textbf{关键防误读：}代码已经能算“胶子场强--直线 Wilson 线--质子外态”的准 PDF 基线；
+    $\boldsymbol b_\perp$ 数组并不自动产生 TMD staple，也没有自动提供软因子或 rapidity subtraction。
+  \end{beamercolorbox}
+  \source{代码依据：C-01/C-02；紫色内容为需新建模块。}
+\end{frame}
+
+\begin{frame}[t]{计算算法：先流化与软因子，再接入核子断连三点函数}
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.54\textwidth}
+      \centering
+      \begin{tikzpicture}[node distance=0.12cm]
+        \node[state,minimum height=0.48cm,text width=3.35cm,font=\scriptsize] (a)
+          {输入 $U_\mu$、$\{\tau\}$、$(z,\boldsymbol b,\ell)$};
+        \node[state,below=of a,minimum height=0.48cm,text width=3.35cm,font=\scriptsize] (b)
+          {积分 $V_0=U\to V_\tau$；缓存 flowed links};
+        \node[state,below=of b,minimum height=0.48cm,text width=3.35cm,font=\scriptsize] (c)
+          {由 $V_\tau$ 算 $F^\tau$，按几何拼接 staple 与软因子};
+        \node[state,below=of c,minimum height=0.48cm,text width=3.35cm,font=\scriptsize] (d)
+          {核子 2pt + 胶子断连插入；协方差与 jackknife};
+        \node[decision,below=of d,minimum height=0.46cm,font=\scriptsize] (f)
+          {规范/平台/极限\\是否通过？};
+        \node[state,below=of f,minimum height=0.48cm,text width=3.35cm,font=\scriptsize] (g)
+          {小流时间匹配、Fourier、CS 比值};
+        \draw[arrow] (a) -- (b);
+        \draw[arrow] (b) -- (c);
+        \draw[arrow] (c) -- (d);
+        \draw[arrow] (d) -- (f);
+        \draw[arrow] (f) -- node[right,font=\scriptsize]{是} (g);
+        \draw[relation] (f.west) |- ++(-0.62,0) |- node[left,font=\scriptsize]{否：保留原始量，定位尺度} (c.west);
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{block}{建议 CLI（设计，不是现有命令）}
+        \texttt{gluon\_tmd flow-tmd}\\[-0.2em]
+        \texttt{--conf-file ... --flow-times ...}\\[-0.2em]
+        \texttt{--z-list ... --b-list ...}\\[-0.2em]
+        \texttt{--staple-lengths ... --representation fundamental}
+      \end{block}
+      \begin{block}{停止条件}
+        \begin{itemize}
+          \item 规范变换前后相对差异低于统计误差；
+          \item 至少两个 $\tau$ 点进入共同物理窗口；
+          \item $\ell$ 外推和 $P_z$ 比值在误差内稳定；
+          \item 输出元数据能重建全部尺度。
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+  \source{C-02 为现有 OPE 循环；算法图为新增 TMD 设计。}
+\end{frame}
+
+\begin{frame}[t]{核子矩阵元：蒸馏质子外态可复用，胶子插入仍需独立验收}
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.53\textwidth}
+      {\small
+      \begin{align*}
+        C_2(t,\boldsymbol P)&=
+        \sum_{\boldsymbol x}e^{-i\boldsymbol P\cdot\boldsymbol x}
+        \Tr\!\left[P_+\,\langle N(t,\boldsymbol x)\bar N(0)\rangle\right],\\
+        {\cal O}_g&\equiv{\cal O}^{g,\tau}(z,\boldsymbol b;\ell),\\
+        C_3^g&=\langle C_2{\cal O}_g\rangle
+        -\langle C_2\rangle\langle{\cal O}_g\rangle,\\
+        R_g&=\frac{C_3^g}{C_2}
+        \longrightarrow\frac{h_g(z,\boldsymbol b)}{2E_N}
+        \quad\text{（归一化依约定）}.
+      \end{align*}}
+      \begin{beamercolorbox}[wd=\linewidth,sep=0.5em,rounded=true]{block body}
+        断连结构要求组态平均、真空减法和核子 2pt 的协方差一起做；
+        不能只把真空胶子 loop 当作核子矩阵元。
+      \end{beamercolorbox}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{tikzpicture}[node distance=0.28cm]
+        \node[flow] (eig) {Laplace 本征向量\\$v^{(i)}$};
+        \node[flow,right=of eig] (vvv) {VVV 三夸克块\\动量涂抹};
+        \node[flow,right=of vvv] (peram) {perambulator\\Wick 收缩};
+        \node[flow,below=of vvv] (p2) {质子 $C_2$\\宇称投影};
+        \node[flownew,below=of peram] (ins) {胶子 loop\\$z,\boldsymbol b,\ell,\tau$};
+        \node[flownew,below=of ins] (ratio) {断连比值\\平台 + jackknife};
+        \draw[arrow] (eig) -- (vvv);
+        \draw[arrow] (vvv) -- (peram);
+        \draw[arrow] (vvv) -- (p2);
+        \draw[arrow] (peram) -- (p2);
+        \draw[arrow] (ins) -- (ratio);
+        \draw[arrow] (p2) -- (ratio);
+        \draw[relation] (peram) -- (ins);
+      \end{tikzpicture}
+      \vspace{0.25em}
+      \begin{block}{状态}
+        \verified\ VVV/perambulator/宇称投影已有；
+        \newitem\ 胶子 TMD loop 与 $C_3/C_2$ 尚未实现。
+      \end{block}
+    \end{column}
+  \end{columns}
+  \source{C-02 支持 VVV/2pt 外态；胶子断连比值尚无本项目实测。}
+\end{frame}
+
+\begin{frame}[t]{重整化链必须分层：流时间、软因子与 TMD 匹配各自解决不同问题}
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.56\textwidth}
+      {\footnotesize
+      \begin{align*}
+        H_{g,A}^{\rm sub}
+        &=
+        \frac{h_{g,A}^{\rm flow}}{\sqrt{S_{\tau}^{g}}}\,
+        R_{\tau}^{g}, \tag{2}\\
+        \boldsymbol H_g^{\rm sub}
+        &=
+        \boldsymbol C_{\rm SFT}^{g}
+        \left[\boldsymbol C_{\rm qTMD}
+        \otimes \boldsymbol f_{k/N}^{\overline{\rm MS}}\right]\\[-0.2em]
+        &\quad+\delta_{\rm power}. \tag{3}
+      \end{align*}}
+      \begin{itemize}
+        \item 式 (2) 是\inferred\ 方案模板：$S_\tau^g$ 必须与胶子表示、staple 方向和转角一致；
+        \item 式 (3) 中 $\boldsymbol C_{\rm SFT}^{g}$ 需保留张量混合；
+        \item \unverified\ 不能用局部 $c_F(\tau,\mu)$ 充当完整胶子 TMD matching。
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.41\textwidth}
+      \begin{tabularx}{\linewidth}{@{}lX@{}}
+        \toprule
+        层次 & 解决的发散/尺度 \\
+        \midrule
+        flowed field & $a$ 尺度 UV 噪声与小流时间调节\\
+        soft/reference ratio & staple 自能、几何与方案归一化\\
+        $\overline{\rm MS}$ SFT & $\tau\to0$ 的短程匹配、混合\\
+        qTMD matching & 大 $P_z$ 到光锥 TMD\\
+        CS evolution & $\zeta$ / rapidity 尺度演化\\
+        \bottomrule
+      \end{tabularx}
+      \vspace{0.35em}
+      \begin{beamercolorbox}[wd=\linewidth,sep=0.5em,rounded=true]{warnbg}
+        \textbf{红线：}“流化后有限”不等于“已完成 rapidity subtraction”。
+      \end{beamercolorbox}
+    \end{column}
+  \end{columns}
+  \source{GF-01/GF-02 给出流匹配框架；T-01 给出软因子比值思路。}
+\end{frame}
+
+\begin{frame}[t]{当前没有 TMD 数值结果：已有证据支持“先做扫描”，不支持“直接报物理曲线”}
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.32\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,sep=0.65em,rounded=true]{good}
+        \textbf{\verified\ 已有证据}\\[0.25em]
+        胶子 PDF 基线已有：
+        Clover $F$、直线 Wilson 线 OPE、质子 2pt/蒸馏外态、Fourier/匹配接口。
+
+        这证明了代码物理链的可复用部分。
+      \end{beamercolorbox}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,sep=0.65em,rounded=true]{warnbg}
+        \textbf{\inferred\ 当前判断}\\[0.25em]
+        Wilson flow 的参数不能直接照搬成 TMD 常数。
+        参考基线使用过 $T=3a^2$，但文档同时报告 smearing 会改变短距离矩阵元。
+
+        因此必须扫 $\tau$。
+      \end{beamercolorbox}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{beamercolorbox}[wd=\linewidth,sep=0.65em,rounded=true]{warnbg}
+        \textbf{\unverified\ 尚无结果}\\[0.25em]
+        当前工作区没有本项目规范组态、流化输出、软因子或 TMD 三点函数数据。
+
+        不能给出 $f_1^g(x,b_\perp)$、$K_g$ 或误差带。
+      \end{beamercolorbox}
+    \end{column}
+  \end{columns}
+  \vfill
+  \begin{tabularx}{\textwidth}{@{}lXl@{}}
+    \toprule
+    可展示的内容 & 依据 & 证据级别 \\
+    \midrule
+    “实现路径可落地” & 现有代码入口和物理对象一一对应 & \verified \\
+    “梯度流参数需系统扫描” & 参考胶子 PDF 的 flow/smearing 系统效应说明 & \inferred \\
+    “本方案已经测得核子胶子 TMD” & 没有对应输出文件或实测命令 & \textcolor{warning}{禁止宣称} \\
+    \bottomrule
+  \end{tabularx}
+  \source{依据：P-01 的 flow/smearing 系统效应；代码证据 C-01/C-02。}
+\end{frame}
+
+\begin{frame}[t]{验证矩阵：每个物理主张都对应一个可运行的门槛}
+  \scriptsize
+  \begin{tabularx}{\textwidth}{@{}p{2.3cm}p{3.35cm}X p{1.45cm}@{}}
+    \toprule
+    验证对象 & 可观测量/对照 & 通过判据 & 状态 \\
+    \midrule
+    规范不变性 & $U\to\Omega U\Omega^\dagger$ 前后 $h_g$ & 差异小于统计误差；颜色指标闭合 & \unverified \\
+    流链接 & $V_\tau$ 的群性质与流步长收敛 & $V_\tau^\dagger V_\tau\simeq1$；减小步长结果稳定 & \unverified \\
+    连续窗口 & 固定物理 $\tau$，改变 $a$ & $a^2/\tau$ 降低时趋于共同值 & \unverified \\
+    小流时间 & 多个 $\tau$ 的 $h_g$ 与外推 & 存在平台或可解释的线性/低阶外推 & \unverified \\
+    staple 长度 & $\ell$ 与同几何 $S_\tau^g$ & 软因子消除后出现 $\ell$ 平台/可控外推 & \unverified \\
+    横向结构 & $b_\perp\to0$ 与 $z\to0$ 极限 & 退化到已知直线/局部基准的归一化行为 & \unverified \\
+    动量/CS & $P_1^z,P_2^z$ 的比值 & $K_g$ 在动量对、匹配阶数变化下稳定 & \unverified \\
+    张量混合 & 不同 $\Pi_A$ / $J_i$ 组合 & $Z^g_{AB}$ 及投影结果可重复 & \unverified \\
+    \bottomrule
+  \end{tabularx}
+  \vfill
+  \begin{beamercolorbox}[wd=\textwidth,sep=0.55em,rounded=true]{block body}
+    \textbf{极限校验：}当 $b_\perp\to0$ 时应回到胶子 quasi-PDF 代码的直线几何；
+    若该极限不成立，不能把后续 $b_\perp$ 依赖解释为 TMD 物理。
+  \end{beamercolorbox}
+  \source{验证项依据 GF-01/GF-02、T-01/T-02、G-02、C-01/C-02；当前均未验证。}
+\end{frame}
+
+\begin{frame}[t]{需要导师拍板的五个选择：默认采用最小可验证路线}
+  \scriptsize
+  \begin{tabularx}{\textwidth}{@{}p{2.0cm}p{3.0cm}X p{2.1cm}@{}}
+    \toprule
+    决策项 & 首选方案 & 原因与代价 & 后续对照 \\
+    \midrule
+    TMD 通道 & 非极化 $f_1^g$ & 投影最简单；先建立 UV/soft/CS 闭环 & helicity $g_{1L}$ \\
+    staple 方向 & 固定空间 $\eta=-\ell$，再做 $\pm$ 对照 & 先降低实现维度；方向差异不能被默认抹掉 & 正反 staple 平均/差值 \\
+    representation & 基本表示迹实现 + 伴随表示抽检 & 基本表示更接近现有矩阵代码；伴随是物理交叉校验 & 全量 adjoint \\
+    流方案 & 同 $\tau$ 的 flowed $F$ 与 flowed links & 让算子和软因子共享 UV 调节尺度 & 多 $\tau$ 外推 \\
+    matching & 先保留矩阵形式 $\boldsymbol C_{\rm SFT}$ & 避免把局部/直线系数误当完整 TMD 系数 & 一圈胶子 TMD 推导 \\
+    \bottomrule
+  \end{tabularx}
+  \vfill
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.49\textwidth}
+      \begin{block}{不应做的捷径}
+        用 gauge-fixed 无 Wilson 线版本代替规范不变 TMD；
+        用 $T=3a^2$ 单点代替流时间扫描；
+        用夸克 TMD 的 soft/matching 直接替代胶子版本。
+      \end{block}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{block}{资源请求}
+        需要一套可重复的规范组态、至少两个格距/或固定物理流时间点，
+        以及支持多 $P_z$ 和 $\boldsymbol b_\perp$ 的计算预算。
+      \end{block}
+    \end{column}
+  \end{columns}
+  \source{选择依据：G-01/G-02、T-01、GF-02；推荐为工程取舍。}
+\end{frame}
+
+\begin{frame}[t]{下一步按可验收产物推进：先把 UV/几何闭环，再接核子 TMD}
+  \begin{center}
+    \begin{tikzpicture}[x=1cm,y=1cm]
+      \draw[draw=linegray,very thick] (0,0) -- (14.7,0);
+      \foreach \x/\lab/\desc/\col in {
+        1.2/A/{流化链接与缓存\\$V_\tau$ 群性质、步长收敛}/accent,
+        5.1/B/{staple + 真空软因子\\$b_\perp,\ell,\tau$ 平台}/newblock,
+        9.0/C/{核子断连插入\\$C_3^g/C_2$ 与 jackknife}/accent,
+        12.9/D/{匹配与 CS\\$x$ 分布、$K_g$}/newblock}{
+        \fill[\col] (\x,0) circle (0.11);
+        \node[align=center,font=\scriptsize,text width=2.8cm] at (\x,0.55) {\textbf{阶段 \lab}\\\desc};
+      }
+    \end{tikzpicture}
+  \end{center}
+  \vspace{0.3em}
+  \begin{tabularx}{\textwidth}{@{}p{1.25cm}p{3.2cm}X p{2.35cm}@{}}
+    \toprule
+    阶段 & 实现产物 & 通过条件 & 不通过时动作 \\
+    \midrule
+    A & \texttt{flow\_links.py} + 流时间元数据 & 群性质、步长和规范协变通过 & 缩小步长/检查边界条件 \\
+    B & \texttt{gluon\_staple\_soft.py} + 真空数据 & $\ell$ 平台，$b_\perp\to0$ 退化正确 & 先只保留直线极限 \\
+    C & 胶子断连插入/比值输出 & 2pt 平台、协方差和 $z\leftrightarrow-z$ 对照 & 增加源汇间隔/降噪 \\
+    D & matching/CS notebook 与误差账本 & 多 $P_z$ 的 $K_g$ 稳定 & 暂停物理解释，补推导 \\
+    \bottomrule
+  \end{tabularx}
+  \source{计划产物为本报告提出的接口；代码文件和数值结果均尚未创建。}
+\end{frame}
+
+% ------------------------------------------------------------
+\appendix
+
+\begin{frame}[t]{附录 A：尺度与误差账本——用量纲和极限约束实现窗口选择}
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.52\textwidth}
+      \begin{align*}
+        [\tau]&=L^2,\qquad [r_\tau]=L,\qquad
+        [z]=[b_\perp]=[\ell]=L,\\
+        \epsilon_{\rm monitor}
+        &\sim O(\sqrt{\tau}\Lambda_{\rm QCD})
+        +O(a^2/\tau)
+        +O(\Lambda_{\rm QCD}^2/P_z^2)\\[-0.2em]
+        &\quad+O(b_\perp^2\Lambda_{\rm QCD}^2)
+        +O(e^{-\ell\Lambda_{\rm IR}}).
+      \end{align*}
+      \begin{beamercolorbox}[wd=\linewidth,sep=0.55em,rounded=true]{warnbg}
+        这是\textbf{待拟合的控制项模板}，不是本项目已测得的误差分解。
+        真正的系数、交叉项和胶子 TMD rapidity 项必须由数据/微扰匹配确定。
+      \end{beamercolorbox}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \begin{block}{极端情形检查}
+        \begin{itemize}
+          \item $\tau\to0$ 固定 $a$：噪声/离散化发散，不能直接取；
+          \item $\tau$ 过大：$r_\tau$ 淹没 $b_\perp$ 或 $z$ 的短程结构；
+          \item $\ell\to0$：staple 退化，软因子定义必须同步退化；
+          \item $P_z\to\infty$：幂修正减小，但计算噪声和离散误差增加。
+        \end{itemize}
+      \end{block}
+      \begin{block}{推荐记录}
+        每个数据点写入 $(a,\tau,r_\tau,z,b_\perp,\ell,P_z,\mathcal R,\Pi_A)$，
+        让后处理能重建误差账本。
+      \end{block}
+    \end{column}
+  \end{columns}
+  \source{GF-02 的小流时间层级与误差讨论；其余项是面向 TMD 实现的量纲/极限控制模板。}
+\end{frame}
+
+\begin{frame}[t]{附录 B：现有 OPE 入口的直接代码证据（1/2）}
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.48\textwidth}
+      \textbf{方向映射与模式选择}
+      \lstinputlisting[firstline=1207,lastline=1218]{/root/PyQCD/refer/zhangxin/gluon_pdf_workflow.py}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{已有流程的输入与缓存}
+      \lstinputlisting[firstline=1254,lastline=1267]{/root/PyQCD/refer/zhangxin/gluon_pdf_workflow.py}
+    \end{column}
+  \end{columns}
+  \vfill
+  \begin{beamercolorbox}[wd=\textwidth,sep=0.5em,rounded=true]{block body}
+    这段代码证明了当前工作流可以按 Wilson 线方向、模式和预计算 plaquette 组织；
+    TMD 版本需要把这些接口扩展为 $(\tau,\boldsymbol b_\perp,\ell,\mathcal R)$，而不是改名。
+  \end{beamercolorbox}
+  \source{直接引自 /root/PyQCD/refer/zhangxin/gluon\_pdf\_workflow.py；代码未在本报告中转写。}
+\end{frame}
+
+\begin{frame}[t]{附录 C：现有 OPE 入口的直接代码证据（2/2）}
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.48\textwidth}
+      \textbf{Lorentz pair 与输出几何}
+      \lstinputlisting[firstline=1271,lastline=1282]{/root/PyQCD/refer/zhangxin/gluon_pdf_workflow.py}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{直线 OPE 的调用点}
+      \lstinputlisting[firstline=1284,lastline=1298]{/root/PyQCD/refer/zhangxin/gluon_pdf_workflow.py}
+    \end{column}
+  \end{columns}
+  \vfill
+  \begin{block}{迁移结论}
+    \verified\ “逐 $\Delta z$、逐 Lorentz pair、分布式保存”这一工程骨架可以保留；
+    \newitem\ 每个 $\Delta z$ 内部要改成 flowed field strength + staple product，
+    并额外保存 $b_\perp,\ell,\tau$ 维度与软因子索引。
+  \end{block}
+  \source{直接引自 /root/PyQCD/refer/zhangxin/gluon\_pdf\_workflow.py:1271--1298。}
+\end{frame}
+
+\begin{frame}[t]{附录 D：CS 核的可测比值与本项目的谨慎用法}
+  \begin{equation*}
+    K_g(b_\perp,\mu)
+    =
+    \frac{1}{\ln(P_1^z/P_2^z)}
+    \ln\left|
+    \frac{C_g(P_2^z,\mu)\,H_g^{\rm sub}(b_\perp,P_1^z)}
+         {C_g(P_1^z,\mu)\,H_g^{\rm sub}(b_\perp,P_2^z)}
+    \right|
+    +O(\alpha_s,\gamma^{-2}).
+    \tag{4}
+  \end{equation*}
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.47\textwidth}
+      \begin{block}{比值的好处}
+        相同 $\tau$、$b_\perp$、staple 和软因子时，部分乘法重整化因子相消；
+        这使 $P_z$ 比值成为独立的演化检验。
+      \end{block}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \begin{block}{胶子版本的限制}
+        式 (4) 只有在胶子 $C_g$、soft subtraction、张量投影和 rapidity convention
+        均固定后才可解释为 $K_g$；当前只把它作为验收接口，未报告数值。
+      \end{block}
+    \end{column}
+  \end{columns}
+  \source{CS 比值结构 T-01，section02.tex:67--81；将准 TMDWF 符号替换为胶子 $H_g^{\rm sub}$ 是本方案的待验证扩展。}
+\end{frame}
+
+\begin{frame}[t]{附录 E：证据索引与可复查路径}
+  \scriptsize
+  \begin{tabularx}{\textwidth}{@{}p{1.0cm}p{6.1cm}X@{}}
+    \toprule
+    ID & 文件/位置 & 本报告使用内容 \\
+    \midrule
+    GF-01 & \url{refer/papers/Off_LightCone_Wilson_Line_Flow_latex/chapters/section03.tex:4--79} & 流方程、边界条件、有限流场、小流时间展开 \\
+    GF-02 & \url{refer/papers/Off_LightCone_Wilson_Line_Flow_latex/chapters/section03.tex:185--296}; \url{refer/papers/Off_LightCone_Wilson_Line_Flow_latex/chapters/section04.tex:386--413} & 小流时间层级、Wilson-line 局部匹配 building block \\
+    G-01 & \url{refer/papers/Accessing_Gluon_PDF_LaMET_latex/chapters/section02.tex:3--29} & 胶子场强、伴随/基本表示与直线算子 \\
+    G-02 & \url{refer/papers/Accessing_Gluon_PDF_LaMET_latex/chapters/section03.tex:7--58}; \url{refer/papers/Accessing_Gluon_PDF_LaMET_latex/chapters/section04.tex:3--34} & 混合、线性发散和算子选择约束 \\
+    T-01 & \url{refer/papers/TMD_Soft_Function_LaMET_latex/chapters/section02.tex:19--81} & staple、Wilson loop、软函数比值、CS 比值 \\
+    C-01 & \url{/root/PyQCD/refer/zhangxin/gluon_pdf_workflow.py:468--743} & 组态、Clover 场强、直线 OPE 与横向数组 \\
+    C-02 & \url{/root/PyQCD/refer/zhangxin/gluon_pdf_workflow.py:825--916}; \url{/root/PyQCD/refer/zhangxin/gluon_pdf_workflow.py:1033--1321} & VVV、质子 2pt、OPE 循环、MPI/输出 \\
+    P-01 & \url{/root/PyQCD/refer/zhangxin/docs/pure_gluon_pdf_workflow_20260815.tex:79--123} & 代码--物理映射、Wilson flow $T=3a^2$ 基线及其系统风险 \\
+    \bottomrule
+  \end{tabularx}
+  \vfill
+  \begin{beamercolorbox}[wd=\textwidth,sep=0.55em,rounded=true]{block body}
+    \textbf{阅读边界：}T-01 主要讨论夸克准 TMD/软函数；本报告只借用其几何与比值逻辑，
+    胶子 representation、matching 和 rapidity 结构全部标为待验证。P-01 的已有曲线不是本项目 TMD 结果。
+  \end{beamercolorbox}
+  \source{所有路径均为本工作区或用户明确引入的 /root/PyQCD/refer；省略号未用于精确路径。}
+\end{frame}
+
+\begin{frame}[plain]
+  \centering
+  \vfill
+  {\color{primary}\LARGE\bfseries 结论：先证明流化 staple 的可重整化与平台，再谈胶子 TMD 物理}
+
+  \vspace{1em}
+  \begin{tikzpicture}[node distance=0.35cm]
+    \node[flow] (a) {流化链接\\$\tau$ 扫描};
+    \node[flownew,right=of a] (b) {staple + soft\\同几何};
+    \node[flow,right=of b] (c) {核子断连\\外态平台};
+    \node[flownew,right=of c] (d) {matching + CS\\最终解释};
+    \draw[arrow] (a) -- (b);
+    \draw[arrow] (b) -- (c);
+    \draw[arrow] (c) -- (d);
+  \end{tikzpicture}
+  \vspace{1em}
+
+  \textcolor{muted}{当前交付：实现方案、代码映射、验证矩阵与风险边界；\\
+  当前不交付：未经运行的数值曲线、未经推导的完整胶子 TMD matching。}
+  \vfill
+  \source{总结来自本报告前述证据链；本页为结论摘要。}
+\end{frame}
+
+\end{document}
