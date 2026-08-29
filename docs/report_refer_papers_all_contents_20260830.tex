@@ -1,0 +1,2165 @@
+% ============================================================
+% refer/papers 全量论文明文内容总结
+% 生成器：docs/build_refer_papers_full_report.py
+% 编译：cd docs && xelatex -interaction=nonstopmode -halt-on-error report_refer_papers_all_contents_20260830.tex
+% ============================================================
+\documentclass[UTF8,11pt,oneside]{ctexbook}
+\usepackage[a4paper,margin=2.55cm]{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{caption}
+\usepackage{pdfpages}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\setCJKmainfont{AR PL UMing CN}
+\setCJKsansfont{Droid Sans Fallback}
+\setCJKmonofont{Droid Sans Fallback}
+\linespread{1.05}
+\setlength{\parskip}{0.35\baselineskip}
+\setlength{\parindent}{2em}
+\setlength{\emergencystretch}{3em}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{refer/papers 全量论文明文内容总结}
+\fancyhead[R]{\leftmark}
+\fancyfoot[C]{\thepage}
+\setlength{\headheight}{14pt}
+\hypersetup{pdftitle={refer/papers 全量论文明文内容总结},pdfauthor={Codex}}
+\begin{document}
+
+
+\frontmatter
+\begin{titlepage}
+  \centering
+  \vspace*{2.0cm}
+  {\Huge\bfseries refer/papers 全量论文明文内容总结\\[0.8em]}
+  {\Large 格点 QCD、部分子物理与数值方法\\[1.4em]}
+  {\large 以公式、推导、表格和逐篇全文为主}
+  \vfill
+  {\large 2026 年 8 月 30 日\\[0.5em]}
+  {\normalsize 生成入口：docs/build\_refer\_papers\_full\_report.py}
+\end{titlepage}
+\chapter*{编者说明：这里的“全量总结”是什么意思}
+本报告不是把论文压缩为标题、摘要或入选理由。它先用统一的物理主线说明每篇论文在格点可计算量、重正化、因子化、演化和物理输出中的位置，再按索引顺序嵌入 50 篇中文全文的已构建页面。因此，正文中可见的公式、表格、图注、附录与散文均来自当前工作区的中文译本构建结果；新增的跨论文文字只标作综合判断或结构式。
+由于当前工作区的论文目录以中文/英文 LaTeX 转排及其构建 PDF 为直接证据，本报告不声称重新下载或独立复现论文的外部 PDF、原始数据和数值结果。任何跨论文统一数值结论均列为未验证。
+\begin{table}[htbp]
+  \centering
+  \caption{报告范围与证据边界}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    纳入对象 & refer/papers/INDEX.md 中的 50 篇论文；英中目录对去重。 \\
+    直接明文 & 50 个中文译本 build/main.pdf；实际嵌入 1175 页。 \\
+    辅助参考 & refer/books/ 中的格点 QCD、QFT 与 Wilson 禁闭转排，用于基础定义、欧氏路径积分、规范场、禁闭和部分子背景。 \\
+    不作替代 & 本报告不是对外部原始 PDF 的逐页校勘，也不是原始数据再分析；源目录缺失的内容保持未验证。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\chapter*{全库物理主线：从欧氏格点到部分子观测量}
+全库内容可沿一条受对称性和尺度控制的链条阅读：先在欧氏格点上保持局域规范不变性，再用流、涂抹和重正化处理紫外结构，随后用大动量或短距离因子化把等时空间关联连接到光锥部分子分布，最后将 PDF/TMD 或采样系综与物理可观测量相比较。
+\begin{align}
+  Z[J] &= \int \mathcal D\phi\,\exp[-S_E[\phi]+J\phi], \\ 
+  U_\mu(x) &= \exp\!\left[iag A_\mu\!\left(x+\tfrac{a}{2}\hat\mu\right)\right], \\ 
+  \partial_t B_\mu(t,x) &= D_\nu G_{\nu\mu}(t,x), \qquad t\sim L_{\rm sm}^{2}, \\ 
+  O^{R}(z,\mu) &= Z(z,\mu,a)\,O^{\rm bare}(z,a), \\ 
+  \widetilde q(x,P_z,\mu) &= \int dy\,C(x,y,\mu/P_z)q(y,\mu)+\mathcal O(\Lambda_{\rm QCD}^{2}/P_z^{2}), \\ 
+  \mathcal O_{\rm Euclid} &\xrightarrow[\rm matching/evolution]{} f_{g/h}(x,\mu)\;\text{或}\;F_{\rm TMD}(x,b_T,\mu,\zeta).
+\end{align}
+\noindent 这些是跨论文阅读的结构式；每篇的精确约定、阶数、方案和误差必须以随后嵌入的原文为准。
+\begin{table}[htbp]
+  \centering
+  \caption{主题规模}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    格点规范基础 & 3 篇；嵌入全文 59 页；格点规范理论与禁闭 \\
+    梯度流与能动量张量 & 12 篇；嵌入全文 250 页；梯度流、涂抹与能动量张量 \\
+    LaMET、准 PDF 与赝 PDF & 4 篇；嵌入全文 45 页；LaMET、准分布与赝分布 \\
+    重正化与匹配 & 19 篇；嵌入全文 327 页；非微扰重正化、OPE 与匹配 \\
+    胶子、强子 PDF 与 TMD & 9 篇；嵌入全文 443 页；胶子、强子部分子分布与 TMD \\
+    机器学习采样与随机量化 & 3 篇；嵌入全文 51 页；机器学习采样与随机量化 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\chapter*{辅助参考的用法}
+辅助书籍不替代论文正文，而是用来固定阅读所需的底层定义。格点 QCD 导论提供 Wick 转动、欧氏路径积分、链接变量、局域规范变换、关联函数和谱提取；Gattringer–Lang 转排补充格点作用量、费米子、强子谱和数值实现；Peskin–Schroeder 的非阿贝尔规范章节补充协变导数、场强、规范玻色子相互作用和渐近自由；Wilson 禁闭转排提供格点规范理论的历史起点。
+\begin{table}[htbp]
+  \centering
+  \caption{辅助来源入口}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    格点 QCD 导论 & ../\allowbreak{}refer/\allowbreak{}books/\allowbreak{}格点QCD导论\_\allowbreak{}latex/\allowbreak{}chapters/\allowbreak{}sec05\_\allowbreak{}minkowski\_\allowbreak{}euclidean.tex；../\allowbreak{}refer/\allowbreak{}books/\allowbreak{}格点QCD导论\_\allowbreak{}latex/\allowbreak{}chapters/\allowbreak{}sec06\_\allowbreak{}formulation\_\allowbreak{}gauge.tex \\
+    禁闭与渐近自由 & ../\allowbreak{}refer/\allowbreak{}books/\allowbreak{}格点QCD导论\_\allowbreak{}latex/\allowbreak{}chapters/\allowbreak{}sec14\_\allowbreak{}confinement.tex；../\allowbreak{}refer/\allowbreak{}books/\allowbreak{}夸克禁闭\_\allowbreak{}latex/\allowbreak{}main.tex \\
+    格点规范专著 & ../\allowbreak{}refer/\allowbreak{}books/\allowbreak{}Quantum\_\allowbreak{}Chromodynamics\_\allowbreak{}on\_\allowbreak{}the\_\allowbreak{}Lattice\_\allowbreak{}latex/\allowbreak{}chapters/\allowbreak{}chapter01.tex；../\allowbreak{}refer/\allowbreak{}books/\allowbreak{}Quantum\_\allowbreak{}Chromodynamics\_\allowbreak{}on\_\allowbreak{}the\_\allowbreak{}Lattice\_\allowbreak{}latex/\allowbreak{}chapters/\allowbreak{}chapter06.tex \\
+    非阿贝尔 QFT & ../\allowbreak{}refer/\allowbreak{}books/\allowbreak{}量子场论导论\_\allowbreak{}latex/\allowbreak{}chapters/\allowbreak{}ch15.tex；../\allowbreak{}refer/\allowbreak{}books/\allowbreak{}量子场论导论\_\allowbreak{}latex/\allowbreak{}chapters/\allowbreak{}ch16.tex \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\tableofcontents
+\mainmatter
+
+\part{格点规范理论与禁闭}
+
+\chapter*{主题主线：格点规范理论与禁闭}
+\addcontentsline{toc}{chapter}{主题主线：格点规范理论与禁闭}
+从规范不变离散化、Wilson 圈和强耦合结构出发，建立欧氏格点上的规范场、夸克传播与禁闭图像。
+\begin{equation}
+  \langle W(C)\rangle\sim\exp[-\sigma A(C)]
+\end{equation}
+\noindent\textbf{结构解释：}量纲检查：$\sigma$ 具有面积倒数维度；大圈极限把面积律与线性势联系起来。
+\begin{table}[htbp]
+  \centering
+  \caption{格点规范基础：论文与物理接口}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    本主题论文 & 夸克禁闭、SU3链接变量解析涂抹、高动量强子新夸克涂抹 \\
+    共同关系 & 为后续梯度流、重正化和部分子算符提供规范不变的格点底座。 \\
+    证据状态 & 确证：每篇论文的中文全文 PDF；推断：本主题的共同接口；未验证：跨论文统一数值结论。 \\
+    阅读顺序 & 先读本主题的结构式与边界，再读下列论文的逐章明文内容；不把主题结构式当作某一篇的原文编号。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\chapter{P01：夸克禁闭}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P01：夸克禁闭：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & books/复用(Wilson74) \\
+    主题归属 & 格点规范基础 \\
+    中文全文页数 & 24 页（索引值与实测值一致） \\
+    章节入口 & 绪论；夸克束缚机制；规范场的格点量子化；格点上的经典作用量；量子化；强耦合近似；弱耦合近似；相变 \\
+    公式主线 & $\langle W(C)\rangle\sim\exp[-\sigma A(C)]$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}夸克禁闭\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P01：夸克禁闭：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 0.86 本文定义了一种与施温格（Schwinger）类似的使夸克完全禁闭的机制， 该机制要求存在阿贝尔或非阿贝尔规范场。文中展示了如何在欧几里得时空的离散 格点上对规范场理论进行量子化，既保持精确的规范不变性，又把规范场视为角变量 （从而无需规范固定项）。格点规范理论具有可计算的强耦合极限；在此极限下禁闭 机制成立，不存在自由夸克。遗憾的是强耦合极限下没有洛伦兹（或欧几里得）不变性。 强耦合展开涉及对所有夸克路径以及连接这些路径的所有（格点上的）曲面求和。 这一结构与强子的相对论性弦模型十分相似 \\
+    \textbf{方法/推导}\quad sec:intro 夸克组元图像（quark-constituent picture）在共振态和深度非弹性电子、中微子过程 两方面所取得的成功，使我们很难相信夸克并不存在。问题在于夸克从未被观测到。 这表明夸克出于某种原因不能作为独立粒子出现在末态中。关于这一点人们已经提出了 许多推测。（公式）与夸克问题无关，施温格（Schwinger）多年前便观察到：（公式）如果真空极化完全 屏蔽了规范理论中的电荷，那么规范理论的矢量介子可以获得非零质量。施温格用 一空间一时间的量子电动力学（QED）的精确解阐明了这一结果，其中光子对于任何 非零电荷（公式）获得质量（公式）[在这一理论中（公式）具有（公式）的量纲]。施温格猜测相同的效应在四维中对于足够强的耦合也可能发生。 洛文斯坦（Lowenstein）和斯维卡（Swieca）（公式）以及卡谢尔（Casher）、 科古特（Kogut）和苏斯坎德（Susskind）（公式）对施温格模型的进一步研究表明， 该模型的渐近态只包含有质量的光子，而不含电子。尽管如此，正如 Casher 等人 所详细证明的，电子出现在深度非弹性过程中，并且在短时间、短距离上表现得像 自由点状粒子。阻止电子出现在末态中的极化效应发生在更长的时间尺度上 （长于（公式），其中（公式）是光子质量）。 本文将提出一种使夸克保持束缚的新机制。该机制仅适用于规范理论。我们将在四维 时空的规范理论的强耦合极限下…… 格点理论的强耦合展开（见第四节）的一个非凡特征是，它具有与强子相对论性弦模型 相同的总体结构。（公式）规范理论的真空期望值（在强耦合展开中）涉及对所有夸克 路径以及连接这些路径的所有曲面求和；这些曲面由强耦合处理下的规范场产生。路径 和曲面定义在离散格点上。在把格点上的曲面与弦模型的连续曲面联系起来时存在几何 上的困难；目前尚不知道这些困难能否被克服。 第二节将定性讨论夸克束缚机制的性质。第三节将在离散格点上经典地、量子力学地 表述规范理论。第四节解释格点规范理论的强耦合展开。第五节对弱耦合作粗略讨论。 第六节简要讨论洛伦兹不变性问题以及与弦模型的关系 \\
+    \textbf{结果/讨论}\quad ……取值（公式）；令相互作用为（公式或图表位置）其中（公式）与自旋-自旋耦合有关，（公式）正比于外场。于是（公式或图表位置）其中（公式）表示对所有自旋的所有组态求和，而（公式或图表位置）在平均场近似中，假定与（公式）耦合的自旋（公式）可以用它们的平均值（公式）代替。结果，（公式）的公式化简为只对（公式）求和，即（公式或图表位置）其中（公式）是维数（通常为 3），而（公式或图表位置）结果是（公式或图表位置）如果（公式），该方程对作为（公式）函数的（公式）有唯一解；特别是（公式）时（公式）。 如果（公式），解是多值的；稳定性考虑表明，（公式）时必须选取（公式）的解。 在这一近似中，实际上已把（公式）换成（公式），如果（公式）很大这是 好的近似。这通常是平均场理论的性质。 可以对格点规范理论进行类似的平均场计算。此时简单的外场项具有形式（公式）（这一项要加到规范场作用量上），而（公式）可以定义为（公式）的期望值。 问题在于（公式）在极限（公式）下是否为零。在规范场理论中，（公式）与 另外三个指数的乘积耦合；作为平均场近似，把这一乘积用（公式）代替。结果是（公式或图表位置）其中（公式）是时空维数，（公式或图表位置）结果是（公式或图表位置）其中（公式）是贝塞尔函数的比值。如果（公式）很大，该方程的解唯一且（公式）时（公式）。 如果（公式）很小，那么（公式）时存在（公式）的解，稳定性考虑再次表明应优先选取（公式）的解。 在磁学情形中，发现自发磁化强度（公式）在（公式）时趋于零 [见 式（交叉引用）]。然而，规范场情形在（公式）时从来没有（公式）小而非零的解。因此 在（公式）由零变为非零的（公式）值处存在一阶相变。 在极限（公式）下（公式）非零意味着规范场对称性发生自发破缺。所以对小（公式），理论 显示出自发破缺。 关于平均场近似更彻底的讨论由 Balian、Drouffe 和 Itzykson 给出。（公式）格点 规范理论的哈密顿量形式由 Kogut 和 Susskind 给出。（公式）格点理论中夸克禁闭 的清晰综述见文献 20。强耦合规范理论与弦模型之间联系的另一种表述见文献 21 \\
+    \textbf{物理边界}\quad 量纲检查：$\sigma$ 具有面积倒数维度；大圈极限把面积律与线性势联系起来。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}夸克禁闭\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 24 页；对应的原始中文 TeX 目录为 \emph{夸克禁闭\_latex}。
+\clearpage
+\includepdf[pages=1-24,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/夸克禁闭_latex/build/main.pdf}
+\clearpage
+
+\chapter{P02：SU3链接变量解析涂抹}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P02：SU3链接变量解析涂抹：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:hep-lat/0311018 \\
+    主题归属 & 格点规范基础 \\
+    中文全文页数 & 12 页（索引值与实测值一致） \\
+    章节入口 & 引言；链接变量的解析涂抹；涂抹的实现；分子动力学演化；数值检验；结论 \\
+    公式主线 & $\langle W(C)\rangle\sim\exp[-\sigma A(C)]$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}SU3链接变量解析涂抹\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P02：SU3链接变量解析涂抹：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 本文提出并检验了一种格点 QCD 中链接变量的解析涂抹方法。该涂抹方案对链接 变量的可微性，使得对用这种涂抹链接构造的规范场作用量，可以采用基于分子 动力学演化的现代蒙特卡罗更新方法。在考察涂抹平均方格值与静态夸克-反夸克势 时，观察到与现行链接涂抹方法相比效果并无退化，只是发现对涂抹参数的敏感性 有所增大 \\
+    \textbf{方法/推导}\quad 格点 QCD 中从欧几里得空间关联函数的蒙特卡罗估计提取强子质量与矩阵元时， 如果所用算符对目标态耦合更强、对较高能级的污染态耦合更弱，则提取会更加 可靠和精确。对于包含胶子的态，在格点 QCD 中构造此类算符的一个关键要素是 链接变量涂抹（smearing）。由涂抹过或 fuzz 过的链接构造的算符，与理论高频 模式的混合被大幅压低。已经证明，此类算符的使用对胶球谱（引文）、 杂化介子质量（引文）、torelon 谱（引文）以及静态 夸克-反夸克势的激发谱（引文）的确定尤为有益。 链接变量光滑化在改进格点作用量的构造中也正发挥着日益重要的作用。 文献（引文）表明，在 staggered 夸克作用量中使用所谓的胖链接 （fat links）能显著减小味对称性破缺。随后，人们用涂抹过的链接（引文）构造了具有更好转动不变性的超立方费米子作用量。采用称为超立方（HYP）胖链接 的链接涂抹变换（引文）的 staggered 费米子作用量，其味对称性相对标准 作用量提高了一个数量级。所谓 Asqtad 改进 staggered 夸克作用量（引文）也利用链接加粗来减小味对称性破缺。 另一类利用涂抹链接变量的费米子作用量是胖链接无关 clover（FLIC）作用量（引文）。FLIC 费米子属 Wilson 型，其作用量包含一个用涂抹链接构造的 无关 clover 改进项。胖链接还被用于借助近似重整化群变换构造离散误差更……析，并以保持在（公式）内的方式利用指数函数，从而免去任何投影回 群的步骤。由于这一构造，该算法适用于任意李群。第（交叉引用）节 描述该方法；在构造算符时以及在计算作用量对链接变量变化的响应时的实际实现 分别于第（交叉引用）节与第（交叉引用）节详细给出； 数值检验在第（交叉引用）节给出。借助涂抹方格值以及与静态夸克-反夸克 势相联系的有效质量（公式），我们观察到与现行标准链接涂抹方法 相比效果并无退化，只是发现对涂抹参数的敏感性增大。结果还表明，由涂抹链接 变量构造的格点作用量与算符受辐射修正的影响可能要小得多，因为通常占主导 地位的大蝌蚪图贡献被急剧削减 \\
+    \textbf{结果/讨论}\quad sec:conclude 链接变量光滑化是构造胶子算符的关键要素，这类算符与理论高频模式的混合 被大幅压低。链接涂抹在改进格点作用量的构造中也正发挥着日益重要的作用。 标准涂抹方案相对底层链接变量缺乏可微性，阻碍了基于分子动力学演化的高效 蒙特卡罗更新方法的使用。 本文提出并检验了一种规避这些问题的链接涂抹方法。该链接涂抹方法在整个 有限复平面上处处解析，并以保持在（公式）内的方式利用指数函数，从而免去 任何投影回群的步骤。由于这一构造，该算法也适用于任意李群。文中描述了该 涂抹方案的高效实现，以及描述作用量随链接变量变化而改变的力项的递归计算。 尽管力场与底层链接变量的关系极为复杂，递归计算的每一步实际上都很直截了当， 使软件设计自然而高效。利用涂抹平均方格值以及与静态夸克-反夸克势相联系的 有效能量，我们表明：与现行的链接涂抹方法相比效果并无退化，只是发现对涂抹 参数的敏感性有所增大 \\
+    \textbf{物理边界}\quad 量纲检查：$\sigma$ 具有面积倒数维度；大圈极限把面积律与线性势联系起来。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}SU3链接变量解析涂抹\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 12 页；对应的原始中文 TeX 目录为 \emph{SU3链接变量解析涂抹\_latex}。
+\clearpage
+\includepdf[pages=1-12,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/SU3链接变量解析涂抹_latex/build/main.pdf}
+\clearpage
+
+\chapter{P04：高动量强子新夸克涂抹}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P04：高动量强子新夸克涂抹：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1602.05525 \\
+    主题归属 & 格点规范基础 \\
+    中文全文页数 & 23 页（索引值与实测值一致） \\
+    章节入口 & 引言；动量涂抹：基本思想；动量涂抹与强子两点函数；Wuppertal 涂抹；两点函数的构造；动量（Wuppertal）涂抹；自由场研究；非迭代（动量）涂抹；格点系综与色散关系；结果；涂抹的实现；动量涂抹的优化与检验；助推（动量）涂抹的检验；与色散关系的比较；结论；附录：助推（动量）涂抹 \\
+    公式主线 & $\langle W(C)\rangle\sim\exp[-\sigma A(C)]$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}高动量强子新夸克涂抹\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P04：高动量强子新夸克涂抹：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad —————- quote \\
+    \textbf{方法/推导}\quad 格点 QCD 模拟所预言的、与粒子和强子物理唯象学相关的可观测量正日益增多。 这些结果通常从大欧氏时间间隔处（公式）点函数的期望值中提取。 由于这些函数随时间衰减，当时间间隔取得很大时， 统计噪声与信号之比呈指数式增大（零动量赝标介子是一个显著的例外）。 幸运的是，在构造用于产生介子态和重子态的内插算符时存在一定的自由度。 采用与基态波函数空间结构相似的内插算符， 可以在信噪比仍然很大的时间间隔处提取渐近结果。 如今许多应用需要携带动量的强子。 例如，将（公式）或（公式）半轻子衰变形状因子的计算（引文）推向小虚度区域，分别要求空间动量达到（公式）介子与（公式）介子之间或（公式）重子与质子之间质量差的大小。 另一类重要应用是部分子分布函数（PDF）及其推广， 特别是横动量依赖部分子分布函数（TMD），以及作为整体的 Wigner 分布。 这些量同样是从（公式）型的矩阵元中提取的，其中（公式）是动量为（公式）的强子态。 算符（公式）在欧氏格点上不能有闵可夫斯基时间方向的延展。因此，为了对一个内禀非定域的 算符外推到光前运动学区域， 必须在强子携带高空间动量（公式）、（公式）的参考系中进行计算。 这一事实早在格点 TMD 计算的背景下就已为人所知（引文）， 并且在最近关于（公式）介子中这些分布的工作中得到了非常清晰的说明（引文）。 出于同样的原因，在一个新提出的、以受控方式将准部分子分布（quasi PDF） ……进行洛伦兹收缩。然而， 这并未带来人们所期待的基态增强。这里我们将论证并证明：要在高动量下获得满意的 结果，需要在夸克涂抹函数中加入额外的相位因子。 本文结构如下。 第（交叉引用）节讨论我们所引入的新一类涂抹函数背后的基本思想。 第（交叉引用）节更加具体，以 Wuppertal 涂抹作为一般性例子加以修改并提出进一步改进。 第（交叉引用）节讨论我们的模拟参数以及 对核子和（公式）介子能量的预期。铺垫完成之后， 第（交叉引用）节通过现实的数值研究考察该方法的可行性， 优化涂抹参数并对新旧方法进行比较。最后， 我们研究（公式）介子和核子的色散关系，然后作结论 \\
+    \textbf{结果/讨论}\quad 在许多格点规范理论应用中需要携带高动量的强子。由于（公式）点函数的相对误差随欧氏时间距离指数增长以及基态采样的减弱，高动量以往非常困难 甚至无法实现。在第（交叉引用）节 我们引入了一类新的夸克涂抹方法用于构造强子内插算符， 它们应对并显著缓解了这些问题。这些方法的一个具体实现——实现平凡且计算开销极小——是动量 Wuppertal 涂抹，定义见式（交叉引用）。 我们在第（交叉引用）节对其进行了非常成功的检验：仅用 200 次测量便能确定动量分别高达近（公式）和（公式）的（公式）介子与核子能量，见图（交叉引用）与（交叉引用）。这两幅图 还包括与传统方法的比较。 在第（交叉引用）节我们研究了 引入（附加）洛伦兹助推的可能性（引文）。 无论是否包含动量相位因子， 这都比无助推的 Wuppertal 涂抹有一定改进， 可能是因为沿动量方向内插波函数更快的衰减抑制了相位失配。 然而所得结果逊于不加任何 boost 的动量 Wuppertal 涂抹。 我们的结论是：收缩波函数的直觉可能并无根据， 因为强子在真实时间里运动而不在虚（欧氏） 时间里运动。 迭代方法 （无论是否动量涂抹）随着连续极限（公式）的逼近而苦于高迭代次数（公式），此外还有格点数目增加带来的朴素体积因子。因此，在第（交叉引用）节 我们引入了其他非迭代（动量）涂抹方法， 它们可能更适合小的格距， 并且也允许构造非高斯形状。 我们近期将使用这些方法。 实现远大于相关强子质量的动量在若干现代应用中具有根本重要性， 例如直接确定（准）分布 振幅（引文）、 （准）（广义）部分子分布（引文）以及横动量分布的矩（引文）。 新方法使我们能够（以非常有限的计算资源）提取高达动量（公式）的核子质量。 这清楚地使上述可观测量适合现实环境下的格点模拟。对三点函数而言，这些方法 甚至可能允许虚度（公式）：把源动量（公式）切换为汇动量（公式）。 用新涂抹计算这些量的工作视可观测量而定正在进行或已在计划之中 \\
+    \textbf{物理边界}\quad 量纲检查：$\sigma$ 具有面积倒数维度；大圈极限把面积律与线性势联系起来。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}高动量强子新夸克涂抹\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 23 页；对应的原始中文 TeX 目录为 \emph{高动量强子新夸克涂抹\_latex}。
+\clearpage
+\includepdf[pages=1-23,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/高动量强子新夸克涂抹_latex/build/main.pdf}
+\clearpage
+
+\part{梯度流、涂抹与能动量张量}
+
+\chapter*{主题主线：梯度流、涂抹与能动量张量}
+\addcontentsline{toc}{chapter}{主题主线：梯度流、涂抹与能动量张量}
+用流时间平滑短距离涨落，在保持规范协变性的同时构造可控的复合算符、耦合、质量和能动量张量。
+\begin{equation}
+  \partial_t B_\mu(t,x)=D_\nu G_{\nu\mu}(t,x),\qquad t\sim L_{\rm sm}^{2}
+\end{equation}
+\noindent\textbf{结构解释：}流时间与平滑长度满足平方关系；t→0 回到原始场，有限 t 则抑制紫外模式。
+\begin{table}[htbp]
+  \centering
+  \caption{梯度流与能动量张量：论文与物理接口}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    本主题论文 & 平凡化映射威尔逊流与HMC、威尔逊流的性质与应用、梯度流的微扰分析、手征对称性与杨米尔斯梯度流、杨米尔斯梯度流提取能动量张量、准部分子分布与梯度流、含费米子场的格点能动量张量、梯度流形式的双圈能动量张量、梯度流高阶计算的技术与结果、局域涂抹算符乘积展开、梯度流中的非光锥威尔逊线算符、任意阶部分子分布矩 \\
+    共同关系 & 把连续极限、微扰有限性和能动量张量重构连接到可计算的格点观测量。 \\
+    证据状态 & 确证：每篇论文的中文全文 PDF；推断：本主题的共同接口；未验证：跨论文统一数值结论。 \\
+    阅读顺序 & 先读本主题的结构式与边界，再读下列论文的逐章明文内容；不把主题结构式当作某一篇的原文编号。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\chapter{P05：平凡化映射威尔逊流与HMC}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P05：平凡化映射威尔逊流与HMC：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:0907.5491 \\
+    主题归属 & 梯度流与能动量张量 \\
+    中文全文页数 & 18 页（索引值与实测值一致） \\
+    章节入口 & 引言；场变换；场空间；右不变微分算符；雅可比矩阵；HMC 算法的变换行为；由流方程生成的变换；场空间中的流；积分后的变换；平凡化映射；平凡化流；平凡化流的存在性；（公式）的幂级数展开；Wilson 理论中/（公式）与/（公式）的计算；若干补充评论；威尔逊流的数值积分；正向积分；反向积分；欧拉积分器的雅可比矩阵；积分变换的雅可比行列式；所提议的格点 QCD 模拟算法；参数的选择；力的计算；域分解算法；结语；SU(3) 记号；群生成元；伴随表示；矩阵范数；SU(3) 指数函数的性质；Lipschitz 界；指数映射的微分；欧拉步的雅可比行列式；欧拉步的求逆；基本范数界；方程 (5.1) 的解；雅可比行列式的正性；（公式）的可微性；场流形上的 Sobolev 空间；（公式）之逆的性质；（公式）的展开 \\
+    公式主线 & $\partial_t B_\mu(t,x)=D_\nu G_{\nu\mu}(t,x),\qquad t\sim L_{\rm sm}^{2}$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}平凡化映射威尔逊流与HMC\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P05：平凡化映射威尔逊流与HMC：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 在格点规范理论中，存在一类场变换，能把该理论映射到基本场变量完全彼此退耦的平凡理论。 这类映射可以通过对场空间中某些流方程作积分而系统地构造出来。 本文较为细致地给出了这一构造，并建议将威尔逊流 （它为 Wilson 规范作用量生成近似的平凡化映射） 与 HMC 模拟算法结合起来， 以提高格点 QCD 模拟的效率 \\
+    \textbf{方法/推导}\quad 作为说明，现在对方块作用量 [引文]（公式或图表位置）（其中（公式）为逆规范耦合） 显式算出级数 (4.11) 的前两项。 利用完备性关系 (A.5) 作一简短计算， 可知领头项为（公式或图表位置）精确到这一阶，并且在时间参数（公式）的重新标度之内， Wilson 理论中的平凡化流因而与威尔逊流重合。（公式或图表位置）下一阶要计算的表达式是（公式或图表位置）此处可能出现的 Wilson 圈及 Wilson 圈之积， 来源于两个共享一条链接的方格圈的收缩。 于是总共有七类圈与圈对（公式），（公式）需要考虑（见图 2）。 把相应 Wilson 圈的迹求和后， 每一类（公式）定义了一个作用量（公式或图表位置）其中（公式）表示沿圈（公式）的链接变量的有序乘积。 这些方程中的求和遍及圈在格点上所有可能的位置。 取向相反的圈被视为不同， 并且都被包含在求和中。 再次利用恒等式 (A.5)，经过一些代数运算得到（公式或图表位置）（相差一个可加常数）。 此外，（公式或图表位置）在这些函数张成的子空间中， 算符（公式）很容易求逆， 于是得到结果（公式或图表位置）注意，此式中数值系数的小， 在某种程度上被类（公式）中每个格点上的圈数所补偿 （对于（公式）、（公式）、（公式）， 圈数分别等于（公式）、（公式）和（公式）） \\
+    \textbf{结果/讨论}\quad 本文以一个具体应用为目标讨论了 场空间中的平凡化映射与流。 然而，其底层概念相当普遍， 例如在严格的构造性工作、数值微扰论、 或与可重整化的光滑化技术相结合等方面， 可能还有其他用途。 所提议的威尔逊流与 HMC 算法的组合， 是否确实比迄今使用的模拟算法 更高效地对格点 QCD 的拓扑扇区采样，仍有待确定。 当格距越取越小时， 夸克场最终可能不得不被纳入流中， 或许还要包括第 4 节讨论的次领头阶修正。 无论如何，存在物质场时的平凡化映射 本身就是一个值得研究的课题 \\
+    \textbf{物理边界}\quad 流时间与平滑长度满足平方关系；t→0 回到原始场，有限 t 则抑制紫外模式。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}平凡化映射威尔逊流与HMC\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 18 页；对应的原始中文 TeX 目录为 \emph{平凡化映射威尔逊流与HMC\_latex}。
+\clearpage
+\includepdf[pages=1-18,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/平凡化映射威尔逊流与HMC_latex/build/main.pdf}
+\clearpage
+
+\chapter{P07：威尔逊流的性质与应用}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P07：威尔逊流的性质与应用：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1006.4518 \\
+    主题归属 & 梯度流与能动量张量 \\
+    中文全文页数 & 13 页（索引值与实测值一致） \\
+    章节入口 & 引言；小耦合下威尔逊流的性质；规范固定；修改后流方程的解；（公式）的展开；（公式）的计算；（公式）到（公式）阶的计算；重正化；威尔逊流的格点研究；模拟参数；观测量；（公式）的时间依赖性；晶格间距效应；小结；泛函积分与拓扑扇区；场变换；主导场的光滑性；拓扑扇区的动力学分离；拓扑磁化率；结束语；记号约定；一圈积分；威尔逊流的数值积分 \\
+    公式主线 & $\partial_t B_\mu(t,x)=D_\nu G_{\nu\mu}(t,x),\qquad t\sim L_{\rm sm}^{2}$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}威尔逊流的性质与应用\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P07：威尔逊流的性质与应用：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 对格点 QCD 中威尔逊流的理论与数值研究表明，在流时间（公式）处得到的规范场是一 个光滑的重正化场。因此，该场中局域规范不变表达式的期望值是良定义的物理量，它 们探测的是长度尺度（公式）量级上的理论。此外，通过把 QCD 泛函积分变换为对 指定流时间处规范场的积分，拓扑（瞬子）扇区在连续极限下的浮现变得透明，并且可以 看出这是由一种动力学效应引起的：当晶格间距从（公式）fm 减小到更小值时，各扇区被 迅速分离开来 \\
+    \textbf{方法/推导}\quad 在三个格点上，采用 Wilson 规范作用量和几种知名链更新算法的组合，生成了代表性规范 场系综。表（交叉引用）所引晶格间距值由 Guagnelli 等人（引文）发表的 Sommer 参考标度（公式）fm（引文）的格点单位结果导出。在所选 耦合（公式）下，三个格子的间距按因子（公式）从大约（公式）fm 递减到（公式）fm。此外，各格子以物理单位表示的尺寸近似恒定。 为了可靠地抑制所生成的（公式）个场之间残余的统计关联，相邻场在模拟时间 上的间隔取为拓扑荷积分自关联时间的至少（公式）倍。后者在格点上的定义有一定含糊性， 但其自关联时间在很大程度上与所作的选择无关，且已知当晶格间距减小时增长得非常 迅速（引文）。特别地，早在（公式）fm 处， 所有其他常用感兴趣的量在模拟时间上的关联就已远远更弱 \\
+    \textbf{结果/讨论}\quad 本文报告的结果为非阿贝尔规范理论的本质以及格点 QCD 的连续极限提供了若干新的认识。 它们显然在多个方面仍不完整，并引出一些有趣的问题。特别是，要对其重正化性质获得结 构性的理解，很可能需要对威尔逊流作全阶的微扰分析。 第 2 节中的一圈计算提示，无论夸克味数多少，在正流时间得到的场都是重正化场。迄今 这个问题只在纯规范理论中被数值地研究过；但令人鼓舞的是可以指出：作为规范 Ward 恒等式的推论，该猜想对 QED 以及任意带电物质多重态都成立。 变换后的泛函积分（交叉引用）的一个引人入胜之处是它由光滑场所支配。由于场变换（交叉引用）是可逆的，这个积分仍然编码了理论所描述的全部物理。不过， 理论的某些性质（例如拓扑扇区的分割）在这种表述下变得特别透明，而其在高能下的行为 则用基本规范场来讨论更为合适 \\
+    \textbf{物理边界}\quad 流时间与平滑长度满足平方关系；t→0 回到原始场，有限 t 则抑制紫外模式。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}威尔逊流的性质与应用\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 13 页；对应的原始中文 TeX 目录为 \emph{威尔逊流的性质与应用\_latex}。
+\clearpage
+\includepdf[pages=1-13,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/威尔逊流的性质与应用_latex/build/main.pdf}
+\clearpage
+
+\chapter{P08：梯度流的微扰分析}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P08：梯度流的微扰分析：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1101.0963 \\
+    主题归属 & 梯度流与能动量张量 \\
+    中文全文页数 & 19 页（索引值与实测值一致） \\
+    章节入口 & 引言；流方程的迭代解；梯度流的定义；按基本规范场幂次的展开；流线图；微扰论；规范固定；规范场传播子；（公式）维中的费曼规则；（公式）维中的场论；作用量；传播子；顶点；流线与流线圈；单圈阶示例计算；自能图的计算；重正化；体场需要重正化吗？；BRS 对称性；边界场的 BRS 变换；体鬼场；体场的 BRS 变分；BRS 恒等式的例子；重正化微扰展开的有限性；重正化微扰论；体抵消项的不存在；边界抵消项；BRS 对称性的推论；若干补充说明；规范场在流时间零点附近的行为；规范不变的复合场；含物质场的理论；格点正规化；结论；记号约定；流顶点；图（交叉引用）中各图的计算 \\
+    公式主线 & $\partial_t B_\mu(t,x)=D_\nu G_{\nu\mu}(t,x),\qquad t\sim L_{\rm sm}^{2}$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}梯度流的微扰分析\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P08：梯度流的微扰分析：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 非阿贝尔规范理论中的梯度流由一个定域扩散方程定义，它以规范协变的方式 使规范场随流时间演化。与 Langevin 方程的情形类似， 随时间变化的场的关联函数可以按微扰论展开， 其费曼规则就是（公式）上一个可重正化场论的费曼规则。 对任意物质多重态、到所有圈阶，我们证明这些关联函数都是有限的， 也就是说，只要四维理论按通常方式重正化， 它们便不需要附加的重正化。 因此，该流把规范场映射为一族带单个参数的光滑的重正化场 \\
+    \textbf{方法/推导}\quad ssec:defflow 梯度流使规范场作为一个参数（公式）（称为流时间）的函数而演化。 从基本规范场出发，（公式或图表位置）随时间变化的场（公式）由微分方程（公式或图表位置）确定。``梯度流''这一名称源于如下事实：式（交叉引用）右端第一项 正比于规范作用量沿流的梯度。注意，初始条件（交叉引用）与流方程（交叉引用）都不涉及规范耦合。 式（交叉引用）右端的第二项是为了阻尼场的规范自由度的演化而加入的。 与 Langevin 方程的情形（引文）一样， 这样做可以避免微扰分析中的某些技术性麻烦， 同时不影响规范不变可观测量的演化。事实上，后者不依赖于参数（公式）， 因为在不同（公式）值下得到的方程（交叉引用）的解 彼此通过一个（依赖时间的）规范变换相联系（引文） \\
+    \textbf{结果/讨论}\quad sec:conclusions 梯度流生成的规范场不需要重正化这一事实， 是流方程的定域性、对称性与抛物型性质共同导致的结果。 特别是在与之相联系的（公式）维场论中， 体抵消项之所以被排除，仅仅是因为体场的演化在大时间处是推迟的， 从而由树图描述。 然而，除流时间为零处理论重正化所需的那些抵消项之外 其他边界抵消项的不存在却是非平凡的， 只能借助幂次计数与 BRS 对称性来证明。 存在物质场时，只要只有规范场随时间演化，情形便基本不变。 因此场在正流时间处关联函数的有限性仍然得到保证。 不过，把全部或部分物质场纳入流中是一个有待探索的有趣选择 \\
+    \textbf{物理边界}\quad 流时间与平滑长度满足平方关系；t→0 回到原始场，有限 t 则抑制紫外模式。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}梯度流的微扰分析\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 19 页；对应的原始中文 TeX 目录为 \emph{梯度流的微扰分析\_latex}。
+\clearpage
+\includepdf[pages=1-19,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/梯度流的微扰分析_latex/build/main.pdf}
+\clearpage
+
+\chapter{P09：手征对称性与杨米尔斯梯度流}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P09：手征对称性与杨米尔斯梯度流：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1302.5246 \\
+    主题归属 & 梯度流与能动量张量 \\
+    中文全文页数 & 34 页（索引值与实测值一致） \\
+    章节入口 & 引言；QCD 中的梯度流；流方程；局域复合场；微扰论；非零流时间下的夸克凝聚；（公式）+1 维场论；场与作用量；关联函数；费米子积分；重正化；手征对称性关系；夸克场方程与 PCAC 关系；重正化的 PCAC 关系；赝标矩阵元与手征凝聚；手征微扰论；格点正规化；流方程；（公式）维格点理论；四维理论的恢复；连续时间极限；壳上 O(（公式）) 改善；有效作用量；有效局域场；O(（公式）) -0.5pt 改进的格点作用量；重正化的改进场；场（公式）的改善与重正化；格点上的 PCAC 关系；关联函数的计算；赝标两点函数；手征凝聚；（公式）与（公式）的计算策略；PCAC 关系的积分形式；上-下味道道；上-奇异味道道；（公式）味 QCD 中的示例计算；模拟细节；（公式）与（公式）的计算；手征凝聚的计算；若干说明；结束语；记号约定；规范群；狄拉克矩阵；格点理论；映射 (5.9) 的性质；Wick 收缩；费米子作用量与泛函积分；场变换；收缩；连续时间极限下的收缩；格点流方程的积分；梯度流的积分；夸克流方程的积分；伴随流方程 (7.10) 的积分；伴随龙格–库塔积分；稳定性问题；改进方案；分级方案 \\
+    公式主线 & $\partial_t B_\mu(t,x)=D_\nu G_{\nu\mu}(t,x),\qquad t\sim L_{\rm sm}^{2}$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}手征对称性与杨米尔斯梯度流\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P09：手征对称性与杨米尔斯梯度流：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 近几年来，杨–米尔斯梯度流已被证明是非阿贝尔规范理论非微扰研究的一种有吸引力的工具。 本文考虑将该流向 QCD 夸克场的一个简单推广。 与纯规范梯度流的情形一样， 涉及正流时间局域场的关联函数的可重正化性， 可以借助一个（公式）维局域场论的表示来建立。 推广后的流在格点 QCD 中的应用包括： 非微扰重正化与 O(（公式）) 改善， 以及在手征极限下手征凝聚和赝标衰变常数的精确计算 \\
+    \textbf{方法/推导}\quad 现在假定夸克多重态包含两个轻夸克， 称为（公式）、（公式）夸克，二者具有相同的 重正化质量（公式）。 若再无太多其余夸克，（公式）道的手征对称性预期会发生自发破缺， 于是存在一个赝标介子三重态——``（公式）介子''， 其质量随（公式）而趋于零。 在大距离处，轻夸克赝标关联函数 由中间单（公式）介子态主导。 特别地，当（公式）时（公式）其中（公式）表示到更高态的能量间隙， 而（公式）、（公式）与（公式）分别是（公式）介子质量、衰变常数 与轴矢密度的真空到（公式）介子矩阵元。 从四维理论的观点看，（公式）不是局域场， 但由于光滑核（公式）在大距离（公式）处 近似按高斯型衰减， 它仍然是基本场的一个相当局域的表达式。 当（公式）远大于光滑范围（公式）时， 两点函数（公式）因而与普通赝标关联函数按同样方式衰减。 系数（公式）等于某个算符的真空到（公式）介子矩阵元， 但此处把它视为由式 (4.19) 定义的量。 表征（两味）手征极限的低能有效常数（公式）是手征凝聚（公式）以及在（公式）处的（公式）介子衰变常数值（公式）。 如前所述， 通过手征 Ward 恒等式 (4.16) 可以把它们与随时间演化的 轻夸克凝聚（公式）联系起来。利用 PCAC 关系（公式）后者可以写成如下形式：（公式）此式右端的积分在（公式）时发散， 其渐近行为由动量空间中关联函数的（公式）极点决定。 回忆式 (4.19)，即可得出结论（公式）于是在手征极限下， 随时间演化的凝聚（公式）提供了手征对称性自发破缺的一个序参量， 它与标准凝聚（公式）只差一个比例常数。 式 (4.24)、(4.25) 的一个显著特点是： 其中完全没有提及轴矢流， 甚至没有通过归一化条件隐含涉及； 而且这些等式对任何（正的）流时间（公式）都成立。 此外，重正化常数（公式）消失了， 因此例如衰变常数（公式）可以直接由裸的随时间演化凝聚 与赝标真空到（公式）介子矩阵元给出 \\
+    \textbf{结果/讨论}\quad 通过向夸克场的推广， 梯度流成为研究 QCD 中手征对称性自发破缺 以及轻赝标介子物理的有力工具。 本文的重点是理论框架及其在广泛使用的格点 QCD 表述之一中的实现。 鉴于流的重正化性质， 可以预期：只要格点理论的局域性与规范不变性得到保证， 格点正规化的选择在连续极限下无关紧要。 显然，这一理论分析同样适用于 具有其他规范群与费米子多重态的场论。 在迄今具体完成的例子中， 梯度流在数值格点 QCD 中的应用 相对于既有的计算策略展现出重要的技术优势。 除了第 1 节已经提到的那些之外， 还存在许多潜在的进一步用途。 例如味单态道尚未被考虑， 而随时间演化的凝聚很可能是非零温度 QCD 中 一个易于获取的手征序参量。 此外，把流应用于共形窗附近的类 QCD 理论， 或许可以带来有趣的定性洞见 \\
+    \textbf{物理边界}\quad 流时间与平滑长度满足平方关系；t→0 回到原始场，有限 t 则抑制紫外模式。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}手征对称性与杨米尔斯梯度流\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 34 页；对应的原始中文 TeX 目录为 \emph{手征对称性与杨米尔斯梯度流\_latex}。
+\clearpage
+\includepdf[pages=1-34,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/手征对称性与杨米尔斯梯度流_latex/build/main.pdf}
+\clearpage
+
+\chapter{P10：杨米尔斯梯度流提取能动量张量}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P10：杨米尔斯梯度流提取能动量张量：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1304.0533 \\
+    主题归属 & 梯度流与能动量张量 \\
+    中文全文页数 & 16 页（索引值与实测值一致） \\
+    章节入口 & 引言；杨–米尔斯理论与能量–动量张量；维数正规化下的能量–动量张量；迹反常的含义；杨–米尔斯梯度流与小流时间展开；重正化群方程与渐近公式；系数的重正化群方程；最低阶近似与渐近公式；结论；系数函数的单圈计算 \\
+    公式主线 & $\partial_t B_\mu(t,x)=D_\nu G_{\nu\mu}(t,x),\qquad t\sim L_{\rm sm}^{2}$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}杨米尔斯梯度流提取能动量张量\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P10：杨米尔斯梯度流提取能动量张量：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 对于正的流时间，由杨–米尔斯梯度流产生的规范场的乘积不表现出重合点奇异性， 因而这样的局域乘积与正规化方案无关。而且，这样的局域乘积可以用零流时间处 的重正化局域算符展开，展开系数有限并受重正化群方程支配。利用这些事实，我 们导出了一个公式，它把某些规范不变局域乘积的小流时间行为与杨–米尔斯理论 中正确归一化的守恒能量–动量张量联系起来。我们的公式提供了一种可能的方 法，通过格点正规化与蒙特卡罗模拟来计算一个良定义的能量–动量张量的关联函 数 \\
+    \textbf{方法/推导}\quad sec:1 尽管格点正规化为场论提供了非常强有力的非微扰表述，但遗憾的是，它与基本的 整体对称性常常不相容。最著名的例子是手征对称性（引文）；超对称性是另一个臭名昭著的例子（引文），不用 说，平移不变性也是如此。当一种正规化在某个对称性下不是不变的时候，要构造 相应的 Noether 流并不直接了当——该流应当守恒，并通过 Ward–Takahashi （WT）关系生成对称性变换。这使得在坚实的基础上测量与 Noether 流相关的物 理量十分困难。为解决这个问题，人们可以设想至少三种可能的途径。 第一种途径是理想化的：找到一种实现（格点修正形式的）所求对称性的格点表 述。如果这样的表述唾手可得，那么用标准的 Noether 方法就可以容易地得到相 应的 Noether 流。这方面最成功的例子是格点手征对称性（引文），它可以由满足 Ginsparg–Wilson 关系（引文）的格点狄拉克算符来定义。虽然 这无疑是一条理想的途径，但这样的理想表述似乎并不总能得到，特别是对时空对 称性（关于超对称性的 no-go 定理，例如见文献（引文））。 第二种途径是通过调节系数来构造 Noether 流，这些系数出现在按格点对称性可 与 Noether 流混合的算符的线性组合之中。 这里，我们假设已经完成 了把裸参数细调到目标（对称）理论的工作。 例如，对于能量–动量张量——与平 移不变性以及转动和共形对称性相联系的 ……重正化局域算符展开，展开系数有限。这些系数满足一定 的重正化群方程；结合量纲分析，它们给出系数作为流时间函数的信息。由于渐近 自由，进而可以用微扰论求出这些系数在小流时间下的渐近行为。 利用上述梯度流的性质，可以得到一个公式，它把某些规范不变局域乘积的小流时 间行为与由维数正规化定义的能量–动量张量联系起来。由于前者可以用格点正规 化的 Wilson 流计算（引文），而后者守恒并在复合算符上生成正确归一化的平移，我们的公 式提供了一种可能的方法：用蒙特卡罗模拟来计算正确归一化的守恒能量–动量张 量的关联函数。 除非另有说明，本文沿用文献（引文）的记号约定 \\
+    \textbf{结果/讨论}\quad 本文导出了一个公式，它把杨–米尔斯梯度流产生的某些规范不变局域乘积的短流 时间行为，与杨–米尔斯理论中正确归一化的守恒能量–动量张量联系起来。我们 的主要结果是式（交叉引用）。式（交叉引用）的右端可以在格点规 范理论中用 Wilson 流、配合算符（交叉引用）与（交叉引用）的适当 离散化来计算（例如见文献（引文））。这里必须 首先取连续极限（公式），然后才取（公式）极限；否则我们的基本推理不成立。 虽然公式（交叉引用）在数学上应当是正确的，但它的实际有用性则是另一 个问题，必须通过数值仔细检验。 我们希望在不远的将来回到这一问 题。 由于要使我们的推理有效，格距（公式）必须远小于流时间的平方根（公式），式（交叉引用）的可靠应用将需要相当小的格距。人们还会担 心高维算符的污染（即式（交叉引用）与（交叉引用）中的（公式）项）以及本文未予考虑的有限体积效应。如果我们的策略在实践中可行，它将提供 一种全新的方法来计算包含良定义能量–动量张量的关联函数。显然，本文处理格 点上能量–动量张量的思路并不限于纯杨–米尔斯理论，尽管存在其他场时处理可 能稍微复杂一些。应用将包括：切变与体黏滞系数的确定（例如见文 献（引文））、热力学量的测量（见文 献（引文）及其所引文献）、与（近似）伸缩不变性相联系的赝 Nambu–Goldstone 玻色子的质量与衰变常数（见文献（引文）及其所引文献），等等。 同样显然的是，我们的基本想法——用格点正规化定义的算符可以和连续理论中的 算符通过梯度流联系起来——并不限于能量–动量张量。例如，或许可以从局域乘 积的小流时间极限出发，在格点上构造理想的手征流或理想超流。追求这一想法将 是有意义的 \\
+    \textbf{物理边界}\quad 流时间与平滑长度满足平方关系；t→0 回到原始场，有限 t 则抑制紫外模式。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}杨米尔斯梯度流提取能动量张量\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 16 页；对应的原始中文 TeX 目录为 \emph{杨米尔斯梯度流提取能动量张量\_latex}。
+\clearpage
+\includepdf[pages=1-16,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/杨米尔斯梯度流提取能动量张量_latex/build/main.pdf}
+\clearpage
+
+\chapter{P28：准部分子分布与梯度流}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P28：准部分子分布与梯度流：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1612.01584 \\
+    主题归属 & 梯度流与能动量张量 \\
+    中文全文页数 & 11 页（索引值与实测值一致） \\
+    章节入口 & Introduction；sec:defs 分布函数；裸 PDFs；重正化的 PDFs；涂抹准 PDFs；sec:spdf 与光前分布的关系；sec:renormpdf 短距离展开；sec:match 匹配核的类 DGLAP 方程；sec:concs 结论 \\
+    公式主线 & $\partial_t B_\mu(t,x)=D_\nu G_{\nu\mu}(t,x),\qquad t\sim L_{\rm sm}^{2}$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}准部分子分布与梯度流\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P28：准部分子分布与梯度流：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 我们提出一种从格点量子色动力学确定准部分子分布函数（PDFs）的新方法。 通过引入梯度流，该方法保证格点 准 PDFs 在连续极限下有限，并回避了格点上准 PDFs 重正化这一棘手且迄今尚未解决的问题。在流时间远小于核子动量所设定长度尺度的极限下，涂抹准 PDF 的矩 与光前 PDF 的矩成正比。 我们利用这一关系推导出联系涂抹准 PDF 与光前 PDF 的匹配核的演化方程 \\
+    \textbf{方法/推导}\quad 量子色动力学（QCD）是把强子束缚态与其部分子组分——夸克和胶子——联系起来的强相互作用理论。尽管实验上无法直接探测夸克与胶子， 但强子与部分子之间的联系可以通过部分子 分布函数（PDFs）来刻画。 PDFs 描绘了强子结构中与组分夸克、胶子的动量、角动量和自旋相关的方面，在我们理解高能强子散射过程中发挥着核心作用 （例如参见文献（引文））。通过因子化， 深度非弹性散射和 Drell–Yan 产生等简单散射过程的散射 振幅可以表示为微扰系数与 PDFs 的卷积，后者编码了强子能标下 QCD 的非微扰动力学。 原则上，从 QCD 直接计算 PDFs 将为强子结构提供新的洞见、给出对 QCD 更严格的检验，并降低高能散射实验中的系统不确定度。然而，目前唯一系统的从头计算非微扰 QCD 的方法是格点 QCD，其中 QCD 被构建在离散的欧几里得超立方体上。PDFs 由光前波函数的矩阵元定义，无法直接从欧几里得格点 QCD 确定。目前 PDFs 是通过对大量散射数据的全局分析来确定的（近期若干分析的例子可参见文献（引文））。 因此，格点 QCD 计算转而集中于 PDFs 的前几个 Mellin 矩，它们可以与局域扭度2算符的矩阵元联系起来；这里扭度（twist）是算符的量纲减去自旋。格点调节子破坏了转动对称性，从而诱导出连续时空中本不会混合的格点算符之间的混合。不同质量量纲的扭度2算符之间的混合在格点上引入幂发散……的极限，此时核子动量足够大以致高扭度效应可以忽略。在这一极限下，我们通过小流时间展开把涂抹准 PDF 的矩用光前 PDF 的矩表出。 我们方法的首要优点是：用格点 QCD 确定的非微扰矩阵元具有有限的连续极限。由流时间调节的涂抹准 PDF 与光前 PDF（比如取（公式）方案）之间的匹配可在连续时空中进行，并且与非微扰格点计算的细节无关。 我们先在第（交叉引用）节重温光前 PDFs 与准 PDFs 的定义。随后在第（交叉引用）节分析光前 PDFs 与准 PDFs 之间的关系，并在第（交叉引用）节推导匹配核的演化方程。最后我们在第（交叉引用）节给出总结与结论 \\
+    \textbf{结果/讨论}\quad 部分子分布函数（PDFs）借核子的组分夸克与胶子刻画核子结构。这些 PDFs 定义为光前波函数的矩阵元，无法直接在欧几里得格点 QCD 中计算。然而原则上，PDFs 的 Mellin 矩可以通过 扭度2算符的矩阵元在格点 QCD 中计算。 遗憾的是，这类计算仅限于头几个矩，因为 格点调节子的超立方对称性在不同质量量纲的扭度2算符之间诱导幂发散混合，模糊了格点上确定的矩阵元的连续极限。当前对 PDFs 的测定依赖于对众多实验道数据的全局分析， 尚缺乏从第一性原理出发的 PDF 测定。 最近，Ji 提出了在格点 QCD 中确定 PDFs 的新途径；随后，Qiu 与 Ma 通过一个相关框架也提出了类似方案。 在这一途径中，人们在大核子 动量处计算欧几里得准 PDFs。两项近期的格点计算给出了有希望的结果， 但该方法的若干方面仍有待充分理解。第一，存在与格点计算中有限核子动量相关的系统不确定度这一实际问题。 随着计算资源的改进与已在进行的算法进展， 这一问题有望得到解决，其精度将足以让结果能在实验数据不足之处为全局分析提供有用输入。第二，有待澄清的理论问题有二： 定义准 PDFs 的延展算符的重正化； 以及欧几里得准 PDF 与光前 PDF 之间的关系——迄今后者仅通过单圈微扰论中的因子化公式得到分析。 我们通过引入由梯度流涂抹的场构造的准 PDF，回应了上述第一个理论考量。 我们明确证明：一旦并入核子质量修正，……式）（（公式）为核子的欧几里得动量）与（公式）（（公式）为流时间）量级上出现。由这一对应可知，只要（公式），准 PDF 与光前 PDF 便可通过卷积关系进行匹配。 我们方法的主要优点是：梯度流使准 PDF 在连续极限下有限，并回避了 定义格点上准 PDF 的非局域算符的重正化问题。由此得到的连续矩阵元 与开展格点 QCD 计算所选用的离散作用量无关，并可用 连续时空微扰论直接匹配到（公式）方案下的相应光前 PDFs。结合非微扰步标度（step-scaling）程序， 该匹配可在足够高的能量处进行， 使微扰截断误差不再失控。我们方案的非微扰实现正在进行之中 \\
+    \textbf{物理边界}\quad 流时间与平滑长度满足平方关系；t→0 回到原始场，有限 t 则抑制紫外模式。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}准部分子分布与梯度流\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 11 页；对应的原始中文 TeX 目录为 \emph{准部分子分布与梯度流\_latex}。
+\clearpage
+\includepdf[pages=1-11,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/准部分子分布与梯度流_latex/build/main.pdf}
+\clearpage
+
+\chapter{P35：含费米子场的格点能动量张量}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P35：含费米子场的格点能动量张量：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1403.4772 \\
+    主题归属 & 梯度流与能动量张量 \\
+    中文全文页数 & 31 页（索引值与实测值一致） \\
+    章节入口 & 引言与主要结果；维数正规化下的能动量张量；Yang–Mills 梯度流；流方程与微扰展开；加圈费米子场；由流动场构造的能动量张量；小流时间展开与重正化群论证；（公式）至单圈阶；一致性检验：迹反常；主公式；小流时间极限下的运动方程；结论；（公式）方案中的单圈重正化；参数与基本场；复合算符；积分公式；（公式）的胶子贡献；我们计算方案的合理性论证；修改后的能动量张量 \\
+    公式主线 & $\partial_t B_\mu(t,x)=D_\nu G_{\nu\mu}(t,x),\qquad t\sim L_{\rm sm}^{2}$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}含费米子场的格点能动量张量\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P35：含费米子场的格点能动量张量：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 经所谓 Yang–Mills 梯度流变形之后的场的局域乘积成为重正化复合算符。这一事实已被用来在纯 Yang–Mills 理论的格点表述中构造正确归一且守恒的能动量张量。本文将该构造进一步推广到含 费米子的矢量型规范理论 \\
+    \textbf{方法/推导}\quad sec:1 能量与动量是物理学中的基本概念。然而在格点场论（量子场论发展最成熟的非微扰表述）中， 与之对应的诺特流，即能动量 张量（引文），的构造却 并非直截了当（引文），因为平移不变性被格点结构 显式破缺。在近期的一篇论文（引文）中，人们基于 Yang–Mills 梯度流 （在格点规范理论的语境中也称 Wilson 流）（引文）提出了一种可能的方法来规避格点上能动量张量所固有的这一困难。 在文献（引文）中，一种由移位边界条件出发定义格点 能动量张量的有趣方法得到了发展。文献（引文）中则提出了基于（公式）超对称的一种方法。 关于梯度流的近期综述可参见 文献（引文）；其在格点规范理论中的应用可参见 文献（引文）。 文献（引文）的基本思想如下： 以下推理受到了 E. Itou 和 M. Kitazawa 所作开创性尝试（未发表）的启发。 考虑纯 Yang–Mills 理论。梯度流按照带 流时间（公式）的流方程［见下文式（交叉引用）］使裸规范场（公式）发生变形， 这使得规范场位形在正流时间下变得“光滑”。可以证明，在微扰论的任意阶上，对任意严格为正 的流时间（公式），流动规范场（公式）的任何局域乘积在用重正化参数表达时都是紫外（UV） 有限的（引文）。特别地，无需任何相乘重正化因子即可使这些局域乘积有限。 换言之，它们是重正化了的复合算符。这样的 UV 有限量应当是“普适的”，也就是说，在取去 调节子的极限下，…… 能动量张量的关联函数。然而，为了保证“普适性”，必须先取连续极限、再取（公式）极限。实际操作中，由于格距（公式）有限，流时间（公式）不能任意地小，以便保持与连续物理的联系； 于是存在自然约束（公式或图表位置）其中（公式）表示典型的物理尺度，例如强子尺度或盒子尺寸。因此（公式）的外推一般要求足够细的格点。 下面是我们对二次 Casimir 算符的定义：我们把表示（公式）的反厄米生成元（公式）归一化为（公式）以及（公式）。同时记（公式）。由（公式）中的结构常数定义（公式）。例如，对（公式）的基本 表示（公式）（此时（公式）），常规归一化为（公式或图表位置） \\
+    \textbf{结果/讨论}\quad sec:6 本文基于 Yang–Mills 梯度流，构造了公式（交叉引用），它为在含费米子的格点规范理论 中计算包含能动量张量的关联函数提供了一种可能的方法。这是文献（引文）针对纯 Yang–Mills 理论的构造的自然推广。尽管其在格点蒙特卡罗模拟中应用的可行性尚待仔细 考察，但 quenched QCD 热力学方面的经验（引文）强烈表明：即便采用目前可得 到的格点参数，也存在窗口（交叉引用），在其内可以可靠地完成 式（交叉引用）中（公式）的外推。我们期待本表述的各种应用。其一是具有红外不动点的 多味规范理论（此类理论正受到近期的活跃研究；最近一次格点会议上的报 告（引文）可作为近期综述） \\
+    \textbf{物理边界}\quad 流时间与平滑长度满足平方关系；t→0 回到原始场，有限 t 则抑制紫外模式。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}含费米子场的格点能动量张量\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 31 页；对应的原始中文 TeX 目录为 \emph{含费米子场的格点能动量张量\_latex}。
+\clearpage
+\includepdf[pages=1-31,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/含费米子场的格点能动量张量_latex/build/main.pdf}
+\clearpage
+
+\chapter{P36：梯度流形式的双圈能动量张量}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P36：梯度流形式的双圈能动量张量：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1808.09837 \\
+    主题归属 & 梯度流与能动量张量 \\
+    中文全文页数 & 19 页（索引值与实测值一致） \\
+    章节入口 & 引言；微扰论中的 QCD 梯度流；能量-动量张量；Wilson 系数的计算；投影方法；计算方法；到 NNLO QCD 的系数函数；迹反常；算符重正化；结论；费曼规则 \\
+    公式主线 & $\partial_t B_\mu(t,x)=D_\nu G_{\nu\mu}(t,x),\qquad t\sim L_{\rm sm}^{2}$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}梯度流形式的双圈能动量张量\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P36：梯度流形式的双圈能动量张量：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad QCD 能量-动量张量的梯度流表述被推广到 NNLO 微扰论。也就是说，在常规 能量-动量张量的相应表达式中乘在流动算符上的 Wilson 系数被计算到了这一阶。 结果的获得得益于近代正规微扰论工具的应用：把出现的双圈积分——其中还包含 流时间积分——约化为一小组可以解析计算的主积分 \\
+    \textbf{方法/推导}\quad 为计算系数（公式），我们使用所谓的``投影方法''（引文）： 构造外态（公式）和微分算符（公式），使得（公式或图表位置）这里为方便起见略去了洛伦兹指标；并且我们把矩阵元定义为只包含关于（w.r.t.） QCD 粒子为单粒子不可约（1 PI ）的图。将（公式）作用于 eq:zetas 两边，得到（公式或图表位置）由于（公式）只依赖流时间（公式）和重正化标度（公式），我们可以任意选取 此方程中其他一切有量纲参数的值。把它们置零后，右边所有高阶修正都变成无质量 蝌蚪图，因此只需在树图层面要求 eq:projectors 成立。于是得到（公式或图表位置）其中（公式）与（公式）统称所有质量和外动量。这样右边给出真空图，其唯一的有量纲 标度是（公式）。 为了找到合适的投影符，我们先对算符的相关项推导费曼规则。例如（脚注：本文 所有费曼图均用 TikZ-Feynman 绘制（引文）。）（公式或图表位置）其中动量定义为外向。这提示我们采用（公式或图表位置）其中（公式）是规范群伴随表示的维数；对 SU(（公式）)，有（公式）。到洛伦兹 结构上的投影符定义为（公式或图表位置）在附录中可以找到其余算符费曼规则的相关部分，类似地由它们可导出投影符（公式或图表位置）其中（公式）是规范群基本表示的维数，即颜色数，（公式）、（公式）为相应的指标。 投影符（公式）与（公式）中出现的迹是对格林函数的自旋指标取的，（公式）表示相应的夸克味。……对（公式）求和（见 eq:ops ）， 与 eq:emtflow 中双重指标只对（公式）求和不同。其一般结构由（公式或图表位置）给出，其中元素（公式）表示计入个别味道时（公式）与（公式）之间的混合。因此，单下划线元素表示（公式）维矢量，双下划线元素表示（公式）维矩阵，它们的元素描写不同味道之间的混合。由于夸克不可 分辨， eq:Omega 中出现的（公式）维与（公式）维对象各自可以用两个独立 参数（公式）与（公式）刻画：（公式或图表位置）[公式/图表] 对 eq:Omega 中出现的不同味道求和后，（公式）与（公式）之间的关系容易建立为（公式或图表位置） \\
+    \textbf{结果/讨论}\quad sec:conclusions 我们给出了梯度流定义的能动量张量的普适 Wilson 系数到 QCD。 修正使三个数值上占主导的系数（公式）、（公式）、（公式）在中心标度（公式）GeV（（公式）GeV）处改变约 10\%（1–2\%），其中（公式）通过 eq:mu0 与流时间（公式）相联系。相对于把重正化标度绕其中心值变化 因子 2 所导出的 结果，我们观察到理论不确定性的减小。第四个系数（公式）的行为不那么令人满意，但其影响预期在数值上被压低。 除这一主要成果外，本文提出的新结果还包括： 方案下到 的流动 夸克场重正常数，以及构成 的常规 QCD 算符的反常量纲矩阵。 总之，我们希望这些结果有助于改进格点上 的研究。它们是梯度流形式内 高阶微扰计算系统化框架（引文）的第一个成果，该框架在这一理论 框架的其他应用中也应证明是有用的 \\
+    \textbf{物理边界}\quad 流时间与平滑长度满足平方关系；t→0 回到原始场，有限 t 则抑制紫外模式。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}梯度流形式的双圈能动量张量\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 19 页；对应的原始中文 TeX 目录为 \emph{梯度流形式的双圈能动量张量\_latex}。
+\clearpage
+\includepdf[pages=1-19,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/梯度流形式的双圈能动量张量_latex/build/main.pdf}
+\clearpage
+
+\chapter{P37：梯度流高阶计算的技术与结果}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P37：梯度流高阶计算的技术与结果：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1905.00882 \\
+    主题归属 & 梯度流与能动量张量 \\
+    中文全文页数 & 30 页（索引值与实测值一致） \\
+    章节入口 & 引言；微扰论中的 梯度流；梯度流的定义；流方程的微扰解；费曼规则；自动化实现；费曼图表达式的生成；流时间圈积分的 IBP 约化；流时间圈积分的数值计算；可观测量；三圈胶子凝聚的结果；三圈夸克凝聚的结果；梯度流耦合与质量；梯度流耦合；梯度流质量；总结；费曼规则；解析结果 \\
+    公式主线 & $\partial_t B_\mu(t,x)=D_\nu G_{\nu\mu}(t,x),\qquad t\sim L_{\rm sm}^{2}$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}梯度流高阶计算的技术与结果\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P37：梯度流高阶计算的技术与结果：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 我们详细描述了在 QCD 梯度流形式中对可观测量实施系统微扰计算的实现方法。 其中包括本文所考虑的五维场论以及各复合算符的全部相关费曼规则的汇总。 我们使用标准微扰计算中的工具，在微扰论的更高阶得到有限流时间（公式）处的格林函数。 作为应用，我们给出有限（公式）处夸克凝聚的三圈结果，以及从``加环''(ringed) 夸克场到 方案的转换因子。我们还重新计算了早先给出的三圈胶子凝聚结果， 提高了其精度 \\
+    \textbf{方法/推导}\quad 下面我们在（公式）维欧氏时空中工作，（公式）。 把常规 （regular） 我们用``流动的''（flowed）与``常规的''（regular） 来区分在（公式）与在（公式）定义的量。 的胶子场与夸克场（公式）、（公式）延拓为（公式）维场（公式）、（公式），其边界条件为（公式或图表位置）流方程为 [引文]（公式或图表位置）其中``流时间''（公式）是质量维度为负二的参数，（公式）是一个规范参数，它从物理可观测量中消失（见下文）。（公式）维场强张量定义为（公式或图表位置）伴随表示的协变导数为（公式或图表位置）而（公式或图表位置）其中基本表示的协变导数为（公式或图表位置）按照惯例，伴随表示的色指标记为（公式），而（公式）为（公式）维洛伦兹指标。基本表示的色指标记为（公式），但除非清晰所需， 全文将其省略；自旋指标（公式）亦同。对称性生成元（公式）取基本表示。它们满足对易关系（公式或图表位置）其中（公式）为结构常数，迹归一化为（公式或图表位置）[公式] 。 eq:flow 中（公式）的不同取值对应如下形式的规范变换：（公式或图表位置）其中（公式或图表位置）当然，所有可观测量都与规范参数（公式）无关（引文）。 在微扰计算中，通常取（公式）最为方便。 通过定义（公式或图表位置）可以把流方程 eq:flow 纳入拉格朗日形式体系。前三项构成常规的 Yang-Mills 拉格朗日量，并在基本表示中加入费米子（夸克）。……）、（公式）相同的量子数。由下式（公式或图表位置）导出的 Euler-Lagrange 方程确实给出 eq:flow（引文）。 注意，拉格朗日量 eq:Lagrangian\_complete 并不包含流动鬼场（公式）与（公式）。它们与通常的 Faddeev-Popov 鬼（公式）、（公式）一样因规范固定而产生，并满足初始条件（公式或图表位置）与常规规范场的鬼类似，只要没有外线（公式）或（公式）（在含外胶子的振幅中 只考虑物理自由度即可避免），它们总是形成闭合圈。后面会看清楚：仅由流动场构 成的闭合圈为零，因此可以在拉格朗日量层面就把（公式）与（公式）略去 \\
+    \textbf{结果/讨论}\quad sec:conclusions 本文给出了在微扰梯度流形式中计算关联函数的一个框架，它使用了标准微扰 QCD 计算的工具与技术。该框架基于 Luscher:2011bx 的五维场论 表述，以费曼图方法处理梯度流形式。我们实现了梯度流形式中相应的 费曼规 则，以及与本文所考虑的量相关的复合算符的费曼规则，并在很大程度上自动化了代 数表达式与圈积分的约化和计算。我们框架的一个重要要素，是借助同样涉及流时间 变量的分部积分恒等式约化到主积分。除少数情形得到了解析结果外，主积分均为数 值求值。 为展示该框架的可行性，我们重现并改进了早期一项基于 Wick 收缩层面显式场论计 算的三圈胶子凝聚结果（引文）。 利用该框架，我们进而计算了夸克凝聚以及从 重正化夸克场到加环夸克场 的转换因子的三圈近似，两者都是新结果。规范参数无关性、重正化群不变性以及替 代计算途径（是否约化到主积分）的多重检验使我们确信这些结果的正确性。 胶子凝聚与夸克凝聚本身适合直接定义梯度流规范耦合与梯度流夸克质量，对此我们 导出了到（公式）方案的三圈匹配关系。一旦这些量足够精确的格点结果可得，本 文求得的转换因子应能实现规范耦合 Lambrou:2016uet 已在这一 方向迈出第一步。 或许还有夸克质量的精密第一性原理测定。 本文聚焦真空矩阵元的计算；原则上，我们的框架也应适用于更普遍的问题，例如可 能涉及更多标度的情形 \\
+    \textbf{物理边界}\quad 流时间与平滑长度满足平方关系；t→0 回到原始场，有限 t 则抑制紫外模式。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}梯度流高阶计算的技术与结果\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 30 页；对应的原始中文 TeX 目录为 \emph{梯度流高阶计算的技术与结果\_latex}。
+\clearpage
+\includepdf[pages=1-30,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/梯度流高阶计算的技术与结果_latex/build/main.pdf}
+\clearpage
+
+\chapter{P38：局域涂抹算符乘积展开}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P38：局域涂抹算符乘积展开：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1501.05348 \\
+    主题归属 & 梯度流与能动量张量 \\
+    中文全文页数 & 19 页（索引值与实测值一致） \\
+    章节入口 & 引言；sec:ope 算符乘积展开；sec:phi4 标量场理论的梯度流；sec:lattsmear 格点上的混合；sec:wc sOPE 的威尔逊系数；非连通贡献；连通贡献；sec:rgeqns 重正化群方程；sOPE 威尔逊系数的重正化群方程；结论 \\
+    公式主线 & $\partial_t B_\mu(t,x)=D_\nu G_{\nu\mu}(t,x),\qquad t\sim L_{\rm sm}^{2}$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}局域涂抹算符乘积展开\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P38：局域涂抹算符乘积展开：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 我们提出一种新的局域涂抹算符乘积展开，将非定域算符按一组涂抹算符构成的基底分解。 这种涂抹算符乘积展开在形式上把由格点场论数值计算确定的非微扰矩阵元与连续理论中 非定域算符的矩阵元联系起来。只要在连续极限下保持涂抹尺度固定，这些非微扰矩阵元在格点上 便不受幂次发散混合的困扰——后者使部分子分布函数矩等量的计算显著复杂化。 这一涂抹尺度的存在使与标准算符乘积展开之威尔逊系数的联系变得复杂， 需要构造一套合适的理论框架。我们以实标量场论中的例子演示了该方法的可行性 \\
+    \textbf{方法/推导}\quad 我们在四维欧氏标量场论中工作，该理论具有四次自相互作用与裸质量（公式），由作用量（公式或图表位置）定义。 为研究 sOPE，我们引入标量梯度流，它由流时间演化方程（公式或图表位置）定义，其中（公式）是非零流时间（公式）处的标量场，（公式）是欧氏四维拉普拉斯算子。注意流时间的量纲为（公式）。 施加狄利克雷边界条件（公式）后， 我们可以把流时间方程的精确解写作（公式或图表位置）或者，在动量表示中写作（公式或图表位置）完全解为（公式或图表位置）它明确展示了梯度流的``涂抹''效应：流时间指数式地压低紫外模式。 我们用方均根涂抹长度（公式）来参数化涂抹半径。 流时间为（公式）与（公式）的两个场的（欧氏）涂抹标量传播子由下式给出：（公式或图表位置）流时间演化是经典的，因此任何相互作用都必须发生在零流时间处。四点顶点相应的费曼规则就是标准的 （欧氏）四点顶点，（公式） \\
+    \textbf{结果/讨论}\quad 我们提出了一种新方法——涂抹算符乘积展开（sOPE）——用以从数值非微扰计算中提取矩阵元， 而不受幂次发散混合之苦。涂抹算符乘积展开是一个普遍的框架，适用于任何存在遭受幂次发散混合的 非微扰矩阵元的渐近自由理论。在 QCD 之内，最直接的应用是深度非弹性散射；其他应用还包括（公式）衰变（引文）与（公式）介子混合（引文）的非微扰确定。在 QCD 之外，应用还包括海森堡模型、 自旋系统及其他凝聚态物质系统中临界现象的非微扰研究。 在 sOPE 中，我们把非定域算符按一组涂抹算符的基底展开，其矩阵元可以在格点上确定。 我们经由梯度流实现涂抹——即理论在一个新维度中的经典演化——它能光滑掉紫外涨落。 只要局域化尺度（即涂抹长度）在连续极限下保持固定，这些矩阵元的连续极限就不含幂次发散混合。 所得矩阵元是两个尺度的函数：重正化尺度与涂抹长度。sOPE 系统地把这些矩阵元与可在微扰论中计算的 涂抹威尔逊系数联系起来，从而给出非定域算符的完整确定 \\
+    \textbf{物理边界}\quad 流时间与平滑长度满足平方关系；t→0 回到原始场，有限 t 则抑制紫外模式。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}局域涂抹算符乘积展开\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 19 页；对应的原始中文 TeX 目录为 \emph{局域涂抹算符乘积展开\_latex}。
+\clearpage
+\includepdf[pages=1-19,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/局域涂抹算符乘积展开_latex/build/main.pdf}
+\clearpage
+
+\chapter{P40：梯度流中的非光锥威尔逊线算符}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P40：梯度流中的非光锥威尔逊线算符：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:2312.05032 \\
+    主题归属 & 梯度流与能动量张量 \\
+    中文全文页数 & 27 页（索引值与实测值一致） \\
+    章节入口 & 引言；一维辅助场形式与非光锥威尔逊线算符的重正化；一维辅助场形式；非光锥威尔逊线算符的重正化；梯度流与小流时展开；梯度流形式；小流时展开；计算与结果；（公式）\&（公式）；（公式）；（公式）；（公式）；（公式）\&（公式）；（公式）；威尔逊线算符的结果与应用；总结与展望；梯度流中的夸克准PDF算符；威尔逊线自能图（公式）；顶点图（公式）；图（公式）；最终结果 \\
+    公式主线 & $\partial_t B_\mu(t,x)=D_\nu G_{\nu\mu}(t,x),\qquad t\sim L_{\rm sm}^{2}$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}梯度流中的非光锥威尔逊线算符\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P40：梯度流中的非光锥威尔逊线算符：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad ： 非光锥威尔逊线算符由通过类时或类空威尔逊线相连的局域算符构成，威尔逊线保证了算符的规范不变性。非光锥威尔逊线算符在多种语境中有广泛应用。例如，类空威尔逊线算符在确定准分布函数（quasi-PDF）方面起着关键作用，而类时威尔逊线算符对于在势非相对论QCD（pNRQCD）框架内理解夸克偶素的衰变与产生至关重要。 在本工作中，我们为非光锥威尔逊线算符建立了从小流时极限下梯度流方案匹配到（公式）方案的系统方法。借助一维辅助场形式，我们简化了匹配步骤，将其约化为局域流（current）算符的匹配。我们给出了这些局域流算符的单圈匹配系数。 对于与夸克准PDF相联系的强子矩阵元情形，我们在单圈水平上证明：只要流半径小于物理距离（公式）——格点梯度流计算中通常满足这一条件——有限流时效应就非常小。 应用包括夸克/胶子准PDF的格点梯度流计算、与 pNRQCD 中夸克偶素衰变和产生相联系的胶子关联函数，以及以色电场与色磁场插入威尔逊圈表述的自旋依赖势 \\
+    \textbf{方法/推导}\quad 路径有序相位因子（公式），即所谓威尔逊线 在本工作中，我们只关注非光锥威尔逊线与威尔逊圈；只要不产生歧义，就把它们简称为威尔逊线。 ，是规范理论中的一个基本对象，它在把局域场连接起来以构造规范不变算符方面起着关键作用。对威尔逊线和威尔逊圈重正化的研究始于 Polyakov（引文）与 Gervais、Neveu（引文）。基于一维辅助场形式（引文），威尔逊线可乘重正化的全阶证明通过图方法在文献（引文）中、通过泛函方法在文献（引文）中给出；综述见文献（引文）。 非光锥威尔逊线算符由通过类时或类空威尔逊线相连的局域算符构成，这保证了非局域算符的规范不变性。威尔逊线算符在多种语境中有广泛应用。例如，类空威尔逊线算符在确定准分布函数（quasi-PDF）（引文）与赝分布函数（pseudo-PDF）（引文）方面起着关键作用，而类时威尔逊线算符对于在势非相对论QCD（pNRQCD）有效理论框架内理解夸克偶素的衰变与产生至关重要（引文）。 近年来，人们对 quasi-PDF 和 pseudo-PDF 的研究兴趣日益增加；它们被定义为如下类型的威尔逊线算符的强子矩阵元：（公式或图表位置）其中（公式）是夸克场，（公式）是胶子场强张量，（公式）表示一个狄拉克结构，（公式）是一个四矢量，在闵氏时空中对类空（或类时）威尔逊线算符满足（公式）（或（公式）） 在本节及后续讨论中，我们在闵氏时空中进行。然而，引入梯度流时需要过渡到欧氏时空……式，并给出单圈阶匹配计算的完整细节。 微扰梯度流的近期应用及更多文献参见 refs.（引文）。 本文其余内容安排如下。在第（交叉引用）节中，我们介绍一维辅助场形式，并详细阐述其在威尔逊线算符重正化中的应用。在第（交叉引用）节中，我们介绍梯度流形式，并对局域流算符实施小流时展开，得到匹配计算的核心公式。第（交叉引用）节专门计算至单圈阶的匹配系数。总结与结论见第（交叉引用）节。在附录（交叉引用）中，我们给出与零外动量准PDF相联系的强子矩阵元的含完整流时依赖的详细匹配计算。我们将这些结果与文献（引文）的已有结果以及第（交叉引用）节在小流时极限下的结果进行比较 \\
+    \textbf{结果/讨论}\quad sec:summary 我们发展了在小流时极限下从梯度流方案匹配到（公式）方案、适用于威尔逊线算符的系统方法。该方法可推广到多种应用，包括准PDF、pNRQCD 框架下夸克偶素衰变与产生中出现的胶子关联函数，以及以色磁场插入威尔逊圈表述的自旋依赖势。 在一维辅助场形式中，本工作所讨论的威尔逊线算符从梯度流方案到（公式）方案的匹配，在小流时极限下可以约化为对相应局域流算符的匹配。 我们通过比较这两种方案下的微扰计算，把这些局域流算符从梯度流方案匹配到（公式）方案。 利用小流时展开并尽可能把外动量取为零，可以使匹配过程得到极大的简化。 这样便可以应用 HQET 中成熟的匹配计算方法。完成局域流算符的匹配之后，小流时极限下相应威尔逊线算符的匹配系数便自动得到， 因为由于威尔逊线算符的可乘重正化性，不同时空点上重正化局域流算符的组合除减除掉的线性发散外不再引入更多的 UV 发散。 由于局域流算符的可乘重正化性，局域流算符的匹配还可以进一步分解为场与顶点的匹配。 于是我们计算了辅助``重''辅助场（公式）、无质量夸克场（公式）、（公式）顶点、胶子场（公式）以及局域流算符（公式）与（公式）的顶点在单圈水平的匹配系数。我们还得到了线性发散的``质量''修正（公式）的单圈结果。有了这些结果，我们给出了小流时极限下局域流算符与威尔逊线算符的匹配系数。 值得一提的是，该方法也适用于在小格距极限下从格点正则化方案到（公式）方案的匹配，只是由于 UV 与 IR 发散的处理而带有额外的复杂性（引文）。 在附录中我们证明：对于 eq. (（交叉引用）) 定义的零外动量强子矩阵元，在单圈水平上，只要流半径小于物理距离（公式）——格点梯度流计算中通常满足这一条件——有限流时效应就非常小。 利用我们为威尔逊线算符发展的从梯度流方案匹配到（公式）方案的系统方法， 把当前研究推广到两圈阶是直截了当的，这将更有助于用非光锥威尔逊线算符构造的矩阵元的格点梯度流计算。我们把它留作未来的研究 \\
+    \textbf{物理边界}\quad 流时间与平滑长度满足平方关系；t→0 回到原始场，有限 t 则抑制紫外模式。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}梯度流中的非光锥威尔逊线算符\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 27 页；对应的原始中文 TeX 目录为 \emph{梯度流中的非光锥威尔逊线算符\_latex}。
+\clearpage
+\includepdf[pages=1-27,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/梯度流中的非光锥威尔逊线算符_latex/build/main.pdf}
+\clearpage
+
+\chapter{P47：任意阶部分子分布矩}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P47：任意阶部分子分布矩：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:2311.18704 \\
+    主题归属 & 梯度流与能动量张量 \\
+    中文全文页数 & 13 页（索引值与实测值一致） \\
+    章节入口 & 引言；twist-2 算符；梯度流；O(（公式）) 改进；匹配系数；应用；总结；补充材料；有限体积效应；离散化误差；微扰匹配 \\
+    公式主线 & $\partial_t B_\mu(t,x)=D_\nu G_{\nu\mu}(t,x),\qquad t\sim L_{\rm sm}^{2}$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}任意阶部分子分布矩\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P47：任意阶部分子分布矩：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 我们描述一种在格点量子色动力学（QCD）中确定任意阶部分子分布函数矩的方法。 该方法基于费米子场与规范场的梯度流。带流的 twist-2 算符矩阵元是乘法重正化的， 与物理矩阵元的匹配可以借助连续对称性和欧几里得四维转动的不可约表示得到。 我们在微扰论单圈水平上计算了味非单态情形下任意阶矩的匹配系数， 并给出了可用于格点 QCD 计算的算符具体例子。结果表明，可以选择具有相同 Lorentz 指标的算符而仍保持乘法匹配。因此可以只使用时间方向指标的 twist-2 算符， 从而显著改善强子矩阵元计算中的信噪比 \\
+    \textbf{方法/推导}\quad 量子色动力学（QCD）描述夸克—胶子在很宽能量范围内的相互作用，并在低能区提出 非微扰挑战。强子结构研究依赖于部分子分布函数（PDF），而 PDF 的确定又依赖于 精确的 QCD 计算，影响着 LHC 以及未来项目（EIC、HL-LHC、LHeC）的研究。 对新物理的探寻取决于精确的实验—理论比较，这凸显了 PDF 精度的重要性。 对撞机过程中的 QCD 因子化，除 PDF 外，还涉及广义部分子分布（GPD）和 横向动量依赖分布（TMD）。虽然这些分布函数不能直接测量， 但可以通过把过程的截面因子化为硬与软两部分来确定它们。 在深度非弹性散射（DIS）中，结构函数（公式）扮演关键角色， 它们依赖（公式），其中（公式）是转移到核子上的 4 动量，（公式）表示部分子携带的核子动量份额。这里（公式）为核子动量。 当（公式）远大于核子质量时，因子化定理（引文）把结构函数与标度依赖的部分子分布函数（公式）同 Wilson 系数（公式）的卷积联系起来 （对夸克味与胶子（公式）求和）。 Wilson 系数可以微扰计算，PDF 随（公式）的演化由 Dokshitzer-Gribov-Lipatov-Altarelli-Parisi（DGLAP） 方程（引文）描述。 只要给定某标度（公式）处的初条件，DGLAP 方程即可求解。 PDF 的演化可微扰计算，但实验数据的精度总是要求更高阶的计算。 重正化与因子化方案的标准选择是……引文）、流—流方法（引文）， 以及强子张量方法（引文）。 值得注意的是，这些方法原则上也能间接确定核子 PDF 的矩（引文）与介子的矩（引文）。 不同的高能散射过程对应不同的 PDF：非极化、螺旋度与横向性（transversity）。 某些运动学区域以及特定的 PDF 难以从实验数据中提取。 这凸显了从格点 QCD 模拟数据重构 PDF 的重要意义。 在本工作中，我们重新审视计算 PDF 矩的可能性；若能成功， 将为从 QCD 确定分布函数提供一条重要且互补的途径。 我们描述的方法同时解决了过去阻碍从格点 QCD 计算任意阶矩的 理论与数值两方面的挑战 \\
+    \textbf{结果/讨论}\quad 我们描述了一种方法，它同时解决了从格点 QCD 计算部分子分布函数矩时 所面临的理论与数值挑战。 格点调节把欧几里得转动对称性破缺到超立方群， 因此格点上 twist-2 算符的重正化是确定部分子分布函数矩（公式）的一大障碍。 虽然当（公式）时相对格距的幂次发散不可避免， 但对（公式），通过选取超立方群合适的不可约表示仍可消去幂次发散； 代价是强子矩阵元的计算必须使用空间外动量， 恶化了关联函数的信噪比。 在有限流时间（公式）处，一旦理论裸参数与带流费米子场被重正化， twist-2 算符的关联函数即有限。 完成连续极限后，与物理矩阵元的匹配可在短流时间处 借助理论的连续对称性完成。 使用无迹且对称化的算符保证匹配是乘法性的； 我们已在微扰论单圈水平计算出匹配系数。 研究本文的方法如何能与近期从格点 QCD 关联函数直接确定 PDF 的努力互补， 也是十分有意义的。 尽管本文提出的方法至少在原则上适用于计算部分子分布函数的任意矩， 实际上式（交叉引用）中带流 twist-2 算符强子矩阵元的 格点 QCD 计算受若干系统不确定度制约。 补充材料（引文）中讨论了这些系统误差， 但只有透彻的数值研究才能最终回答其适用范围， 以及这一结果是否为确定任意阶部分子分布函数矩开辟了道路 \\
+    \textbf{物理边界}\quad 流时间与平滑长度满足平方关系；t→0 回到原始场，有限 t 则抑制紫外模式。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}任意阶部分子分布矩\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 13 页；对应的原始中文 TeX 目录为 \emph{任意阶部分子分布矩\_latex}。
+\clearpage
+\includepdf[pages=1-13,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/任意阶部分子分布矩_latex/build/main.pdf}
+\clearpage
+
+\part{LaMET、准分布与赝分布}
+
+\chapter*{主题主线：LaMET、准分布与赝分布}
+\addcontentsline{toc}{chapter}{主题主线：LaMET、准分布与赝分布}
+以大动量强子和等时空间关联替代直接光锥算符，通过有效场论匹配与演化提取部分子信息。
+\begin{equation}
+  \widetilde q(x,P_z,\mu)=\int dy\,C(x,y,\mu/P_z)q(y,\mu)+\mathcal O(\Lambda_{\rm QCD}^{2}/P_z^{2})
+\end{equation}
+\noindent\textbf{结构解释：}大动量极限 P\_z→∞ 压低幂修正；有限动量、有限间距和核子激发态是必须单独控制的误差源。
+\begin{table}[htbp]
+  \centering
+  \caption{LaMET、准 PDF 与赝 PDF：论文与物理接口}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    本主题论文 & 欧氏格点上的部分子物理、大动量有效理论与部分子物理、部分子伪分布的格点探索、伪部分子分布的单圈演化 \\
+    共同关系 & 承接格点矩阵元，向重正化、匹配、演化和最终 PDF/TMD 现象学输出。 \\
+    证据状态 & 确证：每篇论文的中文全文 PDF；推断：本主题的共同接口；未验证：跨论文统一数值结论。 \\
+    阅读顺序 & 先读本主题的结构式与边界，再读下列论文的逐章明文内容；不把主题结构式当作某一篇的原文编号。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\chapter{P11：欧氏格点上的部分子物理}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P11：欧氏格点上的部分子物理：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1305.1539 \\
+    主题归属 & LaMET、准 PDF 与赝 PDF \\
+    中文全文页数 & 6 页（索引值与实测值一致） \\
+    章节入口 & 未验证：源文件未提供可用的散文摘录。 \\
+    公式主线 & $\widetilde q(x,P_z,\mu)=\int dy\,C(x,y,\mu/P_z)q(y,\mu)+\mathcal O(\Lambda_{\rm QCD}^{2}/P_z^{2})$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}欧氏格点上的部分子物理\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P11：欧氏格点上的部分子物理：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 我证明，与光锥上夸克、胶子关联相联系的部分子物理，可以在大动量极限下通过依赖参考系的 等时关联函数的矩阵元素加以研究。这一观察使在欧氏格点上实际计算部分子性质成为可能。 作为示例，我演示了如何通过把一个等时关联函数助推到大动量来恢复领头扭度的夸克分布 \\
+    \textbf{方法/推导}\quad 自 20 世纪 60 年代末斯坦福直线加速器中心的深度非弹性散射实验以来，质子的结构已在 各种硬散射过程中得到探测（引文）。其结果是夸克与胶子（部分子）的动量分布 和关联，以及分布振幅等。部分子物理本质上涉及光锥关联：所有夸克与胶子场沿光锥分开， 而光锥由真实的闵可夫斯基时间（公式）定义。这些信息对于理解质子的非微扰结构极为有用， 例如可用于计算大型强子对撞机上希格斯产生的截面（引文）。 从基本理论量子色动力学（QCD）出发计算部分子物理一直很困难。原则上，光锥关联最好用 光前坐标下质子的波函数来计算（引文）。然而，尽管多年努力，现实的光前质子波函数 至今尚未建立。另一方面，在欧氏格点上表述的非微扰 QCD 中，无法直接计算依赖时间的 关联，只能计算部分子分布和分布振幅的矩——它们是局域算符的矩阵元素。然而由于技术上的 原因，更高阶矩的困难显著增大（引文）。 本文给出一种通过洛伦兹助推在欧氏格点上直接计算部分子物理的方法。为演示这一点， 考虑质子中的夸克分布，（公式或图表位置）其中核子动量（公式）沿（公式）方向，（公式）；（公式）是以真实时间（公式）定义的轻锥坐标；（公式）是重正化标度；（公式）是基础表示下的胶子势矩阵；（公式）是味道为（公式）的夸克场。上式沿（公式）方向 是助推不变的，即与（公式）无关；特别地，它在静止系（（公式））中成立。 为找到在欧氏格点上计算（公式）的途径，有必要展示光锥关联的起源……文）。它们的夸克胶子场都沿光锥分开。按照本文的精神，它们都可以由（公式）极限下沿（公式）方向带有规范链的相关空间关联函数得到。特别是， 喷注淬灭参数（公式）或许可以用这种方式计算（引文）。 …… itemize 看到这些量如今可以在格点 QCD 计算中得到探索，将是十分令人期待的。 总之，我已证明：夸克与胶子的光锥关联可以通过把空间关联的矩阵元素助推到大动量来计算。 这对于这些实验可观测量——过去从第一性原理处理非常困难——的格点 QCD 计算尤为有用。 诚然，在格点上研究大动量的强子在计算上仍具挑战性，但随着计算能力的持续提升，这至少是 可以实现的目标 \\
+    \textbf{结果/讨论}\quad ……（引文），它是 GPD 与 TMD 两者的生成函数。其定义来自夹在非前向核子态之间的 TMD 算符。于是可以在大的（公式）极限下计算它们，例如（公式或图表位置）其中（公式）；同样，为保证有限格点上的规范不变性还需要一条横向 规范链。我们还注意到，在大的（公式）极限下，（公式）依赖并不消失。 光锥振幅，即强子态与 QCD 真空之间、夸克与胶子插值场光锥关联的矩阵元素。我们现在可以把它们作为大动量极限下空间关联的矩阵元来计算。例如，（公式）介子的领头光锥振幅即为下式的大（公式）极限：（公式或图表位置）这些光锥振幅可以通过诸如形状因子等硬遍举过程加以探测（引文）。 文献中对（公式）振幅的（公式）依赖已有诸多讨论。 光锥波函数。在光前坐标下，核子态可以写成带有波函数振幅的无穷多福克态之和（引文）。 在一系列文章（引文）中，我们系统分类了直到四部分子的（公式）介子与质子波函数振幅， 并把它们同光锥及横向方向上夸克胶子关联的矩阵元素联系起来。当沿光锥方向从场所在位置向无穷远 插入光锥规范链时，所有这些振幅都是规范不变的。这些振幅同样可在格点上计算：取类似关联函数 的无穷动量极限，其中场由沿（公式）方向延伸到无穷远的规范链连接。一个重要应用是 B 介子的遍举衰变——许多因子化公式都以光锥波函数作为衰变振幅的一部分而被导出（引文）。 高扭度部分子分布。非极化、纵向极化与横向极化核子的扭度2、3、4部分子分布完整清单 已在文献中给出（引文）。它们的夸克胶子场都沿光锥分开。按照本文的精神，它们都可以由（公式）极限下沿（公式）方向带有规范链的相关空间关联函数得到。特别是， 喷注淬灭参数（公式）或许可以用这种方式计算（引文）。 …… itemize 看到这些量如今可以在格点 QCD 计算中得到探索，将是十分令人期待的。 总之，我已证明：夸克与胶子的光锥关联可以通过把空间关联的矩阵元素助推到大动量来计算。 这对于这些实验可观测量——过去从第一性原理处理非常困难——的格点 QCD 计算尤为有用。 诚然，在格点上研究大动量的强子在计算上仍具挑战性，但随着计算能力的持续提升，这至少是 可以实现的目标 \\
+    \textbf{物理边界}\quad 大动量极限 P\_z→∞ 压低幂修正；有限动量、有限间距和核子激发态是必须单独控制的误差源。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}欧氏格点上的部分子物理\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 6 页；对应的原始中文 TeX 目录为 \emph{欧氏格点上的部分子物理\_latex}。
+\clearpage
+\includepdf[pages=1-6,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/欧氏格点上的部分子物理_latex/build/main.pdf}
+\clearpage
+
+\chapter{P12：大动量有效理论与部分子物理}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P12：大动量有效理论与部分子物理：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1404.6680 \\
+    主题归属 & LaMET、准 PDF 与赝 PDF \\
+    中文全文页数 & 7 页（索引值与实测值一致） \\
+    章节入口 & 未验证：源文件未提供可用的散文摘录。 \\
+    公式主线 & $\widetilde q(x,P_z,\mu)=\int dy\,C(x,y,\mu/P_z)q(y,\mu)+\mathcal O(\Lambda_{\rm QCD}^{2}/P_z^{2})$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}大动量有效理论与部分子物理\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P12：大动量有效理论与部分子物理：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 当把部分子物理表述为光前关联时，尽管光前量子化给出了希望，它仍然难以作非微扰研究。最近，通过重新审视强子以渐近大动量运动的 Feynman 原始图像，人们提出了一条研究部分子的替代途径。本文用格点 QCD 中强子大动量（公式）的有效场论的语言来表述这一方法，简称 LaMET。我证明，利用这一新的有效理论，包括光前部分子波函数在内的部分子性质可以从格点观测量中按（公式）的系统展开提取出来，正如部分子分布可以从几个 GeV 动量标度下的硬散射数据中提取出来一样 \\
+    \textbf{方法/推导}\quad 描述高能强子散射物理（例如在大型强子对撞机 LHC 上产生希格斯玻色子）的最大简化之一，是 R. Feynman 引入的部分子模型（引文）。按照这一图像，一个快速运动的强子（例如质子）可以被看作一束无相互作用的夸克和胶子（部分子），由其动量密度（公式）和（公式）表征，其中（公式）是部分子携带的纵向动量份额，（公式），而强子动量（公式）。于是，涉及强子的硬散射截面可以表示为基本的部分子散射截面（公式）与部分子密度的卷积。在强相互作用的基本理论——量子色动力学（QCD）中，这一简单图像可以由所谓的因子化定理来论证（引文）。量子场论引入的唯一修正是部分子密度依赖于方案和标度，后者可以通过重正化群方程加以研究（引文）。当然，部分子密度的方案和标度依赖会被部分子散射截面的类似依赖所抵消，从而使物理量在部分子的微扰定义下保持不变。 得益于渐近自由，部分子散射截面可以在 QCD 微扰论中计算，但部分子密度本质上是非微扰的。如上所述，Feynman 对部分子密度的定义是在无限动量系（IMF）中给出的，其中母强子具有无限大的动量（引文）。这看起来是一个难以直观理解的数学极限。无限动量极限的确切含义实际上可以通过对微扰论中的 Feynman 图作 boost 来理解，正如 Weinberg 所做的那样（引文）。然而多年来，人们发现用光锥关联函数的形式表述部分子密度更为方便（引文）：引入光锥坐标，（公式或图表位置）其他四维矢量……（公式）。在光前计算中，同样的关联被 boost 到沿（公式）方向，增大了（公式）倍。因此对价部分子而言，光前坐标中的关联长度将是（公式）的量级。对小（公式）部分子，关联长度可长达（公式），其中（公式）是强子质量。因此，光前量子化计算无法限制在一个紧凑的时空区域内，这使得蒙特卡罗模拟变得困难。 总之，我们在本文中讨论了格点 QCD 模拟中大动量强子的新有效场论概念。该有效场论使人能够从强子动量为几个 GeV 量级的实际计算中提取光前部分子物理。相关展开包含微扰可算的匹配系数和高阶幂次修正。这使得格点数据在研究 QCD 束缚态性质方面与真实实验数据同样有用 \\
+    \textbf{结果/讨论}\quad ……中质心运动与内部运动之间便没有干净的分离，除非强子非常重。当考虑以一定速度运动的强子的空间图像时会出现更多问题，此时人们常画一个洛伦兹收缩的圆。强子态中长度收缩的物理意义往往是不清楚的。（公式或图表位置）可以转而考虑平面波强子态中的场关联函数。一般地说，当强子静止（质心动量为零）时，场关联函数沿所有空间方向的关联长度约为 1fm（公式）。超过这个范围，关联应逐渐降到零。现在考虑沿（公式）方向以速度（公式）运动的强子，引入洛伦兹因子（公式）。价部分子将拥有固定的强子纵向动量份额（公式）。因此，价部分子的典型纵向动量将按（公式）增长。相应地，纵向关联长度将表现为（公式），与（公式）因子成反比。这可以被看作洛伦兹收缩效应。于是，要用 LaMET 计算价部分子分布，纵向空间分辨率必须随核子动量提高。如果只关心价部分子，纵向格点盒子尺寸也可以缩小（公式）倍。这样格点总数便可与横向方向的相当。 另一方面，如果关心小（公式）部分子，就必须让强子动量足够大。能达到的最小（公式）为（公式）。此时关联长度约为（公式），即强子的正常尺寸。例如在（公式）处，强子动量必须在 3 TeV 左右，而普通价部分子的关联长度将为（公式）fm。显然，要在如此小的（公式）处计算部分子密度，需要在（公式）方向数千个格点。 在 LaMET 中人们看到的是收缩的强子，而在光前计算中关联长度却急剧无界增长。这可以从图 1 看出，其中我们画出了沿（公式）轴的关联长度（公式）。在光前计算中，同样的关联被 boost 到沿（公式）方向，增大了（公式）倍。因此对价部分子而言，光前坐标中的关联长度将是（公式）的量级。对小（公式）部分子，关联长度可长达（公式），其中（公式）是强子质量。因此，光前量子化计算无法限制在一个紧凑的时空区域内，这使得蒙特卡罗模拟变得困难。 总之，我们在本文中讨论了格点 QCD 模拟中大动量强子的新有效场论概念。该有效场论使人能够从强子动量为几个 GeV 量级的实际计算中提取光前部分子物理。相关展开包含微扰可算的匹配系数和高阶幂次修正。这使得格点数据在研究 QCD 束缚态性质方面与真实实验数据同样有用 \\
+    \textbf{物理边界}\quad 大动量极限 P\_z→∞ 压低幂修正；有限动量、有限间距和核子激发态是必须单独控制的误差源。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}大动量有效理论与部分子物理\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 7 页；对应的原始中文 TeX 目录为 \emph{大动量有效理论与部分子物理\_latex}。
+\clearpage
+\includepdf[pages=1-7,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/大动量有效理论与部分子物理_latex/build/main.pdf}
+\clearpage
+
+\chapter{P16：部分子伪分布的格点探索}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P16：部分子伪分布的格点探索：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1706.05373 \\
+    主题归属 & LaMET、准 PDF 与赝 PDF \\
+    中文全文页数 & 18 页（索引值与实测值一致） \\
+    章节入口 & 引言；部分子分布；一般矩阵元与部分子分布；横动量依赖分布与准分布；量子色动力学（QCD）情形；因子化模型；伪部分子分布；数值研究；结果讨论；静止系密度与（公式）因子；约化 Ioffe 时间分布；夸克—反夸克分解；演化；总结 \\
+    公式主线 & $\widetilde q(x,P_z,\mu)=\int dy\,C(x,y,\mu/P_z)q(y,\mu)+\mathcal O(\Lambda_{\rm QCD}^{2}/P_z^{2})$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}部分子伪分布的格点探索\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P16：部分子伪分布的格点探索：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 我们演示了一种从格点计算中抽取部分子分布的新方法。 出发点是把一般性的等时矩阵元（公式）视为 Ioffe 时间（公式）与距离（公式）的函数。 下一步是用静止系密度（公式）去除（公式）。 我们的格点计算表明，静止系函数中存在线性指数型的（公式）依赖， 这正是由规范链接（gauge link）所产生的（公式）因子应有的表现。 尽管如此，我们观察到比值（公式）在计算所用的全部 6 个动量（公式）取值下都对（公式）呈现高斯型行为。 这意味着（公式）因子在该比值中已被消去。 当把数据作为（公式）与（公式）的函数作图时，它们非常接近于 与（公式）无关的普适函数。这一现象对应于 TMD（公式）中（公式）依赖与（公式）依赖的因子化。 对于小的（公式），残余的（公式）依赖可以由（公式）的微扰演化加以解释 \\
+    \textbf{方法/推导}\quad 定义部分子分布的基本对象是一个双定域算符的矩阵元， （略去其自旋结构中无关紧要的细节后）它可以一般地写成（公式）。 由于 Lorentz 变换下的不变性，它是两个标量（公式）（记作（公式））与（公式）（或写成（公式），以便对类空的（公式）取正值)的函数：（公式或图表位置）可以证明（引文）：对所有相关的 Feynman 图， 它对（公式）的 Fourier 变换（公式）具有支撑区（公式），即（公式或图表位置）式 (（交叉引用）) 可作为（公式）的协变定义。 在这一（公式）的定义中，无需假设（公式）或（公式）。 选取类光的（公式）（例如只含光锥分量（公式）），我们用 twist-2 部分子分布（公式）来参数化该矩阵元：（公式或图表位置）此定义也可改写为（公式或图表位置）逆关系为（公式或图表位置）由于（公式），函数（公式）把 PDF 的概念推广到了 非类光间隔（公式）的情形（原则上（公式）甚至可以是类时的）。 按照文献（引文），我们称之为 伪部分子分布 （pseudo-PDF）。变量（公式）常被称为 Ioffe 时间（引文）， 相应地（公式）称为 Ioffe 时间分布（引文）。 在可重正理论（包括 QCD）中， 函数（公式）具有（公式）型对数奇异性， 正是这些奇异性生成了部分子密度的微扰演化。 在基于算符乘积展开（OPE）的方法中，标准做法是用某种方案 消除这些奇异性。 最流行的是基于维数正规化的（公式）方案。 于是所得的 PDF 依赖于重正化标度（公式），因此应把 PDF 写成（公式）。 在小的类空（公式）处、领头对数精度下，伪部分子分布与（公式）分布之间 仅差第二个宗量的简单重标度。 特别地，当（公式）时有（公式或图表位置）其中（公式）是 Euler 常数。（公式）与（公式）之间的重标度因子非常接近 1，因为（公式） \\
+    \textbf{结果/讨论}\quad 本文演示了一种从格点计算抽取部分子分布的新方法。 它建立在文献（引文）所阐述的思想之上。 首先，我们把一般性等时矩阵元处理为 Ioffe 时间（公式）与距离（公式）的函数（公式）。 下一步的想法是构造 Ioffe 时间分布（公式）与静止系密度（公式）之比（公式）。 我们的格点计算清楚地表明，静止系函数的（公式）依赖中存在线性成分， 它可以归因于规范链接所生成的预期行为（公式）。 接着我们观察到，对计算中所用的全部 6 个动量（公式）取值， 比值（公式）对（公式）均呈高斯型行为。 这意味着进入（公式）比值分子与分母的（公式）因子已如预期被消去。 不过，没有任何 先验 原理保证比值（公式）分子与分母之间的非对数型残余（公式）依赖一定相互抵消。 如有需要，这类（公式）依赖可以通过系统的拟合程序予以去除， 从而在（公式）极限下抽取 Ioffe 时间 PDF。 然而我们发现，当把（公式）实部与虚部的数据 作为（公式）与（公式）的函数作图时， 它们都非常接近各自的普适函数。 这一观察表明（公式）的软（公式）依赖部分 已被静止系密度（公式）抵消。 该现象对应 TMD（公式）中（公式）依赖与（公式）依赖的因子化。 虽然这一支持因子化性质的证据本身就是一个重要结果， 我们要强调的是，我们的方法并 不依赖 于因子化。 它基于比值（公式）的使用； 其残余的软（公式）依赖可以被系统地分析与拟合， 因而（公式）极限能够以可控的方式…… diagrams）。 因此可以预期比值（公式）必须 跟随质子的味组分， 即（公式）、（公式）。 我们的数据与该预期一致。 本研究具有探索性质，其主要目标是发展基于文献（引文）思想的 格点 PDF 抽取技术。 我们的结果表明，所提出的基本方法在从格点 QCD 获得可靠 PDF 方面潜力巨大。 今后我们将改进方法，以纳入演化并在 Ioffe 时间分布抽取中控制残余的多项式（公式）效应。 为此，显然需要更小的格距以及更大的核子动量范围。 此外，我们还需研究有限体积效应， 并纳入 $\pi$ 介子质量更接近物理点的动力学费米子。 我们计划在未来的工作中处理所有这些问题 \\
+    \textbf{物理边界}\quad 大动量极限 P\_z→∞ 压低幂修正；有限动量、有限间距和核子激发态是必须单独控制的误差源。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}部分子伪分布的格点探索\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 18 页；对应的原始中文 TeX 目录为 \emph{部分子伪分布的格点探索\_latex}。
+\clearpage
+\includepdf[pages=1-18,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/部分子伪分布的格点探索_latex/build/main.pdf}
+\clearpage
+
+\chapter{P49：伪部分子分布的单圈演化}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P49：伪部分子分布的单圈演化：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1801.02427 \\
+    主题归属 & LaMET、准 PDF 与赝 PDF \\
+    中文全文页数 & 14 页（索引值与实测值一致） \\
+    章节入口 & 引言；Ioffe 时间分布与伪 PDF；单圈修正的结构；禁闭与红外截断；重标度关系；单圈修正；格点数据中的演化；总体特征；构建（公式）ITD；虚部；总结与结论 \\
+    公式主线 & $\widetilde q(x,P_z,\mu)=\int dy\,C(x,y,\mu/P_z)q(y,\mu)+\mathcal O(\Lambda_{\rm QCD}^{2}/P_z^{2})$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}伪部分子分布的单圈演化\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P49：伪部分子分布的单圈演化：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 我们把关于约化 Ioffe 时间伪分布（公式）的单圈修正的近期计算纳入进来，以扩展 Orginos 等人对格点数据所作的领头对数分析。我们观察到，单圈修正包含一个大项，它反映了如下事实：最重要的图形所涉及的有效距离远小于名义距离（公式）。此情形下的大修正可以被吸收进演化项中，因而用于在（公式）GeV 标度处提取部分子密度的微扰展开是可控的。如此提取出的部分子分布在（公式）区域与全局拟合相当接近，但在（公式）区域偏离它们 \\
+    \textbf{方法/推导}\quad 费曼的部分子分布函数（PDF） [引文]（公式）是量子色动力学（QCD）中描述硬包容过程的关键构件。作为累积强子结构非微扰信息的对象，PDF 是格点研究的天然课题。然而，PDF 的直接定义涉及光锥（公式）上双定域算符的矩阵元——这样的间隔在欧氏格点上无法访问。 如何从类空间隔获取信息的想法可追溯到 W. Detmold 与 D. Lin 的开创性论文（引文），他们建议对重-轻流的深非弹型欧氏关联函数作格点研究。随后，V. Braun 与 D. Müller（引文）建议利用欧氏关联函数提取（公式）介子分布振幅——另一个在硬排除过程的微扰 QCD 研究中起基本作用的函数（引文）。以``格点截面''形式使用关联函数的想法近来由 Qiu 及其合作者的论文（引文）所倡导。 上述流关联函数都包含一个连接流顶点的夸克传播子。X. Ji 的提议（引文）避开了这一因子：研究准部分子分布（quasi-PDF）（公式），它描述强子动量的空间（公式）分量（公式）的分布。虽然与描述强子``plus''动量（公式）分布的费曼 PDF（公式）不同，但在无限动量极限（公式）下二者与（公式）一致。 无论在格点上还是通常的连续时空中，所有类型 PDF 的基本对象都是矩阵元（公式），一般地（即忽略不重要的自旋细节）写作（公式）。由洛伦兹不变性，它是 Ioffe 时间（公式）[引文] 和间隔（公式）的函数，（公式）。 在（形式的）光锥极限（公式……DF（公式）的标度（公式），就需要超出 LLA。 为此，需要 ITD 单圈修正的完整表达式。最近，文献（引文）报告了此类计算。本文的目标是更详细地讨论演化的 LLA 处理，并把分析扩展到 LLA 之外。我们将证明，单圈修正包含一个大贡献，它相当程度地改变了 LLA 得到的结果。 为使本文自足，我们在第 II 节概述 Ioffe 时间分布与伪 PDF 的基础知识。第 III 节讨论单圈修正的结构。第 IV 节描述文献（引文）格点研究中揭示的演化效应，并把约化 ITD（公式）的数据转换为在（公式）方案中定义的标准部分子密度（公式）。全文总结与结论见第 V 节 \\
+    \textbf{结果/讨论}\quad 本文扩展了文献（引文）对部分子伪分布及约化伪 ITD 格点数据所作的领头对数分析。为此，我们纳入了约化伪 ITD 单圈层次的近期结果（引文）（另见（引文））。 我们发现该修正包含一个大项，导致与 LLA 相比的重要数值变化。大修正之所以出现，是因为最重要图形所涉及的有效距离远小于名义距离（公式）。这改变了重标度关系（公式）中的系数（公式）（在我们的特定 ITD 情形从（公式）变到（公式）），该关系允许把伪 PDF（公式）（近似地）转换为（公式）PDF（公式）。 重标度关系可作为快速估计和半定量分析的有益指引，而（公式）ITD 也可以应用精确单圈公式直接构建。利用它，我们用（公式）区域的数据得到了（公式）GeV（公式）标度处的 ITD（公式）。 我们发现此标度下的（公式）接近（公式）的约化伪 ITD（公式）。由于（公式）区域的所有数据与（公式）处相差不大（见图（交叉引用）），把（公式）数据转换为（公式）不涉及大的变化，也就是说，用约化伪 ITD（公式）表示（公式）ITD（公式）的微扰展开是可控的。形式上的原因是，此情形下的大修正可以被吸收进依赖（公式）的演化项中，剩余修正很小。 唯象上，如此提取的 PDF 在大（公式）区域遵循全局拟合所给 PDF 的走势，但不重现其在（公式）区域的奇异行为。后者通常与（公式）介子雷杰轨迹的（公式）图样相联系。既然（公式）介子本质上是（公式）系统中相当窄的共振，在（公式）介子重达 600 MeV 的格点模拟中不应期望准确重现（公式）介子的性质。因此可以希望，采用物理（公式）介子质量的模拟会在小（公式）区域给出与全局拟合更好的符合。这一期望得到近期在物理（公式）介子质量下用准 PDF 格点模拟提取（公式）的工作（引文）的支持 \\
+    \textbf{物理边界}\quad 大动量极限 P\_z→∞ 压低幂修正；有限动量、有限间距和核子激发态是必须单独控制的误差源。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}伪部分子分布的单圈演化\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 14 页；对应的原始中文 TeX 目录为 \emph{伪部分子分布的单圈演化\_latex}。
+\clearpage
+\includepdf[pages=1-14,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/伪部分子分布的单圈演化_latex/build/main.pdf}
+\clearpage
+
+\part{非微扰重正化、OPE 与匹配}
+
+\chapter*{主题主线：非微扰重正化、OPE 与匹配}
+\addcontentsline{toc}{chapter}{主题主线：非微扰重正化、OPE 与匹配}
+处理 Wilson 线自能、线性发散、算符混合和方案转换，建立格点裸矩阵元与连续方案物理分布之间的桥梁。
+\begin{equation}
+  O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)
+\end{equation}
+\noindent\textbf{结构解释：}重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。
+\begin{table}[htbp]
+  \centering
+  \caption{重正化与匹配：论文与物理接口}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    本主题论文 & 夸克场产生算符构造、连续威尔逊圈的无穷N相变、准部分子分布单圈匹配、大动量有效理论再论、欧氏与光锥分布因子化定理、格点算符非微扰重正化一般方法、准部分子分布的可重正性、威尔逊线重正化改进准分布、大动量有效理论的重正化、非定域夸克双线性的非微扰重正化、准PDF完整非微扰重正化方案、准部分子算符乘法可重正性、大动量有效理论获取胶子分布、胶子伪分布的短距行为、准光前关联函数的自重正化、准光前关联的混合重正化方案、首个核子胶子部分子分布、准分布的幂修正与renormalon、同位旋矢量分布的重正化匹配系统分析 \\
+    共同关系 & 是准/赝分布从格点数据走向 MS-bar 或其他连续方案的必要中间层。 \\
+    证据状态 & 确证：每篇论文的中文全文 PDF；推断：本主题的共同接口；未验证：跨论文统一数值结论。 \\
+    阅读顺序 & 先读本主题的结构式与边界，再读下列论文的逐章明文内容；不把主题结构式当作某一篇的原文编号。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\chapter{P03：夸克场产生算符构造}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P03：夸克场产生算符构造：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:0905.2160 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 14 页（索引值与实测值一致） \\
+    章节入口 & 引言；算符构造 sec:theory；介子两点关联函数；重子两点关联函数；介子三点关联函数；重子三点关联函数；检验结果 sec:results；蒸馏算符的轮廓分布；介子关联函数；重子关联函数；多介子关联函数；讨论与未来方向 sec:discussion；总结 \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}夸克场产生算符构造\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P03：夸克场产生算符构造：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 本文定义了一种新的夸克场涂抹（smearing）算法，它使大范围强子关联函数的高效计算成为可能。 该技术施加一个低秩算符来定义光滑的场，供强子产生算符使用。 所得光滑场空间足够小，因而能够在合理的计算代价下 精确计算出约化夸克传播子的全部矩阵元。 任意源之间的关联——包括多强子算符——都可以事后（a posteriori） 计算，而无需新的格点狄拉克算符求逆。 该方法在带有轻动力学夸克的现实格点尺寸上进行了检验 \\
+    \textbf{方法/推导}\quad 格点计算的目标之一是仅从 QCD 拉格朗日量出发， 预言禁闭夸克与胶子的低能强子谱。这一谱学进路必须有测量具有所研究 量子数的场算符两点关联函数的手段。对 QCD 谱的完整理解 还必须包括介子与重子的激发态以及奇特态。 把散射实验中看到的共振态描述为 QCD 中的态，长期以来对格点计算是一大挑战， 因为在欧氏场论表述中通常无法直接获得与衰变宽度相联系的矩阵元。 规避这一困难的途径原则上众所周知：可以通过细致研究有限盒子中谱 对盒子体积的依赖性来推断衰变性质（引文）。 对能级做出可靠确定的最佳手段是采用庞大的算符基， 然后用变分法寻找能量本征态的良好近似。一旦要探索阈值以上的态， 算符基就应包含那些类似多强子体系、且组分具有确定动量的算符。 获取与长程关联相关的夸克传播子的全部元素（引文）使这些测量成为可能， 也使人们得以更细致地研究那些其精确测量长期困扰格点工作者的物理可观测量。 一个例子是同位旋标量介子领域：其质量测定需要在两点关联函数中 计算不连通图。除了这份雄心勃勃的要求清单之外，高精度数据 对这些计算也将至关重要（引文）。 在格点上的蒙特卡罗计算中，关联函数中物理相关的信号指数式衰减， 并迅速被统计涨落淹没。能迅速产生低能能量本征态的算符极其宝贵， 它们能指数级地改善所提取数据的质量。格点工作者手中 构建良好产生算符最有用的工具是涂抹。因此，理解禁闭低能自由度的最佳途径 必须来自一种能兼顾所有这些……考虑的是非规范协变的涂抹场。不久之后便引入了 规范协变方案（引文）。特别地，文献（引文）提出了 Jacobi 涂抹算法：先构造三维规范协变拉普拉斯算符（laplacian）的格点近似， 再把它迭代地作用于场。这自然起到了长波滤波器的作用， 过滤构成夸克场的各个模式。 本文提出了一种新的夸克场涂抹方法，并在大规模现实模拟中进行了检验。 第（交叉引用）节给出新算法的系统表述， 包括其在强子两点关联函数以及插入任意流的三点函数测量中的应用细节。 第（交叉引用）节给出该方法有效性的初步检验结果； 第（交叉引用）节讨论该方法引发的实际问题， 并概述若干未来研究方向 \\
+    \textbf{结果/讨论}\quad 本文提出了一种简单的新夸克场涂抹方法，并用带（公式）味 动力学夸克的 QCD 规范场做了数值检验。 强子产生算符的构造存在很大的自由度。 本工作利用这一点定义了一种算法： 在每个时间片上把一个低秩投影算符作用于路径积分的夸克场， 为后续算符构造定义光滑模式。 这使得测量蒸馏强子关联函数所需的关于夸克传播的全部信息 的计算变得可以负担。一旦传播矩阵已经求出， 任意产生与湮灭算符选择之间的关联都可以确定， 无需任何进一步求逆。文中简要描述了把该技术的测量范围 推广到包括矩阵元所需的理论框架。 对该方法的一些初步检验表明：把夸克场限制在一个很低维的光滑场空间中， 并不会实质性降低关联函数蒙特卡罗计算的质量； 而且在许多情况下统计精度还有所提升。 尚未克服的最大缺点是算法成本随物理单位下格点体积的增长。 由于该方法关心的是长程物理， 预计趋近连续极限不会遇到额外困难， 但这仍需通过实际检验来确认。 该方法目前尚处于初创阶段，本文概述了若干研究方向。 合作组发展工作的首要焦点是以最优方式把关联函数的随机评估 纳入进来，结果将很快发表。合作组将在近期的一系列谱学测定中 使用本文概述的技术 \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}夸克场产生算符构造\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 14 页；对应的原始中文 TeX 目录为 \emph{夸克场产生算符构造\_latex}。
+\clearpage
+\includepdf[pages=1-14,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/夸克场产生算符构造_latex/build/main.pdf}
+\clearpage
+
+\chapter{P06：连续威尔逊圈的无穷N相变}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P06：连续威尔逊圈的无穷N相变：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:hep-th/0601210 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 25 页（索引值与实测值一致） \\
+    章节入口 & 引言；格点研究概述；涂抹的格点威尔逊圈；格点大（公式）相变在连续统极限中存活；涂抹消除紫外发散；格点研究的数值细节；（公式）的确定；标度变换下相变两侧的研究；（公式）的一般特征；连续统的观点；涂抹的连续统威尔逊圈与第五维的暗示；瞬子闭合能隙；对大（公式）普适类的一个猜想；总结与讨论；与其他工作的联系；本文主要的新思想；未来计划 \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}连续威尔逊圈的无穷N相变\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P06：连续威尔逊圈的无穷N相变：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 我们在四维格点上定义了光滑化（涂抹）的威尔逊圈算符，并数值地验证它们具有有限而非平庸的连续统极限。这些连续统算符保持其作为幺正矩阵的品格，并在无穷大（公式）处经历一次相变；当定义性的光滑圈从小尺寸被胀大到大尺寸时，本征值分布在其谱中闭合一个能隙，该相变正体现于此。如果这一大（公式）相变属于某个可解的普适类，人们或许能够解析地计算弦张力，把它用微扰的（公式）参数表达出来。实现途径是：把小圈的瞬子结果与相关的大（公式）普适函数相匹配，而后者在大圈一侧再与一个有效弦理论相匹配。我们的发现与二维时空中已知解析结果之间的相似性表明，我们找到的这些相变只影响本征值分布，而威尔逊圈算符有限次幂的迹在标度变换下保持光滑 \\
+    \textbf{方法/推导}\quad 本文的大多数具体结果是用格点场论方法得到的。这些结果构成一个更大、相当雄心勃勃且颇为思辨性的纲领的第一部分；该纲领是在连续统中定义的，不依赖于任何正规化方案。本节的主要内容就是勾画这一纲领，其目的在于为后面各节给出的格点结果提供恰当的视角。在整篇文章中，我们会不时回到连续统的语言，以强调在我们看来哪些结构是连续统的性质。 纯四维（公式）规范理论在大距离处强相互作用，在短距离尺度上弱相互作用。在（公式）中，这两种区域之间的渡越区（cross-over）相对较窄，没有好的解析近似方法适用于它；我们也没有在强耦合下做计算的连续统方法。随着色数（公式）的增大，渡越区变窄。 此处，作为对某些早期工作（引文）思路的直接延续，我们报告一条改进了的进攻路线，并沿此方向迈出几步。旧的想法是：瞬子表明，在无穷大（公式）极限下，在一个被明确界定的特定标度处存在一个相变，弱耦合与强耦合物理可以在那一点衔接起来。这个想法从未被成功地实现过，因为其中太多部分要么错误要么缺失。在此期间人们学到了许多东西，我们愿意再次尝试。现在让我们简要概述我们做法中的新要素： 虽然``渡越区在无穷大（公式）时坍缩为一点并成为一个相变''这一猜想由来已久，但我们现在明白，相变发生的标度并不是一个同时适用于所有可观测量、处处成立的普适量；它也不必然影响任何局域可观测量：例如它在自由能密度中就看不到。最有趣的大（公式）相变未必是体（bulk）相变。 近来关……。特别有趣的是为自发手征对称性破缺找到一个类似的计算纲领。可以用严格手征费米子（引文）对此进行数值检验。 下一节中我们在格点上引入我们的可观测量，并给出数值结果，以支持如下主张：我们的可观测量具有连续统极限，并且在胀大下经历大（公式）相变。在随后几节中，我们讨论格点构造的连续统观点以及我们对大（公式）普适类的猜想。叙述不可避免地将越来越具思辨性。最终，我们希望把格点模拟的作用缩减为严格的定性支撑，即为控制着我们计算需要衔接的各种区域的诸普适类假设提供支持。计算本身将完全是解析的。不言而喻，任何解析步骤都需要对照数值工作加以检验，因为这是一片未经勘测的领域 \\
+    \textbf{结果/讨论}\quad 我们首先概述各种影响了我们、却尚未被我们直接提及的想法。随后我们进行总结，说明本文所作的实质性新贡献是什么。最后简短描述计划中的未来工作 \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}连续威尔逊圈的无穷N相变\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 25 页；对应的原始中文 TeX 目录为 \emph{连续威尔逊圈的无穷N相变\_latex}。
+\clearpage
+\includepdf[pages=1-25,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/连续威尔逊圈的无穷N相变_latex/build/main.pdf}
+\clearpage
+
+\chapter{P13：准部分子分布单圈匹配}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P13：准部分子分布单圈匹配：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1310.7471 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 9 页（索引值与实测值一致） \\
+    章节入口 & 引言；非极化准夸克分布的单圈结果；单圈因子化；螺旋度与横率分布；结论 \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}准部分子分布单圈匹配\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P13：准部分子分布单圈匹配：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 我们在横向动量截断方案下推导了非单态夸克分布的单圈匹配条件，其中包括非极化、 螺旋度与横率（transversity）分布。该匹配连接的两个对象分别是：由有限核子动量下的 静态关联定义的准分布（quasi-distribution），以及实验中可测量的光锥分布。这一结果 有助于在格点 QCD 计算中从前者提取后者 \\
+    \textbf{方法/推导}\quad 部分子分布在高能散射过程中以部分子的语言刻画核子的结构。它们是给出强子-强子或轻子-强子碰撞实验物理预言的一个基本要素。尽管人们已经投入大量努力从各种实验数据中提取部分子分布（引文），但由于部分子分布的非微扰本质，从强相互作用的基本理论——量子色动力学（QCD）——出发计算它们是一项困难的任务。人们或许会问：能否从格点 QCD 出发计算部分子分布？格点 QCD 迄今为止仍是处理 QCD 中非微扰现象唯一可靠的框架。在场论的语言中，部分子分布由非局域的光锥关联函数给出：它既可以被视为无限动量极限下（在施加紫外（UV）截断之前）夸克和胶子的密度，也可以被视为有限核子动量下部分子的光前（light-front）关联（引文）。这样的关联依赖于时间，因此无法直接在格点上计算。过去的尝试主要集中于计算分布的局域矩。然而，出于技术上的原因，在格点上计算部分子分布的高阶矩变得相当困难（引文）。 最近，本文作者之一提出了在欧氏格点上直接计算部分子物理的方案。在该方案中，人们计算的不再是光锥分布，而是一个相关的量，可以称之为准分布（quasi-distribution）（引文）。对于非极化夸克密度，该准分布为 [引文]（公式或图表位置）其中（公式）。上述量不含时间且是非局域的，对于任意满足（公式）的动量（（公式）为格点间距）均可在格点上模拟。然而，其结果并不是从实验数据中提取出的光锥分布（公式）。为了从前者恢复后者，需要找到……布。这里我们将关注最适合格点 QCD 计算的最简单类型。 本文考虑非单态夸克分布，并在单圈水平上证明上述因子化。在整个过程中我们得到了不含时间的准分布与光锥分布之间的匹配因子（公式）。该结果将有助于以领头对数精度、从准分布的格点 QCD 模拟中恢复光锥分布。类型为（公式）（（公式））的幂次压低修正在此被忽略，将在另文讨论。 本文其余部分安排如下：第 2 节给出非极化准夸克分布的单圈计算结果；基于此结果，我们在第 3 节提出一个在单圈水平成立的因子化定理，并提取准分布与光锥分布之间的匹配因子；第 4 节给出夸克螺旋度与横率分布的结果；最后在第 5 节作结论 \\
+    \textbf{结果/讨论}\quad 我们推导了非单态夸克分布（包括非极化、螺旋度与横率分布）的单圈匹配条件。该匹配条件也可以被视为一种因子化：它把准夸克分布与实验中可测量的光锥分布联系起来，从而使人们能够从前者提取后者；前者定义为有限核子动量下不含时间的关联函数，因此可以在格点上计算。为了开展准夸克分布的格点模拟，需要采用横向动量截断作为紫外（UV）发散的调节器。这一紫外调节器的选择会在轴向规范（公式）下产生一个乘以奇异因子的线性发散， 其起源是 Wilson 线的自能。在我们的单圈因子化公式中，该发散可以用主值约定消除。然而，要最终实现所有阶的因子化，重要的是研究这种发散结构在单圈以上如何影响准分布与光锥分布之间的匹配。 acknowledgments 我们感谢 J. W. Chen 就（公式）奇异性进行的有益讨论。本工作部分受到美国能源部基金 DE-FG02-93ER-40762、上海市科学技术委员会基金（No. 11DZ2260700）以及中国国家自然科学基金 （No. 11175114）的资助。 acknowledgments \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}准部分子分布单圈匹配\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 9 页；对应的原始中文 TeX 目录为 \emph{准部分子分布单圈匹配\_latex}。
+\clearpage
+\includepdf[pages=1-9,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/准部分子分布单圈匹配_latex/build/main.pdf}
+\clearpage
+
+\chapter{P14：大动量有效理论再论}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P14：大动量有效理论再论：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1706.07416 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 9 页（索引值与实测值一致） \\
+    章节入口 & 引言；闵氏空间中的微扰匹配与欧氏空间中的非微扰重正化；幂次发散与格点 QCD 中准分布的重正化；准分布与赝分布：异同之比较；结论 \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}大动量有效理论再论\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P14：大动量有效理论再论：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 本文作者所倡导的大动量有效理论（Large-Momentum Effective Theory，简称 LaMET）为在欧氏格点 QCD 理论中模拟部分子物理提供了一条直接途径。近来，文献中对这一理论表现出浓厚兴趣，其中不乏 对其正确性与有效性的质疑。这里我们提供若干讨论，旨在进一步阐明该方法。特别地，我们解释了 为什么在格点 QCD 计算部分子分布矩时它不具有通常的幂次发散问题。LaMET 方法中唯一的幂次发散来自 威尔逊线的自能，而它可以被恰当地因子化出去。我们证明：虽然 Ioffe 时间分布为从同一组格点观测量 中提取部分子分布提供了另一种方式，但要获得精度计算，它同样需要与 LaMET 相同的大动量（或短距离） 极限。在对误差作恰当量化之后，两种提取方法应与同一批格点数据相比较 \\
+    \textbf{方法/推导}\quad intro 费曼发明的部分子模型一直是描述高能强相互作用物理最有用的语言之一（引文）。 部分子是强子以光速运动时才存在的理想化对象。因此用现代语言来说，它们是某个有效理论中的有效 自由度，例如软共线有效理论（引文）。强子的部分子性质，如部分子分布、部分子波函数 或振幅、部分子关联等，都是低能性质，需要在强耦合区域求解量子色动力学（QCD）。 当在强子静止系中表述时，部分子物理表示 QCD 夸克或胶子沿光锥方向（（公式）） 的时空关联，它显含时间依赖（引文）。（我们用（公式）[公式] 表示时空坐标，尽管（公式）、（公式）、（公式）也常被用来表示动量分数。）在物理上， 含时关联自成一类，因为时间演化需要存在依赖相互作用的哈密顿量（公式），这类可观测量被称为 ``动力学的''。 动力学关联难以计算至少有两个不同的原因：1) 若插入一组中间哈密顿量本征态来简化演化，就需要知道 所有中间激发态的波函数。因此，仅仅知道初态（通常是基态）波函数不足以计算含时关联。为逼近基态 设计的方法未必适用于激发态，因而动力学关联的计算通常不如不含时的或静态的可观测量可靠——对后者 而言，初态波函数就足够了。2) 由于时间依赖涉及幺正演化算符（公式），它包含变号的相位，这对 数值蒙特卡罗模拟是个难题。事实上，大多数为计算静态性质设计的蒙特卡罗方法都无法直接用于动力学 关联。有人尝试改为计算虚时间或欧氏演化（公式），再把结果解析延拓回……现出很大兴趣，其中不乏对其正确性或有效性的质疑。这里我们提供若干讨论， 旨在进一步阐述该方法。文献（引文）对 LaMET 方法中的因子化提出了质疑。循着 文献（引文），我们明确证明该问题源于解析延拓的操作。文献（引文）基于矩的分析提出了幂次发散问题。我们证明这个问题在非局部做法中并不存在，那里唯一的幂次发散来自 威尔逊线的自能。最后，文献（引文）提出了一种提取部分子分布的 新方法。我们证明 Ioffe 时间分布是从同一格点观测量提取部分子分布的另一种方式，因而与 LaMET 方法 完全等价。此外，在该方法中观察到的表观标度行为对收敛问题是否有帮助尚无定论 \\
+    \textbf{结果/讨论}\quad 我们给出了旨在进一步阐明 LaMET 方法的若干讨论。我们澄清了该方法中因子化的有效性，并强调了 解析延拓在从欧氏积分恢复闵氏空间积分正确红外行为中的重要性。我们还指出，困扰传统矩方法的幂次 发散在采用非局部表述的准分布方法中不构成问题。最后，我们证明了从 LaMET 所用的同一组格点观测量 中提取部分子分布的 Ioffe 时间分布方法需要完全相同的物理条件。在对误差作恰当量化之后比较两种方法 的结果将是很有意思的 \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}大动量有效理论再论\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 9 页；对应的原始中文 TeX 目录为 \emph{大动量有效理论再论\_latex}。
+\clearpage
+\includepdf[pages=1-9,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/大动量有效理论再论_latex/build/main.pdf}
+\clearpage
+
+\chapter{P17：欧氏与光锥分布因子化定理}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P17：欧氏与光锥分布因子化定理：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1801.03917 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 28 页（索引值与实测值一致） \\
+    章节入口 & 引言；由算符乘积展开得到的因子化；空间关联函数的 OPE 与因子化；准 PDF 的因子化；赝 PDF 的因子化；单圈阶的等价性；其他重正化方案；数值结果；对格点计算的影响；结论；傅里叶变换；准 PDF 的计算；（公式）展开与 plus 函数 \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}欧氏与光锥分布因子化定理\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P17：欧氏与光锥分布因子化定理：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 在大动量核子态中，可以从格点 QCD 计算得到的规范不变欧氏 Wilson 线算符的矩阵元，通过大动量有效理论（LaMET）展开与标准的光锥部分子分布函数联系起来。这一关系由一个带非平凡匹配系数的因子化公式给出。我们利用算符乘积展开推导了 LaMET 中准部分子分布函数的大动量因子化，并证明近来讨论的赝部分子分布方法同样满足一个等价的因子化公式。我们得到了各系数的单圈显式结果并作了比较。我们还证明，（公式）方案中的匹配系数依赖于大的部分子动量而非核子动量 \\
+    \textbf{方法/推导}\quad 部分子分布函数（PDF）是理解强子结构以及对高能散射实验的截面作出预言的关键量。在硬散射过程的 QCD 因子化定理中（引文），相关的 PDF 定义为光锥关联算符在核子态之间的矩阵元。例如，在维数正规化（公式）下，裸的非极化夸克 PDF 为（公式或图表位置）其中（公式）是动量分数，核子动量（公式），（公式）是光锥坐标，而 Wilson 线为（公式或图表位置）通常把裸 PDF 在（公式）方案下重正化得到（公式），再用重正化后的 PDF 对实验作预言。其关系为 q(x, ) = \_x1 dy y Z MS ( x y , , ) q(y, ) , 其中（公式）是重正化标度，我们在重正化常数（公式）与 PDF 中略去了味道指标。在（公式）的光锥量子化中，（公式）定义可以解释为部分子数密度。 迄今为止，关于 PDF 的主要知识来自对深度非弹性散射与喷注数据的全局拟合，例如参见文献（引文）。另一方面，用 QCD 从第一性原理计算 PDF 一直是一个有吸引力的课题，例如它可以提供难以通过实验确定的自旋与动量分布信息。为此人们考虑了几种基于格点理论的方法——格点理论是求解 QCD 的一种非微扰方法。由于格点理论定义在具有虚时间方向的离散欧氏空间上，要计算像 PDF 这类依赖实时的闵可夫斯基量非常困难。第一个也是研究得最充分的方法是计算 PDF 的矩（moments）（引文），它们是定域规范不变算符的矩阵元。然而，由于格点……系。与早先（公式）下准 PDF 的结果不同，我们还使用最小减除的维数正规化来重正化（公式）处的发散。第（交叉引用）节讨论如何把（公式）以外的重正化方案方便地纳入因子化公式。 第（交叉引用）节我们对匹配系数作数值分析：用全局拟合确定的 PDF（引文）数值计算式 (（交叉引用）)中的卷积。我们证明，在式 (（交叉引用）)中使用（公式）与（公式）的差别是一个重要的效应，而且我们的（公式）匹配系数对卷积积分中的截断并不敏感。第（交叉引用）节讨论我们的 OPE 分析对准 PDF 与赝 PDF 两种方法中 PDF 格点计算的影响。最后，我们在第（交叉引用）节给出结论 \\
+    \textbf{结果/讨论}\quad sec:summary 从 QCD 中规范不变算符乘积的欧氏算符乘积展开出发，我们推导了准 PDF、 与赝 PDF 的因子化公式。这三个欧氏分布函数是相互关联的可观测量，都源自同一基本因子化。对 而言，这一推导意味着式 (（交叉引用）)中的比值确实按（公式）标度，但需要式 (（交叉引用）)的小（公式）因子化公式来提取 PDF。 我们的因子化公式推导适用于重正化 在任何方案下的定义。 这里使用的 OPE 还可以用来系统地推导式 (（交叉引用）)幂次修正的因子化公式，那将涉及向高扭度部分子分布的匹配。（这些修正的数值相关性在文献（引文）中被考察。） 注意 LaMET 并不等价于来自 OPE 的展开：前者更为普遍，可用于其他量的格点计算，例如不存在简单 OPE 的 TMD-PDF。 我们对准 PDF 因子化公式的推导还验证了式 (（交叉引用）)匹配系数中的部分子动量必须取（公式）；与（公式）相比，这对（公式）匹配结果造成相当大的差别（见图（交叉引用））。因此，在 LaMET 方法中计算 PDF 的格点计算应使用正确的（公式）。 作为对各分布之间关系及因子化公式的一个非平凡检验，我们考虑了（公式）方案下的单圈结果。我们导出了修正后的（公式）方案系数（公式），见式 (（交叉引用）)，它使卷积积分收敛。我们还计算了出现在 与赝 PDF 因子化中的 Wilson 系数（公式）的单圈（公式）结果，并提供了这些单圈修正的数值分析。单圈匹配系数（公式）对赝 PDF 的效应比（公式）对准 PDF 的效应小，比较图（交叉引用）与图（交叉引用）即可看出。鉴于处理格点数据的系统不确定性，利用相同的空间关联函数格点数据、同时采用准 PDF 与赝 PDF 两种方法来提取部分子分布函数是有潜在价值的。 存在若干种实施因子化公式、从 的格点数据计算 PDF 的方式，我们已在 lattice 中讨论。人们总是必须使用短距离关联与大核子动量来减小高扭度修正。这限制了格点计算中有用数据点的数目，如 lattice 所述。要在不作模型假设的情况下实现精确计算，强烈期望走向更细的格距以增加有效数据点的数目 \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}欧氏与光锥分布因子化定理\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 28 页；对应的原始中文 TeX 目录为 \emph{欧氏与光锥分布因子化定理\_latex}。
+\clearpage
+\includepdf[pages=1-28,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/欧氏与光锥分布因子化定理_latex/build/main.pdf}
+\clearpage
+
+\chapter{P19：格点算符非微扰重正化一般方法}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P19：格点算符非微扰重正化一般方法：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:hep-lat/9411010 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 26 页（索引值与实测值一致） \\
+    章节入口 & 引言；非微扰重正化条件；方法对一般复合算符的应用；有限算符；对数发散算符；幂次发散算符；方法在数值模拟中的实现；格点微扰论；非微扰结果；结论；附录 \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}格点算符非微扰重正化一般方法\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P19：格点算符非微扰重正化一般方法：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 我们提出一种非微扰方法，用于计算一般复合算符的重正化常数。该方法旨在减小某些系统误差， 这些误差在人们试图从格点算符的矩阵元得到物理预言时是存在的。我们还给出了若干两费米子 算符重正化常数的计算结果，这些结果是用我们的方法、通过（公式）的数值模拟、在（公式）的（公式）格点上得到的。模拟结果令人鼓舞，并建议进一步应用于 四费米子算符和重夸克有效理论 \\
+    \textbf{方法/推导}\quad sec:casivari 上一节以标量密度与赝标密度的重正化为原型给出了非微扰方案的一般策略。本节简要描述其他情形下所需 的必要修改。我们将遵循第（交叉引用）节引入的算符分类 \\
+    \textbf{结果/讨论}\quad sec:concl 我们提出了一种对格点复合算符进行重正化的新非微扰方法。它适用于所有情形，在 Ward 恒等式方法 不适用的场合尤为有用。该方法使人们无需借助任何格点微扰论计算即可从格点模拟得到物理量。我们的 方案能否成功，取决于在当前（公式）值下、低动量非微扰区与离散化误差变得重要的大动量区之间是否存在 窗口。不过这一限制为所有方法所共有（Ward 恒等式方法除外——后者只能应用于对应有限算符的少数 情形）。实现此处所述重正化纲领所需的窗口，看来在（公式）时即已存在；并且我们预期，随着（公式）增大，对非微扰重正化有用的动量范围将变大。我们计划把本文提出的途径应用于（公式）四费米子算符 (（交叉引用）) 以及静极限理论中重轻轴矢流的重正化 \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}格点算符非微扰重正化一般方法\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 26 页；对应的原始中文 TeX 目录为 \emph{格点算符非微扰重正化一般方法\_latex}。
+\clearpage
+\includepdf[pages=1-26,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/格点算符非微扰重正化一般方法_latex/build/main.pdf}
+\clearpage
+
+\chapter{P20：准部分子分布的可重正性}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P20：准部分子分布的可重正性：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1707.03107 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 15 页（索引值与实测值一致） \\
+    章节入口 & 引言；坐标空间准 PDF；一圈阶的夸克准 PDF；幂次计数；表面紫外发散；三维积分的有限性；夸克准 PDF 的发散图；重正化；总结 \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}准部分子分布的可重正性\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P20：准部分子分布的可重正性：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 近年来，准部分子分布函数在微扰 QCD 与格点 QCD 两个学界都受到了大量关注，因为它们不仅携带关于部分子分布函数的有效信息，而且可以由格点 QCD 模拟计算。然而，与部分子分布函数不同，准部分子分布函数由于不是由扭度2算符定义的，因而具有微扰的紫外幂次发散。本文中，我们在坐标空间中辨认出准部分子分布函数紫外发散的所有来源，并证明：在 QCD 微扰论的所有阶上，幂次发散以及对数发散都可以通过乘法方式重正化 \\
+    \textbf{方法/推导}\quad sec:intro 部分子分布函数（PDF）（公式）定义为：在因子化标度（公式）下探测，在快速运动的强子（公式）中找到一个夸克、反夸克或胶子（分别对应（公式））、且其携带的强子动量分数介于（公式）与（公式）之间的概率分布（引文）。它们是 QCD 中基本而重要的非微扰函数，定量刻画了强子与其内部夸克、胶子之间的关系，并在高能散射过程中把碰撞的强子（们）与短程 QCD 动力学联系起来，发挥着不可或缺的作用（引文）。然而，PDF 包含长程尺度上的动力学、本质上是非微扰的，并且由含时算符定义，因此无论解析地计算还是从格点 QCD（LQCD）出发，从第一性原理计算 PDF 即便并非不可能，也是一大挑战。传统上，PDF 是在 QCD 因子化框架下通过对高能散射数据作 QCD 全局分析提取出来的（引文）。 最近，Ji 为动量为（公式）（比如沿（公式）方向）的强子引入了一组准 PDF（quasi-PDF），并论证当强子动量（公式）趋于无穷时它们等于相应的 PDF（引文）。 在不取（公式）极限的情况下，只要准 PDF 能够被乘法重正化，准 PDF 在 QCD 微扰论所有阶上都可以因子化为 PDF（引文）。 与 PDF 类似，准 PDF 由两场关联量的强子矩阵元定义，两场之间有一条直线规范链接以保证规范不变性：（公式或图表位置）为夸克准分布，其中（公式）；而（公式或图表位置）为胶子准分布，其中（公式）取遍横向方向。 在式 (……DF 更好的候选者。我们还在坐标空间中定义准 PDF，并解释其重正化为何困难。随后在第（交叉引用）节研究坐标空间准 PDF 的一圈展开。利用第（交叉引用）节导出的紫外幂次计数，我们辨认出准 PDF 的所有微扰紫外发散区域。我们发现，一旦扣除子发散，所有紫外发散都来自各圈动量同时变大的积分区域，这与 PDF 的行为显著不同。 基于这些观察与发现，我们在第（交叉引用）节证明坐标空间准 PDF 可以被乘法重正化。最重要的是，我们发现准 PDF 在重正化标度跑动下不与其他任何量混合，这完成了我们对坐标空间准 PDF 可重正性的证明。最后在第（交叉引用）节给出总结 \\
+    \textbf{结果/讨论}\quad sec:summary 我们证明了准 PDF 的紫外发散行为与 PDF 的大不相同。准 PDF 的重正化是一个简单的乘法因子，而 PDF 的重正化是卷积形式，其原因在于 PDF 的紫外发散并非完全局域，因而不同味的 PDF 在重正化下相互混合。 我们证明了坐标空间准 PDF 微扰紫外发散的时空局域性，使得坐标空间准 PDF 在 QCD 微扰论的所有阶上都可以乘法重正化，如式 (（交叉引用）) 所示。结合文献（引文）中关于把准 PDF 全部领头幂次的共线（CO）发散因子化为 PDF 的全阶论证，我们的结论是：重正化后的准 PDF 是从 LQCD 计算提取 PDF 的良好候选者。 然而，对准 PDF 的 LQCD 计算而言，引入带微扰计算的（公式）的整体因子（公式）并不足以消除所有幂次发散，因为我们无法把（公式）计算到所有阶。也就是说，我们需要非微扰地重正化准 PDF 的幂次紫外发散。如文献（引文）所示，例如可以引入一个整体非微扰因子，在所有阶消除这类幂次发散，此处不展开细节。原则上，非微扰重正化准 PDF 幂次发散的方案并不唯一。但是，只要重正化是乘法的，重正化程序就不改变准 PDF 的共线（CO）性质（从而准 PDF 仍可因子化为 PDF）；不同的重正化程序／选择对应于不同的重正化方案，并将导致准 PDF 与 PDF 之间不同的匹配系数。 此外，我们证明了坐标空间准 PDF 对一切（公式）取值都表现良好，唯独（公式）除外。也就是说，如果想通过傅里叶变换从坐标空间准 PDF 得到动量空间准 PDF，就必须在变换之前定义一套一致的减除方案，以消除（公式）处的所有发散项。没有这一减除，动量空间准 PDF 在大（公式）区域是不适定的。 补充说明： 最近出现了两项关于准 PDF 重正化的独立研究（引文），虽然其方法与我们的很不一样，却得到了相同的结论 \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}准部分子分布的可重正性\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 15 页；对应的原始中文 TeX 目录为 \emph{准部分子分布的可重正性\_latex}。
+\clearpage
+\includepdf[pages=1-15,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/准部分子分布的可重正性_latex/build/main.pdf}
+\clearpage
+
+\chapter{P21：威尔逊线重正化改进准分布}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P21：威尔逊线重正化改进准分布：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1609.08102 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 7 页（索引值与实测值一致） \\
+    章节入口 & 引言；通过威尔逊线重正化改进准夸克分布；经由格点微扰论实现格点与连续统之间的匹配；结论；附录 \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}威尔逊线重正化改进准分布\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P21：威尔逊线重正化改进准分布：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 近期的发展表明，强子的光锥部分子分布可以在大强子动量极限下，从类空关联子——即所谓准部分子分布——中直接提取。 与通常的光锥部分子分布不同，准部分子分布含有与威尔逊线自能相联系的紫外（UV）幂次发散。 我们证明：在耦合展开的所有阶次上，该幂次发散都可以通过辅助（公式）场形式中的“质量”反项予以消除，其方式与开放威尔逊线幂次发散的重正化相同。加入此反项后，准夸克分布得到改进，至多只含对数发散。基于一个简单的离散化规范作用量版本，我们给出了带格点正规化的改进非单态准夸克分布与维数正规化下相应夸克分布之间的单圈匹配核 \\
+    \textbf{方法/推导}\quad QCD 最重要的目标之一，是从其基本自由度——夸克与胶子——出发理解强子结构。这必然进入 QCD 的非微扰区，一般而言，难以直接从 QCD 拉氏量获得第一性原理的结果。格点 QCD 是获得此类结果的有力工具，它是一种定义在欧氏时空上的方法，已被用于以惊人的精度计算强子质量、电荷等物理量。然而，它无法用来直接触及本质上属于闵可夫斯基时空的观测量，例如部分子分布函数（PDF）。PDF 定义为光锥关联的前向强子矩阵元，描述强子内部夸克与胶子的动量分布；它们在理解诸如 LHC 这类高能强子对撞机的实验数据方面起着关键作用。由于其含实时依赖性，格点 QCD 只能通过计算各阶矩来间接提取 PDF 的信息，而这受到诸如算符混合等技术复杂性的限制。另一种常用的确定 PDF 的方法，是假定一个合适的参数化形式并拟合大量各式各样的实验数据。多数 PDF 合作组即以此方式得到其 PDF 集合（引文）。该方法的一个主要缺点是存在参数化不确定性，而且不同合作组对同一 PDF 往往给出不同的结果。 近期的发展（引文）表明，诸如 PDF 这样的光锥观测量可以由一个类空关联子的强子矩阵元在大动量极限下直接提取；该矩阵元被称为准观测量（quasi observable），所用的框架是大动量有效理论（引文）（关于提取光锥量的其他途径，参见例如文献（引文））。准 PDF 不具有实时依赖性，因而可以在格点上模拟。通过直接计算已证明：味道非单态准……中重轻夸克矢量流的修正之间建立了等价关系，从而使前者的 UV 发散可以按后者的重正化方式处理。文献（引文）采用的是维数正规化，截断或格点正规化中出现的线性发散被忽略了。在现实的格点计算中，必须知道如何处理这类幂次发散。这是本文的目标之一。我们将证明：准夸克分布中的幂次发散可以通过一个质量反项在所有圈次上消除，这与开放威尔逊线的重正化完全相同。经过这样的质量重正化之后，准夸克分布得到改进，至多只含对数发散。 本文其余部分安排如下：第 2 节讨论准夸克分布中威尔逊线自能导致的幂次发散的重正化；第 3 节给出准夸克分布的格点微扰论匹配；最后在第 4 节给出结论 \\
+    \textbf{结果/讨论}\quad 在本文中，我们证明了准 PDF 在格点正规化下出现的幂次发散可以在所有圈次上用一个质量反项消除；该反项可理解为沿威尔逊线运动的检验粒子的质量重正化。经过这样的质量重正化之后，准分布得到改进，至多只含对数发散。我们还基于一个简单的离散化规范作用量版本，利用格点微扰论给出了准夸克分布在格点与连续统之间的单圈匹配。我们的结果有助于从格点数据可靠地提取物理 PDF \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}威尔逊线重正化改进准分布\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 7 页；对应的原始中文 TeX 目录为 \emph{威尔逊线重正化改进准分布\_latex}。
+\clearpage
+\includepdf[pages=1-7,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/威尔逊线重正化改进准分布_latex/build/main.pdf}
+\clearpage
+
+\chapter{P22：大动量有效理论的重正化}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P22：大动量有效理论的重正化：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1706.08962 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 6 页（索引值与实测值一致） \\
+    章节入口 & 引言；含辅助“重夸克”场的有效 QCD；维数正规化下含“重夸克”的有效 QCD 的重正化；维数正规化下非局域算符的重正化；格点正规化下非局域算符的重正化；结论 \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}大动量有效理论的重正化\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P22：大动量有效理论的重正化：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 在大动量有效场论处理部分子物理的方法中，由空间方向上的直线威尔逊线连接起来的夸克场与胶子场非局域算符的矩阵元，是在格点量子色动力学中被作为强子动量的函数加以计算的。利用重夸克有效理论的表述，我们证明这些算符在微扰论的所有阶都具有乘法重正化的性质，且无论采用维数正规化还是格点正规化皆如此。该结果为在蒙特卡罗模拟中通过恰当重正化的观测量抽取部分子性质提供了理论基础 \\
+    \textbf{方法/推导}\quad 量子色动力学（QCD）最重要的目标之一，是从其基本自由度——夸克和胶子——出发理解强子结构。格点 QCD 是获得这类结果的一个有力工具，它已被用于较精确地研究强子的静态性质，例如质量、电荷半径等（参见文献（引文））。然而一般而言，它无法直接处理具有实时依赖性的物理量。一个例子是部分子分布函数（PDF）：其定义为光锥关联的夸克与胶子矩阵元，描述强子内部夸克和胶子的动量分布。它们对于理解诸如 LHC 这类高能强子对撞机的实验数据起着关键作用。格点 QCD 只能通过计算矩来间接提取 PDF 的信息（引文），而这受到技术困难的限制。 过去几年中，人们提出了一种从格点 QCD 出发研究部分子物理的新方法，即如今所称的大动量有效理论（LaMET）（引文）。在这一方法中，人们从一个与时间无关的准分布（quasi-PDF）出发——它是可以直接在格点上计算的非局域夸克与胶子算符的矩阵元——然后借助微扰因子化用它来抽取光锥 PDF，误差为被核子动量压低的幂次修正。文献（引文）中给出的因子化是针对裸夸克准分布的，即进入准分布的所有场和耦合常数都是裸量。 准 PDF 的紫外（UV）物理全部被微扰地因子化到匹配系数之中。然而，众所周知格点微扰论收敛缓慢，通常需要非微扰重正化来定义连续极限，以便更好地控制与部分子物理的匹配。因此，要让 LaMET 更加实用，就必须完整理解相关非局域算符的 UV 发散。 QCD 中非局域算符的重正化在……算符的重正化进行系统研究。我们首先给出一个一般性框架：在 QCD 拉氏量中引入辅助的“重夸克”场，于是威尔逊线可以替换为辅助场的乘积。通过与重夸克有效理论（HQET）类比，我们论证该理论在微扰论所有阶都可重正化。随后以无极化夸克准 PDF 为例，我们证明其重正化归结为两个轻重夸克流的重正化，后者同样可以在微扰论所有阶完成。这消除了通过格点模拟定义连续准 PDF 的障碍。同一结论并不局限于夸克准 PDF，还可以推广到胶子准 PDF，以及其他非局域关联函数，例如 LaMET 框架中定义的、用以抽取广义部分子分布、横动量依赖分布、强子分布振幅等的欧几里得观测量 \\
+    \textbf{结果/讨论}\quad 在本文中，我们证明了 LaMET 中计算的涉及类空威尔逊线的非局域算符，可以在微扰论所有阶进行乘法重正化。除了产生依赖（公式）的指数因子的质量抵消项之外，其余所有重正化常数都与（公式）无关，并与 HQET 中轻重夸克流的重正化相关联。这为在格点 QCD 中定义准 PDF 的连续极限提供了重要的理论基础，而后者是利用 LaMET 方法精确计算部分子物理所必需的。 注：本文完稿之际，我们获悉 DESY 团队也做了类似的考虑（引文） \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}大动量有效理论的重正化\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 6 页；对应的原始中文 TeX 目录为 \emph{大动量有效理论的重正化\_latex}。
+\clearpage
+\includepdf[pages=1-6,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/大动量有效理论的重正化_latex/build/main.pdf}
+\clearpage
+
+\chapter{P23：非定域夸克双线性的非微扰重正化}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P23：非定域夸克双线性的非微扰重正化：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1707.07152 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 10 页（索引值与实测值一致） \\
+    章节入口 & 未验证：源文件未提供可用的散文摘录。 \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}非定域夸克双线性的非微扰重正化\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P23：非定域夸克双线性的非微扰重正化：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 准部分子分布（quasi-PDF）为利用格点QCD对部分子分布函数（PDF）进行 从头计算提供了一条途径。准部分子分布计算中面临的问题之一是 一个非定域算符的重正化。通过引入一个辅助场，我们可以在一个扩展理论中 用一对局域算符来替代该非定域算符。在格点上，这与静态夸克理论密切相关。 在这一方法框架下，我们展示了如何理解手征对称性破缺所允许的混合模式， 并得到了一个用于重正化非定域算符、依赖于三个参数的主公式。我们提出了 一种非微扰地确定这些参数的方法，并利用微扰论转换到（公式）方案。 我们针对两种格距（采用Wilson扭转质量费米子）以及非定域算符中Wilson线 的不同离散化方式给出了重正化参数。利用这些参数，我们展示了重正化对 $\pi$介子质量约为 370 MeV 的核子矩阵元的影响，并比较了两种格距下的 重正化结果。重正化后的矩阵元在不同的Wilson线离散化和不同格距之间 是相互一致的 \\
+    \textbf{方法/推导}\quad 部分子分布函数（PDF）描述夸克和胶子在质子内部按纵向动量的分布。它们具有 普适性：同样的PDF出现在许多不同的散射过程中，并且是通过对撞机数据的全局 拟合在唯象上确定的。除了最低的几个Mellin矩之外，PDF一直抗拒从头 计算。格点QCD可用于计算质子的许多性质，但它本质上是一种欧氏空间方法， 而PDF是在闵氏空间中通过沿光锥分离的夸克产生与湮灭算符（此处我们关注的是 夸克与反夸克的PDF，而非胶子PDF。）的矩阵元来定义的。Ji提出了一种可能的 解决方案（引文）：利用等时算符（公式或图表位置）的矩阵元来计算准部分子分布（quasi-PDF），其中（公式）与（公式）沿方向（公式）在空间上相隔距离（公式），并由一条直Wilson线（公式）连接。在质子动量分量（公式）趋于无穷大的极限下，可以通过匹配 公式（引文）从准PDF得到PDF。 格点准PDF计算的挑战之一是（公式）的重正化；它是一个非定域算符， 且已知具有幂次发散（引文）。该算符也出现在 伪PDF（pseudo-PDF）这一相关方法中（引文）， 类似的非定域算符还被用于研究横向动量依赖的部分子分布 （TMD PDF）（引文）。 准PDF的最初几项格点 研究（引文）并未包含完整的重正化，但它们使用经涂抹（smearing）的规范链接来构建 Wilson线，微扰论已证明这可以减小幂次发散（引文）。 文献（引文）在单圈格点微扰论中研究了（公式）的重正化，……结果， 例如文献（引文）的三圈连续计算。我们为下述结论提供了 支持证据：链接涂抹对这类计算是非常有益的技术，因为它使大（公式）处的 不确定性大幅降低；这一点早在静态夸克理论中就已被解 释（引文）。从这里展示的结果到完整的PDF计算还有若干 步骤：从准PDF到PDF的匹配、对（公式）极限的控制、物理$\pi$介子 质量的使用，以及对有限体积效应与激发态效应的控制。 注：在我们中的一位在一次会议上报告本工作的初步版本之后（引文）， 我们得知存在一项基于辅助场方法的独立并行工作（引文）。我们也 注意到另一篇讨论准PDF可重正化性、但不使用辅助场方法的最新文 章（引文） \\
+    \textbf{结果/讨论}\quad ……在重正化矩阵元中，我们还 看到涂抹的好处：不涂抹时统计误差在大（公式）处迅速增大，（公式）之后便没有可用信号。使用涂抹后，我们能够看到矩阵元在大（公式）处回归趋于 零。在大（公式）处，五步HYP涂抹也比一步给出更精确的数据。在 图（交叉引用）中，我们比较了两个系综使用五步HYP涂抹的重正化数据。 二者符合得极好，这表明线性发散已被控制住，离散化效应不大。（公式或图表位置）最后，我们考察螺旋度准PDF，它由矩阵元的Fourier变换给出：（公式或图表位置）如文献（引文）的图4所示，不重正化时未涂抹链接会导致 宽得多的分布。我们在图（交叉引用）中给出细格距系综上的重正化结果。 由于数据在大（公式）处噪声很大，我们把积分限制在（公式）（未涂抹情形为（公式））。当这种限制切掉部分信号时会引起振荡， 这在未涂抹情形中清晰可见。在未来的研究中，可以通过用一个描述矩阵元大（公式）行为的模型替代硬截断，或应用文献（引文）提出的抑制大（公式）贡献的方法之一，获得改进的结果。忽略这些振荡，我们 看到重正化使不同链接离散化的数据达到了相当好的一致。 在这项工作中，我们证明了重正化格点准PDF这一非定域问题可以通过引入 辅助场转化为局域问题。辅助场方法也可以应用于横向动量依赖PDF格点研究中 使用的带订书钉形（staple-shaped）规范连接的算 符（引文），那里的混合模式 将会不同。由于该方法与静态夸克理论紧密相连，可以利用该理论的已有结果， 例如文献（引文）的三圈连续计算。我们为下述结论提供了 支持证据：链接涂抹对这类计算是非常有益的技术，因为它使大（公式）处的 不确定性大幅降低；这一点早在静态夸克理论中就已被解 释（引文）。从这里展示的结果到完整的PDF计算还有若干 步骤：从准PDF到PDF的匹配、对（公式）极限的控制、物理$\pi$介子 质量的使用，以及对有限体积效应与激发态效应的控制。 注：在我们中的一位在一次会议上报告本工作的初步版本之后（引文）， 我们得知存在一项基于辅助场方法的独立并行工作（引文）。我们也 注意到另一篇讨论准PDF可重正化性、但不使用辅助场方法的最新文 章（引文） \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}非定域夸克双线性的非微扰重正化\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 10 页；对应的原始中文 TeX 目录为 \emph{非定域夸克双线性的非微扰重正化\_latex}。
+\clearpage
+\includepdf[pages=1-10,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/非定域夸克双线性的非微扰重正化_latex/build/main.pdf}
+\clearpage
+
+\chapter{P24：准PDF完整非微扰重正化方案}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P24：准PDF完整非微扰重正化方案：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1706.00265 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 19 页（索引值与实测值一致） \\
+    章节入口 & 引言；理论设定；核子矩阵元；重正化方案；转换到（公式）方案；结果；RI（公式）方案及其到（公式）方案的转换；系统性不确定性的评估；重正化的结果；与光前 PDF 的匹配；结论与讨论 \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}准PDF完整非微扰重正化方案\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P24：准PDF完整非微扰重正化方案：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 在本工作中，我们首次在 RI（公式）方案下给出了非极化、螺旋度和横向性准部分子分布 （quasi-PDF）的非微扰重正化。所提出的处方同时处理重正化的各个方面：对数发散、 有限重正化，以及含 Wilson 线的费米子算符矩阵元中出现的线性发散。此外，对于 非极化准 PDF 的情形，我们描述了如何消除其与 twist-3 标量算符之间不想要的混合。 我们把单圈转换因子的计算交给微扰论完成，该因子把重正化函数带到标度 2 GeV 的（公式）方案。我们还解释了如何通过消除格点伪影来改进重正化函数的估计。后者可以在 单圈微扰论中、并对格点间距的所有阶进行计算。 我们将该重正化方法应用于一个具有（公式）动力学夸克、（公式）介子质量约 为 375 MeV 的扭转质量费米子系综 \\
+    \textbf{方法/推导}\quad 本节简要介绍我们想要重正化的准 PDF 的核子矩阵元，并解释三类 PDF——非极化、螺旋度和横向性—— 的重正化处方。核子矩阵元计算的细节见文献 Refs.（引文）。 * 0.25cm \\
+    \textbf{结果/讨论}\quad 在本工作中，我们给出了一个具体的处方，用于非微扰地重正化准 PDF 计算所需的矩阵元。 所采用的方案是 RI（公式），随后转换到（公式）方案并演化到 2 GeV；这一步以单圈微扰完成。 我们已经论证，该重正化条件恰当地处理了矩阵元中存在的两类发散：标准的对数发散， 以及含 Wilson 线的非局域算符特有的幂发散。此外，我们给出了消除混合的重正化条件， 适用于与非极化准 PDF——它与 twist-3 标量算符相混合——的情形。 我们还演示了所提出处方在螺旋度准 PDF 上的实施，并给出了相应的重正化矩阵元。 这使我们得以得出如何使计算更加稳健的结论，而这正是本工作的主要成果。 itemize 首先，一项具有受控系统不确定性的计算的一个关键要素，是在格点微扰论框架内扣除单圈格点伪影。 循着文献（引文）的思路，我们目前正在计算（公式）伪影， 并将把它们从（公式）因子的非微扰估计值中扣除。这样，重正化函数（特别是对``平行''动量）中出现的 大截止效应将在很大程度上得到避免。 其次，从 RI（公式）重正化方案到（公式）方案的转换因子很可能带有可观的高阶修正，它们（除其他作用外） 是重正化矩阵元实部在大 Wilson 线长度处变为负值这一非物理特征的成因。该转换因子的两圈计算 预期可以在足够程度上解决这一问题。我们所做的数值实验表明，转换因子由两圈贡献带来的自然改变 （即大约 10-20\%，近似为所考虑标度处的……发表。 itemize 总而言之，本工作提出的重正化程序连同正在推进的未来改进，将为 Wilson 线费米子算符的 重正化函数提供可靠的估计。如此得到的重正化矩阵元可以用作输入来计算准 PDF 并将其匹配到光前 PDF， 这是整个方法的主要目标。除了本工作讨论的螺旋度情形之外，我们将以类似的方式处理横向性 PDF。 对于非极化情形，则需要考虑与标量算符的混合，正如这里所解释并数值演示的那样。 通过这项工作，我们提出并讨论了准 PDF 的完整重正化程序——在此之前它一直是一个重大的不确定性来源—— 并构成了连接格点 QCD 结果与光锥 PDF 的关键里程碑 \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}准PDF完整非微扰重正化方案\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 19 页；对应的原始中文 TeX 目录为 \emph{准PDF完整非微扰重正化方案\_latex}。
+\clearpage
+\includepdf[pages=1-19,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/准PDF完整非微扰重正化方案_latex/build/main.pdf}
+\clearpage
+
+\chapter{P25：准部分子算符乘法可重正性}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P25：准部分子算符乘法可重正性：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1809.01836 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 9 页（索引值与实测值一致） \\
+    章节入口 & 引言；单圈紫外发散；高阶紫外发散；胶子—规范链顶点的重正化；胶子—胶子—规范链顶点的重正化；总结 \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}准部分子算符乘法可重正性\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P25：准部分子算符乘法可重正性：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 从格点 QCD 计算的准部分子分布（quasi-PDF）中抽取部分子分布函数（PDF），近年来一直受到积极追求。我们把文献（引文）中关于准夸克算符乘法可重正性的证明推广到准胶子算符，并证明准胶子算符在微扰论所有阶都可以被乘法重正化，而不与其他算符混合。我们发现，使用规范不变的紫外正规化方案对完成这一证明至关重要。有了准夸克算符与准胶子算符两者的乘法可重正性，再加上这些算符的强子矩阵元到 PDF 的 QCD 共线因子化，从格点 QCD 计算的准部分子算符强子矩阵元中抽取 PDF 就可以有一个坚实的理论基础 \\
+    \textbf{方法/推导}\quad sec:intro 部分子分布函数（PDF）编码了强相互作用重要的非微扰信息。基于 QCD 因子化（引文），人们已经成功地以很好的精度从高能散射数据中抽取了 PDF（引文）。然而，无论从理论还是实用的角度来看，从第一性原理的格点 QCD（LQCD）计算中抽取 PDF 都必须去做：这既是为了检验 QCD 的非微扰区，也是为了研究那些难以进行散射实验的强子的部分子结构。 由于定义 PDF 的算符具有时间依赖性，在欧氏空间的 LQCD 中 直接 计算 PDF 即使并非不可能，也是困难的（引文）。Ji 提出了一种新方法（引文），他引入了一组可在 LQCD 中计算的准部分子分布（quasi-PDF），并论证了当强子动量（公式）被推进到无穷大时，准部分子分布趋于相应的部分子分布。从 LQCD 计算中抽取 PDF 的其他一些方法也被提出过（引文）。在文献（引文）中，我们中的两位作者提出了一种基于 QCD 因子化的普适方法，用以间接地在 LQCD 中计算 PDF。 与从可因子化、可测量的强子截面实验数据中抽取 PDF 类似，我们提议通过对 LQCD 计算得到的良好“格点截面”（lattice cross sections，LCSs）数据进行全局分析来抽取 PDF；LCSs 定义为满足以下条件的强子矩阵元：(1) 可在欧氏空间 LQCD 中计算；(2) 对紫外（UV）发散可重正化，以保证可靠的连续极限；(3) 可通过红外安……义为（公式）。我们采用维数正规化（DR）同时正规化对数与线性紫外发散：在（公式）圈阶，它们分别表现为围绕（公式）和（公式）的极点。我们发现，在 DR 下胶子—规范链顶点的一圈修正中的线性紫外发散会相消，这使得准胶子算符的乘法可重正性成为可能。随后我们考察了高阶图所有可能的紫外发散拓扑。利用规范不变性，我们发现来自胶子—规范链顶点的全部线性紫外发散在微扰论所有阶都相消。 进而我们发现，全部 36 个独立准胶子算符都可以被乘法重正化而不与任何其他算符混合。结合我们在文献（引文）中关于准夸克算符的证明，本文针对准胶子算符的工作完成了准部分子算符乘法重正化的证明 \\
+    \textbf{结果/讨论}\quad 我们证明了：只要所有发散都在规范不变的方案中正规化，准胶子算符的紫外发散实际上与准夸克算符的紫外发散相似。我们证明了全部 36 个纯准胶子算符的紫外发散都定域于时空之中，并且可以被乘法重正化而不相互混合，（公式或图表位置）其中（公式）是为洛伦兹指标（公式）选出的（公式）分量个数，（公式）、（公式）、（公式）与（公式）为重正化常数。 与准夸克算符一样，由于不相互混合，准胶子算符的强子矩阵元可以成为文献（引文）所定义的良好“格点截面”的例子：它们可在 LQCD 中计算并因子化为普通 PDF；通过对第一性原理 LQCD 计算产生的这些良好“格点截面”数据进行 QCD 全局分析，即可从中抽取 PDF \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}准部分子算符乘法可重正性\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 9 页；对应的原始中文 TeX 目录为 \emph{准部分子算符乘法可重正性\_latex}。
+\clearpage
+\includepdf[pages=1-9,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/准部分子算符乘法可重正性_latex/build/main.pdf}
+\clearpage
+
+\chapter{P26：大动量有效理论获取胶子分布}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P26：大动量有效理论获取胶子分布：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1808.10824 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 7 页（索引值与实测值一致） \\
+    章节入口 & 引言；辅助伴随表示“重夸克”方法；辅助场方法中的重正化；胶子准PDF算符；胶子螺旋度分布；在格点上的实现；结论 \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}大动量有效理论获取胶子分布\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P26：大动量有效理论获取胶子分布：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 利用大动量有效理论（large momentum effective theory, LaMET），质子内的胶子部分子分布函数（PDFs）可以直接在欧几里得格点上计算。为实现这一目标，必须找到这样的重正化胶子准PDF：其中的幂次发散与算符混合已被彻底理解。对于非极化分布，我们确定出四种可以在格点上乘法重正化的独立准PDF关联函数。类似地，螺旋度分布可以由三个独立的可乘法重正化的准PDF导出。我们为这些重正化的准PDF给出了一个 LaMET 因子化公式，由此可以提取胶子 PDFs \\
+    \textbf{方法/推导}\quad sec:aux 让我们从文献（引文）定义的胶子准PDF出发：（公式或图表位置）[公式] 是场强张量。除非另有说明，本节定义的量都是裸量。指标（公式）既可像胶子 PDF 中那样（引文）只对横向分量求和，也可对所有洛伦兹分量求和。由于（公式），而（公式）在大动量极限下受到幂次压低，两种求和方式都可用于定义胶子准PDF，且它们属于胶子准PDF算符的同一普适类（关于胶子极化算符普适类的讨论见文献（引文））。（公式）是外部强子的动量；（公式）是指定规范连接（公式）方向的类空矢量，其中（公式）定义在伴随表示中。 另外，胶子准PDF也可以用基础表示的规范连接（公式）来定义（引文）fundrep * -1em O(z\_2,z\_1)=2 Tr [F z (z\_2)U(z\_2,z\_1)F\_ z (z\_1)U(z\_1,z\_2)], 其中（公式），（公式）是基础表示的生成元。 式 (（交叉引用）) 便于研究重正化，而式 (（交叉引用）) 则更便于在格点上实现。下面我们主要聚焦于式 (（交叉引用）) 的定义，但结果同样适用于式 (（交叉引用）)。 为重正化（公式），我们仿照对夸克准PDF的研究（引文），向 QCD 拉氏量引入一个记作（公式）的辅助伴随表示“重夸克”场。这个“重夸克”没有自旋自由度。含辅助场的拉氏量为 efflag L= L\_ QCD + Q (x)(i n D-m) Q(x), 其中（公式）是伴随表示中的协变导数，并为辅助场（公式）引入了一个“剩余质量”，其理由稍后便会清楚。 借助辅助“重夸克”（公式），威尔逊线可以替换为两个此类场的乘积 [引文]（公式或图表位置）于是，式 (（交叉引用）) 中非定域算符的重正化便归结为式 (（交叉引用）) 中两个定域复合算符（LCOs）乘积的重正化 \\
+    \textbf{结果/讨论}\quad sec:conclusion 总之，我们利用辅助伴随表示“重夸克”拉氏量，对 LaMET 中定义的胶子准PDF的重正化性质进行了系统研究。我们证明了胶子准 PDF 中的所有幂次发散都来自威尔逊线自能，并可通过一次质量重正化予以消除。我们还确定了一组适用于格点模拟的可乘法重正化胶子准PDF算符。我们的发现为从格点模拟直接抽取胶子 PDFs 提供了理论基础 \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}大动量有效理论获取胶子分布\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 7 页；对应的原始中文 TeX 目录为 \emph{大动量有效理论获取胶子分布\_latex}。
+\clearpage
+\includepdf[pages=1-7,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/大动量有效理论获取胶子分布_latex/build/main.pdf}
+\clearpage
+
+\chapter{P27：胶子伪分布的短距行为}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P27：胶子伪分布的短距行为：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1910.13963 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 14 页（索引值与实测值一致） \\
+    章节入口 & 引言；矩阵元；链接自能贡献与紫外发散；顶点贡献；紫外发散项；演化项；盒图；胶子自能图；DGLAP 演化结构；纯胶动力学中 DGLAP 何时为对角；约化 Ioffe 时间分布；胶子–夸克混合；匹配关系；准分布的匹配关系；总结 \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}胶子伪分布的短距行为\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P27：胶子伪分布的短距行为：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 本文给出在伪分布（pseudo-PDF）方法框架内开展胶子部分子分布函数（PDF）格点计算所需的 结果。 我们对可能的双胶子关联函数进行了分类，并指出其中包含在光锥极限（公式）下决定胶子 PDF 的不变振幅的那些函数。 单圈计算在坐标表象中进行，并以显式规范不变的形式给出。 我们努力分离了短距离（公式）处（公式）依赖的紫外（UV）与红外（IR）来源。 紫外项在约化 Ioffe 时间分布（ITD）中相消，由此我们得到约化 ITD 与光锥 ITD 之间的 匹配关系。 利用核形式，我们建立了约化 ITD 的格点数据与归一化胶子 PDF 之间的直接联系。 我们还证明，这些结果可用于相当直接地计算准分布（quasi-PDF）的单圈匹配关系 \\
+    \textbf{方法/推导}\quad 由两个胶子场组成的算符（四个指标均不缩并）的核子自旋平均矩阵元由（公式或图表位置）给出，其中（公式）是胶子（伴随）表示中的标准直线规范链接（公式或图表位置）对不变振幅作分解的张量结构可由两个可用四矢量（公式）、（公式）以及度规张量（公式）构成。考虑到（公式）对其指标的反对称性，我们有（公式或图表位置）其中振幅（公式）是不变间隔（公式）与 Ioffe 时间 [引文]（公式）的函数（引入负号是为了后面的方便）。 由于矩阵元应当对场的交换对称（相当于（公式）且（公式））， 函数（公式）、（公式）、（公式）、（公式）与（公式）是（公式）的偶函数，而（公式）关于（公式）为奇。 通常的光锥胶子分布由（公式）得到，其中（公式）取光锥``负''方向，（公式）。我们有（公式或图表位置）即 PDF 由（公式）结构决定：（公式或图表位置）因此，我们应选取其参数化中含有（公式）的指标组合（公式）的算符。 注意，在此胶子 PDF 定义中自然的量是被胶子携带的动量密度（公式）， 而不是其数目密度（公式）。 在定域（公式）（即（公式））极限下，该积分给出胶子携带的强子 plus 动量的份额。 在没有胶子–夸克跃迁时，此份额守恒， 这就对 Altarelli-Parisi 核（引文）的（公式）分量施加了限制： 作用于（公式）时它应具有加 prescription（plus-prescription）性质。 由于（公式）对其指标的反对称性……与（公式）协变求和的组合（公式）也被发现是乘法可重正的。 它由（公式或图表位置）给出，且污染项最多（四个）。 同样涉及协变求和的函数（公式）曾用于首次尝试（引文）从格点提取胶子 PDF。但如文献（引文）所指出，它不是乘法可重正的。 在任何耦合常数无量纲的理论中， 矩阵元（公式）都含有对应于微扰演化（或称 DGLAP 演化，即 Dokshitzer-Gribov-Lipatov-Altarelli-Parisi（引文））的（公式）项。 人们或许想知道哪些组合在单圈具有对角的 DGLAP 演化。 为回答这些问题，我们计算了 单圈 胶子交换对原双定域算符的修改 \\
+    \textbf{结果/讨论}\quad 在本文中，我们给出了为正在开展的、采用伪 PDF 方法计算胶子 PDF 的工作 奠定基础的结果。 特别地，我们对可能的双胶子关联函数作了分类。 我们指出了其中包含不变振幅（公式）的那些函数， 该振幅在光锥极限（公式）下决定胶子 PDF。 由于此极限是奇异的，需要联系（公式）与光锥 PDF（公式）的 匹配条件。 为此，我们采用 Ref.（引文）的方法， 对两个胶子场强张量的规范不变关联器（所有洛伦兹指标均显式保留） 完成了单圈修正的计算。 为保持规范不变性，我们使用了维数正规化。 由于 DR 对与 UV 奇异性相关的对数 和反映 DGLAP 演化的对数给出相同的形式（公式），我们尽力分离了 小（公式）处（公式）依赖的这两个来源。 当我们构造约化 ITD（公式）时，UV 相关的贡献相消， 约化 ITD 与光锥 ITD 之间的匹配关系中 只剩下 DGLAP 相关的项。 匹配关系也可写成核形式 (（交叉引用）)， 它直接把（公式）的格点数据 与归一化胶子 PDF（公式）联系起来。 平均胶子动量份额（公式）需要由单独的格点计算提取。 我们还证明，这些结果可用于相当直接地计算 准分布的单圈修正， 为其结构提供新的洞见， 并可用于检验 胶子准分布匹配条件的相关结果。 在后续出版物中，我们计划给出计算的更多细节， 并给出盒图的完整结果， 特别是分布振幅与 GPD 格点计算所需的 非前向运动学。 我们还计划纳入胶子–夸克 与夸克–胶子项的计算 \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}胶子伪分布的短距行为\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 14 页；对应的原始中文 TeX 目录为 \emph{胶子伪分布的短距行为\_latex}。
+\clearpage
+\includepdf[pages=1-14,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/胶子伪分布的短距行为_latex/build/main.pdf}
+\clearpage
+
+\chapter{P29：准光前关联函数的自重正化}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P29：准光前关联函数的自重正化：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:2103.02965 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 44 页（索引值与实测值一致） \\
+    章节入口 & 引言；微扰论中的重正化；格点矩阵元与模拟设置；线性发散的简单检验；格点矩阵元的自重正化；方法策略；重整子不确定性；调节参数 d 以匹配连续方案；自重正化流程；不同作用量与矩阵元结果的比较；其他拟合选项与稳定性；格点涂抹矩阵元的重正化；QCD 真空中关联函数的线性发散；Wilson 圈；准 PDF 算符的真空矩阵元；Landau 规范固定的 Wilson 链接；总结 \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}准光前关联函数的自重正化\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P29：准光前关联函数的自重正化：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 在大动量有效理论的应用中，由于 Wilson 线自能量中的线性发散，欧氏关联函数在格点正规化下的重正化是一个挑战。基于准 PDF 算符在格点间距（公式）= 0.03 fm（公式）0.12 fm、价夸克分别为 clover 与 overlap、海夸克分别为 staggered 与 domain-wall 的格点 QCD 矩阵元，我们设计了一种把发散的重正化因子与有限的物理矩阵元分离开来的策略；所得矩阵元可在短距离处匹配到维数正规化与最小减除等连续方案。我们的结果表明，重正化因子在强子态矩阵元中是普适的。而且，物理矩阵元看起来与价费米子形式无关。 即使在降低统计误差但同时削弱重正化流程可控性的 HYP 涂抹下，这些结论依然成立。 此外，我们发现常用的 RI/MOM 与比值重正化方案中存在大的非微扰效应，这倾向于支持近期提出的混合重正化流程 \\
+    \textbf{方法/推导}\quad sec:setup 格点矩阵元标准的非微扰重正化方法是：计算该算符的一些辅助矩阵元（它们也可以在微扰论中计算），并用它们作为重正化因子来趋近连续极限。本文聚焦于研究可能对准光前关联的重正化有用的辅助矩阵元。我们主要考虑以下几种情形下准 PDF 算符的矩阵元：1）大欧氏动量的夸克态中；2）强子（如（公式）或核子）的物理零动量态中。我们还将研究真空中的矩阵元（引文）（情形 3），并由算符乘积展开（OPE）可以表明：由于小（公式）时这种矩阵元被压低，它并不是好的重正化选择。此外，由于依赖（公式）的重正化主要与 Wilson 链接相联系，我们也将考虑 Wilson 圈以及固定规范下 Wilson 链接的矩阵元（情形 4）。 我们在静止系中计算（公式）与核子矩阵元（公式），即计算如下三点关联函数，（公式或图表位置）其中（公式），（公式）是沿（公式）方向的单位矢量，（公式）是诸如（公式）或核子等强子的插值场；（公式）对应源–汇分离。 为了精确地得到（公式），需要（公式）与（公式）都足够大以压制激发态污染，或者用恰当的参数化拟合三点函数以处理激发态污染。对（公式）情形可以采用第一种策略，因为静止系中（公式）的信噪比不会衰减；而对统计误差随（公式）与（公式）指数增长的其他情形，第二种策略必不可少。受（反）周期边界条件限制，（公式）至多取（公式），在现代大多数格点系综中它大于 2 fm。由于（公式）基态与第一激发态之间的质……公式），附加的因子 1/2 修正的是（反）周期边界条件下同时存在正向与反向传播态这一事实。核子情形噪声要大得多，尤其在大（公式）时。因此在所有情形中我们都只考虑（公式）fm，并把（公式）绘于图（交叉引用）下图。（公式或图表位置）归一化的裸比值（公式）（其中（公式）由（公式）fm 的（公式）近似）绘于图（交叉引用），并用 jackknife 重采样施加归一化因子（公式），使其在所有格点间距下于（公式）处严格等于一。如图所示，线性发散使（公式）同时随（公式）与（公式）指数衰减，因而在（公式）时无法获得任何有意义的连续极限。必须进行重正化才能恢复良好的连续极限 \\
+    \textbf{结果/讨论}\quad sec:summary 在格点上计算的准光前关联的正确重正化，一直是把 LaMET 应用于部分子物理研究的主要挑战。这类关联含有与 Wilson 线相伴的线性发散，必须以高精度消除它们才能提取想要的物理信息。本文提出一种自重正化方法，从一个可在短距离处匹配到连续方案的准光前矩阵元中，同时消除线性发散、对数发散以及离散化误差。作为一个典型的范例，我们证明该方法对（公式）、核子和离壳夸克态中的（公式）矩阵元行之有效。我们的分析表明，重正化因子在所考虑的强子态中是普适的；而且 clover 与 overlap 费米子在（公式）态给出的重正化关联彼此相近。此外，我们发现以往常用的 RI/MOM 和比值重正化方案中存在大的非微扰效应，这在最近提出的混合重正化方案中可以并且必须避免。我们的方法对 HYP 涂抹矩阵元同样有效，这无疑十分有意义，为对涂抹的高精度格点数据实施唯象重正化铺平了道路。 为便于读者查阅，我们把前几节讨论的各种矩阵元与重正化相关的参数汇集于表（交叉引用）和表（交叉引用）。对 HYP 涂抹情形，（公式）的选取有较大自由度。我们在表（交叉引用）中取（公式）GeV；但我们也发现（公式）GeV 给出更小的拟合离散化误差。（公式或图表位置）[公式/图表] 出于比较的目的，我们还展示了基于 CLS 合作组（公式）味 clover 夸克与 Luescher-Weisz（等价于 Symanzik）规范系综的结果（引文）。价费米子作用量取为 clover 作用量，与海费米子作用量相同。CLS 系综的重正化参数见表（交叉引用）。CLS 系综（公式）矩阵元的参数（公式）与（公式）同 MILC 与 RBC 系综的结果相近，提示无论是否采用混合作用量，结果都是一致的。（公式或图表位置）我们想强调的是，本方法的应用并不限于本文所讨论的这些矩阵元。原则上，它可以应用于式 (（交叉引用）) 形式的任何算符矩阵元， 也可以推广到 LaMET 应用中含有 Wilson 线的任意矩阵元（引文）。当然，在这些情形中还需要仔细考虑矩阵元的物理解释以及与格点计算相关的细节 \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}准光前关联函数的自重正化\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 44 页；对应的原始中文 TeX 目录为 \emph{准光前关联函数的自重正化\_latex}。
+\clearpage
+\includepdf[pages=1-44,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/准光前关联函数的自重正化_latex/build/main.pdf}
+\clearpage
+
+\chapter{P30：准光前关联的混合重正化方案}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P30：准光前关联的混合重正化方案：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:2008.03886 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 24 页（索引值与实测值一致） \\
+    章节入口 & 引言；无穷大动量态中的部分子量子与大动量展开；混合重正化方案；短距离（公式）的重正化；大距离（公式）的重正化；渐近距离处的数据分析策略；中等大（公式）下的指数外推；超大（公式）下的代数外推；大动量展开对短距离展开；结论 \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}准光前关联的混合重正化方案\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P30：准光前关联的混合重正化方案：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 在大动量有效理论（LaMET）中，部分子物理的计算从格点 QCD 中计算动量为（公式）的强子内坐标空间（公式）方向关联函数（公式）出发。这类关联函数同时 含有对格距（公式）的线性发散与对数发散，因而必须加以恰当的重正化。我们引入一种 混合重正化方案，把这些格点关联匹配到连续（公式）方案，而在大（公式）处不引入额外的非微扰效应。我们分析了该混合方案中 Wilson 线自能减除所含的（公式）模糊性的影响。为得到动量空间分布，我们建议分别 利用坐标空间关联在中等及较大（公式）下的普遍性质，把格点数据外推到渐近（公式）区域 \\
+    \textbf{方法/推导}\quad sec:intro 部分子物理对于理解强子高能碰撞的动力学以及研究强子的内部结构都十分重要（引文）。最熟悉的例子是夸克与胶子的部分子分布函数（PDF）：它们一方面为对撞机上的高能产生过程提供束流信息（引文），另一方面描述了对撞强子的束缚态物理。 尽管十分重要，从量子色动力学（QCD）的第一性原理计算部分子物理一直是个挑战。最近，人们提出了一种有效场论（EFT）方法——大动量有效理论（LaMET）——从以大动量运动的强子的物理性质中提取部分子物理（引文）；后者可以通过对欧氏 QCD 的系统近似（如格点场论）来计算。自提出以来，LaMET 已被广泛用于计算夸克同位旋矢量分布函数（引文）、分布振幅（DA）（引文）、广义部分子分布（引文），以及近来的横动量依赖分布（引文），甚至高扭度分布（引文）。关于 LaMET 的一些近期综述可参见文献（引文）。 LaMET 的核心思想是：无穷大动量系（IMF）中的部分子可以用具有较大但有限动量的强子的物理性质来近似。由于紫外（UV）发散的存在，这一近似并非完全直接明了，需要使用匹配（matching）与跑动（running）这类标准 EFT 技术。详细的研究表明，标准的 DGLAP 演化（引文）正源于强子物理性质随动量的演化（引文）。 在 LaMET 的应用中，人们从空间关联函数的格点计算出发。由于格点破坏连续时空对称性，裸关联函数中会出现幂次发散。在与连续方案（如维数正规化……数发散则出现在 Wilson 线端点处``重''-轻``流''的重正化中。两种发散都可以按与（公式）方案一致的方式分别重正化（引文）。尽管 Wilson 线的质量减除早有建议（引文），但据我们所知，由于文献中尚未确立一种计算非微扰质量的可靠途径，它一直未被广泛付诸实用。这里我们提出几种可行的做法，留待未来通过系统的格点模拟加以研究。 此外，我们还讨论了利用 LaMET 提取部分子物理时十分重要的其他几个问题，例如如何在（公式）附近恰当地与连续方案匹配，以及如何利用相关关联函数在大光前（LF）距离处的渐近行为，消除截断傅里叶变换在动量分布中引起的非物理振荡 \\
+    \textbf{结果/讨论}\quad sec:conclusion 总之，我们讨论了格点上准 LF 关联的重正化与匹配中的若干进一步细节。我们提出了分别处理短距离与长距离关联的混合重正化方案：短距离关联可以通过把同一关联子夹在不同外部态之间作比值来重正化，而长距离关联则用 Wilson 线质量重正化来处理，并以一个连续性条件与短距离区域匹配。这样，我们在重正化阶段避免了在大距离引入额外的非微扰效应。我们还提出如何利用关联的渐近长程行为，向超出格点模拟能力范围的大准 LF 距离作外推，从而避免随后的傅里叶变换中的截断。最后，我们把应用于 LaMET 数据时的大动量展开与 CSF 方法作了比较：前者是提取 PDF（公式）依赖的系统展开，后者则不是。 我们在此的提议有望大幅改进当前 LaMET 格点应用中的计算策略 \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}准光前关联的混合重正化方案\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 24 页；对应的原始中文 TeX 目录为 \emph{准光前关联的混合重正化方案\_latex}。
+\clearpage
+\includepdf[pages=1-24,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/准光前关联的混合重正化方案_latex/build/main.pdf}
+\clearpage
+
+\chapter{P41：首个核子胶子部分子分布}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P41：首个核子胶子部分子分布：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:2505.13321 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 15 页（索引值与实测值一致） \\
+    章节入口 & 引言；LaMET 与混合重正化的表述；数值结果与讨论；结论与展望；外推拟合范围效应；大-（公式）外推 \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}首个核子胶子部分子分布\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P41：首个核子胶子部分子分布：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 我们报告了利用大动量有效理论（Large-Momentum Effective Theory, LaMET）得到的首个核子胶子部分子分布函数（PDF）。 我们聚焦于前人工作（引文）中已被证明在用 LaMET 计算胶子 PDF 时具有最佳信噪比的胶子算符。 我们计算了混合重正化矩阵元所需的 Wilson 系数，以及在单圈水平上将准部分子分布（quasi-PDF）匹配到光锥 PDF 的匹配核。 我们证明，在引入恰当的 Wilson 系数后，重正化所需的抵消项在统计误差范围内与强子种类和质量无关。 利用所得的重正化，我们在 MILC 合作组生成的（公式）、（公式）fm 的 HISQ 系综上计算了核子 PDF，价$\pi$介子质量分别为 310 与 690 MeV，并采用了两种规范链涂抹技术。 尽管存在重于物理$\pi$介子质量与规范链涂抹带来的物理效应，本计算提供了极佳的原理性验证，并与若干选定的全局拟合结果合理相符 \\
+    \textbf{方法/推导}\quad sec:intro 部分子分布函数（PDF）在高能粒子物理中扮演着基础性角色，它编码了质子与中子内部夸克和胶子的动量分布。 这些函数是在诸如大型强子对撞机（LHC）等强子对撞机上作出精确预言的重要输入，直接影响从标准模型（SM）到超越标准模型（BSM）等一系列过程的诠释。 在各类 PDF 之中，胶子分布尤为关键，因为胶子在高能量下主导质子的动量，并且在希格斯玻色子产生与喷注形成等过程中起重要作用。 夸克 PDF 已被深度非弹性散射与 Drell–Yan 数据较好地约束，而胶子 PDF 的确定仍然不够精确，尤其是在中间及大动量分数（（公式））区域。 这一不确定性限制了 LHC 上关键观测量理论预言的精度。 因此，提高胶子 PDF 的精度有望显著增强 BSM 物理搜寻的灵敏度，并深化我们对强子对撞中量子色动力学（QCD）动力学的理解（引文）。 格点 QCD（LQCD）通过在有限格点上离散化时空，为研究强相互作用的非微扰区提供了第一性原理的方法。 尽管 LQCD 传统上仅限于计算少数强子结构观测量（例如 PDF 的矩），近年的突破已使 LQCD 计算能够触及 PDF 对 Bjorken-（公式）的依赖关系。 大动量有效理论（LaMET）（引文）与赝 PDF（pseudo-PDF）（引文）是从格点可观测量中提取光锥关联函数最流行的两种方法。 过去十年左右，不仅在 PDF 领域，在其他种类的三维结构（如广义部分子分……D）计算，我们当时只能以重正化的估计值进行分析。 在本工作中，我们取自前人工作（引文）的格点胶子矩阵元，计算了混合重正化方案的匹配系数，从而用 LaMET 方法获得了首个光锥核子胶子 PDF。 我们在 Sec.（交叉引用）中给出胶子算符混合重正化方案的次领头阶（NLO）Wilson 系数。 我们在 Sec.（交叉引用）中确定混合重正化的抵消项，并将其应用于 LaMET 矩阵元的重正化。 我们将重正化矩阵元与唯象估计相比较，给出首个来自 LaMET 的核子胶子 PDF，并与唯象拟合进行比较。 我们在 Sec.（交叉引用）中总结并展望胶子 PDF 的未来前景 \\
+    \textbf{结果/讨论}\quad sec:conclusion 我们展示了通过 LaMET 并结合混合比值重正化计算得到的首个核子胶子 PDF，采用两个重于物理值的$\pi$介子质量（（公式）与（公式）MeV），以及两种规范链涂抹技术：流时间（公式）的 Wilson 流与 5 步超立方涂抹。 基于迈向 LaMET 胶子 PDF 的先前工作（引文），我们聚焦于单一胶子算符（公式）（定义于文献（引文）式 6），该算符已被用于采用赝 PDF 方法的非极化胶子研究（引文）。 我们计算了该算符混合重正化所需的单圈 Wilson 系数以及相应的单圈匹配核。 利用这些 Wilson 系数，我们发现（公式）在$\pi$介子与核子之间保持一致，无论轻夸克质量还是奇异夸克质量——这与文献（引文）中（公式）与（公式）算符的先前结果形成对照。 我们对每种$\pi$介子质量与涂抹方式，在强子推动动量（公式）GeV 处计算了核子胶子 PDF。 我们发现 Wilson3 涂抹显著影响物理，给出的 PDF 在（公式）附近为负，而噪声更大的 HYP5 PDF 则不会明显低于零。 我们将两种$\pi$介子质量下的 HYP5 核子胶子 PDF 与 CT18（引文）、JAM24（引文）、CJ22（引文）全局拟合作了小样本比较。 我们发现与 CT18 PDF 在整个区域符合良好，而在（公式）附近与 CJ22 及 JAM24 的一致性较差，这表明我们的 PDF 完全落在全局拟合结果的范围之内。 格点 PDF 最终……引文）可被移植过来，以扩展简单的外推模型，给出更严格的误差量化。 这项研究有力地证明了用大动量有效理论计算胶子 PDF 的可行性——长期以来人们认为这难以企及。 我们相信，本工作为投入时间与资源、以降噪技术取代大$\pi$介子质量与涂抹（从而减少物理效应）提供了强有力的动机，以便从 LaMET 得到更可靠的胶子 PDF。 我们计划改进当前的计算：在多个格距上使用带零动量推动矩阵元的自重正化方案（引文）。 这将使我们能更好地理解离散化与涂抹效应，并通过取物理连续极限改善胶子 PDF 的系统误差。 随着误差变小，还需要理解标度变化对 LaMET 胶子 PDF 的影响 \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}首个核子胶子部分子分布\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 15 页；对应的原始中文 TeX 目录为 \emph{首个核子胶子部分子分布\_latex}。
+\clearpage
+\includepdf[pages=1-15,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/首个核子胶子部分子分布_latex/build/main.pdf}
+\clearpage
+
+\chapter{P48：准分布的幂修正与renormalon}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P48：准分布的幂修正与renormalon：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1810.00048 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 24 页（索引值与实测值一致） \\
+    章节入口 & 引言；一般框架；部分子准分布；光线 OPE 与靶质量修正；Borel 变换与 renormalon；大-（公式）系数函数；Borel 变换的奇点；幂修正；Ioffe 时间准分布；部分子准分布；部分子赝分布；结论；气泡链近似下的领头扭度系数函数；Leading-twist coefficient function in the bubble-chain approximation \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}准分布的幂修正与renormalon\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P48：准分布的幂修正与renormalon：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad QCD 中短距离量的微扰展开是阶乘发散的，而这一缺陷可以转化为研究非微扰修正的有用工具。在本工作中，我们用这一方法研究格点部分子分布函数计算中出现的部分子准分布（quasi-distribution）与赝分布（pseudo-distribution）的幂修正结构。作为主要结果，我们给出了准（赝）分布领头幂修正对 Bjorken（公式）变量的函数依赖关系的预言。我们还证明这些修正会受到归一化步骤的强烈影响 \\
+    \textbf{方法/推导}\quad sect\_introduction1 QCD 的格点计算已经展示了与大量实验测量互补的能力，在某些情况下其精度甚至超过实验测量。如今，部分子分布函数（PDF）的格点计算已提上日程。除了允许计算 PDF 前几个 Mellin 矩的标准途径之外，人们正在探索直接在动量分数空间获取 PDF 的新技术。现有的各种方案（引文）细节各异，但具有一个共同的一般框架：利用连续理论中的 QCD 共线因子化，从适当的欧氏关联函数的格点计算中提取 PDF。 一个特别流行的建议（引文）引发了近来的大量活动（引文），它引入了部分子准分布（quasi-distribution，qPDF）的概念，定义为以 Wilson 线相连的非定域夸克—反夸克算符的 Fourier 变换。qPDF 随后通过匹配得到 PDF：既可直接在（公式）方案中匹配，也可经由大动量因子化方案这一中间步骤（``大动量有效理论''（LaMET）（引文））。后一技术有助于强调：经 Fourier 变换之后，强子动量（公式）仍是唯一的有量纲参量。因此，QCD 耦合的相关能标在差一个无量纲常数的意义上由（公式）决定，而且高扭度修正一般受动量（公式）的幂次压制。一个密切相关的量——赝分布（pseudo-distribution，pPDF）则在文献（引文）中引入。 使用这些新方法的 PDF 格点计算目前正从探索阶段迈向精确计算阶段，因此必须回答诸如高扭度（幂次压低）修正是否得……领头扭度系数函数的大-（公式）部分（公式）。 本文的结构安排如下。在第 2 节中我们更精确地表述我们的纲领：把 qPDF 和 pPDF 定义为位置空间（Ioffe 时间）分布的特定 Fourier 变换，简要讨论光线算符乘积展开（OPE）与靶质量修正，并介绍全文将要用到的相关技术（Borel 变换）和系统性近似（大-（公式）展开）。第 3 节给出领头扭度系数函数 Borel 变换的结果并讨论其奇点结构。各类准分布的领头幂修放在第 4 节中得到。我们在那里汇集相关的解析表达式，并用价夸克 PDF 的现实参数化给出数值研究结果。最后的第 5 节用于总结与结论 \\
+    \textbf{结果/讨论}\quad 我们基于对相应系数函数中阶乘发散（renormalon）的研究，在气泡链近似下分析了 qPDF 与 pPDF 的幂次压低（高扭度）贡献。阶乘渐近行为意味着级数之和仅在幂次精度内有定义，因此 QCD 微扰论必须补充非微扰的幂次压低贡献才能给出无歧义的预言。我们的结果应被视作高扭度修正的一个``最小模型''：它包含了理论自洽性所必需的效应，但可能遗漏其他非微扰修正，例如受对称性保护从而不``显现''于微扰展开中的那些。我们的主要结论如下： itemize 位置空间 PDF（qITD）在大 Ioffe 时间处的幂修正是平缓的。一般而言，``横向''投影的幂修正远大于``纵向''投影。 qPDF 的幂修正具有普适行为（公式或图表位置）注意相应的靶质量修正（交叉引用）与（交叉引用）并不表现出（公式）增强。这一行为与 DIS 结构函数中 Nachtmann 靶质量修正（公式）在小（公式）处的压低是相称的。将底层 qITD 按零动量归一化到一，会明显减小（公式）区域内 qPDF 的幂修正，代价是在（公式）处强烈增强。因此这种归一化步骤不适合研究 PDF 的大-（公式）行为，但显然能使中间（公式）区域的幂修正最小化。注意上述讨论基于的归一化步骤不同于文献（引文）中使用的非微扰重正化，后者的幂修正行为可能与本文所示不同。 pPDF 的幂修正具有普适行为（公式或图表位置）[公式] 处的压低会被零动量归一化因子消除。但若按同一算符的真空矩阵元归一化，则该压低可以保持。我们由此得出结论：对于大-（公式）区域的研究，pPDF 可以成为 qPDF 的一个有趣替代方案。 itemize 作为本研究的副产品，我们在大-（公式）近似下给出了系数函数的全阶结果，即（公式）的项。 这些结果可用于估计未计算高阶效应及采用 BLM 型步骤设定尺度的影响。 相应分析超出了本文的范围，将在未来的出版物中给出 \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}准分布的幂修正与renormalon\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 24 页；对应的原始中文 TeX 目录为 \emph{准分布的幂修正与renormalon\_latex}。
+\clearpage
+\includepdf[pages=1-24,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/准分布的幂修正与renormalon_latex/build/main.pdf}
+\clearpage
+
+\chapter{P50：同位旋矢量分布的重正化匹配系统分析}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P50：同位旋矢量分布的重正化匹配系统分析：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1807.06566 \\
+    主题归属 & 重正化与匹配 \\
+    中文全文页数 & 22 页（索引值与实测值一致） \\
+    章节入口 & 引言；非微扰重正化与匹配；格点上的 RI/MOM 重正化；准 PDF 与 PDF 的一圈匹配；PDF 的格点计算；格点矩阵元素；系统 不确定度；PDF 的最终结果；总结；一般协变规范下带（公式）的一圈准 PDF；朗道规范下（公式）的一圈准 PDF \\
+    公式主线 & $O^{R}(z,\mu)=Z(z,\mu,a)\,O^{\rm bare}(z,a)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}同位旋矢量分布的重正化匹配系统分析\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P50：同位旋矢量分布的重正化匹配系统分析：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 我们利用大动量有效理论（large-momentum effective theory）框架，对非极化同位旋矢量夸克部分子分布函数（PDF）进行了一项细致的格点 QCD 研究。我们选取由空间关联函数定义的准 PDF，它与同量纲的其他算符无混合。在格点模拟中，我们在（公式）MeV、（公式）GeV 下采用高斯动量涂抹源。为控制与激发态相关的系统误差，我们研究了五种不同的源—汇分离。非微扰重正化在正规化无关动量减除方案下进行，而重正化后的准 PDF 与（公式）PDF 之间的匹配则基于微扰 QCD 计算到一圈阶。我们还详细分析了来自重正化和微扰匹配的系统误差。我们得到的光锥 PDF 结果与最新的唯象分析符合得较好 \\
+    \textbf{方法/推导}\quad subsec:ME 在本小节中，我们给出在 CLS（公式）、（公式）味 clover 费米子系综 H102 上的格点 QCD 计算结果：格距（公式）fm，pion 质量（公式）356 MeV，盒子尺寸（公式）fm（（公式））（引文）。价 clover 费米子取（公式）与（公式）。我们在源/汇涂抹以及在准 PDF 算符（公式）中施加两次尺寸为 size=2.5（公式）的 APE 涂抹（引文），但不作用于费米子传播子。（公式或图表位置）首先，我们将探索 RI/MOM 方案下的非微扰重正化。按照文献（引文），我们使用朗道规范固定的墙源（并把源限制在时间片范围（公式）内以避免（公式）处开边界条件带来的边界效应），生成表（交叉引用）所列动量模式的传播子。括号中的四位数字对应以（公式）为单位的三个空间分量与能量分量。（公式）方向可通过把 Wilson link 设为三个空间方向中任一方向来选取。于是这些结果近似覆盖了（公式）的三个值（2.4、3.2 与 3.9 GeV，对应（公式）=1.1、2.0 与 2.8），以及上限（公式）以内的（公式）。注意在挑选这些动量模式时，我们要求给定模式的各空间分量彼此不同，并调节（公式）使（公式）保持不变（误差在 2\% 以内）。这些选择使我们能够探究对（公式）各分量的依赖；但需注意，由于常规约束（公式）未被满足，结果可能存在可观的离散化误差。这些离散化误差将在未来研究中考察。（公式或……）项在统计上并不显著，我们也保留该项以对其不确定度作出适度估计。 为了比较数据与拟合，我们在图（交叉引用）中给出大（公式）处（公式）与（公式）、（公式）[7,11] 的结果。在这些空间分离处矩阵元素的实部似乎为负。拟合得到的基态贡献以黑色谱带表示。如所见，多数数据可以被拟合很好地描述，因此本文其余部分的结果均采用二态拟合并取区间（公式）[7, 11]。 两个（公式）取值的重正化准 PDF 矩阵元素绘于图（交叉引用），为（公式）、（公式）GeV 下随（公式）变化的曲线。不同（公式）的结果在统计不确定度内彼此一致。这表明来自更高扭度效应的幂次修正可能并不可观 \\
+    \textbf{结果/讨论}\quad sec:summary 本文研究了以（公式）定义的准 PDF，它在（公式）阶无算符混合。我们利用（公式）MeV 的格点数据演示了匹配流程，并表明激发态污染得到了良好控制。我们计算了一圈匹配系数，并详细讨论了系统误差来源以及投影的选取。 我们发现来自 FT 截断方法和（公式）依赖的系统不确定度相当可观。但在（公式）时，来自（公式）、匹配反演以及投影选取的不确定度相对较小。与此同时，从准 PDF 到匹配 PDF 的显著变化表明需要更高圈阶的修正，如图（交叉引用）所示。 控制激发态带来的系统不确定性极具挑战性，因为当源—汇分离（公式）或核子动量（公式）变大时相对不确定度增长极快。较小分离下的二态拟合提供了在（公式）fm 小分离区获得精确结果的可能，而要在大分离处利用极高统计量作精确测量，仍需对此类拟合的系统不确定度作出估计。 除已研究的各类不确定度外，我们计划在未来考察其他系统误差，如格点离散化与有限体积效应（引文），以及影响小（公式）结果的更高扭度贡献。后者可通过更大的核子动量加以改善，并通过向无穷大核子动量外推进行估计。 我们关于光锥 PDF 的最终结果在大（公式）区与全局分析一致，这是一个令人鼓舞的信号，表明 LaMET 或许能使我们在未来精确地触及部分子物理 \\
+    \textbf{物理边界}\quad 重正化因子抵消截止依赖；a→0 和短距离 z→0 极限必须与匹配阶数、方案和尺度保持一致。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}同位旋矢量分布的重正化匹配系统分析\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 22 页；对应的原始中文 TeX 目录为 \emph{同位旋矢量分布的重正化匹配系统分析\_latex}。
+\clearpage
+\includepdf[pages=1-22,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/同位旋矢量分布的重正化匹配系统分析_latex/build/main.pdf}
+\clearpage
+
+\part{胶子、强子部分子分布与 TMD}
+
+\chapter*{主题主线：胶子、强子部分子分布与 TMD}
+\addcontentsline{toc}{chapter}{主题主线：胶子、强子部分子分布与 TMD}
+把上述格点工具应用到胶子、核子、$\pi$/K 介子和横向动量依赖结构，并与全局拟合或 Collins–Soper 演化衔接。
+\begin{equation}
+  \mathcal O_{\rm Euclid}\xrightarrow[\rm matching\,/\,evolution]{}f_{g/h}(x,\mu)\;{\rm or}\;F_{\rm TMD}(x,b_T,\mu,\zeta)
+\end{equation}
+\noindent\textbf{结构解释：}纵向分数、横向距离和重正化尺度是不同变量；不能把有限动量或有限 b\_T 的结果直接当作光锥分布。
+\begin{table}[htbp]
+  \centering
+  \caption{胶子、强子 PDF 与 TMD：论文与物理接口}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    本主题论文 & 准分布动量分布与伪分布、大动量有效理论综述、CT18全局分析、NNPDF17高精度数据部分子分布、微扰论中的涂抹准分布、$\pi$介子胶子部分子分布、K介子胶子分布初探、从准TMD波函数确定CS核、LaMET计算TMD软函数 \\
+    共同关系 & 检验 LaMET/赝 PDF/准 TMD 方法是否能够覆盖真实强子结构与实验拟合所需的观测量。 \\
+    证据状态 & 确证：每篇论文的中文全文 PDF；推断：本主题的共同接口；未验证：跨论文统一数值结论。 \\
+    阅读顺序 & 先读本主题的结构式与边界，再读下列论文的逐章明文内容；不把主题结构式当作某一篇的原文编号。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\chapter{P15：准分布动量分布与伪分布}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P15：准分布动量分布与伪分布：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1705.01488 \\
+    主题归属 & 胶子、强子 PDF 与 TMD \\
+    中文全文页数 & 9 页（索引值与实测值一致） \\
+    章节入口 & 引言；部分子分布；一般矩阵元素与 Lorentz 不变性；共线 PDFs；横动量依赖分布；准分布（Quasi-Distributions）；定义及与 TMDs 的关系；量子色动力学（QCD）情形；动量分布；因子化模型；伪部分子分布（Pseudo-PDFs）；格点实现；总结 \\
+    公式主线 & $\mathcal O_{\rm Euclid}\xrightarrow[\rm matching\,/\,evolution]{}f_{g/h}(x,\mu)\;{\rm or}\;F_{\rm TMD}(x,b_T,\mu,\zeta)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}准分布动量分布与伪分布\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P15：准分布动量分布与伪分布：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 我们证明，准部分子分布（quasi-PDFs）可以被看作部分子分布函数（PDFs） 与强子静止系中部分子原始动量分布的混合体。 由此导致 quasi-PDFs 具有复杂的卷积结构， 因而必须使用（公式）GeV 量级的较大强子动量 才能足够接近 PDF 极限。 作为另一种途径， 我们建议采用 伪部分子分布（pseudo-PDFs）（公式），它把 光前 PDFs 推广到类空间隔上，并与 Ioffe 时间分布（公式）相联系；后者是以 Ioffe 时间（公式）和距离参数（公式）为变量的函数，在小的（公式）下对（公式）表现出微扰演化。 在这种形式下，可以把来自原始静止系分布以及格点规范链接重正化中 棘手因子的（公式）依赖性约去。（公式）依赖性保持不变，并决定 PDFs 的形状 \\
+    \textbf{方法/推导}\quad 历史上（引文），PDFs 的引入 是为了描述 自旋-1/2 夸克。 由于与自旋相关的复杂性 并不影响 部分子分布这一概念本身， 我们从一个简单的标量理论例子 出发。在那种情形下，关于靶的信息 累积在一般矩阵元素（公式）中。 由 Lorentz 不变性，它是两个标量的函数：（公式）与（公式）（若希望对类空（公式）取正值，则用（公式））：（公式或图表位置）可以证明（引文），对所有有贡献的 Feynman 图， 它对（公式）的 Fourier 变换（公式）具有（公式）的支撑，即（公式或图表位置）注意，式 (（交叉引用）) 给出了（公式）的一个协变定义。 无需假设（公式）或（公式）即可定义（公式） \\
+    \textbf{结果/讨论}\quad 在本文中，我们证明了 quasi-PDFs 可以看作 PDFs 与部分子在强子静止系中 原始动量分布的混合体。 在此图像下，部分子的（公式）动量 既来自强子整体的 运动，也来自静止系中的原始 动量分布。quasi-PDFs 复杂的卷积本质 要求使用（公式）3 GeV 的动量才能消除 原始动量分布的效应并 足够接近 PDF 极限。 作为替代方案，我们建议使用 pseudo-PDFs（公式），它把光前 PDFs 推广到类空间隔。 通过 Fourier 变换，它们与 Ioffe 时间分布（公式）相联系，后者由写成（公式）和（公式）函数的一般矩阵元素给出。 pseudo-PDFs 的优点在于：第一，它们具有与 PDFs 相同的（公式）支撑；第二，在小（公式）处其（公式）依赖性由通常的演化方程支配。 构成 Ioffe 时间分布的比值（公式）， 可以把原始静止系分布产生的绝大部分（公式）依赖性约去。 此外，取此比值还能排除来自（公式）链接格点重正化的（公式）依赖 因子——该因子给 quasi-PDFs 的 格点计算带来困难（见例如（引文））。 检验用 pseudo-PDFs 从格点提取 PDFs 的效率， 是对未来研究的挑战。 事实上，就在本文处于评审过程期间， 一篇基于本文思想的实际格点计算（引文）已经完成。 它清楚地证明了静止系函数（公式）的（公式）依赖性中 存在线性成分，可以归因于规范链接产生的（公式）行为。研究还观察到， 比值（公式）对（公式）呈 Gaussian 型行为，这表明 进入（公式）比值分子和分母的（公式）因子如预期般相消了。 此外还发现，当以（公式）和（公式）为变量作图时， 约化分布（公式）的数据对（公式）的依赖性非常温和。 这一观察表明，（公式）的（公式）依赖性 中的软部分 已被静止系密度（公式）抵消。 该现象对应于 TMD（公式）软部分的（公式）依赖性与（公式）依赖性的因子化。 研究还证明，在小（公式）处残余的（公式）依赖性 可以用微扰演化解释，相应的（公式）值 对应于（公式） \\
+    \textbf{物理边界}\quad 纵向分数、横向距离和重正化尺度是不同变量；不能把有限动量或有限 b\_T 的结果直接当作光锥分布。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}准分布动量分布与伪分布\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 9 页；对应的原始中文 TeX 目录为 \emph{准分布动量分布与伪分布\_latex}。
+\clearpage
+\includepdf[pages=1-9,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/准分布动量分布与伪分布_latex/build/main.pdf}
+\clearpage
+
+\chapter{P18：大动量有效理论综述}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P18：大动量有效理论综述：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:2004.03543 \\
+    主题归属 & 胶子、强子 PDF 与 TMD \\
+    中文全文页数 & 105 页（索引值与实测值一致） \\
+    章节入口 & 引言；经由无穷大动量态理解部分子；经由光前关联函数理解部分子；部分子结构的其他途径；大动量有效理论；有限动量下的质子结构；动量重正化群；到 PDF 的有效场论匹配；LaMET 处理部分子物理的流程；普适性；PDF 的重正化与匹配；非局域 Wilson 线算符的重正化；准 PDF 的因子化；双线性算符的坐标空间因子化；非微扰重正化与匹配；总胶子螺旋度（公式）与横性 PDF；广义共线部分子观测量；广义部分子分布；强子分布振幅；高扭度分布；质子中部分子的轨道角动量；横动量依赖 PDF；TMDPDF 与快度发散引论；格点准 TMDPDF 与匹配；离光锥软函数；光前波函数振幅与来自介子形状因子的软函数；基于 LaMET 的格点部分子物理；格点计算的特别考量；非单态 PDF；胶子螺旋度及其他共线部分子性质；TMD；结论与展望；附录 A：缩略语、简称与术语；附录 B：约定 \\
+    公式主线 & $\mathcal O_{\rm Euclid}\xrightarrow[\rm matching\,/\,evolution]{}f_{g/h}(x,\mu)\;{\rm or}\;F_{\rm TMD}(x,b_T,\mu,\zeta)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}大动量有效理论综述\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P18：大动量有效理论综述：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 自 Feynman 五十多年前提出部分子模型以来，我们通过大量高能实验数据和专门的全局拟合，对质子的部分子结构有了很多了解。然而，从强相互作用基本理论 QCD 出发计算部分子可观测量（如部分子分布函数 PDF）的进展有限。近年来，本文作者倡导了一种形式体系——大动量有效理论（LaMET），借助它可以以中等推进因子（例如（公式））运动的质子的性质中提取部分子物理。这一方法背后的关键观察是：Lorentz 对称性允许把光前算符表述的部分子标准形式体系替换为用大动量态和属于同一普适类的时间无关算符表述的等价形式。借助 LaMET，PDF、广义 PDF（GPD）、横动量依赖 PDF 以及光前波函数原则上都可以从 QCD 的格点模拟（或其他非微扰方法）出发，通过标准的有效场论匹配与演化提取出来。未来配备百亿亿次计算设施的格点 QCD 计算将有助于理解与强子结构相关的实验数据，包括即将建成的、致力于探索质子部分子图景的电子离子对撞机上的数据。本文综述了近几年 LaMET 形式体系及其应用的发展，特别是其有效性的初步格点 QCD 模拟验证 \\
+    \textbf{方法/推导}\quad sec:lamet 正如 lc 所解释的，Feynman 部分子的动机来自描述以大动量（公式）运动的束缚态结构；另一方面，在 QCD 因子化中，它们是忽略 UV 发散的无穷动量极限下出现的有效自由度。调和这两种图像便得到关于强子部分子结构的大动量有效理论（LaMET）。 本节首先考虑有限动量下质子的结构：定义组元的普通动量分布，并试图说明其对质子动量的依赖。我们将证明大（公式）下的动量依赖遵循一个 RGE，与熟知的部分子 RGE 类似。在 lamet-fact 中，我们证明大（公式）的动量分布通过（公式）与 UV 截断这两个极限不同取序之间的匹配与 PDF 相联系。这一匹配过程有标准的 EFT 解释：部分子物理或可观测量可以从一个有效理论中获得——在该理论中（公式）的自由度在所谓的（公式）空间（引文）内非微扰地计算，而介于（公式）与（公式）之间的自由度（即（公式）空间）则通过微扰论``积分掉''。因此，LaMET 处理部分子的方式在某种意义上类似于把格点 QCD 视为连续场论的 EFT 途径：所有活跃的自由度（（公式）空间）被限制在（公式）内（（公式）为格距），而（公式）的自由度（（公式）空间）则通过微扰系数和高维算符计入。 lamet-pp 概述针对一般部分子可观测量的 LaMET 形式体系。该方法原则上也可用于计算任何以大动量外部态表示的 LF 关联（特别见 tmd 中对软函数的应用）。该策略同样适用于 LF 波函数的各分量。因此，LaMET 为执行 LFQ 的纲领提供了实用而系统的途径：不必直接使用光前坐标，而是使用瞬时形式的动力学，并以大动量或推进因子（公式）作为 LF 发散的调节子。在某种意义上，采用倾斜光锥坐标的量子化（引文）与 LaMET 途径的精神相似。 目前求解非微扰 QCD 唯一系统的途径是格点场论（引文）。因此 LaMET 可以通过格点计算实际实现。它也可以用其他欧氏型的束缚态方法实现，例如瞬子液体模型（引文）。虽然 LFQ 可能为质子提供诱人的物理图像，但欧氏等时表述更便于开展计算，LaMET 正是沟通二者的桥梁 \\
+    \textbf{结果/讨论}\quad sec:conclusion 自 Feynman 五十多年前提出部分子模型以来，我们对质子部分子结构的理解已大为推进。一方面，SLAC、DESY、CERN、Fermi 实验室、JLab、BNL 等世界各地装置上开展的大量高能实验，使我们得以在不同能量与极化下探测强子结构的方方面面。另一方面，许多部分子观测量被并行提出，为质子结构提供多维描述，包括共线 PDF、TMDPDF、GPD、部分子 DA、LFWF 等。 虽然带 RG 改进的 QCD 因子化定理允许我们经由这些部分子观测量与实验观测量的联系来提取它们，但非常期望能通过格点 QCD 这类 ab initio 计算从理论上预言它们。由于模拟实时动力学的困难，这一方向的进展相当缓慢。然而，自几年前 LaMET 被提出以来，情况已经改变——它提供了从第一性原理计算部分子物理的系统可改进方法。 本文概述了 LaMET 的形式体系及其在格点 QCD 与其他非微扰方法可及观测量上的应用。通过考察束缚态强子结构的参考系依赖，我们解释了 IMF 物理（或部分子物理）如何作为质子结构的 EFT 描述自然产生。这种 EFT 描述在 SCET 与 LFQ 中表述得最自然，但质子矩阵元的实际非微扰计算一直困难。LaMET 实际上提供了实现 LFQ 所需的东西：在大动量态中构造恰当的准部分子观测量，并通过因子化把它们匹配到 LF 上的真正部分子观测量。就 PDF 而言，前者对应……子动量不太大或（公式）接近 0 或 1 时幂次修正很重要。迄今为止朝模型无关地确定幂次修正进展甚微。一种权宜策略是在实施匹配与靶质量修正之后外推到（公式）极限；但根本出路在于 others-ht 讨论过的高扭度分布的格点计算。 itemize 上述关于系统误差的讨论是普适的，适用于所有准可观测量。过去几年丰富的理论发展为用 LaMET 计算广泛的部分子观测量铺平了道路。随着计算资源的迅速增长以及新技术与新算法的发展，我们预期上述系统误差未来会逐步得到控制。这对确立 LaMET 作为计算部分子物理的系统方法、并让格点计算在 EIC 时代扮演关键角色十分重要 \\
+    \textbf{物理边界}\quad 纵向分数、横向距离和重正化尺度是不同变量；不能把有限动量或有限 b\_T 的结果直接当作光锥分布。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}大动量有效理论综述\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 105 页；对应的原始中文 TeX 目录为 \emph{大动量有效理论综述\_latex}。
+\clearpage
+\includepdf[pages=1-105,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/大动量有效理论综述_latex/build/main.pdf}
+\clearpage
+
+\chapter{P31：CT18全局分析}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P31：CT18全局分析：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1912.10053 \\
+    主题归属 & 胶子、强子 PDF 与 TMD \\
+    中文全文页数 & 143 页（索引值与实测值一致） \\
+    章节入口 & sec:Introduction 引言；sec:Datasets CT18 全球 QCD 分析概览；sec:summary 概要总结；CT18 拟合的实验数据集；替代 PDF 拟合：CT18A、CT18X、CT18Z；sec:Theory CT18 的理论输入 sec:Theory；拟合优度函数与协方差矩阵；理论计算与程序 sec:calcs；参数化形式、系统误差与最终 PDF 不确定度；CT18 的输出：PDF、QCD 参数、部分子光度、矩；作为（公式）与（公式）函数的部分子分布；（公式）与（公式）的全球拟合；LHC 的部分子光度 sec:PDFLuminosities；PDF 矩与求和规则；对单个数据集的描述；实验之间的总体一致 sec:QualityOverview；CT18 所拟合数据集的描述；电弱修正；标准烛光截面 sec:StandardCandles；LHC 的单举总截面；LHC 矢量玻色子微分截面；LHC 的（公式）伴随粲喷注产生；LHC 13 TeV 顶夸克对微分分布；高（公式）Drell-Yan 预言 sec:SeaQuest；讨论与结论 sec:Conclusions；替代的 CT18Z 全球拟合 sec:AppendixCT18Z；对数据集与理论设定的改动；四个 PDF 组合之间的比较；细看 ATLAS 7 TeV（公式）数据的描述；CT18Z 中关于 PDF、（公式）与（公式）的扫描 sec:LMCT18Z；CT18 拟合优度函数与关联不确定度的处理；非微扰参数化形式；拟合代码的发展；ATLAS 喷注产生截面数据的去关联；ATLAS 7 TeV（公式）数据的 Hessian 剖析；补充材料；PDF 组之间的更多比较；更多直方图与数据的比较 \\
+    公式主线 & $\mathcal O_{\rm Euclid}\xrightarrow[\rm matching\,/\,evolution]{}f_{g/h}(x,\mu)\;{\rm or}\;F_{\rm TMD}(x,b_T,\mu,\zeta)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}CT18全局分析\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P31：CT18全局分析：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 我们给出 CTEQ-TEA 合作组的新部分子分布函数（PDF）。它们是在 CT14 全球 QCD 分析既有数据集的基础上，加入 HERA I+II 合并深度非弹性散射数据集以及种类繁多的大型强子对撞机（LHC）高精度数据获得的。 为使对 PDF 的敏感度最大化，新纳入的 LHC 测量包括全覆盖快度的单举喷注产生，以及 Drell-Yan 对、顶夸克对与高（公式）[公式] 玻色子的产生。部分子分布在 NLO 与 NNLO 确定，每个 PDF 组都配有以 Hessian 方法确定的误差组。基于 Hessian 表示与拉格朗日乘子方法的快速 PDF 普查技术被用于量化各数据集对（公式）、胶子及奇异夸克分布等量的偏好。我们把主要结果 PDF 组命名为 CT18。由于 ATLAS 7 TeV 精密（公式）数据在全球拟合中与其他数据存在张力，未纳入 CT18。我们还生成了若干替代 PDF 组：纳入 ATLAS 精密 7 TeV（公式）数据的 CT18A、对低（公式）DIS 数据采用新标度选择的 CT18X，以及同时包含上述改动并把粲质量取略高值的 CT18Z。文中还给出了 LHC 标准烛光截面（如（公式）融合希格斯玻色子截面）的理论计算 \\
+    \textbf{方法/推导}\quad 为确定适合全球拟合的候选实验数据集，我们开发了两个快速初步分析程序。PDFSense 程序（引文）由南方卫理公会大学（SMU）开发，用于在做拟合之前定量预测哪些数据集会对全球 PDF 拟合产生影响。ePump 程序（引文）由密歇根州立大学（MSU）开发，应用 Hessian 剖析在全球拟合前快速估计数据对 PDF 的影响。这些程序完全基于先前发表的 Hessian 误差 PDF，为挑选最有价值的实验提供了有益指引。Sec.（交叉引用）展示 PDFSense 的一个应用。 正如将在 Appendix（交叉引用）讨论的，常用版本 2.0.0 的 xFitter 程序（引文）所内置的开箱即用 Hessian 剖析算法与 CTEQ-TEA 的 PDF 不确定度定义不一致，在多项剖析 CTEQ-TEA PDF 的研究中给出了过于乐观的（公式）值与 PDF 不确定度。ePump 程序没有这个缺陷。其 Hessian 更新算法能更好地复现完整 CT14 与 CT18 拟合中数据集的（公式）值以及相应的 PDF 不确定度——后者按 CTEQ-TEA 自 CT10 NLO（引文）起采用的两级（公式）定义给出。 CT 拟合代码已并行化，以便在高性能计算集群上更快完成拟合（一次拟合由许多天缩短到几小时）。对尽可能多的相关 LHC 数据，我们用 APPLGrid/fastNLO 表（引文）（再乘以制表的逐点 NNLO/NLO（公式）因子修正）计算了多种新 LHC 过程的 NLO 截面：（公式）玻色子、高（公式）[公式] 玻色子与单举喷注的产生；对 LHC 的（公式）对产生则用 fastNNLO 表（引文）计算 NNLO 截面。APPLgrid 表与其他组的同类公开表格做了交叉验证，并在速度与精度上作了优化 \\
+    \textbf{结果/讨论}\quad 本文给出了 CT18 族部分子分布函数（PDF），包括 CT18Z、CT18A 与 CT18X 替代拟合。CT18 是 CTEQ-TEA 组全球分析给出的下一代 NNLO（以及 NLO） 质子 PDF。它承接 CT14 与 NNLO 分布发布之后的下一次更新，后者正是 CT14 发表后因 HERA I 与 II 精密合并数据发布而催生。 CT18 是名义上的 CTEQ-TEA PDF 组合，我们建议一切一般用途采用之。CT18A 是把 ATLAS 7 TeV（公式）数据（引文）加入 CT18 拟合的产物；CT18X 是 CT18 的一个变体，对低（公式）DIS 数据采用依赖（公式）的 QCD 标度（连同稍大的 1.4 GeV 粲夸克质量）； CT18Z 则囊括上述全部改动，一般而言与 CT18 差异最大。CT18 与 CT18Z 数据集之间的差异仅在少数应用场合不可忽略；在这些场合需把差异折入总 PDF 不确定度，例如取 CT18 与 CT18Z 不确定度的包络。CT18A 可用于更全面地考察奇异夸克分布的不确定度范围。类似地，低（公式）重求和的可能影响可用 CT18X 探索。 尽管部分早期 7、8 TeV LHC Run-1 数据——包括矢量玻色子（引文）与喷注（引文）的单举产生测量——曾被用作 CT14 拟合的输入，CT18 才是第一个实质性纳入 LHC 完整 Run-1 最重要实验数据的 CT 分析……）不确定度按平方和叠加得到（引文）。 除了这些通用 PDF 组之外，我们还提供（公式）的一系列 (N)NLO 组合，以及采用非标准 5 味方法的重夸克方案（活跃味数分别为 3、4、6）的附加组合。 CT18 PDF 组的参数化文件以独立形式通过 CTEQ-TEA 网站（引文）分发，或作为 LHAPDF6 库（引文）的一部分提供。为向后兼容 LHAPDF 5.9.X 版本，我们的网站也提供 LHAPDF5 格式的 CT18 网格，以及 LHAPDF5 库 CTEQ-TEA 模块的更新版——编译时必须一并包含，以支持调用 CT18 附带的全部本征矢组（引文） \\
+    \textbf{物理边界}\quad 纵向分数、横向距离和重正化尺度是不同变量；不能把有限动量或有限 b\_T 的结果直接当作光锥分布。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}CT18全局分析\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 143 页；对应的原始中文 TeX 目录为 \emph{CT18全局分析\_latex}。
+\clearpage
+\includepdf[pages=1-143,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/CT18全局分析_latex/build/main.pdf}
+\clearpage
+
+\chapter{P32：NNPDF17高精度数据部分子分布}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P32：NNPDF17高精度数据部分子分布：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1706.00428 \\
+    主题归属 & 胶子、强子 PDF 与 TMD \\
+    中文全文页数 & 100 页（索引值与实测值一致） \\
+    章节入口 & 引言；实验与理论输入；实验数据：总体概览；深度非弹性结构函数；固定靶 Drell-Yan 产生；单举喷注；强子对撞机上的 Drell-Yan 产生；（公式）玻色子的横向动量；（公式）产生的微分分布与总截面；NNPDF3.1 全局分析；方法学；拟合质量；部分子分布；方法学改进：粲的参数化；理论不确定度；新对撞机数据的影响；分离新数据与方法学的效应；（公式）玻色子的横向动量；顶夸克对产生的微分分布；单举喷注产生；前向区的电弱玻色子产生；Tevatron 的（公式）不对称度；ATLAS（公式）产生数据与奇异味；CMS 8 TeV 双微分 Drell-Yan 分布；EMC（公式）数据与内禀粲；LHC 数据的影响；核靶与核修正；仅对撞机数据的部分子分布；对唯象学的意义；PDF 不确定度的改进；奇异味 PDF；再论质子的粲含量；部分子亮度；LHC 13 TeV 的（公式）与（公式）产生；希格斯产生；总结与展望；NNPDF3.1 缩减集合的验证；交付清单；展望；程序开发与基准测试 \\
+    公式主线 & $\mathcal O_{\rm Euclid}\xrightarrow[\rm matching\,/\,evolution]{}f_{g/h}(x,\mu)\;{\rm or}\;F_{\rm TMD}(x,b_T,\mu,\zeta)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}NNPDF17高精度数据部分子分布\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P32：NNPDF17高精度数据部分子分布：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 0.25cm] （Parton distributions from high-precision collider data） 0.5cm Eur. Phys. J. C 77 (2017) 663（公式）arXiv:1706.00428（公式）DOI: 10.1140/epjc/s10052-017-5199- [?] 0.8cm NNPDF 合作组： Richard D. Ball,（公式）Valerio Bertone,（公式）Stefano Carrazza,（公式）Luigi Del Debbio,（公式）Stefano Forte,（公式）Patrick Groth-Merrild,（公式）Alberto Guffanti,（公式）Nathan P. Hartland,（公式）Zahari Kassabov,（公式）José I. Latorre,（公式）Emanuele R. Nocera,（公式）Juan Rojo,（公式）Luca Rottoli,（公式）Emma Slade,（公式）and Maria Ubiali（公式）0.5cm（公式）The Higgs Centre for Theoretical Physics, University of Edinburgh, JCMB, KB, Mayfield Rd, Edinburgh EH9 3JZ, Scotland（公式）Dep……精度与稳定性。我们通过构造一系列基于缩减数据集的拟合来研究新数据的影响。我们发现上述两方面改进都对 PDF 有显著影响，部分不确定度大幅减小，而新 PDF 总体上在一倍标准差水平内与前一版本相符。最显著的变化出现在轻夸克的味分离以及胶子确定精度的提高上。我们探讨了 NNPDF3.1 对 LHC Run II 唯象学的意义，与近期 LHC 13 TeV 测量进行了比较，给出了希格斯产生截面的更新预言，并结合改进后的数据集与方法学讨论了质子的奇异性与粲含量。NNPDF3.1 PDF 首次同时以 Hessian 集合和经优化的压缩副本数蒙特卡罗集合两种形式发布 \\
+    \textbf{方法/推导}\quad sec:expdata NNPDF3.1 PDF 集合纳入了大量新的实验数据。我们既用 NNPDF 3.0 中已有观测量的改进测定扩充了数据集（如（公式）与（公式）快度分布），也加入了两个新过程：顶夸克微分分布，以及首次进入全局 PDF 确定的（公式）横向动量分布。 本节详细讨论 NNPDF3.1 数据集。在概述之后，我们将逐一考察各观测量：描述具体测量，并讨论与其纳入相关的特定理论与唯象学问题，特别是与近期 NNLO 结果的使用有关的问题。 NNPDF3.1 仅纳入 Run I 期间在质心系能量 2.76、7、8 TeV 下取自的 LHC 数据（仅一处例外）。更新的 13 TeV 数据留作第（交叉引用）节唯象比较之用。 可用的以及即将到来的 13 TeV LHC Run II 数据将成为未来 NNPDF 版本的一部分 \\
+    \textbf{结果/讨论}\quad sec:outlook 这里给出的 NNPDF3.1 PDF 确定是对 NNPDF3.0 的更新，却在方法学与数据集两方面都包含实质创新， 产生了精度与准确性都显著提高的 PDF 集合。得益于此，可以推进多项衍生项目： 或旨在更新以往基于旧版 NNPDF 发布的结果，或因为更高的准确性使以前不可能或不感兴趣的项目变得可行。 这些衍生项目包括： itemize 强耦合常数（公式）的精密确定。 与既往 NNPDF 确定（引文）相比，我们预期精度与准确性都会显著提高。 具体地，得益于在 NNLO 纳入众多同时对胶子与（公式）有直接依赖的对撞机观测量， 彻底弃用核靶与低标度数据可能反而有利，即把（公式）确定建立在第（交叉引用）节的 仅对撞机数据集、甚或更保守的数据集之上。 粲质量（公式）的确定。这将首次基于一个粲 PDF 被独立参数化的 PDF 确定， 从而避免把（公式）认作决定粲 PDF 大小的参数所带来的偏差。 包含光子 PDF（公式）的 NNPDF3.1QED 集合，从而更新以往的 NNPDF2.3QED（引文）与 NNPDF3.0QED（引文）集合。 该更新应纳入近期的理论进展：具体包括直接从核子结构函数确定光子 PDF 的“LuxQED” 约束（引文）； 以及现已包含在 APFEL（引文）中的 PDF 演化与 DIS 系数函数的 NLO QED 修正。 包含小（公式）重求和的 PDF 集合，基于文献（引……数据集的进一步扩充很可能要求 PDF 确定方法学的实质性改进。同时也很可能导致 PDF 不确定度的进一步缩小， 从而要求对理论不确定度更好的控制。我们特别预期两个方向上的重要进展。 其一，目前尚未纳入、靠运动学切割加以控制的电弱修正，必须以更系统的方式纳入。 其二，缺失高阶修正导致的理论不确定度也必须予以估计。事实上第（交叉引用）节的初步估计表明： 当前未计入 PDF 不确定度的缺失高阶不确定度很可能很快变得不可忽略，在某些运动学区域甚至会占据主导。 所有这些改进都将成为未来一次重大 PDF 发布的组成部分。 center 5cm .1pt center \\
+    \textbf{物理边界}\quad 纵向分数、横向距离和重正化尺度是不同变量；不能把有限动量或有限 b\_T 的结果直接当作光锥分布。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}NNPDF17高精度数据部分子分布\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 100 页；对应的原始中文 TeX 目录为 \emph{NNPDF17高精度数据部分子分布\_latex}。
+\clearpage
+\includepdf[pages=1-100,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/NNPDF17高精度数据部分子分布_latex/build/main.pdf}
+\clearpage
+
+\chapter{P39：微扰论中的涂抹准分布}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P39：微扰论中的涂抹准分布：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1710.04607 \\
+    主题归属 & 胶子、强子 PDF 与 TMD \\
+    中文全文页数 & 17 页（索引值与实测值一致） \\
+    章节入口 & 引言；sec:defns 光前分布与准分布；光前 PDF；涂抹准分布；涂抹准分布与 PDF 的联系；sec:pertth 微扰论中的矩阵元；顶点型图；波函数型图；单圈重正化参数；单圈涂抹矩阵元；坐标空间中的匹配；sec:numres 数值结果；sec:summary 总结；维数正规化下的矩阵元；数值积分 \\
+    公式主线 & $\mathcal O_{\rm Euclid}\xrightarrow[\rm matching\,/\,evolution]{}f_{g/h}(x,\mu)\;{\rm or}\;F_{\rm TMD}(x,b_T,\mu,\zeta)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}微扰论中的涂抹准分布\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P39：微扰论中的涂抹准分布：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 准分布与赝分布为从 QCD 的第一性原理计算确定部分子分布函数提供了一条新途径。本文在微扰论单圈水平计算味非单态非极化准分布，利用梯度流移除紫外发散。我证明，正如预期，梯度流在单圈水平不改变准分布的红外结构，并利用所得结果把涂抹矩阵元与（公式）方案中的矩阵元匹配。这一匹配计算是把非微扰格点 QCD 计算得到的数值结果与从实验数据全局拟合分析中提取的光前部分子分布函数联系起来所必需的 \\
+    \textbf{方法/推导}\quad 我在图（交叉引用）中展示涂抹非单态矩阵元的领头阶（即树图级）贡献。在图（交叉引用）与图（交叉引用）中，我采用如下约定：实线表示费米子传播子；双线是费米子流核；空心方块是任意流时（公式）处的流顶点；灰圈表示固定流时（公式）的费米子场；灰方块表示固定流时（公式）处的顶点；虚线是空间延展的 Wilson 线算符。 注意，在单圈微扰论中规范流核对涂抹非单态准分布没有贡献。树图级贡献为（公式或图表位置）其中为清晰起见我略去了矩阵元的宗量，并且我使用了（公式或图表位置）以及反夸克的类似关系。 超出树图级，算符收到可写为（公式或图表位置）的辐射修正。这里（公式）是重正化耦合常数，它在此阶等于裸耦合常数，且最自然地在标度（公式）下取值。图（交叉引用）展示对修正参数（公式）有贡献的各个单圈图。图 (a) 至 (f) 对算符重正化参数（公式）有贡献。波函数重正化（公式）收到图 (g) 的贡献。额外费米子波函数重正化（公式）收到图 (h)、(i)、(j) 的贡献，它通过环标费米子被自动移除。 算符重正化参数（公式）的确定是本文的核心结果。两个波函数重正化参数已在别处出现（特别地，（公式）在文献（引文）中计算）；我为完备性并作为对我方法的检验而计算这些贡献，并把它们与（公式）结合得到完整的单圈修正（公式）。我证明，在小流时与定域矢量流极限下，参数（公式）约化为文献（引文）中的相应结果，这是对我结果的非平凡检验。延展算符存在良好定……）形成对照，是涂抹准分布的一个吸引人的特点。 我把下面的讨论分成两部分，从矩阵元紫外结构的解析研究开始。这足以提取（公式），且之所以可能，是因为我假设重正化标度远大于外部动量并把动量设为零（引文）。图 (b)、(c)、(e)、(i) 与外部动量成正比，在此情形下为零。此外，其余积分本身大为简化并变得可以解析处理。我用维数正规化调节由此产生的红外发散，并证明这些发散在（公式）方案矩阵元与非零流时矩阵元的匹配程序中抵消。在讨论的第二部分（第（交叉引用）节），我对外部动量、夸克质量与流时的函数关系数值求值所有九个依赖流时的图，以展示单圈微扰论下完整矩阵元的行为 \\
+    \textbf{结果/讨论}\quad 准分布与赝分布为核子结构打开了一扇新的窗口，并首次提供了直接从格点 QCD 提取部分子分布函数的机会。非微扰计算的初步结果令人鼓舞，但在格点学界能够宣称稳健地确定光前 PDF 之前，仍有挑战需要克服。格点 QCD 的一个特别困难，是与 Wilson 线长度相联系的幂次发散的存在，在取连续极限之前必须将其非微扰地移除。在文献（引文）中，我们引入涂抹准分布作为规避 Wilson 线幂次发散问题的工具。利用梯度流——原始自由度在新参数流时下的经典演化——的重正化性质，涂抹准分布在连续极限下保持有限。 这里，我在单圈微扰论中研究了涂抹准分布。虽然梯度流通过引入零流时下不存在的新图并使相应积分复杂化而增加了微扰计算的难度，但其优势是显著的：只要把流时以物理单位固定，涂抹准分布在连续极限下就是有限的。所得的连续涂抹准分布随后可以直接、或经由零流时准分布，与（公式）方案中的光前 PDF 联系起来。准分布的红外行为不受流时影响，流时只用于调节紫外行为，因此匹配程序可以微扰地进行，即在外部规范固定的夸克态之间计算 Wilson 线算符。 我在固定 Wilson 线长度下进行匹配，此时外部夸克动量可以设为零。这减少了给定微扰阶下有贡献的图的数目，并简化了相应的单圈积分，后者可以解析完成。我用维数正规化调节对数红外发散，并证明由此产生的时空维数极点在涂抹与未涂抹准分布的匹配关系中抵消。我证明 Wilson 线长度趋于零的极限是良好定义的，并约化为有限流时下已知的矢量流结果。在小流时极限，矩阵元只对 Wilson 线长度与梯度流涂抹半径之比对数依赖。因此涂抹矩阵元满足一个与典型重正化群方程类似的方程，这为定义非微扰步标度程序提供了可能。最后，我通过数值计算相应的单圈图，研究了有限外部动量下的涂抹矩阵元。把这一研究扩展到两圈很可能需要自动化的方法，因为梯度流诱导的额外顶点使图的数目随微扰阶迅速增长。与涂抹准分布和赝分布相联系的系统不确定度的非微扰研究正在进行中 \\
+    \textbf{物理边界}\quad 纵向分数、横向距离和重正化尺度是不同变量；不能把有限动量或有限 b\_T 的结果直接当作光锥分布。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}微扰论中的涂抹准分布\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 17 页；对应的原始中文 TeX 目录为 \emph{微扰论中的涂抹准分布\_latex}。
+\clearpage
+\includepdf[pages=1-17,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/微扰论中的涂抹准分布_latex/build/main.pdf}
+\clearpage
+
+\chapter{P42：$\pi$介子胶子部分子分布}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P42：$\pi$介子胶子部分子分布：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:2104.06372 \\
+    主题归属 & 胶子、强子 PDF 与 TMD \\
+    中文全文页数 & 17 页（索引值与实测值一致） \\
+    章节入口 & 引言；用赝PDF方法由格点计算得到胶子PDF；结果与讨论；总结 \\
+    公式主线 & $\mathcal O_{\rm Euclid}\xrightarrow[\rm matching\,/\,evolution]{}f_{g/h}(x,\mu)\;{\rm or}\;F_{\rm TMD}(x,b_T,\mu,\zeta)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}$\pi$介子胶子部分子分布\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P42：$\pi$介子胶子部分子分布：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 我们利用赝PDF方法首次由格点QCD确定了（公式）介子胶子分布的（公式）依赖。我们使用 MILC 合作组产生的、具有2+1+1味高度改进 staggered 夸克（HISQ）的格点系综，涵盖两种晶格间距（公式）与0.15 fm、三种（公式）介子质量（公式）、310与690 MeV。价作用采用 clover 费米子，并借助动量涂抹使（公式）介子提升动量最高达2.29 GeV。我们发现（公式）介子胶子部分子分布对晶格间距与（公式）介子质量的依赖较为温和。我们将最轻（公式）介子质量系综的结果与 JAM 及 xFitter 全局拟合的测定进行了比较 \\
+    \textbf{方法/推导}\quad sec:cal-details 本工作中，我们使用文献（引文）定义的非极化胶子算符，（公式或图表位置）其中算符（公式），（公式）为 Wilson 线长度，场强（公式）定义为（公式或图表位置）其中（公式）是晶格间距，（公式）是强耦合常数， plaquette（公式），而（公式）。 还存在一个可选算符（公式），对应文献（引文）中相同的匹配核。 我们不选该算符，因为它因运动学原因在（公式）时为零，会给获取分布带来额外困难。 利用式（交叉引用）的算符，我们计算基态介子（公式）在不同提升动量（公式）与 Wilson 线位移长度（公式）下的格点胶子矩阵元， 随后研究它们对Ioffe时间（公式）的依赖关系（公式或图表位置）并称（公式）为Ioffe时间分布（ITD）。 为消除ITD中的紫外发散，我们把ITD除以（公式）处相应的（公式）依赖矩阵元来构造约化ITD（RITD），再如首个夸克赝PDF计算（引文）那样用（公式）处的矩阵元对该比值作归一化，（公式或图表位置）[公式] 的重正化与运动学因子在RITD中相互抵消。 这里使用的RITD双比值在（公式）处自动归一到1。 RITD通过赝PDF匹配条件（引文）与（公式）介子的胶子分布（公式）及夸克分布（公式）相联系：（公式或图表位置）其中（公式）是（公式）方案的重正化能标，（公式）为胶子在（公式）介子中的动量份额。 我们可以把式（交叉引用）中胶子内嵌于胶子的（公式）贡献拆成两部……公式）与4、或较小的（公式）与7时，矩阵元提取的涨落较大；当（公式）且（公式）时，two-sim 拟合给出的基态矩阵元非常稳定。 图（交叉引用）展示了相同例子（（公式）、（公式）与（公式）、（公式））用（公式）的 two-sim 拟合结果得到的RITD。 为压制格点涨落而构造的RITD结果在所考虑的各种拟合下都非常稳定。 对于 a12m310 与 a15m310 系综，由于（公式）介子更重，其RITD的（公式）依赖比 a12m220 系综更平缓。 总体而言，我们从 two-sim 拟合得到的基态RITD是稳定的，并用它们提取胶子PDF。（公式或图表位置） \\
+    \textbf{结果/讨论}\quad sec:summary 本工作中，我们用赝PDF方法首次从格点QCD计算了（公式）介子胶子PDF，并研究了其（公式）介子质量与晶格间距依赖。 我们在具有（公式）味高度改进 staggered 夸克（HISQ）的系综上使用 clover 价费米子，涵盖两种晶格间距（（公式）与0.15 fm）和三种（公式）介子质量（220、310与690 MeV）。 这些系综使我们得以考察（公式）介子胶子PDF对（公式）介子质量与晶格间距的依赖； 在这两种情形下，依赖与当前统计不确定度相比都显得较弱。 我们研究了重构拟合所用函数形式相关的系统误差，以及匹配中忽略夸克贡献造成的系统误差。 通过采用其他 PDF 工作中常用或提出的多种形式，考察了所设胶子PDF拟合形式的影响。 我们观察到把（公式）的拟合从单参数改为双参数形式影响较大，但在三参数处收敛。 这意味着双参数拟合对本计算已经足够，最终的（公式）介子胶子PDF结果以双参数拟合结果给出。 我们用 xFitter 的（公式）介子夸克PDF估计了夸克对（公式）介子胶子RITD的贡献， 发现其贡献的系统误差小于统计误差的（公式）。 如最终比较图所示，最轻（公式）介子质量下的（公式）介子胶子PDF在不确定度内于（公式）与 JAM、于（公式）与 xFitter 一致。 我们还以（公式）的形式研究了（公式）介子胶子PDF在大-（公式）区的渐近行为： 在两种晶格间距、三种（公式）介子质量下，我们的研究暗示（公式）。 未来精度更高、系统误差控制更好的格点QCD（公式）介子胶子PDF研究，与预期实验（引文）的结果一道纳入全局拟合分析时，将为（公式）介子内的胶子成分提供最佳测定 \\
+    \textbf{物理边界}\quad 纵向分数、横向距离和重正化尺度是不同变量；不能把有限动量或有限 b\_T 的结果直接当作光锥分布。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}$\pi$介子胶子部分子分布\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 17 页；对应的原始中文 TeX 目录为 \emph{$\pi$介子胶子部分子分布\_latex}。
+\clearpage
+\includepdf[pages=1-17,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/π介子胶子部分子分布_latex/build/main.pdf}
+\clearpage
+
+\chapter{P43：K介子胶子分布初探}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P43：K介子胶子分布初探：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:2112.03124 \\
+    主题归属 & 胶子、强子 PDF 与 TMD \\
+    中文全文页数 & 14 页（索引值与实测值一致） \\
+    章节入口 & 引言；格点矩阵元；由赝 PDF 方法提取 K 介子胶子 PDF；总结 \\
+    公式主线 & $\mathcal O_{\rm Euclid}\xrightarrow[\rm matching\,/\,evolution]{}f_{g/h}(x,\mu)\;{\rm or}\;F_{\rm TMD}(x,b_T,\mu,\zeta)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}K介子胶子分布初探\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P43：K介子胶子分布初探：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 在本工作中，我们给出了由格点量子色动力学得到的 K 介子胶子部分子分布的首批结果。 我们在（公式）介子质量约 310 MeV、两个格距（0.15 与 0.12 fm）下开展格点计算，采用由 MILC 合作组生成的（公式）味 HISQ 系综。 K 介子关联函数的计算使用 clover 费米子与动量涂抹源，最高助推动量约 2 GeV，并具有高统计量（最多达 324,000 次测量）。 我们研究了所得约化 Ioffe 时间赝分布对多个助推动量与格距的依赖性。 随后，我们在忽略胶子与单态夸克部分之间混合的前提下，于（公式）方案、（公式）GeV 处提取了 K 介子的胶子分布函数。 在较小格距处的结果与唯象测定相一致 \\
+    \textbf{方法/推导}\quad sec:lattice-details 对于 K 介子基态（公式），我们在若干助推动量（公式）与 Wilson 线位移长度（公式）下计算其格点胶子矩阵元，所用非极化胶子算符最早由文献（引文）引入：（公式或图表位置）其中（公式），Wilson 链长度记为（公式），场强（公式）由下式给出：（公式或图表位置）其中（公式）是格距，（公式）是强耦合常数；闭合方格（plaquette）（公式），且（公式）。 算符（公式）对应于与文献（引文）相同的匹配核。 然而该算符并未被采用，因为由于运动学原因它在（公式）处为零，这会增加获得分布的难度。 在计算出上述矩阵元之后，我们考察它们对 Ioffe 时间（公式）的依赖性。 在格点上，我们在三个系综上采用 clover 价费米子；这些系综含（公式）味高度改进交错夸克（HISQ）（引文），由 MILC 合作组生成（引文），涵盖两个格距（（公式）与 0.15 fm）与 310 MeV 的（公式）介子质量。 clover 夸克质量经过调节，以重现 PNDME 合作组所用的最轻奇异及轻海赝标介子（引文）。 如文献（引文）所阐明，我们对胶子圈施加五步 HYP 光滑化（smearing）（引文）以降低统计噪声。 为达到更高的介子助推动量，我们对夸克场使用高斯型动量涂抹（引文）。 表（交叉引用）给出了三个系综的格距（公式）、价（公式）介子质量（公式）与 K 介子质量（公式）、格点尺寸（公式）……矩阵元。 可以看到，（公式）随源—汇分离的增大而增大。 在某些情形下，（公式）在大分离处开始收敛，表明来自激发态的贡献逐渐减小。 灰色带描绘了在（公式）下对三点关联函数做“two-sim”拟合得到的基态矩阵元。 在第二列与第三列中，可以看出拟合基态矩阵元随（公式）与（公式）不同取值的变化。 在图（交叉引用）所示的例子中，无论（公式）如何选取，a15m310 系综的基态拟合矩阵元都是稳定的。 然而，对于来自 a12m310 系综的例子，我们发现基态矩阵元对（公式）的选取较为敏感。 分析中所采用的（公式）确实能可靠地提取基态。（公式或图表位置）[公式/图表] \\
+    \textbf{结果/讨论}\quad sec:summary 在本工作中，我们利用赝 PDF 方法首次对 K 介子胶子部分子分布进行了格点研究。 我们以 clover 费米子为价作用，使用 MILC 合作组生成的（公式）介子质量 310 MeV、两个格距（0.15 与 0.12 fm）的 2+1+1 味 HISQ 规范组态。 我们采用动量涂抹与高统计测量（最多达 O(324,000) 次），使 K 介子的助推动量达到约 2 GeV。 我们利用两态拟合策略仔细研究了激发态对矩阵元的贡献，确保稳定地获得了基态矩阵元。 随后，我们用所得拟合基态矩阵元计算了约化赝 ITD（RpITD），并提取了胶子部分子分布。 我们发现，较细格距处的 K 介子胶子 PDF 在统计不确定度内与 DSE 结果（引文）一致，但小（公式）区除外——那里我们的（公式）太小而无法约束。 在与（公式）介子 PDF 结果比较时，我们发现 K 介子 PDF 在大部分（公式）区域中心值略小。 我们发现，K 介子胶子 PDF 在 0.15 fm 粗格距下显示出潜在的离散化误差； 未来补充 0.09 fm 格距的研究将使我们能更好地估计 0.12 fm 结果的系统不确定度。 根据此前关于（公式）介子胶子的计算，我们怀疑夸克—胶子混合小于我们的统计误差。 其他系统误差来源，如高扭度贡献、有限体积效应与非物理（公式）介子质量效应，未包含在这项开创性研究中。 未来研究应致力于改进这些系统误差，并为即将开展的实验工作提供对 K 介子胶子 PDF 更好的测定 \\
+    \textbf{物理边界}\quad 纵向分数、横向距离和重正化尺度是不同变量；不能把有限动量或有限 b\_T 的结果直接当作光锥分布。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}K介子胶子分布初探\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 14 页；对应的原始中文 TeX 目录为 \emph{K介子胶子分布初探\_latex}。
+\clearpage
+\includepdf[pages=1-14,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/K介子胶子分布初探_latex/build/main.pdf}
+\clearpage
+
+\chapter{P44：从准TMD波函数确定CS核}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P44：从准TMD波函数确定CS核：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:2204.00200 \\
+    主题归属 & 胶子、强子 PDF 与 TMD \\
+    中文全文页数 & 24 页（索引值与实测值一致） \\
+    章节入口 & 引言；理论框架；Collins-Soper 核与快度演化；准 TMD 波函数；准 TMDWFs 的因子化；由准 TMDWFs 确定 Collins-Soper 核；数值模拟与结果；格点设置；由两点关联函数得到的准 TMDWFs；Wilson 圈重正化；算符中的高扭度效应；由准 TMDWFs 确定 Collins-Soper 核；结果与讨论；总结与展望；归一化（公式）对欧几里得时间（公式）的依赖；准 TMDWFs 对规范链长度（公式）的依赖；幂次修正效应 \\
+    公式主线 & $\mathcal O_{\rm Euclid}\xrightarrow[\rm matching\,/\,evolution]{}f_{g/h}(x,\mu)\;{\rm or}\;F_{\rm TMD}(x,b_T,\mu,\zeta)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}从准TMD波函数确定CS核\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P44：从准TMD波函数确定CS核：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 在大动量有效理论框架下并以一圈匹配精度，我们对支配横动量依赖（TMD）分布快度演化的 Collins-Soper 核进行了格点计算。我们首先在 MILC 的价 clover 夸克置于动力学 HISQ 海上、晶格间距（公式）fm 的系综中，得到三个不同介子动量下的准 TMD 波函数，并用 Wilson 圈对相关的线性发散进行重正化。通过到光锥波函数的一圈匹配，我们在直至 0.6 fm 的横向分离范围内确定了 Collins-Soper 核。我们研究了来自算符混合与标度依赖的系统不确定度，以及更高幂次修正的影响。我们的结果原则上允许以一圈精度确定软函数及其他横动量依赖的物理量 \\
+    \textbf{方法/推导}\quad sec:framework 在本节中，我们回顾本次计算所需的必要理论背景。我们给出 CS 核与快度演化的定义，并引入准 TMD 波函数。随后我们讨论准 TMDWFs 的因子化 及其与 CS 核的联系 \\
+    \textbf{结果/讨论}\quad sec:summary 在本工作中，我们在大动量有效理论框架下于 MILC 格点组态上计算了 CS 核。与我们先前的研究（引文）相比，本研究采用了一圈匹配 kernel，并使用了多个强子动量来提取 CS 核。我们发现，在小（公式）区域，我们的结果与微扰 QCD 一致。 在大（公式）区域，我们的结果在不确定度范围内似乎与文献中其他格点计算相一致。 在今后的研究中，我们需要 使用具有多个晶格间距的格点组态来理解有限的 晶格间距效应。我们将 采用与海夸克一致的价夸克质量以减小非幺正性效应。这类效应之一 可能是介子 波函数的虚部——目前它与微扰计算的 结果看起来不一致。显然，所有这些探索都将 耗费更多的计算资源 \\
+    \textbf{物理边界}\quad 纵向分数、横向距离和重正化尺度是不同变量；不能把有限动量或有限 b\_T 的结果直接当作光锥分布。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}从准TMD波函数确定CS核\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 24 页；对应的原始中文 TeX 目录为 \emph{从准TMD波函数确定CS核\_latex}。
+\clearpage
+\includepdf[pages=1-24,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/从准TMD波函数确定CS核_latex/build/main.pdf}
+\clearpage
+
+\chapter{P45：LaMET计算TMD软函数}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P45：LaMET计算TMD软函数：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:2005.14572 \\
+    主题归属 & 胶子、强子 PDF 与 TMD \\
+    中文全文页数 & 14 页（索引值与实测值一致） \\
+    章节入口 & 引言；理论框架；模拟设置；数值结果；总结与展望；补充材料；模拟检验；TMDWF 的（公式）依赖；TMDWF 算符混合的估计；内禀软函数的列表结果；形状因子的两态拟合；提取 Collins-Soper 核时可能出现的虚部 \\
+    公式主线 & $\mathcal O_{\rm Euclid}\xrightarrow[\rm matching\,/\,evolution]{}f_{g/h}(x,\mu)\;{\rm or}\;F_{\rm TMD}(x,b_T,\mu,\zeta)$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}LaMET计算TMD软函数\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P45：LaMET计算TMD软函数：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 横向动量依赖（TMD）软函数是 Drell-Yan 及其他具有较小横向动量的过程中 QCD 因子化的关键要素。我们在一个（公式）fm 的 2+1 味 CLS 动力学系综上，对该函数在中等偏大的快度区域进行了格点 QCD 研究。我们借助一个大动量转移的赝标介子形状因子及其准 TMD 波函数，并利用大动量有效理论中的领头阶因子化，提取了软函数中与快度无关（即内禀）的部分。 我们还基于准 TMD 波函数的大动量演化，研究了软函数中与快度相关的部分——Collins-Soper 演化核 \\
+    \textbf{方法/推导}\quad 内禀软函数（（公式））可以从一个非单态轻赝标介子大动量形状因子的 QCD 因子化中得到，该介子由（公式）组成，跃迁流由两个夸克双线性算符构成，其横向间隔固定为（公式），（公式或图表位置）这里（公式）是不同味的轻夸克场，（公式）。 为了提取软因子，算符与介子态的选取应使图（交叉引用）中的四条线各为不同的味，如文献（引文）所指出的。 最简单的情形对应于图（交叉引用）中的收缩，它与所谓 connected insertion（连通插入）具有相同的拓扑。因此在式 (（交叉引用）) 右端加上了下标（公式）。按此构造，disconnected insertion（非连通插入）在这种方案中不起作用，本文即采用该方案。 可以证明，式 (（交叉引用）) 中定义的形状因子可因子化为准 TMDWF（公式）与内禀软函数（公式）[引文]（公式或图表位置）其中（公式）为 微扰 硬核。 准 TMDWF（公式）是坐标空间关联函数的傅里叶变换，（公式或图表位置）上式中（公式）是类空钉形（staple-shaped）规范链，（公式或图表位置）[公式] 与（公式）分别是（公式）方向与横向方向的单位矢量。（公式）是尺寸为（公式）的类空矩形 Wilson 圈的真空期望值，它去除准 TMDWF 中的 pinch-pole 奇异性与 Wilson 线自能（引文）。 由于内禀软函数的 UV 发散是相乘性的（引文），格点上可计算的比值（公式）与 UV 重……（交叉引用）) 可写为（公式或图表位置）由于只保留领头阶贡献，上式右端的比值与重正化标度（公式）无关。 另一方面，准 TMDWF 可用来提取 Collins-Soper 核（公式），方法类似于文献 [引文]（公式或图表位置）在第二步中，同样只使用了领头阶匹配核（公式）。（公式）的重正化因子被抵消。 在此近似下，由于只保留了领头项，与快度方案无关的 CS 核（公式）不依赖于（公式）。 式 (（交叉引用）) 与 (（交叉引用）) 是严格的，可用于将来的精密研究；而式 (（交叉引用）) 与 (（交叉引用）) 是这项开创性工作所用的领头阶近似。（公式或图表位置） \\
+    \textbf{结果/讨论}\quad 本工作通过模拟四夸克非局域算符的轻介子形状因子与准 TMD 波函数，给出了内禀软函数的一项探索性格点计算。结果显示出温和的强子动量依赖，这使得未来的精密研究可以借助微扰匹配消除大动量依赖（引文）。 作为可靠性检验，由准 TMDWF 结果得到的 CS 核与已有计算的一致性表明： 包括部分退禁闭（partially quenching）效应在内的 系统不确定度、仅用领头阶微扰匹配以及 LaMET 展开中缺失的（公式）幂次修正 可能 都是次领头的。我们的计算为在第一性原理上预言小横向动量下 Drell-Yan、希格斯产生等物理截面前进了重要一步 \\
+    \textbf{物理边界}\quad 纵向分数、横向距离和重正化尺度是不同变量；不能把有限动量或有限 b\_T 的结果直接当作光锥分布。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}LaMET计算TMD软函数\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 14 页；对应的原始中文 TeX 目录为 \emph{LaMET计算TMD软函数\_latex}。
+\clearpage
+\includepdf[pages=1-14,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/LaMET计算TMD软函数_latex/build/main.pdf}
+\clearpage
+
+\part{机器学习采样与随机量化}
+
+\chapter*{主题主线：机器学习采样与随机量化}
+\addcontentsline{toc}{chapter}{主题主线：机器学习采样与随机量化}
+以流模型、规范等变结构、扩散过程或随机量化改造格点场配置生成与采样，关注可逆性、规范对称性和分布一致性。
+\begin{equation}
+  z\sim p(z),\qquad U=f_\theta(z),\qquad p_\theta(U)\;\text{与目标系综比较}
+\end{equation}
+\noindent\textbf{结构解释：}规范不变性/等变性是结构约束；采样质量须由可观测量、接受率、自相关或分布距离验证，不能只看训练损失。
+\begin{table}[htbp]
+  \centering
+  \caption{机器学习采样与随机量化：论文与物理接口}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    本主题论文 & 基于流的格点MCMC生成模型、规范等变的流采样、扩散模型即随机量化 \\
+    共同关系 & 为大规模格点系综生成提供算法补充，但必须回到物理可观测量和系综正确性检验。 \\
+    证据状态 & 确证：每篇论文的中文全文 PDF；推断：本主题的共同接口；未验证：跨论文统一数值结论。 \\
+    阅读顺序 & 先读本主题的结构式与边界，再读下列论文的逐章明文内容；不把主题结构式当作某一篇的原文编号。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\chapter{P33：基于流的格点MCMC生成模型}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P33：基于流的格点MCMC生成模型：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:1904.12072 \\
+    主题归属 & 机器学习采样与随机量化 \\
+    中文全文页数 & 17 页（索引值与实测值一致） \\
+    章节入口 & 引言；基于流的马尔可夫链蒙特卡洛算法；结合生成模型的 Metropolis-Hastings 方法；利用归一化流采样；生成式 Metropolis-Hastings 的自相关时间；临界慢化；基于流的 MCMC 在（公式）理论中的应用；模型定义与训练；检验：物理观测量与误差标度；临界慢化；训练成本；总结；自相关的接受率估计量；平均绝对误差损失 \\
+    公式主线 & $z\sim p(z),\qquad U=f_\theta(z),\qquad p_\theta(U)\;\text{与目标系综比较}$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}基于流的格点MCMC生成模型\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P33：基于流的格点MCMC生成模型：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 本文提出一种在格点场论中进行蒙特卡洛采样的马尔可夫链更新方案，它使用一个机器学习的基于流的生成模型。该生成模型可被优化（训练），以从近似于所研究理论的格点作用量所决定的期望玻尔兹曼分布中产生样本。对模型的训练能系统地改善马尔可夫链中的自相关时间，即便在标准马尔可夫链蒙特卡洛算法产生去关联更新时呈现临界慢化的参数区域也是如此。此外，该模型无需来自期望分布的现成样本即可训练。在二维（公式）理论中，将该算法与 HMC 及局域 Metropolis 抽样进行了比较 \\
+    \textbf{方法/推导}\quad subsec:generative-metropolis 给定一个可以从已知概率分布（公式）抽样的模型，可以通过独立 Metropolis 采样器——Metropolis-Hastings 方法的一个特例（引文）——为期望概率分布（公式）构造一条马尔可夫链。对链的第（公式）步，通过从（公式）抽样生成一个与前一个构型无关的 更新提议（公式）。该提议以下列概率被接受（公式或图表位置）若提议被接受，则（公式），否则（公式）。这一流程定义了马尔可夫链的跃迁概率。 一般的 Metropolis-Hastings 算法已被证明对任意提议方案都满足平衡性（引文）。对于独立 Metropolis 采样器，若进一步要求每个态（公式）的提议密度与期望密度均非零，（公式或图表位置）则该马尔可夫链还是遍历的，从而保证收敛到期望分布（引文）。 可以直观地把这条马尔可夫链视为将近似分布（公式）修正为期望分布（公式）的方法。Metropolis-Hastings 算法的接受/拒绝统计可作为近似分布与期望分布接近程度的诊断量；若两分布相等，则提议以概率 1 被接受，此时马尔可夫链过程等价于对期望分布的直接抽样。这一点将在第（交叉引用）节精确阐述 \\
+    \textbf{结果/讨论}\quad sec:summary 本工作定义了一种从期望概率分布中抽取格点场构型样本的基于流的 MCMC 算法： enumerate 训练一个 real NVP 流模型，使其近似产生期望分布； 由训练好的模型提出样本； 从任意初始构型出发，用 Metropolis-Hastings 算法对每个提议做接受或拒绝以推进马尔可夫链。 enumerate 本文证明了该方案定义一条遍历且平衡的马尔可夫链，从而保证在长链极限下收敛到期望概率分布。本质上，基于流的 MCMC 算法把基于神经网络的归一化流的表达能力与马尔可夫链的理论保证结合起来，构造出一个可训练且渐近正确的采样器。由于这些流适用于任何具有连续实值自由度的构型，可以把该方法一般性地应用于一大类格点理论中的任意一个。这里针对（公式）理论具体实现了该算法，并通过若干物理观测量的研究表明，其产生的构型系综与用标准局域 Metropolis 和 HMC 算法生成的系综不可区分。 该方案的一个关键特点是：训练到固定接受率的模型在抽样阶段不会经历临界慢化。特别地，所有观测量的自相关时间完全由流模型训练的精度决定；完美训练对应去关联样本以及 MCMC 过程中 Metropolis-Hastings 步骤 100\% 的接受率。尽管如此，这一方案的训练环节能否高效扩展到更大的模型规模、以及 QCD 等更复杂的理论，仍有待研究。流模型训练与规模扩展方面的最新进展为这方面提供了乐观的理由……样的分布。例如均匀分布可能是先验的一个候选，但这一选择必须在具体流模型的语境下检验。 如果本文提出的基于流的 MCMC 算法能够为 QCD 这样的复杂理论实现，其优势将是显著的：可以以极小的代价生成任意大的场构型系综。提议步骤独立于任何先前构型，允许并行生成提议；神经网络执行的硬件与软件支持持续改善，预示着这类系综生成方式未来的实用收益。既然能从训练好的模型高效生成样本，系综便无需长期存储。此外，为某个作用量训练的模型既可以重新训练，也可以作为针对参数值相近的另一作用量的流模型的先验。这将使参数调节更加高效，并能在现有模型之间插值或从其外推，生成更多系综 \\
+    \textbf{物理边界}\quad 规范不变性/等变性是结构约束；采样质量须由可观测量、接受率、自相关或分布距离验证，不能只看训练损失。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}基于流的格点MCMC生成模型\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 17 页；对应的原始中文 TeX 目录为 \emph{基于流的格点MCMC生成模型\_latex}。
+\clearpage
+\includepdf[pages=1-17,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/基于流的格点MCMC生成模型_latex/build/main.pdf}
+\clearpage
+
+\chapter{P34：规范等变的流采样}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P34：规范等变的流采样：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:2003.06413 \\
+    主题归属 & 机器学习采样与随机量化 \\
+    中文全文页数 & 11 页（索引值与实测值一致） \\
+    章节入口 & 基于流的采样；规范不变的流；规范等变耦合层；在 U(1) 规范理论中的应用；总结 \\
+    公式主线 & $z\sim p(z),\qquad U=f_\theta(z),\qquad p_\theta(U)\;\text{与目标系综比较}$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}规范等变的流采样\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P34：规范等变的流采样：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 我们定义了一类机器学习的基于流的格点规范理论抽样算法，它们在构造上就是规范不变的。我们演示了该框架在两维时空 U(1) 规范理论中的应用，并发现在参数空间的临界点附近，与杂交蒙特卡罗（Hybrid Monte Carlo）和热浴（Heat Bath）等更传统的抽样方法相比，该方法在抽取拓扑量样本时的效率高出若干个数量级 \\
+    \textbf{方法/推导}\quad 定义在两维时空中的、规范群为（公式）的规范理论是（公式）电动力学的淬火极限，即 Schwinger 模型（引文）。完整的 Schwinger 模型在解析上易于处理，同时复现了量子色动力学的许多特征（禁闭、轴反常、拓扑以及手征对称性破缺）。即使在淬火极限下，良定义的规范场拓扑也使得 MCMC 方法在抽样该模型的格点离散化时，随着耦合趋于临界点而出现严重的临界慢化。我们考虑由 Wilson 规范作用量（引文）给出的格点离散化（公式或图表位置）其中（公式）是（公式）处的 plaquette，由链接变量（公式）定义为（公式或图表位置）而（公式）遍历具有周期边界条件的（公式）正方格点上的坐标。考虑可观测量（公式）在欧氏时间路径积分下的期望值，即可从该模型提取物理信息：（公式或图表位置）其中（公式）表示对每个链接的 Haar 测度的乘积积分，（公式）。 在本研究中考虑了三个关键的可观测量： enumerate plaquette 幂次的期望值。 Wilson 圈（公式）的期望值。 拓扑磁化率（公式），其中拓扑荷（公式）由主值区间内的 plaquette 相位定义，（公式）。 enumerate 为了研究临界慢化，我们在固定的格点尺寸（公式）下、用参数（公式）的七个取值（公式）研究了该理论；当（公式）时理论趋于连续极限。对每个参数取值，我们都使用均匀先验分布和 24 个规范等变耦合层的复合来训练规范不变的基于流的模型。……程度的指标。对这三种方法来说，随着（公式）增大趋于连续极限，（公式）都在增长。但是对基于流的算法而言，这个问题远不如 HMC 或 HB 严重。例如，在最大的（公式）处，基于流算法的自关联时间约为（公式），而 HB 为（公式）、HMC 为（公式）。计入每条马尔可夫链各步骤的相对代价，基于流的 Metropolis 抽样器在确定拓扑量时的效率约比 HMC 高（公式）倍、比热浴高（公式）倍。一个有前景的发展方向是把基于流的马尔可夫链步骤与 HMC 轨迹或热浴 sweep 混合起来，从而兼得标准马尔可夫链步骤对局域可观测量之利和基于流算法对延展及拓扑可观测量之利 \\
+    \textbf{结果/讨论}\quad 当格点规范理论中的抽样发生临界慢化时，在理论的临界极限附近精确估计人们感兴趣的物理量就会受到阻碍。基于流的模型使我们能够直接从目标分布的一个近似中抽样，由此导出的物理可观测量估计值在无限统计极限下是 exact 的。本文引入了构造上满足精确规范不变性的基于流的模型，并发现把该方法应用于二维阿贝尔规范理论时，对拓扑量的估计比 HMC、热浴等现有算法更为高效。 这里提出的方法一般地适用于由李群定义的规范理论，包括 QCD 这类非阿贝尔理论。要把该方法推广到这类理论，必须把有表达力的可逆函数定义为规范等变耦合层的核。有几条可能的前进路径；例如文献（引文）定义了球面流形上的流，文献（引文）定义了李群上的满射（虽然不是双射）映射，二者都使用了神经网络参数化。未来的工作将探索在这些方法的推广之上构造核，从而为 QCD 这样的非阿贝尔理论产生规范不变的流 \\
+    \textbf{物理边界}\quad 规范不变性/等变性是结构约束；采样质量须由可观测量、接受率、自相关或分布距离验证，不能只看训练损失。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}规范等变的流采样\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 11 页；对应的原始中文 TeX 目录为 \emph{规范等变的流采样\_latex}。
+\clearpage
+\includepdf[pages=1-11,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/规范等变的流采样_latex/build/main.pdf}
+\clearpage
+
+\chapter{P46：扩散模型即随机量化}
+\section*{本篇不是摘要卡片：总结接口与明文正文}
+本页先给出本篇正文的阅读接口；随后嵌入该篇中文全文的已构建 PDF。嵌入部分保留源文的散文、公式、表格、图注、附录和参考文献，不用生成式文字替换原始内容。
+\begin{table}[htbp]
+  \centering
+  \caption{P46：扩散模型即随机量化：内容档案}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    论文来源 & arXiv:2309.17082 \\
+    主题归属 & 机器学习采样与随机量化 \\
+    中文全文页数 & 23 页（索引值与实测值一致） \\
+    章节入口 & 引言；随机量化；Fokker–Planck 方程与观测量；朗之万模拟；扩散模型；去噪模型；作为随机量化的扩散模型；构建有效作用量；玩具模型中的有效作用量；用于格点（公式）标量场的扩散模型；组态生成与模型设置；破缺相；对称相；自关联时间；结论与展望；U-Net 结构；Skilling–Hutchinson 估计器；统计检验；接受率 \\
+    公式主线 & $z\sim p(z),\qquad U=f_\theta(z),\qquad p_\theta(U)\;\text{与目标系综比较}$\newline\scriptsize 结构式仅用于连接本篇与主题，不替代下方全文中的原文公式。 \\
+    全文证据 & ../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}扩散模型即随机量化\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf；SHA-256 见机器可读 manifest。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\begin{table}[htbp]
+  \centering
+  \caption*{P46：扩散模型即随机量化：输入—推导—结果—边界的单列表格}
+  \small
+  \begin{tabular}{@{}p{0.96\textwidth}@{}}
+    \toprule
+    \textbf{输入/问题}\quad 在本工作中，我们建立了生成式扩散模型（diffusion models，DMs）与随机量化（stochastic quantization，SQ）之间的直接联系。该扩散模型通过近似由朗之万方程支配的随机过程的逆过程来实现：从先验分布生成样本，从而有效地模仿目标分布。通过数值模拟，我们证明扩散模型可以作为全局采样器，用于在二维（公式）理论中生成量子格点场组态。我们证明，扩散模型能显著缩短马尔可夫链中的自关联时间，尤其是在标准马尔可夫链蒙特卡洛（MCMC）算法经历临界慢化的临界区域。这些发现有望启发格点场论模拟的进一步进展，特别是在生成大系综代价高昂的情形。 0.5em 关键词： 随机量化，朗之万动力学，扩散模型 \\
+    \textbf{方法/推导}\quad subsec:sim 在大多数情形下，Fokker–Planck 方程无法解析求解。作为替代，人们通过对朗之万方程 式（交叉引用）离散化来数值求解该随机过程。 使用 Itô 微积分，采用时间步长（公式）的最简离散化朗之万方程为（公式或图表位置）其中（公式）。 一次典型的计算包括：首先，用初始条件制备场组态（公式）；其次，热化过程，即以适当的时间步长（公式）迭代足够多的时间步使系统达到平衡；第三，热化之后，记录系综中每个组态的物理观测量（公式）的数值，例如在时间（公式）之后。对众多组态重复此过程以提高系综平均的统计精度。 图（交叉引用）展示了一维情形下一个典型的朗之万过程。 目标分布通过漂移项编码，参见式 (（交叉引用）)。（公式或图表位置）该过程为观测量（公式）提供了量子期望值的估计。由于上述简单离散化格式带来关于（公式）线性的有限步长误差，必须重复分析并外推到零步长。朗之万模拟为蒙特卡洛方法提供了替代方案，并已被用于格点 QCD 模拟（引文）。其特点是未使用接受/拒绝步骤，这使算法并不精确（例如有限步长修正所展示的那样）。引入这样的接受/拒绝步骤可以补救这一问题，由此得到优于基本朗之万算法因而更受青睐的更精细算法（如混合蒙特卡洛）。对于具有复值玻尔兹曼权重、因而无法做重要性抽样的理论，无接受/拒绝步骤反而成为一项优点。SQ 在这类理论中的应用通常称为复朗之万动力学（引文），至今仍是活跃的研究领域（引文）， 但本文不作进一步探讨 \\
+    \textbf{结果/讨论}\quad sec:sum 在本工作中，我们提出了一种利用 ML 社区中流行的扩散模型生成量子场组态的新方法。我们着重指出了它与随机量化（SQ）的联系——后者基于沿虚构时间方向的随机过程来量子化场论。在 SQ 中，随机过程的漂移项是已知的，因为它由希望抽样的概率分布导出，而该分布由所考虑的量子理论决定。在 DMs 中，漂移项未知，而是在前向随机过程中从数据学得。估计出漂移项之后，训练好的 DM 沿相反方向运行，从噪声中创造出独立组态，即``去噪''过程。这后半部分类似于 SQ 中的动力学，只是漂移项是学得的且随时间变化。 在图（交叉引用）中，我们以示意方式总结了随机量化与扩散模型之间的关系。（公式或图表位置）我们在一个简单玩具模型以及具有（公式）相互作用的二维标量场论（对称相与破缺相皆备）中演示了该方法。我们证明 DM 可以充当全局采样器来辅助基于蒙特卡洛原理的方法。我们指出，可以在每条轨迹的末尾加入接受–拒绝步骤。数值结果表明，训练良好的 DM 能成功复现两个相中的组态，且沿马尔可夫链的自关联时间被缩短。这种采样效率的提升对格点场论研究有益，值得进一步分析。 未来有多个方向可以探索。前向（``光滑化''）与后向（``去噪''）过程令人联想到（逆）重整化群变换，将其精确化将是有趣的工作。 由于作用量可以被相对准确地估计，在不制备训练数据集的情况下训练 DM 是可行的，这有待研究。 DMs 与 SQ 的联系提供了新的视……nger 模型）生成了一组组态。由于费米子已被``积掉''（integrated out），组态仅由规范场给出。把这些组态作为 DM 的起点，便可以学到隐式纳入费米子效应的有效随机过程。这可用于以数值上``廉价''的方式创造额外组态。还可以加入基于底层理论的接受–拒绝步骤，但这需要计算费米子行列式。最后，SQ 也可用于带符号问题或复作用量问题的理论，即分布非正定的情形，这通常称为复朗之万（CL）动力学。众所周知，CL 在随机过程的长轨迹上可能变得不可靠。把 CL 与 DMs 结合，可以考虑相当短的轨迹，随后用所得组态训练 DM 以生成更多组态来提高统计量 \\
+    \textbf{物理边界}\quad 规范不变性/等变性是结构约束；采样质量须由可观测量、接受率、自相关或分布距离验证，不能只看训练损失。 \\
+    \textbf{内容状态}\quad 确证：中文/英文 LaTeX 正文、章节和索引可追溯；未验证：当前目录未提供论文 PDF、原始数据或独立复现。 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\section*{明文内容入口}
+\noindent 完整渲染页从下一页开始：../\allowbreak{}refer/\allowbreak{}papers/\allowbreak{}扩散模型即随机量化\_\allowbreak{}latex/\allowbreak{}build/\allowbreak{}main.pdf。页数证据为 23 页；对应的原始中文 TeX 目录为 \emph{扩散模型即随机量化\_latex}。
+\clearpage
+\includepdf[pages=1-23,fitpaper=true,pagecommand={\thispagestyle{plain}}]{../refer/papers/扩散模型即随机量化_latex/build/main.pdf}
+\clearpage
+
+\backmatter
+\chapter*{全库交叉结论与验证边界}
+本卷的跨论文主线是由源文本中反复出现的对象和尺度关系归纳而来：规范不变性保证格点对象可定义，流/涂抹和重正化处理短距离结构，LaMET/赝 PDF/TMD 因子化承担欧氏到光锥的桥梁，最终输出必须经过动量、格距、体积、流时间或距离、匹配阶数、激发态和采样相关性的分层检验。
+\begin{table}[htbp]
+  \centering
+  \caption{交叉验证清单}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}p{3.3cm}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    对称性 & 检查局域规范变换、离散对称性和规范协变结构；不以形式相似替代具体算符验证。 \\
+    量纲与极限 & 检查 a→0、P\_z→∞、z→0、t→0、b\_T→0 或大距离极限；每种极限的适用范围由单篇论文确定。 \\
+    数值证据 & 本报告嵌入源目录已经构建的 PDF，但没有在本次任务中重新运行论文原始数据分析；统一数值比较保持未验证。 \\
+    可复查入口 & 逐篇页数、源 PDF 路径和 SHA-256 见 ../\allowbreak{}docs/\allowbreak{}report\_\allowbreak{}refer\_\allowbreak{}papers\_\allowbreak{}all\_\allowbreak{}contents\_\allowbreak{}20260830.manifest.tsv。 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\chapter*{机器可读来源清单}
+本报告的来源清单为 ../\allowbreak{}docs/\allowbreak{}report\_\allowbreak{}refer\_\allowbreak{}papers\_\allowbreak{}all\_\allowbreak{}contents\_\allowbreak{}20260830.manifest.tsv。它记录 50 篇论文的唯一编号、主题、索引页数、实际嵌入页数、源 PDF 路径和 SHA-256；生成器只读取当前工作区，不修改 refer/papers 源目录。
+\end{document}
