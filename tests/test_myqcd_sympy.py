@@ -344,23 +344,17 @@ def test_quasi_pdf_one_loop_matching_kernel_preserves_all_three_momentum_branche
     color_factor = result.symbols["C_F"]
     p_z = result.symbols["p_z"]
     mu = result.symbols["mu"]
-    linear_cutoff_term = mu / (p_z * (1 - xi) ** 2)
     outer_expected = (
-        (1 + xi**2) / (1 - xi) * sp.log(xi / (xi - 1))
-        + 1
-        + linear_cutoff_term
+        (1 + xi**2) / (1 - xi) * sp.log(xi / (xi - 1)) + 1
     )
     inner_expected = (
         (1 + xi**2) / (1 - xi) * sp.log(p_z**2 / mu**2)
         + (1 + xi**2) / (1 - xi) * sp.log(4 * xi * (1 - xi))
         - 2 * xi / (1 - xi)
         + 1
-        + linear_cutoff_term
     )
     negative_expected = (
-        (1 + xi**2) / (1 - xi) * sp.log((xi - 1) / xi)
-        - 1
-        + linear_cutoff_term
+        (1 + xi**2) / (1 - xi) * sp.log((xi - 1) / xi) - 1
     )
     assert result.equations["outer_branch"] == outer_expected
     assert result.equations["inner_branch"] == inner_expected
@@ -377,12 +371,14 @@ def test_quasi_pdf_one_loop_matching_kernel_preserves_all_three_momentum_branche
 def test_quasi_pdf_one_loop_matching_kernel_keeps_the_source_linear_cutoff_term() -> None:
     derivation = getattr(
         derivation_module,
-        "derive_quasi_pdf_one_loop_matching_kernel",
+        "derive_quasi_pdf_finite_momentum_one_loop_matching_kernel",
         None,
     )
     assert callable(derivation)
 
     result = derivation()
+    assert result.status == "verified"
+    assert all(result.checks.values())
     xi = result.symbols["xi"]
     p_z = result.symbols["p_z"]
     mu = result.symbols["mu"]
