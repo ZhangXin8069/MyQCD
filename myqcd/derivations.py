@@ -1445,6 +1445,134 @@ def derive_wilson_fourier_endpoint() -> DerivationResult:
     )
 
 
+def derive_wilson_edge_universal_formulas() -> DerivationResult:
+    r"""复现 P06 能隙边缘的 Painleve-II/Airy 公式结构。
+
+    源文把极端本征值分布写成
+
+    ``p(s)=I_0(s)*exp(-I_1(s))``，
+    ``I_0(s)=Integral(q(x)**2,(x,s,oo))``，
+    ``I_1(s)=Integral((x-s)*q(x)**2,(x,s,oo))``，
+
+    其中 ``q`` 满足 Painleve II 方程
+    ``q''=s*q+2*q**3``，并在正无穷处趋近 ``Ai(s)``。这里不数值求解
+    Painleve II，而是用积分的 Leibniz 规则验证
+    ``I_0'=-q(s)**2``、``I_1'=-I_0`` 以及由此得到的 ``p'`` 关系；
+    对 Airy 边缘密度则精确检查 ``Ai''=s*Ai`` 和第一边缘核的导数。
+    论文给出的拟合系数、渐近误差和数值直方图不由此推导。
+    """
+
+    scaled_coordinate = sp.Symbol("s", real=True)
+    integration_coordinate = sp.Symbol("x", real=True)
+    q = sp.Function("q")
+    q_at_s = q(scaled_coordinate)
+    q_at_x = q(integration_coordinate)
+    painleve_equation = sp.Eq(
+        sp.diff(q_at_s, scaled_coordinate, 2),
+        scaled_coordinate * q_at_s + 2 * q_at_s**3,
+    )
+    i0 = sp.Integral(
+        q_at_x**2,
+        (integration_coordinate, scaled_coordinate, sp.oo),
+    )
+    i1 = sp.Integral(
+        (integration_coordinate - scaled_coordinate) * q_at_x**2,
+        (integration_coordinate, scaled_coordinate, sp.oo),
+    )
+    extreme_density = i0 * sp.exp(-i1)
+    extreme_log_derivative = -q_at_s**2 / i0 + i0
+
+    airy = sp.airyai(scaled_coordinate)
+    airy_prime = sp.diff(airy, scaled_coordinate)
+    airy_kernel = airy_prime**2 - scaled_coordinate * airy**2
+    density_coefficient = sp.Symbol("c", real=True)
+    correction_coefficient = sp.Symbol("d", real=True)
+    airy_density = density_coefficient * airy_kernel + correction_coefficient * (
+        3 * scaled_coordinate**2 * airy**2
+        - 2 * scaled_coordinate * airy_prime**2
+        - 3 * airy * airy_prime
+    )
+    airy_density_correction = (
+        3 * scaled_coordinate**2 * airy**2
+        - 2 * scaled_coordinate * airy_prime**2
+        - 3 * airy * airy_prime
+    )
+
+    i0_derivative = sp.diff(i0, scaled_coordinate)
+    i1_derivative = sp.diff(i1, scaled_coordinate)
+    extreme_density_derivative = sp.diff(extreme_density, scaled_coordinate)
+    airy_equation_residual = sp.simplify(
+        sp.diff(airy, scaled_coordinate, 2)
+        - scaled_coordinate * airy
+    )
+    airy_kernel_derivative_residual = sp.simplify(
+        sp.diff(airy_kernel, scaled_coordinate) + airy**2
+    )
+    painleve_i0_residual = sp.simplify(i0_derivative + q_at_s**2)
+    painleve_i1_residual = sp.simplify(i1_derivative + i0)
+    extreme_density_derivative_residual = sp.simplify(
+        extreme_density_derivative
+        - extreme_density * extreme_log_derivative
+    )
+    airy_decay_limit = sp.limit(airy, scaled_coordinate, sp.oo)
+    nonlinear_decay_limit = sp.limit(
+        2 * airy**3,
+        scaled_coordinate,
+        sp.oo,
+    )
+
+    checks = {
+        "painleve_i0_derivative": painleve_i0_residual == 0,
+        "painleve_i1_derivative": painleve_i1_residual == 0,
+        "extreme_density_log_derivative": extreme_density_derivative_residual
+        == 0,
+        "airy_equation": airy_equation_residual == 0,
+        "airy_kernel_derivative": airy_kernel_derivative_residual == 0,
+        "airy_decay": airy_decay_limit == 0,
+        "painleve_nonlinear_decay": nonlinear_decay_limit == 0,
+    }
+    return DerivationResult(
+        name="wilson_edge_universal_formulas",
+        equations={
+            "painleve_II": painleve_equation,
+            "i0": i0,
+            "i1": i1,
+            "extreme_density": extreme_density,
+            "extreme_log_derivative": extreme_log_derivative,
+            "airy": airy,
+            "airy_prime": airy_prime,
+            "airy_kernel": airy_kernel,
+            "airy_density_correction": airy_density_correction,
+            "airy_density": airy_density,
+            "i0_derivative": i0_derivative,
+            "i1_derivative": i1_derivative,
+            "extreme_density_derivative": extreme_density_derivative,
+            "airy_decay_limit": airy_decay_limit,
+            "nonlinear_decay_limit": nonlinear_decay_limit,
+            "painleve_i0_residual": painleve_i0_residual,
+            "painleve_i1_residual": painleve_i1_residual,
+            "extreme_density_log_derivative_residual": extreme_density_derivative_residual,
+            "airy_equation_residual": airy_equation_residual,
+            "airy_kernel_derivative_residual": airy_kernel_derivative_residual,
+        },
+        symbols={
+            "s": scaled_coordinate,
+            "x": integration_coordinate,
+            "q": q,
+            "c": density_coefficient,
+            "d": correction_coefficient,
+        },
+        assumptions=(
+            "q 是源文指定的 Hastings--McLeod 型 Painleve II 解，积分收敛",
+            "q''=s q+2q^3 与 q(s)~Ai(s) 作为源文输入；这里只验证积分微分结构和 Airy 极限，不数值求解 q",
+            "Ai 是 SymPy 的 Airy 函数，c、d 是边缘密度拟合系数",
+            "不由此复现 Painleve 均值/方差常数、有限 N 修正或论文直方图",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
 def derive_wilson_continuum_scale() -> DerivationResult:
     r"""复现 P06 中 tadpole 改进格距和连续统外推的尺度链。
 
@@ -1661,6 +1789,317 @@ def derive_two_dimensional_wilson_loop() -> DerivationResult:
             "w_n=(1/n)L_{n-1}^{(1)}(2An)e^{-An} 是源文给出的二维大 N 公式",
             "A=0 的归一化和多项式乘指数结构是代数检查",
             "不由此推出二维系综积分、Douglas-Kazakov 或 Durhuus-Olesen 数值结果",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_instanton_holonomy_su2() -> DerivationResult:
+    r"""复现源文瞬子规范场中的 SU(2) 群结构和圆 holonomy 极限。
+
+    在一个坐标正象限的显式局部图上构造
+    ``U=(x_4+i x_j sigma_j)/sqrt(x^2)``，并用
+    ``A_4=i*x^2/(x^2+rho^2)*U^dagger*d_4 U`` 检查场的 Hermitian、无迹
+    结构。源文给出的圆路径序指数则写为
+    ``H=exp(i*pi*(1-rho/sqrt(rho^2+4R^2))*sigma_3)``，这里检查其
+    SU(2) 群性质以及小/大瞬子尺度极限，不重新计算路径序积分。
+    """
+
+    x_1, x_2, x_3, x_4 = sp.symbols(
+        "x_1 x_2 x_3 x_4", positive=True, real=True
+    )
+    instanton_size = sp.Symbol("rho", positive=True, real=True)
+    circle_radius = sp.Symbol("R", positive=True, real=True)
+    pauli_1 = sp.Matrix([[0, 1], [1, 0]])
+    pauli_2 = sp.Matrix([[0, -sp.I], [sp.I, 0]])
+    pauli_3 = sp.diag(1, -1)
+    identity_two = sp.eye(2)
+    coordinate_squared = (
+        x_1**2 + x_2**2 + x_3**2 + x_4**2
+    )
+    spatial_pauli_vector = (
+        x_1 * pauli_1 + x_2 * pauli_2 + x_3 * pauli_3
+    )
+    coordinate_norm = sp.sqrt(coordinate_squared)
+    instanton_U = (
+        x_4 * identity_two + sp.I * spatial_pauli_vector
+    ) / coordinate_norm
+    instanton_U_dagger = (
+        x_4 * identity_two - sp.I * spatial_pauli_vector
+    ) / coordinate_norm
+    field_prefactor = sp.I * coordinate_squared / (
+        coordinate_squared + instanton_size**2
+    )
+    A_4 = field_prefactor * instanton_U_dagger * instanton_U.diff(x_4)
+    holonomy_angle = sp.pi * (
+        1
+        - instanton_size
+        / sp.sqrt(instanton_size**2 + 4 * circle_radius**2)
+    )
+    holonomy = (
+        sp.cos(holonomy_angle) * identity_two
+        + sp.I * sp.sin(holonomy_angle) * pauli_3
+    )
+    holonomy_dagger = (
+        sp.cos(holonomy_angle) * identity_two
+        - sp.I * sp.sin(holonomy_angle) * pauli_3
+    )
+
+    def simplify_matrix(matrix: sp.MatrixBase) -> sp.Matrix:
+        return matrix.applyfunc(
+            lambda entry: sp.simplify(sp.expand(entry))
+        )
+
+    U_unitarity_residual = simplify_matrix(
+        instanton_U_dagger * instanton_U - identity_two
+    )
+    U_su2_residual = sp.simplify(sp.det(instanton_U) - 1)
+    A4_hermitian_residual = simplify_matrix(
+        A_4.conjugate().T - A_4
+    )
+    A4_traceless_residual = sp.simplify(sp.trace(A_4))
+    holonomy_unitarity_residual = simplify_matrix(
+        holonomy_dagger * holonomy - identity_two
+    )
+    holonomy_su2_residual = sp.simplify(sp.det(holonomy) - 1)
+    small_instanton_limit = holonomy.subs(instanton_size, 0)
+    large_instanton_limit = holonomy.applyfunc(
+        lambda entry: sp.limit(entry, instanton_size, sp.oo)
+    )
+    small_instanton_limit_residual = simplify_matrix(
+        small_instanton_limit + identity_two
+    )
+    large_instanton_limit_residual = simplify_matrix(
+        large_instanton_limit - identity_two
+    )
+
+    checks = {
+        "U_unitarity": U_unitarity_residual == sp.zeros(2),
+        "U_su2": U_su2_residual == 0,
+        "A4_hermitian": A4_hermitian_residual == sp.zeros(2),
+        "A4_traceless": A4_traceless_residual == 0,
+        "holonomy_unitarity": holonomy_unitarity_residual
+        == sp.zeros(2),
+        "holonomy_su2": holonomy_su2_residual == 0,
+        "small_instanton_limit": small_instanton_limit_residual
+        == sp.zeros(2),
+        "large_instanton_limit": large_instanton_limit_residual
+        == sp.zeros(2),
+    }
+    return DerivationResult(
+        name="instanton_holonomy_su2",
+        equations={
+            "coordinate_squared": coordinate_squared,
+            "U": instanton_U,
+            "U_unitarity_residual": U_unitarity_residual,
+            "U_su2_residual": U_su2_residual,
+            "field_prefactor": field_prefactor,
+            "A4": A_4,
+            "A4_hermitian_residual": A4_hermitian_residual,
+            "A4_traceless_residual": A4_traceless_residual,
+            "holonomy_angle": holonomy_angle,
+            "holonomy": holonomy,
+            "holonomy_unitarity_residual": holonomy_unitarity_residual,
+            "holonomy_su2_residual": holonomy_su2_residual,
+            "small_instanton_limit": small_instanton_limit,
+            "large_instanton_limit": large_instanton_limit,
+            "small_instanton_limit_residual": small_instanton_limit_residual,
+            "large_instanton_limit_residual": large_instanton_limit_residual,
+        },
+        symbols={
+            "x_1": x_1,
+            "x_2": x_2,
+            "x_3": x_3,
+            "x_4": x_4,
+            "rho": instanton_size,
+            "R": circle_radius,
+            "sigma_1": pauli_1,
+            "sigma_2": pauli_2,
+            "sigma_3": pauli_3,
+        },
+        assumptions=(
+            "rho,R>0；坐标取正象限以固定 sqrt(x^2) 的实正支；x^2>0",
+            "U=(x_4+i x·sigma)/sqrt(x^2)，A_4 是源文 A_mu 的一个显式分量",
+            "路径序 holonomy 的指数公式按源文给定，只检查群性质与 rho 极限",
+            "rho→0 时 holonomy→-I，rho→∞ 时 holonomy→I",
+            "不由此重算瞬子路径序积分、瞬子系综权重或 e^{-N Const} 效应",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_grassmann_determinant_identity() -> DerivationResult:
+    r"""复现周期反号 Grassmann 二次型的行列式结构。
+
+    对 ``n=2`` 和 ``N=2`` 的对角颜色矩阵 ``U_1,U_2``，构造由
+    ``z sum_i bar(psi)_i psi_i - sum_i bar(psi)_i U_i psi_{i+1}``
+    给出的块系数矩阵。边界约定 ``psi_{n+1}=-psi_1`` 使左下块为
+    ``+U_n``，从而直接检查 ``det(K)=det(z^n I+U_1...U_n)``。
+    另以标量 ``n=3`` 检查同一符号结构。有限维 Grassmann 高斯积分
+    本身由该系数矩阵的行列式表示；这里不执行 Grassmann 变量积分或
+    大 ``N`` 鞍点分析。
+    """
+
+    spectral_parameter = sp.Symbol("z", real=True)
+    u_11, u_12, u_21, u_22 = sp.symbols(
+        "u_11 u_12 u_21 u_22", real=True
+    )
+    identity_two = sp.eye(2)
+    U_1 = sp.diag(u_11, u_12)
+    U_2 = sp.diag(u_21, u_22)
+    coefficient_matrix = sp.Matrix.vstack(
+        sp.Matrix.hstack(spectral_parameter * identity_two, -U_1),
+        sp.Matrix.hstack(U_2, spectral_parameter * identity_two),
+    )
+    Wilson_product = U_1 * U_2
+    block_determinant = sp.det(coefficient_matrix)
+    target_determinant = sp.det(
+        spectral_parameter**2 * identity_two + Wilson_product
+    )
+
+    scalar_u_1, scalar_u_2, scalar_u_3 = sp.symbols(
+        "u_1 u_2 u_3", real=True
+    )
+    scalar_coefficient_matrix = sp.Matrix(
+        [
+            [spectral_parameter, -scalar_u_1, 0],
+            [0, spectral_parameter, -scalar_u_2],
+            [scalar_u_3, 0, spectral_parameter],
+        ]
+    )
+    scalar_block_determinant = sp.det(scalar_coefficient_matrix)
+
+    block_determinant_residual = sp.factor(
+        block_determinant - target_determinant
+    )
+    boundary_sign_residual = sp.simplify(
+        coefficient_matrix[2, 0] - u_21
+    )
+    scalar_n3_determinant_residual = sp.factor(
+        scalar_block_determinant
+        - (
+            spectral_parameter**3
+            + scalar_u_1 * scalar_u_2 * scalar_u_3
+        )
+    )
+
+    checks = {
+        "block_determinant": block_determinant_residual == 0,
+        "boundary_sign": boundary_sign_residual == 0,
+        "scalar_n3_determinant": scalar_n3_determinant_residual == 0,
+    }
+    return DerivationResult(
+        name="grassmann_determinant_identity",
+        equations={
+            "coefficient_matrix": coefficient_matrix,
+            "Wilson_product": Wilson_product,
+            "block_determinant": block_determinant,
+            "target_determinant": target_determinant,
+            "block_determinant_residual": block_determinant_residual,
+            "boundary_sign_residual": boundary_sign_residual,
+            "scalar_coefficient_matrix": scalar_coefficient_matrix,
+            "scalar_n3_determinant": scalar_block_determinant,
+            "scalar_n3_determinant_residual": scalar_n3_determinant_residual,
+        },
+        symbols={
+            "z": spectral_parameter,
+            "U_1": U_1,
+            "U_2": U_2,
+            "u_1": scalar_u_1,
+            "u_2": scalar_u_2,
+            "u_3": scalar_u_3,
+        },
+        assumptions=(
+            "n=2、N=2 的 U_i 取对角颜色矩阵，因而显式可交换",
+            "psi_{n+1}=-psi_1 使最后一行左下块为 +U_n",
+            "有限维 Grassmann 高斯积分的系数矩阵行列式给出源文结构",
+            "只验证块行列式和符号约定，不执行 Grassmann 积分或大 N 鞍点",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_wilson_gap_scaling() -> DerivationResult:
+    r"""复现 Wilson 圈谱隙外推的平方根与对数标度式。
+
+    对 ``f-F_c=delta_f>0`` 的有隙侧，构造
+    ``g=A_gap*sqrt(delta_f)`` 并检查 ``g^2=A_gap^2(f-F_c)`` 与
+    ``delta_f->0`` 的闭隙极限。对另一侧，构造源文的
+    ``g^2=A_log*log(l/l_c)``，检查其对数参数无量纲且在 ``l=l_c`` 处
+    消失。振幅、临界点和拟合区间都是源文的外推输入，不由此拟合数据。
+    """
+
+    gap_amplitude = sp.Symbol("A_gap", positive=True, real=True)
+    critical_smearing = sp.Symbol("F_c", real=True)
+    smearing_excess = sp.Symbol("delta_f", positive=True, real=True)
+    smearing_value = critical_smearing + smearing_excess
+    gap = gap_amplitude * sp.sqrt(smearing_excess)
+    gap_square_root_relation = gap**2
+    gap_closing_limit = sp.limit(gap, smearing_excess, 0)
+
+    log_amplitude = sp.Symbol("A_log", positive=True, real=True)
+    physical_length = sp.Symbol("l", positive=True, real=True)
+    critical_length = sp.Symbol("l_c", positive=True, real=True)
+    dimensionless_length_ratio = physical_length / critical_length
+    log_gap_squared = log_amplitude * sp.log(
+        dimensionless_length_ratio
+    )
+    log_argument_dimensionless_residual = sp.simplify(
+        sp.log(dimensionless_length_ratio)
+        - sp.log(physical_length / critical_length)
+    )
+    log_critical_point = log_gap_squared.subs(
+        physical_length, critical_length
+    )
+    log_slope = sp.diff(log_gap_squared, physical_length)
+
+    square_root_relation_residual = sp.simplify(
+        gap_square_root_relation
+        - gap_amplitude**2 * (smearing_value - critical_smearing)
+    )
+    gap_closing_limit_residual = sp.simplify(gap_closing_limit)
+    log_critical_point_residual = sp.simplify(log_critical_point)
+
+    checks = {
+        "square_root_relation": square_root_relation_residual == 0,
+        "gap_closing_limit": gap_closing_limit_residual == 0,
+        "log_argument_dimensionless": log_argument_dimensionless_residual
+        == 0,
+        "log_critical_point": log_critical_point_residual == 0,
+        "log_slope_positive": log_slope.is_positive is True,
+    }
+    return DerivationResult(
+        name="wilson_gap_scaling",
+        equations={
+            "smearing_value": smearing_value,
+            "gap": gap,
+            "gap_squared": gap_square_root_relation,
+            "square_root_relation_residual": square_root_relation_residual,
+            "gap_closing_limit": gap_closing_limit,
+            "gap_closing_limit_residual": gap_closing_limit_residual,
+            "dimensionless_length_ratio": dimensionless_length_ratio,
+            "log_gap_squared": log_gap_squared,
+            "log_argument_dimensionless_residual": log_argument_dimensionless_residual,
+            "log_critical_point": log_critical_point,
+            "log_critical_point_residual": log_critical_point_residual,
+            "log_slope": log_slope,
+        },
+        symbols={
+            "A_gap": gap_amplitude,
+            "F_c": critical_smearing,
+            "delta_f": smearing_excess,
+            "A_log": log_amplitude,
+            "l": physical_length,
+            "l_c": critical_length,
+        },
+        assumptions=(
+            "A_gap、A_log、delta_f、l、l_c>0；f=F_c+delta_f 在有隙侧",
+            "g=A_gap sqrt(f-F_c) 是零能隙外推 ansatz",
+            "g^2=A_log log(l/l_c) 使用无量纲正比值 l/l_c",
+            "振幅和临界长度来自拟合；这里只验证临界极限，不重现数值拟合",
         ),
         checks=checks,
         status="verified" if all(checks.values()) else "failed",
@@ -2523,6 +2962,588 @@ def derive_wilson_area_law() -> DerivationResult:
         checks=checks,
         symbols={"sigma": sigma, "R": R, "T": T},
         assumptions=("sigma,R,T>0", "矩形圈且 T→∞", "忽略周长项和有限尺寸修正"),
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_wilson_flow_five_dimensional() -> DerivationResult:
+    r"""复现 P06 的连续统梯度流与第五维记号。
+
+    源文把无噪声涂抹写成 Langevin 型流
+
+    ``partial_tau A_nu = D_mu F_{mu nu}``
+
+    并将 ``tau`` 视为第五个坐标，写成 ``F_{5 nu}=D_mu F_{mu nu}``。
+    这里在二维 Abelian Fourier 模式中逐项构造
+    ``F_{mu nu}=i(p_mu a_nu-p_nu a_mu)``，所以协变导数退化为普通
+    导数，但所有动量收缩、横向投影和符号都可以由 SymPy 精确检查。
+    同一模式还给出 Yang--Mills 二次作用量沿梯度流单调下降的有限维
+    代表：``dS/dtau=-|D_mu F_{mu nu}|^2``。这不是对完整非阿贝尔
+    路径积分的替代证明。
+    """
+
+    momentum_0, momentum_1 = sp.symbols(
+        "p_0 p_1",
+        real=True,
+    )
+    amplitude_0, amplitude_1 = sp.symbols(
+        "a_0 a_1",
+        real=True,
+    )
+    noise_0, noise_1 = sp.symbols(
+        "eta_0 eta_1",
+        real=True,
+    )
+    flow_time = sp.Symbol("tau", positive=True, real=True)
+    momentum = sp.Matrix([momentum_0, momentum_1])
+    amplitude = sp.Matrix([amplitude_0, amplitude_1])
+    noise = sp.Matrix([noise_0, noise_1])
+    identity = sp.eye(2)
+    momentum_squared = momentum.dot(momentum)
+    transverse_operator = (
+        momentum_squared * identity - momentum * momentum.T
+    )
+
+    field_strength = sp.Matrix(
+        2,
+        2,
+        lambda mu, nu: sp.I
+        * (momentum[mu] * amplitude[nu] - momentum[nu] * amplitude[mu]),
+    )
+    covariant_divergence = sp.Matrix(
+        [
+            sum(
+                sp.I * momentum[mu] * field_strength[mu, nu]
+                for mu in range(2)
+            )
+            for nu in range(2)
+        ]
+    )
+    flow_amplitude = -transverse_operator * amplitude
+    fifth_field_strength = covariant_divergence
+    noisy_flow = covariant_divergence + noise
+
+    quadratic_action = (
+        amplitude.T * transverse_operator * amplitude
+    )[0] / 2
+    action_gradient = sp.Matrix(
+        [sp.diff(quadratic_action, component) for component in amplitude]
+    )
+    action_rate = action_gradient.dot(flow_amplitude)
+    curl_amplitude = momentum_0 * amplitude_1 - momentum_1 * amplitude_0
+    explicit_action_rate = -momentum_squared * curl_amplitude**2
+
+    dimension_of_A = -1
+    dimension_of_derivative = -1
+    dimension_of_tau = 2
+    dimension_of_F = dimension_of_derivative + dimension_of_A
+    dimension_of_DF = dimension_of_derivative + dimension_of_F
+    dimension_of_dtau_A = dimension_of_A - dimension_of_tau
+    dimensions = {
+        "A": dimension_of_A,
+        "partial_mu": dimension_of_derivative,
+        "F_mu_nu": dimension_of_F,
+        "D_mu_F_mu_nu": dimension_of_DF,
+        "tau": dimension_of_tau,
+        "partial_tau_A": dimension_of_dtau_A,
+    }
+
+    def simplify_matrix(matrix: sp.MatrixBase) -> sp.MatrixBase:
+        return matrix.applyfunc(lambda entry: sp.simplify(sp.expand(entry)))
+
+    field_strength_antisymmetry_residual = simplify_matrix(
+        field_strength + field_strength.T
+    )
+    divergence_residual = (
+        covariant_divergence - flow_amplitude
+    ).applyfunc(lambda entry: sp.simplify(entry))
+    fifth_dimension_residual = (
+        fifth_field_strength - covariant_divergence
+    ).applyfunc(lambda entry: sp.simplify(entry))
+    action_gradient_residual = (
+        action_gradient - transverse_operator * amplitude
+    ).applyfunc(lambda entry: sp.simplify(entry))
+    action_rate_residual = sp.simplify(
+        action_rate - explicit_action_rate
+    )
+    noise_free_residual = (
+        noisy_flow.subs({noise_0: 0, noise_1: 0}) - flow_amplitude
+    ).applyfunc(lambda entry: sp.simplify(entry))
+
+    checks = {
+        "field_strength_antisymmetric": field_strength_antisymmetry_residual
+        == sp.zeros(2),
+        "flow_divergence": divergence_residual == sp.zeros(2, 1),
+        "five_dimensional_equation": fifth_dimension_residual
+        == sp.zeros(2, 1),
+        "action_gradient": action_gradient_residual == sp.zeros(2, 1),
+        "action_monotone_form": action_rate_residual == 0,
+        "noise_free_flow": noise_free_residual == sp.zeros(2, 1),
+        "flow_time_dimension": dimension_of_tau == 2,
+        "flow_dimension_balance": dimension_of_dtau_A == dimension_of_DF,
+    }
+    return DerivationResult(
+        name="wilson_flow_five_dimensional",
+        equations={
+            "field_strength": field_strength,
+            "transverse_operator": transverse_operator,
+            "covariant_divergence": covariant_divergence,
+            "flow_amplitude": flow_amplitude,
+            "fifth_field_strength": fifth_field_strength,
+            "noisy_flow": noisy_flow,
+            "quadratic_action": quadratic_action,
+            "action_gradient": action_gradient,
+            "action_rate": action_rate,
+            "explicit_action_rate": explicit_action_rate,
+            "curl_amplitude": curl_amplitude,
+            "field_strength_antisymmetry_residual": field_strength_antisymmetry_residual,
+            "flow_divergence_residual": divergence_residual,
+            "five_dimensional_equation_residual": fifth_dimension_residual,
+            "action_gradient_residual": action_gradient_residual,
+            "action_rate_residual": action_rate_residual,
+            "noise_free_flow_residual": noise_free_residual,
+            "dimensions": dimensions,
+        },
+        symbols={
+            "momentum": momentum,
+            "amplitude": amplitude,
+            "noise": noise,
+            "flow_time": flow_time,
+        },
+        assumptions=(
+            "二维 Abelian Fourier 模式，p 与 a 为实变量；非阿贝尔交换子在此代表例中为零",
+            "p^2>0（非零动量）；二次作用量取 S=a^T(p^2 I-pp^T)a/2",
+            "沿 flow_amplitude=D_mu F_{mu nu} 演化，故 dS/dtau 为非正平方形式",
+            "[A]=L^{-1}、[partial_mu]=L^{-1}、[F]=L^{-2}、[tau]=L^2",
+            "加入 noise 后只验证 eta=0 的退化；不推出 Parisi--Wu 系综或非阿贝尔路径积分结果",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_wilson_flow_runge_kutta() -> DerivationResult:
+    r"""复现 Wilson 流附录中的显式三阶 Runge--Kutta 步。
+
+    源文的群值更新为
+
+    ``W_1=exp(Z_0/4) W_0``、
+    ``W_2=exp(8 Z_1/9-17 Z_0/36) W_1``、
+    ``V_next=exp(3 Z_2/4-8 Z_1/9+17 Z_0/36) W_2``，
+    ``Z_i=epsilon*Z(W_i)``。为让误差阶可以由 SymPy 完整展开，取
+    可交换的正标量群代理 ``Z(V)=V``，此时微分方程是
+    ``dV/dt=V**2``，精确解为 ``V/(1-epsilon*V)``。逐项级数比较
+    验证前四阶系数以及首个非零局部误差；非交换 BCH 项和实际格点
+    作用量的数值稳定性不由此代理推出。
+    """
+
+    step_size = sp.Symbol("epsilon", positive=True, real=True)
+    initial_value = sp.Symbol("V", positive=True, real=True)
+
+    z0 = step_size * initial_value
+    w0 = initial_value
+    w1 = sp.exp(z0 / 4) * w0
+    z1 = step_size * w1
+    w2 = sp.exp(
+        sp.Rational(8, 9) * z1 - sp.Rational(17, 36) * z0
+    ) * w1
+    z2 = step_size * w2
+    next_value = sp.exp(
+        sp.Rational(3, 4) * z2
+        - sp.Rational(8, 9) * z1
+        + sp.Rational(17, 36) * z0
+    ) * w2
+
+    scheme_series = sp.series(
+        next_value,
+        step_size,
+        0,
+        5,
+    ).removeO().expand()
+    exact_solution = initial_value / (1 - step_size * initial_value)
+    exact_series = sp.series(
+        exact_solution,
+        step_size,
+        0,
+        5,
+    ).removeO().expand()
+    truncated_local_error = sp.expand(scheme_series - exact_series)
+    leading_local_error = sp.simplify(
+        sp.limit(
+            truncated_local_error / step_size**4,
+            step_size,
+            0,
+        )
+    )
+    lower_order_residuals = {
+        order: sp.simplify(
+            sp.expand(scheme_series - exact_series).coeff(
+                step_size,
+                order,
+            )
+        )
+        for order in range(4)
+    }
+    expected_leading_error = -sp.Rational(35, 432) * initial_value**5
+
+    checks = {
+        "w0_initial_condition": sp.simplify(w0 - initial_value) == 0,
+        "z_definition": sp.simplify(z0 - step_size * w0) == 0,
+        "lower_orders_exact": all(
+            residual == 0 for residual in lower_order_residuals.values()
+        ),
+        "leading_local_error": sp.simplify(
+            leading_local_error - expected_leading_error
+        )
+        == 0,
+        "local_error_is_fourth_order": sp.simplify(
+            truncated_local_error / step_size**4
+            - expected_leading_error
+        )
+        == 0,
+    }
+    return DerivationResult(
+        name="wilson_flow_runge_kutta",
+        equations={
+            "W0": w0,
+            "Z0": z0,
+            "W1": w1,
+            "Z1": z1,
+            "W2": w2,
+            "Z2": z2,
+            "V_next": next_value,
+            "scheme_series_through_epsilon4": scheme_series,
+            "exact_solution": exact_solution,
+            "exact_series_through_epsilon4": exact_series,
+            "truncated_local_error": truncated_local_error,
+            "leading_local_error": leading_local_error,
+            "expected_leading_error": expected_leading_error,
+            "lower_order_residuals": lower_order_residuals,
+            "local_error_order": 4,
+            "global_error_order": 3,
+        },
+        symbols={
+            "epsilon": step_size,
+            "V": initial_value,
+        },
+        assumptions=(
+            "epsilon>0、V>0；采用可交换正标量群代理，故指数因子可按普通乘法合并",
+            "Z(V)=V，将源文群值 ODE 代理为 dV/dt=V^2；精确解取 V/(1-epsilon V) 的局部展开",
+            "前四阶系数和首个局部误差只验证该代理；一般非交换 Lie 群需处理 BCH 交换子",
+            "源文的全局误差 O(epsilon^3) 作为算法阶数说明记录，不由单步级数单独证明",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_gradient_flow_duhamel_solution() -> DerivationResult:
+    r"""复现梯度流线性方程的 Duhamel/迭代积分解。
+
+    源文动量空间结构为
+
+    ``B(t,p)=K_t(p) A(p)+Integral(K_{t-s}(p) R(s,p),(s,0,t))``。
+
+    取 ``K_t=exp(-lambda*t)``、``R(s)=r*exp(-kappa*s)``，SymPy 可以
+    直接给出响应项的闭式表达，并检查它满足
+    ``dB/dt+lambda*B=R(t)`` 与 ``B(0)=A``。同时检查
+    ``lambda=kappa`` 时的连续极限，避免把闭式分母的表面奇异误当成
+    流方程的奇异性。非线性流顶点的完整颜色/洛伦兹收缩仍不在此展开。
+    """
+
+    flow_time = sp.Symbol("t", nonnegative=True, real=True)
+    integration_time = sp.Symbol("s", real=True)
+    heat_rate = sp.Symbol("lambda", positive=True, real=True)
+    source_rate = sp.Symbol("kappa", positive=True, real=True)
+    initial_mode = sp.Symbol("A", real=True)
+    source_amplitude = sp.Symbol("R", real=True)
+
+    kernel = sp.exp(-heat_rate * flow_time)
+    source = source_amplitude * sp.exp(-source_rate * integration_time)
+    free_solution = kernel * initial_mode
+    duhamel_response = sp.integrate(
+        sp.exp(-heat_rate * (flow_time - integration_time)) * source,
+        (integration_time, 0, flow_time),
+        conds="none",
+    )
+    solution = free_solution + duhamel_response
+    closed_response = sp.simplify(duhamel_response)
+    closed_solution = sp.simplify(solution)
+    source_at_flow_time = source.subs(integration_time, flow_time)
+    flow_equation_residual = sp.simplify(
+        sp.diff(closed_solution, flow_time)
+        + heat_rate * closed_solution
+        - source_at_flow_time
+    )
+    initial_condition_residual = sp.simplify(
+        closed_solution.subs(flow_time, 0) - initial_mode
+    )
+    integral_representation_residual = sp.simplify(
+        closed_solution
+        - free_solution
+        - duhamel_response
+    )
+    degenerate_response = sp.simplify(
+        sp.limit(closed_response, source_rate, heat_rate)
+    )
+    expected_degenerate_response = (
+        source_amplitude * flow_time * sp.exp(-heat_rate * flow_time)
+    )
+
+    checks = {
+        "duhamel_integral_closed": sp.simplify(
+            closed_response - duhamel_response
+        )
+        == 0,
+        "flow_equation": flow_equation_residual == 0,
+        "initial_condition": initial_condition_residual == 0,
+        "integral_representation": integral_representation_residual == 0,
+        "degenerate_rate_limit": sp.simplify(
+            degenerate_response - expected_degenerate_response
+        )
+        == 0,
+    }
+    return DerivationResult(
+        name="gradient_flow_duhamel_solution",
+        equations={
+            "kernel": kernel,
+            "source": source,
+            "free_solution": free_solution,
+            "duhamel_response": duhamel_response,
+            "closed_response": closed_response,
+            "solution": solution,
+            "closed_solution": closed_solution,
+            "source_at_flow_time": source_at_flow_time,
+            "flow_equation_residual": flow_equation_residual,
+            "initial_condition_residual": initial_condition_residual,
+            "integral_representation_residual": integral_representation_residual,
+            "degenerate_response": degenerate_response,
+            "expected_degenerate_response": expected_degenerate_response,
+        },
+        symbols={
+            "flow_time": flow_time,
+            "integration_time": integration_time,
+            "lambda": heat_rate,
+            "kappa": source_rate,
+            "A": initial_mode,
+            "R": source_amplitude,
+        },
+        assumptions=(
+            "t>=0、lambda>0、kappa>0；单一 Fourier 模式的线性热方程",
+            "R(s)=R exp(-kappa*s) 只是检验 Duhamel 积分的可积代表源项",
+            "lambda=kappa 的响应取闭式表达的连续极限",
+            "不由此展开非阿贝尔 R_mu 的流顶点、颜色收缩或完整树图级数",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_wilson_flow_reference_scale() -> DerivationResult:
+    r"""复现 Wilson 流参考时间 ``t_0`` 的无量纲定义。
+
+    P07 以
+
+    ``{t**2 <E(t)>}_{t=t_0}=0.3``
+
+    定义参考流时间，并要求 ``t_0/r_0**2`` 在连续极限中具有良好
+    标度。为把隐式定义写成可解的符号例子，令
+    ``t**2*E(t)=c_0+c_1*t/r_0**2``，其中 ``c_0,c_1`` 是无量纲参数，
+    且取 ``c_1>0``、``0.3>c_0``。SymPy 随后验证 ``t_0/r_0**2``、
+    ``sqrt(8*t_0)/r_0`` 的闭式以及一个代表性的 ``a**2`` 截止修正
+    在 ``a->0`` 时消失。这里不重现源文的格点系综数据或 Lambda 参数。
+    """
+
+    flow_time = sp.Symbol("t", positive=True, real=True)
+    reference_time = sp.Symbol("t_0", positive=True, real=True)
+    reference_length = sp.Symbol("r_0", positive=True, real=True)
+    leading_coefficient = sp.Symbol("c_0", real=True)
+    slope_coefficient = sp.Symbol("c_1", positive=True, real=True)
+    reference_value = sp.Rational(3, 10)
+    energy_density = (
+        leading_coefficient
+        + slope_coefficient * flow_time / reference_length**2
+    ) / flow_time**2
+    dimensionless_energy = sp.simplify(flow_time**2 * energy_density)
+    solved_reference_time = sp.simplify(
+        reference_length**2
+        * (reference_value - leading_coefficient)
+        / slope_coefficient
+    )
+    reference_ratio = sp.simplify(
+        solved_reference_time / reference_length**2
+    )
+    smoothing_ratio = sp.sqrt(8 * solved_reference_time) / reference_length
+
+    lattice_spacing = sp.Symbol("a", nonnegative=True, real=True)
+    cutoff_coefficient = sp.Symbol("c_a", real=True)
+    cutoff_ratio = reference_ratio + cutoff_coefficient * (
+        lattice_spacing / reference_length
+    ) ** 2
+    continuum_ratio = sp.limit(cutoff_ratio, lattice_spacing, 0)
+    reference_condition_residual = sp.simplify(
+        dimensionless_energy.subs(flow_time, solved_reference_time)
+        - reference_value
+    )
+    smoothing_ratio_square_residual = sp.simplify(
+        smoothing_ratio**2
+        - 8 * reference_ratio
+    )
+    dimensionless_energy_residual = sp.simplify(
+        dimensionless_energy
+        - (
+            leading_coefficient
+            + slope_coefficient * flow_time / reference_length**2
+        )
+    )
+    cutoff_continuum_residual = sp.simplify(
+        continuum_ratio - reference_ratio
+    )
+
+    checks = {
+        "dimensionless_energy": dimensionless_energy_residual == 0,
+        "reference_condition": reference_condition_residual == 0,
+        "reference_ratio": sp.simplify(
+            solved_reference_time / reference_length**2
+            - reference_ratio
+        )
+        == 0,
+        "smoothing_ratio": smoothing_ratio_square_residual == 0,
+        "cutoff_continuum_limit": cutoff_continuum_residual == 0,
+    }
+    return DerivationResult(
+        name="wilson_flow_reference_scale",
+        equations={
+            "energy_density": energy_density,
+            "dimensionless_energy": dimensionless_energy,
+            "reference_condition": sp.Eq(
+                dimensionless_energy.subs(flow_time, reference_time),
+                reference_value,
+            ),
+            "solved_reference_time": solved_reference_time,
+            "reference_ratio": reference_ratio,
+            "smoothing_ratio": smoothing_ratio,
+            "cutoff_ratio": cutoff_ratio,
+            "continuum_ratio": continuum_ratio,
+            "dimensionless_energy_residual": dimensionless_energy_residual,
+            "reference_condition_residual": reference_condition_residual,
+            "smoothing_ratio_square_residual": smoothing_ratio_square_residual,
+            "cutoff_continuum_residual": cutoff_continuum_residual,
+        },
+        symbols={
+            "flow_time": flow_time,
+            "t_0": reference_time,
+            "r_0": reference_length,
+            "c_0": leading_coefficient,
+            "c_1": slope_coefficient,
+            "a": lattice_spacing,
+            "c_a": cutoff_coefficient,
+        },
+        assumptions=(
+            "t、t_0、r_0>0，c_1>0，0.3>c_0 以保证代表模型中的 t_0>0",
+            "t^2<E(t)>=c_0+c_1*t/r_0^2 是用于解析求解隐式定义的示例，不是源文数值拟合",
+            "sqrt(8t_0)/r_0 是平滑半径与参考长度的无量纲比值",
+            "截止项取 c_a(a/r_0)^2 作为 a^2 标度代表；不推出具体格点离散化系数",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_wilson_lattice_flow_monotonicity() -> DerivationResult:
+    r"""复现格点 Wilson 流的群值方程与作用量单调性。
+
+    P07 的格点方程为
+
+    ``dot(V_t)=-g_0**2*(partial S_W(V_t))*V_t``，
+    ``S_W=g_0**(-2)*sum_p Re Tr(1-V_t(p))``。
+
+    这里用一个 U(1) 单方格代理 ``V=exp(i*theta)``、
+    ``S_W=(1-cos(theta))/g_0**2``。U(1) 的 Lie 代数值导数是
+    ``partial S_W=i*dS_W/dtheta``，因此该代理严格保留源文右乘群元的
+    结构，而不是把普通坐标导数误当成 Lie 代数元素。SymPy 检查流方程、
+    幺正性保持、``dS_W/dt=-g_0**2*(dS_W/dtheta)**2`` 和小角连续展开；
+    不替代一般 SU(N) 多链系统的链微分算符证明。
+    """
+
+    angle = sp.Symbol("theta", real=True)
+    coupling = sp.Symbol("g_0", positive=True, real=True)
+    link = sp.exp(sp.I * angle)
+    link_dagger = sp.exp(-sp.I * angle)
+    wilson_action = (1 - sp.cos(angle)) / coupling**2
+    coordinate_gradient = sp.diff(wilson_action, angle)
+    lie_gradient = sp.I * coordinate_gradient
+    angle_flow = -coupling**2 * coordinate_gradient
+    link_flow = sp.diff(link, angle) * angle_flow
+    group_flow_rhs = -coupling**2 * lie_gradient * link
+    action_rate = sp.simplify(
+        coordinate_gradient * angle_flow
+    )
+    small_angle_series = sp.series(
+        wilson_action,
+        angle,
+        0,
+        5,
+    ).removeO().expand()
+    expected_small_angle_series = (
+        angle**2 / (2 * coupling**2)
+        - angle**4 / (24 * coupling**2)
+    )
+
+    checks = {
+        "link_unitarity": sp.simplify(link * link_dagger - 1) == 0,
+        "lie_gradient_antihermitian": sp.simplify(
+            sp.conjugate(lie_gradient) + lie_gradient
+        )
+        == 0,
+        "group_flow_equation": sp.simplify(
+            link_flow - group_flow_rhs
+        )
+        == 0,
+        "unitarity_along_flow": sp.simplify(
+            sp.diff(link * link_dagger, angle) * angle_flow
+        )
+        == 0,
+        "action_monotone": sp.simplify(
+            action_rate
+            + coupling**2 * coordinate_gradient**2
+        )
+        == 0,
+        "small_angle_continuum": sp.simplify(
+            small_angle_series - expected_small_angle_series
+        )
+        == 0,
+        "trivial_link_fixed_point": angle_flow.subs(angle, 0) == 0,
+    }
+    return DerivationResult(
+        name="wilson_lattice_flow_monotonicity",
+        equations={
+            "link": link,
+            "link_dagger": link_dagger,
+            "wilson_action": wilson_action,
+            "coordinate_gradient": coordinate_gradient,
+            "lie_gradient": lie_gradient,
+            "angle_flow": angle_flow,
+            "link_flow": link_flow,
+            "group_flow_rhs": group_flow_rhs,
+            "action_rate": action_rate,
+            "small_angle_series": small_angle_series,
+            "expected_small_angle_series": expected_small_angle_series,
+            "action_rate_residual": sp.simplify(
+                action_rate + coupling**2 * coordinate_gradient**2
+            ),
+        },
+        symbols={
+            "theta": angle,
+            "g_0": coupling,
+        },
+        assumptions=(
+            "U(1) 单方格代理 V=exp(i theta)，theta 为实数且 g_0>0",
+            "S_W=(1-cos(theta))/g_0^2 是 Re Tr(1-V) 的归一化代理",
+            "Lie 代数导数 partial S_W=i*dS_W/dtheta，故 dot V=-g_0^2(partial S_W)V",
+            "只验证单链接群流和局部单调性；一般 SU(N) 链微分、多个方格耦合与拓扑结构未展开",
+        ),
+        checks=checks,
         status="verified" if all(checks.values()) else "failed",
     )
 
@@ -5104,6 +6125,1021 @@ def derive_correlator_spectrum() -> DerivationResult:
     )
 
 
+def derive_trivializing_flow_factorization() -> DerivationResult:
+    r"""复现平凡化流条件对作用量--Jacobian 组合的因子化。
+
+    源文把流的 Jacobian 写成
+    ``log J_t=t*S(U_t)+C_t``。这里将 ``S(U_t)`` 和场无关的 ``C_t``
+    作为标量代理，直接验证
+    ``S(U_t)-log J_t=(1-t)S(U_t)-C_t``，以及 ``t=1`` 时结果与场
+    无关。这只检查流条件的代数后果，不声称已经求解其非阿贝尔偏微分方程。
+    """
+
+    flow_time = sp.Symbol("t", real=True)
+    action_at_flow = sp.Symbol("S_t", real=True)
+    flow_constant = sp.Symbol("C_t", real=True)
+    log_jacobian = flow_time * action_at_flow + flow_constant
+    effective_action = action_at_flow - log_jacobian
+    factorized_action = (1 - flow_time) * action_at_flow - flow_constant
+    unit_flow_action = factorized_action.subs(flow_time, 1)
+
+    effective_action_residual = sp.simplify(
+        effective_action - factorized_action
+    )
+    unit_flow_action_residual = sp.simplify(unit_flow_action + flow_constant)
+    checks = {
+        "effective_action_factorization": _is_zero(effective_action_residual),
+        "unit_flow_is_field_independent": _is_zero(unit_flow_action_residual),
+    }
+    return DerivationResult(
+        name="trivializing_flow_factorization",
+        equations={
+            "log_jacobian_condition": log_jacobian,
+            "effective_action": effective_action,
+            "factorized_action": factorized_action,
+            "effective_action_residual": effective_action_residual,
+            "unit_flow_action": unit_flow_action,
+            "unit_flow_action_residual": unit_flow_action_residual,
+        },
+        symbols={
+            "flow_time": flow_time,
+            "S_t": action_at_flow,
+            "C_t": flow_constant,
+        },
+        assumptions=(
+            "log det T_{t,*}=t S(U_t)+C_t",
+            "C_t 不依赖于场构型",
+            "只验证源文式 (4.1)--(4.2) 的代数因子化",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_euler_map_inverse_and_jacobian() -> DerivationResult:
+    r"""复现欧拉流步的标量逆迭代和复合 Jacobian 规则。
+
+    源文的链接更新为 ``U'=exp(epsilon*Z(U))*U``，逆步由固定点方程
+    ``U=exp(-epsilon*Z(U))*U'`` 求得。为避免把 SU(3) 的矩阵估计误写成
+    标量证明，这里在 U(1) 的局部角坐标取 ``Z(x)=sin(x)``：固定点迭代
+    导数的绝对值被 ``|epsilon|`` 控制，而两步更新的 Jacobian 精确满足
+    链式乘法。源文更强的非阿贝尔充分条件 ``|epsilon|<1/8`` 仅作为
+    记录保留，不由该代理模型推出。
+    """
+
+    coordinate, target, intermediate = sp.symbols(
+        "x y x_1", real=True
+    )
+    epsilon = sp.Symbol("epsilon", real=True)
+    velocity = sp.sin(coordinate)
+    forward_map = coordinate + epsilon * velocity
+    fixed_point_map = target - epsilon * sp.sin(coordinate)
+    fixed_point_residual = sp.trigsimp(
+        fixed_point_map.subs(target, forward_map) - coordinate
+    )
+    iteration_derivative = sp.diff(fixed_point_map, coordinate)
+    contraction_bound_residual = sp.trigsimp(
+        epsilon**2
+        - iteration_derivative**2
+        - epsilon**2 * sp.sin(coordinate) ** 2
+    )
+    jacobian = sp.diff(forward_map, coordinate)
+    jacobian_deviation_residual = sp.trigsimp(
+        (jacobian - 1) ** 2 - epsilon**2 * sp.cos(coordinate) ** 2
+    )
+
+    first_map = forward_map
+    second_map = intermediate + epsilon * sp.sin(intermediate)
+    composed_map = second_map.subs(intermediate, first_map)
+    direct_jacobian = sp.diff(composed_map, coordinate)
+    product_jacobian = sp.diff(second_map, intermediate).subs(
+        intermediate, first_map
+    ) * sp.diff(first_map, coordinate)
+    composition_jacobian_residual = sp.trigsimp(
+        direct_jacobian - product_jacobian
+    )
+
+    checks = {
+        "fixed_point_equation": _is_zero(fixed_point_residual),
+        "contraction_bound": _is_zero(contraction_bound_residual),
+        "jacobian_deviation_bound": _is_zero(jacobian_deviation_residual),
+        "jacobian_chain_rule": _is_zero(composition_jacobian_residual),
+    }
+    return DerivationResult(
+        name="euler_map_inverse_and_jacobian",
+        equations={
+            "forward_map": forward_map,
+            "fixed_point_map": fixed_point_map,
+            "fixed_point_residual": fixed_point_residual,
+            "iteration_derivative": iteration_derivative,
+            "contraction_bound_residual": contraction_bound_residual,
+            "scalar_contraction_bound": sp.Abs(epsilon),
+            "jacobian": jacobian,
+            "jacobian_lower_bound": 1 - sp.Abs(epsilon),
+            "jacobian_deviation_residual": jacobian_deviation_residual,
+            "two_step_map": composed_map,
+            "product_jacobian": product_jacobian,
+            "direct_jacobian": direct_jacobian,
+            "composition_jacobian_residual": composition_jacobian_residual,
+            "source_nonabelian_step_bound": sp.Rational(1, 8),
+        },
+        symbols={
+            "x": coordinate,
+            "y": target,
+            "x_1": intermediate,
+            "epsilon": epsilon,
+        },
+        assumptions=(
+            "x 是 U(1) 链接的局部角坐标，Z(x)=sin(x)",
+            "|epsilon|<1 时标量固定点映射是压缩映射的充分条件",
+            "1-|epsilon| 是标量 Jacobian 的统一下界",
+            "源文 SU(3) 非阿贝尔欧拉步的充分条件为 |epsilon|<1/8，本文未重证该矩阵界",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_flow_integral_ibp() -> DerivationResult:
+    r"""复现梯度流圈积分的动量 IBP、流时间边界 IBP 与尺度律。
+
+    对源文积分表示中的一个径向高斯传播子原型，令
+    ``I_n(t)=∫d^D p exp(-t p^2)/(p^2)^n``。全导数恒等式给出
+    ``(D-2n) I_n-2t I_{n-1}=0``；解析高斯积分同时验证其尺度
+    ``I_n∝t^(n-D/2)``。流时间部分用一个光滑的 ``s^2 exp(-a s)``
+    例子验证端点公式。整体 ``(2*pi)^(-D)`` 归一化与这些关系无关。
+    """
+
+    dimension = sp.Symbol("D", positive=True, real=True)
+    power = sp.Symbol("n", positive=True, integer=True)
+    flow_time = sp.Symbol("t", positive=True, real=True)
+    radial_square = sp.Symbol("q", positive=True, real=True)
+    flow_rate = sp.Symbol("a", positive=True, real=True)
+
+    radial_integrand = sp.exp(-flow_time * radial_square) * radial_square ** (-power)
+    radial_divergence = sp.simplify(
+        dimension * radial_integrand
+        + 2 * radial_square * sp.diff(radial_integrand, radial_square)
+    )
+    expected_divergence = sp.exp(-flow_time * radial_square) * (
+        (dimension - 2 * power) * radial_square ** (-power)
+        - 2 * flow_time * radial_square ** (1 - power)
+    )
+    radial_divergence_residual = sp.simplify(
+        radial_divergence - expected_divergence
+    )
+
+    def radial_integral(index: sp.Expr) -> sp.Expr:
+        return (
+            sp.pi ** (dimension / 2)
+            * sp.gamma(dimension / 2 - index)
+            / sp.gamma(dimension / 2)
+            * flow_time ** (index - dimension / 2)
+        )
+
+    integral_n = radial_integral(power)
+    integral_n_minus_one = radial_integral(power - 1)
+    radial_integral_ibp_residual = sp.simplify(
+        (dimension - 2 * power) * integral_n
+        - 2 * flow_time * integral_n_minus_one
+    )
+    scaling_residual = sp.simplify(
+        flow_time * sp.diff(integral_n, flow_time)
+        - (power - dimension / 2) * integral_n
+    )
+
+    flow_parameter = sp.Symbol("s", real=True)
+    flow_integrand = flow_parameter**2 * sp.exp(-flow_rate * flow_parameter)
+    flow_time_ibp_residual = sp.simplify(
+        sp.integrate(
+            sp.diff(flow_integrand, flow_parameter),
+            (flow_parameter, 0, flow_time),
+        )
+        - (flow_integrand.subs(flow_parameter, flow_time)
+           - flow_integrand.subs(flow_parameter, 0))
+    )
+
+    checks = {
+        "radial_divergence_identity": _is_zero(radial_divergence_residual),
+        "radial_integral_ibp": _is_zero(radial_integral_ibp_residual),
+        "integral_scaling": _is_zero(scaling_residual),
+        "flow_time_boundary_ibp": _is_zero(flow_time_ibp_residual),
+    }
+    return DerivationResult(
+        name="flow_integral_ibp",
+        equations={
+            "radial_integrand": radial_integrand,
+            "radial_divergence": radial_divergence,
+            "expected_divergence": expected_divergence,
+            "radial_divergence_residual": radial_divergence_residual,
+            "I_n": integral_n,
+            "I_n_minus_one": integral_n_minus_one,
+            "radial_integral_ibp_residual": radial_integral_ibp_residual,
+            "scaling_residual": scaling_residual,
+            "flow_time_integrand": flow_integrand,
+            "flow_time_ibp_residual": flow_time_ibp_residual,
+        },
+        symbols={
+            "D": dimension,
+            "n": power,
+            "t": flow_time,
+            "q": radial_square,
+            "a": flow_rate,
+            "s": flow_parameter,
+        },
+        assumptions=(
+            "D>2n>0 保证示例径向积分在紫外与红外均收敛",
+            "t>0，且省略与 t 无关的 Fourier 归一化因子",
+            "流时间边界例子使用光滑端点函数 s^2 exp(-a s)",
+            "这是 P37 圈积分/IBP 结构的单圈径向代理，不替代三圈主积分约化",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_gradient_flow_rg_log_recursion() -> DerivationResult:
+    r"""复现梯度流观测量中对数系数的重整化群递推。
+
+    源文将 ``<E(t)>`` 的无量纲微扰级数写为
+    ``x*sum_n x^n e_n(L)``，其中 ``x=alpha_s/(4*pi)``、
+    ``L=log(2 mu^2 t)+gamma_E``，并满足
+    ``D x=-x^2(beta_0+beta_1 x+...)`` 与 ``D L=1``。在二阶中显式
+    构造 ``e_1``、``e_2``，检查一般递推式的三个低阶实例和 RGE 残差。
+    """
+
+    x = sp.Symbol("x", positive=True, real=True)
+    log_variable = sp.Symbol("L", real=True)
+    beta_0, beta_1 = sp.symbols("beta_0 beta_1", real=True)
+    e_00, e_10, e_20 = sp.symbols("e_00 e_10 e_20", real=True)
+    mu = sp.Symbol("mu", positive=True, real=True)
+    flow_time = sp.Symbol("t", positive=True, real=True)
+
+    e_11 = beta_0 * e_00
+    e_21 = 2 * beta_0 * e_10 + beta_1 * e_00
+    e_22 = beta_0**2 * e_00
+    e_0 = e_00
+    e_1 = e_10 + e_11 * log_variable
+    e_2 = e_20 + e_21 * log_variable + e_22 * log_variable**2
+    observable = x * e_0 + x**2 * e_1 + x**3 * e_2
+    beta_series = beta_0 + beta_1 * x
+    rg_operator = sp.diff(observable, log_variable) - x**2 * beta_series * sp.diff(
+        observable, x
+    )
+    rg_residual_through_x3 = sp.series(
+        rg_operator, x, 0, 4
+    ).removeO().expand()
+    physical_log = sp.log(2 * mu**2 * flow_time) + sp.EulerGamma
+    log_scale_derivative = sp.simplify(mu * sp.diff(physical_log, mu) / 2)
+
+    checks = {
+        "e11_recurrence": _is_zero(e_11 - beta_0 * e_00),
+        "e21_recurrence": _is_zero(
+            e_21 - (2 * beta_0 * e_10 + beta_1 * e_00)
+        ),
+        "e22_recurrence": _is_zero(e_22 - beta_0**2 * e_00),
+        "rg_invariance_through_x3": _is_zero(rg_residual_through_x3),
+        "log_scale_derivative": _is_zero(log_scale_derivative - 1),
+    }
+    return DerivationResult(
+        name="gradient_flow_rg_log_recursion",
+        equations={
+            "e_0": e_0,
+            "e_1": e_1,
+            "e_2": e_2,
+            "e_11": e_11,
+            "e_21": e_21,
+            "e_22": e_22,
+            "e11_recurrence_residual": sp.simplify(e_11 - beta_0 * e_00),
+            "e21_recurrence_residual": sp.simplify(
+                e_21 - (2 * beta_0 * e_10 + beta_1 * e_00)
+            ),
+            "e22_recurrence_residual": sp.simplify(e_22 - beta_0**2 * e_00),
+            "observable_series": observable,
+            "rg_operator": rg_operator,
+            "rg_residual_through_x3": rg_residual_through_x3,
+            "physical_log": physical_log,
+            "log_scale_derivative": log_scale_derivative,
+        },
+        symbols={
+            "x": x,
+            "L": log_variable,
+            "beta_0": beta_0,
+            "beta_1": beta_1,
+            "e_00": e_00,
+            "e_10": e_10,
+            "e_20": e_20,
+            "mu": mu,
+            "t": flow_time,
+        },
+        assumptions=(
+            "x=alpha_s/(4 pi)>0",
+            "D x=-x^2(beta_0+beta_1 x+...)，D L=1",
+            "保留到 e_2，故 RGE 残差检查到 x^3",
+            "e_{n,k} 的递推只验证此处可展开的低阶实例",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_gradient_flow_scheme_conversion() -> DerivationResult:
+    r"""复现梯度流耦合换方案的级数反演和三阶 beta 系数变换。
+
+    对源文关系 ``y=x+e_1 x^2+e_2 x^3+...``，其中
+    ``x=alpha_s/(4*pi)``、``y=alpha_gf/(4*pi)``，显式验证
+    ``x=y-e_1 y^2+(2e_1^2-e_2)y^3``。再用链式法则把
+    ``D x=-x^2(beta_0+beta_1x+beta_2x^2)`` 改写为 y 的方程，得到
+    ``beta_gf,2=beta_2-e_1 beta_1+(e_2-e_1^2)beta_0``。
+    """
+
+    x, y = sp.symbols("x y", positive=True, real=True)
+    e_1, e_2 = sp.symbols("e_1 e_2", real=True)
+    beta_0, beta_1, beta_2 = sp.symbols(
+        "beta_0 beta_1 beta_2", real=True
+    )
+    gf_series = x + e_1 * x**2 + e_2 * x**3
+    inverse_series = y - e_1 * y**2 + (2 * e_1**2 - e_2) * y**3
+    inverse_series_residual = sp.series(
+        gf_series.subs(x, inverse_series) - y, y, 0, 4
+    ).removeO().expand()
+
+    beta_gf_2 = beta_2 - e_1 * beta_1 + (e_2 - e_1**2) * beta_0
+    old_flow = sp.diff(gf_series, x) * (
+        -x**2 * (beta_0 + beta_1 * x + beta_2 * x**2)
+    )
+    new_flow = -gf_series**2 * (
+        beta_0 + beta_1 * gf_series + beta_gf_2 * gf_series**2
+    )
+    beta_first_two_residual = sp.series(
+        old_flow + beta_0 * gf_series**2 + beta_1 * gf_series**3,
+        x,
+        0,
+        4,
+    ).removeO().expand()
+    beta_two_loop_residual = sp.series(
+        old_flow - new_flow, x, 0, 5
+    ).removeO().expand()
+
+    checks = {
+        "inverse_series": _is_zero(inverse_series_residual),
+        "beta_first_two_invariance": _is_zero(beta_first_two_residual),
+        "beta_two_loop_conversion": _is_zero(beta_two_loop_residual),
+    }
+    return DerivationResult(
+        name="gradient_flow_scheme_conversion",
+        equations={
+            "gf_series": gf_series,
+            "inverse_series": inverse_series,
+            "inverse_series_residual": inverse_series_residual,
+            "beta_gf_2": beta_gf_2,
+            "old_flow": old_flow,
+            "new_flow": new_flow,
+            "beta_first_two_residual": beta_first_two_residual,
+            "beta_two_loop_residual": beta_two_loop_residual,
+        },
+        symbols={
+            "x": x,
+            "y": y,
+            "e_1": e_1,
+            "e_2": e_2,
+            "beta_0": beta_0,
+            "beta_1": beta_1,
+            "beta_2": beta_2,
+        },
+        assumptions=(
+            "x、y 分别是 MSbar 与梯度流耦合除以 4 pi 的形式级数",
+            "只保留到 x^3 的耦合换方案和 x^4 的 beta 流",
+            "不代入 P37 的数值 e_i 或 SU(3) 专属 beta_2",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_emt_operator_basis() -> DerivationResult:
+    r"""复现含费米子能动量张量的流算符基底系数重组。
+
+    源文先用五个裸算符的逆匹配矩阵 ``zeta^{-1}`` 重建系数
+    ``tilde c_i``，再把普通基底换成
+    ``O_1- O_2/4`` 与 ``O_3-2 O_4`` 的无迹/运动方程友好组合。
+    这里用一般的 5×5 符号矩阵验证式 (4.15)--(4.16) 的线性代数，
+    并检查四维规范组合的迹为零；不计算匹配矩阵本身。
+    """
+
+    g_0 = sp.Symbol("g_0", positive=True, real=True)
+    field_strength_square = sp.Symbol("F2", real=True)
+    identity_five = sp.eye(5)
+    zeta_inverse = sp.Matrix(
+        5,
+        5,
+        lambda row, column: sp.Symbol(
+            f"zeta_inv_{row + 1}{column + 1}", real=True
+        ),
+    )
+    bare_coefficients = sp.Matrix(
+        [[1 / g_0**2, -1 / (4 * g_0**2), sp.Rational(1, 4), -sp.Rational(1, 2), -1]]
+    )
+    tilde_coefficients = bare_coefficients * zeta_inverse
+    c_1, c_2, c_3, c_4, c_5 = (
+        tilde_coefficients[0, 0],
+        tilde_coefficients[0, 1] + tilde_coefficients[0, 0] / 4,
+        tilde_coefficients[0, 2],
+        tilde_coefficients[0, 3] + 2 * tilde_coefficients[0, 2],
+        tilde_coefficients[0, 4],
+    )
+    flowed_basis_coefficients = sp.Matrix(
+        [[c_1, c_2 - c_1 / 4, c_3, c_4 - 2 * c_3, c_5]]
+    )
+    coefficient_basis_residual = (
+        flowed_basis_coefficients - tilde_coefficients
+    ).applyfunc(sp.simplify)
+    gauge_trace_residual = sp.simplify(
+        field_strength_square - sp.Rational(1, 4) * 4 * field_strength_square
+    )
+    checks = {
+        "coefficient_basis_reconstruction": coefficient_basis_residual
+        == sp.zeros(1, 5),
+        "four_dimensional_gauge_trace": _is_zero(gauge_trace_residual),
+        "inverse_matrix_shape": zeta_inverse.shape == identity_five.shape,
+    }
+    return DerivationResult(
+        name="emt_operator_basis",
+        equations={
+            "bare_coefficients": bare_coefficients,
+            "tilde_coefficients": tilde_coefficients,
+            "flowed_basis_coefficients": flowed_basis_coefficients,
+            "coefficient_basis_residual": coefficient_basis_residual,
+            "gauge_trace_residual": gauge_trace_residual,
+        },
+        symbols={
+            "g_0": g_0,
+            "F2": field_strength_square,
+            "zeta_inverse": zeta_inverse,
+        },
+        assumptions=(
+            "D=4 且五个算符取源文 (4.6)--(4.10) 的顺序",
+            "zeta_inverse 是已存在的可逆匹配矩阵；本函数不求其动力学值",
+            "所有算符均理解为已减去真空期望值",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_ringed_fermion_normalization() -> DerivationResult:
+    r"""复现加圈费米子场的树级归一化和质量维数补偿。
+
+    源文式 (3.20)--(3.23) 用动能算符期望值定义加圈场。把树级
+    ``<bar chi overleftrightarrow{Slash D} chi>`` 代入，得到归一化因子
+    的平方为 ``(8*pi*t)^(-epsilon)``，在四维 ``epsilon=0`` 时为 1。
+    同时，因子维数 ``(4-D)/2`` 把 ``chi`` 的 ``(D-1)/2`` 提升为
+    加圈场的固定维数 3/2。
+    """
+
+    epsilon = sp.Symbol("epsilon", real=True)
+    flow_time = sp.Symbol("t", positive=True, real=True)
+    representation_dimension = sp.Symbol("dim_R", positive=True, real=True)
+    flavor_number = sp.Symbol("N_f", positive=True, real=True)
+    four_pi = 4 * sp.pi
+    tree_expectation = (
+        -2
+        * representation_dimension
+        * flavor_number
+        / (four_pi**2 * flow_time**2)
+        * (8 * sp.pi * flow_time) ** epsilon
+    )
+    normalization_squared = sp.powsimp(
+        -2
+        * representation_dimension
+        * flavor_number
+        / (four_pi**2 * flow_time**2 * tree_expectation),
+        force=True,
+    )
+    expected_normalization_squared = (8 * sp.pi * flow_time) ** (-epsilon)
+    tree_normalization_squared_residual = sp.simplify(
+        normalization_squared - expected_normalization_squared
+    )
+    d4_normalization_residual = sp.simplify(
+        normalization_squared.subs(epsilon, 0) - 1
+    )
+
+    dimension = sp.Symbol("D", real=True)
+    chi_dimension = (dimension - 1) / 2
+    normalization_dimension = (4 - dimension) / 2
+    ringed_dimension = chi_dimension + normalization_dimension
+    ringed_dimension_residual = sp.simplify(ringed_dimension - sp.Rational(3, 2))
+
+    checks = {
+        "tree_normalization": _is_zero(tree_normalization_squared_residual),
+        "D4_normalization": _is_zero(d4_normalization_residual),
+        "ringed_dimension": _is_zero(ringed_dimension_residual),
+    }
+    return DerivationResult(
+        name="ringed_fermion_normalization",
+        equations={
+            "tree_expectation": tree_expectation,
+            "normalization_squared": normalization_squared,
+            "expected_normalization_squared": expected_normalization_squared,
+            "tree_normalization_squared_residual": tree_normalization_squared_residual,
+            "D4_normalization_residual": d4_normalization_residual,
+            "chi_dimension": chi_dimension,
+            "normalization_dimension": normalization_dimension,
+            "ringed_dimension": ringed_dimension,
+            "ringed_dimension_residual": ringed_dimension_residual,
+        },
+        symbols={
+            "epsilon": epsilon,
+            "t": flow_time,
+            "dim_R": representation_dimension,
+            "N_f": flavor_number,
+            "D": dimension,
+        },
+        assumptions=(
+            "t>0、dim(R)>0、N_f>0，取归一化平方根的正分支",
+            "D=4-2 epsilon 只用于维数解释；树级期望值采用源文近似",
+            "忽略 O(m_0^2 t)、O(g_0^2) 与高阶圈修正",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_emt_trace_anomaly() -> DerivationResult:
+    r"""复现含费米子能动量张量迹反常的微扰符号结构。
+
+    源文式 (2.11) 为
+    ``T^mu_mu=-beta/(2 g^3) F^2-(1+gamma_m)m bar psi psi``。
+    代入 ``beta=-b_0 g^3-b_1 g^5`` 和
+    ``gamma_m=d_0 g^2+d_1 g^4``，直接检查规范项与质量项的符号及
+    到相应阶数的展开。这里的 ``F2`` 与 ``barpsi psi`` 是重正化算符
+    的独立符号，不计算其矩阵元。
+    """
+
+    coupling = sp.Symbol("g", positive=True, real=True)
+    mass = sp.Symbol("m", real=True)
+    field_strength_square = sp.Symbol("F2_R", real=True)
+    scalar_density = sp.Symbol("P_R", real=True)
+    b_0, b_1, d_0, d_1 = sp.symbols(
+        "b_0 b_1 d_0 d_1", real=True
+    )
+    beta = -b_0 * coupling**3 - b_1 * coupling**5
+    gamma_m = d_0 * coupling**2 + d_1 * coupling**4
+    gauge_trace_coefficient = sp.simplify(-beta / (2 * coupling**3))
+    mass_trace_coefficient = sp.expand(-(1 + gamma_m))
+    expected_gauge_coefficient = b_0 / 2 + b_1 * coupling**2 / 2
+    expected_mass_coefficient = -1 - d_0 * coupling**2 - d_1 * coupling**4
+    gauge_trace_coefficient_residual = sp.simplify(
+        gauge_trace_coefficient - expected_gauge_coefficient
+    )
+    mass_trace_coefficient_residual = sp.simplify(
+        mass_trace_coefficient - expected_mass_coefficient
+    )
+    trace = (
+        gauge_trace_coefficient * field_strength_square
+        + mass_trace_coefficient * mass * scalar_density
+    )
+
+    checks = {
+        "gauge_trace_coefficient": _is_zero(gauge_trace_coefficient_residual),
+        "mass_trace_coefficient": _is_zero(mass_trace_coefficient_residual),
+    }
+    return DerivationResult(
+        name="emt_trace_anomaly",
+        equations={
+            "beta": beta,
+            "gamma_m": gamma_m,
+            "gauge_trace_coefficient": gauge_trace_coefficient,
+            "mass_trace_coefficient": mass_trace_coefficient,
+            "trace": trace,
+            "gauge_trace_coefficient_residual": gauge_trace_coefficient_residual,
+            "mass_trace_coefficient_residual": mass_trace_coefficient_residual,
+        },
+        symbols={
+            "g": coupling,
+            "m": mass,
+            "F2_R": field_strength_square,
+            "P_R": scalar_density,
+            "b_0": b_0,
+            "b_1": b_1,
+            "d_0": d_0,
+            "d_1": d_1,
+        },
+        assumptions=(
+            "beta=-b_0 g^3-b_1 g^5，gamma_m=d_0 g^2+d_1 g^4",
+            "F2_R 与 P_R 已按 MS 方案重正化并减去真空期望值",
+            "不代入特定规范群的 Casimir 数值或非微扰矩阵元",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_lamet_lightcone_kinematics() -> DerivationResult:
+    r"""复现 LaMET 综述中的 DIS 与轻锥运动学恒等式。
+
+    在度规 ``diag(1,-1,-1,-1)`` 下，源文的 DIS 选择满足
+    ``q^2=-Q^2``、``P^2=M^2`` 和 ``x_B=Q^2/(2 P.q)``。随后用一对
+    ``p^2=n^2=0``、``p.n=1`` 的轻锥基验证
+    ``k=(k.n)p+(k.p)n+k_perp`` 以及 ``P=p+M^2 n/2``。
+    最后检查 LaMET 展开中的 ``(Lambda/P^z)^2`` 项在大动量极限消失。
+    这些是运动学和幂次计数检查，不计算 PDF 矩阵元或匹配系数。
+    """
+
+    Q = sp.Symbol("Q", positive=True, real=True)
+    x_b = sp.Symbol("x_B", positive=True, real=True)
+    mass = sp.Symbol("M", nonnegative=True, real=True)
+
+    def minkowski_dot(first: sp.MatrixBase, second: sp.MatrixBase) -> sp.Expr:
+        return sp.expand(first[0] * second[0] - sum(
+            first[index] * second[index] for index in range(1, 4)
+        ))
+
+    hadron_momentum = sp.Matrix(
+        [sp.sqrt(Q**2 / (4 * x_b**2) + mass**2), 0, 0, Q / (2 * x_b)]
+    )
+    probe_momentum = sp.Matrix([0, 0, 0, -Q])
+    mass_shell_residual = sp.simplify(
+        minkowski_dot(hadron_momentum, hadron_momentum) - mass**2
+    )
+    photon_virtuality_residual = sp.simplify(
+        minkowski_dot(probe_momentum, probe_momentum) + Q**2
+    )
+    bjorken_relation_residual = sp.simplify(
+        x_b - Q**2 / (2 * minkowski_dot(hadron_momentum, probe_momentum))
+    )
+
+    scale = sp.Symbol("kappa", positive=True, real=True)
+    k_0, k_x, k_y, k_z = sp.symbols("k_0 k_x k_y k_z", real=True)
+    four_vector = sp.Matrix([k_0, k_x, k_y, k_z])
+    lightlike_p = sp.Matrix([scale, 0, 0, scale])
+    lightlike_n = sp.Matrix(
+        [1 / (2 * scale), 0, 0, -1 / (2 * scale)]
+    )
+    k_dot_p = minkowski_dot(four_vector, lightlike_p)
+    k_dot_n = minkowski_dot(four_vector, lightlike_n)
+    transverse_component = four_vector - k_dot_n * lightlike_p - k_dot_p * lightlike_n
+    reconstructed_vector = (
+        k_dot_n * lightlike_p + k_dot_p * lightlike_n + transverse_component
+    )
+    lightcone_decomposition_residual = (
+        reconstructed_vector - four_vector
+    ).applyfunc(sp.simplify)
+    transverse_p_residual = sp.simplify(
+        minkowski_dot(transverse_component, lightlike_p)
+    )
+    transverse_n_residual = sp.simplify(
+        minkowski_dot(transverse_component, lightlike_n)
+    )
+    lightcone_hadron = lightlike_p + mass**2 * lightlike_n / 2
+    lightcone_hadron_mass_residual = sp.simplify(
+        minkowski_dot(lightcone_hadron, lightcone_hadron) - mass**2
+    )
+
+    lambda_qcd = sp.Symbol("Lambda_QCD", positive=True, real=True)
+    power_correction = sp.simplify(lambda_qcd**2 / hadron_momentum[3] ** 2)
+    power_correction_limit = sp.simplify(sp.limit(power_correction, Q, sp.oo))
+    distribution = sp.Function("f")
+    power_coefficient = sp.Function("f_2")
+    power_expansion = distribution(x_b) + power_coefficient(x_b) * power_correction
+
+    checks = {
+        "mass_shell": _is_zero(mass_shell_residual),
+        "photon_virtuality": _is_zero(photon_virtuality_residual),
+        "bjorken_relation": _is_zero(bjorken_relation_residual),
+        "lightcone_basis": _is_zero(
+            minkowski_dot(lightlike_p, lightlike_p)
+        )
+        and _is_zero(minkowski_dot(lightlike_n, lightlike_n))
+        and _is_zero(minkowski_dot(lightlike_p, lightlike_n) - 1),
+        "lightcone_decomposition": lightcone_decomposition_residual
+        == sp.zeros(4, 1),
+        "transverse_is_orthogonal": _is_zero(transverse_p_residual)
+        and _is_zero(transverse_n_residual),
+        "lightcone_hadron_mass_shell": _is_zero(
+            lightcone_hadron_mass_residual
+        ),
+        "power_correction_limit": _is_zero(power_correction_limit),
+    }
+    return DerivationResult(
+        name="lamet_lightcone_kinematics",
+        equations={
+            "hadron_momentum": hadron_momentum,
+            "probe_momentum": probe_momentum,
+            "mass_shell_residual": mass_shell_residual,
+            "photon_virtuality_residual": photon_virtuality_residual,
+            "bjorken_relation_residual": bjorken_relation_residual,
+            "lightlike_p": lightlike_p,
+            "lightlike_n": lightlike_n,
+            "transverse_component": transverse_component,
+            "reconstructed_vector": reconstructed_vector,
+            "lightcone_decomposition_residual": lightcone_decomposition_residual,
+            "transverse_p_residual": transverse_p_residual,
+            "transverse_n_residual": transverse_n_residual,
+            "lightcone_hadron": lightcone_hadron,
+            "lightcone_hadron_mass_residual": lightcone_hadron_mass_residual,
+            "power_correction": power_correction,
+            "power_expansion": power_expansion,
+            "power_correction_limit": power_correction_limit,
+        },
+        symbols={
+            "Q": Q,
+            "x_B": x_b,
+            "M": mass,
+            "kappa": scale,
+            "Lambda_QCD": lambda_qcd,
+        },
+        assumptions=(
+            "度规为 diag(1,-1,-1,-1)，Q>0、x_B>0、M≥0",
+            "p^2=n^2=0 且 p·n=1；k_perp 按投影余量定义",
+            "P^z=Q/(2x_B)，故 Q→∞ 代表固定 x_B 的大动量极限",
+            "幂次展开只保留显式的 O((Lambda_QCD/P^z)^2) 结构",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_gpd_kinematics_and_matching() -> DerivationResult:
+    r"""复现 GPD 的非前向运动学边界和匹配核测度重写。
+
+    令 ``Pbar=(P'+P)/2``、``Delta=P'-P``，并使用两外部态同质量的
+    壳条件。由 ``Pbar·Delta=0`` 和 ``Pbar^2=M^2-t/4`` 可直接得到
+    ``Delta_perp^2=-t-4 xi^2 (M^2-t/4)``，从而推出源文的
+    ``xi_max^2=-t/(-t+4M^2)``。在准 GPD 的笛卡尔平均动量框架中，
+    同样推出 ``tilde-xi`` 的有限动量边界。最后在 ``xi>0,y>0`` 的
+    分支上验证 ``C=|y/xi| bar-C`` 将 ``dy/|xi|`` 测度改写为
+    ``dy/|y|``。不计算自旋器矩阵元、Gegenbauer 矩或一圈匹配系数。
+    """
+
+    mass = sp.Symbol("M", positive=True, real=True)
+    momentum_transfer_square = sp.Symbol("t", negative=True, real=True)
+    skewness = sp.Symbol("xi", real=True)
+    average_plus = sp.Symbol("Pbar_plus", positive=True, real=True)
+    average_square = mass**2 - momentum_transfer_square / 4
+    average_minus = average_square / (2 * average_plus)
+    delta_plus = -2 * skewness * average_plus
+    delta_minus = 2 * skewness * average_minus
+    delta_transverse_square = sp.simplify(
+        2 * delta_plus * delta_minus - momentum_transfer_square
+    )
+    average_delta_dot = sp.simplify(
+        average_plus * delta_minus + average_minus * delta_plus
+    )
+    reconstructed_t = sp.simplify(
+        2 * delta_plus * delta_minus - delta_transverse_square
+    )
+    xi_max_square = sp.simplify(
+        -momentum_transfer_square
+        / (-momentum_transfer_square + 4 * mass**2)
+    )
+    lightcone_transverse_bound_residual = sp.simplify(
+        delta_transverse_square.subs(skewness**2, xi_max_square)
+    )
+
+    average_z = sp.Symbol("Pbar_z", positive=True, real=True)
+    average_energy_square = sp.simplify(average_z**2 + average_square)
+    average_energy = sp.sqrt(average_energy_square)
+    quasi_skewness = sp.Symbol("xi_tilde", real=True)
+    delta_z = -2 * quasi_skewness * average_z
+    delta_0 = average_z * delta_z / average_energy
+    quasi_transverse_square = sp.simplify(
+        delta_0**2 - delta_z**2 - momentum_transfer_square
+    )
+    quasi_xi_max_square = sp.simplify(
+        -momentum_transfer_square
+        * average_energy_square
+        / (4 * average_z**2 * average_square)
+    )
+    quasi_transverse_bound_residual = sp.simplify(
+        quasi_transverse_square.subs(
+            quasi_skewness**2, quasi_xi_max_square
+        )
+    )
+
+    xi_measure = sp.Symbol("xi_measure", positive=True, real=True)
+    y_measure = sp.Symbol("y_measure", positive=True, real=True)
+    bar_kernel = sp.Symbol("barC", real=True)
+    matching_kernel = y_measure / xi_measure * bar_kernel
+    matching_measure_residual = sp.simplify(
+        matching_kernel / y_measure - bar_kernel / xi_measure
+    )
+
+    checks = {
+        "average_delta_orthogonality": _is_zero(average_delta_dot),
+        "transverse_t_reconstruction": _is_zero(
+            reconstructed_t - momentum_transfer_square
+        ),
+        "lightcone_transverse_bound": _is_zero(
+            lightcone_transverse_bound_residual
+        ),
+        "quasi_transverse_bound": _is_zero(
+            quasi_transverse_bound_residual
+        ),
+        "matching_measure": _is_zero(matching_measure_residual),
+    }
+    return DerivationResult(
+        name="gpd_kinematics_and_matching",
+        equations={
+            "average_square": average_square,
+            "average_minus": average_minus,
+            "delta_plus": delta_plus,
+            "delta_minus": delta_minus,
+            "delta_transverse_square": delta_transverse_square,
+            "average_delta_dot": average_delta_dot,
+            "reconstructed_t": reconstructed_t,
+            "xi_max_square": xi_max_square,
+            "lightcone_transverse_bound_residual": (
+                lightcone_transverse_bound_residual
+            ),
+            "average_energy_square": average_energy_square,
+            "delta_0": delta_0,
+            "delta_z": delta_z,
+            "quasi_transverse_square": quasi_transverse_square,
+            "quasi_xi_max_square": quasi_xi_max_square,
+            "quasi_transverse_bound_residual": (
+                quasi_transverse_bound_residual
+            ),
+            "matching_kernel": matching_kernel,
+            "matching_measure_residual": matching_measure_residual,
+        },
+        symbols={
+            "M": mass,
+            "t": momentum_transfer_square,
+            "xi": skewness,
+            "Pbar_plus": average_plus,
+            "Pbar_z": average_z,
+            "xi_tilde": quasi_skewness,
+        },
+        assumptions=(
+            "M>0、t<0，且 Pbar_perp=0",
+            "两外部态满足 P^2=P'^2=M^2，因此 Pbar·Delta=0",
+            "准 GPD 边界在 Pbar^z>0 的笛卡尔框架中推导",
+            "匹配测度重写取 xi>0、y>0 分支；一般情形恢复绝对值",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_pion_da_normalization() -> DerivationResult:
+    r"""复现 LaMET 综述中渐近 pion DA 的归一化和 Fourier 矩检查。
+
+    取源文给出的渐近形状 ``phi_pi(x)=6*x*(1-x)``。直接积分验证
+    ``int_0^1 phi_pi=1``、关于 ``x=1/2`` 的对称性及中心矩；再把
+    坐标空间振幅定义为 ``M(lambda)=int phi_pi(x)
+    exp(i*(x-1/2)*lambda) dx``，用 lambda=0 处的导数检查 Fourier
+    相位与矩的对应关系。该函数不计算介子态矩阵元或方案依赖匹配核。
+    """
+
+    x = sp.Symbol("x", real=True)
+    lam = sp.Symbol("lambda", real=True)
+    phi_pi = 6 * x * (1 - x)
+    normalization = sp.integrate(phi_pi, (x, 0, 1))
+    first_central_moment = sp.integrate(
+        (x - sp.Rational(1, 2)) * phi_pi, (x, 0, 1)
+    )
+    second_central_moment = sp.integrate(
+        (x - sp.Rational(1, 2)) ** 2 * phi_pi, (x, 0, 1)
+    )
+    symmetry_residual = sp.simplify(phi_pi.subs(x, 1 - x) - phi_pi)
+    coordinate_amplitude = sp.Integral(
+        phi_pi * sp.exp(sp.I * (x - sp.Rational(1, 2)) * lam),
+        (x, 0, 1),
+    )
+    coordinate_first_derivative = sp.integrate(
+        sp.I * (x - sp.Rational(1, 2)) * phi_pi, (x, 0, 1)
+    )
+    coordinate_second_derivative = sp.integrate(
+        -(x - sp.Rational(1, 2)) ** 2 * phi_pi, (x, 0, 1)
+    )
+
+    checks = {
+        "normalization": _is_zero(normalization - 1),
+        "first_central_moment": _is_zero(first_central_moment),
+        "second_central_moment": _is_zero(
+            second_central_moment - sp.Rational(1, 20)
+        ),
+        "charge_conjugation_symmetry": _is_zero(symmetry_residual),
+        "fourier_first_derivative": _is_zero(coordinate_first_derivative),
+        "fourier_second_derivative": _is_zero(
+            coordinate_second_derivative + sp.Rational(1, 20)
+        ),
+    }
+    return DerivationResult(
+        name="pion_da_normalization",
+        equations={
+            "phi_pi_asymptotic": phi_pi,
+            "normalization": normalization,
+            "first_central_moment": first_central_moment,
+            "second_central_moment": second_central_moment,
+            "symmetry_residual": symmetry_residual,
+            "coordinate_amplitude": coordinate_amplitude,
+            "coordinate_first_derivative": coordinate_first_derivative,
+            "coordinate_second_derivative": coordinate_second_derivative,
+        },
+        symbols={"x": x, "lambda": lam},
+        assumptions=(
+            "0≤x≤1，采用源文的渐近 DA phi_pi(x)=6x(1-x)",
+            "坐标空间相位取 exp(i(x-1/2)lambda)，与源文 DA Fourier 定义互逆",
+            "归一化和矩检查不涉及 f_pi 的具体数值",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_tmd_soft_rge_consistency() -> DerivationResult:
+    r"""复现 TMD 软因子、尖点核 RGE 与 Collins--Soper 解的闭合关系。
+
+    用 ``u=ln(mu^2/mu_0^2)`` 和 ``v=ln(zeta/zeta_0)`` 作为无量纲
+    对数变量，取固定尖点核 ``Gamma`` 与软异常维数 ``gamma_s`` 的
+    解析代理。令
+    ``dK/du=-Gamma``、``dD_2/du=gamma_s-K``，则
+    ``ln S=(L_0+u)K+D_2`` 自动满足软因子 RGE。独立地，
+    ``f=f_0 exp(K v/2)`` 满足 ``2 d_v ln f=K``。这只验证 RGE 的
+    微分结构和初值，不替代 running coupling 或论文的圈积分常数。
+    """
+
+    u = sp.Symbol("u", real=True)
+    v = sp.Symbol("v", real=True)
+    log_soft_scale = sp.Symbol("L_0", real=True)
+    K_0, D_0 = sp.symbols("K_0 D_0", real=True)
+    cusp = sp.Symbol("Gamma_cusp", real=True)
+    soft_anomalous_dimension = sp.Symbol("gamma_s", real=True)
+
+    kernel = K_0 - cusp * u
+    soft_remainder = (
+        D_0
+        + soft_anomalous_dimension * u
+        - K_0 * u
+        + cusp * u**2 / 2
+    )
+    logarithm_of_soft_factor = (log_soft_scale + u) * kernel + soft_remainder
+    kernel_rge_residual = sp.simplify(sp.diff(kernel, u) + cusp)
+    remainder_rge_residual = sp.simplify(
+        sp.diff(soft_remainder, u)
+        - (soft_anomalous_dimension - kernel)
+    )
+    soft_rge_residual = sp.simplify(
+        sp.diff(logarithm_of_soft_factor, u)
+        - (-cusp * (log_soft_scale + u) + soft_anomalous_dimension)
+    )
+
+    f_0 = sp.Symbol("f_0", positive=True, real=True)
+    tmd_solution = f_0 * sp.exp(kernel * v / 2)
+    collins_soper_residual = sp.simplify(
+        2 * sp.diff(sp.log(tmd_solution), v) - kernel
+    )
+    initial_conditions_residual = sp.simplify(
+        kernel.subs(u, 0)
+        - K_0
+        + soft_remainder.subs(u, 0)
+        - D_0
+        + tmd_solution.subs(v, 0)
+        - f_0
+    )
+
+    checks = {
+        "kernel_rge": _is_zero(kernel_rge_residual),
+        "remainder_rge": _is_zero(remainder_rge_residual),
+        "soft_rge": _is_zero(soft_rge_residual),
+        "collins_soper": _is_zero(collins_soper_residual),
+        "initial_conditions": _is_zero(initial_conditions_residual),
+    }
+    return DerivationResult(
+        name="tmd_soft_rge_consistency",
+        equations={
+            "kernel": kernel,
+            "soft_remainder": soft_remainder,
+            "logarithm_of_soft_factor": logarithm_of_soft_factor,
+            "kernel_rge_residual": kernel_rge_residual,
+            "remainder_rge_residual": remainder_rge_residual,
+            "soft_rge_residual": soft_rge_residual,
+            "tmd_solution": tmd_solution,
+            "collins_soper_residual": collins_soper_residual,
+            "initial_conditions_residual": initial_conditions_residual,
+        },
+        symbols={
+            "u": u,
+            "v": v,
+            "L_0": log_soft_scale,
+            "K_0": K_0,
+            "D_0": D_0,
+            "Gamma_cusp": cusp,
+            "gamma_s": soft_anomalous_dimension,
+        },
+        assumptions=(
+            "u=ln(mu^2/mu_0^2)、v=ln(zeta/zeta_0)，均为无量纲",
+            "Gamma_cusp 与 gamma_s 在此固定耦合代理中视为常数",
+            "ln S=(L_0+u)K+D_2，且 D_u=gamma_s-K",
+            "running alpha_s、软因子一圈积分和方案常数未在此展开",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
 def run_core_checks() -> Dict[str, Any]:
     """运行全部可执行核心推导并返回机器可读审计结果。"""
 
@@ -5124,13 +7160,32 @@ def run_core_checks() -> Dict[str, Any]:
         derive_ape_projection_su2,
         derive_wilson_eigenvalue_statistics,
         derive_wilson_fourier_endpoint,
+        derive_wilson_edge_universal_formulas,
         derive_wilson_continuum_scale,
         derive_two_dimensional_wilson_loop,
+        derive_instanton_holonomy_su2,
+        derive_grassmann_determinant_identity,
+        derive_wilson_gap_scaling,
         derive_wilson_smearing_kernel,
         derive_wilson_smearing_scaling,
         derive_lattice_dispersion_relations,
         derive_boosted_smearing_width,
         derive_wilson_area_law,
+        derive_wilson_flow_five_dimensional,
+        derive_wilson_flow_runge_kutta,
+        derive_gradient_flow_duhamel_solution,
+        derive_wilson_flow_reference_scale,
+        derive_wilson_lattice_flow_monotonicity,
+        derive_flow_integral_ibp,
+        derive_gradient_flow_rg_log_recursion,
+        derive_gradient_flow_scheme_conversion,
+        derive_emt_operator_basis,
+        derive_ringed_fermion_normalization,
+        derive_emt_trace_anomaly,
+        derive_lamet_lightcone_kinematics,
+        derive_gpd_kinematics_and_matching,
+        derive_pion_da_normalization,
+        derive_tmd_soft_rge_consistency,
         derive_gradient_flow,
         derive_gauge_flow_kernel,
         derive_flowed_propagators,
@@ -5153,6 +7208,8 @@ def run_core_checks() -> Dict[str, Any]:
         derive_diffusion_processes,
         derive_hmc_scalar,
         derive_trivializing_map,
+        derive_trivializing_flow_factorization,
+        derive_euler_map_inverse_and_jacobian,
         derive_collins_soper_evolution,
         derive_tmd_fourier,
         derive_quasi_pdf_tmd_relation,

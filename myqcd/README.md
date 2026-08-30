@@ -12,8 +12,8 @@
    场流 Jacobian、标量 HMC、伪 PDF 红外 Bessel/Gamma 调节、TMD Fourier 变换、
 	   normalizing flow Jacobian、梯度流树级传播子、流 MCMC 平衡/KL 恒等式、φ⁴ 格点作用量/观测量、
 	   TMD 到 quasi-PDF 的 Gaussian 横向积分、夸克 Gaussian/Jacobi 涂抹与蒸馏投影、
-   U(1) plaquette 规范不变性、离散场强规范平移抵消、拓扑荷与紧致作用量弱场展开、SU(3) 生成元代数与完备性、SU(3) Cayley--Hamilton 特征多项式、CT18 相关误差剖面化、Ising 平均场自洽方程、APE 极化投影、Wilson 圈本征值统计/边缘标定/Fourier 端点/连续统尺度、二维 QCD Wilson 圈 Laguerre 公式、Wilson/APE 涂抹横纵向投影核与连续统尺度换算、格点动量与自由色散极限、boost-smearing 宽度匹配、接受率—自相关下界、伪 PDF 单圈
-	   plus 分布核和欧氏关联函数谱提取。
+   U(1) plaquette 规范不变性、离散场强规范平移抵消、拓扑荷与紧致作用量弱场展开、SU(3) 生成元代数与完备性、SU(3) Cayley--Hamilton 特征多项式、CT18 相关误差剖面化、Ising 平均场自洽方程、APE 极化投影、Wilson 圈本征值统计/边缘标定/Fourier 端点/连续统尺度、二维 QCD Wilson 圈 Laguerre 公式、瞬子 SU(2) holonomy、Grassmann 周期行列式、Wilson 圈能隙平方根/对数外推、Wilson/APE 涂抹横纵向投影核与连续统尺度换算、格点动量与自由色散极限、boost-smearing 宽度匹配、接受率—自相关下界、伪 PDF 单圈
+   plus 分布核和欧氏关联函数谱提取；连续 Wilson 流的第五维记号、Abelian Fourier 流方程与作用量单调性、Wilson 圈边缘的 Painleve II/Airy 积分结构、Wilson 流三阶 Runge--Kutta 局部误差阶、梯度流 Duhamel 积分解、Wilson 流参考尺度与连续极限、格点 Wilson 流的群值单调性；欧拉流逆迭代与 Jacobian 链式分解、平凡化流因子化、梯度流圈积分 IBP 与尺度律、梯度流 RGE 对数递推/换方案、含费米子能动量张量算符基底、加圈费米子归一化和迹反常展开。
 2. `formula_registry.py` 给出报告结构公式的 LaTeX、来源行号、推导入口和
    假设。`structural` 表示原式是跨论文结构接口，不能替代某篇论文的特定
    方案或匹配系数。
