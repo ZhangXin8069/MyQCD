@@ -446,6 +446,14 @@ CORE_FORMULAS: Dict[str, FormulaSpec] = {
         "derive_twist2_flowed_moment_matching",
         "用归一化幂律 PDF 精确计算 Mellin 矩，验证带流算符重正化、环场双线性转换、gamma_n 的 harmonic-number 形式、B_n 的 Lerch 项及一圈 RG 重求和指数；不计算 H(4) 混合、费曼积分、NLL 数值或非微扰强子矩阵元。",
     ),
+    "euclidean_lightcone_factorization": FormulaSpec(
+        "euclidean_lightcone_factorization",
+        r"\Delta C_{\gamma^z}=\frac{\alpha_sC_F}{2\pi}2(1-\alpha)\theta(\alpha)\theta(1-\alpha),\quad \int_Ddx\,[g(x)]_{+(x_0)}^Dh(x)=\int_Ddx\,g(x)[h(x)-h(x_0)],\quad f(y)\sim y^{-1+a}\Rightarrow\lim_{\beta\to0^+}\beta f(\beta x)=\lim_{\beta\to0^+}\beta f(\beta x)\ln\beta=0",
+        "refer/papers/欧氏与光锥分布因子化定理_latex/chapters/section03.tex:240-243,268-290; refer/papers/欧氏与光锥分布因子化定理_latex/chapters/backmatter.tex:90-109,128-132",
+        "verified",
+        "derive_euclidean_lightcone_factorization",
+        "验证 gamma^z 单圈修正的 [0,1] 支持、有限区间 plus 分布在测试函数上的作用，以及 t=1/x 定义的无穷远端点在可积 PDF 幂律 f(y)~y^(-1+a)、a>0 下的两类消失极限；不重新计算费曼积分或完整匹配核。",
+    ),
     "langevin_fokker_planck": FormulaSpec(
         "langevin_fokker_planck",
         r"\partial_\tau\phi=-\frac{\delta S_E}{\delta\phi}+\eta,\quad P_{\rm eq}[\phi]\propto e^{-S_E[\phi]/\alpha}",

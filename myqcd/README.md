@@ -19,6 +19,9 @@
    plus 分布与正弦积分项，并保留其未计算一般广义函数积分的验证边界。
    `twist2_flowed_moment_matching` 复现任意阶 twist-2 矩的带流匹配、
    单圈有限系数与 RG 重求和结构；费曼积分和非微扰矩阵元仍未计算。
+   `euclidean_lightcone_factorization` 复现欧氏—光锥因子化定理中
+   gamma^z 的单圈支持修正、有限区间 plus 分布定义，以及无穷远端点在
+   可积 PDF 幂律下的消失极限；不重新计算完整费曼积分和匹配核。
 2. `formula_registry.py` 给出报告结构公式的 LaTeX、来源行号、推导入口和
    假设。`structural` 表示原式是跨论文结构接口，不能替代某篇论文的特定
    方案或匹配系数。

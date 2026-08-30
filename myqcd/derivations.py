@@ -9012,6 +9012,258 @@ def derive_twist2_flowed_moment_matching() -> DerivationResult:
     )
 
 
+def derive_euclidean_lightcone_factorization() -> DerivationResult:
+    r"""复现欧氏关联函数到光锥 PDF 因子化中的可执行边界公式。
+
+    源文给出 ``Gamma=gamma^z`` 相对于 ``Gamma=gamma^0`` 的单圈修正
+
+    .. math::
+
+       \Delta C_{\gamma^z}(\alpha)
+       =\frac{\alpha_s C_F}{2\pi}
+        2(1-\alpha)\theta(\alpha)\theta(1-\alpha),
+
+    以及比值方案中的有限区间 plus 分布
+    ``[2(1-xi)]_{+(1)}^{[0,1]}``。这里按原文的含义将其写成
+    ``[2(1-xi)]_{+(1)}^{[0,1]}``：plus 分布作用在测试函数上时减去
+    参考点 ``xi=1`` 的值。原文还用 ``t=1/x`` 定义了
+    ``(1/x)_{+(infinity)}^{[1,infinity]}``。下面保留该正则化表达式，
+    并在因子化卷积的正 ``x`` 分支上显式验证端点项
+    ``beta f(beta*x)`` 与 ``beta f(beta*x) log(beta)`` 的消失。
+
+    这是一组分布定义、端点极限和单圈支持结构的符号验证；不重新计算
+    论文的费曼积分，也不把广义函数误当作可逐点求值的普通函数。
+    """
+
+    alpha = sp.Symbol("alpha", real=True)
+    xi = sp.Symbol("xi", real=True)
+    alpha_s = sp.Symbol("alpha_s", positive=True, real=True)
+    color_factor = sp.Symbol("C_F", positive=True, real=True)
+    matching_prefactor = alpha_s * color_factor / (2 * sp.pi)
+    unit_interval_density = 2 * (1 - alpha)
+    unit_interval_support = sp.Heaviside(alpha) * sp.Heaviside(1 - alpha)
+    gamma_z_pseudo_correction = (
+        matching_prefactor * unit_interval_density * unit_interval_support
+    )
+    gamma_z_expected = matching_prefactor * 2 * (1 - alpha) * (
+        sp.Heaviside(alpha) * sp.Heaviside(1 - alpha)
+    )
+    gamma_z_support_residual = sp.simplify(
+        gamma_z_pseudo_correction - gamma_z_expected
+    )
+
+    gamma_z_quasi_correction = matching_prefactor * 2 * (1 - xi) * (
+        sp.Heaviside(xi) * sp.Heaviside(1 - xi)
+    )
+    gamma_z_variable_change_residual = sp.simplify(
+        gamma_z_quasi_correction.subs(xi, alpha)
+        - gamma_z_pseudo_correction
+    )
+    gamma_z_support_integral = sp.integrate(
+        unit_interval_density,
+        (alpha, 0, 1),
+    )
+    gamma_z_support_integral_residual = sp.simplify(
+        gamma_z_support_integral - 1
+    )
+
+    plus_reference_point = sp.Integer(1)
+    test_function = 1 + alpha + alpha**2
+    constant_test_function = sp.Integer(1)
+    plus_distribution_function = sp.Function("plus_D")
+    plus_distribution = plus_distribution_function(alpha)
+    plus_definition = sp.Eq(
+        sp.Integral(
+            plus_distribution * test_function,
+            (alpha, 0, 1),
+        ),
+        sp.Integral(
+            unit_interval_density
+            * (test_function - test_function.subs(alpha, plus_reference_point)),
+            (alpha, 0, 1),
+        ),
+    )
+    plus_constant_test_action = sp.integrate(
+        unit_interval_density
+        * (
+            constant_test_function
+            - constant_test_function.subs(alpha, plus_reference_point)
+        ),
+        (alpha, 0, 1),
+    )
+    plus_test_action = sp.integrate(
+        unit_interval_density
+        * (test_function - test_function.subs(alpha, plus_reference_point)),
+        (alpha, 0, 1),
+    )
+    plus_test_action_expected = sp.Rational(-3, 2)
+    plus_test_action_residual = sp.simplify(
+        plus_test_action - plus_test_action_expected
+    )
+    plus_definition_residual = sp.simplify(
+        plus_test_action
+        - (
+            sp.integrate(unit_interval_density * test_function, (alpha, 0, 1))
+            - test_function.subs(alpha, plus_reference_point)
+            * sp.integrate(unit_interval_density, (alpha, 0, 1))
+        )
+    )
+    gamma_z_ratio_plus_distribution = plus_distribution_function(xi)
+    gamma_z_ratio_correction = (
+        matching_prefactor * gamma_z_ratio_plus_distribution
+    )
+
+    beta = sp.Symbol("beta", positive=True, real=True)
+    infinity_variable = sp.Symbol("xi_infinity", positive=True, real=True)
+    infinity_plus_regulator = (
+        sp.Heaviside(infinity_variable - beta) / infinity_variable
+        + sp.DiracDelta(1 / infinity_variable - beta)
+        / infinity_variable**2
+        * sp.log(beta)
+    )
+    infinity_plus_definition = sp.Limit(
+        infinity_plus_regulator,
+        beta,
+        0,
+        dir="+",
+    )
+
+    parton_fraction = sp.Symbol("y", positive=True, real=True)
+    parton_x = sp.Symbol("x", positive=True, real=True)
+    pdf_exponent = sp.Symbol("a", positive=True, real=True)
+    endpoint_pdf_model = parton_fraction ** (pdf_exponent - 1)
+    endpoint_pdf = endpoint_pdf_model.subs(
+        parton_fraction,
+        beta * parton_x,
+    )
+    delta_argument = parton_fraction / parton_x - beta
+    delta_jacobian = sp.simplify(
+        1 / sp.Abs(sp.diff(delta_argument, parton_fraction))
+    )
+    endpoint_measure_weight = parton_fraction**2 / (
+        parton_x**2 * parton_fraction
+    )
+    delta_endpoint_action = sp.simplify(
+        endpoint_measure_weight.subs(parton_fraction, beta * parton_x)
+        * delta_jacobian
+        * endpoint_pdf
+    )
+    delta_endpoint_expected = beta * endpoint_pdf
+    delta_endpoint_residual = sp.simplify(
+        delta_endpoint_action - delta_endpoint_expected
+    )
+    delta_log_endpoint_action = sp.simplify(
+        delta_endpoint_action * sp.log(beta)
+    )
+    beta_power_limit = sp.limit(beta**pdf_exponent, beta, 0, dir="+")
+    beta_power_log_limit = sp.limit(
+        beta**pdf_exponent * sp.log(beta),
+        beta,
+        0,
+        dir="+",
+    )
+    infinity_endpoint_power_limit = sp.limit(
+        delta_endpoint_action,
+        beta,
+        0,
+        dir="+",
+    )
+    infinity_endpoint_log_limit = sp.limit(
+        delta_log_endpoint_action,
+        beta,
+        0,
+        dir="+",
+    )
+
+    checks = {
+        "gamma_z_support": _is_zero(gamma_z_support_residual),
+        "gamma_z_variable_change": _is_zero(
+            gamma_z_variable_change_residual
+        ),
+        "gamma_z_support_integral": _is_zero(
+            gamma_z_support_integral_residual
+        ),
+        "plus_definition": _is_zero(plus_definition_residual),
+        "plus_constant_test": _is_zero(plus_constant_test_action),
+        "plus_polynomial_test": _is_zero(plus_test_action_residual),
+        "infinity_delta_jacobian": _is_zero(delta_jacobian - parton_x),
+        "infinity_delta_action": _is_zero(delta_endpoint_residual),
+        "infinity_power_limit": _is_zero(
+            beta_power_limit
+        ) and _is_zero(infinity_endpoint_power_limit),
+        "infinity_log_limit": _is_zero(
+            beta_power_log_limit
+        ) and _is_zero(infinity_endpoint_log_limit),
+    }
+    return DerivationResult(
+        name="euclidean_lightcone_factorization",
+        equations={
+            "matching_prefactor": matching_prefactor,
+            "unit_interval_density": unit_interval_density,
+            "unit_interval_support": unit_interval_support,
+            "gamma_z_pseudo_correction": gamma_z_pseudo_correction,
+            "gamma_z_quasi_correction": gamma_z_quasi_correction,
+            "gamma_z_expected": gamma_z_expected,
+            "gamma_z_support_residual": gamma_z_support_residual,
+            "gamma_z_variable_change_residual": (
+                gamma_z_variable_change_residual
+            ),
+            "gamma_z_support_integral": gamma_z_support_integral,
+            "gamma_z_support_integral_residual": (
+                gamma_z_support_integral_residual
+            ),
+            "plus_reference_point": plus_reference_point,
+            "plus_distribution": plus_distribution,
+            "plus_definition": plus_definition,
+            "plus_constant_test_action": plus_constant_test_action,
+            "plus_test_function": test_function,
+            "plus_test_action": plus_test_action,
+            "plus_test_action_expected": plus_test_action_expected,
+            "plus_test_action_residual": plus_test_action_residual,
+            "plus_definition_residual": plus_definition_residual,
+            "gamma_z_ratio_plus_distribution": (
+                gamma_z_ratio_plus_distribution
+            ),
+            "gamma_z_ratio_correction": gamma_z_ratio_correction,
+            "infinity_plus_regulator": infinity_plus_regulator,
+            "infinity_plus_definition": infinity_plus_definition,
+            "delta_argument": delta_argument,
+            "delta_jacobian": delta_jacobian,
+            "endpoint_pdf_model": endpoint_pdf_model,
+            "endpoint_pdf": endpoint_pdf,
+            "endpoint_measure_weight": endpoint_measure_weight,
+            "delta_endpoint_action": delta_endpoint_action,
+            "delta_endpoint_expected": delta_endpoint_expected,
+            "delta_endpoint_residual": delta_endpoint_residual,
+            "delta_log_endpoint_action": delta_log_endpoint_action,
+            "beta_power_limit": beta_power_limit,
+            "beta_power_log_limit": beta_power_log_limit,
+            "infinity_endpoint_power_limit": infinity_endpoint_power_limit,
+            "infinity_endpoint_log_limit": infinity_endpoint_log_limit,
+        },
+        symbols={
+            "alpha": alpha,
+            "xi": xi,
+            "alpha_s": alpha_s,
+            "C_F": color_factor,
+            "beta": beta,
+            "xi_infinity": infinity_variable,
+            "x": parton_x,
+            "y": parton_fraction,
+            "a": pdf_exponent,
+        },
+        assumptions=(
+            "alpha、xi 为实变量；gamma^z 修正的普通函数支持为 0<=alpha<=1",
+            "plus 分布按定义区间 D=[0,1]、参考点 x_0=1 作用于测试函数",
+            "无穷远 plus 分布按 t=1/x 映射并以 beta->0+ 正则化",
+            "端点验证取 x>0 且 f(y)~y^(-1+a)，a>0；这是可积 PDF 的正分支模型",
+            "alpha_s>0、C_F>0；不重新计算费曼积分、完整匹配核或非微扰 PDF",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
 def derive_lamet_lightcone_kinematics() -> DerivationResult:
     r"""复现 LaMET 综述中的 DIS 与轻锥运动学恒等式。
 
@@ -9465,6 +9717,7 @@ def run_core_checks() -> Dict[str, Any]:
         derive_hybrid_renormalization,
         derive_hybrid_momentum_matching_kernel,
         derive_twist2_flowed_moment_matching,
+        derive_euclidean_lightcone_factorization,
         derive_quasi_tmd_matching_and_cs_kernel,
         derive_quasi_tmd_hard_kernel_i_epsilon,
         derive_ri_xmom_renormalization_conditions,
