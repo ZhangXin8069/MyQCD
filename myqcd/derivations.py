@@ -9115,11 +9115,22 @@ def derive_euclidean_lightcone_factorization() -> DerivationResult:
 
     beta = sp.Symbol("beta", positive=True, real=True)
     infinity_variable = sp.Symbol("xi_infinity", positive=True, real=True)
+    L0 = sp.Function("L_0")
+    L1 = sp.Function("L_1")
+    infinity_plus_distribution = (
+        L0(1 / infinity_variable) / infinity_variable**2
+    )
+    infinity_log_plus_distribution = (
+        -L1(1 / infinity_variable) / infinity_variable**2
+    )
     infinity_plus_regulator = (
-        sp.Heaviside(infinity_variable - beta) / infinity_variable
-        + sp.DiracDelta(1 / infinity_variable - beta)
+        1
         / infinity_variable**2
-        * sp.log(beta)
+        * (
+            sp.Heaviside(1 / infinity_variable - beta)
+            / (1 / infinity_variable)
+            + sp.DiracDelta(1 / infinity_variable - beta) * sp.log(beta)
+        )
     )
     infinity_plus_definition = sp.Limit(
         infinity_plus_regulator,
@@ -9131,6 +9142,14 @@ def derive_euclidean_lightcone_factorization() -> DerivationResult:
     parton_fraction = sp.Symbol("y", positive=True, real=True)
     parton_x = sp.Symbol("x", positive=True, real=True)
     pdf_exponent = sp.Symbol("a", positive=True, real=True)
+    convolution_plus_regulator = (
+        sp.Heaviside(parton_x / parton_fraction - beta)
+        / (parton_x / parton_fraction)
+        + parton_fraction**2
+        / parton_x**2
+        * sp.DiracDelta(parton_fraction / parton_x - beta)
+        * sp.log(beta)
+    )
     endpoint_pdf_model = parton_fraction ** (pdf_exponent - 1)
     endpoint_pdf = endpoint_pdf_model.subs(
         parton_fraction,
@@ -9162,14 +9181,18 @@ def derive_euclidean_lightcone_factorization() -> DerivationResult:
         0,
         dir="+",
     )
+    # Keep the endpoint factor in the unsimplified form beta*f(beta*x).
+    # SymPy's limit algorithm can combine it into (beta*x)**a/x, for which
+    # the symbolic exponent is less stable even though the two expressions
+    # are equal under x>0 and a>0.
     infinity_endpoint_power_limit = sp.limit(
-        delta_endpoint_action,
+        delta_endpoint_expected,
         beta,
         0,
         dir="+",
     )
     infinity_endpoint_log_limit = sp.limit(
-        delta_log_endpoint_action,
+        delta_endpoint_expected * sp.log(beta),
         beta,
         0,
         dir="+",
@@ -9216,17 +9239,24 @@ def derive_euclidean_lightcone_factorization() -> DerivationResult:
             "plus_distribution": plus_distribution,
             "plus_definition": plus_definition,
             "plus_constant_test_action": plus_constant_test_action,
+            "gamma_z_plus_constant_test_action": plus_constant_test_action,
             "plus_test_function": test_function,
             "plus_test_action": plus_test_action,
             "plus_test_action_expected": plus_test_action_expected,
             "plus_test_action_residual": plus_test_action_residual,
+            "gamma_z_plus_polynomial_test_action": plus_test_action,
             "plus_definition_residual": plus_definition_residual,
             "gamma_z_ratio_plus_distribution": (
                 gamma_z_ratio_plus_distribution
             ),
             "gamma_z_ratio_correction": gamma_z_ratio_correction,
+            "L_0_at_infinity": L0(1 / infinity_variable),
+            "L_1_at_infinity": L1(1 / infinity_variable),
+            "infinity_plus_distribution": infinity_plus_distribution,
+            "infinity_log_plus_distribution": infinity_log_plus_distribution,
             "infinity_plus_regulator": infinity_plus_regulator,
             "infinity_plus_definition": infinity_plus_definition,
+            "convolution_plus_regulator": convolution_plus_regulator,
             "delta_argument": delta_argument,
             "delta_jacobian": delta_jacobian,
             "endpoint_pdf_model": endpoint_pdf_model,
@@ -9258,6 +9288,561 @@ def derive_euclidean_lightcone_factorization() -> DerivationResult:
             "无穷远 plus 分布按 t=1/x 映射并以 beta->0+ 正则化",
             "端点验证取 x>0 且 f(y)~y^(-1+a)，a>0；这是可积 PDF 的正分支模型",
             "alpha_s>0、C_F>0；不重新计算费曼积分、完整匹配核或非微扰 PDF",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_euclidean_ope_factorization() -> DerivationResult:
+    r"""复现欧氏关联函数 OPE 到 quasi/pseudo-PDF 因子化的代数主线。
+
+    目标是把源文 section 02 中不依赖费曼积分的结构写成有限阶、可执行
+    的 SymPy 检查。用 ``N=3`` 的截断级数表示
+
+    .. math::
+
+       \widetilde Q(\zeta)=\sum_n C_n
+       \frac{(-i\zeta)^n}{n!}a_{n+1},\qquad
+       a_{n+1}=\int_{-1}^{1}dy\,y^nq(y),
+
+    并用 ``delta`` 函数导数构造对应的有限阶匹配分布
+    ``mathcal C(alpha)=sum_n C_n(-1)^n delta^(n)(alpha)/n!``。这样可以
+    直接验证 Fourier 反变换、pseudo-PDF 矩以及坐标空间卷积，而无需把
+    广义函数当作普通逐点函数。另用正的 ``y`` 分支验证
+    ``zeta -> zeta/y`` 产生的 ``dy/|y|`` 测度和匹配尺度
+    ``mu/(|y|P^z)``。
+
+    一圈 ``C_0``、一般 ``C_n`` 和 ``gamma^z`` 的矩修正按源文显式写入；
+    费曼图积分、非微扰矩阵元和真实格点数据仍不在此函数的验证范围内。
+    """
+
+    finite_order = 3
+    orders = tuple(range(finite_order + 1))
+    zeta = sp.Symbol("zeta", real=True)
+    z = sp.Symbol("z", positive=True, real=True)
+    mu = sp.Symbol("mu", positive=True, real=True)
+    alpha_s = sp.Symbol("alpha_s", positive=True, real=True)
+    color_factor = sp.Symbol("C_F", positive=True, real=True)
+
+    z_abs = sp.Symbol("abs_z", positive=True, real=True)
+    renormalization_factor = sp.Symbol(
+        "Z_psi_z",
+        nonzero=True,
+        real=True,
+    )
+    linear_counterterm = sp.Symbol("delta_m", real=True)
+    bare_operator = sp.Symbol("O_Gamma_bare", real=True)
+    renormalized_operator = (
+        renormalization_factor
+        * sp.exp(linear_counterterm * z_abs)
+        * bare_operator
+    )
+    renormalization_expected = (
+        renormalization_factor
+        * sp.exp(linear_counterterm * z_abs)
+        * bare_operator
+    )
+    renormalization_residual = sp.simplify(
+        renormalized_operator - renormalization_expected
+    )
+
+    coefficient_symbols = sp.symbols(
+        f"C_0:{finite_order + 1}",
+        real=True,
+    )
+    gluon_coefficient_symbols = sp.symbols(
+        f"Cprime_0:{finite_order + 1}",
+        real=True,
+    )
+    quark_operator_symbols = sp.symbols(
+        f"O1_0:{finite_order + 1}",
+        real=True,
+    )
+    gluon_operator_symbols = sp.symbols(
+        f"O2_0:{finite_order + 1}",
+        real=True,
+    )
+    ope_full = sum(
+        (
+            coefficient_symbols[index] * quark_operator_symbols[index]
+            + gluon_coefficient_symbols[index] * gluon_operator_symbols[index]
+        )
+        * (-sp.I * zeta) ** index
+        / sp.factorial(index)
+        for index in orders
+    )
+    isovector_substitution = {
+        operator: 0 for operator in gluon_operator_symbols
+    }
+    ope_isovector = ope_full.subs(isovector_substitution)
+    ope_quark_only = sum(
+        coefficient_symbols[index]
+        * quark_operator_symbols[index]
+        * (-sp.I * zeta) ** index
+        / sp.factorial(index)
+        for index in orders
+    )
+    ope_isovector_residual = sp.simplify(ope_isovector - ope_quark_only)
+
+    y = sp.Symbol("y", real=True)
+    pdf_skew = sp.Symbol("b", real=True)
+    pdf_model = (1 + pdf_skew * y) / 2
+    pdf_normalization = sp.integrate(pdf_model, (y, -1, 1))
+    pdf_moments = tuple(
+        sp.integrate(y**index * pdf_model, (y, -1, 1))
+        for index in orders
+    )
+    matrix_element_symbols = sp.symbols(
+        f"a_1:{finite_order + 2}",
+        real=True,
+    )
+    moment_definition_residuals = tuple(
+        sp.simplify(
+            pdf_moments[index]
+            - sp.integrate(y**index * pdf_model, (y, -1, 1))
+        )
+        for index in orders
+    )
+    ope_matrix_element_form = ope_quark_only.subs(
+        {
+            quark_operator_symbols[index]: matrix_element_symbols[index]
+            for index in orders
+        }
+    )
+    ope_matrix_element = ope_matrix_element_form.subs(
+        {
+            matrix_element_symbols[index]: pdf_moments[index]
+            for index in orders
+        }
+    )
+    ope_moment_expected = sum(
+        coefficient_symbols[index]
+        * pdf_moments[index]
+        * (-sp.I * zeta) ** index
+        / sp.factorial(index)
+        for index in orders
+    )
+    ope_moment_residual = sp.simplify(
+        ope_matrix_element - ope_moment_expected
+    )
+
+    alpha = sp.Symbol("alpha", real=True)
+
+    def delta_derivative_action(
+        expression: sp.Expr,
+        derivative_order: int,
+        variable: sp.Symbol,
+    ) -> sp.Expr:
+        """计算 delta^(k) 对测试函数的分布作用。"""
+
+        return (-1) ** derivative_order * sp.diff(
+            expression,
+            variable,
+            derivative_order,
+        ).subs(variable, 0)
+
+    matching_distribution = sum(
+        coefficient_symbols[index]
+        * (-1) ** index
+        * sp.DiracDelta(alpha, index)
+        / sp.factorial(index)
+        for index in orders
+    )
+    matching_distribution_inverse_transform = sum(
+        coefficient_symbols[index]
+        * (-1) ** index
+        * delta_derivative_action(
+            sp.exp(-sp.I * alpha * y * zeta),
+            index,
+            alpha,
+        )
+        / sp.factorial(index)
+        for index in orders
+    )
+    matching_distribution_inverse_expected = sum(
+        coefficient_symbols[index]
+        * (-sp.I * y * zeta) ** index
+        / sp.factorial(index)
+        for index in orders
+    )
+    kernel_inverse_transform_residual = sp.simplify(
+        matching_distribution_inverse_transform
+        - matching_distribution_inverse_expected
+    )
+    matching_distribution_moments = tuple(
+        sp.simplify(
+            sum(
+                coefficient_symbols[index]
+                * (-1) ** index
+                * delta_derivative_action(alpha**power, index, alpha)
+                / sp.factorial(index)
+                for index in orders
+            )
+        )
+        for power in orders
+    )
+    matching_distribution_moment_residuals = tuple(
+        sp.simplify(
+            matching_distribution_moments[power]
+            - coefficient_symbols[power]
+        )
+        for power in orders
+    )
+
+    coordinate_kernel_action = sp.simplify(
+        sum(
+            coefficient_symbols[index]
+            * (-1) ** index
+            * delta_derivative_action(
+                sum(
+                    pdf_moments[power]
+                    * (-sp.I * alpha * zeta) ** power
+                    / sp.factorial(power)
+                    for power in orders
+                ),
+                index,
+                alpha,
+            )
+            / sp.factorial(index)
+            for index in orders
+        )
+    )
+    coordinate_factorization_residual = sp.simplify(
+        coordinate_kernel_action - ope_matrix_element
+    )
+
+    pseudo_moment_factorized = tuple(
+        matching_distribution_moments[power] * pdf_moments[power]
+        for power in orders
+    )
+    pseudo_moment_expected = tuple(
+        coefficient_symbols[power] * pdf_moments[power]
+        for power in orders
+    )
+    pseudo_moment_residuals = tuple(
+        sp.simplify(
+            pseudo_moment_factorized[power] - pseudo_moment_expected[power]
+        )
+        for power in orders
+    )
+
+    y_positive = sp.Symbol("y_positive", positive=True, real=True)
+    parton_x = sp.Symbol("x", positive=True, real=True)
+    hadron_momentum = sp.Symbol("P_z", positive=True, real=True)
+    zeta_old = sp.Symbol("zeta_old", real=True)
+    zeta_new = sp.Symbol("zeta_new", real=True)
+    coefficient_functions = tuple(
+        sp.Function(f"C_{index}") for index in orders
+    )
+    quasi_old_integrand = sp.exp(sp.I * parton_x * zeta_old) * sum(
+        coefficient_functions[index](mu**2 * zeta_old**2 / hadron_momentum**2)
+        * (-sp.I * zeta_old) ** index
+        * y_positive**index
+        / sp.factorial(index)
+        for index in orders
+    )
+    quasi_integrand_after_change = sp.simplify(
+        sp.Rational(1, 1)
+        / y_positive
+        * quasi_old_integrand.subs(
+            zeta_old,
+            zeta_new / y_positive,
+        )
+    )
+    quasi_kernel_after_change = sp.exp(
+        sp.I * parton_x / y_positive * zeta_new
+    ) * sum(
+        coefficient_functions[index](
+            mu**2
+            * zeta_new**2
+            / (y_positive**2 * hadron_momentum**2)
+        )
+        * (-sp.I * zeta_new) ** index
+        / sp.factorial(index)
+        for index in orders
+    )
+    quasi_integrand_expected = (
+        quasi_kernel_after_change / y_positive
+    )
+    quasi_scaling_residual = sp.simplify(
+        sp.powsimp(
+            quasi_integrand_after_change - quasi_integrand_expected,
+            force=True,
+        )
+    )
+    quasi_matching_ratio = parton_x / y_positive
+    quasi_matching_scale = mu / (y_positive * hadron_momentum)
+
+    x_fraction = sp.Symbol("x_fraction", positive=True, real=True)
+    y_negative = sp.Symbol("y_negative", negative=True, real=True)
+    pseudo_support_positive_interval = sp.Interval(x_fraction, 1)
+    pseudo_support_negative_interval = sp.Interval(-1, -x_fraction)
+    pseudo_support_residuals = (
+        sp.simplify(x_fraction / x_fraction - 1),
+        sp.simplify(x_fraction / 1 - x_fraction),
+        sp.simplify(x_fraction / (-1) + x_fraction),
+        sp.simplify(x_fraction / (-x_fraction) + 1),
+    )
+    matching_coefficient_function = sp.Function("C_match")
+    pdf_function = sp.Function("q")
+    pseudo_pdf_function = sp.Function("P")
+    pseudo_factorization = sp.Eq(
+        pseudo_pdf_function(x_fraction, mu**2 * z**2),
+        sp.Integral(
+            matching_coefficient_function(
+                x_fraction / y_positive,
+                mu**2 * z**2,
+            )
+            * pdf_function(y_positive, mu)
+            / y_positive,
+            (y_positive, x_fraction, 1),
+        )
+        + sp.Integral(
+            matching_coefficient_function(
+                x_fraction / y_negative,
+                mu**2 * z**2,
+            )
+            * pdf_function(y_negative, mu)
+            / sp.Abs(y_negative),
+            (y_negative, -1, -x_fraction),
+        ),
+    )
+
+    loop_prefactor = alpha_s * color_factor / (2 * sp.pi)
+    one_loop_log = sp.log(
+        mu**2 * z**2 * sp.exp(2 * sp.EulerGamma) / 4
+    )
+    n = sp.Symbol("n", integer=True, nonnegative=True)
+    harmonic_n = sp.harmonic(n)
+    harmonic_n_second = sp.harmonic(n, 2)
+    denominator = 2 + 3 * n + n**2
+    one_loop_C_n = 1 + loop_prefactor * (
+        (
+            (3 + 2 * n) / denominator
+            + 2 * harmonic_n
+        )
+        * one_loop_log
+        + (5 + 2 * n) / denominator
+        + 2 * (1 - harmonic_n) * harmonic_n
+        - 2 * harmonic_n_second
+    )
+    one_loop_C0 = sp.simplify(one_loop_C_n.subs(n, 0))
+    one_loop_C0_expected = 1 + loop_prefactor * (
+        sp.Rational(3, 2) * one_loop_log + sp.Rational(5, 2)
+    )
+    C0_one_loop_residual = sp.simplify(
+        one_loop_C0 - one_loop_C0_expected
+    )
+
+    gamma_z_moment_integral = sp.integrate(
+        alpha**n * 2 * (1 - alpha),
+        (alpha, 0, 1),
+    )
+    gamma_z_moment_expected = 2 / denominator
+    gamma_z_moment_residual = sp.simplify(
+        gamma_z_moment_integral - gamma_z_moment_expected
+    )
+    gamma_z_delta_C_n = loop_prefactor * gamma_z_moment_expected
+    gamma_z_delta_C0 = sp.simplify(gamma_z_delta_C_n.subs(n, 0))
+
+    zeta_positive = sp.Symbol("zeta_positive", positive=True, real=True)
+    singular_moment_order = 2
+    quasi_log_argument = (
+        mu**2 * zeta_positive**2 / hadron_momentum**2
+    )
+    quasi_moment_log_terms = tuple(
+        zeta_positive**power * sp.log(quasi_log_argument)
+        for power in range(singular_moment_order + 1)
+    )
+    quasi_moment_log_derivatives = tuple(
+        sp.diff(term, zeta_positive, singular_moment_order)
+        for term in quasi_moment_log_terms
+    )
+    quasi_moment_singularity_limits = tuple(
+        sp.limit(derivative, zeta_positive, 0, dir="+")
+        for derivative in quasi_moment_log_derivatives
+    )
+    quasi_moment_singularity_check = all(
+        bool(limit.is_infinite) for limit in quasi_moment_singularity_limits
+    )
+
+    ope_at_zero = sp.simplify(ope_matrix_element.subs(zeta, 0))
+    ratio_ope = ope_matrix_element / coefficient_symbols[0]
+    ratio_expected = sum(
+        coefficient_symbols[index]
+        / coefficient_symbols[0]
+        * pdf_moments[index]
+        * (-sp.I * zeta) ** index
+        / sp.factorial(index)
+        for index in orders
+    )
+    ratio_factorization_residual = sp.simplify(
+        ratio_ope - ratio_expected
+    )
+    ratio_normalization_residual = sp.simplify(
+        ope_at_zero / coefficient_symbols[0] - 1
+    )
+
+    lambda_qcd = sp.Symbol("Lambda_QCD", positive=True, real=True)
+    mass = sp.Symbol("M", positive=True, real=True)
+    z_power_correction = z**2 * lambda_qcd**2
+    momentum_power_correction = (mass**2 + lambda_qcd**2) / hadron_momentum**2
+    z_power_limit = sp.limit(z_power_correction, z, 0, dir="+")
+    momentum_power_limit = sp.limit(
+        momentum_power_correction,
+        hadron_momentum,
+        sp.oo,
+    )
+
+    checks = {
+        "renormalization": _is_zero(renormalization_residual),
+        "isovector_ope": _is_zero(ope_isovector_residual),
+        "pdf_normalization": _is_zero(pdf_normalization - 1),
+        "moment_definitions": all(
+            _is_zero(residual) for residual in moment_definition_residuals
+        ),
+        "ope_moment_substitution": _is_zero(ope_moment_residual),
+        "kernel_inverse_transform": _is_zero(
+            kernel_inverse_transform_residual
+        ),
+        "kernel_moments": all(
+            _is_zero(residual)
+            for residual in matching_distribution_moment_residuals
+        ),
+        "coordinate_factorization": _is_zero(
+            coordinate_factorization_residual
+        ),
+        "pseudo_moments": all(
+            _is_zero(residual) for residual in pseudo_moment_residuals
+        ),
+        "quasi_scaling": _is_zero(quasi_scaling_residual),
+        "pseudo_support": all(
+            _is_zero(residual) for residual in pseudo_support_residuals
+        ),
+        "C0_one_loop": _is_zero(C0_one_loop_residual),
+        "gamma_z_moment": _is_zero(gamma_z_moment_residual),
+        "ratio_factorization": _is_zero(ratio_factorization_residual)
+        and _is_zero(ratio_normalization_residual),
+        "quasi_moment_singularity": quasi_moment_singularity_check,
+        "power_corrections": _is_zero(z_power_limit)
+        and _is_zero(momentum_power_limit),
+    }
+    return DerivationResult(
+        name="euclidean_ope_factorization",
+        equations={
+            "finite_order": finite_order,
+            "renormalized_operator": renormalized_operator,
+            "renormalization_expected": renormalization_expected,
+            "renormalization_residual": renormalization_residual,
+            "ope_full": ope_full,
+            "ope_isovector": ope_isovector,
+            "ope_quark_only": ope_quark_only,
+            "ope_isovector_residual": ope_isovector_residual,
+            "pdf_model": pdf_model,
+            "pdf_normalization": pdf_normalization,
+            "pdf_moments": pdf_moments,
+            "moment_definitions": tuple(
+                sp.Eq(matrix_element_symbols[index], pdf_moments[index])
+                for index in orders
+            ),
+            "moment_definition_residuals": moment_definition_residuals,
+            "ope_matrix_element_form": ope_matrix_element_form,
+            "ope_matrix_element": ope_matrix_element,
+            "ope_moment_expected": ope_moment_expected,
+            "ope_moment_residual": ope_moment_residual,
+            "matching_distribution": matching_distribution,
+            "matching_distribution_inverse_transform": (
+                matching_distribution_inverse_transform
+            ),
+            "matching_distribution_inverse_expected": (
+                matching_distribution_inverse_expected
+            ),
+            "kernel_inverse_transform_residual": (
+                kernel_inverse_transform_residual
+            ),
+            "matching_distribution_moments": matching_distribution_moments,
+            "matching_distribution_moment_residuals": (
+                matching_distribution_moment_residuals
+            ),
+            "coordinate_kernel_action": coordinate_kernel_action,
+            "coordinate_factorization_residual": (
+                coordinate_factorization_residual
+            ),
+            "pseudo_moment_factorized": pseudo_moment_factorized,
+            "pseudo_moment_expected": pseudo_moment_expected,
+            "pseudo_moment_residuals": pseudo_moment_residuals,
+            "quasi_old_integrand": quasi_old_integrand,
+            "quasi_integrand_after_change": quasi_integrand_after_change,
+            "quasi_kernel_after_change": quasi_kernel_after_change,
+            "quasi_integrand_expected": quasi_integrand_expected,
+            "quasi_scaling_residual": quasi_scaling_residual,
+            "quasi_matching_ratio": quasi_matching_ratio,
+            "quasi_matching_scale": quasi_matching_scale,
+            "x_fraction": x_fraction,
+            "pseudo_support_positive_interval": (
+                pseudo_support_positive_interval
+            ),
+            "pseudo_support_negative_interval": (
+                pseudo_support_negative_interval
+            ),
+            "pseudo_support_residuals": pseudo_support_residuals,
+            "pseudo_factorization": pseudo_factorization,
+            "one_loop_log": one_loop_log,
+            "one_loop_C_n": one_loop_C_n,
+            "one_loop_C0": one_loop_C0,
+            "one_loop_C0_expected": one_loop_C0_expected,
+            "C0_one_loop_residual": C0_one_loop_residual,
+            "gamma_z_moment_integral": gamma_z_moment_integral,
+            "gamma_z_moment_expected": gamma_z_moment_expected,
+            "gamma_z_moment_residual": gamma_z_moment_residual,
+            "gamma_z_delta_C_n": gamma_z_delta_C_n,
+            "gamma_z_delta_C0": gamma_z_delta_C0,
+            "quasi_log_argument": quasi_log_argument,
+            "quasi_moment_log_terms": quasi_moment_log_terms,
+            "quasi_moment_log_derivatives": quasi_moment_log_derivatives,
+            "quasi_moment_singularity_limits": (
+                quasi_moment_singularity_limits
+            ),
+            "ope_at_zero": ope_at_zero,
+            "ratio_ope": ratio_ope,
+            "ratio_expected": ratio_expected,
+            "ratio_factorization_residual": ratio_factorization_residual,
+            "ratio_normalization_residual": ratio_normalization_residual,
+            "z_power_correction": z_power_correction,
+            "momentum_power_correction": momentum_power_correction,
+            "z_power_limit": z_power_limit,
+            "momentum_power_limit": momentum_power_limit,
+        },
+        symbols={
+            "zeta": zeta,
+            "z": z,
+            "mu": mu,
+            "alpha_s": alpha_s,
+            "C_F": color_factor,
+            "alpha": alpha,
+            "n": n,
+            "y": y,
+            "b": pdf_skew,
+            "x": parton_x,
+            "y_positive": y_positive,
+            "y_negative": y_negative,
+            "x_fraction": x_fraction,
+            "P_z": hadron_momentum,
+            "zeta_positive": zeta_positive,
+            "Lambda_QCD": lambda_qcd,
+            "M": mass,
+        },
+        assumptions=(
+            "OPE 采用 N=3 的有限阶截断；等价的无限级数结构由每一阶同样的代数规则给出",
+            "q(y)=(1+b y)/2 定义在 [-1,1]，只用于精确检查 PDF 矩和归一化",
+            "iso-vector 子空间中胶子混合矩阵元置零；一般 singlet 混合未在此求解",
+            "匹配分布用 delta 导数的测试函数作用表示；不进行普通逐点化简",
+            "准 PDF 的尺度重标定在 y>0 分支验证，绝对值测度给出一般式的 dy/|y|",
+            "pseudo-PDF 的支持区间验证取 0<x<1，并把正负 y 分支分别映射为 [x,1] 与 [-1,-x]",
+            "quasi-PDF 矩发散用 n=2 和 C_n 中的 log(mu^2 zeta^2/(P^z)^2) 代表项检查；不是完整积分证明",
+            "C_n 的一圈公式和 gamma^z 矩修正按源文输入；不重算费曼积分和非微扰矩阵元",
+            "z^2 Lambda_QCD^2、(M^2+Lambda_QCD^2)/(P^z)^2 是被省略的幂修正量级",
         ),
         checks=checks,
         status="verified" if all(checks.values()) else "failed",
@@ -9718,6 +10303,7 @@ def run_core_checks() -> Dict[str, Any]:
         derive_hybrid_momentum_matching_kernel,
         derive_twist2_flowed_moment_matching,
         derive_euclidean_lightcone_factorization,
+        derive_euclidean_ope_factorization,
         derive_quasi_tmd_matching_and_cs_kernel,
         derive_quasi_tmd_hard_kernel_i_epsilon,
         derive_ri_xmom_renormalization_conditions,

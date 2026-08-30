@@ -454,6 +454,14 @@ CORE_FORMULAS: Dict[str, FormulaSpec] = {
         "derive_euclidean_lightcone_factorization",
         "验证 gamma^z 单圈修正的 [0,1] 支持、有限区间 plus 分布在测试函数上的作用，以及 t=1/x 定义的无穷远端点在可积 PDF 幂律 f(y)~y^(-1+a)、a>0 下的两类消失极限；不重新计算费曼积分或完整匹配核。",
     ),
+    "euclidean_ope_factorization": FormulaSpec(
+        "euclidean_ope_factorization",
+        r"\widetilde Q(\zeta)=\sum_nC_n\frac{(-i\zeta)^n}{n!}a_{n+1},\quad a_{n+1}=\int_{-1}^{1}dy\,y^nq(y),\quad \widetilde q(x)=\int_{-1}^{1}\frac{dy}{|y|}C\left(\frac{x}{y},\frac{\mu}{|y|P^z}\right)q(y),\quad \int dx\,x^n\mathcal P=C_na_{n+1}",
+        "refer/papers/Factorization_Euclidean_LightCone_latex/chapters/section02.tex:9-46,54-95,100-145,150-180,184-194,207-235",
+        "verified",
+        "derive_euclidean_ope_factorization",
+        "以有限阶 delta 导数匹配分布和归一化线性 PDF 模型验证 OPE 矩、坐标空间卷积、pseudo-PDF 矩、准 PDF 的 zeta->zeta/y 重标定、C0 一圈系数、gamma^z 矩修正和比值归一化；不计算费曼积分、singlet 胶子混合或格点数据。",
+    ),
     "langevin_fokker_planck": FormulaSpec(
         "langevin_fokker_planck",
         r"\partial_\tau\phi=-\frac{\delta S_E}{\delta\phi}+\eta,\quad P_{\rm eq}[\phi]\propto e^{-S_E[\phi]/\alpha}",
