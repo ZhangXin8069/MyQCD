@@ -611,6 +611,7 @@ def test_formula_registry_covers_report_level_structural_formulas() -> None:
         "normalizing_flow",
         "pseudo_itd",
         "pdf_moment_relations",
+        "twist2_flowed_moment_matching",
         "quasi_pdf_tmd_relation",
         "langevin_fokker_planck",
         "hmc_scalar",
@@ -764,6 +765,10 @@ def test_new_derivations_are_exposed_by_the_package() -> None:
     assert myqcd.derive_pseudo_pdf_one_loop is derivation_module.derive_pseudo_pdf_one_loop
     assert myqcd.derive_gauge_flow_kernel is derivation_module.derive_gauge_flow_kernel
     assert myqcd.derive_pdf_moment_relations is derivation_module.derive_pdf_moment_relations
+    assert (
+        myqcd.derive_twist2_flowed_moment_matching
+        is derivation_module.derive_twist2_flowed_moment_matching
+    )
     assert myqcd.derive_quasi_pdf_tmd_relation is derivation_module.derive_quasi_pdf_tmd_relation
     assert myqcd.derive_wilson_flow_five_dimensional is derivation_module.derive_wilson_flow_five_dimensional
     assert myqcd.derive_wilson_flow_runge_kutta is derivation_module.derive_wilson_flow_runge_kutta

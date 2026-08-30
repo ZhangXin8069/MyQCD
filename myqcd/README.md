@@ -17,6 +17,8 @@
    LaMET 综述的 DIS 壳条件与轻锥分解、GPD 非前向运动学边界和匹配测度、渐近 pion DA 归一化/Fourier 矩、TMD 软因子 RGE 与 Collins--Soper 解、辅助场 Wilson 线指数重整化与混合代数、RI/MOM—比值方案的 UV 抵消、混合重整化的切换点连续性、quasi-TMD 乘法因子化与硬因子修正的 CS 核提取、准 TMD 一圈硬核的 $i\epsilon$ 共轭结构、RI-xMOM 条件解法、Wilson 线自能线性反项、已去除线性反项的准 PDF 单圈匹配核，以及保留有限动量线性项的原始准 PDF 单圈核也分别在 `lamet_lightcone_kinematics`、`gpd_kinematics_and_matching`、`pion_da_normalization`、`tmd_soft_rge_consistency`、`auxiliary_field_wilson_renormalization`、`ri_mom_ratio_renormalization`、`hybrid_renormalization`、`quasi_tmd_matching_and_cs_kernel`、`quasi_tmd_hard_kernel_i_epsilon`、`ri_xmom_renormalization_conditions`、`wilson_line_linear_counterterm`、`quasi_pdf_one_loop_matching_kernel` 和 `quasi_pdf_finite_momentum_one_loop_matching_kernel` 中复现。
    其中 `hybrid_momentum_matching_kernel` 复现混合方案动量空间匹配核的
    plus 分布与正弦积分项，并保留其未计算一般广义函数积分的验证边界。
+   `twist2_flowed_moment_matching` 复现任意阶 twist-2 矩的带流匹配、
+   单圈有限系数与 RG 重求和结构；费曼积分和非微扰矩阵元仍未计算。
 2. `formula_registry.py` 给出报告结构公式的 LaTeX、来源行号、推导入口和
    假设。`structural` 表示原式是跨论文结构接口，不能替代某篇论文的特定
    方案或匹配系数。
