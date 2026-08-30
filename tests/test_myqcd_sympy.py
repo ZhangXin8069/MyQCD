@@ -406,6 +406,84 @@ def test_quasi_pdf_one_loop_matching_kernel_keeps_the_source_linear_cutoff_term(
     ) == 0
 
 
+def test_quasi_tmd_hard_kernel_keeps_the_i_epsilon_conjugate_structure() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_quasi_tmd_hard_kernel_i_epsilon",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["hard_kernel_conjugation_residual"] == 0
+    assert result.equations["hard_kernel_plus_tree_limit"] == 1
+    assert result.equations["hard_kernel_minus_tree_limit"] == 1
+    assert result.equations["hard_kernel_imaginary_residual"] == 0
+    assert result.equations["rapidity_log_conjugation_residual"] == 0
+
+
+def test_yang_mills_gradient_flow_reconstructs_the_emt_and_trace_identity() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_yang_mills_gradient_flow_emt",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["flow_emt_reconstruction_residual"] == 0
+    assert result.equations["flow_trace_residual"] == 0
+    assert result.equations["c_s_relation_residual"] == 0
+    assert result.equations["leading_flow_emt_residual"] == 0
+
+
+def test_hybrid_momentum_matching_preserves_plus_distribution_endpoint_structure() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_hybrid_momentum_matching_kernel",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["sine_term_endpoint_limit"] == (
+        2 * result.symbols["lambda_S"] / sp.pi
+    )
+    assert result.equations["plus_distribution_definition_residual"] == 0
+    assert result.equations["lambda_S_dimensionless_residual"] == 0
+    assert result.equations["parton_momentum_substitution_residual"] == 0
+
+
+def test_twist2_flowed_moment_matching_reproduces_rg_structure() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_twist2_flowed_moment_matching",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["gamma_n_harmonic_residual"] == 0
+    assert result.equations["gamma_n_at_n2"] == sp.Rational(8, 3)
+    assert result.equations["flowed_operator_renormalization_residual"] == 0
+    assert result.equations["ringed_bilinear_conversion_residual"] == 0
+    assert result.equations["matching_coefficient_tree_limit"] == 1
+    assert result.equations["lerch_definition_residual"] == 0
+    assert result.equations["rg_solution_residual"] == 0
+
+
 def test_gradient_flow_linearization_is_heat_kernel_evolution() -> None:
     result = derive_gradient_flow()
 
@@ -545,13 +623,17 @@ def test_formula_registry_covers_report_level_structural_formulas() -> None:
         "emt_operator_basis",
         "ringed_fermion_normalization",
         "emt_trace_anomaly",
+        "yang_mills_gradient_flow_emt",
         "auxiliary_field_wilson_renormalization",
         "ri_mom_ratio_renormalization",
         "hybrid_renormalization",
+        "hybrid_momentum_matching_kernel",
         "quasi_tmd_matching_and_cs_kernel",
+        "quasi_tmd_hard_kernel_i_epsilon",
         "ri_xmom_renormalization_conditions",
         "wilson_line_linear_counterterm",
         "quasi_pdf_one_loop_matching_kernel",
+        "quasi_pdf_finite_momentum_one_loop_matching_kernel",
         "lamet_lightcone_kinematics",
         "gpd_kinematics_and_matching",
         "pion_da_normalization",
@@ -589,6 +671,16 @@ def test_new_derivations_are_exposed_by_the_package() -> None:
     hybrid = getattr(derivation_module, "derive_hybrid_renormalization", None)
     assert callable(hybrid)
     assert getattr(myqcd, "derive_hybrid_renormalization", None) is hybrid
+    hybrid_momentum = getattr(
+        derivation_module,
+        "derive_hybrid_momentum_matching_kernel",
+        None,
+    )
+    assert callable(hybrid_momentum)
+    assert (
+        getattr(myqcd, "derive_hybrid_momentum_matching_kernel", None)
+        is hybrid_momentum
+    )
     quasi_tmd = getattr(
         derivation_module,
         "derive_quasi_tmd_matching_and_cs_kernel",
@@ -599,6 +691,13 @@ def test_new_derivations_are_exposed_by_the_package() -> None:
         getattr(myqcd, "derive_quasi_tmd_matching_and_cs_kernel", None)
         is quasi_tmd
     )
+    quasi_tmd_hard = getattr(
+        derivation_module,
+        "derive_quasi_tmd_hard_kernel_i_epsilon",
+        None,
+    )
+    assert callable(quasi_tmd_hard)
+    assert getattr(myqcd, "derive_quasi_tmd_hard_kernel_i_epsilon", None) is quasi_tmd_hard
     ri_xmom = getattr(
         derivation_module,
         "derive_ri_xmom_renormalization_conditions",
@@ -628,6 +727,20 @@ def test_new_derivations_are_exposed_by_the_package() -> None:
     assert (
         getattr(myqcd, "derive_quasi_pdf_one_loop_matching_kernel", None)
         is quasi_pdf_matching
+    )
+    finite_momentum_quasi_pdf = getattr(
+        derivation_module,
+        "derive_quasi_pdf_finite_momentum_one_loop_matching_kernel",
+        None,
+    )
+    assert callable(finite_momentum_quasi_pdf)
+    assert (
+        getattr(
+            myqcd,
+            "derive_quasi_pdf_finite_momentum_one_loop_matching_kernel",
+            None,
+        )
+        is finite_momentum_quasi_pdf
     )
     assert myqcd.derive_pseudo_itd is derivation_module.derive_pseudo_itd
     assert myqcd.derive_langevin_fokker_planck is derivation_module.derive_langevin_fokker_planck
