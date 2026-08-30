@@ -25,6 +25,32 @@
    `euclidean_ope_factorization` 复现同一论文 OPE 的有限阶矩结构、
    delta 导数匹配分布、pseudo-PDF 矩、准 PDF 的 `dy/|y|` 尺度重标定、
    一圈 `C_0` 与 gamma^z 矩修正；不计算费曼积分和非微扰矩阵元。
+   `euclidean_renormalization_schemes` 复现 section04 的一般方案转换、
+   pseudo/quasi-PDF 方案系数、RI/MOM 条件与 Fourier 卷积、`C_0` 平滑极限
+   及 vector/scalar mixing 的基变换不变量；方案特定圈系数和格点数据仍未计算。
+   `isovector_pdf_extension` 复现 section05 的同位旋矢量负 `x` 反夸克约定；
+   `isovector_systematic_renorm_matching` 复现同位旋矢量准 PDF 的 RI/MOM
+   两种投影、坐标空间重整化、Fourier 定义、一次圈 bare matching 与 counterterm
+   线性拆分，并显式保留 `p_z^R`、`\mu_R` 和 `\rho` 的约定；圈积分和格点数据
+   仍未重算。
+   `euclidean_lattice_data_window` 复现 section06 的无量纲
+   `(z,P^z)` 窗口、有限 Fourier 截断核和细格距下的点数标度，并区分源文
+   粗略整数集合与直接阈值筛选结果。
+   `quasi_pdf_all_order_renormalization` 复现准部分子重整化论文的一圈
+   UV 发散组合、五类幂计数、传播子分解、有序指数重求和和乘法反项；
+   全阶图形拓扑与方案特定积分仍保留为结构边界。
+   `quasi_gluon_multiplicative_renormalization` 复现准胶子论文的 36 个
+   反对称指标组合、一次圈 b/c 线性发散抵消、传播子分解、Ward 恒等式
+   张量约束、系数量纲和最终按 z 指标数分层的乘法重整化因子；d 维圈积分、
+   高阶图形拓扑与非阿贝尔路径排序仍作为结构输入，不冒充已重算。
+   `nonperturbative_renormalization_conditions` 复现一般复合算符非微扰重整化
+   的截肢 Green 函数、投影归一化、守恒矢流 Ward 恒等式、四费米子 mixing、
+   连续—格点一圈常数差和 plaquette boosted coupling 的代数关系；具体
+   Landau 规范格点 Green 函数、Goldstone 极点、费曼积分与数值结果仍未计算。
+   `power_corrections_renormalons_quasi` 复现准分布重子论文的 Borel 变换与
+   系数提取、`h_0/G_0` 归一化、`w=1/2,1` 重整化子极点、Borel 歧义标度、
+   qITD 核与 plus 分布、qPDF 端点增强和 pPDF 端点抑制；bubble-chain
+   费曼积分、广义函数完整卷积、MSTW 数值曲线仍保留为未重算边界。
 2. `formula_registry.py` 给出报告结构公式的 LaTeX、来源行号、推导入口和
    假设。`structural` 表示原式是跨论文结构接口，不能替代某篇论文的特定
    方案或匹配系数。
