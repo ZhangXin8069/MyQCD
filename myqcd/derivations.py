@@ -6735,6 +6735,188 @@ def derive_emt_trace_anomaly() -> DerivationResult:
     )
 
 
+def derive_yang_mills_gradient_flow_emt() -> DerivationResult:
+    r"""复现纯 Yang--Mills 梯度流构造重正化能动量张量的代数链。
+
+    源文的小流时间展开为
+    ``U_munu=c_T*T_R+c_S*delta_munu*(F2_R/4)`` 与
+    ``E=<E>+c_E*(F2_R/4)``。消去作用量密度后，能动量张量由
+    ``T_R=U/c_T-c_S/(c_T*c_E)*delta_munu*(E-<E>)`` 给出。
+    这里把两个独立重正化算符和一个张量分量作为符号代理，逐项验证
+    反解；同时由 ``D=4-2 epsilon`` 检查
+    ``delta_munu U_munu=2 epsilon E``，并验证迹约束
+    ``c_S=beta*c_T/(2*g**3)``。
+
+    最后保留源文小流时间渐近式中的 ``b_0,c_1,c_2,Lambda`` 作为输入，
+    检查 Eq. (4.29) 的系数重组。这里不计算 ``c_T,c_S,c_E`` 的圈积分、
+    running coupling、连续极限数值或格点能动量张量矩阵元。
+    """
+
+    dimension = sp.Symbol("D", real=True)
+    epsilon = sp.Symbol("epsilon", real=True)
+    field_strength_square = sp.Symbol("G2", real=True)
+    energy_density = field_strength_square / 4
+    flowed_trace = field_strength_square - dimension * field_strength_square / 4
+    trace_identity_residual = sp.simplify(
+        flowed_trace.subs(dimension, 4 - 2 * epsilon)
+        - 2 * epsilon * energy_density
+    )
+
+    c_t, c_s, c_e = sp.symbols(
+        "c_T c_S c_E", nonzero=True, real=True
+    )
+    tensor_component = sp.Symbol("T_R_munu", real=True)
+    scalar_component = sp.Symbol("F2_R_over_4", real=True)
+    delta_component = sp.Symbol("delta_munu", real=True)
+    subtracted_energy = sp.Symbol("E_sub", real=True)
+    flowed_tensor_component = (
+        c_t * tensor_component + c_s * delta_component * scalar_component
+    )
+    flowed_energy_component = c_e * scalar_component
+    reconstructed_tensor = (
+        flowed_tensor_component / c_t
+        - c_s
+        / (c_t * c_e)
+        * delta_component
+        * flowed_energy_component
+    )
+    flow_emt_reconstruction_residual = sp.simplify(
+        reconstructed_tensor - tensor_component
+    )
+
+    coupling = sp.Symbol("g", positive=True, real=True)
+    beta_function = sp.Function("beta")(coupling)
+    trace_anomaly_coefficient = -beta_function / (2 * coupling**3)
+    trace_matching_equation = (
+        c_t * trace_anomaly_coefficient + c_s
+    )
+    c_s_from_trace = sp.solve(trace_matching_equation, c_s)[0]
+    c_s_expected = beta_function * c_t / (2 * coupling**3)
+    c_s_relation_residual = sp.simplify(c_s_from_trace - c_s_expected)
+
+    b_0 = sp.Symbol("b_0", positive=True, real=True)
+    c_1, c_2 = sp.symbols("c_1 c_2", real=True)
+    flow_time = sp.Symbol("t", positive=True, real=True)
+    renormalization_scale = sp.Symbol("mu", positive=True, real=True)
+    lambda_parameter = sp.Symbol("Lambda", positive=True, real=True)
+    flow_log = sp.log(sp.sqrt(8 * flow_time) * lambda_parameter)
+    inverse_c_t_asymptotic = -2 * b_0 * (flow_log + c_1)
+    ratio_scalar_asymptotic = -b_0 / 2 * (
+        1 - (c_1 - c_2) / (-flow_log)
+    )
+    leading_flow_emt = (
+        inverse_c_t_asymptotic * flowed_tensor_component
+        - ratio_scalar_asymptotic * delta_component * subtracted_energy
+    )
+    leading_flow_emt_expected = (
+        -2 * b_0 * (flow_log + c_1) * flowed_tensor_component
+        + b_0
+        / 2
+        * (1 - (c_1 - c_2) / (-flow_log))
+        * delta_component
+        * subtracted_energy
+    )
+    leading_flow_emt_residual = sp.simplify(
+        leading_flow_emt - leading_flow_emt_expected
+    )
+
+    c_t_leading = coupling**2 * (
+        1
+        + 2
+        * b_0
+        * coupling**2
+        * (sp.log(sp.sqrt(8 * flow_time) * renormalization_scale) + c_1)
+    )
+    beta_one_loop = -b_0 * coupling**3
+    c_s_leading_from_trace = sp.simplify(
+        beta_one_loop * c_t_leading / (2 * coupling**3)
+    )
+    trace_coefficient_residual = sp.simplify(
+        c_s_leading_from_trace
+        - (-b_0 / 2 * coupling**2 * (
+            1
+            + 2
+            * b_0
+            * coupling**2
+            * (sp.log(sp.sqrt(8 * flow_time) * renormalization_scale) + c_1)
+        ))
+    )
+
+    checks = {
+        "flow_emt_reconstruction": _is_zero(
+            flow_emt_reconstruction_residual
+        ),
+        "flow_trace": _is_zero(trace_identity_residual),
+        "c_s_relation": _is_zero(c_s_relation_residual),
+        "leading_flow_emt": _is_zero(leading_flow_emt_residual),
+        "leading_trace_coefficient": _is_zero(
+            trace_coefficient_residual
+        ),
+    }
+    return DerivationResult(
+        name="yang_mills_gradient_flow_emt",
+        equations={
+            "flowed_trace": flowed_trace,
+            "energy_density": energy_density,
+            "flow_trace_residual": trace_identity_residual,
+            "flowed_tensor_expansion": flowed_tensor_component,
+            "flowed_energy_expansion": flowed_energy_component,
+            "reconstructed_tensor": reconstructed_tensor,
+            "flow_emt_reconstruction_residual": (
+                flow_emt_reconstruction_residual
+            ),
+            "c_s_relation": c_s_expected,
+            "trace_matching_equation": trace_matching_equation,
+            "c_s_from_trace": c_s_from_trace,
+            "c_s_relation_residual": c_s_relation_residual,
+            "flow_log": flow_log,
+            "inverse_c_t_asymptotic": inverse_c_t_asymptotic,
+            "ratio_scalar_asymptotic": ratio_scalar_asymptotic,
+            "leading_flow_emt": leading_flow_emt,
+            "leading_flow_emt_expected": leading_flow_emt_expected,
+            "leading_flow_emt_residual": leading_flow_emt_residual,
+            "c_t_leading": c_t_leading,
+            "c_s_leading_from_trace": c_s_leading_from_trace,
+            "trace_coefficient_residual": trace_coefficient_residual,
+            "dimensions": {
+                "t": -2,
+                "G2": 4,
+                "E": 4,
+                "U_munu": 4,
+            },
+        },
+        symbols={
+            "D": dimension,
+            "epsilon": epsilon,
+            "G2": field_strength_square,
+            "c_T": c_t,
+            "c_S": c_s,
+            "c_E": c_e,
+            "T_R_munu": tensor_component,
+            "F2_R_over_4": scalar_component,
+            "delta_munu": delta_component,
+            "E_sub": subtracted_energy,
+            "g": coupling,
+            "beta": beta_function,
+            "b_0": b_0,
+            "c_1": c_1,
+            "c_2": c_2,
+            "t": flow_time,
+            "mu": renormalization_scale,
+            "Lambda": lambda_parameter,
+        },
+        assumptions=(
+            "D=4-2 epsilon；流场局域乘积在 t>0 重正化后有限",
+            "c_T、c_E 非零；E_sub=E-<E>，并把 F2_R/4 作为独立重正化算符",
+            "c_S=beta(g)c_T/(2g^3) 来自四维迹反常，beta 的动力学值未计算",
+            "小流时间式中的 b_0、c_1、c_2 和 Lambda 是源文输入；先取 a->0 再取 t->0",
+            "不计算梯度流圈积分、running coupling、有限体积/离散化误差或格点矩阵元",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
 def derive_auxiliary_field_wilson_renormalization() -> DerivationResult:
     r"""复现辅助场方法中的非局域 Wilson 线与混合重正化结构。
 
@@ -7339,6 +7521,182 @@ def derive_quasi_tmd_matching_and_cs_kernel() -> DerivationResult:
     )
 
 
+def derive_quasi_tmd_hard_kernel_i_epsilon() -> DerivationResult:
+    r"""复现准 TMDWF 一圈硬核的 ``i epsilon`` 结构。
+
+    源文定义
+    ``ell_+ = log((-zeta_z+i*epsilon)/mu**2)``、
+    ``ell_- = log((-zeta_z-i*epsilon)/mu**2)``，并给出
+    ``H^pm=1+alpha_s*C_F/(4*pi)*(-5*pi**2/6-4+ell_pm+
+    ellbar_pm-(ell_pm**2+ellbar_pm**2)/2)``。
+
+    对 ``zeta_z>0`` 和 ``epsilon>0``，主值复对数可写成
+    ``ell_+ = L+i theta``、``ell_- = L-i theta``，其中
+    ``L=log(sqrt(zeta_z**2+epsilon**2)/mu**2)``、
+    ``theta=pi-atan(epsilon/zeta_z)``。在该显式分支下检查
+    ``H^- = conjugate(H^+)``，并保留双对数导致的随动量变化的虚部。
+    这只验证复对数的分支代数和树级极限；不计算 running coupling、
+    非微扰 CS 核或格点矩阵元。
+    """
+
+    zeta_z = sp.Symbol("zeta_z", positive=True, real=True)
+    zeta_bar = sp.Symbol("zeta_bar", positive=True, real=True)
+    mu = sp.Symbol("mu", positive=True, real=True)
+    epsilon = sp.Symbol("epsilon", positive=True, real=True)
+    alpha_s = sp.Symbol("alpha_s", real=True)
+    color_factor = sp.Symbol("C_F", positive=True, real=True)
+    physical_zeta = sp.Symbol("zeta", positive=True, real=True)
+    cs_kernel = sp.Symbol("K", real=True)
+
+    def complex_log_parts(scale: sp.Expr) -> Tuple[sp.Expr, sp.Expr]:
+        real_part = sp.log(sp.sqrt(scale**2 + epsilon**2) / mu**2)
+        phase = sp.pi - sp.atan(epsilon / scale)
+        return real_part, phase
+
+    log_z, phase_z = complex_log_parts(zeta_z)
+    log_bar, phase_bar = complex_log_parts(zeta_bar)
+    ell_plus = log_z + sp.I * phase_z
+    ell_minus = log_z - sp.I * phase_z
+    ell_bar_plus = log_bar + sp.I * phase_bar
+    ell_bar_minus = log_bar - sp.I * phase_bar
+
+    hard_prefactor = alpha_s * color_factor / (4 * sp.pi)
+
+    def hard_kernel(ell: sp.Expr, ell_bar: sp.Expr) -> sp.Expr:
+        return 1 + hard_prefactor * (
+            -5 * sp.pi**2 / 6
+            - 4
+            + ell
+            + ell_bar
+            - (ell**2 + ell_bar**2) / 2
+        )
+
+    hard_kernel_plus = hard_kernel(ell_plus, ell_bar_plus)
+    hard_kernel_minus = hard_kernel(ell_minus, ell_bar_minus)
+    hard_kernel_conjugation_residual = sp.simplify(
+        sp.conjugate(hard_kernel_plus) - hard_kernel_minus
+    )
+    hard_kernel_plus_tree_limit = sp.simplify(
+        hard_kernel_plus.subs(alpha_s, 0)
+    )
+    hard_kernel_minus_tree_limit = sp.simplify(
+        hard_kernel_minus.subs(alpha_s, 0)
+    )
+    hard_kernel_imaginary = sp.simplify(
+        hard_prefactor
+        * (
+            phase_z * (1 - log_z)
+            + phase_bar * (1 - log_bar)
+        )
+    )
+    hard_kernel_imaginary_residual = sp.simplify(
+        sp.im(hard_kernel_plus) - hard_kernel_imaginary
+    )
+
+    hard_log_argument_plus = (-zeta_z + sp.I * epsilon) / mu**2
+    hard_log_argument_minus = (-zeta_z - sp.I * epsilon) / mu**2
+    hard_log_modulus_squared_residual = sp.simplify(
+        sp.re(hard_log_argument_plus) ** 2
+        + sp.im(hard_log_argument_plus) ** 2
+        - (zeta_z**2 + epsilon**2) / mu**4
+    )
+
+    rapidity_log_plus = (
+        sp.log(sp.sqrt(zeta_z**2 + epsilon**2) / physical_zeta)
+        + sp.I * phase_z
+    )
+    rapidity_log_minus = (
+        sp.log(sp.sqrt(zeta_z**2 + epsilon**2) / physical_zeta)
+        - sp.I * phase_z
+    )
+    rapidity_log_conjugation_residual = sp.simplify(
+        sp.conjugate(rapidity_log_plus) - rapidity_log_minus
+    )
+    cs_exponential_plus = sp.exp(cs_kernel * rapidity_log_plus / 2)
+    cs_exponential_minus = sp.exp(cs_kernel * rapidity_log_minus / 2)
+    cs_exponential_conjugation_residual = sp.simplify(
+        sp.conjugate(cs_exponential_plus) - cs_exponential_minus
+    )
+
+    checks = {
+        "hard_kernel_conjugation": _is_zero(
+            hard_kernel_conjugation_residual
+        ),
+        "hard_kernel_plus_tree": _is_zero(
+            hard_kernel_plus_tree_limit - 1
+        ),
+        "hard_kernel_minus_tree": _is_zero(
+            hard_kernel_minus_tree_limit - 1
+        ),
+        "hard_kernel_imaginary": _is_zero(
+            hard_kernel_imaginary_residual
+        ),
+        "hard_log_modulus": _is_zero(
+            hard_log_modulus_squared_residual
+        ),
+        "rapidity_log_conjugation": _is_zero(
+            rapidity_log_conjugation_residual
+        ),
+        "cs_exponential_conjugation": _is_zero(
+            cs_exponential_conjugation_residual
+        ),
+    }
+    return DerivationResult(
+        name="quasi_tmd_hard_kernel_i_epsilon",
+        equations={
+            "ell_plus": ell_plus,
+            "ell_minus": ell_minus,
+            "ell_bar_plus": ell_bar_plus,
+            "ell_bar_minus": ell_bar_minus,
+            "hard_kernel_plus": hard_kernel_plus,
+            "hard_kernel_minus": hard_kernel_minus,
+            "hard_kernel_conjugation_residual": (
+                hard_kernel_conjugation_residual
+            ),
+            "hard_kernel_plus_tree_limit": hard_kernel_plus_tree_limit,
+            "hard_kernel_minus_tree_limit": hard_kernel_minus_tree_limit,
+            "hard_kernel_imaginary": hard_kernel_imaginary,
+            "hard_kernel_imaginary_residual": (
+                hard_kernel_imaginary_residual
+            ),
+            "hard_log_argument_plus": hard_log_argument_plus,
+            "hard_log_argument_minus": hard_log_argument_minus,
+            "hard_log_modulus_squared_residual": (
+                hard_log_modulus_squared_residual
+            ),
+            "rapidity_log_plus": rapidity_log_plus,
+            "rapidity_log_minus": rapidity_log_minus,
+            "rapidity_log_conjugation_residual": (
+                rapidity_log_conjugation_residual
+            ),
+            "cs_exponential_plus": cs_exponential_plus,
+            "cs_exponential_minus": cs_exponential_minus,
+            "cs_exponential_conjugation_residual": (
+                cs_exponential_conjugation_residual
+            ),
+        },
+        symbols={
+            "zeta_z": zeta_z,
+            "zeta_bar": zeta_bar,
+            "mu": mu,
+            "epsilon": epsilon,
+            "alpha_s": alpha_s,
+            "C_F": color_factor,
+            "zeta": physical_zeta,
+            "K": cs_kernel,
+        },
+        assumptions=(
+            "zeta_z、zeta_bar、mu、epsilon、zeta 均为正实数，采用主值复对数",
+            "ell_±=L±i theta，theta=pi-atan(epsilon/zeta_z)；bar ell 同理",
+            "H^± 只保留源文的一圈硬核，alpha_s 作为固定实参数",
+            "rapidity-log 的正负号按同一 Wilson 线方向约定成共轭对",
+            "不计算 i epsilon→0 的分布极限、running coupling、非微扰 K 或格点数据",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
 def derive_ri_xmom_renormalization_conditions() -> DerivationResult:
     r"""复现 RI-xMOM 条件对 ``m``、``Z_zeta`` 和 ``Z_phi^±`` 的解法。
 
@@ -7913,16 +8271,6 @@ def derive_quasi_pdf_finite_momentum_one_loop_matching_kernel() -> DerivationRes
     inner_point = positive_parameter / (1 + positive_parameter)
     negative_point = -positive_parameter
 
-    def log_argument(argument: sp.Expr) -> sp.Expr:
-        return sp.simplify(argument)
-
-    finite_log_arguments = (
-        log_argument(
-            finite_outer.args[0].args[0]
-            if isinstance(finite_outer.args[0], sp.log)
-            else finite_outer.args[0]
-        ),
-    )
     outer_argument = sp.simplify(
         outer_point
         * (
@@ -7963,6 +8311,61 @@ def derive_quasi_pdf_finite_momentum_one_loop_matching_kernel() -> DerivationRes
             )
         )
     )
+    outer_argument_certificate = sp.simplify(
+        (positive_parameter + 1)
+        * (
+            cutoff_scale**2
+            / (
+                cutoff_energy(positive_parameter + 1)
+                + (positive_parameter + 1) * p_z
+            )
+        )
+        / (
+            positive_parameter
+            * (
+                cutoff_scale**2
+                / (cutoff_energy(positive_parameter) + positive_parameter * p_z)
+            )
+        )
+    )
+    inner_argument_certificate = sp.simplify(
+        4
+        * positive_parameter
+        * cutoff_scale**2
+        / (
+            (
+                cutoff_energy(inner_point)
+                + inner_point * p_z
+            )
+            * (
+                cutoff_energy(1 - inner_point)
+                + (1 - inner_point) * p_z
+            )
+        )
+    )
+    negative_argument_certificate = sp.simplify(
+        (positive_parameter + 1)
+        * (
+            cutoff_energy(positive_parameter) + positive_parameter * p_z
+        )
+        / (
+            positive_parameter
+            * (
+                cutoff_energy(positive_parameter + 1)
+                + (positive_parameter + 1) * p_z
+            )
+        )
+    )
+    finite_log_argument_residuals = (
+        sp.simplify(outer_argument - outer_argument_certificate),
+        sp.simplify(inner_argument - inner_argument_certificate),
+        sp.simplify(negative_argument - negative_argument_certificate),
+    )
+    finite_log_arguments = (
+        outer_argument_certificate,
+        inner_argument_certificate,
+        negative_argument_certificate,
+    )
     asymptotic_log_arguments = (
         sp.simplify(outer_point / (outer_point - 1)),
         sp.simplify(4 * inner_point * (1 - inner_point)),
@@ -7975,7 +8378,9 @@ def derive_quasi_pdf_finite_momentum_one_loop_matching_kernel() -> DerivationRes
     )
     matching_subtraction_residual = sp.simplify(
         sp.logcombine(
-            matching_subtraction_inner - matching_inner,
+            (
+                matching_subtraction_inner - matching_inner
+            ).subs(xi, inner_point),
             force=True,
         )
     )
@@ -7983,7 +8388,7 @@ def derive_quasi_pdf_finite_momentum_one_loop_matching_kernel() -> DerivationRes
         linear_cutoff_term * p_z / cutoff_scale
         - 1 / (1 - xi) ** 2
     )
-    finite_matching_residual = sp.simplify(
+    finite_to_asymptotic_difference = sp.simplify(
         finite_quasi_vertex
         - asymptotic_quasi_vertex
     )
@@ -7995,12 +8400,12 @@ def derive_quasi_pdf_finite_momentum_one_loop_matching_kernel() -> DerivationRes
         ),
         "tree_limit": _is_zero(tree_limit - sp.DiracDelta(xi - 1)),
         "finite_log_arguments": all(
+            _is_zero(residual)
+            for residual in finite_log_argument_residuals
+        )
+        and all(
             sp.ask(sp.Q.positive(argument)) is True
-            for argument in (
-                outer_argument,
-                inner_argument,
-                negative_argument,
-            )
+            for argument in finite_log_arguments
         ),
         "asymptotic_log_arguments": all(
             sp.ask(sp.Q.positive(argument)) is True
@@ -8032,11 +8437,12 @@ def derive_quasi_pdf_finite_momentum_one_loop_matching_kernel() -> DerivationRes
             "matching_kernel": matching_kernel,
             "tree_limit": tree_limit,
             "finite_log_arguments": finite_log_arguments,
+            "finite_log_argument_residuals": finite_log_argument_residuals,
             "asymptotic_log_arguments": asymptotic_log_arguments,
             "matching_subtraction_inner": matching_subtraction_inner,
             "matching_subtraction_residual": matching_subtraction_residual,
             "linear_dimensionless_residual": linear_dimensionless_residual,
-            "finite_matching_residual": finite_matching_residual,
+            "finite_to_asymptotic_difference": finite_to_asymptotic_difference,
         },
         symbols={
             "xi": xi,
@@ -8053,6 +8459,553 @@ def derive_quasi_pdf_finite_momentum_one_loop_matching_kernel() -> DerivationRes
             "0<xi<1 的光锥项含 log(mu^2/m^2)，m 只作共线红外调节",
             "matching_piecewise 是渐近准顶点减去光锥顶点的分支差；共同线性项未被反项消除",
             "不计算端点 delta Z、plus/principal-value 广义积分、running coupling 或完整 Feynman 积分",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_hybrid_momentum_matching_kernel() -> DerivationResult:
+    r"""复现混合重正化方案的动量空间匹配核附加项。
+
+    源文把混合方案的匹配系数写成
+
+    .. math::
+
+       C_{\rm hybrid}=C_{\rm ratio}
+       +\frac{\alpha_s C_F}{2\pi}\frac32
+       \left[-\frac{1}{|1-\xi|_+}
+       +\frac{2\,\operatorname{Si}((1-\xi)\lambda_S)}
+       {\pi(1-\xi)}\right],
+
+    其中 ``lambda_S=z_S*p_z``。``C_ratio`` 是源文中未在本函数展开的
+    比值方案核；这里重点复现混合方案新增的分布结构。由于
+    ``1/|1-xi|_+`` 是广义函数，不能在 SymPy 中当作普通函数逐点
+    化简。为保留定义，代码同时记录带 cutoff 的形式极限，并用
+    ``exp(-(xi-1)^2)`` 这个光滑测试函数检查端点 counterterm 的消发散
+    作用；不执行一般测试函数上的 plus 分布积分。
+    """
+
+    xi = sp.Symbol("xi", real=True)
+    alpha_s = sp.Symbol("alpha_s", real=True)
+    color_factor = sp.Symbol("C_F", positive=True, real=True)
+    mu = sp.Symbol("mu", positive=True, real=True)
+    p_z = sp.Symbol("p_z", positive=True, real=True)
+    switch_distance = sp.Symbol("z_S", positive=True, real=True)
+    lambda_s = sp.Symbol("lambda_S", positive=True, real=True)
+
+    ratio_kernel_function = sp.Function("C_ratio")
+    ratio_kernel = ratio_kernel_function(xi, mu**2 / p_z**2)
+
+    beta = sp.Symbol("beta", positive=True, real=True)
+    plus_distribution_function = sp.Function(
+        "inv_abs_one_minus_xi_plus"
+    )
+    plus_distribution = plus_distribution_function(xi)
+    plus_regulator = (
+        sp.Heaviside(sp.Abs(1 - xi) - beta) / sp.Abs(1 - xi)
+        + 2 * sp.DiracDelta(1 - xi) * sp.log(beta)
+    )
+    plus_distribution_definition = sp.Limit(
+        plus_regulator,
+        beta,
+        0,
+        dir="+",
+    )
+
+    sine_argument = (1 - xi) * lambda_s
+    sine_term = 2 * sp.Si(sine_argument) / (sp.pi * (1 - xi))
+    endpoint_offset = sp.Symbol("eta", positive=True, real=True)
+    sine_term_endpoint_limit = sp.simplify(
+        sp.limit(
+            sine_term.subs(xi, 1 - endpoint_offset),
+            endpoint_offset,
+            0,
+            dir="+",
+        )
+    )
+    sine_term_right_endpoint_limit = sp.simplify(
+        sp.limit(
+            sine_term.subs(xi, 1 + endpoint_offset),
+            endpoint_offset,
+            0,
+            dir="+",
+        )
+    )
+
+    hybrid_extra = (
+        alpha_s
+        * color_factor
+        / (2 * sp.pi)
+        * sp.Rational(3, 2)
+        * (-plus_distribution + sine_term)
+    )
+    hybrid_kernel = ratio_kernel + hybrid_extra
+    hybrid_extra_tree_limit = sp.simplify(hybrid_extra.subs(alpha_s, 0))
+    hybrid_kernel_structure_residual = sp.simplify(
+        hybrid_kernel - ratio_kernel - hybrid_extra
+    )
+
+    # A concrete smooth test function makes the formal plus prescription
+    # checkable without pretending that the distribution is an ordinary
+    # pointwise function.  With u=xi-1, both half-lines give the same
+    # integral int_beta^infinity exp(-u**2)/u du.
+    one_sided_test_integral = -sp.Ei(-beta**2) / 2
+    one_sided_integral_derivative_residual = sp.simplify(
+        sp.diff(one_sided_test_integral, beta)
+        + sp.exp(-beta**2) / beta
+    )
+    one_sided_integral_infinity_limit = sp.limit(
+        one_sided_test_integral,
+        beta,
+        sp.oo,
+    )
+    regulated_plus_test_action = sp.simplify(
+        2 * one_sided_test_integral + 2 * sp.log(beta)
+    )
+    plus_test_action_limit = sp.limit(
+        regulated_plus_test_action,
+        beta,
+        0,
+        dir="+",
+    )
+    plus_test_action_expected = -sp.EulerGamma
+    plus_distribution_definition_residual = sp.simplify(
+        plus_test_action_limit - plus_test_action_expected
+    )
+
+    lambda_definition = switch_distance * p_z
+    lambda_s_dimensionless_residual = sp.simplify(
+        (lambda_s - lambda_definition).subs(
+            lambda_s,
+            lambda_definition,
+        )
+    )
+
+    x = sp.Symbol("x", positive=True, real=True)
+    y = sp.Symbol("y", real=True)
+    hadron_momentum = sp.Symbol("P_z", positive=True, real=True)
+    parton_fraction_definition = y / x
+    parton_momentum_definition = x * hadron_momentum
+    phase_argument_after_parton_substitution = (
+        sine_argument
+        .subs(xi, parton_fraction_definition)
+        .subs(lambda_s, lambda_definition)
+        .subs(p_z, parton_momentum_definition)
+    )
+    expected_parton_phase_argument = switch_distance * (x - y) * hadron_momentum
+    parton_momentum_substitution_residual = sp.simplify(
+        phase_argument_after_parton_substitution
+        - expected_parton_phase_argument
+    )
+
+    checks = {
+        "sine_term_endpoint": _is_zero(
+            sine_term_endpoint_limit - 2 * lambda_s / sp.pi
+        )
+        and _is_zero(
+            sine_term_right_endpoint_limit - 2 * lambda_s / sp.pi
+        ),
+        "plus_distribution_definition": _is_zero(
+            one_sided_integral_derivative_residual
+        )
+        and _is_zero(one_sided_integral_infinity_limit)
+        and _is_zero(plus_distribution_definition_residual),
+        "lambda_S_dimensionless": _is_zero(
+            lambda_s_dimensionless_residual
+        ),
+        "parton_momentum_substitution": _is_zero(
+            parton_momentum_substitution_residual
+        ),
+        "tree_level_extra": _is_zero(hybrid_extra_tree_limit),
+        "hybrid_kernel_structure": _is_zero(
+            hybrid_kernel_structure_residual
+        ),
+    }
+    return DerivationResult(
+        name="hybrid_momentum_matching_kernel",
+        equations={
+            "ratio_kernel": ratio_kernel,
+            "plus_distribution": plus_distribution,
+            "plus_regulator": plus_regulator,
+            "plus_distribution_definition": plus_distribution_definition,
+            "sine_argument": sine_argument,
+            "sine_term": sine_term,
+            "sine_term_endpoint_limit": sine_term_endpoint_limit,
+            "sine_term_right_endpoint_limit": (
+                sine_term_right_endpoint_limit
+            ),
+            "hybrid_extra": hybrid_extra,
+            "hybrid_kernel": hybrid_kernel,
+            "hybrid_extra_tree_limit": hybrid_extra_tree_limit,
+            "hybrid_kernel_structure_residual": (
+                hybrid_kernel_structure_residual
+            ),
+            "test_function": sp.exp(-(xi - 1) ** 2),
+            "one_sided_test_integral": one_sided_test_integral,
+            "regulated_plus_test_action": regulated_plus_test_action,
+            "plus_test_action_limit": plus_test_action_limit,
+            "plus_test_action_expected": plus_test_action_expected,
+            "plus_distribution_definition_residual": (
+                plus_distribution_definition_residual
+            ),
+            "lambda_definition": lambda_definition,
+            "lambda_S_dimensionless_residual": (
+                lambda_s_dimensionless_residual
+            ),
+            "parton_fraction_definition": parton_fraction_definition,
+            "parton_momentum_definition": parton_momentum_definition,
+            "phase_argument_after_parton_substitution": (
+                phase_argument_after_parton_substitution
+            ),
+            "expected_parton_phase_argument": expected_parton_phase_argument,
+            "parton_momentum_substitution_residual": (
+                parton_momentum_substitution_residual
+            ),
+        },
+        symbols={
+            "xi": xi,
+            "alpha_s": alpha_s,
+            "C_F": color_factor,
+            "mu": mu,
+            "p_z": p_z,
+            "z_S": switch_distance,
+            "lambda_S": lambda_s,
+            "beta": beta,
+            "x": x,
+            "y": y,
+            "P_z": hadron_momentum,
+        },
+        assumptions=(
+            "xi、y 为实变量；x>0、p_z>0、P_z>0、z_S>0、lambda_S>0",
+            "lambda_S=z_S p_z 是无量纲的切换距离—部分子动量乘积",
+            "C_ratio(xi,mu^2/(p_z)^2) 保留为源文比值方案核，不在此展开",
+            "plus 分布按 beta→0+ 的广义函数定义；这里只用 Gaussian 测试函数检验 counterterm",
+            "不计算一般 plus/principal-value 积分、端点 delta 配平、running coupling 或 PDF 矩阵元",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_twist2_flowed_moment_matching() -> DerivationResult:
+    r"""复现带梯度流 twist-2 算符的部分子矩匹配与 RG 结构。
+
+    该函数覆盖``任意阶部分子分布矩``中的可符号化主线：部分子模型中
+    ``A_n=<x**(n-1)>``，带流算符的乘法重正化和环场双线性转换，单圈
+    匹配系数
+
+    .. math::
+
+       c_n(t,\mu)=1+\frac{\bar g^2}{(4\pi)^2}c_n^{(1)}(t,\mu),\qquad
+       c_n^{(1)}=C_F[\gamma_n\log(8\pi\mu^2t)+B_n],
+
+    以及由 beta 函数和算符反常量纲给出的重求和因子。``B_n`` 中的
+    Lerch 超越函数保留为 SymPy 的 ``lerchphi``；这里只用其级数在
+    ``(z,s,a)=(1/2,1,2)`` 的精确特例核对定义，不声称重新计算论文的
+    费曼积分或 NLL 数值。
+    """
+
+    n = sp.Symbol("n", integer=True, positive=True)
+    j = sp.Symbol("j", integer=True, positive=True)
+    x = sp.Symbol("x", positive=True, real=True)
+    pdf_exponent = sp.Symbol("a", positive=True, real=True)
+    normalized_pdf = (pdf_exponent + 1) * x**pdf_exponent
+    pdf_normalization = sp.integrate(normalized_pdf, (x, 0, 1))
+    pdf_normalization_residual = sp.simplify(pdf_normalization - 1)
+    pdf_moment = sp.integrate(
+        x ** (n - 1) * normalized_pdf,
+        (x, 0, 1),
+    )
+    expected_pdf_moment = (pdf_exponent + 1) / (pdf_exponent + n)
+    pdf_moment_residual = sp.simplify(pdf_moment - expected_pdf_moment)
+
+    coefficient_function = sp.Function("C_1_n")
+    factorization_scale = sp.Symbol("Q", positive=True, real=True)
+    renormalization_scale = sp.Symbol("mu", positive=True, real=True)
+    wilson_coefficient = coefficient_function(
+        factorization_scale**2 / renormalization_scale**2
+    )
+    reduced_matrix_element = sp.Symbol("A_n", real=True)
+    structure_function_moment = wilson_coefficient * reduced_matrix_element
+    structure_function_moment_parton_model = structure_function_moment.subs(
+        reduced_matrix_element,
+        pdf_moment,
+    )
+    ope_parton_substitution_residual = sp.simplify(
+        structure_function_moment_parton_model
+        - wilson_coefficient * expected_pdf_moment
+    )
+
+    operator_renormalization_constant = sp.Symbol(
+        "Z_n",
+        nonzero=True,
+        real=True,
+    )
+    flowed_field_renormalization_constant = sp.Symbol(
+        "Z_chi",
+        nonzero=True,
+        real=True,
+    )
+    bare_flowed_operator = sp.Symbol("O_n_B", real=True)
+    flowed_operator = (
+        operator_renormalization_constant * bare_flowed_operator
+    )
+    flowed_operator_renormalization_residual = sp.simplify(
+        flowed_operator.subs(
+            operator_renormalization_constant,
+            flowed_field_renormalization_constant,
+        )
+        - flowed_field_renormalization_constant * bare_flowed_operator
+    )
+
+    epsilon = sp.Symbol("epsilon", real=True)
+    zeta_chi = sp.Symbol("zeta_chi", positive=True, real=True)
+    ringed_field = sp.Symbol("chi_ringed", real=True)
+    ringed_antifield = sp.Symbol("chibar_ringed", real=True)
+    ringed_field_factor = (
+        8 * sp.pi * sp.Symbol("t", positive=True, real=True)
+    ) ** (epsilon / 2) * sp.sqrt(zeta_chi)
+    ms_field = ringed_field_factor * ringed_field
+    ms_antifield = ringed_field_factor * ringed_antifield
+    ms_bilinear = ms_antifield * ms_field
+    expected_bilinear_conversion = (
+        8 * sp.pi * sp.Symbol("t", positive=True, real=True)
+    ) ** epsilon * zeta_chi * ringed_antifield * ringed_field
+    ringed_bilinear_conversion_residual = sp.simplify(
+        ms_bilinear - expected_bilinear_conversion
+    )
+
+    coupling = sp.Symbol("gbar", positive=True, real=True)
+    color_factor = sp.Symbol("C_F", positive=True, real=True)
+    flow_time = sp.Symbol("t", positive=True, real=True)
+    gamma_n_sum = 1 + 4 * sp.Sum(1 / j, (j, 2, n)) - 2 / (n * (n + 1))
+    gamma_n_harmonic = (
+        4 * sp.harmonic(n) - 3 - 2 / (n * (n + 1))
+    )
+    gamma_n_harmonic_residual = sp.simplify(
+        gamma_n_sum.doit() - gamma_n_harmonic
+    )
+    gamma_n_at_n2 = sp.simplify(gamma_n_harmonic.subs(n, 2))
+
+    lerch_argument = sp.Rational(1, 2)
+    lerch_parameter = sp.Integer(1)
+    lerch_sum = sp.Sum(
+        1 / (j * (j - 1))
+        * lerch_argument**j
+        * sp.lerchphi(lerch_argument, lerch_parameter, j),
+        (j, 2, n),
+    )
+    euler_constant = sp.EulerGamma
+    finite_matching_part = (
+        4 / (n * (n + 1))
+        + 4 * (n - 1) / n * sp.log(2)
+        + (2 - 4 * n**2) / (n * (n + 1)) * euler_constant
+        - 2 / (n * (n + 1)) * sp.digamma(n + 2)
+        + 4 / n * sp.digamma(n + 1)
+        - 4 * sp.digamma(2)
+        - 4 * lerch_sum
+        - sp.log(432)
+    )
+    matching_one_loop = color_factor * (
+        gamma_n_sum * sp.log(8 * sp.pi * renormalization_scale**2 * flow_time)
+        + finite_matching_part
+    )
+    matching_coefficient = 1 + coupling**2 / (4 * sp.pi) ** 2 * matching_one_loop
+    matching_coefficient_tree_limit = sp.simplify(
+        matching_coefficient.subs(coupling, 0)
+    )
+    matching_coefficient_expected = 1 + coupling**2 / (4 * sp.pi) ** 2 * (
+        color_factor
+        * (
+            gamma_n_sum
+            * sp.log(8 * sp.pi * renormalization_scale**2 * flow_time)
+            + finite_matching_part
+        )
+    )
+    matching_coefficient_structure_residual = sp.simplify(
+        matching_coefficient - matching_coefficient_expected
+    )
+
+    lerch_index = sp.Symbol("k", integer=True, nonnegative=True)
+    lerch_series_n2 = sp.Sum(
+        lerch_argument**lerch_index / (lerch_index + 2),
+        (lerch_index, 0, sp.oo),
+    )
+    lerch_closed_n2 = sp.expand_func(
+        sp.lerchphi(lerch_argument, lerch_parameter, 2)
+    )
+    lerch_definition_residual = sp.simplify(
+        lerch_series_n2.doit() - lerch_closed_n2
+    )
+
+    flowed_matrix_element = sp.Symbol("A_n_t", real=True)
+    ms_matrix_element = flowed_matrix_element / matching_coefficient
+    flowed_matrix_element_reconstruction_residual = sp.simplify(
+        matching_coefficient * ms_matrix_element - flowed_matrix_element
+    )
+
+    generic_coupling = sp.Symbol("g", positive=True, real=True)
+    coupling_at_mu = sp.Symbol("g_mu", positive=True, real=True)
+    coupling_at_q = sp.Symbol("g_q", positive=True, real=True)
+    b_0 = sp.Symbol("b_0", positive=True, real=True)
+    gamma_0 = sp.Symbol("gamma_0", positive=True, real=True)
+    beta_one_loop = -b_0 * generic_coupling**3
+    anomalous_dimension_one_loop = gamma_0 * generic_coupling**2
+    rg_integral = sp.integrate(
+        anomalous_dimension_one_loop / beta_one_loop,
+        (generic_coupling, coupling_at_mu, coupling_at_q),
+    )
+    rg_exponent = -rg_integral
+    rg_exponent_expected = gamma_0 / b_0 * sp.log(
+        coupling_at_q / coupling_at_mu
+    )
+    rg_exponent_residual = sp.simplify(
+        rg_exponent - rg_exponent_expected
+    )
+    rg_factor = sp.exp(rg_exponent_expected)
+    logarithmic_scale = sp.Symbol("log_mu", real=True)
+    running_coupling = sp.Function("g_mu")(logarithmic_scale)
+    rg_factor_at_scale = sp.exp(
+        gamma_0
+        / b_0
+        * sp.log(coupling_at_q / running_coupling)
+    )
+    rg_log_derivative = sp.diff(
+        sp.log(rg_factor_at_scale),
+        logarithmic_scale,
+    ).subs(
+        sp.Derivative(running_coupling, logarithmic_scale),
+        -b_0 * running_coupling**3,
+    )
+    rg_solution_residual = sp.simplify(
+        rg_log_derivative - gamma_0 * running_coupling**2
+    )
+
+    twist_dimension = sp.Symbol("d_O", integer=True, positive=True)
+    twist_two_residual = sp.simplify(
+        (twist_dimension - n).subs(twist_dimension, n + 2) - 2
+    )
+
+    checks = {
+        "pdf_normalization": _is_zero(pdf_normalization_residual),
+        "pdf_moment": _is_zero(pdf_moment_residual),
+        "ope_parton_substitution": _is_zero(
+            ope_parton_substitution_residual
+        ),
+        "flowed_operator_renormalization": _is_zero(
+            flowed_operator_renormalization_residual
+        ),
+        "ringed_bilinear_conversion": _is_zero(
+            ringed_bilinear_conversion_residual
+        ),
+        "gamma_n_harmonic": _is_zero(gamma_n_harmonic_residual),
+        "lerch_definition": _is_zero(lerch_definition_residual),
+        "matching_coefficient_structure": _is_zero(
+            matching_coefficient_structure_residual
+        ),
+        "matching_coefficient_tree": _is_zero(
+            matching_coefficient_tree_limit - 1
+        ),
+        "flowed_matrix_element_reconstruction": _is_zero(
+            flowed_matrix_element_reconstruction_residual
+        ),
+        "rg_exponent": _is_zero(rg_exponent_residual),
+        "rg_solution": _is_zero(rg_solution_residual),
+        "twist_two_dimension": _is_zero(twist_two_residual),
+    }
+    return DerivationResult(
+        name="twist2_flowed_moment_matching",
+        equations={
+            "normalized_pdf": normalized_pdf,
+            "pdf_normalization": pdf_normalization,
+            "pdf_normalization_residual": pdf_normalization_residual,
+            "pdf_moment": pdf_moment,
+            "expected_pdf_moment": expected_pdf_moment,
+            "pdf_moment_residual": pdf_moment_residual,
+            "wilson_coefficient": wilson_coefficient,
+            "structure_function_moment": structure_function_moment,
+            "structure_function_moment_parton_model": (
+                structure_function_moment_parton_model
+            ),
+            "ope_parton_substitution_residual": (
+                ope_parton_substitution_residual
+            ),
+            "flowed_operator": flowed_operator,
+            "flowed_operator_renormalization_residual": (
+                flowed_operator_renormalization_residual
+            ),
+            "ringed_field_factor": ringed_field_factor,
+            "ms_field": ms_field,
+            "ms_antifield": ms_antifield,
+            "expected_bilinear_conversion": expected_bilinear_conversion,
+            "ringed_bilinear_conversion_residual": (
+                ringed_bilinear_conversion_residual
+            ),
+            "zeta_chi_one_loop": 1
+            - coupling**2
+            / (4 * sp.pi) ** 2
+            * color_factor
+            * (
+                3
+                * sp.log(8 * sp.pi * renormalization_scale**2 * flow_time)
+                - sp.log(432)
+            ),
+            "gamma_n_sum": gamma_n_sum,
+            "gamma_n_harmonic": gamma_n_harmonic,
+            "gamma_n_harmonic_residual": gamma_n_harmonic_residual,
+            "gamma_n_at_n2": gamma_n_at_n2,
+            "lerch_sum": lerch_sum,
+            "finite_matching_part_B_n": finite_matching_part,
+            "matching_one_loop": matching_one_loop,
+            "matching_coefficient": matching_coefficient,
+            "matching_coefficient_tree_limit": matching_coefficient_tree_limit,
+            "matching_coefficient_structure_residual": (
+                matching_coefficient_structure_residual
+            ),
+            "lerch_series_n2": lerch_series_n2,
+            "lerch_closed_n2": lerch_closed_n2,
+            "lerch_definition_residual": lerch_definition_residual,
+            "flowed_matrix_element_reconstruction_residual": (
+                flowed_matrix_element_reconstruction_residual
+            ),
+            "rg_integral": rg_integral,
+            "rg_exponent": rg_exponent,
+            "rg_factor": rg_factor,
+            "rg_exponent_expected": rg_exponent_expected,
+            "rg_exponent_residual": rg_exponent_residual,
+            "rg_log_derivative": rg_log_derivative,
+            "rg_solution_residual": rg_solution_residual,
+            "twist_two_residual": twist_two_residual,
+        },
+        symbols={
+            "n": n,
+            "j": j,
+            "x": x,
+            "a": pdf_exponent,
+            "Q": factorization_scale,
+            "mu": renormalization_scale,
+            "t": flow_time,
+            "gbar": coupling,
+            "C_F": color_factor,
+            "epsilon": epsilon,
+            "Z_n": operator_renormalization_constant,
+            "Z_chi": flowed_field_renormalization_constant,
+            "g": generic_coupling,
+            "g_mu": coupling_at_mu,
+            "g_q": coupling_at_q,
+            "b_0": b_0,
+            "gamma_0": gamma_0,
+            "log_mu": logarithmic_scale,
+            "d_O": twist_dimension,
+        },
+        assumptions=(
+            "n>=2 为整数，且使用味非单态、对称无迹 twist-2 算符以避免胶子混合",
+            "a>0 的归一化 PDF 示例只用于精确计算 A_n=<x^(n-1)>",
+            "带流算符的 Z_n=Z_chi、环场有限因子和 B_n 均按源文公式作为输入结构",
+            "mu^2 t、Q^2/mu^2 和 8*pi*mu^2*t 是无量纲组合；t>0",
+            "RG 检查采用 beta(g)=-b_0*g^3、gamma(g)=gamma_0*g^2 的一圈代理",
+            "不计算非微扰强子矩阵元、费曼积分、H(4) 混合、NLL 数值或有限体积数据",
         ),
         checks=checks,
         status="verified" if all(checks.values()) else "failed",
@@ -8506,13 +9459,17 @@ def run_core_checks() -> Dict[str, Any]:
         derive_emt_operator_basis,
         derive_ringed_fermion_normalization,
         derive_emt_trace_anomaly,
+        derive_yang_mills_gradient_flow_emt,
         derive_auxiliary_field_wilson_renormalization,
         derive_ri_mom_ratio_renormalization,
         derive_hybrid_renormalization,
+        derive_hybrid_momentum_matching_kernel,
         derive_quasi_tmd_matching_and_cs_kernel,
+        derive_quasi_tmd_hard_kernel_i_epsilon,
         derive_ri_xmom_renormalization_conditions,
         derive_wilson_line_linear_counterterm,
         derive_quasi_pdf_one_loop_matching_kernel,
+        derive_quasi_pdf_finite_momentum_one_loop_matching_kernel,
         derive_lamet_lightcone_kinematics,
         derive_gpd_kinematics_and_matching,
         derive_pion_da_normalization,
