@@ -1,0 +1,381 @@
+\begin{frame}[plain]\FrameAnchor{V16-title}
+\centering
+{\Large\bfseries\color{courseblue}第 16 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 梯度流与流时重整化方案\par}
+\vspace{0.35cm}
+{\large 从扩散图像、Yang--Mills 流方程和小流时展开建立可控的流时窗口。\par}
+\vfill
+\CourseID{Tbl}{16.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 16 卷路线图}\FrameAnchor{V16-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+16.01 & 热方程、热核与平滑半径\\
+16.02 & Yang--Mills/\allowbreak{}Wilson 流方程\\
+16.03 & 流时窗口与尺度分离\\
+16.04 & 有限流时复合算符与重整化边界\\
+16.05 & 局域小流时展开与非局域路径边界\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{P07；P08；P28；P38；P40；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V16-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V03
+\item V07
+\item V08
+\item V15
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能实现并验证 Wilson/\allowbreak{}梯度流
+\item 能解释 \ensuremath{\sqrt{8\tau}} 平滑半径
+\item 能设计 a、\ensuremath{\tau} 和物理距离分离的流时外推
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：梯度流对高动量模式的抑制}\FrameAnchor{V16-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0.0,xmax=6.0,ymin=0.0,ymax=1.05,xlabel={$p\sqrt{8\tau}$},ylabel={幅度因子 $e^{-\tau p^2}$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0.0:6.0,samples=160] {exp(-x^2/8)};
+\addlegendentry{热核抑制}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{16.00}：线性化解析关系；非阿贝尔相互作用不改变其 UV 平滑图像。
+\SourceLine{热方程解}
+\end{frame}
+
+\begin{frame}[t]{热方程、热核与平滑半径：问题与图像}\FrameAnchor{16.01-1}
+\footnotesize
+\begin{block}{本节问题}梯度流为什么能把紫外尖峰扩散成有限宽度结构？\end{block}
+\PhysicalFlow{初始场 B(0,x)=A(x)}{随流时 \ensuremath{\tau} 扩散}{宽度 \ensuremath{\sqrt{8\tau}} 的四维热核}{16.01}
+\begin{block}{物理原则}\KnowledgeID{16.01}\quad \ensuremath{\sqrt{8\tau}} 是长度；把 8\ensuremath{\tau} 本身称为半径会违反量纲。\end{block}
+\SourceLine{P07；P08；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{热方程、热核与平滑半径：定义与主公式}\FrameAnchor{16.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{16.01-3734bd880d} 流时 & 维数为长度平方的辅助演化参数\\
+\DefinitionID{16.01-ecb4667a11} 热核 & 扩散方程点源初值的 Green 函数\\
+\DefinitionID{16.01-4c84271368} 平滑半径 & 四维均方根半径 \ensuremath{\sqrt{8\tau}}\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{16.01} 主公式}\centering\CourseDisplayEquation{K_\tau(x)=\frac{e^{-x^2/(4\tau)}}{(4\pi\tau)^2},\qquad \langle r^2\rangle=8\tau}\end{block}
+四维各坐标方差为 2\ensuremath{\tau}，总均方半径为 4\ensuremath{\times}2\ensuremath{\tau}。
+\end{frame}
+
+\begin{frame}[t]{热方程、热核与平滑半径：推导与证据边界}\FrameAnchor{16.01-3}
+\footnotesize
+\DerivationID{16.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{16.01}：
+\begin{enumerate}
+\item 四维热核分解为四个一维密度 exp[-x\ensuremath{\mu}\ensuremath{^{2}}/\allowbreak{}(4\ensuremath{\tau})]/\allowbreak{}\ensuremath{\sqrt{4\pi\tau}}。
+\item 每个一维高斯可写成 exp[-x\ensuremath{^{2}}/\allowbreak{}(2\ensuremath{\sigma}\ensuremath{^{2}})]，故 \ensuremath{\sigma}\ensuremath{^{2}}=2\ensuremath{\tau}。
+\item r\ensuremath{^{2}}=\ensuremath{\Sigma}\ensuremath{\mu}x\ensuremath{\mu}\ensuremath{^{2}} 的期望为 4\ensuremath{\sigma}\ensuremath{^{2}}=8\ensuremath{\tau}，因此均方根半径为 \ensuremath{\sqrt{8\tau}}。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{16.01}\quad 四维热核与半群；2/2 项通过；SymPy exact；复用 myqcd.derivations.derive\_heat\_kernel\_semigroup。
+\par\scriptsize 假设：t\_1,t\_2>0；一维连续热核，边界为整个实轴；Fourier 模式按 exp(-p\ensuremath{^{2}} t) 演化
+\end{block}
+\BoundaryLine{验证归一化、卷积半群和扩散宽度代理；有限周期盒边界另测。}
+\end{frame}
+
+\begin{frame}[t]{热方程、热核与平滑半径：计算算法}\FrameAnchor{16.01-4}
+\footnotesize
+\AlgorithmID{16.01}\begin{enumerate}
+\item 在周期格点上用单点脉冲作初值。
+\item 用稳定积分器推进离散扩散方程。
+\item 每个流时检查总和守恒并计算二阶矩。
+\item 在半径远小于盒长时比较 r\ensuremath{^{2}} 与 8\ensuremath{\tau}；靠近边界时改用周期距离。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\tau}\ensuremath{\rightarrow}0 时热核趋于 \ensuremath{\delta} 函数。
+\item[\CheckMark] 热核积分为 1，扩散不改变常数零模。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{热方程、热核与平滑半径：练习与完整解答}\FrameAnchor{16.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{16.01}}\ensuremath{\tau}=0.02 fm\ensuremath{^{2}} 时平滑半径是多少？\end{block}
+\begin{exampleblock}{\SolutionID{16.01}}\ensuremath{\sqrt{8\times 0.02}} fm=0.4 fm。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{16.01-3734bd880d}；\CourseRef{Eq}{16.01}；\CourseRef{SYM}{16.01}；\CourseRef{Alg}{16.01}。
+\SourceLine{P07；P08；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{Yang--Mills/\allowbreak{}Wilson 流方程：问题与图像}\FrameAnchor{16.02-1}
+\footnotesize
+\begin{block}{本节问题}怎样在保持规范协变的同时沿作用量最陡下降方向平滑链接？\end{block}
+\PhysicalFlow{初始链接 U}{规范作用量梯度}{群流 V\ensuremath{\tau} 保持 SU(3)}{16.02}
+\begin{block}{物理原则}\KnowledgeID{16.02}\quad 梯度流提供 UV 平滑和有限流时复合算符，但不等同于 TMD rapidity subtraction。\end{block}
+\SourceLine{P05；P07；P08；PYQCD-GAUGE}
+\end{frame}
+
+\begin{frame}[t]{Yang--Mills/\allowbreak{}Wilson 流方程：定义与主公式}\FrameAnchor{16.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{16.02-3c60b5d212} Yang--Mills 流 & 连续规范场沿作用量梯度的扩散方程\\
+\DefinitionID{16.02-eeeb19405b} Wilson 流 & Wilson 规范作用量对应的格点群值流\\
+\DefinitionID{16.02-5224ca908c} 规范阻尼 & 只改变规范轨道参数化的可选项\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{16.02} 主公式}\centering\CourseDisplayEquation{\partial_\tau B_\mu=D_\nu G_{\nu\mu},\qquad B_\mu(0,x)=A_\mu(x)}\end{block}
+流方程是规范协变的非线性扩散；线性化后横向模式满足普通热方程。
+\end{frame}
+
+\begin{frame}[t]{Yang--Mills/\allowbreak{}Wilson 流方程：推导与证据边界}\FrameAnchor{16.02-3}
+\footnotesize
+\DerivationID{16.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{16.02}：
+\begin{enumerate}
+\item 对 Yang--Mills 作用量 S=(1/\allowbreak{}4)\ensuremath{\int}G\ensuremath{^{2}} 做变分得到 \ensuremath{\delta}S/\allowbreak{}\ensuremath{\delta}B\ensuremath{\mu}=-D\ensuremath{\nu}G\ensuremath{\nu}\ensuremath{\mu}。
+\item 最陡下降取 \ensuremath{\partial}\ensuremath{\tau}B\ensuremath{\mu}=-\ensuremath{\delta}S/\allowbreak{}\ensuremath{\delta}B\ensuremath{\mu}=D\ensuremath{\nu}G\ensuremath{\nu}\ensuremath{\mu}。
+\item 沿流 dS/\allowbreak{}d\ensuremath{\tau}=\ensuremath{\int}(\ensuremath{\delta}S/\allowbreak{}\ensuremath{\delta}B\ensuremath{\mu})\ensuremath{\partial}\ensuremath{\tau}B\ensuremath{\mu}=-\ensuremath{\int}(D\ensuremath{\nu}G\ensuremath{\nu}\ensuremath{\mu})\ensuremath{^{2}}\ensuremath{\le}0。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{16.02}\quad Wilson 格点流的作用量单调性；7/7 项通过；SymPy exact；复用 myqcd.derivations.derive\_wilson\_lattice\_flow\_monotonicity。
+\par\scriptsize 假设：U(1) 单方格代理 V=exp(i theta)，theta 为实数且 g\_0>0；S\_W=(1-cos(theta))/\allowbreak{}g\_0\ensuremath{^{2}} 是 Re Tr(1-V) 的归一化代理；Lie 代数导数 partial S\_W=i*dS\_W/\allowbreak{}dtheta，故 dot V=-g\_0\ensuremath{^{2}}(partial S\_W)V
+\end{block}
+\BoundaryLine{在显式格点代理验证梯度平方结构；生产积分器还需步长收敛。}
+\end{frame}
+
+\begin{frame}[t]{Yang--Mills/\allowbreak{}Wilson 流方程：计算算法}\FrameAnchor{16.02-4}
+\footnotesize
+\AlgorithmID{16.02}\begin{enumerate}
+\item 以 SU(3) 李代数力构造 dV/\allowbreak{}d\ensuremath{\tau}=Z(V)V。
+\item 使用群保持的三阶 Runge--Kutta 或受检验积分器。
+\item 在指定流时保存观测量，不用任意重投影掩盖积分误差。
+\item 检查 U†U、detU、步长收敛和作用量非增。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 流固定点满足 D\ensuremath{\nu}G\ensuremath{\nu}\ensuremath{\mu}=0。
+\item[\CheckMark] 作用量导数为负平方；若显著上升说明符号或积分误差。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}gradient\_\allowbreak{}flow.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Yang--Mills/\allowbreak{}Wilson 流方程：练习与完整解答}\FrameAnchor{16.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{16.02}}若单自由度 S(q)=kq\ensuremath{^{2}}/\allowbreak{}2，梯度流 dq/\allowbreak{}d\ensuremath{\tau}=-kq 的解是什么？\end{block}
+\begin{exampleblock}{\SolutionID{16.02}}q(\ensuremath{\tau})=q(0)e\ensuremath{^{-k\tau}}，且 dS/\allowbreak{}d\ensuremath{\tau}=-k\ensuremath{^{2}}q\ensuremath{^{2}}\ensuremath{\le}0。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{16.02-3c60b5d212}；\CourseRef{Eq}{16.02}；\CourseRef{SYM}{16.02}；\CourseRef{Alg}{16.02}。
+\SourceLine{P05；P07；P08；PYQCD-GAUGE}
+\end{frame}
+
+\begin{frame}[t]{流时窗口与尺度分离：问题与图像}\FrameAnchor{16.03-1}
+\footnotesize
+\begin{block}{本节问题}流时太小没有压低格点 UV，太大又会抹掉目标非局域结构，窗口怎样定？\end{block}
+\PhysicalFlow{下界 a\ensuremath{\ll}\ensuremath{\sqrt{8\tau}}}{上界小于空间与时间安全距离}{多 a、多 \ensuremath{\tau} 检验重叠窗口}{16.03}
+\begin{block}{物理原则}\KnowledgeID{16.03}\quad 当某个分离为零时不能机械放进右侧最小值；应按目标算符的非零物理尺度重定窗口。\end{block}
+\SourceLine{P28；P38；P39；P40}
+\end{frame}
+
+\begin{frame}[t]{流时窗口与尺度分离：定义与主公式}\FrameAnchor{16.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{16.03-f5e1f62734} 流时窗口 & 离散伪影和过度平滑都受控的 \ensuremath{\tau} 区间\\
+\DefinitionID{16.03-de26dbf684} 尺度分离 & 把 UV 截断、流半径和目标物理距离分开\\
+\DefinitionID{16.03-fb3aaed34c} 接触安全距离 & 插入点到核子源、汇和时间边界的最小距离\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{16.03} 主公式}\centering\CourseDisplayEquation{a^2\ll 8\tau\ll\min\{b_T^2,z^2,\ell^2,L^2,d_{\mathrm{src}}^2,d_{\mathrm{snk}}^2,d_{\partial T}^2\}}\end{block}
+四维流半径既要小于空间几何，也要小于插入点到源、汇和时间边界的安全距离。
+\end{frame}
+
+\begin{frame}[t]{流时窗口与尺度分离：推导与证据边界}\FrameAnchor{16.03-3}
+\footnotesize
+\DerivationID{16.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{16.03}：
+\begin{enumerate}
+\item 要求 UV 模式 \ensuremath{\pi}/\allowbreak{}a 被 exp(-\ensuremath{\tau}p\ensuremath{^{2}}) 明显抑制，给 \ensuremath{\tau}/\allowbreak{}a\ensuremath{^{2}} 的下界。
+\item 要求热核不把两个场强端点或 staple 各段混为一体，给 8\ensuremath{\tau}\ensuremath{\ll}d\ensuremath{^{2}}。
+\item 把独立非零空间距离与 dsrc、dsnk、d\ensuremath{\partial}T 一并取最严格上界。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{16.03}\quad 流时窗口的无量纲尺度比；3/3 项通过；SymPy exact。
+\par\scriptsize 假设：所有长度为正；r\_flow=sqrt(8 tau)
+\end{block}
+\BoundaryLine{不等式是否有重叠窗口取决于实际 a、几何和数据稳定性。}
+\end{frame}
+
+\begin{frame}[t]{流时窗口与尺度分离：计算算法}\FrameAnchor{16.03-4}
+\footnotesize
+\AlgorithmID{16.03}\begin{enumerate}
+\item 为每个 a、z、bT、\ensuremath{\ell}、插入时刻计算 rflow/\allowbreak{}a 与所有 rflow/\allowbreak{}d。
+\item 预先规定保守窗口并标记无窗口的几何点。
+\item 在窗口内扫描至少三个流时，检查平台或可拟合 \ensuremath{\tau} 依赖。
+\item 随流半径扩宽源汇接触剔除区，改变窗口边界并计入漂移。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\tau}\ensuremath{\rightarrow}0 不满足下界，格点 UV 伪影会重现。
+\item[\CheckMark] rflow 接近 L/\allowbreak{}2 时周期镜像严重。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{流时窗口与尺度分离：练习与完整解答}\FrameAnchor{16.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{16.03}}a=0.06 fm、bT=0.48 fm，取 rflow=0.24 fm，两个无量纲比是多少？\end{block}
+\begin{exampleblock}{\SolutionID{16.03}}rflow/\allowbreak{}a=4，rflow/\allowbreak{}bT=0.5；后者是否足够小须由更小流时的稳定性数据判断。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{16.03-f5e1f62734}；\CourseRef{Eq}{16.03}；\CourseRef{SYM}{16.03}；\CourseRef{Alg}{16.03}。
+\SourceLine{P28；P38；P39；P40}
+\end{frame}
+
+\begin{frame}[t]{有限流时复合算符与重整化边界：问题与图像}\FrameAnchor{16.04-1}
+\footnotesize
+\begin{block}{本节问题}流过的规范场为何改善 UV 行为，却仍不能单独定义物理 TMD？\end{block}
+\PhysicalFlow{\ensuremath{\tau}>0 的平滑场}{有限的局域复合算符}{仍需 soft/\allowbreak{}rapidity 与方案匹配}{16.04}
+\begin{block}{物理原则}\KnowledgeID{16.04}\quad UV 平滑依赖 p\ensuremath{^{2}}；rapidity 发散来自 Wilson 线方向/\allowbreak{}快度区域，二者不是同一扣除。\end{block}
+\SourceLine{P07；P28；P40；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{有限流时复合算符与重整化边界：定义与主公式}\FrameAnchor{16.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{16.04-29bc79878b} 有限流时方案 & 以 \ensuremath{\tau} 引入物理平滑尺度的重整化定义\\
+\DefinitionID{16.04-18fb49b845} UV 有限 & 固定正流时 flowed 局域复合场的性质\\
+\DefinitionID{16.04-43265a0d07} rapidity subtraction & 去除近光状 Wilson 线 rapidity 重叠的独立步骤\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{16.04} 主公式}\centering\CourseDisplayEquation{B_\mu(\tau,p)=e^{-\tau p^2}A_\mu(p)+O(g)}\end{block}
+在线性化极限，每个动量模被热核因子抑制，p\ensuremath{\gg}1/\allowbreak{}\ensuremath{\sqrt{\tau}} 的 UV 模式指数减少。
+\end{frame}
+
+\begin{frame}[t]{有限流时复合算符与重整化边界：推导与证据边界}\FrameAnchor{16.04-3}
+\footnotesize
+\DerivationID{16.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{16.04}：
+\begin{enumerate}
+\item 线性化流方程并选横向规范，得到 \ensuremath{\partial}\ensuremath{\tau}B\ensuremath{\mu}(\ensuremath{\tau},p)=-p\ensuremath{^{2}}B\ensuremath{\mu}(\ensuremath{\tau},p)。
+\item 常系数一阶方程的解是 B\ensuremath{\mu}=e\ensuremath{^{-\tau{}p^{2}}}B\ensuremath{\mu}(0,p)。
+\item 初值 B\ensuremath{\mu}(0,p)=A\ensuremath{\mu}(p)，相互作用修正从 O(g) 开始。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{16.04}\quad flowed 传播子的热核抑制；7/7 项通过；SymPy exact；复用 myqcd.derivations.derive\_flowed\_propagators。
+\par\scriptsize 假设：二维 Euclidean 动量固定为 p=(1,2)，故 p\ensuremath{^{2}}=5；t,s\ensuremath{\ge}0、m>0、kappa>0，xi 保留为实规范参数；胶子传播子按横向/\allowbreak{}纵向投影分解，夸克传播子使用 Pauli gamma 代理
+\end{block}
+\BoundaryLine{验证微扰线性化传播子的指数抑制；rapidity subtraction 明确不在该检查中。}
+\end{frame}
+
+\begin{frame}[t]{有限流时复合算符与重整化边界：计算算法}\FrameAnchor{16.04-4}
+\footnotesize
+\AlgorithmID{16.04}\begin{enumerate}
+\item 把 flow time 作为每个算符数据的强制坐标。
+\item 在同一 \ensuremath{\tau} 上构造场强、Wilson 路径和 soft 对象。
+\item 分别执行 UV/\allowbreak{}流时转换与 soft/\allowbreak{}rapidity 扣除。
+\item 关闭 soft 步骤时强制输出 prototype 状态，阻止物理发布。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] p=0 模不受线性热核改变。
+\item[\CheckMark] \ensuremath{\tau}p\ensuremath{^{2}} 无量纲，因为 [\ensuremath{\tau}]=质量\ensuremath{^{-2}}。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}gradient\_\allowbreak{}flow.\allowbreak{}py 与 \_\allowbreak{}tmd.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{有限流时复合算符与重整化边界：练习与完整解答}\FrameAnchor{16.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{16.04}}p\ensuremath{^{2}}=10 GeV\ensuremath{^{2}}、\ensuremath{\tau}=0.05 GeV\ensuremath{^{-2}} 时抑制因子是多少？\end{block}
+\begin{exampleblock}{\SolutionID{16.04}}e\ensuremath{^{-0.5}}\ensuremath{\approx}0.607。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{16.04-29bc79878b}；\CourseRef{Eq}{16.04}；\CourseRef{SYM}{16.04}；\CourseRef{Alg}{16.04}。
+\SourceLine{P07；P28；P40；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{局域小流时展开与非局域路径边界：问题与图像}\FrameAnchor{16.05-1}
+\footnotesize
+\begin{block}{本节问题}局域 flowed 算符和有限 staple 能否使用同一个常数加 \ensuremath{\tau} 外推？\end{block}
+\PhysicalFlow{局域算符可按维数展开}{staple 系数依赖整条路径}{先连续极限再作方案匹配}{16.05}
+\begin{block}{物理原则}\KnowledgeID{16.05}\quad C\ensuremath{\Gamma} 可含路径周长除以流半径、cusp 对数和 mixing；未知时不能用线性 \ensuremath{\tau} 外推冒充 flow-to-standard 转换。\end{block}
+\SourceLine{P10；P35；P36；P37；P38}
+\end{frame}
+
+\begin{frame}[t]{局域小流时展开与非局域路径边界：定义与主公式}\FrameAnchor{16.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{16.05-643afce693} 局域 SFTE & 局域 flowed 复合算符按同点重整化算符基底展开\\
+\DefinitionID{16.05-d8d6b19b21} 路径核 & 依赖 z、bT、\ensuremath{\ell}、端点、cusp 与流半径的非局域转换矩阵\\
+\DefinitionID{16.05-940893a6be} 非解析流时项 & Lpath/\allowbreak{}\ensuremath{\sqrt{8\tau}}、ln\ensuremath{\tau} 等不能由常数加 \ensuremath{\tau} 多项式表示的项\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{16.05} 主公式}\centering\CourseDisplayEquation{\begin{aligned}O_{\rm loc}^{\rm flow}(\tau)&=\sum_k c_k(\tau,\mu)O_{k,\rm loc}^{R}(\mu),\\ O_{\Gamma,i}^{\rm flow}(\tau)&=C_{\Gamma,ij}\!\left(z,b_T,\ell,\sqrt{8\tau},\mu,S\right)O_{\Gamma,j}^{S}(\mu)+\cdots\end{aligned}}\end{block}
+局域 SFTE 按算符维数组织；非局域 staple 必须使用带完整路径 \ensuremath{\Gamma} 的矩阵/\allowbreak{}卷积核。
+\end{frame}
+
+\begin{frame}[t]{局域小流时展开与非局域路径边界：推导与证据边界}\FrameAnchor{16.05-3}
+\footnotesize
+\DerivationID{16.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{16.05}：
+\begin{enumerate}
+\item 对局域算符，\ensuremath{\tau} 的质量维数为 -2；每多一个 \ensuremath{\tau} 由高两维算符补偿。
+\item 对非局域 \ensuremath{\Gamma}，Wilson 线周长、端点和 cusp 引入额外无量纲比与对数。
+\item 因此局域常数加 \ensuremath{\tau} 只是一个分支，不能推导非局域 staple 的 \ensuremath{\tau} 依赖。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{16.05}\quad 局域小流时展开与非局域路径边界；4/4 项通过；SymPy exact。
+\par\scriptsize 假设：tau,Lambda,L\_path>0；局域代理只保留 O(tau Lambda\ensuremath{^{2}})；finite-staple 的路径长度在 tau->0 时固定非零
+\end{block}
+\BoundaryLine{局域常数加 tau 模型不能验证非局域 TMD 的 flow-to-standard 转换；后者必须给出依赖 z、bT、ell、端点、cusp、mixing 与方案的 C\_Gamma 核，否则保持 finite-flow prototype。}
+\end{frame}
+
+\begin{frame}[t]{局域小流时展开与非局域路径边界：计算算法}\FrameAnchor{16.05-4}
+\footnotesize
+\AlgorithmID{16.05}\begin{enumerate}
+\item 先在固定物理 \ensuremath{\tau} 和固定 \ensuremath{\Gamma} 上做多格距连续外推。
+\item 局域分支应用已知 ck；非局域分支必须取得 C\ensuremath{\Gamma} 及其 scheme/\allowbreak{}regulator。
+\item 显式拟合或消去 Lpath/\allowbreak{}\ensuremath{\sqrt{8\tau}}、ln\ensuremath{\tau}、cusp 与 mixing 后才讨论小流时窗口。
+\item 缺少 C\ensuremath{\Gamma} 时停在 finite-flow prototype，并把缺失转换列为理论系统误差而非外推截距。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 局域 \ensuremath{\tau}\ensuremath{\rightarrow}0 时显式幂修正消失，但 ck 可含对数。
+\item[\CheckMark] 固定 a 直接 \ensuremath{\tau}\ensuremath{\rightarrow}0 会遇到 a\ensuremath{^{2}}/\allowbreak{}\ensuremath{\tau}；非局域路径还可能有 Lpath/\allowbreak{}\ensuremath{\sqrt{\tau}}。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}extrapolate.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{局域小流时展开与非局域路径边界：练习与完整解答}\FrameAnchor{16.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{16.05}}局域模型 y(\ensuremath{\tau})=2+3\ensuremath{\tau} 的截距是多少？能否把同一拟合直接用于 finite-staple TMD？\end{block}
+\begin{exampleblock}{\SolutionID{16.05}}局域截距为 2；不能直接用于 staple，因为其转换核可含路径/\allowbreak{}\ensuremath{\sqrt{\tau}}、cusp 对数和 mixing。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{16.05-643afce693}；\CourseRef{Eq}{16.05}；\CourseRef{SYM}{16.05}；\CourseRef{Alg}{16.05}。
+\SourceLine{P10；P35；P36；P37；P38}
+\end{frame}
+
+\begin{frame}[t]{第 16 卷能力清单}\FrameAnchor{V16-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能实现并验证 Wilson/\allowbreak{}梯度流
+\item[\CheckMark] 能解释 \ensuremath{\sqrt{8\tau}} 平滑半径
+\item[\CheckMark] 能设计 a、\ensuremath{\tau} 和物理距离分离的流时外推
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 16 卷来源（1/3）}\FrameAnchor{V16-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{P07} & 威尔逊流的性质与应用 & 论文图谱 P07 的完整原始 PDF；底稿 arXiv:1006.4518；SHA-256 63426411712d8b00…。\\
+\SourceID{P08} & 梯度流的微扰分析 & 论文图谱 P08 的完整原始 PDF；底稿 arXiv:1101.0963；SHA-256 da3927cb38f6f864…。\\
+\SourceID{P28} & 准部分子分布与梯度流 & 论文图谱 P28 的完整原始 PDF；底稿 arXiv:1612.01584；SHA-256 df4b2d5a4f3e1ce7…。\\
+\SourceID{P38} & 局域涂抹算符乘积展开 & 论文图谱 P38 的完整原始 PDF；底稿 arXiv:1501.05348；SHA-256 f16003f5503a6fce…。\\
+\SourceID{P40} & 梯度流中的非光锥威尔逊线算符 & 论文图谱 P40 的完整原始 PDF；底稿 arXiv:2312.05032；SHA-256 31292da5c276c237…。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 16 卷来源（2/3）}\FrameAnchor{V16-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{REPORT-TMD} & 梯度流核子胶子 TMD 项目报告 & 本课程终点定义、实现现状、证据分级和关键物理边界。\\
+\SourceID{P05} & 平凡化映射威尔逊流与HMC & 论文图谱 P05 的完整原始 PDF；底稿 arXiv:0907.5491；SHA-256 3320b1d4caaa4e90…。\\
+\SourceID{PYQCD-GAUGE} & PyQCD 规范场技能 & 链接、plaquette、flow 和规范不变量。\\
+\SourceID{P39} & 微扰论中的涂抹准分布 & 论文图谱 P39 的完整原始 PDF；底稿 arXiv:1710.04607；SHA-256 dcf036dda58e10f4…。\\
+\SourceID{P10} & 杨米尔斯梯度流提取能动量张量 & 论文图谱 P10 的完整原始 PDF；底稿 arXiv:1304.0533；SHA-256 5c92373f0319577d…。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 16 卷来源（3/3）}\FrameAnchor{V16-sources-3}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{P35} & 含费米子场的格点能动量张量 & 论文图谱 P35 的完整原始 PDF；底稿 arXiv:1403.4772；SHA-256 decefa1e7bf7e32a…。\\
+\SourceID{P36} & 梯度流形式的双圈能动量张量 & 论文图谱 P36 的完整原始 PDF；底稿 arXiv:1808.09837；SHA-256 b2059573143a27c8…。\\
+\SourceID{P37} & 梯度流高阶计算的技术与结果 & 论文图谱 P37 的完整原始 PDF；底稿 arXiv:1905.00882；SHA-256 361dd002d310eb71…。\\
+\bottomrule\end{tabularx}\end{frame}
+

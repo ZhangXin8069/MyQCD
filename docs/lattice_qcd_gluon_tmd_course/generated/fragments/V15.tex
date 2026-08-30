@@ -1,0 +1,375 @@
+\begin{frame}[plain]\FrameAnchor{V15-title}
+\centering
+{\Large\bfseries\color{courseblue}第 15 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 胶子 TMD 算符、投影与 staple 几何\par}
+\vspace{0.35cm}
+{\large 以自旋平均非极化 \ensuremath{f_1^{g[-,-]}} 为主目标，构造具有非零横向分离、有限 past-pointing staple 和明确极化投影的规范不变胶子算符。\par}
+\vfill
+\CourseID{Tbl}{15.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 15 卷路线图}\FrameAnchor{V15-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+15.01 & Clover 场强与梯度流后胶子场\\
+15.02 & 胶子双场强算符与规范不变性\\
+15.03 & 非零 bT 的有限 staple 路径\\
+15.04 & 非极化与极化张量投影\\
+15.05 & 算符基底、混合与接口契约\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{P26；P40；P44；P45；PYQCD-TMD-GEOMETRY}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V15-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V07
+\item V08
+\item V13
+\item V14
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能定义并实现 [-,-] 胶子 link class
+\item 能验证 finite-staple 路径与真正局域极限
+\item 能区分非极化、螺旋度和线偏振投影
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：有限 staple 长度的饱和模型}\FrameAnchor{V15-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0.0,xmax=6.0,ymin=0.0,ymax=1.05,xlabel={$\ell/\xi$},ylabel={$1-e^{-\ell/\xi}$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0.0:6.0,samples=160] {1-exp(-x)};
+\addlegendentry{示意饱和}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{15.00}：仅用于说明需做有限 \ensuremath{\ell} 稳定性扫描，不是 QCD 数据。
+\SourceLine{指数有限长度模型}
+\end{frame}
+
+\begin{frame}[t]{Clover 场强与梯度流后胶子场：问题与图像}\FrameAnchor{15.01-1}
+\footnotesize
+\begin{block}{本节问题}怎样从四个方向的 plaquette 得到局域、反对称的 F\ensuremath{\mu}\ensuremath{\nu}？\end{block}
+\PhysicalFlow{围绕 x 的四个 \ensuremath{\mu}\ensuremath{\nu} plaquette}{取反厄米无迹部分}{除以 ga\ensuremath{^{2}} 得场强}{15.01}
+\begin{block}{物理原则}\KnowledgeID{15.01}\quad 归一化随生成元和 Q 定义变化；实现必须用小场连续展开锁定系数。\end{block}
+\SourceLine{DOC-FIELD-STRENGTH；PYQCD-GAUGE}
+\end{frame}
+
+\begin{frame}[t]{Clover 场强与梯度流后胶子场：定义与主公式}\FrameAnchor{15.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{15.01-f95e502d4e} clover 场强 & 平均同一平面四个定向 plaquette 的场强离散\\
+\DefinitionID{15.01-dcf2f51bbe} 反厄米无迹投影 & 从环矩阵提取 su(3) 李代数部分\\
+\DefinitionID{15.01-04817b5cd0} 离散改进 & 通过对称平均消去部分低阶伪影\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{15.01} 主公式}\centering\CourseDisplayEquation{F^{\rm cl}_{\mu\nu}(x)=\frac{1}{8iga^2}\big[Q_{\mu\nu}(x)-Q_{\mu\nu}^\dagger(x)\big]_{\rm traceless}}\end{block}
+Q 是四叶 clover 的定向 plaquette 和；反厄米差乘 1/\allowbreak{}i 给厄米场强约定。
+\end{frame}
+
+\begin{frame}[t]{Clover 场强与梯度流后胶子场：推导与证据边界}\FrameAnchor{15.01-3}
+\footnotesize
+\DerivationID{15.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{15.01}：
+\begin{enumerate}
+\item 每个正向 plaquette 为 I+iga\ensuremath{^{2}}F\ensuremath{\mu}\ensuremath{\nu}+O(a\ensuremath{^{3}})，反向取向给相反号。
+\item 围绕 x 对称平均四叶，奇位移误差相消，Q-Q† 提取 8iga\ensuremath{^{2}}F。
+\item 减去三分之一迹，移除数值和高阶引入的 U(1) 分量。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{15.01}\quad clover 反厄米无迹投影代理；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：2x2 显式复矩阵代理；场强约定含 1/\allowbreak{}i
+\end{block}
+\BoundaryLine{clover 的 8ga\ensuremath{^{2}} 系数和 O(a\ensuremath{^{2}}) 改进需小场格点展开验证。}
+\end{frame}
+
+\begin{frame}[t]{Clover 场强与梯度流后胶子场：计算算法}\FrameAnchor{15.01-4}
+\footnotesize
+\AlgorithmID{15.01}\begin{enumerate}
+\item 用带符号方向构造四个闭合 plaquette，逐段验证基点。
+\item 相加成 Q，取 Q-Q† 并减迹。
+\item 按项目生成元约定除以 8iga\ensuremath{^{2}}。
+\item 检查 F\ensuremath{\nu}\ensuremath{\mu}=-F\ensuremath{\mu}\ensuremath{\nu}、trF=0、规范共轭协变和小场阶。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\mu}=\ensuremath{\nu} 时结果必须为零。
+\item[\CheckMark] 所有链接为单位元时 F=0。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}operator/\allowbreak{}\_\allowbreak{}gluon\_\allowbreak{}ope.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Clover 场强与梯度流后胶子场：练习与完整解答}\FrameAnchor{15.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{15.01}}若 Q-Q†=8iga\ensuremath{^{2}}H 且 trH=0，公式给什么？\end{block}
+\begin{exampleblock}{\SolutionID{15.01}}直接得到 Fcl=H。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{15.01-f95e502d4e}；\CourseRef{Eq}{15.01}；\CourseRef{SYM}{15.01}；\CourseRef{Alg}{15.01}。
+\SourceLine{DOC-FIELD-STRENGTH；PYQCD-GAUGE}
+\end{frame}
+
+\begin{frame}[t]{胶子双场强算符与规范不变性：问题与图像}\FrameAnchor{15.02-1}
+\footnotesize
+\begin{block}{本节问题}两个分离点的场强怎样组成可放入核子矩阵元的规范不变量？\end{block}
+\PhysicalFlow{自旋平均核子外态}{两条 past-pointing [-] gauge links}{闭合颜色迹}{15.02}
+\begin{block}{物理原则}\KnowledgeID{15.02}\quad [-,-]、[+,+] 与混合 [+,-] 是不同 link class，不能只改路径符号后共用物理标签；基本/\allowbreak{}伴随表示的归一化和索引也不能混搭。\end{block}
+\SourceLine{P26；P40；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{胶子双场强算符与规范不变性：定义与主公式}\FrameAnchor{15.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{15.02-d6604d1d89} 双局域胶子算符 & 两个分离场强由 Wilson 线连接的复合算符\\
+\DefinitionID{15.02-6f944159bc} [-,-] link class & 胶子关联函数的两条 gauge link 都经 past-pointing 方向延伸的过程类\\
+\DefinitionID{15.02-c7c5525d12} 颜色迹 & 闭合颜色指标并利用迹循环性\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{15.02} 主公式}\centering\CourseDisplayEquation{\begin{aligned}\mathcal O_g^{\mu\nu;\rho\sigma[-,-]}(b,0)&=\operatorname{Tr}_c\!\left[F^{\mu\nu}(b)W_-(b,0)F^{\rho\sigma}(0)W_-^\dagger(b,0)\right],\\ \Phi_g^{\mu\nu;\rho\sigma[-,-]}(b;P)&=\frac12\sum_s\langle P,s|\mathcal O_g^{\mu\nu;\rho\sigma[-,-]}(b,0)|P,s\rangle\end{aligned}}\end{block}
+主目标取自旋平均非极化 f1\ensuremath{^{g[-,-]}}：两条胶子 gauge link 都属于 past-pointing [-] 类；有限 quasi 实现以 -zhat 长腿逼近其空间代理。
+\end{frame}
+
+\begin{frame}[t]{胶子双场强算符与规范不变性：推导与证据边界}\FrameAnchor{15.02-3}
+\footnotesize
+\DerivationID{15.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{15.02}：
+\begin{enumerate}
+\item F(b)\ensuremath{\rightarrow}\ensuremath{\Omega}(b)F(b)\ensuremath{\Omega}†(b)，W-(b,0)\ensuremath{\rightarrow}\ensuremath{\Omega}(b)W-(b,0)\ensuremath{\Omega}†(0)。
+\item 把四个变换后的因子按原序相乘，内部 \ensuremath{\Omega}†\ensuremath{\Omega} 逐一消去。
+\item 剩 \ensuremath{\Omega}(b)[原乘积]\ensuremath{\Omega}†(b)，取迹并用循环性得到原值；再对两个核子自旋平均。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{15.02}\quad 双场强闭合颜色迹的端点规范不变；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：SU(2) 对角局域变换显式代理；两条 Wilson 线按两个端点协变；目标过程类固定为 past-pointing [-,-]
+\end{block}
+\BoundaryLine{一般 SU(3) 由相同矩阵消去和迹循环性证明；代数不区分 [-,-] 与其他 link class，过程标签和路径几何必须另测。}
+\end{frame}
+
+\begin{frame}[t]{胶子双场强算符与规范不变性：计算算法}\FrameAnchor{15.02-4}
+\footnotesize
+\AlgorithmID{15.02}\begin{enumerate}
+\item 把 link\_class='[-,-]'、staple\_sign=-1、表示、起点、方向段和终点写入元数据。
+\item 构造 W-(b,0) 与严格反向共轭 W-†(b,0)，并验证颜色闭合。
+\item 在端点插入同一流时、同一 clover 约定的 F。
+\item 对随机局域规范变换比较复数算符，要求逐样本不变。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] z\ensuremath{\rightarrow}0 而 bT\ensuremath{\ne}0 时仍是横向双局域算符；真正局域极限要求 z=bT=0 且整条路径收缩为 I。
+\item[\CheckMark] W-†W-=I 只检查幺正性，不改变 [-,-] 的过程标签。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}operator/\allowbreak{}\_\allowbreak{}gluon\_\allowbreak{}ope.\allowbreak{}py 与 renorm/\allowbreak{}\_\allowbreak{}tmd.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{胶子双场强算符与规范不变性：练习与完整解答}\FrameAnchor{15.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{15.02}}解释为什么 tr[F(b)W(b,0)F(0)] 一般不规范不变。\end{block}
+\begin{exampleblock}{\SolutionID{15.02}}乘积仍带一个未闭合的从 0 到 b 的端点变换；缺少 W(0,b) 无法在同一点闭合并取共轭相消。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{15.02-d6604d1d89}；\CourseRef{Eq}{15.02}；\CourseRef{SYM}{15.02}；\CourseRef{Alg}{15.02}。
+\SourceLine{P26；P40；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{非零 bT 的有限 staple 路径：问题与图像}\FrameAnchor{15.03-1}
+\footnotesize
+\begin{block}{本节问题}完整 quasi-TMD 几何为何必须既有横向分离又有有限纵向腿？\end{block}
+\PhysicalFlow{从 0 沿 -z 到 -\ensuremath{\ell}}{横移 bT}{回到 z+bT 的 staple 端点}{15.03}
+\begin{block}{物理原则}\KnowledgeID{15.03}\quad bT=0 时路径代数约化为直线/\allowbreak{}quasi-PDF 原型；增大 \ensuremath{\ell} 不会把类空方向旋转成光状方向，rapidity 联系仍依赖大 Pz 因子化与独立 soft 方案。\end{block}
+\SourceLine{P44；P45；PYQCD-TMD-GEOMETRY}
+\end{frame}
+
+\begin{frame}[t]{非零 bT 的有限 staple 路径：定义与主公式}\FrameAnchor{15.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{15.03-45e8c58681} staple & 由两条长纵向腿和一条横向桥组成的折线路径\\
+\DefinitionID{15.03-1f1f097b23} 横向分离 & bT·zhat=0 的非零位移\\
+\DefinitionID{15.03-8da5ddfd2c} staple 长度 & 截断 past-pointing 长腿的有限延伸量，不改变 Wilson 线的类空方向\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{15.03} 主公式}\centering\CourseDisplayEquation{\Delta_{\rm path}=-\ell\hat z+\bm b_T+(z+\ell)\hat z=z\hat z+\bm b_T\qquad([-,-]\ \text{主路径})}\end{block}
+三段位移之和必须等于双局域端点分离；负向长腿固定 [-,-] quasi link class，\ensuremath{\ell} 只控制有限长度端点效应。
+\end{frame}
+
+\begin{frame}[t]{非零 bT 的有限 staple 路径：推导与证据边界}\FrameAnchor{15.03-3}
+\footnotesize
+\DerivationID{15.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{15.03}：
+\begin{enumerate}
+\item 第一腿从 0 到 -\ensuremath{\ell} zhat，位移 -\ensuremath{\ell} zhat。
+\item 横桥位移 bT；第二纵向腿从 -\ensuremath{\ell} 到 z，位移 (z+\ensuremath{\ell})zhat。
+\item 向量相加后 \ensuremath{\ell} 项相消，终点为 z zhat+bT。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{15.03}\quad 三段 staple 的端点位移；4/4 项通过；SymPy exact。
+\par\scriptsize 假设：z 方向取第三轴；bT 位于前两轴；第一长腿沿 -z，代表主目标 [-,-] 的有限 quasi 代理
+\end{block}
+\BoundaryLine{端点代数验证 z=0,bT!=0 仍双局域；真正局域还要求 ell=0 和 Wilson 路径收缩，非零守卫与周期边界由实现检查。}
+\end{frame}
+
+\begin{frame}[t]{非零 bT 的有限 staple 路径：计算算法}\FrameAnchor{15.03-4}
+\footnotesize
+\AlgorithmID{15.03}\begin{enumerate}
+\item 使用整数格点位移表示 z、bT、\ensuremath{\ell}，禁止浮点几何比较。
+\item 展开每段为带符号单位步并逐步更新当前位置。
+\item 验证 staple\_sign=-1、横向点积 bT·zhat=0、bT\ensuremath{\ne}0、各段链长和最终端点。
+\item 将完整 beam 路径写入矩阵元；soft 只要求方向、表示、bT、\ensuremath{\ell}、flow/\allowbreak{}rapidity regulator 等方案规定字段兼容，不冒充同一开放路径。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] z=0 且 bT\ensuremath{\ne}0 时端点仍横向分离，不是局域极限。
+\item[\CheckMark] bT=0 时纵向重叠段相消为直线，必须降级标记为 quasi-PDF 原型。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}skills/\allowbreak{}pyqcd-tmd-algorithm/\allowbreak{}references/\allowbreak{}geometry.\allowbreak{}md}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{非零 bT 的有限 staple 路径：练习与完整解答}\FrameAnchor{15.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{15.03}}z=3、\ensuremath{\ell}=5、bT=(2,0)（格点单位），三段位移和是多少？\end{block}
+\begin{exampleblock}{\SolutionID{15.03}}纵向为 -5+(3+5)=3，横向为 (2,0)，终点分离是 z=3、bT=(2,0)。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{15.03-45e8c58681}；\CourseRef{Eq}{15.03}；\CourseRef{SYM}{15.03}；\CourseRef{Alg}{15.03}。
+\SourceLine{P44；P45；PYQCD-TMD-GEOMETRY}
+\end{frame}
+
+\begin{frame}[t]{非极化与极化张量投影：问题与图像}\FrameAnchor{15.04-1}
+\footnotesize
+\begin{block}{本节问题}同一个双场强张量怎样分离非极化、螺旋度与线偏振胶子分布？\end{block}
+\PhysicalFlow{横向关联张量 \ensuremath{\Phi}ij}{\ensuremath{\delta}T 与 \ensuremath{\epsilon}T 投影}{对称无迹 Qij 投影}{15.04}
+\begin{block}{物理原则}\KnowledgeID{15.04}\quad 自旋平均核子中 SL=0，因而反对称贡献 SLFH 必须为零；同一数据不能测定 FH 本身，只能把 \ensuremath{\epsilon}T 收缩作零检验。获得 helicity TMD 必须使用纵向极化核子。Euclidean 到 light-front 的符号、bT/\allowbreak{}M 因子和归一化仍须逐项匹配。\end{block}
+\SourceLine{DOC-GLUON-POLARIZATION；P26；P44}
+\end{frame}
+
+\begin{frame}[t]{非极化与极化张量投影：定义与主公式}\FrameAnchor{15.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{15.04-76f7909036} 非极化 f1g[-,-] & 自旋平均核子中横向张量的迹通道，也是本课程主目标\\
+\DefinitionID{15.04-19e6ec18c2} 螺旋度 g1Lg[-,-] & 由反对称 i\ensuremath{\epsilon}TijSL 通道提取、需要纵向极化外态的胶子分布\\
+\DefinitionID{15.04-4a8e7eacb8} 线偏振 h1perp g[-,-] & 自旋平均外态中由对称无迹横向张量提取的分布\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{15.04} 主公式}\centering\CourseDisplayEquation{\begin{aligned}\Phi^{ij}(S_L)&=\frac{\delta_T^{ij}}2F_U+\frac{i\epsilon_T^{ij}}2S_LF_H+Q_T^{ij}F_L,\\ Q_T^{ij}&=\hat b_T^i\hat b_T^j-\frac{\delta_T^{ij}}2,\\ F_U&=\delta_{ij}\Phi^{ij},\qquad S_LF_H=-i\epsilon_{ij}\Phi^{ij},\\ F_L&=2Q_{ij}\Phi^{ij}\end{aligned}}\end{block}
+取 \ensuremath{\epsilon}T12=+1，则 \ensuremath{\delta}\ensuremath{\delta}=\ensuremath{\epsilon}\ensuremath{\epsilon}=2、QijQij=1/\allowbreak{}2；FU 映射到 f1\ensuremath{^{g[-,-]}}，FH 映射到 g1L\ensuremath{^{g[-,-]}}，FL 映射到 h1perp\ensuremath{^{g[-,-]}} 的约定归一化振幅。
+\end{frame}
+
+\begin{frame}[t]{非极化与极化张量投影：推导与证据边界}\FrameAnchor{15.04-3}
+\footnotesize
+\DerivationID{15.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{15.04}：
+\begin{enumerate}
+\item 横向平面取 \ensuremath{\delta}Tij 与 \ensuremath{\epsilon}T12=+1；对称、反对称张量子空间彼此正交。
+\item 定义 Qij=bhat\_i bhat\_j-\ensuremath{\delta}ij/\allowbreak{}2，它对称、无迹且 QijQij=1/\allowbreak{}2。
+\item 分别用 \ensuremath{\delta}ij、-i\ensuremath{\epsilon}ij、2Qij 收缩 \ensuremath{\Phi}ij，正好取出 FU、SLFH、FL。
+\item 对自旋平均外态，反对称收缩 SLFH 必须与零相容；FU 与 FL 可以同时存在。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{15.04}\quad 二维横向张量的非极化、螺旋度与线偏振分解；4/4 项通过；SymPy exact。
+\par\scriptsize 假设：二维 Euclidean 横向平面；epsilon\_T\ensuremath{^{12}}=+1；张量元取实符号代理
+\end{block}
+\BoundaryLine{这里只验证横向张量代数；light-front 指标、i 因子、核子自旋和 f1g[-,-] 归一化必须由选定算符约定固定。}
+\end{frame}
+
+\begin{frame}[t]{非极化与极化张量投影：计算算法}\FrameAnchor{15.04-4}
+\footnotesize
+\AlgorithmID{15.04}\begin{enumerate}
+\item 先保存未投影的 F\ensuremath{\mu}\ensuremath{\nu}F\ensuremath{\rho}\ensuremath{\sigma} 张量，不在收缩时提前丢信息。
+\item 实现 \ensuremath{\delta}、\ensuremath{\epsilon}、Q 三个独立投影并以随机复张量做归一化/\allowbreak{}正交测试。
+\item 主生产输出标记 target=f1g[-,-]、spin\_average=True；\ensuremath{\epsilon}T 收缩 SLFH 在该数据集只作零检验。
+\item 把 Euclidean Lorentz 映射、2E/\allowbreak{}projector 归一化和约定相关的 bT/\allowbreak{}M 前因子写入 schema。
+\item 旋转 bT 与 P 的等价方向，验证 FU 标量和 FL 的格点群变换。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 对纯迹张量，SLFH=FL=0。
+\item[\CheckMark] 对实对称 \ensuremath{\Phi}，\ensuremath{\epsilon} 投影为零；交换场强内部反对称指标仍应给相应负号。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}operator/\allowbreak{}\_\allowbreak{}gluon\_\allowbreak{}ope.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{非极化与极化张量投影：练习与完整解答}\FrameAnchor{15.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{15.04}}\ensuremath{\Phi}=diag(3,1)、bhatT=(1,0)、SL=1 时求 FU、FH、FL。\end{block}
+\begin{exampleblock}{\SolutionID{15.04}}FU=4，FH=0；Q=diag(1/\allowbreak{}2,-1/\allowbreak{}2)，故 FL=2Qij\ensuremath{\Phi}ij=2，且 (\ensuremath{\delta}/\allowbreak{}2)FU+QFL=diag(3,1)。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{15.04-76f7909036}；\CourseRef{Eq}{15.04}；\CourseRef{SYM}{15.04}；\CourseRef{Alg}{15.04}。
+\SourceLine{DOC-GLUON-POLARIZATION；P26；P44}
+\end{frame}
+
+\begin{frame}[t]{算符基底、混合与接口契约：问题与图像}\FrameAnchor{15.05-1}
+\footnotesize
+\begin{block}{本节问题}从裸张量到可匹配胶子 TMD，需要保存哪些不可丢失的信息？\end{block}
+\PhysicalFlow{算符基底 Oa}{重整化/\allowbreak{}匹配矩阵 Zab}{物理投影与方案标签}{15.05}
+\begin{block}{物理原则}\KnowledgeID{15.05}\quad 只保存最终一个标量会阻断以后纠正混合；生产数据应保留最小闭合算符基底及协方差。\end{block}
+\SourceLine{P19；P26；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{算符基底、混合与接口契约：定义与主公式}\FrameAnchor{15.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{15.05-7b90d5367e} 算符混合 & 具有相同量子数的算符在重整化下线性组合\\
+\DefinitionID{15.05-91d3cdf8bc} 基底 & 张成目标算符空间的一组独立元素\\
+\DefinitionID{15.05-c2a6f01613} 接口契约 & 数组、单位、几何和方案必须满足的机器可检验规则\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{15.05} 主公式}\centering\CourseDisplayEquation{O_a^{R}=Z_{ab}O_b^{B},\qquad O_b^{B}=(Z^{-1})_{ba}O_a^{R}}\end{block}
+非奇异混合矩阵建立裸基底与重整化基底的双向线性映射。
+\end{frame}
+
+\begin{frame}[t]{算符基底、混合与接口契约：推导与证据边界}\FrameAnchor{15.05-3}
+\footnotesize
+\DerivationID{15.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{15.05}：
+\begin{enumerate}
+\item 把裸算符组成列向量 OB。
+\item 重整化线性作用写作 OR=ZOB。
+\item 若 detZ\ensuremath{\ne}0，左乘 Z\ensuremath{^{-1}} 得 OB=Z\ensuremath{^{-1}}OR；指标次序随列向量约定固定。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{15.05}\quad 算符混合矩阵的正反映射；3/3 项通过；SymPy exact。
+\par\scriptsize 假设：两算符有限维代理
+\end{block}
+\BoundaryLine{真实 Z 是尺度、方案和几何相关的卷积/\allowbreak{}混合对象。}
+\end{frame}
+
+\begin{frame}[t]{算符基底、混合与接口契约：计算算法}\FrameAnchor{15.05-4}
+\footnotesize
+\AlgorithmID{15.05}\begin{enumerate}
+\item 定义算符轴、Lorentz/\allowbreak{}Euclidean 指标、复数精度和单位。
+\item 附带 target=f1g[-,-]、link class、spin average、z、bT、\ensuremath{\ell}、\ensuremath{\tau}flow、P、Euclidean/\allowbreak{}2E 投影、生成元和 Fourier 约定。
+\item 保存完整基底的构型级或重采样级协方差。
+\item 加载时验证 schema 版本和几何/\allowbreak{}方案哈希，拒绝静默广播。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] Z=I 时重整化量等于裸量。
+\item[\CheckMark] detZ=0 表示当前基底或条件不足以唯一反演。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}tmd.\allowbreak{}py 与 \_\allowbreak{}matching.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{算符基底、混合与接口契约：练习与完整解答}\FrameAnchor{15.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{15.05}}Z=[[2,0],[1,1]]、OB=(3,4)，求 OR。\end{block}
+\begin{exampleblock}{\SolutionID{15.05}}OR=(6,7)。反演 Z\ensuremath{^{-1}}=[[1/\allowbreak{}2,0],[-1/\allowbreak{}2,1]] 可恢复 (3,4)。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{15.05-7b90d5367e}；\CourseRef{Eq}{15.05}；\CourseRef{SYM}{15.05}；\CourseRef{Alg}{15.05}。
+\SourceLine{P19；P26；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{第 15 卷能力清单}\FrameAnchor{V15-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能定义并实现 [-,-] 胶子 link class
+\item[\CheckMark] 能验证 finite-staple 路径与真正局域极限
+\item[\CheckMark] 能区分非极化、螺旋度和线偏振投影
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 15 卷来源（1/2）}\FrameAnchor{V15-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{P26} & 大动量有效理论获取胶子分布 & 论文图谱 P26 的完整原始 PDF；底稿 arXiv:1808.10824；SHA-256 51ef82db68b39777…。\\
+\SourceID{P40} & 梯度流中的非光锥威尔逊线算符 & 论文图谱 P40 的完整原始 PDF；底稿 arXiv:2312.05032；SHA-256 31292da5c276c237…。\\
+\SourceID{P44} & 从准TMD波函数确定CS核 & 论文图谱 P44 的完整原始 PDF；底稿 arXiv:2204.00200；SHA-256 589d870d484889ae…。\\
+\SourceID{P45} & LaMET计算TMD软函数 & 论文图谱 P45 的完整原始 PDF；底稿 arXiv:2005.14572；SHA-256 22b1f2cbca968f30…。\\
+\SourceID{PYQCD-TMD-GEOMETRY} & PyQCD TMD 几何规范 & 非零 bT、finite staple、端点和路径签名。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 15 卷来源（2/2）}\FrameAnchor{V15-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{DOC-FIELD-STRENGTH} & 格点场强张量 & plaquette/\allowbreak{}clover 场强和约定。\\
+\SourceID{PYQCD-GAUGE} & PyQCD 规范场技能 & 链接、plaquette、flow 和规范不变量。\\
+\SourceID{PYQCD-TMD} & PyQCD TMD 主链技能 & 六阶段 TMD 物理链和端到端接口。\\
+\SourceID{DOC-GLUON-POLARIZATION} & 胶子极化 & 胶子张量投影。\\
+\SourceID{P19} & 格点算符非微扰重正化一般方法 & 论文图谱 P19 的完整原始 PDF；底稿 arXiv:hep-lat/\allowbreak{}9411010；SHA-256 413c5263159d9dbf…。\\
+\bottomrule\end{tabularx}\end{frame}
+

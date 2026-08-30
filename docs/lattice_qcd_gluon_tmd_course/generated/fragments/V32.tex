@@ -1,0 +1,379 @@
+\begin{frame}[plain]\FrameAnchor{V32-title}
+\centering
+{\Large\bfseries\color{courseblue}第 32 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 改进规范作用量、各向异性、拓扑与尺度设定\par}
+\vspace{0.35cm}
+{\large 掌握从 Symanzik 改进到开放边界、拓扑自相关和多尺度一致性的生产系综设计。\par}
+\vfill
+\CourseID{Tbl}{32.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 32 卷路线图}\FrameAnchor{V32-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+32.01 & Symanzik 改进规范作用量\\
+32.02 & 各向异性格点与色散调谐\\
+32.03 & 拓扑冻结、自相关与算法临界变慢\\
+32.04 & 开放时间边界与边界污染\\
+32.05 & 尺度设定：r0、t0、w0 与误差传播\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{DOC-SYMANZIK；BOOK-LQCD；PYQCD-GAUGE；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V32-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V09
+\item V15
+\item V26
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能设计改进/\allowbreak{}各向异性规范作用量
+\item 能诊断拓扑冻结并正确使用开放边界
+\item 能完成 t0、w0、r0 等尺度设定及误差传播
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：离散误差外推阶数对比}\FrameAnchor{V32-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0,xmax=1.0,ymin=0,ymax=1.05,xlabel={$a/a_0$},ylabel={相对伪影（示意）},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0:1.0,samples=160] {x^2};
+\addlegendentry{未改进 O(a\ensuremath{^{2}})}
+\addplot[very thick,courseorange,domain=0:1.0,samples=160] {x^4};
+\addlegendentry{消去 a\ensuremath{^{2}} 后 O(a\ensuremath{^{4}})}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{32.00}：系数归一化为 1 的幂次示意；实际作用量还受 \ensuremath{\alpha}s 修正和多尺度影响。
+\SourceLine{Symanzik 有效理论}
+\end{frame}
+
+\begin{frame}[t]{Symanzik 改进规范作用量：问题与图像}\FrameAnchor{32.01-1}
+\footnotesize
+\begin{block}{本节问题}加入矩形 Wilson loops 如何抵消 plaquette 的首个离散误差？\end{block}
+\PhysicalFlow{枚举短闭合 loop}{连续展开到 a6}{调系数消去维六算符}{32.01}
+\begin{block}{物理原则}\KnowledgeID{32.01}\quad 不同 loop 计数约定会改变 8；必须按实际 action 的方向/\allowbreak{}取向计数核对，不能只记系数表。\end{block}
+\SourceLine{DOC-SYMANZIK；BOOK-LQCD；PYQCD-GAUGE}
+\end{frame}
+
+\begin{frame}[t]{Symanzik 改进规范作用量：定义与主公式}\FrameAnchor{32.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{32.01-8d88e16b2d} tree-level Symanzik & 在经典连续展开中抵消首个高维算符的改进\\
+\DefinitionID{32.01-ddab0298a8} rectangle loop & 1\ensuremath{\times}2 和 2\ensuremath{\times}1 闭合 Wilson 环\\
+\DefinitionID{32.01-84d8c24e0a} tadpole improvement & 以平均链接重排大格点微扰修正的处方\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{32.01} 主公式}\centering\CourseDisplayEquation{S_g=\beta\sum_x\left[c_0\sum_{\rm plaq}\left(1-\frac1{N_c}\Re\operatorname{Tr}U_P\right)+c_1\sum_{\rm rect}\left(1-\frac1{N_c}\Re\operatorname{Tr}U_R\right)\right],\quad c_0+8c_1=1}\end{block}
+归一化条件保证 F\ensuremath{^{2}} 连续项系数正确；第二个条件可在树级消去特定 O(a\ensuremath{^{2}}) 组合。
+\end{frame}
+
+\begin{frame}[t]{Symanzik 改进规范作用量：推导与证据边界}\FrameAnchor{32.01-3}
+\footnotesize
+\DerivationID{32.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{32.01}：
+\begin{enumerate}
+\item 用 BCH 把每个小 Wilson loop 展开为 F\ensuremath{\mu}\ensuremath{\nu}\ensuremath{^{2}} 加 a\ensuremath{^{2}} 维六算符。
+\item plaquette 与 1\ensuremath{\times}2 rectangle 对 F\ensuremath{^{2}} 的面积/\allowbreak{}取向权重求和给 c0+8c1。
+\item 令该组合为 1 保持连续归一化。
+\item 再解维六项系数为零得到具体树级 c1，并可加入圈级/\allowbreak{}tadpole 修正。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{32.01}\quad Symanzik 改进规范作用量；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：采用 c0+8c1=1 的 loop 计数约定；c1=-1/\allowbreak{}12
+\end{block}
+\BoundaryLine{不验证 action 的 BCH 全展开、圈级改进或实际旋转破缺。}
+\end{frame}
+
+\begin{frame}[t]{Symanzik 改进规范作用量：计算算法}\FrameAnchor{32.01-4}
+\footnotesize
+\AlgorithmID{32.01}\begin{enumerate}
+\item 从代码实际枚举的有向 loop 生成计数表。
+\item 单位链接场检查 S=0，弱平滑场检查 F\ensuremath{^{2}} 归一化。
+\item 比较多个 a 上的色散、静态势旋转破缺和 flow observable。
+\item 联合拟合 a\ensuremath{^{2}}、\ensuremath{\alpha}sa\ensuremath{^{2}}、a\ensuremath{^{4}}，不能因 action 名称默认已完全改进。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] c1=0、c0=1 恢复 Wilson plaquette action。
+\item[\CheckMark] 所有 loop 在规范变换下的迹应不变。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{loop registry + weak-field expansion + scaling study}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Symanzik 改进规范作用量：练习与完整解答}\FrameAnchor{32.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{32.01}}若 c1=-1/\allowbreak{}12 且采用 c0+8c1=1，c0 是多少？\end{block}
+\begin{exampleblock}{\SolutionID{32.01}}c0=1-8(-1/\allowbreak{}12)=1+2/\allowbreak{}3=5/\allowbreak{}3。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{32.01-8d88e16b2d}；\CourseRef{Eq}{32.01}；\CourseRef{SYM}{32.01}；\CourseRef{Alg}{32.01}。
+\SourceLine{DOC-SYMANZIK；BOOK-LQCD；PYQCD-GAUGE}
+\end{frame}
+
+\begin{frame}[t]{各向异性格点与色散调谐：问题与图像}\FrameAnchor{32.02-1}
+\footnotesize
+\begin{block}{本节问题}为什么谱学常用更细时间格距，而空间格距保持较粗？\end{block}
+\PhysicalFlow{as 与 at 分离}{时间方向获得更多衰减点}{重整化各向异性由色散反调}{32.02}
+\begin{block}{物理原则}\KnowledgeID{32.02}\quad \ensuremath{\xi} 不等于裸输入 \ensuremath{\xi}0；规范与费米 sector 可能需分别调谐并在相同物理点联合求解。\end{block}
+\SourceLine{BOOK-LQCD；PYQCD-ANALYSIS}
+\end{frame}
+
+\begin{frame}[t]{各向异性格点与色散调谐：定义与主公式}\FrameAnchor{32.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{32.02-96a2955f18} bare anisotropy & 作用量输入的时空耦合比 \ensuremath{\xi}0\\
+\DefinitionID{32.02-d5b6bf0c76} renormalized anisotropy & 物理测得的 \ensuremath{\xi}=as/\allowbreak{}at\\
+\DefinitionID{32.02-9f14c2b727} speed-of-light test & 色散 E\ensuremath{^{2}}=m\ensuremath{^{2}}+c\ensuremath{^{2}}p\ensuremath{^{2}} 中 c\ensuremath{\approx}1 的调谐诊断\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{32.02} 主公式}\centering\CourseDisplayEquation{\xi=\frac{a_s}{a_t},\qquad (a_tE)^2=(a_tm)^2+\frac{c^2}{\xi^2}(a_s\bm p)^2+O(p^4)}\end{block}
+把连续 E\ensuremath{^{2}}=m\ensuremath{^{2}}+p\ensuremath{^{2}} 分别乘 at\ensuremath{^{2}}，并用 at/\allowbreak{}as=1/\allowbreak{}\ensuremath{\xi}，得到格点单位的各向异性色散。
+\end{frame}
+
+\begin{frame}[t]{各向异性格点与色散调谐：推导与证据边界}\FrameAnchor{32.02-3}
+\footnotesize
+\DerivationID{32.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{32.02}：
+\begin{enumerate}
+\item 从 Ephys\ensuremath{^{2}}=mphys\ensuremath{^{2}}+c\ensuremath{^{2}}pphys\ensuremath{^{2}} 出发。
+\item 定义 a\_tE、a\_tm 和 a\_sp 三个无量纲量。
+\item 代入 pphys=(a\_sp)/\allowbreak{}as 并乘 at\ensuremath{^{2}}。
+\item 得到动量项系数 c\ensuremath{^{2}}(at/\allowbreak{}as)\ensuremath{^{2}}=c\ensuremath{^{2}}/\allowbreak{}\ensuremath{\xi}\ensuremath{^{2}}。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{32.02}\quad 各向异性格点与色散调谐；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：连续色散乘 a\_t\ensuremath{^{2}} 的代数代理
+\end{block}
+\BoundaryLine{重整化各向异性必须由实测色散调谐。}
+\end{frame}
+
+\begin{frame}[t]{各向异性格点与色散调谐：计算算法}\FrameAnchor{32.02-4}
+\footnotesize
+\AlgorithmID{32.02}\begin{enumerate}
+\item 选择多个低动量方向并测单强子能量。
+\item 以格点动量 hat p 和连续 p 两种形式拟合，比较高动量伪影。
+\item 联合求 \ensuremath{\xi} 与 c，迭代 bare gauge/\allowbreak{}fermion anisotropy。
+\item 验证旋转方向、粒子通道和格距变化后 \ensuremath{\xi} 一致。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\xi}=1 恢复各向同性公式。
+\item[\CheckMark] p=0 截距必须给 a\_t m。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{multi-momentum dispersion + joint anisotropy tuning}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{各向异性格点与色散调谐：练习与完整解答}\FrameAnchor{32.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{32.02}}\ensuremath{\xi}=4、c=1、a\_sp=0.8 时动量对 (a\_tE)\ensuremath{^{2}} 的贡献是多少？\end{block}
+\begin{exampleblock}{\SolutionID{32.02}}为 (0.8/\allowbreak{}4)\ensuremath{^{2}}=0.04。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{32.02-96a2955f18}；\CourseRef{Eq}{32.02}；\CourseRef{SYM}{32.02}；\CourseRef{Alg}{32.02}。
+\SourceLine{BOOK-LQCD；PYQCD-ANALYSIS}
+\end{frame}
+
+\begin{frame}[t]{拓扑冻结、自相关与算法临界变慢：问题与图像}\FrameAnchor{32.03-1}
+\footnotesize
+\begin{block}{本节问题}格距变细时，为什么 Markov 链可能长时间困在同一拓扑扇区？\end{block}
+\PhysicalFlow{扇区间需穿过高 action 屏障}{局域更新隧穿率随 a 降低}{Q 的 \ensuremath{\tau}int 急剧增长}{32.03}
+\begin{block}{物理原则}\KnowledgeID{32.03}\quad 窗口 W 必须随慢模自洽选择；只观察 Q 直方图近 Gaussian 不能证明隧穿充分。\end{block}
+\SourceLine{BOOK-STAT；BOOK-LQCD；P33；P34}
+\end{frame}
+
+\begin{frame}[t]{拓扑冻结、自相关与算法临界变慢：定义与主公式}\FrameAnchor{32.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{32.03-6437caf488} 拓扑冻结 & 模拟历史中全局拓扑荷几乎不改变的非遍历风险\\
+\DefinitionID{32.03-b5fa6b1dfc} 积分自相关时间 & 控制样本均值方差膨胀的时间相关总和\\
+\DefinitionID{32.03-2375b114be} effective sample size & Neff\ensuremath{\approx}N/\allowbreak{}(2\ensuremath{\tau}int)，等效独立样本数\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{32.03} 主公式}\centering\CourseDisplayEquation{\tau_{\rm int}[O]=\frac12+\sum_{t=1}^{W}\rho_O(t),\qquad \operatorname{Var}(\bar O)\simeq\frac{2\tau_{\rm int}\sigma_O^2}{N}}\end{block}
+相关样本的均值方差含所有滞后协方差；归一化后求和给 2\ensuremath{\tau}int 膨胀因子。
+\end{frame}
+
+\begin{frame}[t]{拓扑冻结、自相关与算法临界变慢：推导与证据边界}\FrameAnchor{32.03-3}
+\footnotesize
+\DerivationID{32.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{32.03}：
+\begin{enumerate}
+\item 写 Var(mean)=N\ensuremath{^{-2}}\ensuremath{\Sigma}ij Cov(Oi,Oj)。
+\item 平稳链中 Cov 只依赖 |i-j|，每个滞后出现约 N 次。
+\item 大 N 下得 \ensuremath{\sigma}\ensuremath{^{2}}/\allowbreak{}N[1+2\ensuremath{\Sigma}t\ensuremath{\rho}(t)]=2\ensuremath{\tau}int\ensuremath{\sigma}\ensuremath{^{2}}/\allowbreak{}N。
+\item 有限样本以窗口 W 截断噪声尾。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{32.03}\quad 拓扑冻结、自相关与算法临界变慢；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：只保留两个滞后相关系数的平稳链代理
+\end{block}
+\BoundaryLine{真实 \ensuremath{\tau}int 的窗口选择、慢尾和拓扑遍历需时间序列诊断。}
+\end{frame}
+
+\begin{frame}[t]{拓扑冻结、自相关与算法临界变慢：计算算法}\FrameAnchor{32.03-4}
+\footnotesize
+\AlgorithmID{32.03}\begin{enumerate}
+\item 保存未抽稀的 plaquette、flow Q、E和求解成本时间序列。
+\item 用 \ensuremath{\Gamma}-method/\allowbreak{}自动窗口估 \ensuremath{\tau}int 并扫描 W。
+\item 比较链段、replica、拓扑扇区条件均值和 Neff。
+\item 若冻结，采用更长链、开放边界/\allowbreak{}tempering 等明确方案，并重新验证物理观测。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 独立样本 \ensuremath{\rho}(t>0)=0 时 \ensuremath{\tau}int=1/\allowbreak{}2，方差回到 \ensuremath{\sigma}\ensuremath{^{2}}/\allowbreak{}N。
+\item[\CheckMark] bin size 超过慢模尺度后 jackknife 误差应形成平台。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{flow-Q history + \ensuremath{\Gamma}-method + replica diagnostics}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{拓扑冻结、自相关与算法临界变慢：练习与完整解答}\FrameAnchor{32.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{32.03}}N=1000、\ensuremath{\tau}int=25 时 Neff\ensuremath{\approx}多少？\end{block}
+\begin{exampleblock}{\SolutionID{32.03}}Neff\ensuremath{\approx}N/\allowbreak{}(2\ensuremath{\tau}int)=1000/\allowbreak{}50=20；名义千个组态只有约二十个独立信息量。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{32.03-6437caf488}；\CourseRef{Eq}{32.03}；\CourseRef{SYM}{32.03}；\CourseRef{Alg}{32.03}。
+\SourceLine{BOOK-STAT；BOOK-LQCD；P33；P34}
+\end{frame}
+
+\begin{frame}[t]{开放时间边界与边界污染：问题与图像}\FrameAnchor{32.04-1}
+\footnotesize
+\begin{block}{本节问题}开放边界怎样让拓扑荷流入流出，同时付出什么代价？\end{block}
+\PhysicalFlow{时间端点不再周期识别}{拓扑可经边界连续改变}{中央 bulk 才近似平移不变}{32.04}
+\begin{block}{物理原则}\KnowledgeID{32.04}\quad 开放边界破坏时间平移不变；源时刻不能无条件平均，边界 counterterms 和改进需随 action 处理。\end{block}
+\SourceLine{BOOK-LQCD；PYQCD-PIPELINE}
+\end{frame}
+
+\begin{frame}[t]{开放时间边界与边界污染：定义与主公式}\FrameAnchor{32.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{32.04-f916e0ac44} open boundary & 时间方向采用允许场在端点满足开放条件的边界\\
+\DefinitionID{32.04-a887664555} boundary contamination & 端点边界态向 bulk 指数传播造成的观测偏差\\
+\DefinitionID{32.04-005d37c479} bulk window & 距两端足够远、用于物理平均的中央时间区域\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{32.04} 主公式}\centering\CourseDisplayEquation{\delta O(x_0)\sim A e^{-m_{\rm gap}d(x_0)},\qquad d(x_0)=\min(x_0,T-x_0)}\end{block}
+有质量理论中边界效应由最低相容量子数态向内部传播，随到最近边界距离指数衰减。
+\end{frame}
+
+\begin{frame}[t]{开放时间边界与边界污染：推导与证据边界}\FrameAnchor{32.04-3}
+\footnotesize
+\DerivationID{32.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{32.04}：
+\begin{enumerate}
+\item 转移矩阵表示把边界条件写成边界态 |B>。
+\item 局域观测距边界 d 时，插入能量完备集。
+\item 真空项给 bulk 极限，首个激发项相对按 e\ensuremath{^{-(E1-E0)d}}。
+\item 以相应量子数最低 gap 定义 mgap。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{32.04}\quad 开放时间边界与边界污染；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：单一正质量隙边界态
+\end{block}
+\BoundaryLine{有限 T 的 min 距离、边界反项和 bulk 平台需数据验证。}
+\end{frame}
+
+\begin{frame}[t]{开放时间边界与边界污染：计算算法}\FrameAnchor{32.04-4}
+\footnotesize
+\AlgorithmID{32.04}\begin{enumerate}
+\item 画 plaquette、flow E/\allowbreak{}Q 和 hadron C2 随源/\allowbreak{}观测时间位置。
+\item 拟合边界尾或逐步扩大排除距离，寻找 bulk 平台。
+\item 只在 bulk window 做源平均和拓扑统计。
+\item 改变 T、边界改进系数和排除距离，传播有效统计量损失。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] d\ensuremath{\rightarrow}\ensuremath{\infty} 时边界修正消失。
+\item[\CheckMark] 左右对称设置下 O(x0) 应关于 T/\allowbreak{}2 反射对称。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{time-slice profiles + bulk-window stability}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{开放时间边界与边界污染：练习与完整解答}\FrameAnchor{32.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{32.04}}若 mgap=0.5/\allowbreak{}a，希望边界污染低于 e\ensuremath{^{-5}}，至少离边界多少个 a？\end{block}
+\begin{exampleblock}{\SolutionID{32.04}}要求 mgap d\ensuremath{\ge}5，所以 d\ensuremath{\ge}10a。实际还需未知振幅和数据验证。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{32.04-f916e0ac44}；\CourseRef{Eq}{32.04}；\CourseRef{SYM}{32.04}；\CourseRef{Alg}{32.04}。
+\SourceLine{BOOK-LQCD；PYQCD-PIPELINE}
+\end{frame}
+
+\begin{frame}[t]{尺度设定：r0、t0、w0 与误差传播：问题与图像}\FrameAnchor{32.05-1}
+\footnotesize
+\begin{block}{本节问题}格点只输出无量纲 aM，怎样转换到 fm 和 GeV？\end{block}
+\PhysicalFlow{计算无量纲参考量 X/\allowbreak{}a}{用实验/\allowbreak{}约定物理 X 定 a}{所有观测共享相关尺度误差}{32.05}
+\begin{block}{物理原则}\KnowledgeID{32.05}\quad t0phys 本身来自其他物理输入且有方案/\allowbreak{}海夸克依赖；不同尺度不一致是离散/\allowbreak{}调谐系统学而非可任意平均的噪声。\end{block}
+\SourceLine{BOOK-LQCD；PYQCD-GAUGE；DOC-EXTRAPOLATION}
+\end{frame}
+
+\begin{frame}[t]{尺度设定：r0、t0、w0 与误差传播：定义与主公式}\FrameAnchor{32.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{32.05-beb36a315b} scale setting & 把格点单位与物理单位连接的过程\\
+\DefinitionID{32.05-0bbcbda519} gradient-flow scale & 由 t\ensuremath{^{2}}<E(t)> 或其导数达到固定常数定义的 t0、w0\\
+\DefinitionID{32.05-67ebebc9c6} mass-independent scheme & 先在固定 renormalized quark masses 轨迹定义 a(\ensuremath{\beta})，再作质量修正的策略\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{32.05} 主公式}\centering\CourseDisplayEquation{t_0^2\langle E(t_0)\rangle=c,\qquad a=\frac{\sqrt{t_0^{\rm phys}}}{\sqrt{t_0/a^2}},\qquad M_{\rm phys}=\frac{aM}{a}\hbar c}\end{block}
+流尺度给高精度无量纲 t0/\allowbreak{}a\ensuremath{^{2}}；选定其物理值后解出 a，并把同一随机变量传播到所有量。
+\end{frame}
+
+\begin{frame}[t]{尺度设定：r0、t0、w0 与误差传播：推导与证据边界}\FrameAnchor{32.05-3}
+\footnotesize
+\DerivationID{32.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{32.05}：
+\begin{enumerate}
+\item 定义 t0/\allowbreak{}a\ensuremath{^{2}} 为格点流时间变量满足 (t/\allowbreak{}a\ensuremath{^{2}})\ensuremath{^{2}}<a\ensuremath{^{4}}E>=c 的根。
+\item 物理 t0=a\ensuremath{^{2}}(t0/\allowbreak{}a\ensuremath{^{2}})，故 a=sqrt(t0phys)/\allowbreak{}sqrt(t0/\allowbreak{}a\ensuremath{^{2}})。
+\item 格点质量 aM 除以 a 得 fm\ensuremath{^{-1}}，再乘 ħc 转 GeV。
+\item 尺度误差与所有同系综量完全相关，应在重采样/\allowbreak{}联合拟合内传播。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{32.05}\quad 尺度设定：r0、t0、w0 与误差传播；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：tlatt=t0/\allowbreak{}a\ensuremath{^{2}}、tphys=t0phys
+\end{block}
+\BoundaryLine{不确定度相关传播和不同尺度间的连续一致性需重采样。}
+\end{frame}
+
+\begin{frame}[t]{尺度设定：r0、t0、w0 与误差传播：计算算法}\FrameAnchor{32.05-4}
+\footnotesize
+\AlgorithmID{32.05}\begin{enumerate}
+\item 在多个 flow step size 上插值 t\ensuremath{^{2}}E=c 并作步长外推。
+\item 同时求 w0、r0、hadron input 等独立尺度。
+\item 用共享 bootstrap 将 scale 与目标量联合换算。
+\item 拟合 a\ensuremath{^{2}} 依赖和 quark-mass mistuning，报告尺度方案差异。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 无量纲比 M1/\allowbreak{}M2 不依赖 a。
+\item[\CheckMark] 使用两种尺度得到的连续极限必须一致。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{pyqcd gradient flow + shared-bootstrap scale database}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{尺度设定：r0、t0、w0 与误差传播：练习与完整解答}\FrameAnchor{32.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{32.05}}sqrt(t0phys)=0.1465 fm、sqrt(t0/\allowbreak{}a\ensuremath{^{2}})=2.50，求 a。\end{block}
+\begin{exampleblock}{\SolutionID{32.05}}a=0.1465/\allowbreak{}2.50 fm=0.0586 fm。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{32.05-beb36a315b}；\CourseRef{Eq}{32.05}；\CourseRef{SYM}{32.05}；\CourseRef{Alg}{32.05}。
+\SourceLine{BOOK-LQCD；PYQCD-GAUGE；DOC-EXTRAPOLATION}
+\end{frame}
+
+\begin{frame}[t]{第 32 卷能力清单}\FrameAnchor{V32-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能设计改进/\allowbreak{}各向异性规范作用量
+\item[\CheckMark] 能诊断拓扑冻结并正确使用开放边界
+\item[\CheckMark] 能完成 t0、w0、r0 等尺度设定及误差传播
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 32 卷来源（1/2）}\FrameAnchor{V32-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{DOC-SYMANZIK} & Symanzik 有效理论 & 按格距幂次组织离散伪影。\\
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\SourceID{PYQCD-GAUGE} & PyQCD 规范场技能 & 链接、plaquette、flow 和规范不变量。\\
+\SourceID{PYQCD-STATISTICS} & PyQCD 统计技能 & 自相关、重采样、协方差和拟合验证。\\
+\SourceID{PYQCD-ANALYSIS} & PyQCD 分析技能与模块 & 断连、比值、多态拟合和图表。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 32 卷来源（2/2）}\FrameAnchor{V32-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-STAT} & Monte Carlo 统计与拟合讲义（课程自编） & 协方差、重采样、覆盖率和模型系统学。\\
+\SourceID{P33} & 基于流的格点MCMC生成模型 & 论文图谱 P33 的完整原始 PDF；底稿 arXiv:1904.12072；SHA-256 61749019a775a814…。\\
+\SourceID{P34} & 规范等变的流采样 & 论文图谱 P34 的完整原始 PDF；底稿 arXiv:2003.06413；SHA-256 6f5d0bb1effda44b…。\\
+\SourceID{PYQCD-PIPELINE} & PyQCD 流水线技能 & 配置、守卫、元数据、断点续跑和产物清单。\\
+\SourceID{DOC-EXTRAPOLATION} & 格点 QCD 中的外推 & 连续、有限体积和物理点外推。\\
+\bottomrule\end{tabularx}\end{frame}
+

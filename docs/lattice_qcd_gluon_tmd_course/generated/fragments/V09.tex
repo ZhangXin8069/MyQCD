@@ -1,0 +1,374 @@
+\begin{frame}[plain]\FrameAnchor{V09-title}
+\centering
+{\Large\bfseries\color{courseblue}第 9 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 格点费米子、传播子与涂抹\par}
+\vspace{0.35cm}
+{\large 理解费米子倍增、Wilson/\allowbreak{}Clover 离散化和大型稀疏线性求解。\par}
+\vfill
+\CourseID{Tbl}{09.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 9 卷路线图}\FrameAnchor{V09-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+09.01 & Dirac 旋量与 \ensuremath{\gamma} 矩阵\\
+09.02 & 朴素离散与费米子倍增\\
+09.03 & Wilson 与 Clover 改进\\
+09.04 & 传播子与迭代线性求解\\
+09.05 & 夸克场涂抹与高动量源\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-LQCD；PYQCD-PROPAGATOR；P03；P04}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V09-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V05
+\item V07
+\item V08
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能解释倍增与 Wilson 项
+\item 能检查 \ensuremath{\gamma}5 厄米性和求解残差
+\item 能设计高动量源涂抹
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：一维朴素费米子与 Wilson 项}\FrameAnchor{V09-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=-3.1416,xmax=3.1416,ymin=0.0,ymax=2.1,xlabel={$ap$},ylabel={无量纲幅度},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=-3.1416:3.1416,samples=160] {abs(sin(x))};
+\addlegendentry{|sin(ap)|}
+\addplot[very thick,courseorange,domain=-3.1416:3.1416,samples=160] {1-cos(x)};
+\addlegendentry{Wilson 项 1-cos(ap)}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{09.00}：解析自由场曲线；Wilson 项在 p=0 消失而在区边界非零。
+\SourceLine{自由格点 Dirac 算符}
+\end{frame}
+
+\begin{frame}[t]{Dirac 旋量与 \ensuremath{\gamma} 矩阵：问题与图像}\FrameAnchor{09.01-1}
+\footnotesize
+\begin{block}{本节问题}相对论量子理论怎样把色散关系线性化？\end{block}
+\PhysicalFlow{四分量旋量}{\ensuremath{\gamma}\ensuremath{\mu} Clifford 代数}{Dirac 算符 \ensuremath{\gamma}·p+m}{09.01}
+\begin{block}{物理原则}\KnowledgeID{09.01}\quad 所有模块必须共享同一 \ensuremath{\gamma} 矩阵、轴顺序和 \ensuremath{\gamma}5 约定，否则相关函数符号会悄然改变。\end{block}
+\SourceLine{BOOK-QFT；BOOK-LQCD；PYQCD-CONVENTIONS}
+\end{frame}
+
+\begin{frame}[t]{Dirac 旋量与 \ensuremath{\gamma} 矩阵：定义与主公式}\FrameAnchor{09.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{09.01-e3b2382edb} 旋量 & 在 Lorentz 变换下按旋量表示变换的对象\\
+\DefinitionID{09.01-716199e8f0} \ensuremath{\gamma} 矩阵 & Clifford 代数的矩阵表示\\
+\DefinitionID{09.01-9e032a7918} 手征性 & \ensuremath{\gamma}5 本征值区分的左右分量\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{09.01} 主公式}\centering\CourseDisplayEquation{\{\gamma_\mu,\gamma_\nu\}=2\delta_{\mu\nu}I\quad\text{（欧氏）}}\end{block}
+欧氏 \ensuremath{\gamma} 矩阵平方为 I，异方向反对易。
+\end{frame}
+
+\begin{frame}[t]{Dirac 旋量与 \ensuremath{\gamma} 矩阵：推导与证据边界}\FrameAnchor{09.01-3}
+\footnotesize
+\DerivationID{09.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{09.01}：
+\begin{enumerate}
+\item 取 Pauli 矩阵构造一个二维 Clifford 子代数。
+\item 同一 Pauli 矩阵平方为 I。
+\item 不同 Pauli 矩阵乘积之和为零，因此得到 2\ensuremath{\delta}\ensuremath{\mu}\ensuremath{\nu}I。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{09.01}\quad Pauli 子代数的 Euclidean Clifford 关系；4/4 项通过；SymPy exact。
+\par\scriptsize 假设：以 gamma1=sigma1, gamma2=sigma2 作有限子代数
+\end{block}
+\BoundaryLine{四维 gamma 表示和项目轴顺序由共享约定测试保证。}
+\end{frame}
+
+\begin{frame}[t]{Dirac 旋量与 \ensuremath{\gamma} 矩阵：计算算法}\FrameAnchor{09.01-4}
+\footnotesize
+\AlgorithmID{09.01}\begin{enumerate}
+\item 集中定义 \ensuremath{\gamma} 矩阵而不在分析脚本重复硬编码。
+\item 检查每对方向的反对易残差。
+\item 构造 \ensuremath{\gamma}5 并检查 \ensuremath{\gamma}5\ensuremath{^{2}}=I、tr\ensuremath{\gamma}5=0。
+\item 把约定哈希写进关联函数元数据。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\mu}=\ensuremath{\nu} 时反对易子为 2I。
+\item[\CheckMark] 对任意幺正相似变换 \ensuremath{\gamma}\ensuremath{^{\prime}}=U\ensuremath{\gamma}U†，代数不变。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Dirac 旋量与 \ensuremath{\gamma} 矩阵：练习与完整解答}\FrameAnchor{09.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{09.01}}若 \ensuremath{\gamma}1=\ensuremath{\sigma}1、\ensuremath{\gamma}2=\ensuremath{\sigma}2，计算 \ensuremath{\gamma}1\ensuremath{\gamma}2。\end{block}
+\begin{exampleblock}{\SolutionID{09.01}}\ensuremath{\sigma}1\ensuremath{\sigma}2=i\ensuremath{\sigma}3；反序为 -i\ensuremath{\sigma}3，故反对易子为 0。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{09.01-e3b2382edb}；\CourseRef{Eq}{09.01}；\CourseRef{SYM}{09.01}；\CourseRef{Alg}{09.01}。
+\SourceLine{BOOK-QFT；BOOK-LQCD；PYQCD-CONVENTIONS}
+\end{frame}
+
+\begin{frame}[t]{朴素离散与费米子倍增：问题与图像}\FrameAnchor{09.02-1}
+\footnotesize
+\begin{block}{本节问题}一个连续零点为何在格点动量区中复制成许多零点？\end{block}
+\PhysicalFlow{中心差分 \ensuremath{\partial}\ensuremath{\rightarrow}i sin(ap)/\allowbreak{}a}{Brillouin 区周期}{p=0 与 \ensuremath{\pi}/\allowbreak{}a 都为零}{09.02}
+\begin{block}{物理原则}\KnowledgeID{09.02}\quad 倍增是离散谱结构，不是求解器误差；不同费米子方案在对称性、成本与伪影间取舍。\end{block}
+\SourceLine{BOOK-LQCD；BOOK-QCD-LATTICE}
+\end{frame}
+
+\begin{frame}[t]{朴素离散与费米子倍增：定义与主公式}\FrameAnchor{09.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{09.02-528bf70258} 费米子倍增 & 朴素离散产生额外低能费米子种类\\
+\DefinitionID{09.02-476d46093c} Brillouin 区边界 & 基本格点动量区域的边界\\
+\DefinitionID{09.02-bc4e7f563c} Nielsen--Ninomiya 约束 & 局域性、手征性等条件下倍增不可同时避免的定理\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{09.02} 主公式}\centering\CourseDisplayEquation{\tilde\nabla(p)=\frac{i}{a}\sin(ap),\qquad \tilde\nabla(0)=\tilde\nabla(\pi/a)=0}\end{block}
+中心差分的 Fourier 符号在每个方向有两个零点，四维形成 2\ensuremath{^{4}} 个种类。
+\end{frame}
+
+\begin{frame}[t]{朴素离散与费米子倍增：推导与证据边界}\FrameAnchor{09.02-3}
+\footnotesize
+\DerivationID{09.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{09.02}：
+\begin{enumerate}
+\item 中心差分作用于 exp(ipx) 得 [e\ensuremath{^{ipa}}-e\ensuremath{^{-ipa}}]/\allowbreak{}(2a)。
+\item 用 Euler 公式化为 i sin(ap)/\allowbreak{}a。
+\item sin(ap) 在 ap=0、\ensuremath{\pi} 都为 0；四个方向独立组合给 16 个零点。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{09.02}\quad 朴素费米子倍增零点；3/3 项通过；SymPy exact。
+\par\scriptsize 假设：一维自由场动量符号
+\end{block}
+\BoundaryLine{四维 16 重倍增由四方向笛卡尔组合得出。}
+\end{frame}
+
+\begin{frame}[t]{朴素离散与费米子倍增：计算算法}\FrameAnchor{09.02-4}
+\footnotesize
+\AlgorithmID{09.02}\begin{enumerate}
+\item 在整个 Brillouin 区采样自由 Dirac 谱。
+\item 定位最小奇异值的动量点。
+\item 分别加入 Wilson、staggered 等离散化比较零模。
+\item 不要用只看 p\ensuremath{\approx}0 的图漏掉区边界倍增子。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] a\ensuremath{\rightarrow}0 且固定物理 p 时 sin(ap)/\allowbreak{}a\ensuremath{\rightarrow}p。
+\item[\CheckMark] p\ensuremath{\rightarrow}p+2\ensuremath{\pi}/\allowbreak{}a 时离散导数周期重复。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{朴素离散与费米子倍增：练习与完整解答}\FrameAnchor{09.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{09.02}}四维朴素费米子有多少个角点零模？\end{block}
+\begin{exampleblock}{\SolutionID{09.02}}每方向可取 0 或 \ensuremath{\pi}/\allowbreak{}a，共 2\ensuremath{^{4}}=16 个。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{09.02-528bf70258}；\CourseRef{Eq}{09.02}；\CourseRef{SYM}{09.02}；\CourseRef{Alg}{09.02}。
+\SourceLine{BOOK-LQCD；BOOK-QCD-LATTICE}
+\end{frame}
+
+\begin{frame}[t]{Wilson 与 Clover 改进：问题与图像}\FrameAnchor{09.03-1}
+\footnotesize
+\begin{block}{本节问题}怎样抬高倍增子的质量，同时控制新引入的格点误差？\end{block}
+\PhysicalFlow{加入二阶差分 Wilson 项}{区边界获得 O(1/\allowbreak{}a) 质量}{Clover 项消去 O(a) 伪影}{09.03}
+\begin{block}{物理原则}\KnowledgeID{09.03}\quad Wilson 费米子有限 a 显式破坏手征对称；连续极限和质量调谐不可省略。\end{block}
+\SourceLine{BOOK-LQCD；DOC-FERMIONS}
+\end{frame}
+
+\begin{frame}[t]{Wilson 与 Clover 改进：定义与主公式}\FrameAnchor{09.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{09.03-7781310fed} Wilson 项 & 破坏有限 a 手征对称以移除倍增子的二阶差分项\\
+\DefinitionID{09.03-3682fabc49} Clover 项 & 含 \ensuremath{\sigma}\ensuremath{\mu}\ensuremath{\nu}F\ensuremath{\mu}\ensuremath{\nu} 的 O(a) 改进项\\
+\DefinitionID{09.03-0cfd02c432} 临界 \ensuremath{\kappa} & 加性质量重整化后无质量点对应的 hopping 参数\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{09.03} 主公式}\centering\CourseDisplayEquation{D_W(p)=m+\frac{i}{a}\sum_\mu\gamma_\mu\sin(ap_\mu)+\frac{r}{a}\sum_\mu[1-\cos(ap_\mu)]}\end{block}
+Wilson 项在小 p 为 O(ap\ensuremath{^{2}})，在倍增点为 2r/\allowbreak{}a，从低能谱中移走倍增子。
+\end{frame}
+
+\begin{frame}[t]{Wilson 与 Clover 改进：推导与证据边界}\FrameAnchor{09.03-3}
+\footnotesize
+\DerivationID{09.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{09.03}：
+\begin{enumerate}
+\item 在 p\ensuremath{\approx}0 展开 1-cos(ap)=a\ensuremath{^{2}}p\ensuremath{^{2}}/\allowbreak{}2+O(a\ensuremath{^{4}})。
+\item 因此物理支 Wilson 修正约为 ra p\ensuremath{^{2}}/\allowbreak{}2，随 a 消失。
+\item 在 ap=\ensuremath{\pi} 时 1-cos\ensuremath{\pi}=2，产生质量 2r/\allowbreak{}a。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{09.03}\quad Wilson 项的物理支与倍增支；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：一维自由场、r=1
+\end{block}
+\BoundaryLine{Wilson 项的手征破缺、临界质量和 Clover 改进需完整格点分析。}
+\end{frame}
+
+\begin{frame}[t]{Wilson 与 Clover 改进：计算算法}\FrameAnchor{09.03-4}
+\footnotesize
+\AlgorithmID{09.03}\begin{enumerate}
+\item 实现最近邻 hopping 和对角 Wilson 项。
+\item 用自由场动量表示逐点核对解析谱。
+\item 检查 \ensuremath{\gamma}5D\ensuremath{\gamma}5=D†。
+\item 在多个 a 上调谐质量并验证改进后的收敛阶。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] r=0 退化为朴素费米子并恢复倍增。
+\item[\CheckMark] p=0 时 Wilson 动量项恰为 0。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Wilson 与 Clover 改进：练习与完整解答}\FrameAnchor{09.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{09.03}}一维 r=1，ap=\ensuremath{\pi} 时 Wilson 质量增量是多少？\end{block}
+\begin{exampleblock}{\SolutionID{09.03}}(1/\allowbreak{}a)(1-cos\ensuremath{\pi})=2/\allowbreak{}a。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{09.03-7781310fed}；\CourseRef{Eq}{09.03}；\CourseRef{SYM}{09.03}；\CourseRef{Alg}{09.03}。
+\SourceLine{BOOK-LQCD；DOC-FERMIONS}
+\end{frame}
+
+\begin{frame}[t]{传播子与迭代线性求解：问题与图像}\FrameAnchor{09.04-1}
+\footnotesize
+\begin{block}{本节问题}为何一次夸克传播子计算等价于多次求解 D x=b？\end{block}
+\PhysicalFlow{点源或涂抹源 b}{Dirac 矩阵 D}{解 x=D\ensuremath{^{-1}}b 即传播}{09.04}
+\begin{block}{物理原则}\KnowledgeID{09.04}\quad 小残差不自动保证小前向误差；病态系统的条件数会放大误差。\end{block}
+\SourceLine{BOOK-NUMERICS；PYQCD-PROPAGATOR}
+\end{frame}
+
+\begin{frame}[t]{传播子与迭代线性求解：定义与主公式}\FrameAnchor{09.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{09.04-b5afc6bcaf} 传播子 & Dirac 算符逆在源汇之间的矩阵元\\
+\DefinitionID{09.04-a161cbb640} 残差 & r=b-Dx\\
+\DefinitionID{09.04-1ebe2763fa} 共轭梯度 & 对厄米正定系统的 Krylov 迭代法\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{09.04} 主公式}\centering\CourseDisplayEquation{x_*=A^{-1}b,\qquad r=b-Ax_*=0}\end{block}
+精确解使代数残差为零；数值求解以相对残差和可观测量稳定性停止。
+\end{frame}
+
+\begin{frame}[t]{传播子与迭代线性求解：推导与证据边界}\FrameAnchor{09.04-3}
+\footnotesize
+\DerivationID{09.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{09.04}：
+\begin{enumerate}
+\item 若 A 可逆，在 Ax=b 两边左乘 A\ensuremath{^{-1}} 得 x=A\ensuremath{^{-1}}b。
+\item 代回定义 r=b-AA\ensuremath{^{-1}}b=0。
+\item 近似解误差 e=x-x* 满足 r=-Ae，因此 ||e||\ensuremath{\le}||A\ensuremath{^{-1}}||||r||。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{09.04}\quad 传播子线性系统的小矩阵闭合；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：2x2 对称正定代理
+\end{block}
+\BoundaryLine{巨大稀疏 Dirac 算符的条件数、预条件与浮点停止准则需数值测试。}
+\end{frame}
+
+\begin{frame}[t]{传播子与迭代线性求解：计算算法}\FrameAnchor{09.04-4}
+\footnotesize
+\AlgorithmID{09.04}\begin{enumerate}
+\item 封装矩阵—向量作用而非显式形成逆矩阵。
+\item 选择与算符性质匹配的 CG、BiCGStab 或 normal-equation 求解器。
+\item 逐步监控真残差，必要时可靠更新。
+\item 用独立右端、小格点直接解和 Ward 恒等式验证传播子。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] b=0 时唯一解为 0（A 可逆）。
+\item[\CheckMark] 缩放 A、b 同一常数不改变 x，但绝对残差缩放。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}lattice/\allowbreak{}\_\allowbreak{}cg.\allowbreak{}py；传播子求解技能}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{传播子与迭代线性求解：练习与完整解答}\FrameAnchor{09.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{09.04}}A=diag(2,4)、b=(2,8)，求 x 和相对残差。\end{block}
+\begin{exampleblock}{\SolutionID{09.04}}x=(1,2)，残差为 (0,0)，相对残差为 0。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{09.04-b5afc6bcaf}；\CourseRef{Eq}{09.04}；\CourseRef{SYM}{09.04}；\CourseRef{Alg}{09.04}。
+\SourceLine{BOOK-NUMERICS；PYQCD-PROPAGATOR}
+\end{frame}
+
+\begin{frame}[t]{夸克场涂抹与高动量源：问题与图像}\FrameAnchor{09.05-1}
+\footnotesize
+\begin{block}{本节问题}怎样增强插值算符与目标核子基态的重叠，而不改变系综作用量？\end{block}
+\PhysicalFlow{局域夸克源}{协变 Laplacian 平滑}{动量相位偏置}{09.05}
+\begin{block}{物理原则}\KnowledgeID{09.05}\quad 涂抹改变算符而不改变规范系综；参数必须在不同动量与格距上重新验证。\end{block}
+\SourceLine{P03；P04；MYQCD-FORMULAS}
+\end{frame}
+
+\begin{frame}[t]{夸克场涂抹与高动量源：定义与主公式}\FrameAnchor{09.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{09.05-990d9ca07f} Gaussian/\allowbreak{}Jacobi 涂抹 & 反复应用协变空间 Laplacian 的源平滑\\
+\DefinitionID{09.05-0a12bc7725} 动量涂抹 & 在链接中加入与目标动量相关相位\\
+\DefinitionID{09.05-426157f4f8} 基态重叠 & 插值算符对目标能量本征态的振幅\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{09.05} 主公式}\centering\CourseDisplayEquation{J_{\sigma,n}=\left(1+\frac{\sigma\nabla^2}{n}\right)^n\xrightarrow[n\to\infty]{}e^{\sigma\nabla^2}}\end{block}
+有限次 Jacobi 更新趋于协变扩散指数；高频空间模式被抑制。
+\end{frame}
+
+\begin{frame}[t]{夸克场涂抹与高动量源：推导与证据边界}\FrameAnchor{09.05-3}
+\footnotesize
+\DerivationID{09.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{09.05}：
+\begin{enumerate}
+\item 使用标量极限 (1+x/\allowbreak{}n)\ensuremath{^{n}}\ensuremath{\rightarrow}e\ensuremath{^{x}}。
+\item 在 Laplacian 本征模上，矩阵关系逐模化为该标量极限。
+\item 负半定 Laplacian 的高波数本征值更负，因此指数抑制更强。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{09.05}\quad Jacobi 到 Gaussian 涂抹极限；8/8 项通过；SymPy exact；复用 myqcd.derivations.derive\_quark\_gaussian\_smearing。
+\par\scriptsize 假设：三维周期 2\ensuremath{^{3}} 空间格点，规范链接取自由极限 U\_j=1；sigma>0，有限 Jacobi 检查取 n\_sigma=4，指数极限取 n\_sigma\ensuremath{\rightarrow}\ensuremath{\infty}；lambda\_hat\ensuremath{\ge}0 表示负 Laplacian 的本征值
+\end{block}
+\BoundaryLine{自由周期小格点验证 Laplacian 模、极限与投影；非阿贝尔协变性另测。}
+\end{frame}
+
+\begin{frame}[t]{夸克场涂抹与高动量源：计算算法}\FrameAnchor{09.05-4}
+\footnotesize
+\AlgorithmID{09.05}\begin{enumerate}
+\item 构造只含空间链接的协变 Laplacian。
+\item 选择迭代次数和宽度，保持更新稳定。
+\item 动量涂抹时按统一符号给链接乘相位。
+\item 比较有效质量平台、噪声和激发态拟合，而非只看源形状。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\sigma}=0 时 J=I。
+\item[\CheckMark] 规范变换后涂抹场应与原夸克场同样协变。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}vertex 与 smear 模块；高动量源参考}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{夸克场涂抹与高动量源：练习与完整解答}\FrameAnchor{09.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{09.05}}若某 Laplacian 模本征值 \ensuremath{\lambda}=-2，\ensuremath{\sigma}=0.5，连续极限抑制因子是多少？\end{block}
+\begin{exampleblock}{\SolutionID{09.05}}exp(\ensuremath{\sigma}\ensuremath{\lambda})=exp(-1)\ensuremath{\approx}0.368。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{09.05-990d9ca07f}；\CourseRef{Eq}{09.05}；\CourseRef{SYM}{09.05}；\CourseRef{Alg}{09.05}。
+\SourceLine{P03；P04；MYQCD-FORMULAS}
+\end{frame}
+
+\begin{frame}[t]{第 9 卷能力清单}\FrameAnchor{V09-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能解释倍增与 Wilson 项
+\item[\CheckMark] 能检查 \ensuremath{\gamma}5 厄米性和求解残差
+\item[\CheckMark] 能设计高动量源涂抹
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 9 卷来源（1/2）}\FrameAnchor{V09-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\SourceID{PYQCD-PROPAGATOR} & PyQCD 传播子技能 & 线性求解、序贯源和传播子契约。\\
+\SourceID{P03} & 夸克场产生算符构造 & 论文图谱 P03 的完整原始 PDF；底稿 arXiv:0905.2160；SHA-256 89a5838789847d4c…。\\
+\SourceID{P04} & 高动量强子新夸克涂抹 & 论文图谱 P04 的完整原始 PDF；底稿 arXiv:1602.05525；SHA-256 f174c9940ab18237…。\\
+\SourceID{BOOK-QFT} & An Introduction to Quantum Field Theory（仓库转排本） & 量子场论、规范理论、QCD 和重整化的主教材交叉核验。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 9 卷来源（2/2）}\FrameAnchor{V09-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{PYQCD-CONVENTIONS} & PyQCD 共享约定技能 & gamma、轴顺序、精度和接口约定。\\
+\SourceID{BOOK-QCD-LATTICE} & Quantum Chromodynamics on the Lattice（仓库转排本） & 格点 QCD 形式体系、算法和系统误差的深入交叉核验。\\
+\SourceID{DOC-FERMIONS} & 格点费米子方案 & 倍增、Wilson/\allowbreak{}Clover 与方案比较。\\
+\SourceID{BOOK-NUMERICS} & 数值分析预备课（课程自编） & 差分、求积、收敛阶、线性求解和误差账本。\\
+\SourceID{MYQCD-FORMULAS} & MyQCD 可执行公式注册表 & 复杂公式的 SymPy 精确代理与证据边界。\\
+\bottomrule\end{tabularx}\end{frame}
+

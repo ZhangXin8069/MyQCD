@@ -1,0 +1,386 @@
+\begin{frame}[plain]\FrameAnchor{V19-title}
+\centering
+{\Large\bfseries\color{courseblue}第 19 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 连续、大动量、零流时与无限 staple 联合极限\par}
+\vspace{0.35cm}
+{\large 用多系综、多动量、多流时、多长度数据控制所有非物理调节量并建立总误差预算。\par}
+\vfill
+\CourseID{Tbl}{19.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 19 卷路线图}\FrameAnchor{V19-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+19.01 & 连续极限 a\ensuremath{\rightarrow}0\\
+19.02 & 大动量极限 Pz\ensuremath{\rightarrow}\ensuremath{\infty}\\
+19.03 & 零流时/\allowbreak{}方案转换：局域模型与 staple 停止门\\
+19.04 & 有限 staple 长度与边界极限\\
+19.05 & 联合拟合、可辨识性与总误差预算\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{P18；P40；P41；P44；PYQCD-TMD-VALIDATION}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V19-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V08
+\item V12
+\item V14
+\item V16
+\item V18
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能设计联合外推数据矩阵
+\item 能识别不可辨识参数
+\item 能给出统计与系统误差完整预算
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：三类修正的相对标度}\FrameAnchor{V19-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0.0,xmax=3.0,ymin=0.0,ymax=1.05,xlabel={无量纲控制变量 $u$},ylabel={归一化修正},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0.0:3.0,samples=160] {x^2/9};
+\addlegendentry{u\ensuremath{^{2}}}
+\addplot[very thick,courseorange,domain=0.0:3.0,samples=160] {1/(1+x)^2};
+\addlegendentry{1/\allowbreak{}(1+u)\ensuremath{^{2}}}
+\addplot[very thick,coursegreen,domain=0.0:3.0,samples=160] {exp(-x)};
+\addlegendentry{exp(-u)}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{19.00}：仅比较函数形状；实际控制变量和系数彼此不同。
+\SourceLine{有效理论幂计数}
+\end{frame}
+
+\begin{frame}[t]{连续极限 a\ensuremath{\rightarrow}0：问题与图像}\FrameAnchor{19.01-1}
+\footnotesize
+\begin{block}{本节问题}怎样证明结果不是某一格距上的离散伪影？\end{block}
+\PhysicalFlow{固定物理 P、b,z,\ensuremath{\ell},\ensuremath{\tau}}{多个 a 的共同点}{按 Symanzik 幂次外推截距}{19.01}
+\begin{block}{物理原则}\KnowledgeID{19.01}\quad flowed 算符还可含 a\ensuremath{^{2}}/\allowbreak{}\ensuremath{\tau}；若 \ensuremath{\tau} 随 a 变化，必须显式放入联合模型。\end{block}
+\SourceLine{DOC-EXTRAPOLATION；PYQCD-TMD-VALIDATION}
+\end{frame}
+
+\begin{frame}[t]{连续极限 a\ensuremath{\rightarrow}0：定义与主公式}\FrameAnchor{19.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{19.01-5c58e9a8c8} 固定物理线 & 随 a 调裸参数以保持选定物理量不变\\
+\DefinitionID{19.01-d807ccf53f} 连续外推 & 由多个非零 a 推断 a=0 截距\\
+\DefinitionID{19.01-12fcf469f1} 离散伪影 & 有限格距打破连续对称性产生的修正\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{19.01} 主公式}\centering\CourseDisplayEquation{F(a)=F_0+c_2(a\Lambda)^2+c_4(a\Lambda)^4+\cdots}\end{block}
+对 O(a) 改进且对称性允许时，领先格距修正常从 a\ensuremath{^{2}} 开始。
+\end{frame}
+
+\begin{frame}[t]{连续极限 a\ensuremath{\rightarrow}0：推导与证据边界}\FrameAnchor{19.01-3}
+\footnotesize
+\DerivationID{19.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{19.01}：
+\begin{enumerate}
+\item Symanzik 理论把格点作用量写成连续作用量加高维局域算符。
+\item 每增加两维需乘 a\ensuremath{^{2}}；若 O(a) 项消去，领先为 a\ensuremath{^{2}}。
+\item 用物理尺度 \ensuremath{\Lambda} 无量纲化；a=0 截距定义 F0。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{19.01}\quad a\ensuremath{^{2}} 连续外推截距；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：a>0；领先 O(a) 项已消去
+\end{block}
+\BoundaryLine{实际幂次、尺度相关和 a\ensuremath{^{2}}/\allowbreak{}tau 交叉项由作用量与数据决定。}
+\end{frame}
+
+\begin{frame}[t]{连续极限 a\ensuremath{\rightarrow}0：计算算法}\FrameAnchor{19.01-4}
+\footnotesize
+\AlgorithmID{19.01}\begin{enumerate}
+\item 至少使用三个格距并在共同物理运动学插值。
+\item 把尺度设定误差作为相关 nuisance 参数传播。
+\item 比较 a\ensuremath{^{2}}、a\ensuremath{^{2}}+a\ensuremath{^{4}}、含 a\ensuremath{^{2}}/\allowbreak{}\ensuremath{\tau} 与 (aP)\ensuremath{^{2}} 的模型。
+\item 做逐系综留出和最粗格距剔除，报告截距稳定性。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] a=0 时所有显式格距项消失。
+\item[\CheckMark] 只有一个格距无法由数据确定 F0 与 c2。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}extrapolate.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{连续极限 a\ensuremath{\rightarrow}0：练习与完整解答}\FrameAnchor{19.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{19.01}}F(a)=2+3a\ensuremath{^{2}}，a=0.2 时 F 是多少？\end{block}
+\begin{exampleblock}{\SolutionID{19.01}}F=2+3\ensuremath{\times}0.04=2.12；连续值为 2。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{19.01-5c58e9a8c8}；\CourseRef{Eq}{19.01}；\CourseRef{SYM}{19.01}；\CourseRef{Alg}{19.01}。
+\SourceLine{DOC-EXTRAPOLATION；PYQCD-TMD-VALIDATION}
+\end{frame}
+
+\begin{frame}[t]{大动量极限 Pz\ensuremath{\rightarrow}\ensuremath{\infty}：问题与图像}\FrameAnchor{19.02-1}
+\footnotesize
+\begin{block}{本节问题}怎样区分真实 x、b 结构与有限 boost 的高 twist 污染？\end{block}
+\PhysicalFlow{多 Pz 匹配后结果}{以 1/\allowbreak{}Pz\ensuremath{^{2}} 组织}{同时检查 apz 离散项}{19.02}
+\begin{block}{物理原则}\KnowledgeID{19.02}\quad 展开在小 x/\allowbreak{}端点未必一致；大 Pz 极限须在匹配后、预先声明的 x 窗内解释。\end{block}
+\SourceLine{P18；P41；P48}
+\end{frame}
+
+\begin{frame}[t]{大动量极限 Pz\ensuremath{\rightarrow}\ensuremath{\infty}：定义与主公式}\FrameAnchor{19.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{19.02-c88171368c} 靶质量修正 & 由有限核子质量造成的 M\ensuremath{^{2}}/\allowbreak{}Pz\ensuremath{^{2}} 修正\\
+\DefinitionID{19.02-15e8c9f669} 高 twist & 多部分子关联带来的 \ensuremath{\Lambda}\ensuremath{^{2}}/\allowbreak{}Pz\ensuremath{^{2}} 修正\\
+\DefinitionID{19.02-ba49aba652} 动量窗口 & 幂修正和 ap 伪影都受控的 Pz 区间\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{19.02} 主公式}\centering\CourseDisplayEquation{F(x,b_T,\ell;P_z)=F_\infty(x,b_T)+\frac{d_2(x,b_T,\ell)}{P_z^2}+\frac{d_4(x,b_T,\ell)}{P_z^4}+\cdots}\end{block}
+在固定 x、bT 和 scheme 的偶通道中可按偶次倒幂组织，但系数一般依 x、bT、\ensuremath{\ell}。
+\end{frame}
+
+\begin{frame}[t]{大动量极限 Pz\ensuremath{\rightarrow}\ensuremath{\infty}：推导与证据边界}\FrameAnchor{19.02-3}
+\footnotesize
+\DerivationID{19.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{19.02}：
+\begin{enumerate}
+\item Pz 偶对称只允许偶次倒幂。
+\item d2(x,bT,\ensuremath{\ell}) 的量纲为 F\ensuremath{\times}质量\ensuremath{^{2}}，使 d2/\allowbreak{}Pz\ensuremath{^{2}} 与 F 同量纲。
+\item 提出匹配对数后，截距 F\ensuremath{\infty} 是固定 \ensuremath{\mu}、\ensuremath{\zeta} 下的目标。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{19.02}\quad 大动量倒幂外推；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：固定 x、b\_T、ell 与重整化/\allowbreak{}rapidity 方案；P\_z 非零；所选标量通道在 P\_z 反号下为偶
+\end{block}
+\BoundaryLine{匹配对数须先统一；d\_n 一般依赖 x、b\_T、ell，且小 x 与端点的倒幂展开可能非一致；(aP)\ensuremath{^{2}} 与 1/\allowbreak{}P\ensuremath{^{2}} 需交叉数据区分。}
+\end{frame}
+
+\begin{frame}[t]{大动量极限 Pz\ensuremath{\rightarrow}\ensuremath{\infty}：计算算法}\FrameAnchor{19.02-4}
+\footnotesize
+\AlgorithmID{19.02}\begin{enumerate}
+\item 使用至少三个非零 |Pz|，并配对 \ensuremath{\pm}Pz 检查对称性。
+\item 先完成每个 Pz 的重整化、soft 和同阶匹配。
+\item 联合拟合 1/\allowbreak{}P\ensuremath{^{2}}、1/\allowbreak{}P\ensuremath{^{4}} 与 (aP)\ensuremath{^{2}}，避免互相冒充。
+\item 扫描 x 窗、最低/\allowbreak{}最高动量与核阶，检查截距、端点失效和覆盖率。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] Pz\ensuremath{\rightarrow}\ensuremath{\infty} 时倒幂项消失。
+\item[\CheckMark] 若所有 Pz 的 apz 近乎相同，修正项难以区分。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}extrapolate.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{大动量极限 Pz\ensuremath{\rightarrow}\ensuremath{\infty}：练习与完整解答}\FrameAnchor{19.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{19.02}}d2=0.8 GeV\ensuremath{^{2}}、Pz=2 GeV，领先修正是多少？\end{block}
+\begin{exampleblock}{\SolutionID{19.02}}d2/\allowbreak{}Pz\ensuremath{^{2}}=0.8/\allowbreak{}4=0.2（与 F 同单位）。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{19.02-c88171368c}；\CourseRef{Eq}{19.02}；\CourseRef{SYM}{19.02}；\CourseRef{Alg}{19.02}。
+\SourceLine{P18；P41；P48}
+\end{frame}
+
+\begin{frame}[t]{零流时/\allowbreak{}方案转换：局域模型与 staple 停止门：问题与图像}\FrameAnchor{19.03-1}
+\footnotesize
+\begin{block}{本节问题}怎样避免把局域常数加 \ensuremath{\tau} 模型错误用于非局域 TMD 路径？\end{block}
+\PhysicalFlow{固定物理 \ensuremath{\tau} 先取连续极限}{局域量可用 SFTE 幂计数}{staple 必须先除路径/\allowbreak{}cusp 转换核}{19.03}
+\begin{block}{物理原则}\KnowledgeID{19.03}\quad 拟合前需无量纲化；没有 C\ensuremath{\Gamma} 时应报告有限流时原型，而不是给伪造的 \ensuremath{\tau}=0 截距。\end{block}
+\SourceLine{P28；P38；P39；P40}
+\end{frame}
+
+\begin{frame}[t]{零流时/\allowbreak{}方案转换：局域模型与 staple 停止门：定义与主公式}\FrameAnchor{19.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{19.03-2d1ae80673} 局域流时伪影 & 局域算符有限 \ensuremath{\tau} 的高维幂修正\\
+\DefinitionID{19.03-b89361fbc0} a\ensuremath{^{2}}/\allowbreak{}\ensuremath{\tau} 项 & 流半径接近格距时增强的离散修正\\
+\DefinitionID{19.03-859cd44e54} 非局域停止门 & 缺少路径依赖 C\ensuremath{\Gamma} 时禁止执行 \ensuremath{\tau}\ensuremath{\rightarrow}0 物理外推\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{19.03} 主公式}\centering\CourseDisplayEquation{F_{\rm loc}(a,\tau)=F_0+c_\tau\tau\Lambda^2+c_a\frac{a^2}{\tau}+c_{a2}(a\Lambda)^2+\cdots}\end{block}
+该式只适用于已完成局域方案转换的量；finite-staple 先处理 L\ensuremath{\Gamma}/\allowbreak{}\ensuremath{\sqrt{8\tau}}、ln\ensuremath{\tau}、cusp 与 mixing。
+\end{frame}
+
+\begin{frame}[t]{零流时/\allowbreak{}方案转换：局域模型与 staple 停止门：推导与证据边界}\FrameAnchor{19.03-3}
+\footnotesize
+\DerivationID{19.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{19.03}：
+\begin{enumerate}
+\item 局域 SFTE 给相对 \ensuremath{\tau}\ensuremath{\Lambda}\ensuremath{^{2}} 修正。
+\item 离散热核误差产生 a\ensuremath{^{2}}/\allowbreak{}\ensuremath{\tau}。
+\item 普通作用量/\allowbreak{}算符伪影另给 (a\ensuremath{\Lambda})\ensuremath{^{2}}，三者需由交叉数据区分。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{19.03}\quad 连续后零流时的有序极限；3/3 项通过；SymPy exact。
+\par\scriptsize 假设：局域模型的系数和 Lambda 有限正；先 a->0 后 tau->0；finite-staple 路径在流时极限中保持非零
+\end{block}
+\BoundaryLine{safe\_order 只属于局域或已完成 C\_Gamma 转换的对象；未消去 L\_Gamma/\allowbreak{}sqrt(8tau)、ln tau、cusp 与 mixing 时，非局域 TMD 必须触发停止门。}
+\end{frame}
+
+\begin{frame}[t]{零流时/\allowbreak{}方案转换：局域模型与 staple 停止门：计算算法}\FrameAnchor{19.03-4}
+\footnotesize
+\AlgorithmID{19.03}\begin{enumerate}
+\item 绘制每点的 \ensuremath{\tau}/\allowbreak{}a\ensuremath{^{2}} 与 \ensuremath{\tau}/\allowbreak{}d\ensuremath{^{2}}，剔除无重叠窗口点。
+\item 先确认对象为局域或已应用完整 C\ensuremath{\Gamma}，再用所有格距和流时做相关联合拟合。
+\item 与先每 \ensuremath{\tau} 连续外推再 \ensuremath{\tau}\ensuremath{\rightarrow}0 的两步法比较。
+\item 扫描窗口、交叉项和转换系数阶数。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 固定 \ensuremath{\tau}>0 令 a\ensuremath{\rightarrow}0 时 a\ensuremath{^{2}}/\allowbreak{}\ensuremath{\tau} 消失。
+\item[\CheckMark] 固定 a 令 \ensuremath{\tau}\ensuremath{\rightarrow}0 时 a\ensuremath{^{2}}/\allowbreak{}\ensuremath{\tau} 发散，说明该路径不可取。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}extrapolate.\allowbreak{}py 与 \_\allowbreak{}gradient\_\allowbreak{}flow.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{零流时/\allowbreak{}方案转换：局域模型与 staple 停止门：练习与完整解答}\FrameAnchor{19.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{19.03}}a\ensuremath{^{2}}/\allowbreak{}\ensuremath{\tau}=0.1，若 a 减半且 \ensuremath{\tau} 固定，该项变多少？\end{block}
+\begin{exampleblock}{\SolutionID{19.03}}a\ensuremath{^{2}} 缩小四倍，故变为 0.025。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{19.03-2d1ae80673}；\CourseRef{Eq}{19.03}；\CourseRef{SYM}{19.03}；\CourseRef{Alg}{19.03}。
+\SourceLine{P28；P38；P39；P40}
+\end{frame}
+
+\begin{frame}[t]{有限 staple 长度与边界极限：问题与图像}\FrameAnchor{19.04-1}
+\footnotesize
+\begin{block}{本节问题}有限空间型快度调节线段增大时，怎样确认结果进入长度平台？\end{block}
+\PhysicalFlow{多个 \ensuremath{\ell} 与相同 b,z}{拟合指数/\allowbreak{}幂次尾}{检查 \ensuremath{\ell} 与 L 边界分离}{19.04}
+\begin{block}{物理原则}\KnowledgeID{19.04}\quad 指数模型不是普适定理；还应测试幂尾、振荡和不同 \ensuremath{\ell} 窗。\end{block}
+\SourceLine{P44；P45；PYQCD-TMD-VALIDATION}
+\end{frame}
+
+\begin{frame}[t]{有限 staple 长度与边界极限：定义与主公式}\FrameAnchor{19.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{19.04-f26f014933} staple 饱和 & \ensuremath{\ell} 增大后矩阵元接近渐近值\\
+\DefinitionID{19.04-a0a17f7df7} 镜像路径 & 周期盒中长路径靠近自身周期副本\\
+\DefinitionID{19.04-2f6a6151b4} 长度平台 & 继续增大 \ensuremath{\ell} 时结果在误差内稳定\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{19.04} 主公式}\centering\CourseDisplayEquation{F(\ell)=F_\infty+A e^{-\Delta\ell}+\cdots}\end{block}
+若控制有限长度效应的通道有正质量隙 \ensuremath{\Delta}，领先修正常指数衰减；增大 \ensuremath{\ell} 不会把空间型切向量变成光状。
+\end{frame}
+
+\begin{frame}[t]{有限 staple 长度与边界极限：推导与证据边界}\FrameAnchor{19.04-3}
+\footnotesize
+\DerivationID{19.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{19.04}：
+\begin{enumerate}
+\item 把有限腿端点效应视为最低允许中间态跨距离 \ensuremath{\ell} 传播。
+\item 欧氏谱传播给 exp(-\ensuremath{\Delta}\ensuremath{\ell})，高态衰减更快。
+\item 提出 F\ensuremath{\infty} 后，首个非零能隙项给 Aexp(-\ensuremath{\Delta}\ensuremath{\ell})。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{19.04}\quad 有限 staple 指数饱和；3/3 项通过；SymPy exact。
+\par\scriptsize 假设：Delta>0；单能隙指数模型；Wilson 线切向量 v 固定，ell 只缩放位移
+\end{block}
+\BoundaryLine{增大 ell 只测试有限长度饱和，不会把空间型方向变为光状或替代 rapidity 方案；幂尾、周期镜像和 soft 几何效应必须与替代模型比较。}
+\end{frame}
+
+\begin{frame}[t]{有限 staple 长度与边界极限：计算算法}\FrameAnchor{19.04-4}
+\footnotesize
+\AlgorithmID{19.04}\begin{enumerate}
+\item 对每个 b,z,\ensuremath{\tau},P 使用至少三个且远离 L/\allowbreak{}2 的 \ensuremath{\ell}。
+\item 保持 beam 与 soft 的 \ensuremath{\ell} 和路径定义同步。
+\item 比较常数平台、指数尾和含第二指数的拟合。
+\item 改变最大 \ensuremath{\ell}、体积和方向，诊断周期镜像与各向异性。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\ell}\ensuremath{\rightarrow}\ensuremath{\infty} 且 \ensuremath{\Delta}>0 时修正消失。
+\item[\CheckMark] \ensuremath{\ell} 接近周期盒长度时不能解释为无限长度逼近。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}extrapolate.\allowbreak{}py；geometry 守卫}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{有限 staple 长度与边界极限：练习与完整解答}\FrameAnchor{19.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{19.04}}\ensuremath{\Delta}=0.5 fm\ensuremath{^{-1}}，\ensuremath{\ell} 增加 2 fm，修正缩小多少倍？\end{block}
+\begin{exampleblock}{\SolutionID{19.04}}乘 exp(-1)\ensuremath{\approx}0.368。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{19.04-f26f014933}；\CourseRef{Eq}{19.04}；\CourseRef{SYM}{19.04}；\CourseRef{Alg}{19.04}。
+\SourceLine{P44；P45；PYQCD-TMD-VALIDATION}
+\end{frame}
+
+\begin{frame}[t]{联合拟合、可辨识性与总误差预算：问题与图像}\FrameAnchor{19.05-1}
+\footnotesize
+\begin{block}{本节问题}多个极限同时存在时，怎样避免一个修正项冒充另一个？\end{block}
+\PhysicalFlow{设计近正交的数据网格}{共享物理截距的层级模型}{统计+系统误差分项审计}{19.05}
+\begin{block}{物理原则}\KnowledgeID{19.05}\quad 同一数据重分析得到的系统变体通常相关，不能默认独立。\end{block}
+\SourceLine{BOOK-STAT；PYQCD-STATISTICS；PYQCD-TMD-VALIDATION}
+\end{frame}
+
+\begin{frame}[t]{联合拟合、可辨识性与总误差预算：定义与主公式}\FrameAnchor{19.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{19.05-eaa72458bd} 可辨识性 & 数据能否把不同参数效应区分开\\
+\DefinitionID{19.05-3ef573da5f} 设计矩阵 & 线性化模型中修正基函数在数据点上的矩阵\\
+\DefinitionID{19.05-832dc1a632} 误差预算 & 按来源列出的最终不确定度及相关性\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{19.05} 主公式}\centering\CourseDisplayEquation{\sigma_{\rm tot}^2=\bm 1^T C_{\rm sources}\bm 1=\sum_i\sigma_i^2+2\sum_{i<j}\operatorname{Cov}_{ij}}\end{block}
+总误差是各来源协方差矩阵的二次型；只有独立时才能简单平方和。
+\end{frame}
+
+\begin{frame}[t]{联合拟合、可辨识性与总误差预算：推导与证据边界}\FrameAnchor{19.05-3}
+\footnotesize
+\DerivationID{19.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{19.05}：
+\begin{enumerate}
+\item 总偏差 \ensuremath{\delta}=\ensuremath{\Sigma}i\ensuremath{\delta}i。
+\item 展开 Var(\ensuremath{\Sigma}\ensuremath{\delta}i)，得到各方差和两倍交叉协方差。
+\item 向量记号即 1\ensuremath{^{T}}Csources1；独立时非对角项为零。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{19.05}\quad 相关误差来源的总方差；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：两来源代理；|rho|<=1 时协方差半正定
+\end{block}
+\BoundaryLine{系统变体间相关性须由联合重采样或明确模型估计。}
+\end{frame}
+
+\begin{frame}[t]{联合拟合、可辨识性与总误差预算：计算算法}\FrameAnchor{19.05-4}
+\footnotesize
+\AlgorithmID{19.05}\begin{enumerate}
+\item 让 a、Pz、\ensuremath{\tau}、\ensuremath{\ell} 尽量独立变化，检查设计矩阵奇异值。
+\item 使用共享 Fphys 与 ensemble nuisance 的层级相关拟合。
+\item 通过合成注入测试验证偏差、覆盖率和参数可辨识性。
+\item 分报统计、尺度、激发态、重整化、soft、匹配、Fourier 与极限误差。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 所有协方差为零时退化为平方和。
+\item[\CheckMark] Csources 必须半正定。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}extrapolate.\allowbreak{}py；statistics 技能}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{联合拟合、可辨识性与总误差预算：练习与完整解答}\FrameAnchor{19.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{19.05}}\ensuremath{\sigma}1=3、\ensuremath{\sigma}2=4，相关系数 \ensuremath{\rho}=0.5，总标准差是多少？\end{block}
+\begin{exampleblock}{\SolutionID{19.05}}方差=9+16+2\ensuremath{\times}0.5\ensuremath{\times}3\ensuremath{\times}4=37，标准差 \ensuremath{\sqrt{37}}\ensuremath{\approx}6.083。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{19.05-eaa72458bd}；\CourseRef{Eq}{19.05}；\CourseRef{SYM}{19.05}；\CourseRef{Alg}{19.05}。
+\SourceLine{BOOK-STAT；PYQCD-STATISTICS；PYQCD-TMD-VALIDATION}
+\end{frame}
+
+\begin{frame}[t]{第 19 卷能力清单}\FrameAnchor{V19-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能设计联合外推数据矩阵
+\item[\CheckMark] 能识别不可辨识参数
+\item[\CheckMark] 能给出统计与系统误差完整预算
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 19 卷来源（1/3）}\FrameAnchor{V19-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{P18} & 大动量有效理论综述 & 论文图谱 P18 的完整原始 PDF；底稿 arXiv:2004.03543；SHA-256 bfcdc7b4100d0da2…。\\
+\SourceID{P40} & 梯度流中的非光锥威尔逊线算符 & 论文图谱 P40 的完整原始 PDF；底稿 arXiv:2312.05032；SHA-256 31292da5c276c237…。\\
+\SourceID{P41} & 首个核子胶子部分子分布 & 论文图谱 P41 的完整原始 PDF；底稿 arXiv:2505.13321；SHA-256 09eff6064b5d9c67…。\\
+\SourceID{P44} & 从准TMD波函数确定CS核 & 论文图谱 P44 的完整原始 PDF；底稿 arXiv:2204.00200；SHA-256 589d870d484889ae…。\\
+\SourceID{PYQCD-TMD-VALIDATION} & PyQCD TMD 验证矩阵 & 合成闭合、故障注入和生产质量门。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 19 卷来源（2/3）}\FrameAnchor{V19-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{DOC-EXTRAPOLATION} & 格点 QCD 中的外推 & 连续、有限体积和物理点外推。\\
+\SourceID{P48} & 准分布的幂修正与renormalon & 论文图谱 P48 的完整原始 PDF；底稿 arXiv:1810.00048；SHA-256 978bb7d735bfed77…。\\
+\SourceID{P28} & 准部分子分布与梯度流 & 论文图谱 P28 的完整原始 PDF；底稿 arXiv:1612.01584；SHA-256 df4b2d5a4f3e1ce7…。\\
+\SourceID{P38} & 局域涂抹算符乘积展开 & 论文图谱 P38 的完整原始 PDF；底稿 arXiv:1501.05348；SHA-256 f16003f5503a6fce…。\\
+\SourceID{P39} & 微扰论中的涂抹准分布 & 论文图谱 P39 的完整原始 PDF；底稿 arXiv:1710.04607；SHA-256 dcf036dda58e10f4…。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 19 卷来源（3/3）}\FrameAnchor{V19-sources-3}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{P45} & LaMET计算TMD软函数 & 论文图谱 P45 的完整原始 PDF；底稿 arXiv:2005.14572；SHA-256 22b1f2cbca968f30…。\\
+\SourceID{BOOK-STAT} & Monte Carlo 统计与拟合讲义（课程自编） & 协方差、重采样、覆盖率和模型系统学。\\
+\SourceID{PYQCD-STATISTICS} & PyQCD 统计技能 & 自相关、重采样、协方差和拟合验证。\\
+\bottomrule\end{tabularx}\end{frame}
+

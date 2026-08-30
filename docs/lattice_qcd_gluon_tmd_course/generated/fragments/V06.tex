@@ -1,0 +1,362 @@
+\begin{frame}[plain]\FrameAnchor{V06-title}
+\centering
+{\Large\bfseries\color{courseblue}第 6 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 从量子力学到量子场论\par}
+\vspace{0.35cm}
+{\large 理解场的量子化、路径积分、Wick 收缩和欧氏谱表示。\par}
+\vfill
+\CourseID{Tbl}{06.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 6 卷路线图}\FrameAnchor{V06-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+06.01 & 自由标量场与 Klein--Gordon 方程\\
+06.02 & 场的正则量子化\\
+06.03 & 路径积分与生成泛函\\
+06.04 & Wick 定理与收缩\\
+06.05 & Wick 转动与欧氏谱表示\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-QFT；BOOK-LQCD；MYQCD-FORMULAS}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V06-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V04
+\item V05
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能读自由场作用量
+\item 能解释生成泛函与收缩
+\item 能从欧氏关联函数提取能谱
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：欧氏时间对激发态的抑制}\FrameAnchor{V06-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0.0,xmax=6.0,ymin=0.0,ymax=1.05,xlabel={欧氏时间 $t$（任意单位）},ylabel={$C(t)/C(0)$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0.0:6.0,samples=160] {exp(-0.5*x)};
+\addlegendentry{基态 E=0.5}
+\addplot[very thick,courseorange,domain=0.0:6.0,samples=160] {exp(-1.2*x)};
+\addlegendentry{激发态 E=1.2}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{06.00}：解析双指数；较高能量衰减更快。
+\SourceLine{欧氏谱分解}
+\end{frame}
+
+\begin{frame}[t]{自由标量场与 Klein--Gordon 方程：问题与图像}\FrameAnchor{06.01-1}
+\footnotesize
+\begin{block}{本节问题}把每个空间点都视为一个振子后，运动方程是什么？\end{block}
+\PhysicalFlow{时空标量场 \ensuremath{\phi}(x)}{局域作用量}{波动与质量项}{06.01}
+\begin{block}{物理原则}\KnowledgeID{06.01}\quad 本卷采用自然单位 \ensuremath{\hbar}=c=1，因而质量、能量和逆长度同量纲。\end{block}
+\SourceLine{BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{自由标量场与 Klein--Gordon 方程：定义与主公式}\FrameAnchor{06.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{06.01-b4105e2207} 标量场 & 每个时空点取一个数且在 Lorentz 变换下不混合\\
+\DefinitionID{06.01-a3a17aa117} 局域性 & 作用量密度只依赖邻近点\\
+\DefinitionID{06.01-f50dc1d24c} 质量隙 & 真空以上最低激发能\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{06.01} 主公式}\centering\CourseDisplayEquation{(\partial_t^2-\nabla^2+m^2)\phi=0,\qquad E^2=\bm p^2+m^2}\end{block}
+平面波代入 Klein--Gordon 方程给出相对论色散关系。
+\end{frame}
+
+\begin{frame}[t]{自由标量场与 Klein--Gordon 方程：推导与证据边界}\FrameAnchor{06.01-3}
+\footnotesize
+\DerivationID{06.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{06.01}：
+\begin{enumerate}
+\item 取 \ensuremath{\phi}=exp[-iEt+i p·x]。
+\item 时间二阶导给 -E\ensuremath{^{2}}\ensuremath{\phi}，空间 Laplacian 给 -p\ensuremath{^{2}}\ensuremath{\phi}。
+\item 代入方程得到 (-E\ensuremath{^{2}}+p\ensuremath{^{2}}+m\ensuremath{^{2}})\ensuremath{\phi}=0；非零 \ensuremath{\phi} 要求 E\ensuremath{^{2}}=p\ensuremath{^{2}}+m\ensuremath{^{2}}。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{06.01}\quad Klein--Gordon 平面波色散；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：自然单位；平面波坐标以三个独立实变量代表
+\end{block}
+\BoundaryLine{自由场检查不证明相互作用 QCD 的谱。}
+\end{frame}
+
+\begin{frame}[t]{自由标量场与 Klein--Gordon 方程：计算算法}\FrameAnchor{06.01-4}
+\footnotesize
+\AlgorithmID{06.01}\begin{enumerate}
+\item 选择周期盒子并枚举离散动量。
+\item 构造每个动量模式的频率 E(p)。
+\item 按初值推进模式或直接使用解析相位。
+\item 比较数值频率与色散式，并检查能量守恒。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] m=0 给无质量波 E=|p|。
+\item[\CheckMark] p=0 时最低单粒子能量为 m。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{自由标量场与 Klein--Gordon 方程：练习与完整解答}\FrameAnchor{06.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{06.01}}m=2、p=(1,2,2) 时求正能支。\end{block}
+\begin{exampleblock}{\SolutionID{06.01}}p\ensuremath{^{2}}=9，E=\ensuremath{\sqrt{9+4}}=\ensuremath{\sqrt{13}}。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{06.01-b4105e2207}；\CourseRef{Eq}{06.01}；\CourseRef{SYM}{06.01}；\CourseRef{Alg}{06.01}。
+\SourceLine{BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{场的正则量子化：问题与图像}\FrameAnchor{06.02-1}
+\footnotesize
+\begin{block}{本节问题}连续场怎样分解为无穷多个量子谐振子？\end{block}
+\PhysicalFlow{Fourier 模式}{产生与湮灭算符}{粒子数本征态}{06.02}
+\begin{block}{物理原则}\KnowledgeID{06.02}\quad 有限盒子先给离散 Kronecker \ensuremath{\delta}，连续无限体积极限才出现 Dirac \ensuremath{\delta}。\end{block}
+\SourceLine{BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{场的正则量子化：定义与主公式}\FrameAnchor{06.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{06.02-f5fcb4e4f4} 共轭动量场 & \ensuremath{\pi}=\ensuremath{\partial}L/\allowbreak{}\ensuremath{\partial}\ensuremath{\phi}̇\\
+\DefinitionID{06.02-94e75607fa} 产生算符 & 把某模式粒子数增加一\\
+\DefinitionID{06.02-6bda99005c} 真空 & 所有湮灭算符作用后为零的最低能态\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{06.02} 主公式}\centering\CourseDisplayEquation{[a_{\bm p},a_{\bm q}^{\dagger}]=\delta_{\bm p\bm q},\qquad [N,a^\dagger]=a^\dagger}\end{block}
+数算符 N=a†a 与产生算符的对易关系说明后者把粒子数提高一。
+\end{frame}
+
+\begin{frame}[t]{场的正则量子化：推导与证据边界}\FrameAnchor{06.02-3}
+\footnotesize
+\DerivationID{06.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{06.02}：
+\begin{enumerate}
+\item 写 [a†a,a†]=a†aa†-a†a†a。
+\item 由 aa†=a†a+1 替换第一项。
+\item 四算符项相消，只剩 a†。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{06.02}\quad 截断 Fock 空间的产生算符；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：Fock 截断 n=0,...,4；只在非最高截断态检查对易关系
+\end{block}
+\BoundaryLine{有限维空间不可能在最高态满足完整 Heisenberg 代数；边界残差被显式排除。}
+\end{frame}
+
+\begin{frame}[t]{场的正则量子化：计算算法}\FrameAnchor{06.02-4}
+\footnotesize
+\AlgorithmID{06.02}\begin{enumerate}
+\item 在截断 Fock 基 |0\ensuremath{\rangle}…|nmax\ensuremath{\rangle} 中构造 a。
+\item 令 a|n\ensuremath{\rangle}=\ensuremath{\sqrt{n}}|n-1\ensuremath{\rangle}，a†为共轭转置。
+\item 构造 N=a†a 并检查内部基态的本征值。
+\item 单独标记最高截断态上的对易关系边界误差。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] a†|n\ensuremath{\rangle} 的范数平方为 n+1。
+\item[\CheckMark] 有限维截断不可能处处满足 [a,a†]=I，迹给出矛盾。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{场的正则量子化：练习与完整解答}\FrameAnchor{06.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{06.02}}由 N|n\ensuremath{\rangle}=n|n\ensuremath{\rangle} 证明 a†|n\ensuremath{\rangle} 的粒子数。\end{block}
+\begin{exampleblock}{\SolutionID{06.02}}N a†|n\ensuremath{\rangle}=(a†N+[N,a†])|n\ensuremath{\rangle}=(n+1)a†|n\ensuremath{\rangle}。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{06.02-f5fcb4e4f4}；\CourseRef{Eq}{06.02}；\CourseRef{SYM}{06.02}；\CourseRef{Alg}{06.02}。
+\SourceLine{BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{路径积分与生成泛函：问题与图像}\FrameAnchor{06.03-1}
+\footnotesize
+\begin{block}{本节问题}怎样把所有可能场构型的量子振幅组织成一个对象？\end{block}
+\PhysicalFlow{欧氏作用量 SE}{按 exp(-SE) 加权}{源 J 的导数生成关联函数}{06.03}
+\begin{block}{物理原则}\KnowledgeID{06.03}\quad SymPy 只验证有限维高斯类比；一般相互作用泛函的测度与重整化不是代数恒等式。\end{block}
+\SourceLine{BOOK-QFT；MYQCD-FORMULAS}
+\end{frame}
+
+\begin{frame}[t]{路径积分与生成泛函：定义与主公式}\FrameAnchor{06.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{06.03-94bb2170c8} 路径积分 & 对全部场构型的形式积分\\
+\DefinitionID{06.03-d3ff3a20f6} 生成泛函 & 由源导数生成各阶关联函数的泛函\\
+\DefinitionID{06.03-c1aab4e70d} 连通关联函数 & 由 ln Z 的源导数生成的不可分解部分\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{06.03} 主公式}\centering\CourseDisplayEquation{Z[J]=\int\!\mathcal D\phi\,e^{-S_E[\phi]+\int J\phi},\qquad \frac{\delta\ln Z}{\delta J}=\langle\phi\rangle_J}\end{block}
+源 J 像探针；对 ln Z 求导得到连通响应。
+\end{frame}
+
+\begin{frame}[t]{路径积分与生成泛函：推导与证据边界}\FrameAnchor{06.03-3}
+\footnotesize
+\DerivationID{06.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{06.03}：
+\begin{enumerate}
+\item 在一维代理中取 SE=K\ensuremath{\phi}\ensuremath{^{2}}/\allowbreak{}2，完成平方。
+\item 高斯积分给 Z=\ensuremath{\sqrt{2\pi/K}} exp(J\ensuremath{^{2}}/\allowbreak{}2K)。
+\item 求 d lnZ/\allowbreak{}dJ=J/\allowbreak{}K；直接以 \ensuremath{\phi} 加权积分也得到同一结果。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{06.03}\quad 高斯生成泛函；4/4 项通过；SymPy exact；复用 myqcd.derivations.derive\_generating\_functional。
+\par\scriptsize 假设：K>0；J, phi 为实变量；有限维高斯自由场类比
+\end{block}
+\BoundaryLine{验证有限维高斯模型及源导数；一般相互作用路径积分不作形式评价。}
+\end{frame}
+
+\begin{frame}[t]{路径积分与生成泛函：计算算法}\FrameAnchor{06.03-4}
+\footnotesize
+\AlgorithmID{06.03}\begin{enumerate}
+\item 先在有限自由度高斯模型中实现积分或抽样。
+\item 逐步加入局域相互作用并监控接受率。
+\item 用源导数与样本矩交叉验证一、二点函数。
+\item 记录测度、边界条件和归一化中被约去的常数。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] J=0 且作用量偶对称时一阶矩为 0。
+\item[\CheckMark] K>0 保证欧氏高斯积分收敛。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{路径积分与生成泛函：练习与完整解答}\FrameAnchor{06.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{06.03}}对上述高斯模型求 d\ensuremath{^{2}}lnZ/\allowbreak{}dJ\ensuremath{^{2}}，并解释其含义。\end{block}
+\begin{exampleblock}{\SolutionID{06.03}}结果为 1/\allowbreak{}K，等于连通方差 \ensuremath{\langle}\ensuremath{\phi}\ensuremath{^{2}}\ensuremath{\rangle}-\ensuremath{\langle}\ensuremath{\phi}\ensuremath{\rangle}\ensuremath{^{2}}。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{06.03-94bb2170c8}；\CourseRef{Eq}{06.03}；\CourseRef{SYM}{06.03}；\CourseRef{Alg}{06.03}。
+\SourceLine{BOOK-QFT；MYQCD-FORMULAS}
+\end{frame}
+
+\begin{frame}[t]{Wick 定理与收缩：问题与图像}\FrameAnchor{06.04-1}
+\footnotesize
+\begin{block}{本节问题}自由场的高阶关联函数为何可由二点函数重建？\end{block}
+\PhysicalFlow{高斯测度}{枚举成对收缩}{二点函数乘积之和}{06.04}
+\begin{block}{物理原则}\KnowledgeID{06.04}\quad 真实 QCD 的 Wick 收缩先积分费米子；规范场仍需 Monte Carlo 平均。\end{block}
+\SourceLine{BOOK-QFT；PYQCD-WICK}
+\end{frame}
+
+\begin{frame}[t]{Wick 定理与收缩：定义与主公式}\FrameAnchor{06.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{06.04-cbfe955397} 收缩 & 一对自由场的二点期望\\
+\DefinitionID{06.04-de39694713} Wick 定理 & 高斯高阶矩等于全部配对之和\\
+\DefinitionID{06.04-8cb3e91ac3} 费米负号 & 交换 Grassmann 场次序产生的符号\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{06.04} 主公式}\centering\CourseDisplayEquation{\langle x^4\rangle_{\rm Gauss}=3\langle x^2\rangle^2}\end{block}
+四个相同高斯变量有三种两两配对。
+\end{frame}
+
+\begin{frame}[t]{Wick 定理与收缩：推导与证据边界}\FrameAnchor{06.04-3}
+\footnotesize
+\DerivationID{06.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{06.04}：
+\begin{enumerate}
+\item 零均值高斯生成函数为 exp(\ensuremath{\sigma}\ensuremath{^{2}}J\ensuremath{^{2}}/\allowbreak{}2)。
+\item 对 J 求四阶导并令 J=0，得到 3\ensuremath{\sigma}\ensuremath{^{4}}。
+\item 二阶导给 \ensuremath{\sigma}\ensuremath{^{2}}，故四阶矩等于三倍二阶矩平方。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{06.04}\quad 零均值高斯四点 Wick 配对；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：variance>0；一维零均值高斯代理
+\end{block}
+\BoundaryLine{多点自由场的三种配对结构由同一高斯定理给出；费米负号另需 Grassmann 代数。}
+\end{frame}
+
+\begin{frame}[t]{Wick 定理与收缩：计算算法}\FrameAnchor{06.04-4}
+\footnotesize
+\AlgorithmID{06.04}\begin{enumerate}
+\item 为每个场标记时空、颜色、旋量和味指标。
+\item 枚举合法的夸克—反夸克配对。
+\item 按费米场置换奇偶性附加符号。
+\item 把每一收缩翻译为传播子索引并用小张量核对。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 零均值高斯的奇数阶矩为 0。
+\item[\CheckMark] 四个不同位置时有 3 个配对项而非单一 3 倍。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Wick 定理与收缩：练习与完整解答}\FrameAnchor{06.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{06.04}}写出 \ensuremath{\langle}\ensuremath{\phi}1\ensuremath{\phi}2\ensuremath{\phi}3\ensuremath{\phi}4\ensuremath{\rangle} 的 Wick 展开。\end{block}
+\begin{exampleblock}{\SolutionID{06.04}}等于 C12C34+C13C24+C14C23，其中 Cij=\ensuremath{\langle}\ensuremath{\phi}i\ensuremath{\phi}j\ensuremath{\rangle}。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{06.04-cbfe955397}；\CourseRef{Eq}{06.04}；\CourseRef{SYM}{06.04}；\CourseRef{Alg}{06.04}。
+\SourceLine{BOOK-QFT；PYQCD-WICK}
+\end{frame}
+
+\begin{frame}[t]{Wick 转动与欧氏谱表示：问题与图像}\FrameAnchor{06.05-1}
+\footnotesize
+\begin{block}{本节问题}为什么格点计算选择虚时间，而最后仍能得到真实能量？\end{block}
+\PhysicalFlow{Minkowski 相位}{t=-i\ensuremath{\tau}}{欧氏指数衰减}{06.05}
+\begin{block}{物理原则}\KnowledgeID{06.05}\quad 大时间信号也指数变小，基态纯度与统计噪声之间存在实际折中。\end{block}
+\SourceLine{BOOK-QFT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{Wick 转动与欧氏谱表示：定义与主公式}\FrameAnchor{06.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{06.05-b0ab4355fe} Wick 转动 & 把实时间积分路径转到虚时间\\
+\DefinitionID{06.05-893f8e5aa1} 欧氏时间 & 使权重成为衰减指数的时间坐标\\
+\DefinitionID{06.05-cb2d68683b} 谱表示 & 按能量本征态展开关联函数\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{06.05} 主公式}\centering\CourseDisplayEquation{C(\tau)=\sum_n |Z_n|^2e^{-E_n\tau}\xrightarrow[\tau\to\infty]{}|Z_0|^2e^{-E_0\tau}}\end{block}
+正能激发态按能隙指数抑制，大欧氏时间投影到最低可耦合态。
+\end{frame}
+
+\begin{frame}[t]{Wick 转动与欧氏谱表示：推导与证据边界}\FrameAnchor{06.05-3}
+\footnotesize
+\DerivationID{06.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{06.05}：
+\begin{enumerate}
+\item 在 O(\ensuremath{\tau})O†(0) 中插入能量完备关系 \ensuremath{\Sigma}n|n\ensuremath{\rangle}\ensuremath{\langle}n|。
+\item 欧氏演化 O(\ensuremath{\tau})=exp(H\ensuremath{\tau})Oexp(-H\ensuremath{\tau}) 给每态因子 exp(-En\ensuremath{\tau})。
+\item 提出最低能量项；其余项含 exp[-(En-E0)\ensuremath{\tau}]，在正能隙下趋零。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{06.05}\quad 欧氏谱的基态投影；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：能隙 Delta>0；重叠比有限
+\end{block}
+\BoundaryLine{若基态重叠为零或有限时间边界显著，主导态需重新判定。}
+\end{frame}
+
+\begin{frame}[t]{Wick 转动与欧氏谱表示：计算算法}\FrameAnchor{06.05-4}
+\footnotesize
+\AlgorithmID{06.05}\begin{enumerate}
+\item 构造一组正振幅、递增能量的合成关联函数。
+\item 计算相邻时间比和有效质量。
+\item 逐步后移拟合窗，观察基态值与误差。
+\item 加入后向传播项以处理有限时间周期边界。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\tau}=0 时 C(0)=\ensuremath{\Sigma}|Zn|\ensuremath{^{2}}。
+\item[\CheckMark] 若插值算符与基态正交（Z0=0），主导项是下一个非零重叠态。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Wick 转动与欧氏谱表示：练习与完整解答}\FrameAnchor{06.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{06.05}}C=Ae\ensuremath{^{-m\tau}}[1+r e\ensuremath{^{-\Delta\tau}}]，激发态相对污染是多少？\end{block}
+\begin{exampleblock}{\SolutionID{06.05}}相对于基态项，污染正是 r e\ensuremath{^{-\Delta\tau}}，每增加 \ensuremath{\Delta}\ensuremath{\tau}=1/\allowbreak{}\ensuremath{\Delta} 便乘 e\ensuremath{^{-1}}。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{06.05-b0ab4355fe}；\CourseRef{Eq}{06.05}；\CourseRef{SYM}{06.05}；\CourseRef{Alg}{06.05}。
+\SourceLine{BOOK-QFT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{第 6 卷能力清单}\FrameAnchor{V06-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能读自由场作用量
+\item[\CheckMark] 能解释生成泛函与收缩
+\item[\CheckMark] 能从欧氏关联函数提取能谱
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 6 卷来源（1/1）}\FrameAnchor{V06-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-QFT} & An Introduction to Quantum Field Theory（仓库转排本） & 量子场论、规范理论、QCD 和重整化的主教材交叉核验。\\
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\SourceID{MYQCD-FORMULAS} & MyQCD 可执行公式注册表 & 复杂公式的 SymPy 精确代理与证据边界。\\
+\SourceID{PYQCD-WICK} & PyQCD Wick 收缩实现 & Wick 拓扑、费米符号和张量收缩。\\
+\bottomrule\end{tabularx}\end{frame}
+

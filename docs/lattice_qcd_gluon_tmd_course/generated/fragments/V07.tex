@@ -1,0 +1,365 @@
+\begin{frame}[plain]\FrameAnchor{V07-title}
+\centering
+{\Large\bfseries\color{courseblue}第 7 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries QCD：颜色规范理论\par}
+\vspace{0.35cm}
+{\large 从 SU(3) 局域对称性推出胶子、场强和 QCD 作用量的结构。\par}
+\vfill
+\CourseID{Tbl}{07.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 7 卷路线图}\FrameAnchor{V07-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+07.01 & 夸克、胶子与颜色\\
+07.02 & SU(3) 生成元与李代数\\
+07.03 & 局域规范协变与协变导数\\
+07.04 & 非阿贝尔场强与 QCD 作用量\\
+07.05 & 运行耦合、渐近自由与禁闭\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-QFT；BOOK-LQCD；P01}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V07-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V02
+\item V04
+\item V06
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能操作 SU(3) 生成元
+\item 能说明局域规范协变
+\item 能解释渐近自由与禁闭的尺度图像
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：一圈运行耦合的尺度趋势}\FrameAnchor{V07-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=1.2,xmax=20.0,ymin=0.0,ymax=1.2,xlabel={$\mu/\Lambda$},ylabel={$\alpha_s$（示意）},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=1.2:20.0,samples=160] {4*pi/(9*ln(x^2))};
+\addlegendentry{nf=3}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{07.00}：一圈解析示意，取 \ensuremath{\beta}0=9；靠近 \ensuremath{\Lambda} 处微扰式失效。
+\SourceLine{QCD 一圈 \ensuremath{\beta} 函数}
+\end{frame}
+
+\begin{frame}[t]{夸克、胶子与颜色：问题与图像}\FrameAnchor{07.01-1}
+\footnotesize
+\begin{block}{本节问题}质子电荷为 +1，却为何必须引入三种颜色？\end{block}
+\PhysicalFlow{夸克味决定质量与电荷}{颜色三重态}{无色强子态}{07.01}
+\begin{block}{物理原则}\KnowledgeID{07.01}\quad 颜色不是可见颜色；物理渐近态必须是规范不变的无色组合。\end{block}
+\SourceLine{BOOK-QFT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{夸克、胶子与颜色：定义与主公式}\FrameAnchor{07.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{07.01-ab249b8963} 味 & 区分 u、d、s 等夸克种类的标签\\
+\DefinitionID{07.01-8dcfe47b13} 颜色 & SU(3) 规范荷的三维基本表示标签\\
+\DefinitionID{07.01-d0c4f104aa} 色单态 & 在整体颜色变换下不变的态\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{07.01} 主公式}\centering\CourseDisplayEquation{Q_p=2Q_u+Q_d=2\left(\frac23\right)-\frac13=1}\end{block}
+质子 uud 的电荷由味量子数相加得到；颜色自由度另负责编成反对称单态。
+\end{frame}
+
+\begin{frame}[t]{夸克、胶子与颜色：推导与证据边界}\FrameAnchor{07.01-3}
+\footnotesize
+\DerivationID{07.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{07.01}：
+\begin{enumerate}
+\item 质子的最小价夸克组成为 uud。
+\item 电荷算符对不同夸克逐粒子相加。
+\item 代入 Qu=2/\allowbreak{}3、Qd=-1/\allowbreak{}3，得到单位正电荷。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{07.01}\quad 质子与中子电荷计数；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：夸克电荷单位取 |e|；只做味量子数加法
+\end{block}
+\BoundaryLine{颜色单态和强相互作用动力学不由电荷计数证明。}
+\end{frame}
+
+\begin{frame}[t]{夸克、胶子与颜色：计算算法}\FrameAnchor{07.01-4}
+\footnotesize
+\AlgorithmID{07.01}\begin{enumerate}
+\item 为每条夸克线保存味、颜色、旋量三个独立指标。
+\item 用 \ensuremath{\epsilon}abc 收缩三个颜色指标构造重子色单态。
+\item 检查交换任意两种颜色时 \ensuremath{\epsilon}abc 变号。
+\item 对整体 SU(3) 变换数值验证单态只乘 detU=1。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 中子 udd 的电荷为 0。
+\item[\CheckMark] 三夸克颜色张量共有 3!=6 个非零排列。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{夸克、胶子与颜色：练习与完整解答}\FrameAnchor{07.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{07.01}}计算 \ensuremath{\pi}\ensuremath{^{+}}=u反d 的电荷。\end{block}
+\begin{exampleblock}{\SolutionID{07.01}}反 d 的电荷为 +1/\allowbreak{}3，故 2/\allowbreak{}3+1/\allowbreak{}3=1。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{07.01-ab249b8963}；\CourseRef{Eq}{07.01}；\CourseRef{SYM}{07.01}；\CourseRef{Alg}{07.01}。
+\SourceLine{BOOK-QFT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{SU(3) 生成元与李代数：问题与图像}\FrameAnchor{07.02-1}
+\footnotesize
+\begin{block}{本节问题}八种胶子自由度从哪里来？\end{block}
+\PhysicalFlow{3\ensuremath{\times}3 无迹厄米矩阵}{八个独立生成元}{交换子定义结构常数}{07.02}
+\begin{block}{物理原则}\KnowledgeID{07.02}\quad 文献也常用反厄米生成元 T=it；转换约定时交换子和迹的符号必须整体一致。\end{block}
+\SourceLine{BOOK-QFT；MYQCD-FORMULAS}
+\end{frame}
+
+\begin{frame}[t]{SU(3) 生成元与李代数：定义与主公式}\FrameAnchor{07.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{07.02-0c72e5379b} SU(3) & 3\ensuremath{\times}3 幺正且行列式为 1 的矩阵群\\
+\DefinitionID{07.02-2c00ee4eef} Gell--Mann 矩阵 & SU(3) 基本表示的标准生成元\\
+\DefinitionID{07.02-bc87d69d06} 结构常数 & 生成元交换子在基底中的系数\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{07.02} 主公式}\centering\CourseDisplayEquation{\operatorname{tr}(t^at^b)=\frac12\delta^{ab},\qquad[t^a,t^b]=if^{abc}t^c}\end{block}
+八个厄米无迹生成元张成 su(3)，规范场因此有八个颜色分量。
+\end{frame}
+
+\begin{frame}[t]{SU(3) 生成元与李代数：推导与证据边界}\FrameAnchor{07.02-3}
+\footnotesize
+\DerivationID{07.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{07.02}：
+\begin{enumerate}
+\item 3\ensuremath{\times}3 厄米矩阵有 9 个实自由度。
+\item 无迹条件去掉 1 个，得到 8 个生成方向。
+\item 用标准 Gell--Mann 矩阵除以 2，逐项求迹得到 \ensuremath{\delta}ab/\allowbreak{}2。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{07.02}\quad SU(3) 生成元恒等式；9/9 项通过；SymPy exact；复用 myqcd.derivations.derive\_su3\_generator\_identities。
+\par\scriptsize 假设：基本表示中的 3\ensuremath{\times}3 Gell--Mann 矩阵；T\ensuremath{^{a}}=i lambda\ensuremath{^{a}}/\allowbreak{}2，故 tr(T\ensuremath{^{a}} T\ensuremath{^{b}})=-delta\ensuremath{^{ab}}/\allowbreak{}2；结构常数由所选生成元约定逐项定义
+\end{block}
+\BoundaryLine{用八个反厄米 Gell--Mann 生成元逐项验证李代数；约定转换在课件注明。}
+\end{frame}
+
+\begin{frame}[t]{SU(3) 生成元与李代数：计算算法}\FrameAnchor{07.02-4}
+\footnotesize
+\AlgorithmID{07.02}\begin{enumerate}
+\item 在代码中固定生成元数组形状 (8,3,3)。
+\item 检查厄米性、无迹性和迹正交归一。
+\item 由交换子投影计算 fabc。
+\item 验证 Jacobi 恒等式并与约定文档一起存档。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] a\ensuremath{\ne}b 时迹为 0。
+\item[\CheckMark] 结构常数 fabc 对指标完全反对称。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{SU(3) 生成元与李代数：练习与完整解答}\FrameAnchor{07.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{07.02}}取 t3=diag(1,-1,0)/\allowbreak{}2，计算 tr(t3\ensuremath{^{2}})。\end{block}
+\begin{exampleblock}{\SolutionID{07.02}}平方后对角元为 1/\allowbreak{}4、1/\allowbreak{}4、0，迹为 1/\allowbreak{}2。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{07.02-0c72e5379b}；\CourseRef{Eq}{07.02}；\CourseRef{SYM}{07.02}；\CourseRef{Alg}{07.02}。
+\SourceLine{BOOK-QFT；MYQCD-FORMULAS}
+\end{frame}
+
+\begin{frame}[t]{局域规范协变与协变导数：问题与图像}\FrameAnchor{07.03-1}
+\footnotesize
+\begin{block}{本节问题}为什么局域改变颜色基底会迫使我们引入规范场？\end{block}
+\PhysicalFlow{局域基变换 \ensuremath{\Omega}(x)}{普通导数产生额外项}{连接 A\ensuremath{\mu} 抵消额外项}{07.03}
+\begin{block}{物理原则}\KnowledgeID{07.03}\quad 协变性是接口不变量：中间分量可变，闭合物理量必须不依赖任意局域基底。\end{block}
+\SourceLine{BOOK-QFT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{局域规范协变与协变导数：定义与主公式}\FrameAnchor{07.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{07.03-9d9b6dcb18} 局域对称 & 变换参数可随时空点变化\\
+\DefinitionID{07.03-f553b4d622} 协变导数 & 变换后仍与场具有相同变换律的导数\\
+\DefinitionID{07.03-245c64def2} 连接 & 比较邻近点内部空间方向的规范场\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{07.03} 主公式}\centering\CourseDisplayEquation{\begin{gathered}D_\mu=\partial_\mu-igA_\mu,\qquad D'_\mu\psi'=\Omega D_\mu\psi,\\ A'_\mu=\Omega A_\mu\Omega^\dagger-\frac{i}{g}(\partial_\mu\Omega)\Omega^\dagger\end{gathered}}\end{block}
+规范场的非齐次变换恰好抵消 \ensuremath{\partial}\ensuremath{\mu}\ensuremath{\Omega} 项。
+\end{frame}
+
+\begin{frame}[t]{局域规范协变与协变导数：推导与证据边界}\FrameAnchor{07.03-3}
+\footnotesize
+\DerivationID{07.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{07.03}：
+\begin{enumerate}
+\item 令 \ensuremath{\psi}\ensuremath{^{\prime}}=\ensuremath{\Omega}\ensuremath{\psi}，普通导数给 (\ensuremath{\partial}\ensuremath{\mu}\ensuremath{\Omega})\ensuremath{\psi}+\ensuremath{\Omega}\ensuremath{\partial}\ensuremath{\mu}\ensuremath{\psi}。
+\item 要求 D\ensuremath{^{\prime}}\ensuremath{\psi}\ensuremath{^{\prime}}=\ensuremath{\Omega}D\ensuremath{\psi}，比较两边系数。
+\item 解得 A\ensuremath{^{\prime}}\ensuremath{\mu}=\ensuremath{\Omega}A\ensuremath{\mu}\ensuremath{\Omega}†-(i/\allowbreak{}g)(\ensuremath{\partial}\ensuremath{\mu}\ensuremath{\Omega})\ensuremath{\Omega}†；负号使 \ensuremath{\partial}\ensuremath{\mu}\ensuremath{\Omega} 项精确抵消。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{07.03}\quad U(1) 与非对易 SU(2) 协变导数；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：D=d-igA、psi'=Omega psi、g 非零；A'=Omega A Omega\ensuremath{^{d}}agger-(i/\allowbreak{}g)(d Omega)Omega\ensuremath{^{d}}agger；SU(2) 代理中 Omega 沿 sigma3、A 沿不对易的 sigma1
+\end{block}
+\BoundaryLine{精确验证非阿贝尔矩阵次序和非齐次项符号；四维 SU(3) 离散实现仍需逐点测试。}
+\end{frame}
+
+\begin{frame}[t]{局域规范协变与协变导数：计算算法}\FrameAnchor{07.03-4}
+\footnotesize
+\AlgorithmID{07.03}\begin{enumerate}
+\item 先在 U(1) 相位模型中核对 A\ensuremath{^{\prime}}\ensuremath{\mu}=A\ensuremath{\mu}+(\ensuremath{\partial}\ensuremath{\mu}\ensuremath{\alpha})/\allowbreak{}g。
+\item 再选与 A\ensuremath{\mu} 不对易的 SU(2) 矩阵 \ensuremath{\Omega}(x)，保持矩阵乘法次序。
+\item 比较普通差分与带链接的协变差分。
+\item 逐点检查 D\ensuremath{^{\prime}}\ensuremath{\psi}\ensuremath{^{\prime}}-\ensuremath{\Omega}D\ensuremath{\psi} 为零，并故障注入相反号确认测试失败。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\Omega} 为常数时非齐次导数项消失。
+\item[\CheckMark] gA 与 \ensuremath{\partial} 具有同一质量量纲。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{局域规范协变与协变导数：练习与完整解答}\FrameAnchor{07.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{07.03}}U(1) 中 \ensuremath{\Omega}=e\ensuremath{^{i\alpha}}，写出 A\ensuremath{^{\prime}}\ensuremath{\mu}。\end{block}
+\begin{exampleblock}{\SolutionID{07.03}}因矩阵对易，A\ensuremath{^{\prime}}\ensuremath{\mu}=A\ensuremath{\mu}+(1/\allowbreak{}g)\ensuremath{\partial}\ensuremath{\mu}\ensuremath{\alpha}（本课程 D=\ensuremath{\partial}-igA 约定）。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{07.03-9d9b6dcb18}；\CourseRef{Eq}{07.03}；\CourseRef{SYM}{07.03}；\CourseRef{Alg}{07.03}。
+\SourceLine{BOOK-QFT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{非阿贝尔场强与 QCD 作用量：问题与图像}\FrameAnchor{07.04-1}
+\footnotesize
+\begin{block}{本节问题}胶子为何能彼此相互作用，而光子在经典 Maxwell 理论中不能？\end{block}
+\PhysicalFlow{协变导数交换子}{场强含 [A\ensuremath{\mu},A\ensuremath{\nu}]}{三胶子与四胶子相互作用}{07.04}
+\begin{block}{物理原则}\KnowledgeID{07.04}\quad 在四维有 [q]=3/\allowbreak{}2、[A]=1、[F]=2、[g]=0，使每项拉氏密度量纲均为 4；F\ensuremath{\rightarrow}\ensuremath{\Omega}F\ensuremath{\Omega}†、Dq\ensuremath{\rightarrow}\ensuremath{\Omega}Dq 保证作用量规范不变。\end{block}
+\SourceLine{BOOK-QFT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{非阿贝尔场强与 QCD 作用量：定义与主公式}\FrameAnchor{07.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{07.04-03df6bdfa9} Yang--Mills 场强 & 协变导数交换子定义的非阿贝尔曲率\\
+\DefinitionID{07.04-71f44d4072} 自相互作用 & 规范玻色子本身携带非阿贝尔荷\\
+\DefinitionID{07.04-4af977a604} QCD 拉氏量 & 胶子场强平方与各味夸克协变 Dirac 项之和\\
+\DefinitionID{07.04-d84e3ce051} 作用量 & 拉氏密度在四维时空的积分；自然单位下无量纲\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{07.04} 主公式}\centering\CourseDisplayEquation{\begin{aligned}F_{\mu\nu}&=\partial_\mu A_\nu-\partial_\nu A_\mu-ig[A_\mu,A_\nu]=F^a_{\mu\nu}t^a,\\ \mathcal L_{\rm QCD}&=-\frac14F^a_{\mu\nu}F^{a\mu\nu}+\sum_f\bar q_f(i\gamma^\mu D_\mu-m_f)q_f,\qquad S=\int d^4x\,\mathcal L_{\rm QCD}\end{aligned}}\end{block}
+非对易交换子产生三胶子、四胶子顶角；协变 Dirac 项描述夸克传播及夸克—胶子耦合。
+\end{frame}
+
+\begin{frame}[t]{非阿贝尔场强与 QCD 作用量：推导与证据边界}\FrameAnchor{07.04-3}
+\footnotesize
+\DerivationID{07.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{07.04}：
+\begin{enumerate}
+\item 展开 [D\ensuremath{\mu},D\ensuremath{\nu}]\ensuremath{\psi}，令 D=\ensuremath{\partial}-igA。
+\item 二阶偏导相消，导数作用在 \ensuremath{\psi} 上的交叉项也相消。
+\item 剩余 -ig(\ensuremath{\partial}\ensuremath{\mu}A\ensuremath{\nu}-\ensuremath{\partial}\ensuremath{\nu}A\ensuremath{\mu}-ig[A\ensuremath{\mu},A\ensuremath{\nu}])\ensuremath{\psi}，据此定义 F。
+\item 由 tr(tatb)=\ensuremath{\delta}ab/\allowbreak{}2 得 tr(F\ensuremath{\mu}\ensuremath{\nu}F\ensuremath{\mu}\ensuremath{\nu})=Fa\ensuremath{\mu}\ensuremath{\nu}Fa\ensuremath{\mu}\ensuremath{\nu}/\allowbreak{}2；迹的循环性保证胶子项规范不变。
+\item 因 q\ensuremath{^{\prime}}=\ensuremath{\Omega}q、qbar\ensuremath{^{\prime}}=qbar \ensuremath{\Omega}†、(Dq)\ensuremath{^{\prime}}=\ensuremath{\Omega}Dq，夸克双线性中的 \ensuremath{\Omega}†\ensuremath{\Omega} 消去。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{07.04}\quad 非阿贝尔场强与 QCD 拉氏量不变量；5/5 项通过；SymPy exact。
+\par\scriptsize 假设：有限维 SU(2) 子群矩阵实例；D=d-igA 约定；四维自然单位
+\end{block}
+\BoundaryLine{矩阵代理验证交换子、自旋无关颜色双线性与迹型胶子项的不变性；完整 SU(3) 味结构、旋量指标和量子反常仍需场论推导。}
+\end{frame}
+
+\begin{frame}[t]{非阿贝尔场强与 QCD 作用量：计算算法}\FrameAnchor{07.04-4}
+\footnotesize
+\AlgorithmID{07.04}\begin{enumerate}
+\item 用小矩阵场构造两个方向的 A。
+\item 分别计算离散 curl 和矩阵交换子。
+\item 交换 \ensuremath{\mu}、\ensuremath{\nu} 检查 F\ensuremath{\nu}\ensuremath{\mu}=-F\ensuremath{\mu}\ensuremath{\nu}。
+\item 做局域共轭变换，同时检查迹型胶子项和夸克双线性。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 若 A\ensuremath{\mu} 全部对易，退化为 Abelian 场强。
+\item[\CheckMark] m\ensuremath{\rightarrow}0 时经典夸克项具有手征对称；量子反常另见 V25。
+\item[\CheckMark] F 的质量量纲为 2，F\ensuremath{^{2}}d\ensuremath{^{4}}x 无量纲。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{非阿贝尔场强与 QCD 作用量：练习与完整解答}\FrameAnchor{07.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{07.04}}取常量 A1=a\ensuremath{\sigma}1/\allowbreak{}2、A2=b\ensuremath{\sigma}2/\allowbreak{}2，求 F12；并核对胶子项与夸克质量项的质量量纲。\end{block}
+\begin{exampleblock}{\SolutionID{07.04}}导数项为零，[\ensuremath{\sigma}1,\ensuremath{\sigma}2]=2i\ensuremath{\sigma}3，故 F12=gab\ensuremath{\sigma}3/\allowbreak{}2；[F\ensuremath{^{2}}]=4，而 [m qbar q]=1+3/\allowbreak{}2+3/\allowbreak{}2=4。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{07.04-03df6bdfa9}；\CourseRef{Eq}{07.04}；\CourseRef{SYM}{07.04}；\CourseRef{Alg}{07.04}。
+\SourceLine{BOOK-QFT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{运行耦合、渐近自由与禁闭：问题与图像}\FrameAnchor{07.05-1}
+\footnotesize
+\begin{block}{本节问题}为什么短距离夸克近似自由，长距离却不见孤立夸克？\end{block}
+\PhysicalFlow{真空极化修正}{耦合随尺度运行}{UV 弱耦合、IR 强耦合}{07.05}
+\begin{block}{物理原则}\KnowledgeID{07.05}\quad 靠近 \ensuremath{\Lambda} 时分母变小，一圈微扰表达式失效；禁闭不能由该公式单独证明。\end{block}
+\SourceLine{BOOK-QFT；BOOK-LQCD；P01}
+\end{frame}
+
+\begin{frame}[t]{运行耦合、渐近自由与禁闭：定义与主公式}\FrameAnchor{07.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{07.05-5339304de4} \ensuremath{\beta} 函数 & 耦合对重整化尺度的变化率\\
+\DefinitionID{07.05-781597761f} 渐近自由 & 高能极限耦合趋零\\
+\DefinitionID{07.05-ced83108c7} 禁闭 & 有色对象不作为孤立低能渐近态出现\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{07.05} 主公式}\centering\CourseDisplayEquation{\alpha_s(\mu)=\frac{4\pi}{\beta_0\ln(\mu^2/\Lambda^2)},\qquad\beta_0=11-\frac{2}{3}n_f}\end{block}
+当 nf<16.5 时 \ensuremath{\beta}0>0，尺度增大使一圈耦合减小。
+\end{frame}
+
+\begin{frame}[t]{运行耦合、渐近自由与禁闭：推导与证据边界}\FrameAnchor{07.05-3}
+\footnotesize
+\DerivationID{07.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{07.05}：
+\begin{enumerate}
+\item 一圈方程为 d\ensuremath{\alpha}/\allowbreak{}dln\ensuremath{\mu}\ensuremath{^{2}}=-(\ensuremath{\beta}0/\allowbreak{}4\ensuremath{\pi})\ensuremath{\alpha}\ensuremath{^{2}}。
+\item 分离变量积分：1/\allowbreak{}\ensuremath{\alpha}=(\ensuremath{\beta}0/\allowbreak{}4\ensuremath{\pi})ln(\ensuremath{\mu}\ensuremath{^{2}}/\allowbreak{}\ensuremath{\Lambda}\ensuremath{^{2}})。
+\item 反解得到运行耦合，并由 \ensuremath{\beta}0 正号判断高能趋势。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{07.05}\quad 一圈运行耦合方程；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：u=ln(mu\ensuremath{^{2}}/\allowbreak{}Lambda\ensuremath{^{2}})>0；一圈微扰
+\end{block}
+\BoundaryLine{靠近 Lambda 的强耦合和禁闭不能由一圈公式证明。}
+\end{frame}
+
+\begin{frame}[t]{运行耦合、渐近自由与禁闭：计算算法}\FrameAnchor{07.05-4}
+\footnotesize
+\AlgorithmID{07.05}\begin{enumerate}
+\item 选择 nf 和 \ensuremath{\Lambda}，并限制 \ensuremath{\mu} 明显大于 \ensuremath{\Lambda}。
+\item 画 \ensuremath{\alpha}s 对 ln\ensuremath{\mu} 的曲线并标出微扰失效区。
+\item 改变重整化尺度估计微扰截断敏感性。
+\item 长距离区改用格点非微扰计算，不外推一圈曲线。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\mu}\ensuremath{\rightarrow}\ensuremath{\infty} 时 \ensuremath{\alpha}s\ensuremath{\rightarrow}0。
+\item[\CheckMark] \ensuremath{\mu}\ensuremath{\rightarrow}\ensuremath{\Lambda}\ensuremath{^{+}} 时公式发散，提示而非证明强耦合。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{运行耦合、渐近自由与禁闭：练习与完整解答}\FrameAnchor{07.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{07.05}}nf=3 时 \ensuremath{\beta}0 等于多少？\end{block}
+\begin{exampleblock}{\SolutionID{07.05}}\ensuremath{\beta}0=11-2=9>0，因此三轻味 QCD 渐近自由。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{07.05-5339304de4}；\CourseRef{Eq}{07.05}；\CourseRef{SYM}{07.05}；\CourseRef{Alg}{07.05}。
+\SourceLine{BOOK-QFT；BOOK-LQCD；P01}
+\end{frame}
+
+\begin{frame}[t]{第 7 卷能力清单}\FrameAnchor{V07-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能操作 SU(3) 生成元
+\item[\CheckMark] 能说明局域规范协变
+\item[\CheckMark] 能解释渐近自由与禁闭的尺度图像
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 7 卷来源（1/1）}\FrameAnchor{V07-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-QFT} & An Introduction to Quantum Field Theory（仓库转排本） & 量子场论、规范理论、QCD 和重整化的主教材交叉核验。\\
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\SourceID{P01} & 夸克禁闭 & 论文图谱 P01 的完整原始 PDF；底稿 books/\allowbreak{}复用(Wilson74)；SHA-256 6eadfb8d3e3cd217…。\\
+\SourceID{MYQCD-FORMULAS} & MyQCD 可执行公式注册表 & 复杂公式的 SymPy 精确代理与证据边界。\\
+\bottomrule\end{tabularx}\end{frame}
+

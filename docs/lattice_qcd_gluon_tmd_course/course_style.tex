@@ -1,0 +1,118 @@
+% 格点 QCD 千页课程统一样式。由所有分卷与全集共同输入。
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage{booktabs,tabularx,array}
+\usepackage{longtable}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,shapes.geometric}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\usepackage{graphicx}
+\usepackage{adjustbox}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{hyperref}
+
+\definecolor{courseblue}{HTML}{17365D}
+\definecolor{coursecyan}{HTML}{147D92}
+\definecolor{coursegreen}{HTML}{1E7A46}
+\definecolor{courseorange}{HTML}{B85C00}
+\definecolor{coursered}{HTML}{A62C2B}
+\definecolor{coursepurple}{HTML}{6A3D9A}
+\definecolor{coursemuted}{HTML}{5B6573}
+\definecolor{coursepanel}{HTML}{F3F6F9}
+\definecolor{courseline}{HTML}{C9D3DF}
+
+\setbeamersize{text margin left=0.56cm,text margin right=0.56cm}
+\setlength{\emergencystretch}{2em}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{blocks}[rounded][shadow=false]
+\setbeamercolor{normal text}{fg=black!86,bg=white}
+\setbeamercolor{structure}{fg=courseblue}
+\setbeamercolor{frametitle}{fg=courseblue,bg=white}
+\setbeamercolor{block title}{fg=courseblue,bg=coursepanel}
+\setbeamercolor{block body}{fg=black!86,bg=coursepanel}
+\setbeamercolor{alerted text}{fg=coursered}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamerfont{normal text}{size=\normalsize}
+\setbeamertemplate{frametitle}{\vskip0.10cm\insertframetitle\par\vskip0.06cm}
+\setbeamertemplate{footline}{%
+  \hbox{\begin{beamercolorbox}[wd=\paperwidth,ht=2.3ex,dp=0.9ex,
+    leftskip=0.56cm,rightskip=0.56cm]{author in head/foot}%
+    \scriptsize\color{coursemuted}\insertshortauthor\hfill
+    \insertshorttitle\hfill\insertframenumber/\inserttotalframenumber
+  \end{beamercolorbox}}}
+
+\hypersetup{unicode=true,colorlinks=true,linkcolor=courseblue,urlcolor=coursecyan}
+
+\newcommand{\CourseAnchor}[2]{\hypertarget{#1:#2}{}}
+\newcommand{\CourseID}[2]{\textcolor{courseblue}{\bfseries #1~#2}}
+\newcommand{\CourseRef}[2]{\hyperlink{#1:#2}{\textcolor{coursecyan}{#1~#2}}}
+\newcommand{\FrameAnchor}[1]{\CourseAnchor{Fr}{#1}}
+\newcommand{\KnowledgeID}[1]{\CourseAnchor{K}{#1}\CourseID{K}{#1}}
+\newcommand{\DefinitionID}[1]{\CourseAnchor{Def}{#1}\CourseID{Def}{#1}}
+\newcommand{\EquationID}[1]{\CourseAnchor{Eq}{#1}\CourseID{Eq}{#1}}
+\newcommand{\DerivationID}[1]{\CourseAnchor{Der}{#1}\CourseID{Der}{#1}}
+\newcommand{\TheoremID}[1]{\CourseAnchor{Thm}{#1}\CourseID{Thm}{#1}}
+\newcommand{\FigureID}[1]{\CourseAnchor{Fig}{#1}\CourseID{Fig}{#1}}
+\newcommand{\TableID}[1]{\CourseAnchor{Tbl}{#1}\CourseID{Tbl}{#1}}
+\newcommand{\AlgorithmID}[1]{\CourseAnchor{Alg}{#1}\CourseID{Alg}{#1}}
+\newcommand{\ExerciseID}[1]{\CourseAnchor{Ex}{#1}\CourseID{Ex}{#1}}
+\newcommand{\SolutionID}[1]{\CourseAnchor{Sol}{#1}\CourseID{Sol}{#1}}
+\newcommand{\SourceID}[1]{\CourseAnchor{Src}{#1}\CourseID{Src}{#1}}
+\newcommand{\SympyID}[1]{\CourseAnchor{SYM}{#1}\CourseID{SYM}{#1}}
+
+\newcommand{\StatusImplemented}{\textcolor{coursemuted}{接口存在}}
+\newcommand{\StatusTested}{\textcolor{coursecyan}{测试通过}}
+\newcommand{\StatusClosed}{\textcolor{coursegreen}{方案闭合}}
+\newcommand{\StatusPhysical}{\textcolor{coursepurple}{真实数据验证}}
+\newcommand{\StatusUnverified}{\textcolor{courseorange}{未验证}}
+
+\newcommand{\SourceLine}[1]{%
+  \vspace{0.04em}\par{\raggedright\scriptsize\color{coursemuted}来源：#1\par}}
+
+\newcommand{\BoundaryLine}[1]{%
+  \vspace{0.04em}\par{\raggedright\scriptsize\color{courseorange}适用边界：#1\par}}
+
+\newcommand{\PhysicalFlow}[4]{%
+  \begin{center}
+  \begin{tikzpicture}[node distance=0.42cm and 0.42cm]
+    \tikzset{courseflow/.style={draw=coursecyan,fill=coursecyan!7,
+      rounded corners=2pt,align=center,text width=3.15cm,minimum height=0.84cm,
+      font=\small,inner sep=3pt},
+      coursearrow/.style={-{Latex[length=2mm]},draw=courseblue,semithick}}
+    \node[courseflow] (a) {#1};
+    \node[courseflow,right=of a] (b) {#2};
+    \node[courseflow,right=of b] (c) {#3};
+    \draw[coursearrow] (a) -- (b);
+    \draw[coursearrow] (b) -- (c);
+  \end{tikzpicture}
+  \par\vspace{0.08cm}{\scriptsize\color{coursemuted}\FigureID{#4}：概念关系示意；颜色只辅助分层。}
+  \end{center}}
+
+\newcommand{\CheckMark}{\textcolor{coursegreen}{\bfseries\ensuremath{\checkmark}}}
+\newcommand{\RiskMark}{\textcolor{courseorange}{\bfseries !}}
+\newcommand{\CodePath}[1]{\texttt{\detokenize{#1}}}
+\newsavebox{\CourseEquationMeasureBox}
+\newcommand{\CourseDisplayEquation}[1]{%
+  \sbox{\CourseEquationMeasureBox}{$\displaystyle #1$}%
+  \ifdim\wd\CourseEquationMeasureBox>1.30\linewidth
+    \PackageError{lqcd-course}{Main equation would be scaled below the readability floor}%
+      {Split the equation with aligned/gathered at a mathematical boundary; do not hide it with tiny text.}%
+  \fi
+  \begin{adjustbox}{max width=0.96\linewidth,max totalheight=0.16\textheight}%
+    $\displaystyle #1$%
+  \end{adjustbox}}
+
+\lstset{
+  basicstyle=\ttfamily\scriptsize,
+  backgroundcolor=\color{coursepanel},frame=single,
+  breaklines=true,breakatwhitespace=false,keepspaces=true,
+  columns=flexible,keywordstyle=\color{courseblue}\bfseries,
+  commentstyle=\color{coursegreen!80!black},
+  stringstyle=\color{coursecyan},numbers=left,
+  numberstyle=\tiny\color{coursemuted}
+}
+
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{C}{>{\centering\arraybackslash}X}

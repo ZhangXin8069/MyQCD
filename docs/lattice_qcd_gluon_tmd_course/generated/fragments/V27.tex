@@ -1,0 +1,376 @@
+\begin{frame}[plain]\FrameAnchor{V27-title}
+\centering
+{\Large\bfseries\color{courseblue}第 27 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 格点谱学：从关联函数到强子能谱\par}
+\vspace{0.35cm}
+{\large 掌握谱分解、有效质量、相关矩阵、GEVP、distillation 与连续自旋指认的完整分析链。\par}
+\vfill
+\CourseID{Tbl}{27.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 27 卷路线图}\FrameAnchor{V27-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+27.01 & 转移矩阵与二点函数谱分解\\
+27.02 & 有效质量、周期边界与多态拟合\\
+27.03 & 相关矩阵与广义本征值问题\\
+27.04 & LapH distillation、perambulator 与算符因子化\\
+27.05 & 立方群下沉、算符重叠与连续自旋指认\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-LQCD；PYQCD-SPECTRUM；PYQCD-STATISTICS；LQCDDB}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V27-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V13
+\item V21
+\item V23
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能从二点函数提取基态与激发态
+\item 能稳定求解并诊断 GEVP
+\item 能设计 distillation 算符基并指认连续自旋
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：两态有效质量趋向基态}\FrameAnchor{V27-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=1,xmax=16,ymin=0.45,ymax=1.25,xlabel={$t/a$},ylabel={$aE_{\rm eff}$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=1:16,samples=160] {ln((exp(-0.55*x)+0.7*exp(-1.1*x))/(exp(-0.55*(x+1))+0.7*exp(-1.1*(x+1))))};
+\addlegendentry{两态模型}
+\addplot[very thick,courseorange,domain=1:16,samples=160] {0.55};
+\addlegendentry{基态}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{27.00}：激发态按能隙指数衰减；曲线为无噪声示意，不能替代拟合窗扫描。
+\SourceLine{BOOK-LQCD；PYQCD-SPECTRUM}
+\end{frame}
+
+\begin{frame}[t]{转移矩阵与二点函数谱分解：问题与图像}\FrameAnchor{27.01-1}
+\footnotesize
+\begin{block}{本节问题}Euclidean 时间为何把最低能态自动筛选出来？\end{block}
+\PhysicalFlow{内插算符产生所有同量子数态}{转移矩阵逐时间片传播}{大时间只剩最低能态}{27.01}
+\begin{block}{物理原则}\KnowledgeID{27.01}\quad 有限时间边界会加入向后传播项，重子的 backward 项还对应反宇称伙伴，不能机械折叠。\end{block}
+\SourceLine{BOOK-LQCD；PYQCD-CORRELATOR；PYQCD-SPECTRUM}
+\end{frame}
+
+\begin{frame}[t]{转移矩阵与二点函数谱分解：定义与主公式}\FrameAnchor{27.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{27.01-0af94b17cd} 谱权重 & 算符与能量本征态的重叠 Z\_i\ensuremath{^{n}}\\
+\DefinitionID{27.01-9cca029408} 转移矩阵 & Euclidean 单步演化算符 e\ensuremath{^{-aH}}\\
+\DefinitionID{27.01-d863fe66a8} 基态占优 & 激发态相对贡献按能隙指数衰减\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{27.01} 主公式}\centering\CourseDisplayEquation{C_{ij}(t)=\sum_n\frac{Z_i^{(n)}Z_j^{(n)*}}{2E_n}e^{-E_nt},\qquad \frac{C^{(1)}}{C^{(0)}}\propto e^{-(E_1-E_0)t}}\end{block}
+谱表示把场论路径积分变成可拟合的指数和；正谱权重与能级次序是首要检查。
+\end{frame}
+
+\begin{frame}[t]{转移矩阵与二点函数谱分解：推导与证据边界}\FrameAnchor{27.01-3}
+\footnotesize
+\DerivationID{27.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{27.01}：
+\begin{enumerate}
+\item 在 Cij 中插入完备能量本征态 \ensuremath{\Sigma}n|n><n|。
+\item 用 O(t)=e\ensuremath{^{Ht}}O(0)e\ensuremath{^{-Ht}} 把时间依赖移到指数。
+\item 空间动量投影给固定 p，态归一化产生 1/\allowbreak{}(2En)。
+\item 除以基态项后，每个激发态带 e\ensuremath{^{-(En-E0)t}}，大 t 指数消失。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{27.01}\quad 转移矩阵与二点函数谱分解；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：E1>E0>0；SymPy 的极限用正符号并在物理解释中要求正能隙
+\end{block}
+\BoundaryLine{只验证两态比值；真实谱权重、边界和噪声需数据拟合。}
+\end{frame}
+
+\begin{frame}[t]{转移矩阵与二点函数谱分解：计算算法}\FrameAnchor{27.01-4}
+\footnotesize
+\AlgorithmID{27.01}\begin{enumerate}
+\item 为目标 JPC、flavor 和动量构造多个独立算符。
+\item 逐组态计算相关矩阵并保持复 Hermitian 结构。
+\item 先画有效质量和相关系数寻找信号区。
+\item 用一态、二态和多窗相关拟合比较，报告 \ensuremath{\chi}\ensuremath{^{2}}/\allowbreak{}dof、Q 与能级稳定性。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] C(t) 在正 transfer-matrix 条件下应半正定。
+\item[\CheckMark] 删除一个算符或移动拟合窗后基态能量应在误差内稳定。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}skills/\allowbreak{}pyqcd-physics-spectrum/\allowbreak{}SKILL.\allowbreak{}md；pyqcd.\allowbreak{}analysis}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{转移矩阵与二点函数谱分解：练习与完整解答}\FrameAnchor{27.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{27.01}}若 E0=0.5、E1=1.0 且两态振幅相同，t=6 时激发态相对基态是多少？\end{block}
+\begin{exampleblock}{\SolutionID{27.01}}比值为 exp[-(1.0-0.5)\ensuremath{\times}6]=e\ensuremath{^{-3}}\ensuremath{\approx}0.0498，约 5\%。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{27.01-0af94b17cd}；\CourseRef{Eq}{27.01}；\CourseRef{SYM}{27.01}；\CourseRef{Alg}{27.01}。
+\SourceLine{BOOK-LQCD；PYQCD-CORRELATOR；PYQCD-SPECTRUM}
+\end{frame}
+
+\begin{frame}[t]{有效质量、周期边界与多态拟合：问题与图像}\FrameAnchor{27.02-1}
+\footnotesize
+\begin{block}{本节问题}怎样把指数衰减转成平台，同时不被边界和噪声欺骗？\end{block}
+\PhysicalFlow{相邻时间比消去振幅}{周期边界形成 cosh}{平台与多态拟合交叉验证}{27.02}
+\begin{block}{物理原则}\KnowledgeID{27.02}\quad 有效质量只是诊断量；相关误差、非线性偏差和 excited-state 系统学必须在原 C(t) 上拟合。\end{block}
+\SourceLine{BOOK-LQCD；PYQCD-ANALYSIS；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{有效质量、周期边界与多态拟合：定义与主公式}\FrameAnchor{27.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{27.02-f91f8fb9b1} 有效质量 & 由相邻时间片相关函数构造的局部能量诊断\\
+\DefinitionID{27.02-4e8b435b11} cosh 质量 & 显式考虑前后传播的反双曲余弦估计量\\
+\DefinitionID{27.02-25c5753df0} 拟合窗 & 被纳入模型似然的连续时间片范围\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{27.02} 主公式}\centering\CourseDisplayEquation{aE_{\rm eff}(t)=\operatorname{arccosh}\!\frac{C(t-a)+C(t+a)}{2C(t)}\quad\text{if }C(t)\propto\cosh[E(T/2-t)]}\end{block}
+对单一 cosh，该比值恒为 cosh(aE)，故 arccosh 精确返回格点能量。
+\end{frame}
+
+\begin{frame}[t]{有效质量、周期边界与多态拟合：推导与证据边界}\FrameAnchor{27.02-3}
+\footnotesize
+\DerivationID{27.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{27.02}：
+\begin{enumerate}
+\item 把周期单态写成 C=A[e\ensuremath{^{-Et}}+e\ensuremath{^{-E(T-t)}}]=2Ae\ensuremath{^{-ET/2}}cosh[E(T/\allowbreak{}2-t)]。
+\item 用 cosh(x+y)+cosh(x-y)=2cosh x cosh y。
+\item 得到 [C(t-a)+C(t+a)]/\allowbreak{}[2C(t)]=cosh(Ea)。
+\item 在 E>0 主支上取 arccosh 得 aE。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{27.02}\quad 有效质量、周期边界与多态拟合；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：单一周期 cosh；E,a>0
+\end{block}
+\BoundaryLine{arccosh 主支和含噪非线性偏差需数值处理。}
+\end{frame}
+
+\begin{frame}[t]{有效质量、周期边界与多态拟合：计算算法}\FrameAnchor{27.02-4}
+\footnotesize
+\AlgorithmID{27.02}\begin{enumerate}
+\item 屏蔽 C(t) 非有限、符号翻转或协方差奇异的时间点。
+\item 同时计算 log-ratio 与 cosh 有效质量并标出边界差异。
+\item 在多个 tmin、tmax 和态数上做相关拟合。
+\item 用模型平均或稳定区间给系统误差，不按最小 \ensuremath{\chi}\ensuremath{^{2}} 单点挑窗。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] T\ensuremath{\rightarrow}\ensuremath{\infty} 且 t远离 T/\allowbreak{}2 时退化为 log[C(t)/\allowbreak{}C(t+a)]。
+\item[\CheckMark] 合成单 cosh 数据必须逐点恢复同一 E。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{pyqcd.\allowbreak{}analysis.\allowbreak{}\_\allowbreak{}proton\_\allowbreak{}energy；pyqcd-statistics 窗口扫描}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{有效质量、周期边界与多态拟合：练习与完整解答}\FrameAnchor{27.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{27.02}}证明 C(t)=A cosh[E(T/\allowbreak{}2-t)] 时 cosh 有效质量与 t 无关。\end{block}
+\begin{exampleblock}{\SolutionID{27.02}}代入并用 cosh 加法公式，括号比值化为 cosh(Ea)，故 arccosh 后恒为 Ea。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{27.02-f91f8fb9b1}；\CourseRef{Eq}{27.02}；\CourseRef{SYM}{27.02}；\CourseRef{Alg}{27.02}。
+\SourceLine{BOOK-LQCD；PYQCD-ANALYSIS；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{相关矩阵与广义本征值问题：问题与图像}\FrameAnchor{27.03-1}
+\footnotesize
+\begin{block}{本节问题}多个形状不同的算符怎样分离近邻能级？\end{block}
+\PhysicalFlow{算符池形成 Cij}{以 C(t0) 定义度量}{主相关函数给各能级}{27.03}
+\begin{block}{物理原则}\KnowledgeID{27.03}\quad 必须保留复 Hermitian 非对角元并跨 t 用本征向量重叠追踪；逐时按本征值排序会在近简并处换态。\end{block}
+\SourceLine{BOOK-LQCD；PYQCD-STATISTICS；LQCDDB}
+\end{frame}
+
+\begin{frame}[t]{相关矩阵与广义本征值问题：定义与主公式}\FrameAnchor{27.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{27.03-0a7cb4c0da} GEVP & 满足 C(t)v=\ensuremath{\lambda}C(t0)v 的广义本征值问题\\
+\DefinitionID{27.03-6aa430aa10} 主相关函数 & 按态追踪后的广义本征值 \ensuremath{\lambda}n\\
+\DefinitionID{27.03-068e716407} 条件化 & 为保持 C(t0) 正定而进行的可记录截断或正则化\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{27.03} 主公式}\centering\CourseDisplayEquation{C(t)v_n=\lambda_n(t,t_0)C(t_0)v_n,\qquad \lambda_n=e^{-E_n(t-t_0)}[1+O(e^{-\Delta_n(t-t_0)})]}\end{block}
+若算符基完整覆盖前 N 态，白化后的矩阵被能量指数对角化；有限基误差由遗漏态能隙控制。
+\end{frame}
+
+\begin{frame}[t]{相关矩阵与广义本征值问题：推导与证据边界}\FrameAnchor{27.03-3}
+\footnotesize
+\DerivationID{27.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{27.03}：
+\begin{enumerate}
+\item 写 C(t)=Z D(t) Z†，其中 Dnn=e\ensuremath{^{-Ent}}。
+\item 若方阵 Z 可逆，则 C(t0)\ensuremath{^{-1}}C(t)=Z\ensuremath{^{-\dagger}}D(t0)\ensuremath{^{-1}}D(t)Z†。
+\item 其本征值就是 e\ensuremath{^{-En(t-t0)}}；有限算符基的遗漏态产生指数修正。
+\item 用 C(t0)\ensuremath{^{-1/2}} 白化得到普通 Hermitian 本征问题。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{27.03}\quad 相关矩阵与广义本征值问题；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：两个正交算符各耦合一个能态
+\end{block}
+\BoundaryLine{有限算符基修正、条件化和近简并态追踪不由对角代理覆盖。}
+\end{frame}
+
+\begin{frame}[t]{相关矩阵与广义本征值问题：计算算法}\FrameAnchor{27.03-4}
+\footnotesize
+\AlgorithmID{27.03}\begin{enumerate}
+\item 先对 C(t0) Hermitian 化并检查特征值谱与条件数。
+\item 按记录的阈值截断噪声子空间，禁止静默钳正。
+\item 调用广义 Hermitian eigensolver，并以相邻 t 本征向量重叠做匈牙利匹配。
+\item 拟合主相关函数并扫描 t0、算符基和截断阈值。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 对角独立算符极限下 GEVP 应逐项返回普通指数。
+\item[\CheckMark] 基变换 C\ensuremath{\rightarrow}SCS† 不应改变主相关函数能量。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{scipy.\allowbreak{}linalg.\allowbreak{}eigh(Ct,Ct0)；lqcddb GEVP 仅作审计参考}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{相关矩阵与广义本征值问题：练习与完整解答}\FrameAnchor{27.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{27.03}}若 C(t)=diag(e\ensuremath{^{-0.4t}},2e\ensuremath{^{-0.9t}})，t0=2，求两个 \ensuremath{\lambda}(t,2)。\end{block}
+\begin{exampleblock}{\SolutionID{27.03}}广义方程逐项相除，\ensuremath{\lambda}0=e\ensuremath{^{-0.4(t-2)}}、\ensuremath{\lambda}1=e\ensuremath{^{-0.9(t-2)}}；振幅 2 完全消去。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{27.03-0a7cb4c0da}；\CourseRef{Eq}{27.03}；\CourseRef{SYM}{27.03}；\CourseRef{Alg}{27.03}。
+\SourceLine{BOOK-LQCD；PYQCD-STATISTICS；LQCDDB}
+\end{frame}
+
+\begin{frame}[t]{LapH distillation、perambulator 与算符因子化：问题与图像}\FrameAnchor{27.04-1}
+\footnotesize
+\begin{block}{本节问题}怎样以可控低秩空间涂抹同时复用昂贵传播子？\end{block}
+\PhysicalFlow{三维协变 Laplacian 低模}{S=VV† 投影夸克场}{perambulator 与 elementals 分离}{27.04}
+\begin{block}{物理原则}\KnowledgeID{27.04}\quad Nv 固定时物理平滑半径会随体积/\allowbreak{}格距改变；必须研究 Nv 或 LapH cutoff 的系统学。\end{block}
+\SourceLine{BOOK-LQCD；LQCDDB；PYQCD-PROPAGATOR}
+\end{frame}
+
+\begin{frame}[t]{LapH distillation、perambulator 与算符因子化：定义与主公式}\FrameAnchor{27.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{27.04-fe369b6bb6} distillation & 用每个时间片低阶 Laplacian 本征向量定义的规范协变低秩涂抹\\
+\DefinitionID{27.04-26945041a7} perambulator & 传播子在 distillation 子空间中的投影 V†M\ensuremath{^{-1}}V\\
+\DefinitionID{27.04-e4329b4d7f} elemental & 承载动量、导数、gamma 和强子结构的本征向量顶角\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{27.04} 主公式}\centering\CourseDisplayEquation{\Box(t)=V(t)V^\dagger(t),\quad \Box^2=\Box,\quad \tau(t,t')=V^\dagger(t)M^{-1}(t,t')V(t')}\end{block}
+正交本征向量使 Box 成为 Hermitian 投影；传播与算符几何因此可分开缓存和组合。
+\end{frame}
+
+\begin{frame}[t]{LapH distillation、perambulator 与算符因子化：推导与证据边界}\FrameAnchor{27.04-3}
+\footnotesize
+\DerivationID{27.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{27.04}：
+\begin{enumerate}
+\item 令 V†V=I，直接相乘得 Box\ensuremath{^{2}}=V(V†V)V†=Box。
+\item 夹在涂抹源汇间的传播子为 VM\ensuremath{^{-1}}V†，在低秩坐标中核心是 \ensuremath{\tau}=V†M\ensuremath{^{-1}}V。
+\item Wick 缩并的空间、自旋结构可吸收到 elementals，昂贵 \ensuremath{\tau} 可跨算符复用。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{27.04}\quad LapH distillation、perambulator 与算符因子化；3/3 项通过；SymPy exact。
+\par\scriptsize 假设：3\ensuremath{\times}2 实正交低模基作为 distillation 代理
+\end{block}
+\BoundaryLine{不验证协变 Laplacian、perambulator 求逆或规范协变性。}
+\end{frame}
+
+\begin{frame}[t]{LapH distillation、perambulator 与算符因子化：计算算法}\FrameAnchor{27.04-4}
+\footnotesize
+\AlgorithmID{27.04}\begin{enumerate}
+\item 每个时间片求协变 Laplacian 最低 Nv 本征对。
+\item 独立检查 max|V†V-I| 和规范协变性。
+\item 为每个本征向量源求逆并写出带源汇轴的 perambulator。
+\item 构造动量/\allowbreak{}导数 elementals，做小体积直接传播子对照后再批量缩并。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] Nv 等于完整空间维数时 Box=I，恢复未涂抹场。
+\item[\CheckMark] Box 应满足 Hermitian、幂等和 rank= Nv。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}skills/\allowbreak{}sush/\allowbreak{}lqcddb；perambulator/\allowbreak{}elemental 张量契约}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{LapH distillation、perambulator 与算符因子化：练习与完整解答}\FrameAnchor{27.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{27.04}}若 V 是 5\ensuremath{\times}2 且 V†V=I2，Box 的迹和秩各是多少？\end{block}
+\begin{exampleblock}{\SolutionID{27.04}}投影矩阵的非零本征值均为 1，共 2 个，因此 Tr Box=rank Box=2。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{27.04-fe369b6bb6}；\CourseRef{Eq}{27.04}；\CourseRef{SYM}{27.04}；\CourseRef{Alg}{27.04}。
+\SourceLine{BOOK-LQCD；LQCDDB；PYQCD-PROPAGATOR}
+\end{frame}
+
+\begin{frame}[t]{立方群下沉、算符重叠与连续自旋指认：问题与图像}\FrameAnchor{27.05-1}
+\footnotesize
+\begin{block}{本节问题}格点只有立方对称时，怎样恢复连续 J 标签？\end{block}
+\PhysicalFlow{连续 J 下沉到多个 irrep}{GEVP 给能级与重叠 Z}{跨 irrep 简并恢复指认 J}{27.05}
+\begin{block}{物理原则}\KnowledgeID{27.05}\quad 有限格距只有 \ensuremath{\Lambda}、行和 little-group 标签严格；J 是结合重叠模式、近简并与 a\ensuremath{\rightarrow}0 趋势的推断。\end{block}
+\SourceLine{BOOK-GROUP；BOOK-LQCD；LQCDDB}
+\end{frame}
+
+\begin{frame}[t]{立方群下沉、算符重叠与连续自旋指认：定义与主公式}\FrameAnchor{27.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{27.05-4a969c20bd} subduction & 把连续旋转群表示限制到格点 little group\\
+\DefinitionID{27.05-01e3d803dd} 算符重叠 & Zn\_i=<0|Oi|n>，量化态与算符结构的耦合\\
+\DefinitionID{27.05-f82cea0c07} 近简并多重态 & 连续极限中来自同一 J、分布于不同 irrep 的能级集合\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{27.05} 主公式}\centering\CourseDisplayEquation{O_{\Lambda r}^{[J]}=\sum_m\mathcal S_{\Lambda r}^{Jm}O^{Jm},\qquad \sum_{\Lambda r}\mathcal S_{\Lambda r}^{Jm*}\mathcal S_{\Lambda r}^{Jm'}=\delta_{mm'}}\end{block}
+subduction 矩阵是连续 m 基与格点 irrep 行基之间的酉变换，保持总维数和范数。
+\end{frame}
+
+\begin{frame}[t]{立方群下沉、算符重叠与连续自旋指认：推导与证据边界}\FrameAnchor{27.05-3}
+\footnotesize
+\DerivationID{27.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{27.05}：
+\begin{enumerate}
+\item 把旋转 D(J) 限制到有限立方群并按特征标分解。
+\item 在每个出现的 \ensuremath{\Lambda}、行 r 构造正交 subduction 系数。
+\item 酉完备性保证不同连续 m 的内积在格点基中保持。
+\item 比较同一 J 构造的算符对不同能级的 Z 模式，并检查跨 \ensuremath{\Lambda} 能级趋于简并。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{27.05}\quad 立方群下沉、算符重叠与连续自旋指认；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：J=2 的五维空间，以酉基变换代理 subduction
+\end{block}
+\BoundaryLine{立方群系数与连续自旋的物理指认仍需特征标和谱数据。}
+\end{frame}
+
+\begin{frame}[t]{立方群下沉、算符重叠与连续自旋指认：计算算法}\FrameAnchor{27.05-4}
+\footnotesize
+\AlgorithmID{27.05}\begin{enumerate}
+\item 按静止或非零动量选择正确 little group。
+\item 构造带 J 来源标签但按 \ensuremath{\Lambda} 变换的算符池。
+\item 联合分析能量、归一化重叠和多格距简并。
+\item 输出每个自旋指认的证据等级与竞争解释。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 所有 \ensuremath{\Lambda} 维数乘重数之和必须为 2J+1。
+\item[\CheckMark] a\ensuremath{\rightarrow}0 时同一 J 多重态的劈裂应按离散误差缩小。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{格点 irrep 投影 + GEVP overlap 审计}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{立方群下沉、算符重叠与连续自旋指认：练习与完整解答}\FrameAnchor{27.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{27.05}}J=2 下沉为 E(二维)+T2(三维)，若两处能级不随 a\ensuremath{\rightarrow}0 接近，能否仅凭维数称为同一态？\end{block}
+\begin{exampleblock}{\SolutionID{27.05}}不能；维数只给允许分解，还需能量简并恢复和相容的算符重叠证据。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{27.05-4a969c20bd}；\CourseRef{Eq}{27.05}；\CourseRef{SYM}{27.05}；\CourseRef{Alg}{27.05}。
+\SourceLine{BOOK-GROUP；BOOK-LQCD；LQCDDB}
+\end{frame}
+
+\begin{frame}[t]{第 27 卷能力清单}\FrameAnchor{V27-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能从二点函数提取基态与激发态
+\item[\CheckMark] 能稳定求解并诊断 GEVP
+\item[\CheckMark] 能设计 distillation 算符基并指认连续自旋
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 27 卷来源（1/2）}\FrameAnchor{V27-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\SourceID{PYQCD-SPECTRUM} & PyQCD 谱学技能 & 谱分解、边界项、GEVP 与能级指认。\\
+\SourceID{PYQCD-STATISTICS} & PyQCD 统计技能 & 自相关、重采样、协方差和拟合验证。\\
+\SourceID{LQCDDB} & lqcddb distillation 与谱学技能 & distillation、perambulator、GEVP、多强子缩并与独立审计边界。\\
+\SourceID{PYQCD-CORRELATOR} & PyQCD 关联函数技能 & 强子二点/\allowbreak{}三点与谱学检查。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 27 卷来源（2/2）}\FrameAnchor{V27-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{PYQCD-ANALYSIS} & PyQCD 分析技能与模块 & 断连、比值、多态拟合和图表。\\
+\SourceID{PYQCD-PROPAGATOR} & PyQCD 传播子技能 & 线性求解、序贯源和传播子契约。\\
+\SourceID{BOOK-GROUP} & 连续群与生成元预备课（课程自编） & 从旋转群过渡到 SU(2)/\allowbreak{}SU(3)。\\
+\bottomrule\end{tabularx}\end{frame}
+

@@ -1,0 +1,361 @@
+\begin{frame}[plain]\FrameAnchor{V22-title}
+\centering
+{\Large\bfseries\color{courseblue}第 22 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 李群、李代数与 SU(3) 表示\par}
+\vspace{0.35cm}
+{\large 从流形切空间、根权系统、Casimir 和 Haar 测度深入理解颜色对称性。\par}
+\vfill
+\CourseID{Tbl}{22.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 22 卷路线图}\FrameAnchor{V22-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+22.01 & 微分几何桥梁：流形、切空间与指数映射\\
+22.02 & 厄米生成元、结构常数、Jacobi 恒等式与 BCH\\
+22.03 & SU(2) 角动量表示与 Casimir\\
+22.04 & SU(3) 根、权、Dynkin 标号、维数与 Casimir\\
+22.05 & 测度桥梁、Haar 积分与矩阵元正交\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-GROUP；BOOK-QFT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V22-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V21
+\item V07
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能由生成元重建局部群结构
+\item 能计算 SU(2)/\allowbreak{}SU(3) 表示数据
+\item 能正确使用 Haar 群积分
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：SU(2) Casimir 随自旋增长}\FrameAnchor{V22-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0,xmax=4,ymin=0,ymax=20,xlabel={自旋 $j$},ylabel={$C_2=j(j+1)$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0:4,samples=160] {x*(x+1)};
+\addlegendentry{C2}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{22.00}：横轴允许半整数，曲线仅作连续导引。
+\SourceLine{李代数表示论}
+\end{frame}
+
+\begin{frame}[t]{微分几何桥梁：流形、切空间与指数映射：问题与图像}\FrameAnchor{22.01-1}
+\footnotesize
+\begin{block}{本节问题}只学过坐标和导数时，怎样严格理解李群的切向量？\end{block}
+\PhysicalFlow{用局部坐标描述流形}{以过单位元曲线的导数定义切向量}{矩阵指数沿切向量回到群}{22.01}
+\begin{block}{物理原则}\KnowledgeID{22.01}\quad 指数映射在单位元附近给局部坐标，但一般不全局一一；本课程只在矩阵李群及其单位元邻域使用这一结论。\end{block}
+\SourceLine{BOOK-GROUP；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{微分几何桥梁：流形、切空间与指数映射：定义与主公式}\FrameAnchor{22.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{22.01-65a65006bd} 光滑流形 & 每点附近可用若干实坐标描述且坐标变换可微的空间\\
+\DefinitionID{22.01-f53777da99} 切向量 & 曲线 g(t) 过该点时对任意光滑函数给出的方向导数；矩阵群中可记为 g'(0)\\
+\DefinitionID{22.01-18ec8aad86} 李群 & 群乘法和求逆同时为光滑映射的流形\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{22.01} 主公式}\centering\CourseDisplayEquation{g(0)=I,\ X=g'(0)\in T_I G,\ g(t)=e^{tX};\qquad SU(N):\ X^\dagger=-X,\ \operatorname{tr}X=0,\ X=i\theta_aT^a}\end{block}
+切空间是曲面在一点的一阶线性近似；本卷固定 T\ensuremath{^{a}} 为厄米无迹生成元，所以真正进入指数的 X=i\ensuremath{\theta}aTa 是反厄米矩阵。
+\end{frame}
+
+\begin{frame}[t]{微分几何桥梁：流形、切空间与指数映射：推导与证据边界}\FrameAnchor{22.01-3}
+\footnotesize
+\DerivationID{22.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{22.01}：
+\begin{enumerate}
+\item 把 SU(N) 看成满足 g†g=I、detg=1 的矩阵子流形，并取 g(t)=I+tX+O(t\ensuremath{^{2}})。
+\item 对 g†g=I 求 t 导数得 X†+X=0；对 detg=1 用 d ln detg/\allowbreak{}dt=tr(g\ensuremath{^{-1}}g') 得 trX=0。
+\item 定义厄米 T\ensuremath{^{a}}=-iX\ensuremath{^{a}} 后 X=i\ensuremath{\theta}aTa；矩阵指数满足 exp(tX)†exp(tX)=I 且 detexp(tX)=exp(t trX)=1。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{22.01}\quad 微分几何桥梁：流形、切空间与指数映射；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：X=diag(i,-i) 的 SU(2) 一参数子群
+\end{block}
+\BoundaryLine{矩阵指数实例验证局部群结构；一般李群的全局指数映射性质未证明。}
+\end{frame}
+
+\begin{frame}[t]{微分几何桥梁：流形、切空间与指数映射：计算算法}\FrameAnchor{22.01-4}
+\footnotesize
+\AlgorithmID{22.01}\begin{enumerate}
+\item 先写约束方程及独立实坐标数。
+\item 沿显式曲线数值差分求 g'(0)，检查反厄米和无迹残差。
+\item 指数化 X 并检查群约束及 g(t+s)=g(t)g(s)。
+\item 换一组局部坐标后比较同一几何切向量而非坐标分量。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] X=0 给恒等曲线。
+\item[\CheckMark] SU(2) 有 4 个 U(2) 实参数减 1 个行列式相位约束，维数为 3。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{微分几何桥梁：流形、切空间与指数映射：练习与完整解答}\FrameAnchor{22.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{22.01}}对 g(t)=diag(e\ensuremath{^{it}},e\ensuremath{^{-it}}) 求 X=g'(0)，并验证它属于 su(2)。\end{block}
+\begin{exampleblock}{\SolutionID{22.01}}X=diag(i,-i)=i\ensuremath{\sigma}3：X†=-X 且 trX=0。按本卷 tr(TaTb)=\ensuremath{\delta}ab/\allowbreak{}2 的归一化取 T3=\ensuremath{\sigma}3/\allowbreak{}2，则 X=2iT3；不能另把 \ensuremath{\sigma}3 当作同一套已归一化基。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{22.01-65a65006bd}；\CourseRef{Eq}{22.01}；\CourseRef{SYM}{22.01}；\CourseRef{Alg}{22.01}。
+\SourceLine{BOOK-GROUP；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{厄米生成元、结构常数、Jacobi 恒等式与 BCH：问题与图像}\FrameAnchor{22.02-1}
+\footnotesize
+\begin{block}{本节问题}厄米 SU(3) 生成元怎样与反厄米指数和 BCH 一致共存？\end{block}
+\PhysicalFlow{固定 tr(TaTb)=\ensuremath{\delta}ab/\allowbreak{}2}{交换子定义实 fabc}{令 X=i\ensuremath{\alpha}aTa 后使用 BCH}{22.02}
+\begin{block}{物理原则}\KnowledgeID{22.02}\quad 改用反厄米基 ta=iTa 时 i 会移入结构常数公式；两套约定可互换但不得在同一推导中混写。BCH 截断只在小范数区按阶使用。\end{block}
+\SourceLine{BOOK-GROUP；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{厄米生成元、结构常数、Jacobi 恒等式与 BCH：定义与主公式}\FrameAnchor{22.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{22.02-65c275d785} 结构常数 & 在本卷厄米约定 [T\ensuremath{^{a}},T\ensuremath{^{b}}]=if\ensuremath{^{abc}}T\ensuremath{^{c}} 中的实系数\\
+\DefinitionID{22.02-4f478933e3} Jacobi 恒等式 & [Ta,[Tb,Tc]] 加循环置换为零，等价于结构常数的闭合约束\\
+\DefinitionID{22.02-f968c5f48f} BCH 公式 & 在收敛邻域内把两个非对易指数乘积写成单一指数的嵌套交换子展开\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{22.02} 主公式}\centering\CourseDisplayEquation{\operatorname{tr}(T^aT^b)=\frac12\delta^{ab},\quad[T^a,T^b]=if^{abc}T^c;\qquad \log(e^Xe^Y)=X+Y+\frac12[X,Y]+\frac1{12}[X,[X,Y]]+\frac1{12}[Y,[Y,X]]+\cdots}\end{block}
+T\ensuremath{^{a}} 厄米而 X=i\ensuremath{\alpha}aTa、Y=i\ensuremath{\beta}aTa 反厄米；交换子仍反厄米，所以 BCH 的每一阶都留在 su(3) 切空间。
+\end{frame}
+
+\begin{frame}[t]{厄米生成元、结构常数、Jacobi 恒等式与 BCH：推导与证据边界}\FrameAnchor{22.02-3}
+\footnotesize
+\DerivationID{22.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{22.02}：
+\begin{enumerate}
+\item 由厄米性知 [Ta,Tb]†=-[Ta,Tb]，故它可写成 i 乘厄米基；以迹投影得 fabc=-2i tr([Ta,Tb]Tc)，因此在此归一化下 fabc 为实数。
+\item 设 e\ensuremath{^{\epsilon{}X}}e\ensuremath{^{\epsilon{}Y}}=e\ensuremath{^{Z(\epsilon)}}，展开到 \ensuremath{\epsilon}\ensuremath{^{3}}并比较系数：Z=\ensuremath{\epsilon}(X+Y)+\ensuremath{\epsilon}\ensuremath{^{2}}[X,Y]/\allowbreak{}2+\ensuremath{\epsilon}\ensuremath{^{3}}([X,[X,Y]]+[Y,[Y,X]])/\allowbreak{}12+O(\ensuremath{\epsilon}\ensuremath{^{4}})。
+\item 把三重交换子的循环和展开，所有 XYZ 排列逐项相消，得到 Jacobi 恒等式；它保证结构常数闭合。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{22.02}\quad 厄米生成元、结构常数、Jacobi 恒等式与 BCH；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：三阶 Heisenberg 幂零矩阵；二重交换子为零
+\end{block}
+\BoundaryLine{验证 BCH 在中心交换子实例上精确截断；一般级数收敛域另论。}
+\end{frame}
+
+\begin{frame}[t]{厄米生成元、结构常数、Jacobi 恒等式与 BCH：计算算法}\FrameAnchor{22.02-4}
+\footnotesize
+\AlgorithmID{22.02}\begin{enumerate}
+\item 用显式小矩阵计算 X,Y 和交换子。
+\item 比较 exp(X)exp(Y) 与不同阶 BCH 指数。
+\item 按共同缩放 \ensuremath{\epsilon} 测误差阶。
+\item 用 Jacobi 残差检查结构常数和基底约定。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] [X,Y]=0 时所有嵌套交换子消失。
+\item[\CheckMark] 随机实 \ensuremath{\alpha}a 生成的 X=i\ensuremath{\alpha}aTa 应满足 X†=-X，expX 应满足 SU(3) 约束。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{厄米生成元、结构常数、Jacobi 恒等式与 BCH：练习与完整解答}\FrameAnchor{22.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{22.02}}若 [X,Y] 与 X、Y 都对易，BCH 截止到哪一项？\end{block}
+\begin{exampleblock}{\SolutionID{22.02}}所有二重嵌套交换子为零，故 Z=X+Y+[X,Y]/\allowbreak{}2 精确。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{22.02-65c275d785}；\CourseRef{Eq}{22.02}；\CourseRef{SYM}{22.02}；\CourseRef{Alg}{22.02}。
+\SourceLine{BOOK-GROUP；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{SU(2) 角动量表示与 Casimir：问题与图像}\FrameAnchor{22.03-1}
+\footnotesize
+\begin{block}{本节问题}半整数自旋怎样从同一李代数产生？\end{block}
+\PhysicalFlow{J\_3 本征态 |j,m>}{升降算符 J\_\ensuremath{\pm}}{Casimir 固定整个不可约表示}{22.03}
+\begin{block}{物理原则}\KnowledgeID{22.03}\quad 角动量单位取 \ensuremath{\hbar}=1；Euclidean 旋转群的半整数表示需使用双覆盖 SU(2)。\end{block}
+\SourceLine{BOOK-GROUP；BOOK-QM}
+\end{frame}
+
+\begin{frame}[t]{SU(2) 角动量表示与 Casimir：定义与主公式}\FrameAnchor{22.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{22.03-1c0276bf4b} 最高权 & 被所有正根升算符湮灭的权态\\
+\DefinitionID{22.03-28ff8c148f} Casimir & 与所有生成元对易的中心算符\\
+\DefinitionID{22.03-467b020b65} 自旋 j 表示 & 维数 2j+1 的 SU(2) 不可约表示\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{22.03} 主公式}\centering\CourseDisplayEquation{J^2|j,m\rangle=j(j+1)|j,m\rangle,\quad J_\pm|j,m\rangle=\sqrt{(j\mp m)(j\pm m+1)}|j,m\pm1\rangle}\end{block}
+升降系数由代数、态归一化和表示在 m=\ensuremath{\pm}j 终止共同固定。
+\end{frame}
+
+\begin{frame}[t]{SU(2) 角动量表示与 Casimir：推导与证据边界}\FrameAnchor{22.03-3}
+\footnotesize
+\DerivationID{22.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{22.03}：
+\begin{enumerate}
+\item 由 J\ensuremath{^{2}}=J\_-J\_++J\_3(J\_3+1) 取期望。
+\item 设 J\ensuremath{^{2}} 本征值 C，升算符范数平方为 C-m(m+1)。
+\item 最高态 m=j 上 J\_+|j,j\ensuremath{\rangle}=0，故 C=j(j+1)，再由态归一化得到一般升降系数。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{22.03}\quad SU(2) 角动量表示与 Casimir；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：j=1、\ensuremath{\hbar}=1 的显式矩阵表示
+\end{block}
+\BoundaryLine{验证一个不可约表示；半整数表示与群全局性质需另查。}
+\end{frame}
+
+\begin{frame}[t]{SU(2) 角动量表示与 Casimir：计算算法}\FrameAnchor{22.03-4}
+\footnotesize
+\AlgorithmID{22.03}\begin{enumerate}
+\item 给定 j 生成 m=-j,…,j 的基。
+\item 构造 J\_3 对角矩阵与 J\_\ensuremath{\pm} 次对角矩阵。
+\item 检查 [J\_i,J\_j]=i\ensuremath{\epsilon}\ensuremath{_{ijk}}J\_k 和 J\ensuremath{^{2}}=j(j+1)I。
+\item 指数化 -i\ensuremath{\theta}J 后检查旋转群关系与 2\ensuremath{\pi}/\allowbreak{}4\ensuremath{\pi} 行为。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] j=0 时全部生成元为零。
+\item[\CheckMark] j=1/\allowbreak{}2 时 J\_i=\ensuremath{\sigma}\_i/\allowbreak{}2。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{SU(2) 角动量表示与 Casimir：练习与完整解答}\FrameAnchor{22.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{22.03}}j=1、m=0 时 J\_+ 的系数是多少？\end{block}
+\begin{exampleblock}{\SolutionID{22.03}}sqrt[(1-0)(1+0+1)]=sqrt(2)。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{22.03-1c0276bf4b}；\CourseRef{Eq}{22.03}；\CourseRef{SYM}{22.03}；\CourseRef{Alg}{22.03}。
+\SourceLine{BOOK-GROUP；BOOK-QM}
+\end{frame}
+
+\begin{frame}[t]{SU(3) 根、权、Dynkin 标号、维数与 Casimir：问题与图像}\FrameAnchor{22.04-1}
+\footnotesize
+\begin{block}{本节问题}怎样从 T3、T8 的本征值真正算出 SU(3) 表示数据？\end{block}
+\PhysicalFlow{基本表示的三个权}{权差给六条根}{最高权 (p,q) 决定维数与 C2}{22.04}
+\begin{block}{物理原则}\KnowledgeID{22.04}\quad 这些公式采用 tr(TaTb)=\ensuremath{\delta}ab/\allowbreak{}2；换生成元归一化会同比缩放 Casimir。根权图给表示的状态结构，维数核对不能代替张量积分解规则。\end{block}
+\SourceLine{BOOK-GROUP；BOOK-QFT；MYQCD-FORMULAS}
+\end{frame}
+
+\begin{frame}[t]{SU(3) 根、权、Dynkin 标号、维数与 Casimir：定义与主公式}\FrameAnchor{22.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{22.04-b6311e3bfb} Cartan 子代数 & 由彼此对易的厄米生成元 T3、T8 张成，可同时对角化\\
+\DefinitionID{22.04-98f33ae5be} 权与根 & 权是 (T3,T8) 的共同本征值；根是伴随作用下升降生成元的非零权，在基本表示中由两个状态权之差得到\\
+\DefinitionID{22.04-8041865319} Dynkin 标号 & 最高权 \ensuremath{\lambda}=p\ensuremath{\omega}1+q\ensuremath{\omega}2 在两个 fundamental weights 方向上的非负整数坐标 (p,q)\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{22.04} 主公式}\centering\CourseDisplayEquation{\lambda=p\omega_1+q\omega_2,\quad p=\frac{2(\lambda,\alpha_1)}{(\alpha_1,\alpha_1)},\quad q=\frac{2(\lambda,\alpha_2)}{(\alpha_2,\alpha_2)};\qquad \dim(p,q)=\frac{(p+1)(q+1)(p+q+2)}2,\quad C_2(p,q)=\frac{p^2+q^2+pq+3p+3q}{3};\quad \mathbf3\otimes\bar{\mathbf3}=\mathbf1\oplus\mathbf8}\end{block}
+基本表示是 (1,0)，反基本表示是 (0,1)，伴随表示是 (1,1)；公式分别给 dim=3、3、8 和 C2=4/\allowbreak{}3、4/\allowbreak{}3、3。
+\end{frame}
+
+\begin{frame}[t]{SU(3) 根、权、Dynkin 标号、维数与 Casimir：推导与证据边界}\FrameAnchor{22.04-3}
+\footnotesize
+\DerivationID{22.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{22.04}：
+\begin{enumerate}
+\item 取 T3=diag(1,-1,0)/\allowbreak{}2、T8=diag(1,1,-2)/\allowbreak{}(2sqrt3)，三个颜色基的权为 (1/\allowbreak{}2,1/\allowbreak{}(2sqrt3))、(-1/\allowbreak{}2,1/\allowbreak{}(2sqrt3))、(0,-1/\allowbreak{}sqrt3)。
+\item 这三个状态权任意有序相减给六条非零根；选简单根 \ensuremath{\alpha}1、\ensuremath{\alpha}2，定义余根 \ensuremath{\alpha}i\ensuremath{^{v}}ee=2\ensuremath{\alpha}i/\allowbreak{}(\ensuremath{\alpha}i,\ensuremath{\alpha}i)，再以 (\ensuremath{\omega}j,\ensuremath{\alpha}i\ensuremath{^{v}}ee)=\ensuremath{\delta}ij 定义 fundamental weights。最高权 \ensuremath{\lambda}=p\ensuremath{\omega}1+q\ensuremath{\omega}2 与余根配对便给 Dynkin 非负整数 (p,q)。
+\item 代入 (1,0) 得 dim=3、C2=4/\allowbreak{}3；代入 (1,1) 得 dim=8、C2=3。把 3\ensuremath{\otimes}3bar 识别为矩阵空间，迹为 (0,0) singlet、无迹部分为 (1,1) adjoint。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{22.04}\quad SU(3) 根、权、Dynkin 标号、维数与 Casimir；5/5 项通过；SymPy exact。
+\par\scriptsize 假设：SU(3) 根系采用 |alpha\_i|\ensuremath{^{2}}=1 的二维归一化；Dynkin 标号 (p,q) 为非负整数；厄米生成元约定 [t\ensuremath{^{a}},t\ensuremath{^{b}}]=if\ensuremath{^{abc}}t\ensuremath{^{c}}
+\end{block}
+\BoundaryLine{精确验证 A2 简单根、基本权、维数与二次 Casimir 公式的 3 和 8 表示；权重 multiplicity 与一般张量积分解仍需表示论算法。}
+\end{frame}
+
+\begin{frame}[t]{SU(3) 根、权、Dynkin 标号、维数与 Casimir：计算算法}\FrameAnchor{22.04-4}
+\footnotesize
+\AlgorithmID{22.04}\begin{enumerate}
+\item 先列 T3、T8 并计算共同本征值。
+\item 画权点和权差，固定简单根与基本权约定。
+\item 由 (p,q) 计算 dim、C2，并核对张量积总维数和 triality。
+\item 对 3\ensuremath{\otimes}3bar 再构造 Tr(M)I/\allowbreak{}3 与 M-Tr(M)I/\allowbreak{}3，随机 SU(3) 共轭验证不混合。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 共轭交换 (p,q)\ensuremath{\leftrightarrow}(q,p)，所以 3 与 3bar 维数和 C2 相同。
+\item[\CheckMark] (0,0) 给 dim=1、C2=0。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{SU(3) 根、权、Dynkin 标号、维数与 Casimir：练习与完整解答}\FrameAnchor{22.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{22.04}}求 SU(3) 的 (p,q)=(2,0) 表示的维数和二次 Casimir。\end{block}
+\begin{exampleblock}{\SolutionID{22.04}}dim=(3\ensuremath{\times}1\ensuremath{\times}4)/\allowbreak{}2=6；C2=(4+0+0+6+0)/\allowbreak{}3=10/\allowbreak{}3，所以它是六维表示。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{22.04-b6311e3bfb}；\CourseRef{Eq}{22.04}；\CourseRef{SYM}{22.04}；\CourseRef{Alg}{22.04}。
+\SourceLine{BOOK-GROUP；BOOK-QFT；MYQCD-FORMULAS}
+\end{frame}
+
+\begin{frame}[t]{测度桥梁、Haar 积分与矩阵元正交：问题与图像}\FrameAnchor{22.05-1}
+\footnotesize
+\begin{block}{本节问题}从普通加权积分怎样过渡到紧群上的规范积分？\end{block}
+\PhysicalFlow{紧群 G}{左/\allowbreak{}右平移不变测度}{表示矩阵元正交}{22.05}
+\begin{block}{物理原则}\KnowledgeID{22.05}\quad 左 Haar 测度在一般局部紧群上存在且唯一到常数；紧群可归一化且同时右不变。本课只使用后一情形。不同不可约表示把 N 换成 dR。\end{block}
+\SourceLine{BOOK-GROUP；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{测度桥梁、Haar 积分与矩阵元正交：定义与主公式}\FrameAnchor{22.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{22.05-3fabb2159c} 测度 & 为区域分配非负大小并使可数不交并可相加，从而定义加权积分\\
+\DefinitionID{22.05-419db8fa4c} 归一化 Haar 测度 & 紧群上满足 d(gU)=dU=d(Ug) 且总量 \ensuremath{\int}dU=1 的唯一双不变概率测度\\
+\DefinitionID{22.05-d85ba2e481} Peter--Weyl & 紧群不可约表示矩阵元在 L\ensuremath{^{2}}(G,dU) 中构成完备正交系\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{22.05} 主公式}\centering\CourseDisplayEquation{\int dU\,U_{ij}U^\dagger_{kl}=\frac1N\delta_{il}\delta_{jk}\quad\text{for }SU(N)}\end{block}
+基本表示矩阵元的 Haar 二点积分由左右不变性固定为唯一不变量张量。
+\end{frame}
+
+\begin{frame}[t]{测度桥梁、Haar 积分与矩阵元正交：推导与证据边界}\FrameAnchor{22.05-3}
+\footnotesize
+\DerivationID{22.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{22.05}：
+\begin{enumerate}
+\item 先以有限群平均 |G|\ensuremath{^{-1}}\ensuremath{\Sigma}g f(g) 理解不变积分：左乘只重排求和项。
+\item 紧群把求和推广为满足 \ensuremath{\int}f(VU)dU=\ensuremath{\int}f(U)dU 的积分；归一化 \ensuremath{\int}dU=1 使它成为概率期望。
+\item 二点积分张量在左、右作用下不变；Schur 引理只允许 C\ensuremath{\delta}il\ensuremath{\delta}jk。令 i=l、j=k 求和，左侧 \ensuremath{\int}Tr(UU†)=N、右侧 CN\ensuremath{^{2}}，故 C=1/\allowbreak{}N。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{22.05}\quad 测度桥梁、Haar 积分与矩阵元正交；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：左右不变性已把二点积分限制为 C \ensuremath{\delta}\_il \ensuremath{\delta}\_jk；\ensuremath{\int}dU=1
+\end{block}
+\BoundaryLine{SymPy 只解归一化常数；Haar 存在唯一性和不变量张量由群论证明。}
+\end{frame}
+
+\begin{frame}[t]{测度桥梁、Haar 积分与矩阵元正交：计算算法}\FrameAnchor{22.05-4}
+\footnotesize
+\AlgorithmID{22.05}\begin{enumerate}
+\item 有限群先用精确平均验证不变性。
+\item 连续 SU(N) 从独立复 Gaussian 矩阵做 QR，移除 R 对角相位，再以一个单位模因子校正 detQ=1。
+\item 检查 Q†Q=I、detQ=1 和左/\allowbreak{}右乘固定群元后的统计不变性。
+\item 随样本数检验矩阵元均值为零、二点积分趋向 \ensuremath{\delta} 张量/\allowbreak{}dR，并报告 Monte Carlo 误差。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 单个非平凡不可约矩阵元的 Haar 均值为零。
+\item[\CheckMark] 测度左乘或右乘固定群元后统计不变。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{测度桥梁、Haar 积分与矩阵元正交：练习与完整解答}\FrameAnchor{22.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{22.05}}SU(2) 中 \ensuremath{\int}dU |U11|\ensuremath{^{2}} 是多少？\end{block}
+\begin{exampleblock}{\SolutionID{22.05}}取 N=2、i=j=k=l=1，结果为 1/\allowbreak{}2。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{22.05-3fabb2159c}；\CourseRef{Eq}{22.05}；\CourseRef{SYM}{22.05}；\CourseRef{Alg}{22.05}。
+\SourceLine{BOOK-GROUP；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{第 22 卷能力清单}\FrameAnchor{V22-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能由生成元重建局部群结构
+\item[\CheckMark] 能计算 SU(2)/\allowbreak{}SU(3) 表示数据
+\item[\CheckMark] 能正确使用 Haar 群积分
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 22 卷来源（1/1）}\FrameAnchor{V22-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-GROUP} & 连续群与生成元预备课（课程自编） & 从旋转群过渡到 SU(2)/\allowbreak{}SU(3)。\\
+\SourceID{BOOK-QFT} & An Introduction to Quantum Field Theory（仓库转排本） & 量子场论、规范理论、QCD 和重整化的主教材交叉核验。\\
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\SourceID{BOOK-QM} & 量子力学预备课（课程自编） & 态、算符、测量、谱与不确定关系。\\
+\SourceID{MYQCD-FORMULAS} & MyQCD 可执行公式注册表 & 复杂公式的 SymPy 精确代理与证据边界。\\
+\bottomrule\end{tabularx}\end{frame}
+

@@ -1,0 +1,360 @@
+\begin{frame}[plain]\FrameAnchor{V04-title}
+\centering
+{\Large\bfseries\color{courseblue}第 4 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 时空、作用量与经典场\par}
+\vspace{0.35cm}
+{\large 从粒子轨迹过渡到场，并建立相对论协变与变分原理。\par}
+\vfill
+\CourseID{Tbl}{04.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 4 卷路线图}\FrameAnchor{V04-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+04.01 & Lorentz 变换与不变量\\
+04.02 & 四动量与质壳\\
+04.03 & 作用量与 Euler--Lagrange 方程\\
+04.04 & Noether 思想与守恒量\\
+04.05 & 规范势与电磁场强\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-QFT；BOOK-MECHANICS；BOOK-EM}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V04-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V01
+\item V02
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能使用四矢量和度规
+\item 能从作用量导出运动方程
+\item 能识别守恒量与场强
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：Lorentz 因子}\FrameAnchor{V04-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0.0,xmax=0.95,ymin=1.0,ymax=3.3,xlabel={$\beta=v/c$},ylabel={$\gamma=(1-\beta^2)^{-1/2}$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0.0:0.95,samples=160] {1/sqrt(1-x^2)};
+\addlegendentry{\ensuremath{\gamma}}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{04.00}：解析曲线；只画亚光速区。
+\SourceLine{狭义相对论定义}
+\end{frame}
+
+\begin{frame}[t]{Lorentz 变换与不变量：问题与图像}\FrameAnchor{04.01-1}
+\footnotesize
+\begin{block}{本节问题}不同匀速观察者怎样对同一事件间隔取得一致描述？\end{block}
+\PhysicalFlow{事件 (ct,x)}{Lorentz boost}{间隔 s\ensuremath{^{2}} 不变}{04.01}
+\begin{block}{物理原则}\KnowledgeID{04.01}\quad 相对论公式的核心不是某个坐标值，而是在 Lorentz 变换下不变或协变的对象。\end{block}
+\SourceLine{BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{Lorentz 变换与不变量：定义与主公式}\FrameAnchor{04.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{04.01-59f4f8811d} 事件 & 时空中的一个点\\
+\DefinitionID{04.01-ef95c7434f} 度规 & 定义时空间隔的双线性形式\\
+\DefinitionID{04.01-245044477d} Lorentz 变换 & 保持 Minkowski 度规的线性变换\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{04.01} 主公式}\centering\CourseDisplayEquation{c^2t'^2-x'^2=c^2t^2-x^2}\end{block}
+一维 boost 改变时间和空间分量，但保持时空间隔。
+\end{frame}
+
+\begin{frame}[t]{Lorentz 变换与不变量：推导与证据边界}\FrameAnchor{04.01-3}
+\footnotesize
+\DerivationID{04.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{04.01}：
+\begin{enumerate}
+\item 写 ct\ensuremath{^{\prime}}=\ensuremath{\gamma}(ct-\ensuremath{\beta}x)、x\ensuremath{^{\prime}}=\ensuremath{\gamma}(x-\ensuremath{\beta}ct)。
+\item 展开 (ct\ensuremath{^{\prime}})\ensuremath{^{2}}-x\ensuremath{^{\prime2}}，交叉项相消。
+\item 剩余 \ensuremath{\gamma}\ensuremath{^{2}}(1-\ensuremath{\beta}\ensuremath{^{2}})[(ct)\ensuremath{^{2}}-x\ensuremath{^{2}}]，用 \ensuremath{\gamma}\ensuremath{^{2}}(1-\ensuremath{\beta}\ensuremath{^{2}})=1 得结论。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{04.01}\quad 1+1 维 Lorentz 间隔；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：|beta|<1；度规号差 (+,-)
+\end{block}
+\BoundaryLine{只验证标准 boost；一般四维协变由矩阵度规条件给出。}
+\end{frame}
+
+\begin{frame}[t]{Lorentz 变换与不变量：计算算法}\FrameAnchor{04.01-4}
+\footnotesize
+\AlgorithmID{04.01}\begin{enumerate}
+\item 固定度规号差，本课程采用 (+,-,-,-)。
+\item 把事件存成四分量并显式写 boost 矩阵。
+\item 随机测试亚光速 \ensuremath{\beta} 下的间隔残差。
+\item 不要直接比较不同参考系中的单个分量。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\beta}=0 时变换为单位变换。
+\item[\CheckMark] 光线满足 s\ensuremath{^{2}}=0，任何 boost 后仍为 0。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Lorentz 变换与不变量：练习与完整解答}\FrameAnchor{04.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{04.01}}取 ct=5、x=3、\ensuremath{\beta}=0.6，计算 ct\ensuremath{^{\prime}}、x\ensuremath{^{\prime}} 并核对间隔。\end{block}
+\begin{exampleblock}{\SolutionID{04.01}}\ensuremath{\gamma}=1.25；ct\ensuremath{^{\prime}}=4、x\ensuremath{^{\prime}}=0；两边间隔均为 25-9=16。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{04.01-59f4f8811d}；\CourseRef{Eq}{04.01}；\CourseRef{SYM}{04.01}；\CourseRef{Alg}{04.01}。
+\SourceLine{BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{四动量与质壳：问题与图像}\FrameAnchor{04.02-1}
+\footnotesize
+\begin{block}{本节问题}能量和动量为何是同一个几何对象的不同分量？\end{block}
+\PhysicalFlow{四动量 p\ensuremath{\mu}}{Minkowski 内积}{不变质量 m}{04.02}
+\begin{block}{物理原则}\KnowledgeID{04.02}\quad 格点核子能量需与离散或连续色散关系比较，不能把动量标签直接当物理能量。\end{block}
+\SourceLine{BOOK-QFT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{四动量与质壳：定义与主公式}\FrameAnchor{04.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{04.02-7b4187ac3f} 四动量 & (E/\allowbreak{}c,p) 组成的四矢量\\
+\DefinitionID{04.02-58288b916f} 质壳 & 满足给定质量色散关系的动量集合\\
+\DefinitionID{04.02-a260fcf5fb} 快度 & 沿某方向 boost 的加法参数\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{04.02} 主公式}\centering\CourseDisplayEquation{E^2=\bm p^2c^2+m^2c^4}\end{block}
+四动量不变量 p\ensuremath{\mu}p\ensuremath{\mu}=m\ensuremath{^{2}}c\ensuremath{^{2}} 给出相对论色散关系。
+\end{frame}
+
+\begin{frame}[t]{四动量与质壳：推导与证据边界}\FrameAnchor{04.02-3}
+\footnotesize
+\DerivationID{04.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{04.02}：
+\begin{enumerate}
+\item 定义 p\ensuremath{\mu}=(E/\allowbreak{}c,p\ensuremath{_{x}},p\ensuremath{_{\gamma}},p\_z)。
+\item 按 (+,-,-,-) 度规，p\ensuremath{\mu}p\ensuremath{\mu}=E\ensuremath{^{2}}/\allowbreak{}c\ensuremath{^{2}}-p\ensuremath{^{2}}。
+\item 在静止系 p=(mc,0)，不变量为 m\ensuremath{^{2}}c\ensuremath{^{2}}；移项即得色散式。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{04.02}\quad 四动量质壳；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：自然单位 c=1；选择正能支需额外物理条件
+\end{block}
+\BoundaryLine{格点色散伪影不由连续代数式给出。}
+\end{frame}
+
+\begin{frame}[t]{四动量与质壳：计算算法}\FrameAnchor{04.02-4}
+\footnotesize
+\AlgorithmID{04.02}\begin{enumerate}
+\item 从格点整数动量换算 p\_i=2\ensuremath{\pi}n\_i/\allowbreak{}L。
+\item 拟合二点函数得到各动量能量。
+\item 比较 E\ensuremath{^{2}} 与 m\ensuremath{^{2}}+p\ensuremath{^{2}}，并画残差。
+\item 若高动量偏离，测试格点色散式和 a\ensuremath{^{2}}p\ensuremath{^{4}} 修正。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] p=0 时 E=mc\ensuremath{^{2}}。
+\item[\CheckMark] m=0 时 E=|p|c，能量非负支由物理态选择。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{四动量与质壳：练习与完整解答}\FrameAnchor{04.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{04.02}}自然单位 c=1 下，m=1 GeV、|p|=2 GeV 的能量是多少？\end{block}
+\begin{exampleblock}{\SolutionID{04.02}}E=\ensuremath{\sqrt{1^{2}+2^{2}}}=\ensuremath{\sqrt{5}} GeV\ensuremath{\approx}2.236 GeV。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{04.02-7b4187ac3f}；\CourseRef{Eq}{04.02}；\CourseRef{SYM}{04.02}；\CourseRef{Alg}{04.02}。
+\SourceLine{BOOK-QFT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{作用量与 Euler--Lagrange 方程：问题与图像}\FrameAnchor{04.03-1}
+\footnotesize
+\begin{block}{本节问题}怎样用一个标量泛函统一表达运动定律？\end{block}
+\PhysicalFlow{轨迹 q(t)}{作用量 S=\ensuremath{\int}Ldt}{驻作用量 \ensuremath{\delta}S=0}{04.03}
+\begin{block}{物理原则}\KnowledgeID{04.03}\quad 场论和格点作用量都从同一变分逻辑出发；边界项不能无条件丢弃。\end{block}
+\SourceLine{BOOK-MECHANICS；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{作用量与 Euler--Lagrange 方程：定义与主公式}\FrameAnchor{04.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{04.03-31b8db2016} Lagrangian & 动能减势能的函数\\
+\DefinitionID{04.03-692c4a8d60} 作用量 & Lagrangian 沿时间的积分\\
+\DefinitionID{04.03-5477899012} 变分 & 比较邻近整条函数而非单点\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{04.03} 主公式}\centering\CourseDisplayEquation{\frac{d}{dt}\frac{\partial L}{\partial\dot q}-\frac{\partial L}{\partial q}=0}\end{block}
+端点固定的任意微小轨迹变化要求一阶作用量变化为零。
+\end{frame}
+
+\begin{frame}[t]{作用量与 Euler--Lagrange 方程：推导与证据边界}\FrameAnchor{04.03-3}
+\footnotesize
+\DerivationID{04.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{04.03}：
+\begin{enumerate}
+\item 令 q\ensuremath{\rightarrow}q+\ensuremath{\epsilon}\ensuremath{\eta}，且 \ensuremath{\eta} 在两端为 0，求 dS/\allowbreak{}d\ensuremath{\epsilon}|\ensuremath{_{0}}。
+\item 对含 \ensuremath{\eta}̇ 的项分部积分，把导数移到 \ensuremath{\partial}L/\allowbreak{}\ensuremath{\partial}q̇ 上。
+\item 边界项因 \ensuremath{\eta}=0 消失；\ensuremath{\eta} 任意，故其系数必须逐点为零。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{04.03}\quad 谐振子 Euler--Lagrange 方程；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：端点变分为零；m,k 为正
+\end{block}
+\BoundaryLine{只验证变分结果的代数形式；泛函分析条件在正文说明。}
+\end{frame}
+
+\begin{frame}[t]{作用量与 Euler--Lagrange 方程：计算算法}\FrameAnchor{04.03-4}
+\footnotesize
+\AlgorithmID{04.03}\begin{enumerate}
+\item 明确自由变量、固定边界和允许的变分。
+\item 对 L 分别求 q、q̇ 偏导。
+\item 执行分部积分并保留边界项直到条件确认。
+\item 把候选解代回方程和初边值条件。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] L 加一个全时间导数只改变边界项，不改运动方程。
+\item[\CheckMark] 各项量纲均为广义力。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{作用量与 Euler--Lagrange 方程：练习与完整解答}\FrameAnchor{04.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{04.03}}对 L=mq̇\ensuremath{^{2}}/\allowbreak{}2-kq\ensuremath{^{2}}/\allowbreak{}2 推导运动方程。\end{block}
+\begin{exampleblock}{\SolutionID{04.03}}\ensuremath{\partial}L/\allowbreak{}\ensuremath{\partial}q̇=mq̇，时间导数为 mq̈；\ensuremath{\partial}L/\allowbreak{}\ensuremath{\partial}q=-kq，故 mq̈+kq=0。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{04.03-31b8db2016}；\CourseRef{Eq}{04.03}；\CourseRef{SYM}{04.03}；\CourseRef{Alg}{04.03}。
+\SourceLine{BOOK-MECHANICS；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{Noether 思想与守恒量：问题与图像}\FrameAnchor{04.04-1}
+\footnotesize
+\begin{block}{本节问题}为什么连续对称性会约束时间演化？\end{block}
+\PhysicalFlow{连续对称变换}{作用量不变}{守恒流或守恒荷}{04.04}
+\begin{block}{物理原则}\KnowledgeID{04.04}\quad 数值算法中的守恒残差是很强的独立校验，但离散化通常只近似保持连续守恒律。\end{block}
+\SourceLine{BOOK-MECHANICS；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{Noether 思想与守恒量：定义与主公式}\FrameAnchor{04.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{04.04-b37af3e390} 对称性 & 变换后物理规律不变\\
+\DefinitionID{04.04-e8a4aa2a9e} 守恒流 & 散度为零的局域量\\
+\DefinitionID{04.04-b7fb583c0e} 守恒荷 & 守恒流时间分量的空间积分\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{04.04} 主公式}\centering\CourseDisplayEquation{E=\dot q\frac{\partial L}{\partial\dot q}-L,\qquad \frac{dE}{dt}=0\quad(\partial L/\partial t=0)}\end{block}
+Lagrangian 无显含时间时，由时间平移对称得到能量守恒。
+\end{frame}
+
+\begin{frame}[t]{Noether 思想与守恒量：推导与证据边界}\FrameAnchor{04.04-3}
+\footnotesize
+\DerivationID{04.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{04.04}：
+\begin{enumerate}
+\item 对 E 求时间导数并使用乘积法则。
+\item 展开 dL/\allowbreak{}dt=L\_q q̇+L\_q̇ q̈+L\_t，相关项相消。
+\item 用 Euler--Lagrange 方程 dL\_q̇/\allowbreak{}dt=L\_q，得到 dE/\allowbreak{}dt=-L\_t。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{04.04}\quad 谐振子能量守恒；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：omega\ensuremath{^{2}}=k/\allowbreak{}m；解析谐振子解
+\end{block}
+\BoundaryLine{Noether 定理的一般场论证明不由单一模型替代。}
+\end{frame}
+
+\begin{frame}[t]{Noether 思想与守恒量：计算算法}\FrameAnchor{04.04-4}
+\footnotesize
+\AlgorithmID{04.04}\begin{enumerate}
+\item 识别作用量在何种连续变换下不变。
+\item 写出对应 Noether 荷并核对量纲。
+\item 沿解析解或数值轨迹逐时刻计算守恒量。
+\item 把漂移与步长作收敛比较，区分算法误差和物理交换。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 若 L 显含时间，能量一般不守恒。
+\item[\CheckMark] 谐振子解代入后 E=(m\ensuremath{\omega}\ensuremath{^{2}}A\ensuremath{^{2}})/\allowbreak{}2 为常数。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Noether 思想与守恒量：练习与完整解答}\FrameAnchor{04.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{04.04}}求谐振子 q=A cos\ensuremath{\omega}t、\ensuremath{\omega}\ensuremath{^{2}}=k/\allowbreak{}m 的能量。\end{block}
+\begin{exampleblock}{\SolutionID{04.04}}E=mA\ensuremath{^{2}}\ensuremath{\omega}\ensuremath{^{2}}(sin\ensuremath{^{2}}+cos\ensuremath{^{2}})/\allowbreak{}2=mA\ensuremath{^{2}}\ensuremath{\omega}\ensuremath{^{2}}/\allowbreak{}2=kA\ensuremath{^{2}}/\allowbreak{}2。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{04.04-b37af3e390}；\CourseRef{Eq}{04.04}；\CourseRef{SYM}{04.04}；\CourseRef{Alg}{04.04}。
+\SourceLine{BOOK-MECHANICS；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{规范势与电磁场强：问题与图像}\FrameAnchor{04.05-1}
+\footnotesize
+\begin{block}{本节问题}同一电磁场为何能由许多不同的势描述？\end{block}
+\PhysicalFlow{四维势 A\ensuremath{\mu}}{反对称导数 F\ensuremath{\mu}\ensuremath{\nu}}{电场与磁场}{04.05}
+\begin{block}{物理原则}\KnowledgeID{04.05}\quad 非阿贝尔 QCD 会多出交换子项，使胶子自身带色并相互作用。\end{block}
+\SourceLine{BOOK-EM；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{规范势与电磁场强：定义与主公式}\FrameAnchor{04.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{04.05-206af0ae4e} 规范势 & 场强的势函数，含描述冗余\\
+\DefinitionID{04.05-a21bcb4de6} 场强张量 & F\ensuremath{\mu}\ensuremath{\nu}=\ensuremath{\partial}\ensuremath{\mu}A\ensuremath{\nu}-\ensuremath{\partial}\ensuremath{\nu}A\ensuremath{\mu}\\
+\DefinitionID{04.05-322bc3318f} 规范变换 & A\ensuremath{\mu}\ensuremath{\rightarrow}A\ensuremath{\mu}+\ensuremath{\partial}\ensuremath{\mu}\ensuremath{\alpha}，不改变场强\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{04.05} 主公式}\centering\CourseDisplayEquation{F_{\mu\nu}=\partial_\mu A_\nu-\partial_\nu A_\mu,\qquad F_{\nu\mu}=-F_{\mu\nu}}\end{block}
+场强是势的反对称 curl；梯度型规范变化因混合偏导可交换而消失。
+\end{frame}
+
+\begin{frame}[t]{规范势与电磁场强：推导与证据边界}\FrameAnchor{04.05-3}
+\footnotesize
+\DerivationID{04.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{04.05}：
+\begin{enumerate}
+\item 交换 \ensuremath{\mu}、\ensuremath{\nu} 得 F\ensuremath{\nu}\ensuremath{\mu}=\ensuremath{\partial}\ensuremath{\nu}A\ensuremath{\mu}-\ensuremath{\partial}\ensuremath{\mu}A\ensuremath{\nu}。
+\item 与原式逐项比较，立即得到负号。
+\item 代入 A\ensuremath{^{\prime}}=A+\ensuremath{\partial}\ensuremath{\alpha}，新增项 \ensuremath{\partial}\ensuremath{\mu}\ensuremath{\partial}\ensuremath{\nu}\ensuremath{\alpha}-\ensuremath{\partial}\ensuremath{\nu}\ensuremath{\partial}\ensuremath{\mu}\ensuremath{\alpha}=0。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{04.05}\quad Abelian 场强反对称与规范不变；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：场与规范函数二阶连续，混合偏导可交换
+\end{block}
+\BoundaryLine{非阿贝尔交换子项在 V07 单独验证。}
+\end{frame}
+
+\begin{frame}[t]{规范势与电磁场强：计算算法}\FrameAnchor{04.05-4}
+\footnotesize
+\AlgorithmID{04.05}\begin{enumerate}
+\item 在网格上把 A 的分量轴与坐标轴分开记录。
+\item 用同一差分规则计算两个偏导。
+\item 构造 F\ensuremath{\mu}\ensuremath{\nu} 后检查 F\ensuremath{\mu}\ensuremath{\nu}+F\ensuremath{\nu}\ensuremath{\mu}。
+\item 做随机规范变换并比较变换前后场强。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\mu}=\ensuremath{\nu} 时 F\ensuremath{\mu}\ensuremath{\mu}=0。
+\item[\CheckMark] 纯梯度势 A=\ensuremath{\partial}\ensuremath{\alpha} 的场强为零。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{规范势与电磁场强：练习与完整解答}\FrameAnchor{04.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{04.05}}若 A\ensuremath{_{0}}=-Ex、A\ensuremath{_{1}}=0（坐标为 t,x），求 F\ensuremath{_{01}}。\end{block}
+\begin{exampleblock}{\SolutionID{04.05}}F\ensuremath{_{01}}=\ensuremath{\partial}\ensuremath{_{0}}A\ensuremath{_{1}}-\ensuremath{\partial}\ensuremath{_{1}}A\ensuremath{_{0}}=0-(-E)=E。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{04.05-206af0ae4e}；\CourseRef{Eq}{04.05}；\CourseRef{SYM}{04.05}；\CourseRef{Alg}{04.05}。
+\SourceLine{BOOK-EM；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{第 4 卷能力清单}\FrameAnchor{V04-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能使用四矢量和度规
+\item[\CheckMark] 能从作用量导出运动方程
+\item[\CheckMark] 能识别守恒量与场强
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 4 卷来源（1/1）}\FrameAnchor{V04-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-QFT} & An Introduction to Quantum Field Theory（仓库转排本） & 量子场论、规范理论、QCD 和重整化的主教材交叉核验。\\
+\SourceID{BOOK-MECHANICS} & 作用量与经典力学预备课（课程自编） & 变分、Euler--Lagrange 与 Noether 思想。\\
+\SourceID{BOOK-EM} & 规范势与经典场预备课（课程自编） & Abelian 场强与规范冗余。\\
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\bottomrule\end{tabularx}\end{frame}
+

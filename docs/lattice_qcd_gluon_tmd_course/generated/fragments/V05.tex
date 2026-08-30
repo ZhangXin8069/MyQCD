@@ -1,0 +1,362 @@
+\begin{frame}[plain]\FrameAnchor{V05-title}
+\centering
+{\Large\bfseries\color{courseblue}第 5 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 量子态、算符与测量\par}
+\vspace{0.35cm}
+{\large 理解量子振幅、非对易算符、谱和统计解释，为场量子化作准备。\par}
+\vfill
+\CourseID{Tbl}{05.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 5 卷路线图}\FrameAnchor{V05-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+05.01 & 量子态与归一化\\
+05.02 & 算符与对易子\\
+05.03 & 本征态、两能级与时间演化\\
+05.04 & Born 规则与期望值\\
+05.05 & 不确定关系与高斯最小波包\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-QM；BOOK-QFT；BOOK-STAT}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V05-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V01
+\item V02
+\item V03
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能归一化波函数
+\item 能计算简单对易子和期望值
+\item 能解释不确定关系
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：二能级系统的测量概率}\FrameAnchor{V05-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0.0,xmax=1.5708,ymin=0.0,ymax=1.05,xlabel={混合角 $\theta$ / rad},ylabel={概率},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0.0:1.5708,samples=160] {cos(x)^2};
+\addlegendentry{P(0)}
+\addplot[very thick,courseorange,domain=0.0:1.5708,samples=160] {sin(x)^2};
+\addlegendentry{P(1)}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{05.00}：解析概率；两条曲线逐点相加为 1。
+\SourceLine{Born 规则}
+\end{frame}
+
+\begin{frame}[t]{量子态与归一化：问题与图像}\FrameAnchor{05.01-1}
+\footnotesize
+\begin{block}{本节问题}波函数不是普通概率，它怎样给出可测概率？\end{block}
+\PhysicalFlow{复振幅 \ensuremath{\psi}}{模平方 |\ensuremath{\psi}|\ensuremath{^{2}}}{归一化概率密度}{05.01}
+\begin{block}{物理原则}\KnowledgeID{05.01}\quad 整体相位不影响单态概率，但相对相位通过干涉可观测。\end{block}
+\SourceLine{BOOK-QM；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{量子态与归一化：定义与主公式}\FrameAnchor{05.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{05.01-70188cff48} 态矢量 & Hilbert 空间中的归一化向量\\
+\DefinitionID{05.01-a20a5627d2} 波函数 & 态在位置基底中的分量\\
+\DefinitionID{05.01-602d77b627} 归一化 & 总概率等于 1 的约束\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{05.01} 主公式}\centering\CourseDisplayEquation{\psi(x)=\frac{1}{(\pi\sigma^2)^{1/4}}e^{-x^2/(2\sigma^2)},\qquad\int |\psi|^2dx=1}\end{block}
+高斯波包的振幅归一化系数是概率密度高斯系数的平方根。
+\end{frame}
+
+\begin{frame}[t]{量子态与归一化：推导与证据边界}\FrameAnchor{05.01-3}
+\footnotesize
+\DerivationID{05.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{05.01}：
+\begin{enumerate}
+\item 模平方给 |\ensuremath{\psi}|\ensuremath{^{2}}=(\ensuremath{\sqrt{\pi}}\ensuremath{\sigma})\ensuremath{^{-1}} exp(-x\ensuremath{^{2}}/\allowbreak{}\ensuremath{\sigma}\ensuremath{^{2}})。
+\item 换元 u=x/\allowbreak{}\ensuremath{\sigma}，dx=\ensuremath{\sigma}du。
+\item 使用 \ensuremath{\int}exp(-u\ensuremath{^{2}})du=\ensuremath{\sqrt{\pi}}，所有系数相消为 1。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{05.01}\quad 高斯波函数归一化；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：sigma>0；波函数取实高斯
+\end{block}
+\BoundaryLine{有限盒子和离散积分需独立收敛检查。}
+\end{frame}
+
+\begin{frame}[t]{量子态与归一化：计算算法}\FrameAnchor{05.01-4}
+\footnotesize
+\AlgorithmID{05.01}\begin{enumerate}
+\item 先计算离散网格上的未归一化振幅。
+\item 以 \ensuremath{\Sigma}|\ensuremath{\psi}n|\ensuremath{^{2}} \ensuremath{\Delta}x 求离散范数。
+\item 除以范数平方根完成归一化。
+\item 扩大盒子、缩小格距并确认概率和稳定到 1。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\sigma}>0 是可归一化所必需。
+\item[\CheckMark] \ensuremath{\psi}\ensuremath{\rightarrow}e\ensuremath{^{i\phi}}\ensuremath{\psi} 后 |\ensuremath{\psi}|\ensuremath{^{2}}不变。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{量子态与归一化：练习与完整解答}\FrameAnchor{05.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{05.01}}若未归一化波函数为 A exp(-x\ensuremath{^{2}}/\allowbreak{}2\ensuremath{\sigma}\ensuremath{^{2}})，求实正 A。\end{block}
+\begin{exampleblock}{\SolutionID{05.01}}由 A\ensuremath{^{2}}\ensuremath{\sigma}\ensuremath{\sqrt{\pi}}=1 得 A=(\ensuremath{\pi}\ensuremath{\sigma}\ensuremath{^{2}})\ensuremath{^{-1/4}}。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{05.01-70188cff48}；\CourseRef{Eq}{05.01}；\CourseRef{SYM}{05.01}；\CourseRef{Alg}{05.01}。
+\SourceLine{BOOK-QM；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{算符与对易子：问题与图像}\FrameAnchor{05.02-1}
+\footnotesize
+\begin{block}{本节问题}测量次序为何会成为物理问题？\end{block}
+\PhysicalFlow{态 \ensuremath{\psi}}{先作用 A 再作用 B}{比较 BA 与 AB}{05.02}
+\begin{block}{物理原则}\KnowledgeID{05.02}\quad 符号验证必须让算符作用在测试函数上，不能把非对易对象当普通数相消。\end{block}
+\SourceLine{BOOK-QM；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{算符与对易子：定义与主公式}\FrameAnchor{05.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{05.02-73f6fecdd6} 算符 & 把量子态映为量子态的线性规则\\
+\DefinitionID{05.02-2d7193360e} 对易子 & [A,B]=AB-BA\\
+\DefinitionID{05.02-d018182854} 厄米算符 & 满足 A†=A，具有实测量值\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{05.02} 主公式}\centering\CourseDisplayEquation{[\hat x,\hat p]\psi=i\hbar\psi,\qquad \hat p=-i\hbar\frac{d}{dx}}\end{block}
+位置乘法和动量微分不对易，其差对任意可微波函数等于 i\ensuremath{\hbar}。
+\end{frame}
+
+\begin{frame}[t]{算符与对易子：推导与证据边界}\FrameAnchor{05.02-3}
+\footnotesize
+\DerivationID{05.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{05.02}：
+\begin{enumerate}
+\item 计算 x(-i\ensuremath{\hbar}\ensuremath{\psi}\ensuremath{^{\prime}})=-i\ensuremath{\hbar}x\ensuremath{\psi}\ensuremath{^{\prime}}。
+\item 计算 -i\ensuremath{\hbar} d(x\ensuremath{\psi})/\allowbreak{}dx=-i\ensuremath{\hbar}(\ensuremath{\psi}+x\ensuremath{\psi}\ensuremath{^{\prime}})。
+\item 前者减后者，x\ensuremath{\psi}\ensuremath{^{\prime}} 项相消，剩 i\ensuremath{\hbar}\ensuremath{\psi}。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{05.02}\quad 位置—动量对易子；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：以四次多项式代表可微测试函数；p=-i hbar d/\allowbreak{}dx
+\end{block}
+\BoundaryLine{无界算符的定义域问题需泛函分析；离散导数有边界残差。}
+\end{frame}
+
+\begin{frame}[t]{算符与对易子：计算算法}\FrameAnchor{05.02-4}
+\footnotesize
+\AlgorithmID{05.02}\begin{enumerate}
+\item 用函数或线性映射表示算符作用。
+\item 固定乘积 AB 表示先 B 后 A。
+\item 在一组多项式或基矢上测试恒等式。
+\item 离散微分时单独量化边界与截断导致的对易残差。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\hbar}\ensuremath{\rightarrow}0 时对易子趋零，出现经典极限。
+\item[\CheckMark] 常数测试函数仍给 i\ensuremath{\hbar}\ensuremath{\psi}，而非零。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{算符与对易子：练习与完整解答}\FrameAnchor{05.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{05.02}}令 \ensuremath{\psi}=x\ensuremath{^{2}}，直接计算 [x,p]\ensuremath{\psi}。\end{block}
+\begin{exampleblock}{\SolutionID{05.02}}xp\ensuremath{\psi}=-2i\ensuremath{\hbar}x\ensuremath{^{2}}；px\ensuremath{\psi}=-3i\ensuremath{\hbar}x\ensuremath{^{2}}；两者相减为 i\ensuremath{\hbar}x\ensuremath{^{2}}=i\ensuremath{\hbar}\ensuremath{\psi}。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{05.02-73f6fecdd6}；\CourseRef{Eq}{05.02}；\CourseRef{SYM}{05.02}；\CourseRef{Alg}{05.02}。
+\SourceLine{BOOK-QM；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{本征态、两能级与时间演化：问题与图像}\FrameAnchor{05.03-1}
+\footnotesize
+\begin{block}{本节问题}量子态如何在不改变总概率的条件下随时间旋转？\end{block}
+\PhysicalFlow{Hamiltonian H}{相位演化 exp(-iEt/\allowbreak{}\ensuremath{\hbar})}{叠加态产生相对相位}{05.03}
+\begin{block}{物理原则}\KnowledgeID{05.03}\quad 欧氏时间会把振荡相位变成指数衰减，从而投影出最低能态。\end{block}
+\SourceLine{BOOK-QM；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{本征态、两能级与时间演化：定义与主公式}\FrameAnchor{05.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{05.03-4bc666a32d} Hamiltonian & 生成时间演化并代表总能量的算符\\
+\DefinitionID{05.03-59e94040ab} 定态 & 仅积累整体相位的能量本征态\\
+\DefinitionID{05.03-e0d1d949c9} 幺正演化 & 保持内积和总概率的演化\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{05.03} 主公式}\centering\CourseDisplayEquation{U(t)=e^{-iHt/\hbar},\qquad U^\dagger(t)U(t)=I\quad(H=H^\dagger)}\end{block}
+厄米 Hamiltonian 的指数是幺正矩阵。
+\end{frame}
+
+\begin{frame}[t]{本征态、两能级与时间演化：推导与证据边界}\FrameAnchor{05.03-3}
+\footnotesize
+\DerivationID{05.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{05.03}：
+\begin{enumerate}
+\item 由 H†=H 得 U†=exp(+iHt/\allowbreak{}\ensuremath{\hbar})。
+\item 两个指数都是 H 的函数，彼此对易。
+\item 相乘指数相加为 exp(0)=I。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{05.03}\quad 厄米二能级幺正演化；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：E1,E2,t 为实数；H 已在能量基对角化
+\end{block}
+\BoundaryLine{时间依赖 Hamiltonian 需要时间有序指数。}
+\end{frame}
+
+\begin{frame}[t]{本征态、两能级与时间演化：计算算法}\FrameAnchor{05.03-4}
+\footnotesize
+\AlgorithmID{05.03}\begin{enumerate}
+\item 对小厄米矩阵先做谱分解。
+\item 给每个本征分量乘 exp(-iEnt/\allowbreak{}\ensuremath{\hbar})。
+\item 变回原基底并检查范数。
+\item 与直接矩阵指数比较，验证相位约定。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] t=0 时 U=I。
+\item[\CheckMark] 时间反演 U(-t)=U(t)†，演化可逆。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{本征态、两能级与时间演化：练习与完整解答}\FrameAnchor{05.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{05.03}}H=diag(E,-E) 时写出 U(t) 并核对行列式。\end{block}
+\begin{exampleblock}{\SolutionID{05.03}}U=diag(e\ensuremath{^{-iEt/\hbar}},e\ensuremath{^{iEt/\hbar}})，行列式为 1。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{05.03-4bc666a32d}；\CourseRef{Eq}{05.03}；\CourseRef{SYM}{05.03}；\CourseRef{Alg}{05.03}。
+\SourceLine{BOOK-QM；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{Born 规则与期望值：问题与图像}\FrameAnchor{05.04-1}
+\footnotesize
+\begin{block}{本节问题}一个叠加态为何给出确定的概率而非确定的单次结果？\end{block}
+\PhysicalFlow{展开到测量本征基}{振幅 cn}{概率 |cn|\ensuremath{^{2}} 与期望}{05.04}
+\begin{block}{物理原则}\KnowledgeID{05.04}\quad 系综平均不是单次测量；格点路径积分同样依靠大量样本估计期望。\end{block}
+\SourceLine{BOOK-QM；BOOK-STAT}
+\end{frame}
+
+\begin{frame}[t]{Born 规则与期望值：定义与主公式}\FrameAnchor{05.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{05.04-4ef9dc4b97} Born 规则 & 测得本征值的概率等于对应振幅模平方\\
+\DefinitionID{05.04-8661432e8d} 期望值 & 许多同样制备实验的平均\\
+\DefinitionID{05.04-b5fd61bd01} 投影算符 & 选出某个子空间的厄米幂等算符\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{05.04} 主公式}\centering\CourseDisplayEquation{\langle A\rangle=\langle\psi|A|\psi\rangle=\sum_n |c_n|^2a_n}\end{block}
+在 A 的正交本征基中，期望值是本征值的概率加权平均。
+\end{frame}
+
+\begin{frame}[t]{Born 规则与期望值：推导与证据边界}\FrameAnchor{05.04-3}
+\footnotesize
+\DerivationID{05.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{05.04}：
+\begin{enumerate}
+\item 写 |\ensuremath{\psi}\ensuremath{\rangle}=\ensuremath{\Sigma}n cn|n\ensuremath{\rangle}、A|n\ensuremath{\rangle}=an|n\ensuremath{\rangle}。
+\item 代入双重求和 \ensuremath{\langle}\ensuremath{\psi}|A|\ensuremath{\psi}\ensuremath{\rangle}。
+\item 利用 \ensuremath{\langle}m|n\ensuremath{\rangle}=\ensuremath{\delta}mn 消去交叉项，得到 \ensuremath{\Sigma}|cn|\ensuremath{^{2}}an。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{05.04}\quad 二能级 Born 概率与期望；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：态系数为实；一般复系数取模平方；本征值为 +1,-1
+\end{block}
+\BoundaryLine{Born 规则是量子理论公设，SymPy 只核对其代数后果。}
+\end{frame}
+
+\begin{frame}[t]{Born 规则与期望值：计算算法}\FrameAnchor{05.04-4}
+\footnotesize
+\AlgorithmID{05.04}\begin{enumerate}
+\item 检查态的范数 \ensuremath{\Sigma}|cn|\ensuremath{^{2}}=1。
+\item 计算每个结果的概率和本征值。
+\item 求概率加权均值与二阶矩。
+\item 用重复随机抽样验证样本均值按 1/\allowbreak{}\ensuremath{\sqrt{N}} 收敛。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] A=I 时期望值为 1。
+\item[\CheckMark] 全局相位改变 cn 的相位但不改变 |cn|\ensuremath{^{2}}。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Born 规则与期望值：练习与完整解答}\FrameAnchor{05.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{05.04}}态 cos\ensuremath{\theta}|0\ensuremath{\rangle}+sin\ensuremath{\theta}|1\ensuremath{\rangle}，A 的本征值为 \ensuremath{\pm}1，求期望。\end{block}
+\begin{exampleblock}{\SolutionID{05.04}}\ensuremath{\langle}A\ensuremath{\rangle}=cos\ensuremath{^{2}}\ensuremath{\theta}-sin\ensuremath{^{2}}\ensuremath{\theta}=cos2\ensuremath{\theta}。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{05.04-4ef9dc4b97}；\CourseRef{Eq}{05.04}；\CourseRef{SYM}{05.04}；\CourseRef{Alg}{05.04}。
+\SourceLine{BOOK-QM；BOOK-STAT}
+\end{frame}
+
+\begin{frame}[t]{不确定关系与高斯最小波包：问题与图像}\FrameAnchor{05.05-1}
+\footnotesize
+\begin{block}{本节问题}量子不确定性为什么不是仪器粗糙造成的？\end{block}
+\PhysicalFlow{非对易 A、B}{Cauchy--Schwarz}{方差下界}{05.05}
+\begin{block}{物理原则}\KnowledgeID{05.05}\quad 不确定关系约束同一量子态的分布，不是对统计样本不足的描述。\end{block}
+\SourceLine{BOOK-QM；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{不确定关系与高斯最小波包：定义与主公式}\FrameAnchor{05.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{05.05-a9048afb8a} 标准差 & 测量分布宽度的平方根\\
+\DefinitionID{05.05-3273fd3fde} 不确定关系 & 非对易算符方差乘积的下界\\
+\DefinitionID{05.05-c533cc115d} 最小波包 & 饱和位置—动量不确定关系的高斯态\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{05.05} 主公式}\centering\CourseDisplayEquation{\Delta x\,\Delta p\ge\frac{\hbar}{2}}\end{block}
+位置和动量对易子固定为 i\ensuremath{\hbar}，因此任意归一化态都满足该下界。
+\end{frame}
+
+\begin{frame}[t]{不确定关系与高斯最小波包：推导与证据边界}\FrameAnchor{05.05-3}
+\footnotesize
+\DerivationID{05.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{05.05}：
+\begin{enumerate}
+\item 定义 |u\ensuremath{\rangle}=(x-\ensuremath{\langle}x\ensuremath{\rangle})|\ensuremath{\psi}\ensuremath{\rangle}、|v\ensuremath{\rangle}=(p-\ensuremath{\langle}p\ensuremath{\rangle})|\ensuremath{\psi}\ensuremath{\rangle}。
+\item Cauchy--Schwarz 给 \ensuremath{\Delta}x\ensuremath{^{2}}\ensuremath{\Delta}p\ensuremath{^{2}}\ensuremath{\ge}|\ensuremath{\langle}u|v\ensuremath{\rangle}|\ensuremath{^{2}}。
+\item 保留 \ensuremath{\langle}u|v\ensuremath{\rangle} 的虚部，并用 [x,p]=i\ensuremath{\hbar}，得到右侧至少为 \ensuremath{\hbar}\ensuremath{^{2}}/\allowbreak{}4。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{05.05}\quad 高斯最小不确定波包；3/3 项通过；SymPy exact。
+\par\scriptsize 假设：sigma,hbar>0；零均值、零平均动量实高斯
+\end{block}
+\BoundaryLine{一般 Robertson 不确定关系的证明在课件正文；这里只验证饱和实例。}
+\end{frame}
+
+\begin{frame}[t]{不确定关系与高斯最小波包：计算算法}\FrameAnchor{05.05-4}
+\footnotesize
+\AlgorithmID{05.05}\begin{enumerate}
+\item 归一化所给波函数。
+\item 分别计算 x、p 的一阶和二阶矩。
+\item 由二阶中心矩得到 \ensuremath{\Delta}x、\ensuremath{\Delta}p。
+\item 改变宽度参数，检查乘积不低于 \ensuremath{\hbar}/\allowbreak{}2。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 高斯实波包给 \ensuremath{\Delta}x=\ensuremath{\sigma}/\allowbreak{}\ensuremath{\sqrt{2}}、\ensuremath{\Delta}p=\ensuremath{\hbar}/\allowbreak{}(\ensuremath{\sqrt{2}}\ensuremath{\sigma})，恰好饱和。
+\item[\CheckMark] \ensuremath{\sigma}\ensuremath{\rightarrow}\ensuremath{\infty} 时位置不确定性发散而动量不确定性趋零。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{不确定关系与高斯最小波包：练习与完整解答}\FrameAnchor{05.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{05.05}}用上述高斯波函数给出的 \ensuremath{\Delta}x、\ensuremath{\Delta}p 计算乘积。\end{block}
+\begin{exampleblock}{\SolutionID{05.05}}乘积为 (\ensuremath{\sigma}/\allowbreak{}\ensuremath{\sqrt{2}})[\ensuremath{\hbar}/\allowbreak{}(\ensuremath{\sqrt{2}}\ensuremath{\sigma})]=\ensuremath{\hbar}/\allowbreak{}2，与 \ensuremath{\sigma} 无关。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{05.05-a9048afb8a}；\CourseRef{Eq}{05.05}；\CourseRef{SYM}{05.05}；\CourseRef{Alg}{05.05}。
+\SourceLine{BOOK-QM；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{第 5 卷能力清单}\FrameAnchor{V05-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能归一化波函数
+\item[\CheckMark] 能计算简单对易子和期望值
+\item[\CheckMark] 能解释不确定关系
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 5 卷来源（1/1）}\FrameAnchor{V05-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-QM} & 量子力学预备课（课程自编） & 态、算符、测量、谱与不确定关系。\\
+\SourceID{BOOK-QFT} & An Introduction to Quantum Field Theory（仓库转排本） & 量子场论、规范理论、QCD 和重整化的主教材交叉核验。\\
+\SourceID{BOOK-STAT} & Monte Carlo 统计与拟合讲义（课程自编） & 协方差、重采样、覆盖率和模型系统学。\\
+\bottomrule\end{tabularx}\end{frame}
+

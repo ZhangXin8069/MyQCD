@@ -1,0 +1,374 @@
+\begin{frame}[plain]\FrameAnchor{V28-title}
+\centering
+{\Large\bfseries\color{courseblue}第 28 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 多强子谱、Lüscher 方法与共振极点\par}
+\vspace{0.35cm}
+{\large 从有限盒离散能级反推出无限体积散射振幅、耦合道和共振极点。\par}
+\vfill
+\CourseID{Tbl}{28.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 28 卷路线图}\FrameAnchor{V28-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+28.01 & 两粒子运动学与非相互作用能级\\
+28.02 & 弹性 Lüscher 量化条件与相移\\
+28.03 & 有效程展开、散射长度与束缚态\\
+28.04 & moving frame、little group 与分波混合\\
+28.05 & 耦合道振幅、解析延拓与共振极点\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-LQCD；BOOK-QFT；PYQCD-SPECTRUM；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V28-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V27
+\item V23
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能区分单强子与多强子能级
+\item 能由有限体积能量求相移
+\item 能以振幅极点而非能级峰值定义共振
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：有效程展开中的相移}\FrameAnchor{V28-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0.02,xmax=1.0,ymin=-1.5,ymax=0.1,xlabel={$k$（任意单位）},ylabel={$\delta_0$（rad）},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0.02:1.0,samples=160] {atan2(x,-1)};
+\addlegendentry{a0=1,r0=0}
+\addplot[very thick,courseorange,domain=0.02:1.0,samples=160] {atan2(x,-1+0.5*x^2)};
+\addlegendentry{a0=1,r0=1}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{28.00}：由 k cot\ensuremath{\delta}=-1/\allowbreak{}a0+r0k\ensuremath{^{2}}/\allowbreak{}2 画出的示意；分支需按阈值连续选取。
+\SourceLine{Lüscher 量化条件与有效程展开}
+\end{frame}
+
+\begin{frame}[t]{两粒子运动学与非相互作用能级：问题与图像}\FrameAnchor{28.01-1}
+\footnotesize
+\begin{block}{本节问题}有限盒中的散射态为何表现为一串离散能级？\end{block}
+\PhysicalFlow{周期盒量子化单粒子动量}{两粒子总动量固定}{相对动量给离散阈值塔}{28.01}
+\begin{block}{物理原则}\KnowledgeID{28.01}\quad 实际格点应优先使用实测单强子色散或格点色散，不能默认连续公式在粗格点精确。\end{block}
+\SourceLine{BOOK-LQCD；PYQCD-SPECTRUM；LQCDDB}
+\end{frame}
+
+\begin{frame}[t]{两粒子运动学与非相互作用能级：定义与主公式}\FrameAnchor{28.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{28.01-c97abc4b3e} 中心质心能 & 由总四动量不变量 E*\ensuremath{^{2}}=E\ensuremath{^{2}}-P\ensuremath{^{2}} 定义的能量\\
+\DefinitionID{28.01-f94bc640f8} 相对动量 & 质心系中两粒子大小相等方向相反的动量 k*\\
+\DefinitionID{28.01-a45a1e8283} 非相互作用能级 & 把允许盒动量代入两条单粒子色散所得能量\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{28.01} 主公式}\centering\CourseDisplayEquation{E_{\rm free}(\bm P;\bm p)=\sqrt{m_1^2+\bm p^2}+\sqrt{m_2^2+(\bm P-\bm p)^2},\quad \bm p=\frac{2\pi}{L}\bm n}\end{block}
+周期边界把连续动量变成整数格点；相互作用使能级相对这些自由位置移动。
+\end{frame}
+
+\begin{frame}[t]{两粒子运动学与非相互作用能级：推导与证据边界}\FrameAnchor{28.01-3}
+\footnotesize
+\DerivationID{28.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{28.01}：
+\begin{enumerate}
+\item 周期条件 \ensuremath{\psi}(x+L e\_i)=\ensuremath{\psi}(x) 要求 e\ensuremath{^{ip_iL}}=1。
+\item 故 p\_i=2\ensuremath{\pi}n\_i/\allowbreak{}L；总动量也按整数三元组分类。
+\item 无相互作用时 Hamiltonian 可加，能量为两条单粒子色散之和。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{28.01}\quad 两粒子运动学与非相互作用能级；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：P=0、两粒子等质量
+\end{block}
+\BoundaryLine{只验证连续色散运动学；实际格点应使用实测/\allowbreak{}格点色散。}
+\end{frame}
+
+\begin{frame}[t]{两粒子运动学与非相互作用能级：计算算法}\FrameAnchor{28.01-4}
+\footnotesize
+\AlgorithmID{28.01}\begin{enumerate}
+\item 列出目标总动量和 little-group irrep。
+\item 枚举截止范围内所有整数动量分拆 n1+n2=d。
+\item 代入实测单粒子 E\_i(p) 生成自由能级。
+\item 与 GEVP 能级和算符重叠比较，标记可能的多强子主导态。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] P=0、m1=m2 时 E=2sqrt(m\ensuremath{^{2}}+k\ensuremath{^{2}})。
+\item[\CheckMark] L 增大时动量间隔 2\ensuremath{\pi}/\allowbreak{}L 缩小，能级趋密。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{多强子算符池与单强子色散表}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{两粒子运动学与非相互作用能级：练习与完整解答}\FrameAnchor{28.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{28.01}}P=0、m1=m2=m、n=(1,0,0) 时自由能量是多少？\end{block}
+\begin{exampleblock}{\SolutionID{28.01}}两粒子动量相反且大小 2\ensuremath{\pi}/\allowbreak{}L，所以 E=2sqrt[m\ensuremath{^{2}}+(2\ensuremath{\pi}/\allowbreak{}L)\ensuremath{^{2}}]。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{28.01-c97abc4b3e}；\CourseRef{Eq}{28.01}；\CourseRef{SYM}{28.01}；\CourseRef{Alg}{28.01}。
+\SourceLine{BOOK-LQCD；PYQCD-SPECTRUM；LQCDDB}
+\end{frame}
+
+\begin{frame}[t]{弹性 Lüscher 量化条件与相移：问题与图像}\FrameAnchor{28.02-1}
+\footnotesize
+\begin{block}{本节问题}一个有限体积能量怎样变成无限体积相移数据点？\end{block}
+\PhysicalFlow{测得 E(L)}{求质心 k* 与 zeta 函数}{量化条件反解 \ensuremath{\delta}(k*)}{28.02}
+\begin{block}{物理原则}\KnowledgeID{28.02}\quad 此标量式仅适用于静止、单道、S 波主导情形；一般情形必须使用分波混合的行列式条件。\end{block}
+\SourceLine{BOOK-LQCD；BOOK-QCD-LATTICE}
+\end{frame}
+
+\begin{frame}[t]{弹性 Lüscher 量化条件与相移：定义与主公式}\FrameAnchor{28.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{28.02-5a33758afe} Lüscher zeta 函数 & 编码周期盒几何的解析延拓格点和\\
+\DefinitionID{28.02-9517af165d} 相移 & 弹性散射分波振幅的相位 \ensuremath{\delta}\_l\\
+\DefinitionID{28.02-fc8797f63e} 弹性区 & 只有一个两体道开放且三体等非弹性过程可忽略的能区\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{28.02} 主公式}\centering\CourseDisplayEquation{\delta_0(k^*)+\phi(q)=n\pi,\qquad q=\frac{k^*L}{2\pi},\qquad \tan\phi(q)=-\frac{\pi^{3/2}q}{Z_{00}(1;q^2)}}\end{block}
+有限盒边界相位 \ensuremath{\phi} 与物理散射相位 \ensuremath{\delta} 的和必须允许驻波闭合。
+\end{frame}
+
+\begin{frame}[t]{弹性 Lüscher 量化条件与相移：推导与证据边界}\FrameAnchor{28.02-3}
+\footnotesize
+\DerivationID{28.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{28.02}：
+\begin{enumerate}
+\item 盒外相互作用范围内，两体波函数满足自由 Helmholtz 方程。
+\item 其周期 Green 函数按球谐展开，系数由 Z00 决定。
+\item 把该解与无限体积 S 波的 j0 cos\ensuremath{\delta}-n0 sin\ensuremath{\delta} 渐近式匹配。
+\item 系数比给 cot\ensuremath{\delta} 与 Z00 的关系，等价写成 \ensuremath{\delta}+\ensuremath{\phi}=n\ensuremath{\pi}。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{28.02}\quad 弹性 Lüscher 量化条件与相移；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：选择 n=0 的连续相移分支
+\end{block}
+\BoundaryLine{不计算 Z00；一般 moving-frame/\allowbreak{}分波混合需矩阵条件。}
+\end{frame}
+
+\begin{frame}[t]{弹性 Lüscher 量化条件与相移：计算算法}\FrameAnchor{28.02-4}
+\footnotesize
+\AlgorithmID{28.02}\begin{enumerate}
+\item 由拟合能量和单粒子质量求 E* 与 k*。
+\item 高精度计算 Z00(1;q\ensuremath{^{2}})，并在相邻能级间连续选择 n/\allowbreak{}相移分支。
+\item 传播能量协方差到 k cot\ensuremath{\delta} 或 \ensuremath{\delta}。
+\item 跨体积、总动量和 irrep 联合拟合振幅参数化。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\delta}=0 时能级回到自由盒条件 \ensuremath{\phi}=n\ensuremath{\pi}。
+\item[\CheckMark] 只纳入低于首个未建模非弹性阈值的能级。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{Zeta 函数 + bootstrap 能级逐样本反演}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{弹性 Lüscher 量化条件与相移：练习与完整解答}\FrameAnchor{28.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{28.02}}若某能级给 \ensuremath{\phi}=-0.35\ensuremath{\pi}，选择连续分支 n=0，则 \ensuremath{\delta} 是多少？\end{block}
+\begin{exampleblock}{\SolutionID{28.02}}\ensuremath{\delta}=-\ensuremath{\phi}=0.35\ensuremath{\pi}；若换 n 会相差 \ensuremath{\pi}，但物理分支需由阈值连续性固定。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{28.02-5a33758afe}；\CourseRef{Eq}{28.02}；\CourseRef{SYM}{28.02}；\CourseRef{Alg}{28.02}。
+\SourceLine{BOOK-LQCD；BOOK-QCD-LATTICE}
+\end{frame}
+
+\begin{frame}[t]{有效程展开、散射长度与束缚态：问题与图像}\FrameAnchor{28.03-1}
+\footnotesize
+\begin{block}{本节问题}阈值附近怎样用少数参数概括相互作用？\end{block}
+\PhysicalFlow{低能解析性}{展开 k cot\ensuremath{\delta}}{散射长度/\allowbreak{}有效程控制阈值}{28.03}
+\begin{block}{物理原则}\KnowledgeID{28.03}\quad 符号约定在不同文献可能把 1/\allowbreak{}a0 号翻转；必须连同振幅定义和束缚态判据一起固定。\end{block}
+\SourceLine{BOOK-QFT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{有效程展开、散射长度与束缚态：定义与主公式}\FrameAnchor{28.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{28.03-72859a5b05} 散射长度 & S 波阈值振幅的长度尺度 a0\\
+\DefinitionID{28.03-1cdfe96583} 有效程 & k cot\ensuremath{\delta} 的 k\ensuremath{^{2}} 首个修正系数 r0\\
+\DefinitionID{28.03-2b2a8effe3} 束缚态极点 & 物理片 k=i\ensuremath{\kappa}、\ensuremath{\kappa}>0 上的振幅极点\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{28.03} 主公式}\centering\CourseDisplayEquation{k\cot\delta_0(k)=-\frac1{a_0}+\frac12r_0k^2+O(k^4),\qquad t_0(k)\propto\frac1{k\cot\delta_0-ik}}\end{block}
+短程相互作用使 k cot\ensuremath{\delta} 在 k\ensuremath{^{2}}=0 附近解析；分母在复 k 平面的零点定义极点。
+\end{frame}
+
+\begin{frame}[t]{有效程展开、散射长度与束缚态：推导与证据边界}\FrameAnchor{28.03-3}
+\footnotesize
+\DerivationID{28.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{28.03}：
+\begin{enumerate}
+\item 幺正性固定弹性逆振幅虚部 Im t\ensuremath{^{-1}}=-k。
+\item 剩余实部 k cot\ensuremath{\delta} 在无近邻左手奇点时可对 k\ensuremath{^{2}} Taylor 展开。
+\item 保留常数和一次 k\ensuremath{^{2}} 项即有效程展开。
+\item 解析延拓 k=i\ensuremath{\kappa} 后令分母为零，可判断束缚/\allowbreak{}虚态。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{28.03}\quad 有效程展开、散射长度与束缚态；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：忽略有效程；采用课程的散射长度符号约定
+\end{block}
+\BoundaryLine{近阈值参数化的收敛和 Riemann 片层需物理论证。}
+\end{frame}
+
+\begin{frame}[t]{有效程展开、散射长度与束缚态：计算算法}\FrameAnchor{28.03-4}
+\footnotesize
+\AlgorithmID{28.03}\begin{enumerate}
+\item 把每个重采样能级转换成 k\ensuremath{^{2}} 与 k cot\ensuremath{\delta}。
+\item 在同一重采样内拟合 a0、r0 并保留协方差。
+\item 扫描能区和 k\ensuremath{^{4}} 项评估截断。
+\item 将拟合振幅解析延拓，报告极点位置、留数与片层。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] a0\ensuremath{\rightarrow}0 对应弱散射但参数化需谨慎处理 1/\allowbreak{}a0。
+\item[\CheckMark] 阈值附近出现浅束缚态时自然尺度幂计数可能失效。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{相关拟合 kcotdelta(k\ensuremath{^{2}}) 与复平面极点求根}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{有效程展开、散射长度与束缚态：练习与完整解答}\FrameAnchor{28.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{28.03}}忽略 r0，极点条件在 k=i\ensuremath{\kappa} 时给 \ensuremath{\kappa} 与 a0 什么关系？\end{block}
+\begin{exampleblock}{\SolutionID{28.03}}分母 -1/\allowbreak{}a0-ik 在 k=i\ensuremath{\kappa} 时为 -1/\allowbreak{}a0+\ensuremath{\kappa}，故 \ensuremath{\kappa}=1/\allowbreak{}a0；在本号约定下浅束缚态要求 a0>0。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{28.03-72859a5b05}；\CourseRef{Eq}{28.03}；\CourseRef{SYM}{28.03}；\CourseRef{Alg}{28.03}。
+\SourceLine{BOOK-QFT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{moving frame、little group 与分波混合：问题与图像}\FrameAnchor{28.04-1}
+\footnotesize
+\begin{block}{本节问题}总动量不为零时，为什么一个格点 irrep 同时看到多个 l？\end{block}
+\PhysicalFlow{P\ensuremath{\ne}0 降低旋转对称}{SO(3) 分波下沉到 little group}{有限体积矩阵条件耦合分波}{28.04}
+\begin{block}{物理原则}\KnowledgeID{28.04}\quad 截断 lmax 是模型假设；必须加入更高分波或不同 irrep 检查其影响。\end{block}
+\SourceLine{BOOK-GROUP；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{moving frame、little group 与分波混合：定义与主公式}\FrameAnchor{28.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{28.04-d017a8a347} moving frame & 总三动量非零的有限体积参考系\\
+\DefinitionID{28.04-7db8936019} little group & 保持给定总动量方向不变的格点旋转子群\\
+\DefinitionID{28.04-e6f0bc8316} 分波混合 & 同一有限体积 irrep 中容纳多个连续角动量 l\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{28.04} 主公式}\centering\CourseDisplayEquation{\det\!\left[K^{-1}(E^*)-B^{(\bm P,\Lambda)}(E^*,L)\right]=0}\end{block}
+无限体积 K 矩阵承载动力学，已知盒矩阵 B 承载体积、总动量、irrep 和分波混合。
+\end{frame}
+
+\begin{frame}[t]{moving frame、little group 与分波混合：推导与证据边界}\FrameAnchor{28.04-3}
+\footnotesize
+\DerivationID{28.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{28.04}：
+\begin{enumerate}
+\item 固定 P 后只有满足 RP=P 的旋转仍是对称，得到 little group。
+\item 连续球谐 Ylm 限制到该群并分解到 \ensuremath{\Lambda}。
+\item 周期 Green 函数在同一 \ensuremath{\Lambda} 内产生 l、l' 非对角盒矩阵。
+\item 非平凡解存在要求线性系统行列式为零。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{28.04}\quad moving frame、little group 与分波混合；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：两分波无非对角混合的有限维代理
+\end{block}
+\BoundaryLine{真实盒矩阵 B、little group 和 lmax 截断需数值实现。}
+\end{frame}
+
+\begin{frame}[t]{moving frame、little group 与分波混合：计算算法}\FrameAnchor{28.04-4}
+\footnotesize
+\AlgorithmID{28.04}\begin{enumerate}
+\item 为每个能级记录 P、\ensuremath{\Lambda}、行和使用的 operator subduction。
+\item 计算对应 B 矩阵并固定 zeta/\allowbreak{}boost 约定。
+\item 选满足幺正和解析性的 K(E) 参数化联合拟合所有能级。
+\item 增加 lmax、删去单个 irrep/\allowbreak{}体积并比较极点稳定性。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] P=0 且只保留 l=0 时退化为标量 Lüscher 条件。
+\item[\CheckMark] 不同基底下同时变换 K 与 B 不应改变 determinant 零点。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{little-group subduction + determinant residual}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{moving frame、little group 与分波混合：练习与完整解答}\FrameAnchor{28.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{28.04}}若某 \ensuremath{\Lambda} 允许 l=0 和 l=2，仅拟合 l=0 需要报告什么？\end{block}
+\begin{exampleblock}{\SolutionID{28.04}}必须明确 l=2=0 是截断假设，并通过加入 l=2 参数或其他更敏感 irrep 给出系统误差。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{28.04-d017a8a347}；\CourseRef{Eq}{28.04}；\CourseRef{SYM}{28.04}；\CourseRef{Alg}{28.04}。
+\SourceLine{BOOK-GROUP；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{耦合道振幅、解析延拓与共振极点：问题与图像}\FrameAnchor{28.05-1}
+\footnotesize
+\begin{block}{本节问题}共振为何应由复能量极点定义，而不是由某个盒中能级定义？\end{block}
+\PhysicalFlow{多个开放通道共享量子数}{幺正矩阵振幅拟合盒谱}{跨支切解析延拓找极点}{28.05}
+\begin{block}{物理原则}\KnowledgeID{28.05}\quad 极点片层、通道阈值和归一化必须同时报告；Breit--Wigner 只在孤立窄共振附近近似。\end{block}
+\SourceLine{BOOK-QFT；BOOK-LQCD；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{耦合道振幅、解析延拓与共振极点：定义与主公式}\FrameAnchor{28.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{28.05-3ba1189983} 耦合道 & 可相互转化且量子数相同的多个两体通道\\
+\DefinitionID{28.05-c83423fdd7} Riemann sheet & 跨越各通道动量支切后定义的解析片层\\
+\DefinitionID{28.05-440cdaa1ef} 共振极点 & 非物理片上散射振幅的孤立极点 E\_p=M-i\ensuremath{\Gamma}/\allowbreak{}2\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{28.05} 主公式}\centering\CourseDisplayEquation{t(E)=\left[K^{-1}(E)-i\rho(E)\right]^{-1},\qquad \det t^{-1}(E_p)=0,\quad E_p=M-\frac{i}{2}\Gamma}\end{block}
+实轴上 K 可取实对称以满足两体幺正；复平面零点给参数化较不依赖的质量和宽度定义。
+\end{frame}
+
+\begin{frame}[t]{耦合道振幅、解析延拓与共振极点：推导与证据边界}\FrameAnchor{28.05-3}
+\footnotesize
+\DerivationID{28.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{28.05}：
+\begin{enumerate}
+\item 多通道幺正关系给 Im t\ensuremath{^{-1}}=-\ensuremath{\rho}。
+\item 把其余实解析部分定义为 K\ensuremath{^{-1}}，得到 t=[K\ensuremath{^{-1}}-i\ensuremath{\rho}]\ensuremath{^{-1}}。
+\item 有限体积谱通过 det[K\ensuremath{^{-1}}-B]=0 约束同一 K。
+\item 拟合后把每个通道动量延拓到指定片层，求 det t\ensuremath{^{-1}}=0。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{28.05}\quad 耦合道振幅、解析延拓与共振极点；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：M、\ensuremath{\Gamma} 为正实数
+\end{block}
+\BoundaryLine{只验证极点参数定义；耦合道幺正、解析延拓和留数需完整振幅。}
+\end{frame}
+
+\begin{frame}[t]{耦合道振幅、解析延拓与共振极点：计算算法}\FrameAnchor{28.05-4}
+\footnotesize
+\AlgorithmID{28.05}\begin{enumerate}
+\item 选多个满足解析性与幺正性的 K 参数化。
+\item 对每个 bootstrap 样本联合拟合全部体积/\allowbreak{}irrep/\allowbreak{}通道能级。
+\item 在相关片层搜索极点并计算留数耦合。
+\item 比较参数化、能区、分波截断和遗漏三体道造成的系统漂移。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 通道耦合置零时矩阵式应分解为独立单道。
+\item[\CheckMark] 极窄极限 \ensuremath{\Gamma}\ensuremath{\rightarrow}0 时极点靠近实轴，但有限盒能级仍随 L 移动。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{有限体积谱全局拟合 + 复能量 root/\allowbreak{}eigenvalue continuation}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{耦合道振幅、解析延拓与共振极点：练习与完整解答}\FrameAnchor{28.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{28.05}}极点 E\_p=1.50-0.06i GeV 对应的宽度是多少？\end{block}
+\begin{exampleblock}{\SolutionID{28.05}}由 E\_p=M-i\ensuremath{\Gamma}/\allowbreak{}2 得 \ensuremath{\Gamma}=0.12 GeV，质量 M=1.50 GeV。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{28.05-3ba1189983}；\CourseRef{Eq}{28.05}；\CourseRef{SYM}{28.05}；\CourseRef{Alg}{28.05}。
+\SourceLine{BOOK-QFT；BOOK-LQCD；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{第 28 卷能力清单}\FrameAnchor{V28-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能区分单强子与多强子能级
+\item[\CheckMark] 能由有限体积能量求相移
+\item[\CheckMark] 能以振幅极点而非能级峰值定义共振
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 28 卷来源（1/2）}\FrameAnchor{V28-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\SourceID{BOOK-QFT} & An Introduction to Quantum Field Theory（仓库转排本） & 量子场论、规范理论、QCD 和重整化的主教材交叉核验。\\
+\SourceID{PYQCD-SPECTRUM} & PyQCD 谱学技能 & 谱分解、边界项、GEVP 与能级指认。\\
+\SourceID{PYQCD-STATISTICS} & PyQCD 统计技能 & 自相关、重采样、协方差和拟合验证。\\
+\SourceID{LQCDDB} & lqcddb distillation 与谱学技能 & distillation、perambulator、GEVP、多强子缩并与独立审计边界。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 28 卷来源（2/2）}\FrameAnchor{V28-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-QCD-LATTICE} & Quantum Chromodynamics on the Lattice（仓库转排本） & 格点 QCD 形式体系、算法和系统误差的深入交叉核验。\\
+\SourceID{BOOK-GROUP} & 连续群与生成元预备课（课程自编） & 从旋转群过渡到 SU(2)/\allowbreak{}SU(3)。\\
+\bottomrule\end{tabularx}\end{frame}
+

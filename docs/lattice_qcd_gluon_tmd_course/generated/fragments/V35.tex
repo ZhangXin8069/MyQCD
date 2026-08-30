@@ -1,0 +1,390 @@
+\begin{frame}[plain]\FrameAnchor{V35-title}
+\centering
+{\Large\bfseries\color{courseblue}第 35 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 研究级联合设计、可复现审计与最终资格考核\par}
+\vspace{0.35cm}
+{\large 把 34 卷知识汇成可执行、可证伪、可复现的梯度流核子非极化胶子 \ensuremath{f_1^{g[-,-]}} 研究方案并通过资格考核。\par}
+\vfill
+\CourseID{Tbl}{35.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 35 卷路线图}\FrameAnchor{V35-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+35.01 & 从 \ensuremath{f_1^{g[-,-]}} estimand 到四级证据状态、DAG 与停止门\\
+35.02 & flow window 与 a、\ensuremath{\tau}、L、Pz、ell 的分阶段层级极限\\
+35.03 & 有限 Ioffe-time 数据的 Fourier 逆问题\\
+35.04 & 可复现管线、数据谱系与审计\\
+35.05 & 最终资格考核：按四级证据独立实现 \ensuremath{f_1^{g[-,-]}} 链\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{PYQCD-TMD；PYQCD-TMD-VALIDATION；PYQCD-STATISTICS；PYQCD-PIPELINE；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V35-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V20
+\item V27
+\item V29
+\item V32
+\item V34
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能预注册 \ensuremath{f_1^{g[-,-]}} estimand 与全链停止条件
+\item 能完成层级统计/\allowbreak{}逆问题/\allowbreak{}系统误差联合推断
+\item 能从空仓配置实现、验证并审计第一版研究级计算
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：总误差的资源分配示意}\FrameAnchor{V35-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0.25,xmax=8,ymin=0,ymax=2.1,xlabel={归一化计算成本 $C$},ylabel={误差 $\sigma$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0.25:8,samples=160] {1/sqrt(x)};
+\addlegendentry{Monte Carlo 统计}
+\addplot[very thick,courseorange,domain=0.25:8,samples=160] {sqrt(1/x+0.09)};
+\addlegendentry{固定系统下限}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{35.00}：只增加样本时统计误差按 C\ensuremath{^{-1/2}}，系统下限不消失；研究设计必须同时买信息与控制偏差。
+\SourceLine{误差预算与资源设计}
+\end{frame}
+
+\begin{frame}[t]{从 \ensuremath{f_1^{g[-,-]}} estimand 到四级证据状态、DAG 与停止门：问题与图像}\FrameAnchor{35.01-1}
+\footnotesize
+\begin{block}{本节问题}开始生成昂贵组态前，怎样防止把 beam、CS 比值、quasi-TMD 和标准 \ensuremath{f_1^{g[-,-]}} 混成同一个结果？\end{block}
+\PhysicalFlow{固定自旋平均、f1 投影、[-,-]、staple\_sign=-1 与完整 estimand}{为四种物理状态画分叉 DAG}{每条升级边预设必要证据}{35.01}
+\begin{block}{物理原则}\KnowledgeID{35.01}\quad 四级不是必然线性：CS ratio 是从状态 1 分出的 estimand，不要求先单独测得 soft，也不会自动产生状态 3。固定 \ensuremath{\tau}>0 的 continuum 必须先于 small-flow-time matching/\allowbreak{}\ensuremath{\tau}\ensuremath{\rightarrow}0；部分 Pz、ell 极限以因子化和幂修正拟合实现，而非在代码中把参数直接设为无穷。\end{block}
+\SourceLine{PYQCD-TMD；PYQCD-TMD-VALIDATION；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{从 \ensuremath{f_1^{g[-,-]}} estimand 到四级证据状态、DAG 与停止门：定义与主公式}\FrameAnchor{35.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{35.01-c577e28114} estimand & 本课程固定为自旋平均核子中的非极化胶子 \ensuremath{f_1^{g[-,-]}}，并完整指定算符、past-pointing link class、scheme、\ensuremath{\mu}/\allowbreak{}\ensuremath{\zeta}、support 与极限次序\\
+\DefinitionID{35.01-41773dd5c2} evidence-state DAG & 从组态、几何和相关函数到各证据状态的有向无环依赖图；节点的最高可宣称对象由实际完成的重整化、抵消、匹配和极限决定，而不是文件名或绘图标签\\
+\DefinitionID{35.01-8f933d7984} stopping gate & 必要输入、理论前提或验证不变量未通过时，阻止结果升级到下一级的规则\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{35.01} 主公式}\centering\CourseDisplayEquation{\begin{gathered}\underbrace{B_B^{[-,-]}\to B_R^{{\rm flow},[-,-]}}_{\text{1: quasi-beam}},\qquad B_R^{{\rm flow},[-,-]}\xrightarrow{\ P_z\ \text{ratio}\ }R_{12}\to K_{\rm CS}\quad\text{(2)},\\ B_R^{{\rm flow},[-,-]}\xrightarrow{\ /\sqrt{S_{\mathcal S}}\ }\widetilde f_{1,\rm q}^{g[-,-],[\mathcal S]}\quad\text{(3)}\xrightarrow{\ C_{\mathcal S\to std}\ }f_1^{g[-,-]}(x,b_T;\mu,\zeta)\quad\text{(4)},\\ \lim_{\tau\to0}^{C_\Gamma\ {\rm match}}\left[\lim_{a\to0}\,B_R^{{\rm flow},[-,-]}(a,\tau)\right]_{\tau>0}\end{gathered}}\end{block}
+状态 1 是裸或仅 UV/\allowbreak{}mixing-renormalized quasi-beam；状态 2 是有理论证明的 reduced ratio/\allowbreak{}CS-kernel 提取，其中共同 soft 可抵消；状态 3 是按具体 S 方案补齐 quasi-soft/\allowbreak{}rapidity 定义的 scheme-closed quasi-TMD；状态 4 才是经 flow-to-target、LaMET/\allowbreak{}短距 matching 与 \ensuremath{\mu}/\allowbreak{}\ensuremath{\zeta} 演化得到的标准 \ensuremath{f_1^{g[-,-]}}。
+\end{frame}
+
+\begin{frame}[t]{从 \ensuremath{f_1^{g[-,-]}} estimand 到四级证据状态、DAG 与停止门：推导与证据边界}\FrameAnchor{35.01-3}
+\footnotesize
+\DerivationID{35.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{35.01}：
+\begin{enumerate}
+\item 从可观测散射定义状态 4 的 operator、polarization、scheme、\ensuremath{\mu}、\ensuremath{\zeta} 和 support，再反向列出所需 matching theorem。
+\item 把 flowed quasi-beam 节点分叉：一支用同方案多 Pz ratio 到 KCS；另一支只有在指定 quasi-soft、rapidity regulator 与 overlap subtraction 后到 Ftilde[S]，再经 conversion 到 Fstd。
+\item 为每条边登记输入、理论假设、nuisance、可逆性和验证：例如 soft 的 Pz 独立性只授权 ratio 抵消，不授权把 soft 节点标成 measured。
+\item 把 a\ensuremath{\rightarrow}0|\ensuremath{\tau} fixed、small-flow matching/\allowbreak{}\ensuremath{\tau}\ensuremath{\rightarrow}0、Pz/\allowbreak{}ell 幂修正、L\ensuremath{\rightarrow}\ensuremath{\infty} 写成有序节点；只有父节点达到相应证据状态，子节点才可升级。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{35.01}\quad 从 \ensuremath{f_1^{g[-,-]}} estimand 到四级证据状态、DAG 与停止门；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：可分离领先修正代理；按预注册顺序取极限
+\end{block}
+\BoundaryLine{实际 estimand 还需 scheme、soft、匹配、交叉项和可识别性。}
+\end{frame}
+
+\begin{frame}[t]{从 \ensuremath{f_1^{g[-,-]}} estimand 到四级证据状态、DAG 与停止门：计算算法}\FrameAnchor{35.01-4}
+\footnotesize
+\AlgorithmID{35.01}\begin{enumerate}
+\item 写 machine-readable manifest，为 artifact 强制 state 枚举 1--4 和 scheme 字段。
+\item 给每个 gate 准备合成真值、故障注入与真实数据检查；缺 soft、缺 conversion 或只有单 Pz 时验证器必须拒绝对应升级。
+\item 在看最终结果前冻结主要模型族、flow window、Pz pairs、排除与降级规则。
+\item 偏离预注册时追加带理由 amendment，保留旧状态而非覆盖。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 删除必要父节点后 DAG 应显示不可达状态，绝不能以 S=1、单位 matching 或零填补静默越级。
+\item[\CheckMark] 同一数组可在不同 scheme 下数值不同；没有 scheme 标签就不是完整 estimand。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{analysis manifest + validation DAG + evidence-state machine}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{从 \ensuremath{f_1^{g[-,-]}} estimand 到四级证据状态、DAG 与停止门：练习与完整解答}\FrameAnchor{35.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{35.01}}没有单独 soft 数据，但同方案 Pz 比值中的共同 soft 抵消已有因子化证明；最高可报告哪一级？\end{block}
+\begin{exampleblock}{\SolutionID{35.01}}可报告状态 2 的 reduced ratio/\allowbreak{}CS-kernel 结果；不能称状态 3 的 scheme-closed quasi-TMD，更不能称状态 4 的 standard TMD。若连抵消证明也没有，则只能停在状态 1 或接口原型。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{35.01-c577e28114}；\CourseRef{Eq}{35.01}；\CourseRef{SYM}{35.01}；\CourseRef{Alg}{35.01}。
+\SourceLine{PYQCD-TMD；PYQCD-TMD-VALIDATION；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{flow window 与 a、\ensuremath{\tau}、L、Pz、ell 的分阶段层级极限：问题与图像}\FrameAnchor{35.02-1}
+\footnotesize
+\begin{block}{本节问题}怎样联合传播相关系统误差，同时不把本来有次序的 a\ensuremath{\rightarrow}0 与 \ensuremath{\tau}\ensuremath{\rightarrow}0 误当成一个线性拟合？\end{block}
+\PhysicalFlow{让整条 staple 远离源汇/\allowbreak{}边界，并在固定物理 \ensuremath{\tau} 先取 continuum}{用完整非局域 C\ensuremath{\Gamma} 转换 continuum flowed quantity}{再联合传播有限 L、Pz、ell 与模型误差}{35.02}
+\begin{block}{物理原则}\KnowledgeID{35.02}\quad 有限 \ensuremath{\tau} 定义 flowed scheme，不自动解决 rapidity divergence、Wilson-line self energy、quasi-soft subtraction 或 MSbar conversion。对 finite-staple 直接套局域 \ensuremath{C_j(\tau,\mu)}，或把原始数据同时拟合成 \ensuremath{h_*=h+c_a a^2+c_\tau\tau}，会漏掉路径/\allowbreak{}端点/\allowbreak{}cusp/\allowbreak{}mixing 的 \ensuremath{C_{\Gamma j}}、\ensuremath{a^2/\tau}、\ensuremath{\tau/d_\Gamma^2} 和 matching 对数；若 \ensuremath{C_{\Gamma j}} 未知，结果必须停在 finite-flow prototype。\end{block}
+\SourceLine{BOOK-STAT；DOC-EXTRAPOLATION；PYQCD-STATISTICS；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{flow window 与 a、\ensuremath{\tau}、L、Pz、ell 的分阶段层级极限：定义与主公式}\FrameAnchor{35.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{35.02-2c8cb7e4b4} flow window & 以 \ensuremath{r_\tau=\sqrt{8\tau}} 为平滑半径，并要求 \ensuremath{a\ll r_\tau\ll d_\Gamma}；\ensuremath{d_\Gamma} 由整条路径到源、汇、时间边界的最短距离及非零几何尺度共同限定，且扣除源汇 smearing 支撑\\
+\DefinitionID{35.02-13477d0039} nonlocal flow conversion & finite-staple 使用依赖 \ensuremath{z,b_T,\ell,r_\tau}、端点、cusp、mixing 与方案的 \ensuremath{C_{\Gamma j}}；局域 \ensuremath{C_j} 不能替代它\\
+\DefinitionID{35.02-1e7b0746f0} hierarchical model & 保留逐组态相关性，让多系综、几何和共同 nuisance 共享物理参数，并显式容纳模型偏差\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{35.02} 主公式}\centering\CourseDisplayEquation{\begin{gathered}r_\tau\equiv\sqrt{8\tau},\qquad d_\Gamma=\min\{b_T,|z|,\ell,\Lambda_{\rm QCD}^{-1},d_{\Gamma s},d_{\Gamma f},d_{\Gamma\partial_t}\}_{>0},\qquad a\ll r_\tau\ll d_\Gamma,\\ h_\Gamma(a,\tau)=h_\Gamma^{\rm flow}(\tau)+c_{a\tau}\dfrac{a^2}{8\tau}+c_{a\Gamma}\dfrac{a^2}{d_\Gamma^2}+\cdots,\\ h_\Gamma^{\rm flow}(z,b_T,\ell,\tau)=\sum_j C_{\Gamma j}(z,b_T,\ell,r_\tau;\mu,\mathcal S)\otimes h_j^{\rm target}(z,b_T,\ell;\mu,\mathcal S)+O\!\left(\dfrac{\tau}{d_\Gamma^2},\tau\Lambda_{\rm QCD}^2\right)\end{gathered}}\end{block}
+第一步在每个固定物理 \ensuremath{\tau>0}、固定几何下用多 \ensuremath{a} 控制 \ensuremath{a^2/\tau} 等离散误差并取 continuum；第二步才对 continuum \ensuremath{h_\Gamma^{\rm flow}} 使用已知的完整 \ensuremath{C_{\Gamma j}} 做 small-flow matching/\allowbreak{}\ensuremath{\tau\to0}。距离按整条路径的支撑而不是仅按插入点计算；周期时间方向还须检查绕回污染，开放边界则显式使用 \ensuremath{d_{\Gamma\partial_t}}。\ensuremath{b_T=0}、\ensuremath{z=0}、\ensuremath{\ell} 或某个距离不参与该观测量时从 \ensuremath{d_\Gamma} 的正集合删去，不能让形式上的零长度毁掉窗口。
+\end{frame}
+
+\begin{frame}[t]{flow window 与 a、\ensuremath{\tau}、L、Pz、ell 的分阶段层级极限：推导与证据边界}\FrameAnchor{35.02-3}
+\footnotesize
+\DerivationID{35.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{35.02}：
+\begin{enumerate}
+\item 在固定 \ensuremath{\tau}、bT、z、ell、Pz、L 的 physical matching points 上对齐多个格距；逐几何计算整条 \ensuremath{\Gamma} 到源、汇、边界的安全距离，先检查 a/\allowbreak{}r\ensuremath{\tau} 足够小且 r\ensuremath{\tau}/\allowbreak{}d\ensuremath{\Gamma} 足够小，再以 a\ensuremath{^{2}}/\allowbreak{}\ensuremath{\tau}、a\ensuremath{^{2}}/\allowbreak{}d\ensuremath{\Gamma}\ensuremath{^{2}} 及 action-specific Symanzik 项做 continuum 模型平均。
+\item 只把 continuum h\ensuremath{\Gamma}flow(\ensuremath{\tau}) 送入非局域 small-flow 转换。逐项登记 C\ensuremath{\Gamma}j 对 z、bT、ell、r\ensuremath{\tau}、端点、cusp、mixing 与方案的依赖；若文献或计算没有闭合该核就触发停止门，不得用局域 OPE 覆盖。
+\item 在每个合法 flow/\allowbreak{}matching 分支中再加入 exp(-m\ensuremath{\pi}L)/\allowbreak{}(m\ensuremath{\pi}L)\ensuremath{^{3/2}}、\ensuremath{\Lambda}\ensuremath{^{2}}/\allowbreak{}Pz\ensuremath{^{2}}、有限 ell 与交叉项，并保留共享 scale、Z、matching-order nuisance。
+\item 两个 Pz 只形成一个 CS 差分；若模型要辨识 plateau 或 1/\allowbreak{}Pz\ensuremath{^{2}} 项，至少布置三个 Pz 或多个独立 pair，并用留一 Pz 预测检验。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{35.02}\quad flow window 与 a、\ensuremath{\tau}、L、Pz、ell 的分阶段层级极限；7/7 项通过；SymPy exact。
+\par\scriptsize 假设：两项标准差取正、rho=0 或 1；a,tau,d\_Gamma>0，先在固定正 tau 取 a->0；d\_Gamma 取整条路径到源、汇、时间边界及非零几何尺度的最小值
+\end{block}
+\BoundaryLine{精确验证协方差两极端、有序极限和三类安全距离都能主导 flow window；不证明非局域 C\_Gamma 的路径、端点、cusp、mixing 或方案转换，缺核时仍须停止在 finite-flow prototype。}
+\end{frame}
+
+\begin{frame}[t]{flow window 与 a、\ensuremath{\tau}、L、Pz、ell 的分阶段层级极限：计算算法}\FrameAnchor{35.02-4}
+\footnotesize
+\AlgorithmID{35.02}\begin{enumerate}
+\item 由 shared bootstrap/\allowbreak{}jackknife 构造跨 z、bT、Pz、\ensuremath{\tau}、ell 和 ensemble 的协方差，禁止零填缺失点。
+\item 分别用 mock data 检验固定 \ensuremath{\tau} continuum 和 small-flow matching 的可识别性/\allowbreak{}覆盖，再组合成有序层级 DAG。
+\item 对 flow window、Symanzik 阶、LaMET/\allowbreak{}ell 修正与交叉项做后验预测和留一系综/\allowbreak{}动量预测。
+\item 发布每个中间 flowed continuum、conversion、最终状态和完整相关矩阵，使极限次序可审计。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 若不存在同时满足 \ensuremath{a\ll r_\tau\ll d_\Gamma} 的窗口，应降级或增加更细 a/\allowbreak{}更合适 \ensuremath{\tau}，而非强行外推。
+\item[\CheckMark] 删去最粗 a、窗口边缘 \ensuremath{\tau}、最低 Pz 后结果应在预注册容差内稳定。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{shared-resample covariance + hierarchical multi-limit inference}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{flow window 与 a、\ensuremath{\tau}、L、Pz、ell 的分阶段层级极限：练习与完整解答}\FrameAnchor{35.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{35.02}}为什么不能把原始多 a、多 \ensuremath{\tau} 数据直接拟合为 h*=h+ca a\ensuremath{^{2}}+c\ensuremath{\tau}\ensuremath{\tau} 并同时令 a、\ensuremath{\tau}\ensuremath{\rightarrow}0？\end{block}
+\begin{exampleblock}{\SolutionID{35.02}}因为 flowed 数据含 a\ensuremath{^{2}}/\allowbreak{}\ensuremath{\tau} 离散项、\ensuremath{\tau}/\allowbreak{}d\ensuremath{\Gamma}\ensuremath{^{2}} 幂修正和 C\ensuremath{\Gamma}j 的路径、端点、cusp、mixing 与 matching 对数；不同联合路径不等价。应先验证整条 \ensuremath{\Gamma} 满足 a\ensuremath{\ll}sqrt(8\ensuremath{\tau})\ensuremath{\ll}d\ensuremath{\Gamma}，在固定物理 \ensuremath{\tau} 取 a\ensuremath{\rightarrow}0，再用完整 C\ensuremath{\Gamma}j 做 small-flow matching/\allowbreak{}\ensuremath{\tau}\ensuremath{\rightarrow}0；C\ensuremath{\Gamma}j 未闭合时停在 finite-flow prototype。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{35.02-2c8cb7e4b4}；\CourseRef{Eq}{35.02}；\CourseRef{SYM}{35.02}；\CourseRef{Alg}{35.02}。
+\SourceLine{BOOK-STAT；DOC-EXTRAPOLATION；PYQCD-STATISTICS；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{有限 Ioffe-time 数据的 Fourier 逆问题：问题与图像}\FrameAnchor{35.03-1}
+\footnotesize
+\begin{block}{本节问题}只知道有限、含噪 z 区间时，怎样重建 \ensuremath{f_1^{g[-,-]}(x,b_T)} 而不制造虚假振荡？\end{block}
+\PhysicalFlow{窗口化离散 Ioffe-time 数据}{Fourier 核有 null/\allowbreak{}小奇异值}{物理约束与正则化给分辨率受限结果}{35.03}
+\begin{block}{物理原则}\KnowledgeID{35.03}\quad 正性、support、端点行为和 sum rules 对不同胶子 TMD 通道并不完全相同；约束必须由目标定义证明。\end{block}
+\SourceLine{BOOK-NUMERICS；BOOK-STAT；P31；P44；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{有限 Ioffe-time 数据的 Fourier 逆问题：定义与主公式}\FrameAnchor{35.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{35.03-fc9aec8268} Ioffe time & \ensuremath{\nu}=zPz，无量纲，连接坐标空间矩阵元与 x 分布\\
+\DefinitionID{35.03-4757a69c85} resolution kernel & 重建估计量对真实分布的平滑响应\\
+\DefinitionID{35.03-5c0ed5f5f8} regularization bias & 为抑制噪声而牺牲细节引入的偏差\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{35.03} 主公式}\centering\CourseDisplayEquation{h_{f_1}(\nu,b_T)=\int_{-1}^{1}dx\,e^{ix\nu}f_1^{g[-,-]}(x,b_T),\qquad \widehat f_{1,\lambda}^{g[-,-]}=\arg\min_f\left[(Kf-h)^T\Sigma^{-1}(Kf-h)+\lambda\|Lf\|^2\right]}\end{block}
+有限 \ensuremath{\nu}max 把反演变成带限 Fourier 问题；Tikhonov/\allowbreak{}Bayesian 项抑制未被数据约束的小奇异值方向。
+\end{frame}
+
+\begin{frame}[t]{有限 Ioffe-time 数据的 Fourier 逆问题：推导与证据边界}\FrameAnchor{35.03-3}
+\footnotesize
+\DerivationID{35.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{35.03}：
+\begin{enumerate}
+\item 离散 z、Pz 后写 h=Kf+噪声，并对白化核做 SVD。
+\item 小奇异值方向会把 h 的微小噪声放大为 f 的剧烈振荡。
+\item 加入 \ensuremath{\lambda}||Lf||\ensuremath{^{2}} 等先验后正规方程成为 (K\ensuremath{^{T}}\ensuremath{\Sigma}\ensuremath{^{-1}}K+\ensuremath{\lambda}L\ensuremath{^{T}}L)f=K\ensuremath{^{T}}\ensuremath{\Sigma}\ensuremath{^{-1}}h。
+\item 分辨矩阵 R=(... )\ensuremath{^{-1}}K\ensuremath{^{T}}\ensuremath{\Sigma}\ensuremath{^{-1}}K 量化哪些 x 结构真正可辨。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{35.03}\quad 有限 Ioffe-time 数据的 Fourier 逆问题；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：单位协方差、L=I 的有限矩阵代理；lambda>0
+\end{block}
+\BoundaryLine{物理约束、分辨核、\ensuremath{\nu}max 和正则化覆盖需 mock-data 实测。}
+\end{frame}
+
+\begin{frame}[t]{有限 Ioffe-time 数据的 Fourier 逆问题：计算算法}\FrameAnchor{35.03-4}
+\footnotesize
+\AlgorithmID{35.03}\begin{enumerate}
+\item 保留复 h 及已证明的 \ensuremath{\pm}z 偶奇，不提前丢虚部。
+\item 以 SVD、Backus--Gilbert、Bayesian basis 等至少两类方法重建。
+\item 用隐藏真值的 mock distributions 扫 \ensuremath{\nu}max、噪声、z 缺口与 \ensuremath{\lambda}，检验覆盖。
+\item 报告 resolution kernel、forward residual 和方法/\allowbreak{}尾部系统误差，不给超分辨率曲线。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 把 fhat 前向变换应在协方差下复现输入 h。
+\item[\CheckMark] \ensuremath{\lambda}\ensuremath{\rightarrow}0 在欠定情形应暴露不稳定，而不是被数值库静默钳制。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{SVD/\allowbreak{}resolution audit + blind mock-data reconstruction}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{有限 Ioffe-time 数据的 Fourier 逆问题：练习与完整解答}\FrameAnchor{35.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{35.03}}若 K 有 20 行、80 列，未加先验时 null space 维数至少多少？\end{block}
+\begin{exampleblock}{\SolutionID{35.03}}rank(K)\ensuremath{\le}20，所以 nullity=80-rank(K)\ensuremath{\ge}60；至少 60 个方向不由数据决定。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{35.03-fc9aec8268}；\CourseRef{Eq}{35.03}；\CourseRef{SYM}{35.03}；\CourseRef{Alg}{35.03}。
+\SourceLine{BOOK-NUMERICS；BOOK-STAT；P31；P44；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{可复现管线、数据谱系与审计：问题与图像}\FrameAnchor{35.04-1}
+\footnotesize
+\begin{block}{本节问题}半年后另一位研究者能否从配置和原始输入逐字节重建每个结论？\end{block}
+\PhysicalFlow{内容寻址输入/\allowbreak{}配置/\allowbreak{}代码}{每步原子产物与 manifest}{独立验证器重算不变量与依赖图}{35.04}
+\begin{block}{物理原则}\KnowledgeID{35.04}\quad bitwise reproducibility 对并行浮点规约未必现实；应区分逐位、数值容差和统计等价三级合同。\end{block}
+\SourceLine{PYQCD-PIPELINE；PYQCD-INFRA；PYQCD-CONVENTIONS；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{可复现管线、数据谱系与审计：定义与主公式}\FrameAnchor{35.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{35.04-d25ff0e2dd} provenance & 产物的输入、参数、代码版本、环境和父产物谱系\\
+\DefinitionID{35.04-f2aa9553c5} content hash & 由文件内容确定、用于检测漂移和缓存复用的摘要\\
+\DefinitionID{35.04-098cc46aa9} idempotence & 同一冻结输入重复运行得到等价产物而不重复破坏状态\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{35.04} 主公式}\centering\CourseDisplayEquation{H_{\rm artifact}=H(H_{\rm inputs}\Vert H_{\rm config}\Vert H_{\rm code}\Vert H_{\rm env}),\qquad \text{valid}=\bigwedge_k I_k(\text{artifact})}\end{block}
+产物身份由所有决定性父输入的 hash 组成；独立不变量集合 Ik 决定是否允许下游消费。
+\end{frame}
+
+\begin{frame}[t]{可复现管线、数据谱系与审计：推导与证据边界}\FrameAnchor{35.04-3}
+\footnotesize
+\DerivationID{35.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{35.04}：
+\begin{enumerate}
+\item 把每一步建模为纯输入\ensuremath{\rightarrow}输出节点，并列出决定性/\allowbreak{}非决定性来源。
+\item 对配置规范化序列化，对输入、代码 commit/\allowbreak{}diff 和环境 lock 取 hash。
+\item 先写临时产物，验证 shape、dtype、units、checksum 与物理不变量后原子发布 manifest。
+\item 下游只按 manifest 寻址已通过节点，失败节点保留日志但不伪造空输出。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{35.04}\quad 可复现管线、数据谱系与审计；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：H 视为输入元组的确定性内容摘要构造
+\end{block}
+\BoundaryLine{不证明密码学抗碰撞、规范化编码或并行 bitwise reproducibility。}
+\end{frame}
+
+\begin{frame}[t]{可复现管线、数据谱系与审计：计算算法}\FrameAnchor{35.04-4}
+\footnotesize
+\AlgorithmID{35.04}\begin{enumerate}
+\item 实现 schema validation、dry-run、资源估算和 restart 守卫。
+\item 每个 (step,ensemble,conf,geometry) 任务有唯一状态与退出码。
+\item 独立 verify 命令从 manifest 重算 checksum、轴、样本数和关键极限。
+\item 在干净临时目录执行端到端小数据重放并比较容差/\allowbreak{}统计合同。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 相同输入重复运行不应改变已验证 artifact hash。
+\item[\CheckMark] 修改任一物理参数必须使自身及所有下游 cache key 失效。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{pyqcd-pipeline manifest + infra I/\allowbreak{}O + independent verifier}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{可复现管线、数据谱系与审计：练习与完整解答}\FrameAnchor{35.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{35.04}}若只把 config 纳入 hash、漏掉 code version，会发生什么？\end{block}
+\begin{exampleblock}{\SolutionID{35.04}}代码改变仍命中旧缓存，产物身份与实际算法不一致；审计无法判断结果由哪个实现产生。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{35.04-d25ff0e2dd}；\CourseRef{Eq}{35.04}；\CourseRef{SYM}{35.04}；\CourseRef{Alg}{35.04}。
+\SourceLine{PYQCD-PIPELINE；PYQCD-INFRA；PYQCD-CONVENTIONS；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{最终资格考核：按四级证据独立实现 \ensuremath{f_1^{g[-,-]}} 链：问题与图像}\FrameAnchor{35.05-1}
+\footnotesize
+\begin{block}{本节问题}什么证据足以区分‘算出了 [-,-] quasi-beam’、‘提取了 CS 核’和‘得到了标准 \ensuremath{f_1^{g[-,-]}}’？\end{block}
+\PhysicalFlow{从真实逐组态外态构建 flowed quasi-beam}{按 ratio 分支或 soft-closed 分支逐门升级}{公开极限次序、误差账本与最高证据状态}{35.05}
+\begin{block}{物理原则}\KnowledgeID{35.05}\quad 课程考核能力与证据诚实性，不承诺新物理数值。没有真实计算资源可完成合成/\allowbreak{}小格点接口，但必须标 prototype；没有合法 flow window、逐组态三点、足够 Pz、soft 定义或 conversion 时，应停在相应低级状态，并提交记录证据、根因、影响、最高可保留状态与恢复路径的 failure report。\end{block}
+\SourceLine{PYQCD-TMD；PYQCD-TMD-GEOMETRY；PYQCD-TMD-RENORM；PYQCD-TMD-VALIDATION；PYQCD-PIPELINE；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{最终资格考核：按四级证据独立实现 \ensuremath{f_1^{g[-,-]}} 链：定义与主公式}\FrameAnchor{35.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{35.05-32fcb63a30} state 1: beam & 裸或完成 UV/\allowbreak{}mixing 的 [-,-] quasi-beam matrix element，尚未因 soft 抵消而成为 TMD\\
+\DefinitionID{35.05-0e57b6ac5f} state 2: reduced/\allowbreak{}CS & 在已证明同方案共同因子抵消的多 Pz ratio 中提取的 CS-kernel estimand\\
+\DefinitionID{35.05-91464f9c3a} state 3\ensuremath{\rightarrow}4: quasi-to-standard TMD & state 3 具有具体 quasi-soft/\allowbreak{}rapidity/\allowbreak{}overlap 定义且方案闭合；state 4 再完成完整 \ensuremath{C_\Gamma} flow conversion、LaMET/\allowbreak{}短距 matching、\ensuremath{\mu}/\allowbreak{}\ensuremath{\zeta} 演化及受控极限，得到标准 \ensuremath{f_1^{g[-,-]}}\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{35.05} 主公式}\centering\CourseDisplayEquation{\begin{gathered}U\to V_\tau\to F_{\mu\nu}\to O_{g,f_1}^{[-,-]}(z,\bm b_T,\ell)\to(C_2,L_g,C_2L_g)\to h_B^{[-,-]}\to h_R^{{\rm flow},[-,-]},\\ h_R^{{\rm flow},[-,-]}\xrightarrow{\ P_z\ \rm ratios\ }K_{\rm CS}\quad\text{[state 2]},\qquad h_R^{{\rm flow},[-,-]}\xrightarrow{\ /\sqrt{S_{\mathcal S}}\ }\widetilde f_{1,\rm q}^{g[-,-],[\mathcal S]}\quad\text{[state 3]}\xrightarrow{\ C_{\mathcal S\to std}\ }f_1^{g[-,-]}\quad\text{[state 4]}\end{gathered}}\end{block}
+每个箭头都是独立验证门。state 2 与 state 3 是从 hR 分出的不同产品：前者可利用同方案 Pz 比值抵消未知 soft，后者必须真的具有经过证明的 quasi-soft 组合；只有 state 3 再完成 conversion/\allowbreak{}matching 才可能升级 state 4。
+\end{frame}
+
+\begin{frame}[t]{最终资格考核：按四级证据独立实现 \ensuremath{f_1^{g[-,-]}} 链：推导与证据边界}\FrameAnchor{35.05-3}
+\footnotesize
+\DerivationID{35.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{35.05}：
+\begin{enumerate}
+\item 基础链：验证 flow 幺正性/\allowbreak{}步长/\allowbreak{}E/\allowbreak{}Q，场强反对称与对偶，staple 共轭、反向与几何；真实逐组态 C2、Lg、C2Lg 做真空扣除、多 tsep 与 shared resampling，不能用均值乘积伪造 disconnected covariance。
+\item state 1 门：非零 bT、有限 ell、\ensuremath{\pm}z、多个 a 与 \ensuremath{\tau} 的 hB/\allowbreak{}hR，完成 UV self-energy、mixing 和固定 \ensuremath{\tau} continuum 诊断；有限 \ensuremath{\tau} 产物明确标 flowed scheme。
+\item state 2 门：同一 scheme 至少两个 Pz 形成最小 CS 差分并减 matching 系数；若声称 plateau/\allowbreak{}1/\allowbreak{}Pz\ensuremath{^{2}} 受控，至少三个 Pz 或多个独立 pair，且 soft 抵消前提通过故障注入。
+\item state 3/\allowbreak{}4 门：使用理论上有效而非任意同几何的 quasi-soft，闭合 rapidity/\allowbreak{}overlap 定义；随后完成 flow-to-target、quasi-to-standard matching、\ensuremath{\mu}/\allowbreak{}\ensuremath{\zeta} 演化，并按固定 \ensuremath{\tau} continuum\ensuremath{\rightarrow}small-flow matching 的次序处理极限。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{35.05}\quad 最终资格考核：按四级证据独立实现 \ensuremath{f_1^{g[-,-]}} 链；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：两个逐组态样本的精确反例
+\end{block}
+\BoundaryLine{只证明均值乘积不能恢复 connected covariance；完整生产链仍需真实数据全门验证。}
+\end{frame}
+
+\begin{frame}[t]{最终资格考核：按四级证据独立实现 \ensuremath{f_1^{g[-,-]}} 链：计算算法}\FrameAnchor{35.05-4}
+\footnotesize
+\AlgorithmID{35.05}\begin{enumerate}
+\item 先在单位场、解析 SU(2)/\allowbreak{}SU(3) 小矩阵和合成 correlator 上逐函数 TDD，再跑小格点 smoke。
+\item 故障注入错轴、错符号、缺 C2Lg、soft 几何/\allowbreak{}方案不匹配、只有单 Pz、a\ensuremath{\approx}sqrt(8\ensuremath{\tau})；验证器必须拒绝相应升级。
+\item 真实 pilot 后按预注册 flow/\allowbreak{}Pz/\allowbreak{}ell/\allowbreak{}L/\allowbreak{}a 设计生产；每一级单独发布 artifact、manifest、协方差和验证报告。
+\item 提交源码、冻结配置/\allowbreak{}环境、全部中间量、误差与状态账本、PDF 报告和独立复核说明；失败节点不得由单位默认值填补。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] soft=1、bT=0、ell=0 或单位 matching 只作退化测试；单 Pz 甚至不能形成 state 2 的 CS 差分。
+\item[\CheckMark] alpha\_s\ensuremath{\rightarrow}0 时 matching 应趋树级核；a\ensuremath{\rightarrow}0 与 \ensuremath{\tau}\ensuremath{\rightarrow}0 必须显示有序窗口，不能只给一个同步线性拟合。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{pyqcd TMD end-to-end implementation + test9 verifier + production audit}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{最终资格考核：按四级证据独立实现 \ensuremath{f_1^{g[-,-]}} 链：练习与完整解答}\FrameAnchor{35.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{35.05}}已有真实多 Pz quasi-beam，且同方案 ratio 中 soft 抵消已证明，但没有有效 quasi-soft 数据和 standard matching；最高状态是什么？\end{block}
+\begin{exampleblock}{\SolutionID{35.05}}最高是 state 2：可报告 reduced ratio/\allowbreak{}CS kernel。缺 quasi-soft 使 state 3 不可达，缺 standard matching 又使 state 4 不可达；不得把未知 soft 设为 1 后改名为 TMD。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{35.05-32fcb63a30}；\CourseRef{Eq}{35.05}；\CourseRef{SYM}{35.05}；\CourseRef{Alg}{35.05}。
+\SourceLine{PYQCD-TMD；PYQCD-TMD-GEOMETRY；PYQCD-TMD-RENORM；PYQCD-TMD-VALIDATION；PYQCD-PIPELINE；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{第 35 卷能力清单}\FrameAnchor{V35-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能预注册 \ensuremath{f_1^{g[-,-]}} estimand 与全链停止条件
+\item[\CheckMark] 能完成层级统计/\allowbreak{}逆问题/\allowbreak{}系统误差联合推断
+\item[\CheckMark] 能从空仓配置实现、验证并审计第一版研究级计算
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 35 卷来源（1/3）}\FrameAnchor{V35-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{PYQCD-TMD} & PyQCD TMD 主链技能 & 六阶段 TMD 物理链和端到端接口。\\
+\SourceID{PYQCD-TMD-VALIDATION} & PyQCD TMD 验证矩阵 & 合成闭合、故障注入和生产质量门。\\
+\SourceID{PYQCD-STATISTICS} & PyQCD 统计技能 & 自相关、重采样、协方差和拟合验证。\\
+\SourceID{PYQCD-PIPELINE} & PyQCD 流水线技能 & 配置、守卫、元数据、断点续跑和产物清单。\\
+\SourceID{REPORT-TMD} & 梯度流核子胶子 TMD 项目报告 & 本课程终点定义、实现现状、证据分级和关键物理边界。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 35 卷来源（2/3）}\FrameAnchor{V35-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-STAT} & Monte Carlo 统计与拟合讲义（课程自编） & 协方差、重采样、覆盖率和模型系统学。\\
+\SourceID{DOC-EXTRAPOLATION} & 格点 QCD 中的外推 & 连续、有限体积和物理点外推。\\
+\SourceID{BOOK-NUMERICS} & 数值分析预备课（课程自编） & 差分、求积、收敛阶、线性求解和误差账本。\\
+\SourceID{P31} & CT18全局分析 & 论文图谱 P31 的完整原始 PDF；底稿 arXiv:1912.10053；SHA-256 98d4b253c3c926d5…。\\
+\SourceID{P44} & 从准TMD波函数确定CS核 & 论文图谱 P44 的完整原始 PDF；底稿 arXiv:2204.00200；SHA-256 589d870d484889ae…。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 35 卷来源（3/3）}\FrameAnchor{V35-sources-3}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{PYQCD-INFRA} & PyQCD 基础设施技能 & 后端、I/\allowbreak{}O、MPI 和资源治理。\\
+\SourceID{PYQCD-CONVENTIONS} & PyQCD 共享约定技能 & gamma、轴顺序、精度和接口约定。\\
+\SourceID{PYQCD-TMD-GEOMETRY} & PyQCD TMD 几何规范 & 非零 bT、finite staple、端点和路径签名。\\
+\SourceID{PYQCD-TMD-RENORM} & PyQCD TMD 重整化规范 & soft、ZR、hybrid、CS 和匹配边界。\\
+\bottomrule\end{tabularx}\end{frame}
+

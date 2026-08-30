@@ -1,0 +1,381 @@
+\begin{frame}[plain]\FrameAnchor{V13-title}
+\centering
+{\Large\bfseries\color{courseblue}第 13 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 深度非弹性散射与部分子分布\par}
+\vspace{0.35cm}
+{\large 从实验运动学、光锥关联函数和 OPE 理解 PDF 的定义、矩与演化。\par}
+\vfill
+\CourseID{Tbl}{13.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 13 卷路线图}\FrameAnchor{V13-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+13.01 & DIS 运动学与 Bjorken x\\
+13.02 & 光锥 PDF 的算符定义\\
+13.03 & OPE、Mellin 矩与局域算符\\
+13.04 & DGLAP 演化与尺度依赖\\
+13.05 & 从 collinear PDF 到 TMD\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{DOC-PDF；DOC-TMD；P18；P31；P32}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V13-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V04
+\item V06
+\item V07
+\item V12
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能解释 Bjorken x
+\item 能写光锥 PDF 与矩关系
+\item 能区分 collinear PDF 和 TMD
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：归一化的示意胶子分布形状}\FrameAnchor{V13-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0.001,xmax=0.999,ymin=0.0,ymax=2.0,xlabel={动量分数 $x$},ylabel={$xg(x)$（任意归一化）},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0.001:0.999,samples=160] {5*x^0.3*(1-x)^4};
+\addlegendentry{Beta 形状}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{13.00}：纯教学参数化，不代表任何实验或格点拟合。
+\SourceLine{常用 Beta 函数形状}
+\end{frame}
+
+\begin{frame}[t]{DIS 运动学与 Bjorken x：问题与图像}\FrameAnchor{13.01-1}
+\footnotesize
+\begin{block}{本节问题}高能轻子散射怎样把核子内部的纵向动量结构显影？\end{block}
+\PhysicalFlow{入射轻子交换虚光子 q}{核子动量 P}{测量 Q\ensuremath{^{2}} 与能量损失}{13.01}
+\begin{block}{物理原则}\KnowledgeID{13.01}\quad 有限 Q\ensuremath{^{2}} 有靶质量和高扭度修正；xB 的部分子解释依赖因子化极限。\end{block}
+\SourceLine{BOOK-QFT；P31；P32}
+\end{frame}
+
+\begin{frame}[t]{DIS 运动学与 Bjorken x：定义与主公式}\FrameAnchor{13.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{13.01-5049542c0c} 深度非弹性散射 & 大 Q\ensuremath{^{2}} 下把核子击碎的包容散射\\
+\DefinitionID{13.01-2acd09db29} Bjorken x & xB=Q\ensuremath{^{2}}/\allowbreak{}(2P·q)\\
+\DefinitionID{13.01-7e433f1609} 硬尺度 & 允许短距离微扰展开的大动量尺度\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{13.01} 主公式}\centering\CourseDisplayEquation{x_B=\frac{Q^2}{2P\cdot q},\qquad Q^2=-q^2>0}\end{block}
+Bjorken 极限中 xB 可解释为被击中部分子的光前动量分数。
+\end{frame}
+
+\begin{frame}[t]{DIS 运动学与 Bjorken x：推导与证据边界}\FrameAnchor{13.01-3}
+\footnotesize
+\DerivationID{13.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{13.01}：
+\begin{enumerate}
+\item 虚光子动量 q=k-k\ensuremath{^{\prime}}，其空间型不变量定义 Q\ensuremath{^{2}}=-q\ensuremath{^{2}}。
+\item 若被击中无质量部分子动量近似 p=xP，并令散射后 (p+q)\ensuremath{^{2}}\ensuremath{\approx}0。
+\item 忽略 p\ensuremath{^{2}} 后得 2xP·q+q\ensuremath{^{2}}=0，从而 x=Q\ensuremath{^{2}}/\allowbreak{}(2P·q)=xB。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{13.01}\quad 质量可忽略部分子的 Bjorken x；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：p=xP 且 p\ensuremath{^{2}} 近似 0；(p+q)\ensuremath{^{2}}=0；Q\ensuremath{^{2}}=-q\ensuremath{^{2}}>0
+\end{block}
+\BoundaryLine{靶质量、高 twist 和有限 Q\ensuremath{^{2}} 修正未由该运动学代理涵盖。}
+\end{frame}
+
+\begin{frame}[t]{DIS 运动学与 Bjorken x：计算算法}\FrameAnchor{13.01-4}
+\footnotesize
+\AlgorithmID{13.01}\begin{enumerate}
+\item 从四动量先计算 Lorentz 不变量 Q\ensuremath{^{2}} 和 P·q。
+\item 筛选 Q\ensuremath{^{2}} 足够大、W\ensuremath{^{2}}=(P+q)\ensuremath{^{2}} 处于非弹性区的数据。
+\item 按 xB、Q\ensuremath{^{2}} 分箱并保存接受度与相关系统误差。
+\item 与因子化理论卷积比较，不把单个事件赋成确定部分子动量。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] xB 无量纲。
+\item[\CheckMark] 弹性极限 W\ensuremath{^{2}}=M\ensuremath{^{2}} 对应 xB=1；物理 DIS 主区通常 0<xB<1。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{DIS 运动学与 Bjorken x：练习与完整解答}\FrameAnchor{13.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{13.01}}核子静止系中证明 xB=Q\ensuremath{^{2}}/\allowbreak{}(2M\ensuremath{\nu})，其中 \ensuremath{\nu} 是能量转移。\end{block}
+\begin{exampleblock}{\SolutionID{13.01}}P=(M,0)，故 P·q=Mq0=M\ensuremath{\nu}，代入定义即可。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{13.01-5049542c0c}；\CourseRef{Eq}{13.01}；\CourseRef{SYM}{13.01}；\CourseRef{Alg}{13.01}。
+\SourceLine{BOOK-QFT；P31；P32}
+\end{frame}
+
+\begin{frame}[t]{光锥 PDF 的算符定义：问题与图像}\FrameAnchor{13.02-1}
+\footnotesize
+\begin{block}{本节问题}PDF 为什么不是普通三维概率密度？\end{block}
+\PhysicalFlow{光状分离 \ensuremath{\xi}\ensuremath{^{-}}}{双局域场与 Wilson 线}{对 Ioffe 时间 Fourier 变换}{13.02}
+\begin{block}{物理原则}\KnowledgeID{13.02}\quad 实时光状分离不能直接放在欧氏格点上，这是 LaMET 等方法存在的原因。\end{block}
+\SourceLine{P11；P18；DOC-PDF}
+\end{frame}
+
+\begin{frame}[t]{光锥 PDF 的算符定义：定义与主公式}\FrameAnchor{13.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{13.02-4b996730a5} 光锥 PDF & 光状分离的规范不变双局域关联函数的 Fourier 变换\\
+\DefinitionID{13.02-125ebfeb1c} Wilson 线 & 连接分离场点以保证规范协变\\
+\DefinitionID{13.02-58a4b1e462} 因子化尺度 & 分离短程系数与长程分布的重整化尺度\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{13.02} 主公式}\centering\CourseDisplayEquation{q(x,\mu)=\int\frac{d\xi^-}{4\pi}e^{-ixP^+\xi^-}\langle P|\bar\psi(\xi^-)\gamma^+W\psi(0)|P\rangle_\mu}\end{block}
+x 与 Ioffe 时间 P+\ensuremath{\xi}- 共轭；Wilson 线沿光状方向连接两场点。
+\end{frame}
+
+\begin{frame}[t]{光锥 PDF 的算符定义：推导与证据边界}\FrameAnchor{13.02-3}
+\footnotesize
+\DerivationID{13.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{13.02}：
+\begin{enumerate}
+\item 平移不变性使矩阵元只依赖分离 \ensuremath{\xi}\ensuremath{^{-}} 和外态动量。
+\item 沿分离方向插入 Wilson 线，使端点局域规范变换相消。
+\item 对无量纲变量 P+\ensuremath{\xi}- 做 Fourier 变换，定义动量分数 x。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{13.02}\quad 有限支持均匀分布的 Ioffe-time 变换；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：以 [-1,1] 上 q(x)=1/\allowbreak{}2 作规范化代理
+\end{block}
+\BoundaryLine{光锥算符定义、Wilson 线和重整化由物理理论给出，非此积分证明。}
+\end{frame}
+
+\begin{frame}[t]{光锥 PDF 的算符定义：计算算法}\FrameAnchor{13.02-4}
+\footnotesize
+\AlgorithmID{13.02}\begin{enumerate}
+\item 先固定光前坐标、指数符号和态归一化。
+\item 列出双局域算符的路径与端点。
+\item 对标准 collinear PDF 做 UV 重整化与 DGLAP 演化；不另引入 Collins--Soper rapidity 尺度。
+\item 验证积分和矩的守恒律后再与实验全局拟合比较。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 指数相位无量纲。
+\item[\CheckMark] \ensuremath{\xi}\ensuremath{^{-}}=0 的局域极限给相应守恒荷或矩，但胶子规范化另有张量因子。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{光锥 PDF 的算符定义：练习与完整解答}\FrameAnchor{13.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{13.02}}若 q(x) 的支持限定在 [0,1] 且归一化为 1，积分代表什么？\end{block}
+\begin{exampleblock}{\SolutionID{13.02}}在非奇异夸克组合中代表相应净价夸克数；具体 flavor 组合与反夸克约定需写清。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{13.02-4b996730a5}；\CourseRef{Eq}{13.02}；\CourseRef{SYM}{13.02}；\CourseRef{Alg}{13.02}。
+\SourceLine{P11；P18；DOC-PDF}
+\end{frame}
+
+\begin{frame}[t]{OPE、Mellin 矩与局域算符：问题与图像}\FrameAnchor{13.03-1}
+\footnotesize
+\begin{block}{本节问题}为什么 PDF 的整数矩可以由局域算符矩阵元得到？\end{block}
+\PhysicalFlow{双局域算符短距展开}{局域 twist-2 算符}{矩 \ensuremath{\int}x\ensuremath{^{n}}f(x)}{13.03}
+\begin{block}{物理原则}\KnowledgeID{13.03}\quad 格点旋转群较小，高阶局域算符会出现幂发散混合；非局域 LaMET 并非没有代价，而是换一种系统学。\end{block}
+\SourceLine{DOC-OPE；P47；P18}
+\end{frame}
+
+\begin{frame}[t]{OPE、Mellin 矩与局域算符：定义与主公式}\FrameAnchor{13.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{13.03-1c46055465} OPE & 短距离算符乘积按局域算符展开\\
+\DefinitionID{13.03-556571645b} Mellin 矩 & 分布乘 x 的幂后积分\\
+\DefinitionID{13.03-e73a03ef58} twist & 质量维数减自旋，组织幂修正\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{13.03} 主公式}\centering\CourseDisplayEquation{\langle x^{n-1}\rangle_g=\int_0^1dx\,x^{n-1}g(x,\mu)\propto\langle P|O_g^{\{\mu_1\cdots\mu_n\}}|P\rangle,\qquad n\ge2}\end{block}
+坐标空间短距 Taylor/\allowbreak{}OPE 系数与 Fourier 变换的 x 矩一一对应；规范不变非极化胶子 twist-2 塔从自旋 n=2 开始。
+\end{frame}
+
+\begin{frame}[t]{OPE、Mellin 矩与局域算符：推导与证据边界}\FrameAnchor{13.03-3}
+\footnotesize
+\DerivationID{13.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{13.03}：
+\begin{enumerate}
+\item 把双局域矩阵元按分离 z 展开，并按自旋 n 的局域算符组织系数。
+\item Fourier 表示 h(P·z)=\ensuremath{\int}dx exp(ixP·z)f(x)。
+\item 展开指数并逐阶比较；胶子塔允许的最低项 n=2 对应 \ensuremath{\int}dx xg(x)。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{13.03}\quad PDF Mellin 矩与局域算符系数；9/9 项通过；SymPy exact。
+\par\scriptsize 假设：夸克与反夸克分布在[0,1]上可积；示例取 f\_q=1+xi、f\_bar=xi\ensuremath{^{2}}；负 xi 延拓满足 f(-xi)=-f\_bar(xi)；K\_n 的求和上限按整数 n 取 floor(n/\allowbreak{}2)，r=M\_N\ensuremath{^{2}}/\allowbreak{}(4P\_z\ensuremath{^{2}})>=0
+\end{block}
+\BoundaryLine{有限代理验证矩关系和最低胶子动量矩；不存在由本记录支持的 n=1 规范不变胶子数算符，真实 mixing/\allowbreak{}renormalization 另验。}
+\end{frame}
+
+\begin{frame}[t]{OPE、Mellin 矩与局域算符：计算算法}\FrameAnchor{13.03-4}
+\footnotesize
+\AlgorithmID{13.03}\begin{enumerate}
+\item 选择具有目标对称性且尽量少混合的局域算符。
+\item 计算裸矩阵元并建立完整混合矩阵。
+\item 非微扰重整化到中间方案，再微扰转换到 MSbar。
+\item 检查动量和价数和规则及多格距连续外推。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] n=2 给最低规范不变非极化胶子矩，即胶子动量分数；不存在相应的规范不变自旋一“胶子数”算符。
+\item[\CheckMark] 各文献对 g(x) 是否已含 x 的约定不同，必须先固定。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{OPE、Mellin 矩与局域算符：练习与完整解答}\FrameAnchor{13.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{13.03}}若 g(x)=2x（0\ensuremath{\le}x\ensuremath{\le}1），求最低规范不变非极化胶子矩。\end{block}
+\begin{exampleblock}{\SolutionID{13.03}}最低矩是 \ensuremath{\int}0\ensuremath{^{1}}dx xg(x)=\ensuremath{\int}0\ensuremath{^{1}}2x\ensuremath{^{2}}dx=2/\allowbreak{}3；\ensuremath{\int}g=1 不是该 twist-2 塔的胶子数荷。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{13.03-1c46055465}；\CourseRef{Eq}{13.03}；\CourseRef{SYM}{13.03}；\CourseRef{Alg}{13.03}。
+\SourceLine{DOC-OPE；P47；P18}
+\end{frame}
+
+\begin{frame}[t]{DGLAP 演化与尺度依赖：问题与图像}\FrameAnchor{13.04-1}
+\footnotesize
+\begin{block}{本节问题}同一核子的 PDF 为什么随探测分辨率改变？\end{block}
+\PhysicalFlow{提高尺度 \ensuremath{\mu}}{允许更多可分辨辐射}{分裂核卷积重分配 x}{13.04}
+\begin{block}{物理原则}\KnowledgeID{13.04}\quad 胶子与 flavor-singlet 夸克在演化和匹配中混合；只用纯胶子核会遗漏物理。\end{block}
+\SourceLine{DOC-DGLAP；P31；P32}
+\end{frame}
+
+\begin{frame}[t]{DGLAP 演化与尺度依赖：定义与主公式}\FrameAnchor{13.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{13.04-7d76ff26d8} DGLAP 方程 & PDF 对 ln\ensuremath{\mu}\ensuremath{^{2}} 的微扰演化方程\\
+\DefinitionID{13.04-f0765c2fcc} 分裂函数 & 部分子辐射导致动量分数迁移的核\\
+\DefinitionID{13.04-7e4bf4ee51} 卷积 & \ensuremath{\int}x\ensuremath{^{1}} dz/\allowbreak{}z P(z)f(x/\allowbreak{}z)\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{13.04} 主公式}\centering\CourseDisplayEquation{\frac{\partial f_i(x,\mu)}{\partial\ln\mu^2}=\sum_j\frac{\alpha_s}{2\pi}\int_x^1\frac{dz}{z}P_{ij}(z)f_j(x/z,\mu)}\end{block}
+尺度演化是 flavor/\allowbreak{}胶子耦合的积分微分方程，不是逐 x 独立缩放。
+\end{frame}
+
+\begin{frame}[t]{DGLAP 演化与尺度依赖：推导与证据边界}\FrameAnchor{13.04-3}
+\footnotesize
+\DerivationID{13.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{13.04}：
+\begin{enumerate}
+\item 一次近共线分裂把母部分子动量 y 分成观察到的 x=zy。
+\item 对所有 y\ensuremath{\ge}x 求和，换元 y=x/\allowbreak{}z 产生测度 dz/\allowbreak{}z。
+\item 实辐射与虚修正共同组成含 plus 分布的 Pij，保证守恒和规则。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{13.04}\quad Mellin 卷积代数；1/1 项通过；SymPy exact；复用 myqcd.derivations.derive\_mellin\_convolution。
+\par\scriptsize 假设：x,y\ensuremath{\in}[0,1]；例子满足 Fubini 可积条件；一般式需满足相应可积性
+\end{block}
+\BoundaryLine{验证可积测试函数的卷积和矩性质；DGLAP plus 分布与截断阶另有边界。}
+\end{frame}
+
+\begin{frame}[t]{DGLAP 演化与尺度依赖：计算算法}\FrameAnchor{13.04-4}
+\footnotesize
+\AlgorithmID{13.04}\begin{enumerate}
+\item 在 x 网格上选守恒的卷积离散规则。
+\item 输入某尺度的 quark singlet 与 gluon 联合向量。
+\item 用 ODE 积分推进 ln\ensuremath{\mu}\ensuremath{^{2}}，并同步运行 \ensuremath{\alpha}s。
+\item 每步检查价数与总动量和规则，做网格加密测试。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 演化前后总动量 \ensuremath{\Sigma}i\ensuremath{\int}dx xfi 应守恒到所用阶。
+\item[\CheckMark] \ensuremath{\alpha}s\ensuremath{\rightarrow}0 时右侧消失，PDF 不随尺度变。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{DGLAP 演化与尺度依赖：练习与完整解答}\FrameAnchor{13.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{13.04}}若核取 P(z)=\ensuremath{\delta}(1-z)，卷积结果是什么？\end{block}
+\begin{exampleblock}{\SolutionID{13.04}}\ensuremath{\int}x\ensuremath{^{1}}dz/\allowbreak{}z \ensuremath{\delta}(1-z)f(x/\allowbreak{}z)=f(x)。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{13.04-7d76ff26d8}；\CourseRef{Eq}{13.04}；\CourseRef{SYM}{13.04}；\CourseRef{Alg}{13.04}。
+\SourceLine{DOC-DGLAP；P31；P32}
+\end{frame}
+
+\begin{frame}[t]{从 collinear PDF 到 TMD：问题与图像}\FrameAnchor{13.05-1}
+\footnotesize
+\begin{block}{本节问题}只知道纵向动量分数，为何不足以描述核子内部的三维运动？\end{block}
+\PhysicalFlow{保留横向动量 kT}{Fourier 共轭横向间距 bT}{soft/\allowbreak{}rapidity 结构}{13.05}
+\begin{block}{物理原则}\KnowledgeID{13.05}\quad 重整化 TMD 的 bT\ensuremath{\rightarrow}0 极限有短距 UV 奇性，高 kT 尾也可使全平面积分 UV 敏感；不能把 bT=0 的裸格点算符直接认作 collinear PDF。\end{block}
+\SourceLine{DOC-TMD；P44；P45}
+\end{frame}
+
+\begin{frame}[t]{从 collinear PDF 到 TMD：定义与主公式}\FrameAnchor{13.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{13.05-ac64751a18} TMD-PDF & 同时依赖 x 与横向动量的因子化分布\\
+\DefinitionID{13.05-0b2c9641d6} 冲击参数 & 与 kT Fourier 共轭的横向分离 bT\\
+\DefinitionID{13.05-7c358fe92a} small-bT OPE & 在小但非零 bT 把 TMD 匹配到 collinear PDF 的短距展开\\
+\DefinitionID{13.05-6cff796629} rapidity 发散 & 来自近光状 Wilson 线、不能仅由普通 UV 重整化去除的发散\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{13.05} 主公式}\centering\CourseDisplayEquation{f(x,\bm k_T)=\int\frac{d^2\bm b_T}{(2\pi)^2}e^{-i\bm k_T\cdot\bm b_T}\tilde f(x,\bm b_T),\qquad \tilde f_i=\sum_j C_{i\leftarrow j}(x,b_T;\mu,\zeta)\!\otimes f_j(x,\mu)+O(b_T^2\Lambda_{\rm QCD}^2)}\end{block}
+横向动量与横向分离是二维 Fourier 共轭变量；与 collinear PDF 的可控联系是在小但非零 bT 上做 OPE。
+\end{frame}
+
+\begin{frame}[t]{从 collinear PDF 到 TMD：推导与证据边界}\FrameAnchor{13.05-3}
+\footnotesize
+\DerivationID{13.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{13.05}：
+\begin{enumerate}
+\item 在有共同 regulator 的形式 Fourier 变换中，kT 积分会选取 bT=0。
+\item 物理重整化后，高 kT 微扰尾使该形式步骤需要额外 UV 定义，bT=0 不能直接代入。
+\item 当 bT\ensuremath{\Lambda}QCD\ensuremath{\ll}1 且 bT 仍非零时，用可计算系数 C 将 TMD 匹配到胶子—singlet collinear 向量。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{13.05}\quad 二维 TMD Fourier 归一化；2/2 项通过；SymPy exact；复用 myqcd.derivations.derive\_tmd\_fourier。
+\par\scriptsize 假设：二维横动量径向对称；Lambda>0；b\ensuremath{\ge}0
+\end{block}
+\BoundaryLine{验证高斯/\allowbreak{}有限维代理的 bT--kT Fourier 关系；soft 与 rapidity 结构不由 Fourier 代数消除。}
+\end{frame}
+
+\begin{frame}[t]{从 collinear PDF 到 TMD：计算算法}\FrameAnchor{13.05-4}
+\footnotesize
+\AlgorithmID{13.05}\begin{enumerate}
+\item 在非零二维 bT 网格上测量坐标空间矩阵元。
+\item 保持 Wilson staple 几何、soft 因子和方案一致。
+\item 先在 b 空间完成 UV、soft/\allowbreak{}rapidity 处理，并在可控 small-bT 窗做 OPE 匹配。
+\item 最后用受控二维 Fourier/\allowbreak{}Bessel 变换到 kT，并传播尾部误差。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 旋转对称的非极化 TMD 只依赖 |bT|，二维变换可化为 J0 Bessel 积分。
+\item[\CheckMark] small-bT 匹配后的方案与尺度依赖必须在 C\ensuremath{\otimes}f 中相消到所用截断阶。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{从 collinear PDF 到 TMD：练习与完整解答}\FrameAnchor{13.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{13.05}}为什么把 soft factor 设为 1 不能称为已完成 TMD soft 扣除？\end{block}
+\begin{exampleblock}{\SolutionID{13.05}}1 只是一个未经测量/\allowbreak{}推导的占位选择；rapidity 自能和 staple 几何依赖没有被数据消去或方案定义吸收。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{13.05-ac64751a18}；\CourseRef{Eq}{13.05}；\CourseRef{SYM}{13.05}；\CourseRef{Alg}{13.05}。
+\SourceLine{DOC-TMD；P44；P45}
+\end{frame}
+
+\begin{frame}[t]{第 13 卷能力清单}\FrameAnchor{V13-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能解释 Bjorken x
+\item[\CheckMark] 能写光锥 PDF 与矩关系
+\item[\CheckMark] 能区分 collinear PDF 和 TMD
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 13 卷来源（1/3）}\FrameAnchor{V13-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{DOC-PDF} & 部分子分布函数讲义 & PDF 定义、矩与因子化。\\
+\SourceID{DOC-TMD} & 格点 QCD 中的 TMD-PDF & TMD、soft、rapidity 与冲击参数定义。\\
+\SourceID{P18} & 大动量有效理论综述 & 论文图谱 P18 的完整原始 PDF；底稿 arXiv:2004.03543；SHA-256 bfcdc7b4100d0da2…。\\
+\SourceID{P31} & CT18全局分析 & 论文图谱 P31 的完整原始 PDF；底稿 arXiv:1912.10053；SHA-256 98d4b253c3c926d5…。\\
+\SourceID{P32} & NNPDF17高精度数据部分子分布 & 论文图谱 P32 的完整原始 PDF；底稿 arXiv:1706.00428；SHA-256 9d3daadd61fc48bc…。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 13 卷来源（2/3）}\FrameAnchor{V13-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-QFT} & An Introduction to Quantum Field Theory（仓库转排本） & 量子场论、规范理论、QCD 和重整化的主教材交叉核验。\\
+\SourceID{P11} & 欧氏格点上的部分子物理 & 论文图谱 P11 的完整原始 PDF；底稿 arXiv:1305.1539；SHA-256 8a8877826d6fd23b…。\\
+\SourceID{DOC-OPE} & 格点 QCD 中的 OPE 算符 & 局域矩、twist 与算符基底。\\
+\SourceID{P47} & 任意阶部分子分布矩 & 论文图谱 P47 的完整原始 PDF；底稿 arXiv:2311.18704；SHA-256 d72b64fbca3ac2d3…。\\
+\SourceID{DOC-DGLAP} & 格点 QCD 中的 DGLAP 演化 & 部分子演化与卷积。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 13 卷来源（3/3）}\FrameAnchor{V13-sources-3}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{P44} & 从准TMD波函数确定CS核 & 论文图谱 P44 的完整原始 PDF；底稿 arXiv:2204.00200；SHA-256 589d870d484889ae…。\\
+\SourceID{P45} & LaMET计算TMD软函数 & 论文图谱 P45 的完整原始 PDF；底稿 arXiv:2005.14572；SHA-256 22b1f2cbca968f30…。\\
+\bottomrule\end{tabularx}\end{frame}
+

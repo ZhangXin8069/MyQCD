@@ -1,0 +1,367 @@
+\begin{frame}[plain]\FrameAnchor{V03-title}
+\centering
+{\Large\bfseries\color{courseblue}第 3 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 傅里叶分析、概率与数值误差\par}
+\vspace{0.35cm}
+{\large 建立从格点数据到动量空间、统计误差和收敛判断的共同语言。\par}
+\vfill
+\CourseID{Tbl}{03.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 3 卷路线图}\FrameAnchor{V03-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+03.01 & 离散傅里叶变换\\
+03.02 & 高斯积分与傅里叶宽度\\
+03.03 & 概率、期望与方差\\
+03.04 & Taylor 展开与差分误差\\
+03.05 & 数值积分、收敛与误差账本\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-NUMERICS；BOOK-STAT；P07}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V03-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V01
+\item V02
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能实现离散傅里叶变换
+\item 能计算均值与方差
+\item 能区分截断误差和统计误差
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：高斯函数与其频谱}\FrameAnchor{V03-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=-4.0,xmax=4.0,ymin=0.0,ymax=1.05,xlabel={波数 $k$（以 $\sigma^{-1}$ 为单位）},ylabel={$\exp(-k^2/2)$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=-4.0:4.0,samples=160] {exp(-x^2/2)};
+\addlegendentry{归一化频谱}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{03.00}：解析曲线；位置空间越窄，动量空间越宽。
+\SourceLine{高斯积分}
+\end{frame}
+
+\begin{frame}[t]{离散傅里叶变换：问题与图像}\FrameAnchor{03.01-1}
+\footnotesize
+\begin{block}{本节问题}周期格点上的每个空间图样由哪些波组成？\end{block}
+\PhysicalFlow{N 个位置样本}{与离散平面波投影}{N 个动量系数}{03.01}
+\begin{block}{物理原则}\KnowledgeID{03.01}\quad 格点动量离散且周期；指数符号、轴顺序和归一化必须写进数据契约。\end{block}
+\SourceLine{BOOK-MATH；BOOK-NUMERICS}
+\end{frame}
+
+\begin{frame}[t]{离散傅里叶变换：定义与主公式}\FrameAnchor{03.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{03.01-48977e4e10} 频率/\allowbreak{}波数 & 单位长度内的相位变化率\\
+\DefinitionID{03.01-83f23319d5} 离散傅里叶变换 & 周期离散基底间的可逆变换\\
+\DefinitionID{03.01-6c7a1a9e05} 混叠 & 超出 Nyquist 范围的频率折回\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{03.01} 主公式}\centering\CourseDisplayEquation{\tilde f_k=\sum_{n=0}^{N-1}e^{-2\pi i kn/N}f_n,\quad f_n=\frac1N\sum_{k=0}^{N-1}e^{2\pi i kn/N}\tilde f_k}\end{block}
+正反变换的 1/\allowbreak{}N 归一化由离散平面波正交性决定。
+\end{frame}
+
+\begin{frame}[t]{离散傅里叶变换：推导与证据边界}\FrameAnchor{03.01-3}
+\footnotesize
+\DerivationID{03.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{03.01}：
+\begin{enumerate}
+\item 把正变换代入逆变换并交换 k、m 求和。
+\item 内部和为 \ensuremath{\Sigma}k exp[2\ensuremath{\pi}ik(n-m)/\allowbreak{}N]=N \ensuremath{\delta}nm（模 N）。
+\item \ensuremath{\delta}nm 消去其余项，恰好恢复 fn。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{03.01}\quad N=4 离散 Fourier 正交性；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：采用正变换无 1/\allowbreak{}N、逆变换含 1/\allowbreak{}N；N=4 精确代表
+\end{block}
+\BoundaryLine{一般 N 的几何级数证明在课件中给出；FFT 轴与符号仍需实现测试。}
+\end{frame}
+
+\begin{frame}[t]{离散傅里叶变换：计算算法}\FrameAnchor{03.01-4}
+\footnotesize
+\AlgorithmID{03.01}\begin{enumerate}
+\item 明确各轴长度、格距和周期边界。
+\item 固定指数符号与归一化约定。
+\item 用单一平面波输入检查峰值位置。
+\item 做正变换再逆变换，报告最大重建残差。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 常数输入只在 k=0 模非零。
+\item[\CheckMark] 实输入满足共轭对称 f̃N-k=f̃k*。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{离散傅里叶变换：练习与完整解答}\FrameAnchor{03.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{03.01}}对 N=4 的序列 (1,0,-1,0) 计算 DFT。\end{block}
+\begin{exampleblock}{\SolutionID{03.01}}结果为 (0,2,0,2)；k=1 与 k=3 是一对共轭模式，此例均为实数。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{03.01-48977e4e10}；\CourseRef{Eq}{03.01}；\CourseRef{SYM}{03.01}；\CourseRef{Alg}{03.01}。
+\SourceLine{BOOK-MATH；BOOK-NUMERICS}
+\end{frame}
+
+\begin{frame}[t]{高斯积分与傅里叶宽度：问题与图像}\FrameAnchor{03.02-1}
+\footnotesize
+\begin{block}{本节问题}为什么平滑会抑制高动量，而局域化会拓宽频谱？\end{block}
+\PhysicalFlow{位置高斯 exp(-x\ensuremath{^{2}}/\allowbreak{}2\ensuremath{\sigma}\ensuremath{^{2}})}{傅里叶积分}{动量高斯 exp(-\ensuremath{\sigma}\ensuremath{^{2}}k\ensuremath{^{2}}/\allowbreak{}2)}{03.02}
+\begin{block}{物理原则}\KnowledgeID{03.02}\quad 梯度流在线性化极限中正是高斯平滑，其自然半径由热核宽度确定。\end{block}
+\SourceLine{BOOK-MATH；P07；P08}
+\end{frame}
+
+\begin{frame}[t]{高斯积分与傅里叶宽度：定义与主公式}\FrameAnchor{03.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{03.02-f7bc56717f} 高斯函数 & 指数为负二次型的钟形函数\\
+\DefinitionID{03.02-7772111805} 标准差 & 高斯的宽度参数\\
+\DefinitionID{03.02-f4269021f8} 共轭变量 & 由傅里叶变换联系的一对变量\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{03.02} 主公式}\centering\CourseDisplayEquation{\int_{-\infty}^{\infty}e^{-x^2/(2\sigma^2)}e^{-ikx}\,dx=\sqrt{2\pi}\sigma e^{-\sigma^2k^2/2}}\end{block}
+位置宽度 \ensuremath{\sigma} 与动量宽度 1/\allowbreak{}\ensuremath{\sigma} 互为倒数。
+\end{frame}
+
+\begin{frame}[t]{高斯积分与傅里叶宽度：推导与证据边界}\FrameAnchor{03.02-3}
+\footnotesize
+\DerivationID{03.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{03.02}：
+\begin{enumerate}
+\item 合并指数并配方：-x\ensuremath{^{2}}/\allowbreak{}(2\ensuremath{\sigma}\ensuremath{^{2}})-ikx=-(x+i\ensuremath{\sigma}\ensuremath{^{2}}k)\ensuremath{^{2}}/\allowbreak{}(2\ensuremath{\sigma}\ensuremath{^{2}})-\ensuremath{\sigma}\ensuremath{^{2}}k\ensuremath{^{2}}/\allowbreak{}2。
+\item 被积函数为整函数，可平移积分路径；剩余积分是标准高斯。
+\item 乘上外部因子 exp(-\ensuremath{\sigma}\ensuremath{^{2}}k\ensuremath{^{2}}/\allowbreak{}2)，得到所示结果。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{03.02}\quad 高斯 Fourier 变换；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：sigma>0；k 为实数
+\end{block}
+\BoundaryLine{有限盒子、离散采样和混叠需数值收敛测试。}
+\end{frame}
+
+\begin{frame}[t]{高斯积分与傅里叶宽度：计算算法}\FrameAnchor{03.02-4}
+\footnotesize
+\AlgorithmID{03.02}\begin{enumerate}
+\item 在有限大区间上离散采样高斯。
+\item 选择足够大盒子，使边界值远小于峰值。
+\item FFT 后把零频移到中央并换算物理波数。
+\item 拟合两侧宽度，验证 \ensuremath{\sigma}x \ensuremath{\sigma}k\ensuremath{\approx}1。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] k=0 时结果等于高斯面积 \ensuremath{\sqrt{2\pi}}\ensuremath{\sigma}。
+\item[\CheckMark] \ensuremath{\sigma} 增大时位置更宽、频谱更窄。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{高斯积分与傅里叶宽度：练习与完整解答}\FrameAnchor{03.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{03.02}}若 \ensuremath{\sigma} 加倍，动量空间标准差如何变化？\end{block}
+\begin{exampleblock}{\SolutionID{03.02}}从 exp(-\ensuremath{\sigma}\ensuremath{^{2}}k\ensuremath{^{2}}/\allowbreak{}2) 读出动量标准差为 1/\allowbreak{}\ensuremath{\sigma}，因此减半。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{03.02-f7bc56717f}；\CourseRef{Eq}{03.02}；\CourseRef{SYM}{03.02}；\CourseRef{Alg}{03.02}。
+\SourceLine{BOOK-MATH；P07；P08}
+\end{frame}
+
+\begin{frame}[t]{概率、期望与方差：问题与图像}\FrameAnchor{03.03-1}
+\footnotesize
+\begin{block}{本节问题}一次测量不确定，怎样描述重复实验的稳定规律？\end{block}
+\PhysicalFlow{样本空间}{概率权重}{期望与波动}{03.03}
+\begin{block}{物理原则}\KnowledgeID{03.03}\quad 格点结果必须同时给中心值和不确定度；相关变量还需协方差。\end{block}
+\SourceLine{BOOK-STAT}
+\end{frame}
+
+\begin{frame}[t]{概率、期望与方差：定义与主公式}\FrameAnchor{03.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{03.03-b2d33aa8e5} 随机变量 & 把随机结果映为数值的函数\\
+\DefinitionID{03.03-9797f72d01} 期望 & 按概率加权的长期平均\\
+\DefinitionID{03.03-7199989197} 方差 & 偏离均值平方的期望\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{03.03} 主公式}\centering\CourseDisplayEquation{\operatorname{Var}(aX+b)=a^2\operatorname{Var}(X)}\end{block}
+平移不改变波动尺度，缩放 a 使标准差乘 |a|。
+\end{frame}
+
+\begin{frame}[t]{概率、期望与方差：推导与证据边界}\FrameAnchor{03.03-3}
+\footnotesize
+\DerivationID{03.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{03.03}：
+\begin{enumerate}
+\item E[aX+b]=aE[X]+b。
+\item 把 aX+b 减去其均值，常数 b 完全抵消。
+\item 平方并取期望，常数 a\ensuremath{^{2}} 提出，得到 a\ensuremath{^{2}} Var(X)。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{03.03}\quad 有限样本总体方差的仿射变换；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：四个等权实样本作精确代理；方差使用 1/\allowbreak{}N 定义
+\end{block}
+\BoundaryLine{抽样方差、协方差估计和自相关另行处理。}
+\end{frame}
+
+\begin{frame}[t]{概率、期望与方差：计算算法}\FrameAnchor{03.03-4}
+\footnotesize
+\AlgorithmID{03.03}\begin{enumerate}
+\item 先确认样本来自同一目标分布。
+\item 计算均值，再用同一中心计算平方偏差。
+\item 有限样本估计总体方差时使用 N-1 分母。
+\item 同时保存协方差和样本次序，以便处理自相关。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] a=0 时新变量恒定，方差为 0。
+\item[\CheckMark] a=-1 时方差不变，说明方差不记录符号。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{概率、期望与方差：练习与完整解答}\FrameAnchor{03.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{03.03}}X 的标准差为 3，Y=2X-5 的标准差是多少？\end{block}
+\begin{exampleblock}{\SolutionID{03.03}}Var(Y)=4 Var(X)，故标准差为 2\ensuremath{\times}3=6。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{03.03-b2d33aa8e5}；\CourseRef{Eq}{03.03}；\CourseRef{SYM}{03.03}；\CourseRef{Alg}{03.03}。
+\SourceLine{BOOK-STAT}
+\end{frame}
+
+\begin{frame}[t]{Taylor 展开与差分误差：问题与图像}\FrameAnchor{03.04-1}
+\footnotesize
+\begin{block}{本节问题}如何预言一种离散公式随格距缩小时收敛多快？\end{block}
+\PhysicalFlow{在 x 附近展开}{利用对称性消项}{读出首个遗漏阶}{03.04}
+\begin{block}{物理原则}\KnowledgeID{03.04}\quad Symanzik 展开和连续极限拟合本质上也是按格距幂次组织遗漏项。\end{block}
+\SourceLine{BOOK-NUMERICS；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{Taylor 展开与差分误差：定义与主公式}\FrameAnchor{03.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{03.04-e01ede7e0a} Taylor 展开 & 用一点处各阶导数表示邻域函数\\
+\DefinitionID{03.04-169817eba1} 截断误差 & 舍弃高阶项造成的系统误差\\
+\DefinitionID{03.04-d283aa6c4f} 收敛阶 & 误差对步长的幂次\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{03.04} 主公式}\centering\CourseDisplayEquation{\frac{f(x+h)-f(x-h)}{2h}=f'(x)+\frac{h^2}{6}f'''(x)+O(h^4)}\end{block}
+中心差分利用 h\ensuremath{\leftrightarrow}-h 对称性消去偶次项，首误差为二阶。
+\end{frame}
+
+\begin{frame}[t]{Taylor 展开与差分误差：推导与证据边界}\FrameAnchor{03.04-3}
+\footnotesize
+\DerivationID{03.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{03.04}：
+\begin{enumerate}
+\item 分别展开 f(x\ensuremath{\pm}h) 到 h\ensuremath{^{5}}。
+\item 两式相减：偶次项相消，保留 2hf\ensuremath{^{\prime}}+h\ensuremath{^{3}}f\ensuremath{^{\prime\prime\prime}}/\allowbreak{}3+…。
+\item 除以 2h，得到 f\ensuremath{^{\prime}}+h\ensuremath{^{2}}f\ensuremath{^{\prime\prime\prime}}/\allowbreak{}6+O(h\ensuremath{^{4}})。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{03.04}\quad 中心差分 Taylor 展开；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：以五次多项式使展开精确终止
+\end{block}
+\BoundaryLine{一般光滑函数余项为 O(h\ensuremath{^{6}})（除以 h 后对应式中 O(h\ensuremath{^{6}}) 之后）。}
+\end{frame}
+
+\begin{frame}[t]{Taylor 展开与差分误差：计算算法}\FrameAnchor{03.04-4}
+\footnotesize
+\AlgorithmID{03.04}\begin{enumerate}
+\item 在 h、h/\allowbreak{}2、h/\allowbreak{}4 上重复同一计算。
+\item 用细网格或解析解构造误差。
+\item 计算误差比 \ensuremath{\epsilon}(h)/\allowbreak{}\ensuremath{\epsilon}(h/\allowbreak{}2)。
+\item 若进入二阶区间，误差比应趋近 4。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 线性和二次多项式的三阶导数为零，公式精确。
+\item[\CheckMark] 交换 h 的符号不改变差分结果。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Taylor 展开与差分误差：练习与完整解答}\FrameAnchor{03.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{03.04}}对 f(x)=x\ensuremath{^{3}} 求中心差分，并与精确导数比较。\end{block}
+\begin{exampleblock}{\SolutionID{03.04}}差分为 3x\ensuremath{^{2}}+h\ensuremath{^{2}}，精确值 3x\ensuremath{^{2}}；误差 h\ensuremath{^{2}}，与 f\ensuremath{^{\prime\prime\prime}}/\allowbreak{}6=1 一致。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{03.04-e01ede7e0a}；\CourseRef{Eq}{03.04}；\CourseRef{SYM}{03.04}；\CourseRef{Alg}{03.04}。
+\SourceLine{BOOK-NUMERICS；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{数值积分、收敛与误差账本：问题与图像}\FrameAnchor{03.05-1}
+\footnotesize
+\begin{block}{本节问题}一个数值结果何时可以称为已经收敛？\end{block}
+\PhysicalFlow{选择离散规则}{逐级加密}{分离误差来源}{03.05}
+\begin{block}{物理原则}\KnowledgeID{03.05}\quad 只报最终小数而不报网格、停止准则和误差来源，结果不可复现。\end{block}
+\SourceLine{BOOK-NUMERICS；BOOK-STAT}
+\end{frame}
+
+\begin{frame}[t]{数值积分、收敛与误差账本：定义与主公式}\FrameAnchor{03.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{03.05-3623b8ccdc} 梯形法 & 以分段线性函数近似积分\\
+\DefinitionID{03.05-26d7e20674} Richardson 外推 & 用已知误差阶消去领先项\\
+\DefinitionID{03.05-bb9f870b96} 误差账本 & 逐项记录统计与系统不确定度\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{03.05} 主公式}\centering\CourseDisplayEquation{T_h[x^2]-\int_0^Lx^2dx=\frac{Lh^2}{6}\quad(h=L/N)}\end{block}
+复合梯形法对二次函数的误差可精确写出，并呈二阶收敛。
+\end{frame}
+
+\begin{frame}[t]{数值积分、收敛与误差账本：推导与证据边界}\FrameAnchor{03.05-3}
+\footnotesize
+\DerivationID{03.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{03.05}：
+\begin{enumerate}
+\item 梯形和为 h[0/\allowbreak{}2+\ensuremath{\Sigma}\ensuremath{_{n=1}}\ensuremath{^{N-1}}(nh)\ensuremath{^{2}}+L\ensuremath{^{2}}/\allowbreak{}2]。
+\item 代入 \ensuremath{\Sigma}n\ensuremath{^{2}}=(N-1)N(2N-1)/\allowbreak{}6 与 h=L/\allowbreak{}N。
+\item 化简得 T=L\ensuremath{^{3}}/\allowbreak{}3+Lh\ensuremath{^{2}}/\allowbreak{}6，减去精确积分即结论。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{03.05}\quad 复合梯形法二次函数误差；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：N 为正整数；h=L/\allowbreak{}N
+\end{block}
+\BoundaryLine{浮点舍入、一般函数高阶导数界和自适应策略不在此恒等式内。}
+\end{frame}
+
+\begin{frame}[t]{数值积分、收敛与误差账本：计算算法}\FrameAnchor{03.05-4}
+\footnotesize
+\AlgorithmID{03.05}\begin{enumerate}
+\item 列出格距、盒长、样本数、拟合窗等控制参数。
+\item 每次只系统改变一个参数并保留原始结果。
+\item 拟合预期收敛幂次，检查残差与稳定区。
+\item 把离散、有限体积、统计和模型选择分别记账。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] h\ensuremath{\rightarrow}0 时误差趋零。
+\item[\CheckMark] L 和 h 都有长度量纲，误差 Lh\ensuremath{^{2}} 与积分的 L\ensuremath{^{3}} 量纲一致。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{数值积分、收敛与误差账本：练习与完整解答}\FrameAnchor{03.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{03.05}}已知 T\_h=1.02、T\ensuremath{_{h/2}}=1.005 且误差为二阶，做 Richardson 外推。\end{block}
+\begin{exampleblock}{\SolutionID{03.05}}I\ensuremath{\approx}(4T\ensuremath{_{h/2}}-T\_h)/\allowbreak{}3=(4.02-1.02)/\allowbreak{}3=1.000。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{03.05-3623b8ccdc}；\CourseRef{Eq}{03.05}；\CourseRef{SYM}{03.05}；\CourseRef{Alg}{03.05}。
+\SourceLine{BOOK-NUMERICS；BOOK-STAT}
+\end{frame}
+
+\begin{frame}[t]{第 3 卷能力清单}\FrameAnchor{V03-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能实现离散傅里叶变换
+\item[\CheckMark] 能计算均值与方差
+\item[\CheckMark] 能区分截断误差和统计误差
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 3 卷来源（1/2）}\FrameAnchor{V03-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-NUMERICS} & 数值分析预备课（课程自编） & 差分、求积、收敛阶、线性求解和误差账本。\\
+\SourceID{BOOK-STAT} & Monte Carlo 统计与拟合讲义（课程自编） & 协方差、重采样、覆盖率和模型系统学。\\
+\SourceID{P07} & 威尔逊流的性质与应用 & 论文图谱 P07 的完整原始 PDF；底稿 arXiv:1006.4518；SHA-256 63426411712d8b00…。\\
+\SourceID{BOOK-MATH} & 数学预备课（课程自编） & 补足高中到微积分、Fourier 和量纲分析的完整推导。\\
+\SourceID{P08} & 梯度流的微扰分析 & 论文图谱 P08 的完整原始 PDF；底稿 arXiv:1101.0963；SHA-256 da3927cb38f6f864…。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 3 卷来源（2/2）}\FrameAnchor{V03-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\bottomrule\end{tabularx}\end{frame}
+

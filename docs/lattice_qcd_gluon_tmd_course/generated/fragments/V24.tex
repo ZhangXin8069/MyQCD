@@ -1,0 +1,365 @@
+\begin{frame}[plain]\FrameAnchor{V24-title}
+\centering
+{\Large\bfseries\color{courseblue}第 24 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 量子场论深化：传播子、微扰论与 LSZ\par}
+\vspace{0.35cm}
+{\large 从场的正则量子化一直推到散射振幅、圈积分和重整化群。\par}
+\vfill
+\CourseID{Tbl}{24.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 24 卷路线图}\FrameAnchor{V24-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+24.01 & 正则量子化、模展开与真空\\
+24.02 & 复分析与分布桥梁：传播子、留数和 i\ensuremath{\epsilon}\\
+24.03 & 相互作用图、生成泛函与 Feynman 规则\\
+24.04 & 固定归一化的 Minkowski LSZ 与 Euclidean 边界\\
+24.05 & \ensuremath{\lambda}\ensuremath{\phi}\ensuremath{^{4}} 一圈：正则化、极点、反项与 beta\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-QFT；BOOK-LQCD；P19}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V24-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V06
+\item V22
+\item V23
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能推导自由场传播子
+\item 能写 Feynman 规则与 LSZ 约化
+\item 能做一圈量纲与 RG 检查
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：Euclidean 自由传播子}\FrameAnchor{V24-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0,xmax=5,ymin=0,ymax=1.05,xlabel={$p/m$},ylabel={$m^2G(p)=1/(1+(p/m)^2)$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0:5,samples=160] {1/(1+x^2)};
+\addlegendentry{标量传播子}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{24.00}：无相互作用解析曲线；纵轴无量纲。
+\SourceLine{自由场 Green 函数}
+\end{frame}
+
+\begin{frame}[t]{正则量子化、模展开与真空：问题与图像}\FrameAnchor{24.01-1}
+\footnotesize
+\begin{block}{本节问题}经典场的每个 Fourier 模怎样成为量子谐振子？\end{block}
+\PhysicalFlow{经典共轭场 \ensuremath{\pi}}{等时对易关系}{a、a† 模展开与 Fock 空间}{24.01}
+\begin{block}{物理原则}\KnowledgeID{24.01}\quad 连续 \ensuremath{\delta}、有限盒 Kronecker \ensuremath{\delta} 和格点归一化之间必须随体积因子一致转换。\end{block}
+\SourceLine{BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{正则量子化、模展开与真空：定义与主公式}\FrameAnchor{24.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{24.01-83265b3372} 正则量子化 & 把场与共轭动量提升为满足等时对易关系的算符\\
+\DefinitionID{24.01-f514e7f435} Fock 空间 & 由各动量模式占据数张成的多粒子空间\\
+\DefinitionID{24.01-8d9eb7fe65} 零点能 & 每个玻色模式的基态能量 \ensuremath{\omega}/\allowbreak{}2\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{24.01} 主公式}\centering\CourseDisplayEquation{[\phi(t,\bm x),\pi(t,\bm y)]=i\delta^{(3)}(\bm x-\bm y),\qquad H=\int d^3p\,\omega_{\bm p}\left(a^\dagger_{\bm p}a_{\bm p}+\frac12\right)}\end{block}
+正确归一化的模展开把场对易关系化为 a、a† 的 \ensuremath{\delta} 对易关系。
+\end{frame}
+
+\begin{frame}[t]{正则量子化、模展开与真空：推导与证据边界}\FrameAnchor{24.01-3}
+\footnotesize
+\DerivationID{24.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{24.01}：
+\begin{enumerate}
+\item 把自由 Klein--Gordon 场展开为正、负频平面波并引入未知归一化。
+\item 用 \ensuremath{\pi}=\ensuremath{\phi}dot 代入等时对易关系，平面波完备性固定系数 1/\allowbreak{}\ensuremath{\sqrt{2\omega}}。
+\item 把展开代入 Hamiltonian；非数守恒交叉项相消，得到各模式独立谐振子之和。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{24.01}\quad 正则量子化、模展开与真空；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：Schrödinger 表示 p=-i d/\allowbreak{}dx；以多项式测试函数作精确代理
+\end{block}
+\BoundaryLine{验证单自由度 [x,p]=i；场的分布 \ensuremath{\delta} 与真空发散未由 SymPy 处理。}
+\end{frame}
+
+\begin{frame}[t]{正则量子化、模展开与真空：计算算法}\FrameAnchor{24.01-4}
+\footnotesize
+\AlgorithmID{24.01}\begin{enumerate}
+\item 先在有限周期盒离散动量，避免形式 \ensuremath{\delta}(0)。
+\item 构造截断 Fock 模式并检查内部态对易关系。
+\item 比较 Hamiltonian 数值本征值与 \ensuremath{\Sigma}\ensuremath{\omega}(n+1/\allowbreak{}2)。
+\item 扩大占据数和动量截断，分离物理收敛与真空常数发散。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 单模式退化为普通量子谐振子。
+\item[\CheckMark] 有限维截断的最高态必破坏精确对易关系。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{正则量子化、模展开与真空：练习与完整解答}\FrameAnchor{24.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{24.01}}一个频率 \ensuremath{\omega} 的单模 n 粒子态能量是多少？\end{block}
+\begin{exampleblock}{\SolutionID{24.01}}E\_n=\ensuremath{\omega}(n+1/\allowbreak{}2)；正规序后常把共同零点项另行处理。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{24.01-83265b3372}；\CourseRef{Eq}{24.01}；\CourseRef{SYM}{24.01}；\CourseRef{Alg}{24.01}。
+\SourceLine{BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{复分析与分布桥梁：传播子、留数和 i\ensuremath{\epsilon}：问题与图像}\FrameAnchor{24.02-1}
+\footnotesize
+\begin{block}{本节问题}\ensuremath{\delta} 函数不是普通函数、极点又不在实轴上时，传播子的边界条件怎样精确定义？\end{block}
+\PhysicalFlow{先把 \ensuremath{\delta} 和极点理解为对测试函数的作用}{再学闭合轮廓与留数}{最后比较 Feynman、retarded、advanced}{24.02}
+\begin{block}{物理原则}\KnowledgeID{24.02}\quad Feynman 传播子是时序振幅，并不等同于经典因果响应；retarded 的两极点都在下半平面且 t<0 为零，advanced 的两极点都在上半平面且 t>0 为零。Wick 转动只有在变形轮廓不穿越奇点时才成立。\end{block}
+\SourceLine{BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{复分析与分布桥梁：传播子、留数和 i\ensuremath{\epsilon}：定义与主公式}\FrameAnchor{24.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{24.02-5a50d58c75} 复平面与轮廓 & 复数 z=x+iy 画成平面点；轮廓是带方向的曲线，闭合轮廓首尾相接\\
+\DefinitionID{24.02-b3f4578723} 测试函数与分布 & 测试函数是光滑且快速衰减的探针；分布不是逐点函数，而是把每个测试函数映成数的线性规则\\
+\DefinitionID{24.02-9986fccf93} Dirac \ensuremath{\delta} & 由 \ensuremath{\int}dx \ensuremath{\delta}(x-a)f(x)=f(a) 定义的分布\\
+\DefinitionID{24.02-bab50e91f1} 主值 PV & 在奇点两侧对称挖去同样小区间后取极限的积分处方\\
+\DefinitionID{24.02-7ad2746b7f} 留数 & 复函数在孤立简单极点 z0 附近 (z-z0)\ensuremath{^{-1}} 的系数；闭合轮廓积分等于内部留数和的 2\ensuremath{\pi}i 倍\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{24.02} 主公式}\centering\CourseDisplayEquation{\int dx\,\delta(x-a)f(x)=f(a),\quad \oint_C dz\,f(z)=2\pi i\sum_{z_k\in C}\operatorname{Res}_{z_k}f,\quad \frac1{x\pm i0}=\operatorname{PV}\frac1x\mp i\pi\delta(x);\qquad \Delta_F(p)=\frac{i}{p^2-m^2+i0}}\end{block}
+i0 表示先保留 \ensuremath{\epsilon}>0、让表达式作用在测试函数上，再取 \ensuremath{\epsilon}\ensuremath{\rightarrow}0；它把正能极点移到实轴下方、负能极点移到上方，因而精确选出真空时序 Green 函数。
+\end{frame}
+
+\begin{frame}[t]{复分析与分布桥梁：传播子、留数和 i\ensuremath{\epsilon}：推导与证据边界}\FrameAnchor{24.02-3}
+\footnotesize
+\DerivationID{24.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{24.02}：
+\begin{enumerate}
+\item 先用测试函数 f 写 x=0 附近积分，把 f(x)=f(0)+[f(x)-f(0)] 分开；奇函数部分按对称主值定义，半圆绕极点给 \ensuremath{\mp}i\ensuremath{\pi}f(0)，得到上面的 PV/\allowbreak{}\ensuremath{\delta} 分解。
+\item 取 Fourier 因子 e\ensuremath{^{-ip0t}}：t>0 时为使大半圆衰减而闭合下半平面，t<0 时闭合上半平面；轮廓方向同时决定留数前的正负号。
+\item 令 Ep=sqrt(p\ensuremath{^{2}}+m\ensuremath{^{2}})。Feynman 分母的极点为 p0=+Ep-i0 与 -Ep+i0，所以两种时间方向各取一个极点并重现 \ensuremath{\langle}0|T\ensuremath{\phi}(x)\ensuremath{\phi}(0)|0\ensuremath{\rangle}。
+\item retarded 可写成 i/\allowbreak{}[(p0+i0)\ensuremath{^{2}}-Ep\ensuremath{^{2}}]、advanced 写成 i/\allowbreak{}[(p0-i0)\ensuremath{^{2}}-Ep\ensuremath{^{2}}]；两极点同侧便分别产生只在未来或只在过去有支撑的响应。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{24.02}\quad 复分析与分布桥梁：传播子、留数和 i\ensuremath{\epsilon}；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：远离极点 p\ensuremath{^{2}}=m\ensuremath{^{2}}；i\ensuremath{\epsilon} 在纯代数代理中省略
+\end{block}
+\BoundaryLine{不验证 Fourier 轮廓、因果边界和分布意义。}
+\end{frame}
+
+\begin{frame}[t]{复分析与分布桥梁：传播子、留数和 i\ensuremath{\epsilon}：计算算法}\FrameAnchor{24.02-4}
+\footnotesize
+\AlgorithmID{24.02}\begin{enumerate}
+\item 在纸上先固定度规 (+---)、Fourier 因子 e\ensuremath{^{-ipx}} 和闭合方向。
+\item 用一个测试函数数值比较 \ensuremath{\epsilon}>0 的积分与 PV/\allowbreak{}\ensuremath{\delta} 分解，确认 \ensuremath{\epsilon}\ensuremath{\rightarrow}0 收敛的是积分而非逐点值。
+\item 分别按三种极点处方做 p0 留数并画出时间支撑。
+\item 欧氏化后反演 pE\ensuremath{^{2}}+m\ensuremath{^{2}}，检查 KG=I、大距离 e\ensuremath{^{-mr}} 以及零模处理。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 若所闭合半平面没有极点且大半圆上的积分趋零，实轴积分为零。
+\item[\CheckMark] 直接删掉 i0 会失去绕极点规则，实轴积分不再有唯一分布意义。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{复分析与分布桥梁：传播子、留数和 i\ensuremath{\epsilon}：练习与完整解答}\FrameAnchor{24.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{24.02}}对 Fourier 因子 e\ensuremath{^{-ip0t}}，列出 Feynman、retarded、advanced 的极点位置，并说明哪种传播子在 t<0 必为零。\end{block}
+\begin{exampleblock}{\SolutionID{24.02}}Feynman：+Ep-i0、-Ep+i0；retarded：\ensuremath{\pm}Ep-i0，均在下半平面；advanced：\ensuremath{\pm}Ep+i0，均在上半平面。t<0 闭合上半平面，retarded 内无极点，所以严格为零。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{24.02-5a50d58c75}；\CourseRef{Eq}{24.02}；\CourseRef{SYM}{24.02}；\CourseRef{Alg}{24.02}。
+\SourceLine{BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{相互作用图、生成泛函与 Feynman 规则：问题与图像}\FrameAnchor{24.03-1}
+\footnotesize
+\begin{block}{本节问题}无穷多个 Wick 收缩如何组织成有限套图规则？\end{block}
+\PhysicalFlow{把相互作用指数展开}{自由高斯 Wick 配对}{连通图、对称因子与外腿}{24.03}
+\begin{block}{物理原则}\KnowledgeID{24.03}\quad 微扰级数通常是渐近级数；截断阶、重整化方案和尺度误差必须报告。\end{block}
+\SourceLine{BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{相互作用图、生成泛函与 Feynman 规则：定义与主公式}\FrameAnchor{24.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{24.03-69b014d9b7} Feynman 图 & 微扰展开中传播子与顶角收缩的组合编码\\
+\DefinitionID{24.03-2a33ce7f27} 对称因子 & 产生同一标号图的重复收缩数校正\\
+\DefinitionID{24.03-f333e3a7bd} 真空泡 & 不连接外源的图，在归一化关联函数中消去\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{24.03} 主公式}\centering\CourseDisplayEquation{Z[J]=\exp\!\left[-i\int d^4x\,\frac{\lambda}{4!}\left(\frac1i\frac{\delta}{\delta J(x)}\right)^4\right]Z_0[J]}\end{block}
+把 \ensuremath{\phi}\ensuremath{^{4}} 相互作用中的场替换为对源的泛函导数，所有自由收缩由高斯 Z0 自动产生。
+\end{frame}
+
+\begin{frame}[t]{相互作用图、生成泛函与 Feynman 规则：推导与证据边界}\FrameAnchor{24.03-3}
+\footnotesize
+\DerivationID{24.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{24.03}：
+\begin{enumerate}
+\item 从路径积分分出 exp[i\ensuremath{\int}J\ensuremath{\phi}] 与 exp[-i\ensuremath{\lambda}\ensuremath{\int}\ensuremath{\phi}\ensuremath{^{4}}/\allowbreak{}4!]。
+\item 用 \ensuremath{\phi} exp(iJ\ensuremath{\phi})=(1/\allowbreak{}i)\ensuremath{\delta}J exp(iJ\ensuremath{\phi}) 将相互作用场替成源导数。
+\item 对相互作用指数按 \ensuremath{\lambda} 展开并作用于 Z0；Wick 配对对应内部传播线，1/\allowbreak{}4! 与重复收缩给对称因子。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{24.03}\quad 相互作用图、生成泛函与 Feynman 规则；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：零维 Gaussian 生成泛函代理
+\end{block}
+\BoundaryLine{只验证四点 Wick 配对数 3；真实时空图、对称因子和正规化另算。}
+\end{frame}
+
+\begin{frame}[t]{相互作用图、生成泛函与 Feynman 规则：计算算法}\FrameAnchor{24.03-4}
+\footnotesize
+\AlgorithmID{24.03}\begin{enumerate}
+\item 明确作用量号差和顶角 convention。
+\item 按目标外腿数、loop 阶和守恒量生成拓扑。
+\item 为每图计算动量守恒、传播子、顶角和对称因子。
+\item 用低阶已知振幅、crossing、UV 幂计数和光学定理检查。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\lambda}=0 时只剩自由高斯生成泛函。
+\item[\CheckMark] 不连外源的真空泡在 Z[J]/\allowbreak{}Z[0] 中消去。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{相互作用图、生成泛函与 Feynman 规则：练习与完整解答}\FrameAnchor{24.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{24.03}}\ensuremath{\phi}\ensuremath{^{4}} 理论树级四点顶角（作用量含 -\ensuremath{\lambda}\ensuremath{\phi}\ensuremath{^{4}}/\allowbreak{}4!）是什么？\end{block}
+\begin{exampleblock}{\SolutionID{24.03}}按常用 Minkowski 约定顶角因子为 -i\ensuremath{\lambda}；符号随作用量和 Fourier 约定整体固定。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{24.03-69b014d9b7}；\CourseRef{Eq}{24.03}；\CourseRef{SYM}{24.03}；\CourseRef{Alg}{24.03}。
+\SourceLine{BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{固定归一化的 Minkowski LSZ 与 Euclidean 边界：问题与图像}\FrameAnchor{24.04-1}
+\footnotesize
+\begin{block}{本节问题}Minkowski 时序 Green 函数怎样给 S 矩阵，Euclidean 格点数据又为何不能直接 Fourier 后取壳？\end{block}
+\PhysicalFlow{固定单粒子态和 Fourier 归一化}{从每条外腿的单粒子极点截肢}{区分解析延拓与有限体积散射方法}{24.04}
+\begin{block}{物理原则}\KnowledgeID{24.04}\quad LSZ 假设外态是稳定、孤立的单粒子极点。实 Euclidean 频率 p4 通过 p0=ip4 对应虚 Minkowski 能量，物理壳 p0=Ep 位于复 p4；所以格点数据不能仅做离散 Fourier 再令 p\ensuremath{^{2}}=m\ensuremath{^{2}}。禁闭下夸克/\allowbreak{}胶子也不能作为物理渐近外态。\end{block}
+\SourceLine{BOOK-QFT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{固定归一化的 Minkowski LSZ 与 Euclidean 边界：定义与主公式}\FrameAnchor{24.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{24.04-a898b245a2} LSZ 约化 & 在稳定渐近粒子极点处截肢 Minkowski 时序 Green 函数以提取 S 矩阵\\
+\DefinitionID{24.04-a43130a725} 波函数重整化 & 由 \ensuremath{\langle}0|\ensuremath{\phi}(0)|p\ensuremath{\rangle}=sqrt(Z) 定义的单粒子极点留数\\
+\DefinitionID{24.04-1346e4b588} on shell & 外四动量满足 p0=+sqrt(p\ensuremath{^{2}}+m\ensuremath{^{2}})、即 p\ensuremath{^{2}}=m\ensuremath{^{2}} 的物理质量壳\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{24.04} 主公式}\centering\CourseDisplayEquation{\langle f|S|i\rangle_c=\prod_{j\in f}\frac{i}{\sqrt Z}\int d^4x_j\,e^{+ip'_j x_j}(\Box_{x_j}+m^2)\prod_{k\in i}\frac{i}{\sqrt Z}\int d^4y_k\,e^{-ip_k y_k}(\Box_{y_k}+m^2)\,G_c(\{x\},\{y\})}\end{block}
+这里固定 \ensuremath{\langle}p'|p\ensuremath{\rangle}=2Ep(2\ensuremath{\pi})\ensuremath{^{3}}\ensuremath{\delta}\ensuremath{^{3}}(p'-p)、度规 (+---)、\ensuremath{\langle}0|\ensuremath{\phi}|p\ensuremath{\rangle}=sqrt(Z)，并定义 S=1+iT、\ensuremath{\langle}f|iT|i\ensuremath{\rangle}=i(2\ensuremath{\pi})\ensuremath{^{4}}\ensuremath{\delta}\ensuremath{^{4}}(Pf-Pi)M；因此公式中的每个 i、Fourier 指数和 Z\ensuremath{^{-1/2}} 都有确定来源。
+\end{frame}
+
+\begin{frame}[t]{固定归一化的 Minkowski LSZ 与 Euclidean 边界：推导与证据边界}\FrameAnchor{24.04-3}
+\footnotesize
+\DerivationID{24.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{24.04}：
+\begin{enumerate}
+\item 在二点函数插入完整态；稳定粒子给 iZ/\allowbreak{}(p\ensuremath{^{2}}-m\ensuremath{^{2}}+i0)，其余多粒子谱在阈值处形成连续部分。
+\item n 点函数每接近一条外腿质量壳就分解出该传播子、sqrt(Z) 和较低点截肢核；作用 (Box+m\ensuremath{^{2}}) 或在动量空间乘 (p\ensuremath{^{2}}-m\ensuremath{^{2}}) 消去极点。
+\item 对全部外腿重复、乘 Z\ensuremath{^{-1/2}} 并按上式 Fourier，留下连通 S 矩阵；提出整体 \ensuremath{\delta}\ensuremath{^{4}} 后定义振幅 M。
+\item Euclidean 谱分解可可靠给稳定态能量和矩阵元；多强子散射则先求有限体积能谱/\allowbreak{}矩阵元，再用量化条件映到 Minkowski 振幅，而不是逐点做病态解析延拓。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{24.04}\quad 固定归一化的 Minkowski LSZ 与 Euclidean 边界；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：孤立单粒子简单极点
+\end{block}
+\BoundaryLine{验证 LSZ 截肢的极点代数；渐近态存在和多粒子支切另论。}
+\end{frame}
+
+\begin{frame}[t]{固定归一化的 Minkowski LSZ 与 Euclidean 边界：计算算法}\FrameAnchor{24.04-4}
+\footnotesize
+\AlgorithmID{24.04}\begin{enumerate}
+\item 先用二点函数确定质量、态归一化和 Z，并写清源/\allowbreak{}汇 Fourier 符号。
+\item 在可解析模型中同时算 Minkowski LSZ 与 Euclidean 谱表示，检查二者经合法解析延拓一致。
+\item 真实格点两体问题构造多强子算符基、提取多个体积/\allowbreak{}动量能级，再应用相应有限体积量化条件。
+\item 用 crossing、幺正性、阈值和自由极限检查振幅；共振只以振幅复能量极点报告。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 自由理论连通四点函数截肢后为零。
+\item[\CheckMark] Euclidean 稳定单粒子矩阵元不等于任意 2\ensuremath{\rightarrow}2 散射振幅。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{固定归一化的 Minkowski LSZ 与 Euclidean 边界：练习与完整解答}\FrameAnchor{24.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{24.04}}为什么实 Euclidean 格点频率不能直接代入 p\ensuremath{^{2}}=m\ensuremath{^{2}} 完成 LSZ？\end{block}
+\begin{exampleblock}{\SolutionID{24.04}}因为 p0=ip4，实 p4 只采样虚 Minkowski 能量，而物理极点 p0=Ep 对应复值 p4=-iEp；从有限含噪 Euclidean 数据继续到该点不由普通 Fourier 变换完成。稳定矩阵元用谱分解，多强子散射用有限体积量化条件。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{24.04-a898b245a2}；\CourseRef{Eq}{24.04}；\CourseRef{SYM}{24.04}；\CourseRef{Alg}{24.04}。
+\SourceLine{BOOK-QFT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{\ensuremath{\lambda}\ensuremath{\phi}\ensuremath{^{4}} 一圈：正则化、极点、反项与 beta：问题与图像}\FrameAnchor{24.05-1}
+\footnotesize
+\begin{block}{本节问题}能否从一个具体圈积分走完‘发散出现—局域反项消去—耦合运行’的全部步骤？\end{block}
+\PhysicalFlow{在 d=4-\ensuremath{\epsilon} 计算四点 bubble}{三通道极点由 \ensuremath{\delta}\ensuremath{\lambda} 消去}{保持 \ensuremath{\lambda}0 不变推出 beta}{24.05}
+\begin{block}{物理原则}\KnowledgeID{24.05}\quad 这里写的是 Wick 转动后的 Euclidean bubble；Minkowski 版本在 \ensuremath{\Delta}=m\ensuremath{^{2}}-x(1-x)p\ensuremath{^{2}}-i0 中保留处方。常数 cscheme 和有限项随 MS/\allowbreak{}MSbar 等方案改变，但一圈 1/\allowbreak{}\ensuremath{\epsilon} 系数及四维首项 beta 不变；有限阶仍须扫描 \ensuremath{\mu}。\end{block}
+\SourceLine{BOOK-QFT；P19}
+\end{frame}
+
+\begin{frame}[t]{\ensuremath{\lambda}\ensuremath{\phi}\ensuremath{^{4}} 一圈：正则化、极点、反项与 beta：定义与主公式}\FrameAnchor{24.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{24.05-b29cec83a1} 量纲正则化 & 把积分维数连续改为 d=4-\ensuremath{\epsilon}，并以 \ensuremath{\mu}\ensuremath{^{\epsilon}} 保持 \ensuremath{\lambda} 无量纲；UV 发散表现为 1/\allowbreak{}\ensuremath{\epsilon} 极点\\
+\DefinitionID{24.05-da788db65e} 反项 & 与原作用量局域算符同形、其系数专门消去正则化极点的项\\
+\DefinitionID{24.05-d7a12c7d2b} beta 函数 & \ensuremath{\beta}(\ensuremath{\lambda})=\ensuremath{\mu} d\ensuremath{\lambda}/\allowbreak{}d\ensuremath{\mu} 在裸参数固定时描述重整化耦合随尺度的变化\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{24.05} 主公式}\centering\CourseDisplayEquation{\begin{aligned}I(p^2)&=\mu^\epsilon\!\int\!\frac{d^{4-\epsilon}k}{(2\pi)^{4-\epsilon}}\frac1{(k^2+m^2)((k+p)^2+m^2)}\\ &=\frac1{16\pi^2}\left[\frac2\epsilon-\int_0^1dx\ln\frac{m^2+x(1-x)p^2}{\mu^2}+c_{\rm scheme}+O(\epsilon)\right],\\ \lambda_0&=\mu^\epsilon\left[\lambda+\frac{3\lambda^2}{16\pi^2\epsilon}+O(\lambda^3)\right],&\beta(\lambda)&=-\epsilon\lambda+\frac{3\lambda^2}{16\pi^2}+O(\lambda^3).\end{aligned}}\end{block}
+取 Lint=-\ensuremath{\lambda}\ensuremath{\phi}\ensuremath{^{4}}/\allowbreak{}4!。每个 s、t、u bubble 有 1/\allowbreak{}2 对称因子；I 的极点是 2/\allowbreak{}(16\ensuremath{\pi}\ensuremath{^{2}}\ensuremath{\epsilon})，所以三个通道在四点耦合中共给 3\ensuremath{\lambda}\ensuremath{^{2}}/\allowbreak{}(16\ensuremath{\pi}\ensuremath{^{2}}\ensuremath{\epsilon})，恰由 \ensuremath{\delta}\ensuremath{\lambda}=3\ensuremath{\lambda}\ensuremath{^{2}}/\allowbreak{}(16\ensuremath{\pi}\ensuremath{^{2}}\ensuremath{\epsilon}) 的局域 \ensuremath{\phi}\ensuremath{^{4}} 反项消去。
+\end{frame}
+
+\begin{frame}[t]{\ensuremath{\lambda}\ensuremath{\phi}\ensuremath{^{4}} 一圈：正则化、极点、反项与 beta：推导与证据边界}\FrameAnchor{24.05-3}
+\footnotesize
+\DerivationID{24.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{24.05}：
+\begin{enumerate}
+\item 用恒等式 1/\allowbreak{}(AB)=\ensuremath{\int}0\ensuremath{^{1}}dx/\allowbreak{}[xA+(1-x)B]\ensuremath{^{2}}，令 q=k+(1-x)p，分母成为 [q\ensuremath{^{2}}+\ensuremath{\Delta}(x)]\ensuremath{^{2}}，其中 Euclidean \ensuremath{\Delta}=m\ensuremath{^{2}}+x(1-x)p\ensuremath{^{2}}。
+\item 使用 \ensuremath{\int}d\ensuremath{^{d}}q/\allowbreak{}(2\ensuremath{\pi})\ensuremath{^{d}}(q\ensuremath{^{2}}+\ensuremath{\Delta})\ensuremath{^{-2}}=(4\ensuremath{\pi})\ensuremath{^{-d/2}}\ensuremath{\Gamma}(2-d/\allowbreak{}2)\ensuremath{\Delta}\ensuremath{^{d/2-2}}；d=4-\ensuremath{\epsilon} 时 \ensuremath{\Gamma}(\ensuremath{\epsilon}/\allowbreak{}2)=2/\allowbreak{}\ensuremath{\epsilon}-\ensuremath{\gamma}E+O(\ensuremath{\epsilon})，于是读出上式极点和有限对数。
+\item 单通道的耦合极点为 (\ensuremath{\lambda}\ensuremath{^{2}}/\allowbreak{}2)\ensuremath{\times}2/\allowbreak{}(16\ensuremath{\pi}\ensuremath{^{2}}\ensuremath{\epsilon})=\ensuremath{\lambda}\ensuremath{^{2}}/\allowbreak{}(16\ensuremath{\pi}\ensuremath{^{2}}\ensuremath{\epsilon})；s、t、u 相加为 3\ensuremath{\lambda}\ensuremath{^{2}}/\allowbreak{}(16\ensuremath{\pi}\ensuremath{^{2}}\ensuremath{\epsilon})。在 Lagrangian 加 -\ensuremath{\delta}\ensuremath{\lambda}\ensuremath{\phi}\ensuremath{^{4}}/\allowbreak{}4! 后，树级反项图与该发散异号并消去。
+\item 令 a=3/\allowbreak{}(16\ensuremath{\pi}\ensuremath{^{2}})，对 \ensuremath{\lambda}0=\ensuremath{\mu}\ensuremath{^{\epsilon}}(\ensuremath{\lambda}+a\ensuremath{\lambda}\ensuremath{^{2}}/\allowbreak{}\ensuremath{\epsilon}) 求导：0=\ensuremath{\epsilon}(\ensuremath{\lambda}+a\ensuremath{\lambda}\ensuremath{^{2}}/\allowbreak{}\ensuremath{\epsilon})+(1+2a\ensuremath{\lambda}/\allowbreak{}\ensuremath{\epsilon})\ensuremath{\beta}。展开到 \ensuremath{\lambda}\ensuremath{^{2}} 得 \ensuremath{\beta}=-\ensuremath{\epsilon}\ensuremath{\lambda}+a\ensuremath{\lambda}\ensuremath{^{2}}；在四维 \ensuremath{\epsilon}\ensuremath{\rightarrow}0 后 \ensuremath{\beta}=3\ensuremath{\lambda}\ensuremath{^{2}}/\allowbreak{}(16\ensuremath{\pi}\ensuremath{^{2}})>0。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{24.05}\quad \ensuremath{\lambda}\ensuremath{\phi}\ensuremath{^{4}} 一圈：正则化、极点、反项与 beta；4/4 项通过；SymPy exact。
+\par\scriptsize 假设：lambda phi\ensuremath{^{4}}/\allowbreak{}4! 于 d=4-epsilon；Euclidean massive bubble、MS 极点部分；三个 s/\allowbreak{}t/\allowbreak{}u 通道各含 1/\allowbreak{}2 对称因子
+\end{block}
+\BoundaryLine{完整验证一圈 bubble 的极点、delta\_lambda 与 beta\_lambda=3lambda\ensuremath{^{2}}/\allowbreak{}(16pi\ensuremath{^{2}})；有限部分、二圈、阈值与非微扰 triviality 不在本检查中。}
+\end{frame}
+
+\begin{frame}[t]{\ensuremath{\lambda}\ensuremath{\phi}\ensuremath{^{4}} 一圈：正则化、极点、反项与 beta：计算算法}\FrameAnchor{24.05-4}
+\footnotesize
+\AlgorithmID{24.05}\begin{enumerate}
+\item 符号计算 Feynman 参数化和 q 平移，数值检查不同 p\ensuremath{^{2}} 时极点系数不变。
+\item 分别生成 s、t、u 图并自动核对各自 1/\allowbreak{}2 对称因子。
+\item 把 loop 与 counterterm 相加，检查 1/\allowbreak{}\ensuremath{\epsilon} 系数逐项为零且剩余量纲正确。
+\item 改变 \ensuremath{\mu} 解一圈 RG，并确认用运行 \ensuremath{\lambda} 重写四点函数后显式 ln\ensuremath{\mu} 在该阶相消。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\lambda}=0 时 bubble、反项和 beta 都消失。
+\item[\CheckMark] 本例四点一圈只固定 \ensuremath{\delta}\ensuremath{\lambda}；二点 tadpole 的质量反项必须另算，不能拿 \ensuremath{\delta}\ensuremath{\lambda} 代替。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{\ensuremath{\lambda}\ensuremath{\phi}\ensuremath{^{4}} 一圈：正则化、极点、反项与 beta：练习与完整解答}\FrameAnchor{24.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{24.05}}由 I|pole=2/\allowbreak{}(16\ensuremath{\pi}\ensuremath{^{2}}\ensuremath{\epsilon})、每通道 1/\allowbreak{}2 和三个通道，求总极点、\ensuremath{\delta}\ensuremath{\lambda} 与四维 beta。\end{block}
+\begin{exampleblock}{\SolutionID{24.05}}总极点为 3\ensuremath{\times}(\ensuremath{\lambda}\ensuremath{^{2}}/\allowbreak{}2)\ensuremath{\times}2/\allowbreak{}(16\ensuremath{\pi}\ensuremath{^{2}}\ensuremath{\epsilon})=3\ensuremath{\lambda}\ensuremath{^{2}}/\allowbreak{}(16\ensuremath{\pi}\ensuremath{^{2}}\ensuremath{\epsilon})；取 \ensuremath{\delta}\ensuremath{\lambda} 同系数使反项图异号抵消。保持 \ensuremath{\lambda}0=\ensuremath{\mu}\ensuremath{^{\epsilon}}(\ensuremath{\lambda}+\ensuremath{\delta}\ensuremath{\lambda}) 不变得 \ensuremath{\beta}=-\ensuremath{\epsilon}\ensuremath{\lambda}+3\ensuremath{\lambda}\ensuremath{^{2}}/\allowbreak{}(16\ensuremath{\pi}\ensuremath{^{2}})，四维为 3\ensuremath{\lambda}\ensuremath{^{2}}/\allowbreak{}(16\ensuremath{\pi}\ensuremath{^{2}})。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{24.05-b29cec83a1}；\CourseRef{Eq}{24.05}；\CourseRef{SYM}{24.05}；\CourseRef{Alg}{24.05}。
+\SourceLine{BOOK-QFT；P19}
+\end{frame}
+
+\begin{frame}[t]{第 24 卷能力清单}\FrameAnchor{V24-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能推导自由场传播子
+\item[\CheckMark] 能写 Feynman 规则与 LSZ 约化
+\item[\CheckMark] 能做一圈量纲与 RG 检查
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 24 卷来源（1/1）}\FrameAnchor{V24-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-QFT} & An Introduction to Quantum Field Theory（仓库转排本） & 量子场论、规范理论、QCD 和重整化的主教材交叉核验。\\
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\SourceID{P19} & 格点算符非微扰重正化一般方法 & 论文图谱 P19 的完整原始 PDF；底稿 arXiv:hep-lat/\allowbreak{}9411010；SHA-256 413c5263159d9dbf…。\\
+\bottomrule\end{tabularx}\end{frame}
+

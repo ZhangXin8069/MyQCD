@@ -1,0 +1,371 @@
+\begin{frame}[plain]\FrameAnchor{V29-title}
+\centering
+{\Large\bfseries\color{courseblue}第 29 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 格点有限体积系统学\par}
+\vspace{0.35cm}
+{\large 系统区分指数型单粒子修正、两体幂律效应、扭曲边界与 QED 长程有限体积效应。\par}
+\vfill
+\CourseID{Tbl}{29.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 29 卷路线图}\FrameAnchor{V29-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+29.01 & Poisson 求和与有限盒修正的来源\\
+29.02 & 质量隙、m\ensuremath{\pi}L 与单强子指数修正\\
+29.03 & 两粒子在壳传播与幂律体积效应\\
+29.04 & 扭曲边界条件与连续动量调谐\\
+29.05 & QED 有限体积、零模与方案依赖\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-LQCD；DOC-EXTRAPOLATION；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V29-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V12
+\item V28
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能用 Poisson 求和估计盒效应
+\item 能选择并验证 m\ensuremath{\pi}L 与多体体积扫描
+\item 能正确陈述 QED 零模方案依赖
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：典型指数有限体积因子}\FrameAnchor{V29-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=2.5,xmax=8.0,ymin=0,ymax=0.006,xlabel={$m_\pi L$},ylabel={$e^{-m_\pi L}/(m_\pi L)^{3/2}$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=2.5:8.0,samples=160] {exp(-x)/(x^1.5)};
+\addlegendentry{主导绕盒项}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{29.00}：只显示量级；系数和多重绕行由具体 EFT 与观测量决定。
+\SourceLine{Poisson 求和与手征 EFT}
+\end{frame}
+
+\begin{frame}[t]{Poisson 求和与有限盒修正的来源：问题与图像}\FrameAnchor{29.01-1}
+\footnotesize
+\begin{block}{本节问题}把动量积分换成离散求和后，误差由什么控制？\end{block}
+\PhysicalFlow{无限体积连续动量积分}{周期盒离散动量和}{对偶空间绕盒像贡献}{29.01}
+\begin{block}{物理原则}\KnowledgeID{29.01}\quad 有质量且无壳单粒子量通常指数抑制；两粒子可在壳传播时会产生幂律体积效应。\end{block}
+\SourceLine{BOOK-MATH；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{Poisson 求和与有限盒修正的来源：定义与主公式}\FrameAnchor{29.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{29.01-79c340d568} Poisson 求和 & 连接直接格点求和与 Fourier 对偶格点求和的恒等式\\
+\DefinitionID{29.01-3313bbe2be} 绕盒像 & 传播粒子跨周期边界到达观测点的镜像路径\\
+\DefinitionID{29.01-2096343427} 质量隙 & 控制 Euclidean 长距离关联指数衰减的最低能量尺度\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{29.01} 主公式}\centering\CourseDisplayEquation{\frac1{L^d}\sum_{\bm n}f\!\left(\frac{2\pi\bm n}{L}\right)=\sum_{\bm m\in\mathbb Z^d}\int\frac{d^dp}{(2\pi)^d}f(\bm p)e^{iL\bm m\cdot\bm p}}\end{block}
+m=0 项就是无限体积积分，m\ensuremath{\ne}0 项是长度约 L|m| 的绕盒修正。
+\end{frame}
+
+\begin{frame}[t]{Poisson 求和与有限盒修正的来源：推导与证据边界}\FrameAnchor{29.01-3}
+\footnotesize
+\DerivationID{29.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{29.01}：
+\begin{enumerate}
+\item 对 g(x) 应用标准 Poisson 恒等 \ensuremath{\Sigma}n g(n)=\ensuremath{\Sigma}m ĝ(2\ensuremath{\pi}m)。
+\item 取 g(n)=L\ensuremath{^{-d}}f(2\ensuremath{\pi}n/\allowbreak{}L) 并变换变量到连续 p。
+\item m=0 精确给 \ensuremath{\int}dp f/\allowbreak{}(2\ensuremath{\pi})\ensuremath{^{d}}；其余项含 e\ensuremath{^{iLm\cdot p}}。
+\item 由 f 的复平面最近奇点或质量隙估计大 L 渐近。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{29.01}\quad Poisson 求和与有限盒修正的来源；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：一维 Gaussian f、\ensuremath{\alpha}>0
+\end{block}
+\BoundaryLine{验证 Poisson 公式中的单个 Fourier 像；无限格点求和收敛另论。}
+\end{frame}
+
+\begin{frame}[t]{Poisson 求和与有限盒修正的来源：计算算法}\FrameAnchor{29.01-4}
+\footnotesize
+\AlgorithmID{29.01}\begin{enumerate}
+\item 写出目标量在有限盒中的动量和表示。
+\item 分离 m=0 无限体积项与最短 |m|=1 绕盒壳。
+\item 按奇点/\allowbreak{}质量隙推导指数或幂律标度。
+\item 用至少两个更大 L 检查预测标度，并把残差纳入联合外推。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] L\ensuremath{\rightarrow}\ensuremath{\infty} 时所有 m\ensuremath{\ne}0 振荡项在适当条件下消失。
+\item[\CheckMark] 对 Gaussian f 可同时解析计算两边检验归一化。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{SymPy Gaussian Poisson 代理 + 多体积数值求和}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Poisson 求和与有限盒修正的来源：练习与完整解答}\FrameAnchor{29.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{29.01}}一维 Gaussian f(p)=e\ensuremath{^{-\alpha{}p^{2}}} 的最近绕盒项随 L 如何衰减？\end{block}
+\begin{exampleblock}{\SolutionID{29.01}}Fourier 变换仍是 Gaussian，m=\ensuremath{\pm}1 项正比 exp[-L\ensuremath{^{2}}/\allowbreak{}(4\ensuremath{\alpha})]，展示了解析函数可比 e\ensuremath{^{-mL}} 更快衰减。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{29.01-79c340d568}；\CourseRef{Eq}{29.01}；\CourseRef{SYM}{29.01}；\CourseRef{Alg}{29.01}。
+\SourceLine{BOOK-MATH；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{质量隙、m\ensuremath{\pi}L 与单强子指数修正：问题与图像}\FrameAnchor{29.02-1}
+\footnotesize
+\begin{block}{本节问题}为什么经验上常要求 m\ensuremath{\pi}L 足够大？\end{block}
+\PhysicalFlow{最轻 pion 绕过边界}{传播距离至少 L}{质量/\allowbreak{}矩阵元获指数尾修正}{29.02}
+\begin{block}{物理原则}\KnowledgeID{29.02}\quad m\ensuremath{\pi}L\ensuremath{\ge}4 只是经验筛选，不是统一误差上界；近阈值态、长程算符和物理 pion 质量需专门扫描。\end{block}
+\SourceLine{BOOK-LQCD；DOC-EXTRAPOLATION}
+\end{frame}
+
+\begin{frame}[t]{质量隙、m\ensuremath{\pi}L 与单强子指数修正：定义与主公式}\FrameAnchor{29.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{29.02-d0c93504fe} m\ensuremath{\pi}L & 以最轻强子 Compton 波长衡量盒长的无量纲参数\\
+\DefinitionID{29.02-d1eaa56dd1} 指数有限体积效应 & 由有质量虚粒子绕盒产生的 e\ensuremath{^{-mL}} 型修正\\
+\DefinitionID{29.02-14df41310a} 手征 EFT & 在低能区计算 pion 主导系数和多绕行项的有效理论\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{29.02} 主公式}\centering\CourseDisplayEquation{\Delta O(L)\sim A\frac{e^{-m_\pi L}}{(m_\pi L)^{3/2}}\left[1+O\!\left((m_\pi L)^{-1}\right)\right]}\end{block}
+四维中对三维绕盒动量作鞍点展开常产生 (mL)\ensuremath{^{-3/2}} 预因子；A 依观测量而异。
+\end{frame}
+
+\begin{frame}[t]{质量隙、m\ensuremath{\pi}L 与单强子指数修正：推导与证据边界}\FrameAnchor{29.02-3}
+\footnotesize
+\DerivationID{29.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{29.02}：
+\begin{enumerate}
+\item Euclidean 大距离有质量传播子按 e\ensuremath{^{-m r}} 乘幂次衰减。
+\item 最短周期镜像距离为 L，最轻可交换态 pion 主导。
+\item 三维动量积分在大 mL 鞍点附近给 (mL)\ensuremath{^{-3/2}}。
+\item 更长绕行和更重态额外指数受抑。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{29.02}\quad 质量隙、m\ensuremath{\pi}L 与单强子指数修正；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：仅保留首个 e\ensuremath{^{-x}}/\allowbreak{}x\ensuremath{^{3/2}} 项
+\end{block}
+\BoundaryLine{观测量系数、多绕行和更重态未验证。}
+\end{frame}
+
+\begin{frame}[t]{质量隙、m\ensuremath{\pi}L 与单强子指数修正：计算算法}\FrameAnchor{29.02-4}
+\footnotesize
+\AlgorithmID{29.02}\begin{enumerate}
+\item 对每个系综计算 m\ensuremath{\pi}L 与算符几何相对 L 的比例。
+\item 用 EFT 先验或自由系数拟合 e\ensuremath{^{-m\pi{}L}}/\allowbreak{}(m\ensuremath{\pi}L)\ensuremath{^{3/2}}。
+\item 比较删去最小体积和加入次级绕行项的结果。
+\item 把体积外推与 a、m\ensuremath{\pi} 外推联合传播协方差。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] m\ensuremath{\pi}L\ensuremath{\rightarrow}\ensuremath{\infty} 时修正趋零。
+\item[\CheckMark] 若观测量耦合不到单 pion，主导质量和幂次会改变。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{多体积联合外推与模型平均}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{质量隙、m\ensuremath{\pi}L 与单强子指数修正：练习与完整解答}\FrameAnchor{29.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{29.02}}m\ensuremath{\pi}L 从 4 增到 6，忽略系数时主导因子约缩小多少倍？\end{block}
+\begin{exampleblock}{\SolutionID{29.02}}比值 [e\ensuremath{^{-6}}/\allowbreak{}6\ensuremath{^{3/2}}]/\allowbreak{}[e\ensuremath{^{-4}}/\allowbreak{}4\ensuremath{^{3/2}}]=e\ensuremath{^{-2}}(4/\allowbreak{}6)\ensuremath{^{3/2}}\ensuremath{\approx}0.0737，即约缩小 13.6 倍。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{29.02-d0c93504fe}；\CourseRef{Eq}{29.02}；\CourseRef{SYM}{29.02}；\CourseRef{Alg}{29.02}。
+\SourceLine{BOOK-LQCD；DOC-EXTRAPOLATION}
+\end{frame}
+
+\begin{frame}[t]{两粒子在壳传播与幂律体积效应：问题与图像}\FrameAnchor{29.03-1}
+\footnotesize
+\begin{block}{本节问题}为什么散射能级不能用普通 e\ensuremath{^{-m\pi{}L}} 修正处理？\end{block}
+\PhysicalFlow{两粒子可同时在壳}{求和—积分差出现极点}{能级位移按 1/\allowbreak{}L\ensuremath{^{3}} 展开}{29.03}
+\begin{block}{物理原则}\KnowledgeID{29.03}\quad c1、c2 与散射长度符号依采用的量化/\allowbreak{}振幅约定；近束缚态时 a0/\allowbreak{}L 展开可能不收敛。\end{block}
+\SourceLine{BOOK-LQCD；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{两粒子在壳传播与幂律体积效应：定义与主公式}\FrameAnchor{29.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{29.03-f35e8d3371} 幂律有限体积效应 & 由在壳多粒子传播产生的 L\ensuremath{^{-n}} 修正\\
+\DefinitionID{29.03-4d840fd282} 阈值能移 & 最低两粒子能级相对质量和的位移\\
+\DefinitionID{29.03-c1673cb7b3} reduced mass & \ensuremath{\mu}=m1m2/\allowbreak{}(m1+m2)，控制低能相对运动\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{29.03} 主公式}\centering\CourseDisplayEquation{\Delta E=-\frac{2\pi a_0}{\mu L^3}\left[1+c_1\frac{a_0}{L}+c_2\left(\frac{a_0}{L}\right)^2+\cdots\right]+O(L^{-6})}\end{block}
+散射长度改变零相对动量两体态；归一化在体积 L\ensuremath{^{3}} 上稀释，故首项为 1/\allowbreak{}L\ensuremath{^{3}}。
+\end{frame}
+
+\begin{frame}[t]{两粒子在壳传播与幂律体积效应：推导与证据边界}\FrameAnchor{29.03-3}
+\footnotesize
+\DerivationID{29.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{29.03}：
+\begin{enumerate}
+\item 从 S 波 Lüscher 条件在 q\ensuremath{^{2}}\ensuremath{\approx}0 附近展开 zeta 函数。
+\item 用 k cot\ensuremath{\delta}\ensuremath{\approx}-1/\allowbreak{}a0 和非相对论 \ensuremath{\Delta}E=k\ensuremath{^{2}}/\allowbreak{}(2\ensuremath{\mu})。
+\item 逐阶反解 k\ensuremath{^{2}} 的 1/\allowbreak{}L 展开，首项正比 a0/\allowbreak{}L\ensuremath{^{3}}。
+\item 更高项由 zeta 几何常数和有效程贡献给出。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{29.03}\quad 两粒子在壳传播与幂律体积效应；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：阈值能移仅保留 L\ensuremath{^{-3}} 首项
+\end{block}
+\BoundaryLine{a0/\allowbreak{}L 高阶、有效程和完整 Lüscher 条件未包含。}
+\end{frame}
+
+\begin{frame}[t]{两粒子在壳传播与幂律体积效应：计算算法}\FrameAnchor{29.03-4}
+\footnotesize
+\AlgorithmID{29.03}\begin{enumerate}
+\item 确认能级位于弹性阈值附近且 |a0|/\allowbreak{}L 足够小。
+\item 逐 bootstrap 求 \ensuremath{\Delta}E，并以相关单强子质量消去共同涨落。
+\item 同时拟合多个 L 到阈值展开或完整 Lüscher 条件。
+\item 增加 r0、L\ensuremath{^{-6}} 项并检查参数自然性和预测覆盖。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] a0=0 时首阶能移为零。
+\item[\CheckMark] 自由极限和完整量化条件必须相互恢复。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{阈值能移相关拟合；完整 Lüscher 作为交叉检查}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{两粒子在壳传播与幂律体积效应：练习与完整解答}\FrameAnchor{29.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{29.03}}首阶近似下把 L 加倍，\ensuremath{\Delta}E 变为原来的多少？\end{block}
+\begin{exampleblock}{\SolutionID{29.03}}首项按 L\ensuremath{^{-3}}，所以变为 1/\allowbreak{}8；前提是 a0、\ensuremath{\mu} 不变且高阶可忽略。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{29.03-f35e8d3371}；\CourseRef{Eq}{29.03}；\CourseRef{SYM}{29.03}；\CourseRef{Alg}{29.03}。
+\SourceLine{BOOK-LQCD；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{扭曲边界条件与连续动量调谐：问题与图像}\FrameAnchor{29.04-1}
+\footnotesize
+\begin{block}{本节问题}不改变盒长，怎样获得整数 Fourier 网格之间的动量？\end{block}
+\PhysicalFlow{场绕盒取得相位}{动量条件平移 \ensuremath{\theta}/\allowbreak{}L}{扫描阈值与 form factor}{29.04}
+\begin{block}{物理原则}\KnowledgeID{29.04}\quad 含 annihilation 或海夸克敏感通道时 partial twisting 可引入额外有限体积效应，必须按通道论证。\end{block}
+\SourceLine{BOOK-LQCD；PYQCD-PROPAGATOR}
+\end{frame}
+
+\begin{frame}[t]{扭曲边界条件与连续动量调谐：定义与主公式}\FrameAnchor{29.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{29.04-fc8c100cd4} 扭曲边界 & \ensuremath{\psi}(x+Le\_i)=e\ensuremath{^{i\theta_i}}\ensuremath{\psi}(x) 的边界条件\\
+\DefinitionID{29.04-0332bc8974} partial twisting & 只扭曲价夸克、海夸克保持周期的计算策略\\
+\DefinitionID{29.04-f7309c7a8c} twist angle & 控制允许动量连续偏移的无量纲相位 \ensuremath{\theta}\_i\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{29.04} 主公式}\centering\CourseDisplayEquation{\psi(\bm x+L\hat e_i)=e^{i\theta_i}\psi(\bm x)\quad\Longrightarrow\quad p_i=\frac{2\pi n_i+\theta_i}{L}}\end{block}
+平面波绕盒相位 e\ensuremath{^{ip_iL}} 必须等于边界相位，因此 \ensuremath{\theta} 连续移动动量格点。
+\end{frame}
+
+\begin{frame}[t]{扭曲边界条件与连续动量调谐：推导与证据边界}\FrameAnchor{29.04-3}
+\footnotesize
+\DerivationID{29.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{29.04}：
+\begin{enumerate}
+\item 代入平面波 \ensuremath{\psi}=e\ensuremath{^{ip\cdot x}} 到扭曲边界。
+\item 约去 \ensuremath{\psi}(x) 得 e\ensuremath{^{ip_iL}}=e\ensuremath{^{i\theta_i}}。
+\item 相位相差 2\ensuremath{\pi}n，故 p\_iL=\ensuremath{\theta}\_i+2\ensuremath{\pi}n。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{29.04}\quad 扭曲边界条件与连续动量调谐；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：n 为整数
+\end{block}
+\BoundaryLine{不验证 partial twisting 的海夸克和 annihilation 有限体积效应。}
+\end{frame}
+
+\begin{frame}[t]{扭曲边界条件与连续动量调谐：计算算法}\FrameAnchor{29.04-4}
+\footnotesize
+\AlgorithmID{29.04}\begin{enumerate}
+\item 选目标 q\ensuremath{^{2}} 或阈值并解所需 \ensuremath{\theta} 向量。
+\item 在边界链接或 Dirac 算子中一致加入 U(1) 相位。
+\item 检查 \ensuremath{\theta}\ensuremath{\rightarrow}\ensuremath{\theta}+2\ensuremath{\pi} 与整数动量重标记等价。
+\item 用 \ensuremath{\pm}\ensuremath{\theta}、旋转方向和不同 L 验证色散及有限体积系统学。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\theta}=0 恢复周期动量。
+\item[\CheckMark] \ensuremath{\theta}=\ensuremath{\pi} 给反周期方向的半整数动量。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{Dirac 边界相位 + 单强子色散验证}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{扭曲边界条件与连续动量调谐：练习与完整解答}\FrameAnchor{29.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{29.04}}一维 L=4 fm、n=0、\ensuremath{\theta}=\ensuremath{\pi} 时 p 是多少 fm\ensuremath{^{-1}}？\end{block}
+\begin{exampleblock}{\SolutionID{29.04}}p=\ensuremath{\pi}/\allowbreak{}4 fm\ensuremath{^{-1}}\ensuremath{\approx}0.785 fm\ensuremath{^{-1}}，约 0.155 GeV。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{29.04-fc8c100cd4}；\CourseRef{Eq}{29.04}；\CourseRef{SYM}{29.04}；\CourseRef{Alg}{29.04}。
+\SourceLine{BOOK-LQCD；PYQCD-PROPAGATOR}
+\end{frame}
+
+\begin{frame}[t]{QED 有限体积、零模与方案依赖：问题与图像}\FrameAnchor{29.05-1}
+\footnotesize
+\begin{block}{本节问题}长程光子无质量时，为何普通指数体积直觉失效？\end{block}
+\PhysicalFlow{无质量光子产生长程像}{Gauss 定律阻碍周期盒净电荷}{移除零模定义 QED\_L/\allowbreak{}QED\_TL 等方案}{29.05}
+\begin{block}{物理原则}\KnowledgeID{29.05}\quad 系数和反射正性取决于零模处方；必须在生成组态、解析修正和外推中使用同一方案。\end{block}
+\SourceLine{BOOK-LQCD；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{QED 有限体积、零模与方案依赖：定义与主公式}\FrameAnchor{29.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{29.05-c15878dcb6} 光子零模 & 周期盒中四动量为零的规范场模式\\
+\DefinitionID{29.05-49994dc1a8} QED\_L & 逐时间片移除空间零动量模式的一种有限体积 QED 方案\\
+\DefinitionID{29.05-ffb2d6fb60} 普适 1/\allowbreak{}L 项 & 带电粒子自能由长程 Coulomb 像产生的首阶幂律修正\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{29.05} 主公式}\centering\CourseDisplayEquation{\Delta M_Q(L)=\alpha Q^2\left(\frac{c_1}{2L}+\frac{c_2}{M L^2}+\cdots\right)}\end{block}
+无质量传播子没有 e\ensuremath{^{-mL}} 抑制，周期 Coulomb 镜像给 1/\allowbreak{}L、1/\allowbreak{}L\ensuremath{^{2}} 等幂律项。
+\end{frame}
+
+\begin{frame}[t]{QED 有限体积、零模与方案依赖：推导与证据边界}\FrameAnchor{29.05-3}
+\footnotesize
+\DerivationID{29.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{29.05}：
+\begin{enumerate}
+\item 周期盒中对 Gauss 定律积分，净电荷与边界通量矛盾，故零模需特殊处理。
+\item 移除规定零模后，有限盒 Coulomb 求和减去无限积分。
+\item 量纲要求首个自能修正为 \ensuremath{\alpha}Q\ensuremath{^{2}}/\allowbreak{}L，次项可含 1/\allowbreak{}(ML\ensuremath{^{2}})。
+\item 结构依赖项在更高阶出现。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{29.05}\quad QED 有限体积、零模与方案依赖；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：同一 QED 零模方案和盒长
+\end{block}
+\BoundaryLine{不固定 QED\_L/\allowbreak{}QED\_TL 的普适系数或结构项。}
+\end{frame}
+
+\begin{frame}[t]{QED 有限体积、零模与方案依赖：计算算法}\FrameAnchor{29.05-4}
+\footnotesize
+\AlgorithmID{29.05}\begin{enumerate}
+\item 记录 QED\_L、QED\_TL、C* 或其他明确边界/\allowbreak{}零模定义。
+\item 以已知点粒子公式验证动量和与符号。
+\item 对多个 L 联合拟合普适项和结构项。
+\item 比较中性态、\ensuremath{\pm}Q 和不同方案转换，单列电磁与强同位旋破缺。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] Q=0 时普适 Q\ensuremath{^{2}}/\allowbreak{}L 自能项消失。
+\item[\CheckMark] \ensuremath{\alpha}\ensuremath{\rightarrow}0 时回到纯 QCD 有限体积分析。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{有限体积 Coulomb 和—积分差 + 多 L 外推}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{QED 有限体积、零模与方案依赖：练习与完整解答}\FrameAnchor{29.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{29.05}}同一方案下电荷从 Q=1 变 Q=2，首个 1/\allowbreak{}L 修正变几倍？\end{block}
+\begin{exampleblock}{\SolutionID{29.05}}按 Q\ensuremath{^{2}} 缩放，变为 4 倍。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{29.05-c15878dcb6}；\CourseRef{Eq}{29.05}；\CourseRef{SYM}{29.05}；\CourseRef{Alg}{29.05}。
+\SourceLine{BOOK-LQCD；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{第 29 卷能力清单}\FrameAnchor{V29-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能用 Poisson 求和估计盒效应
+\item[\CheckMark] 能选择并验证 m\ensuremath{\pi}L 与多体体积扫描
+\item[\CheckMark] 能正确陈述 QED 零模方案依赖
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 29 卷来源（1/2）}\FrameAnchor{V29-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\SourceID{DOC-EXTRAPOLATION} & 格点 QCD 中的外推 & 连续、有限体积和物理点外推。\\
+\SourceID{PYQCD-STATISTICS} & PyQCD 统计技能 & 自相关、重采样、协方差和拟合验证。\\
+\SourceID{BOOK-MATH} & 数学预备课（课程自编） & 补足高中到微积分、Fourier 和量纲分析的完整推导。\\
+\SourceID{PYQCD-PROPAGATOR} & PyQCD 传播子技能 & 线性求解、序贯源和传播子契约。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 29 卷来源（2/2）}\FrameAnchor{V29-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-QFT} & An Introduction to Quantum Field Theory（仓库转排本） & 量子场论、规范理论、QCD 和重整化的主教材交叉核验。\\
+\bottomrule\end{tabularx}\end{frame}
+

@@ -1,0 +1,362 @@
+\begin{frame}[plain]\FrameAnchor{V08-title}
+\centering
+{\Large\bfseries\color{courseblue}第 8 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 欧氏格点与规范链接\par}
+\vspace{0.35cm}
+{\large 把连续 QCD 放到有限四维超立方格点上，并保持精确格点规范对称。\par}
+\vfill
+\CourseID{Tbl}{08.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 8 卷路线图}\FrameAnchor{V08-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+08.01 & 有限周期格点与动量量子化\\
+08.02 & 链接变量与平行输运\\
+08.03 & Plaquette、场强与 Wilson 圈\\
+08.04 & Wilson 规范作用量与连续极限\\
+08.05 & 尺度、有限体积与 Symanzik 展开\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-LQCD；BOOK-QCD-LATTICE；DOC-SYMANZIK}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V08-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V03
+\item V06
+\item V07
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能换算格点坐标和动量
+\item 能构造链接、plaquette 和 Wilson 圈
+\item 能分析连续与有限体积极限
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：Wilson 离散化的领先误差}\FrameAnchor{V08-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0.0,xmax=0.5,ymin=0.0,ymax=0.3,xlabel={无量纲格距 $a\Lambda$},ylabel={相对误差（示意）},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0.0:0.5,samples=160] {x^2};
+\addlegendentry{O(a\ensuremath{^{2}})}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{08.00}：解析幂次示意；实际系数和高阶项需由多格距数据确定。
+\SourceLine{Symanzik 有效理论}
+\end{frame}
+
+\begin{frame}[t]{有限周期格点与动量量子化：问题与图像}\FrameAnchor{08.01-1}
+\footnotesize
+\begin{block}{本节问题}有限盒子如何把连续积分变成可计算的有限求和？\end{block}
+\PhysicalFlow{格距 a 与点数 N}{盒长 L=Na}{周期性给离散动量}{08.01}
+\begin{block}{物理原则}\KnowledgeID{08.01}\quad a 控制 UV 截断，L=Na 控制 IR 和有限体积；二者不是同一个极限。\end{block}
+\SourceLine{BOOK-LQCD；BOOK-QCD-LATTICE}
+\end{frame}
+
+\begin{frame}[t]{有限周期格点与动量量子化：定义与主公式}\FrameAnchor{08.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{08.01-f2758bfbb2} 格距 & 相邻格点的物理间隔\\
+\DefinitionID{08.01-6fd87f27bb} 格点体积 & 各方向点数的乘积\\
+\DefinitionID{08.01-50bf9da87b} Brillouin 区 & 离散周期格点的基本动量区域\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{08.01} 主公式}\centering\CourseDisplayEquation{x_\mu=a n_\mu,\qquad p_\mu=\frac{2\pi k_\mu}{N_\mu a}}\end{block}
+周期边界 e\ensuremath{^{ip(x+L)}}=e\ensuremath{^{ipx}} 要求 pL=2\ensuremath{\pi}整数。
+\end{frame}
+
+\begin{frame}[t]{有限周期格点与动量量子化：推导与证据边界}\FrameAnchor{08.01-3}
+\footnotesize
+\DerivationID{08.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{08.01}：
+\begin{enumerate}
+\item 周期条件给 exp(ipL)=1。
+\item 复指数等于 1 当且仅当 pL=2\ensuremath{\pi}k。
+\item 代入 L=Na，得到 p=2\ensuremath{\pi}k/\allowbreak{}(Na)；k 模 N 等价。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{08.01}\quad 周期边界的动量量子化；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：k,N 为整数；p=2pi k/\allowbreak{}(Na), L=Na
+\end{block}
+\BoundaryLine{有限格点还需识别 k 模 N 和 Brillouin 区。}
+\end{frame}
+
+\begin{frame}[t]{有限周期格点与动量量子化：计算算法}\FrameAnchor{08.01-4}
+\footnotesize
+\AlgorithmID{08.01}\begin{enumerate}
+\item 用整数元组保存格点坐标和动量标签。
+\item 所有平移使用模 N 运算实现周期边界。
+\item 集中定义 a、N、L 和物理单位换算。
+\item 以 exp(ipL)=1 和 FFT 峰值作单元测试。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] k=0 是零动量。
+\item[\CheckMark] k 与 k+N 给格点上完全相同的相位。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{有限周期格点与动量量子化：练习与完整解答}\FrameAnchor{08.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{08.01}}N=32、a=0.1 fm 时最小非零动量是多少？\end{block}
+\begin{exampleblock}{\SolutionID{08.01}}L=3.2 fm，pmin=2\ensuremath{\pi}/\allowbreak{}L\ensuremath{\approx}1.963 fm\ensuremath{^{-1}}\ensuremath{\approx}0.387 GeV（用 \ensuremath{\hbar}c\ensuremath{\approx}0.1973 GeV·fm）。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{08.01-f2758bfbb2}；\CourseRef{Eq}{08.01}；\CourseRef{SYM}{08.01}；\CourseRef{Alg}{08.01}。
+\SourceLine{BOOK-LQCD；BOOK-QCD-LATTICE}
+\end{frame}
+
+\begin{frame}[t]{链接变量与平行输运：问题与图像}\FrameAnchor{08.02-1}
+\footnotesize
+\begin{block}{本节问题}相邻格点的颜色向量属于不同局域基底，怎样比较它们？\end{block}
+\PhysicalFlow{起点 x}{链接 U\ensuremath{\mu}(x)}{终点 x+a\ensuremath{\mu} 的颜色基底}{08.02}
+\begin{block}{物理原则}\KnowledgeID{08.02}\quad 指数中的 agA 无量纲；对非阿贝尔场不能把矩阵指数当逐元素指数。\end{block}
+\SourceLine{BOOK-LQCD；MYQCD-FORMULAS}
+\end{frame}
+
+\begin{frame}[t]{链接变量与平行输运：定义与主公式}\FrameAnchor{08.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{08.02-fbd7d20146} 链接变量 & 沿一条格边的 SU(3) 平行输运矩阵\\
+\DefinitionID{08.02-8996451abf} 路径有序 & 非对易矩阵按路径先后相乘\\
+\DefinitionID{08.02-b06746312a} 反向链接 & U\ensuremath{_{-\mu}}(x+a\ensuremath{\mu})=U\ensuremath{\mu}†(x)\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{08.02} 主公式}\centering\CourseDisplayEquation{U_\mu(x)=\mathcal P\exp\!\left[ig\!\int_x^{x+a\hat\mu}A_\mu ds\right]=I+iagA_\mu+O(a^2)}\end{block}
+链接是连续规范连接沿格边的群值积分。
+\end{frame}
+
+\begin{frame}[t]{链接变量与平行输运：推导与证据边界}\FrameAnchor{08.02-3}
+\footnotesize
+\DerivationID{08.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{08.02}：
+\begin{enumerate}
+\item 在短边上把平滑 A\ensuremath{\mu} 近似为中点常量。
+\item 路径有序指数退化为矩阵指数 exp(iagA\ensuremath{\mu})。
+\item 按 a 展开得到 I+iagA\ensuremath{\mu}-(agA\ensuremath{\mu})\ensuremath{^{2}}/\allowbreak{}2+…。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{08.02}\quad 格点链接变量连续展开；2/2 项通过；SymPy exact；复用 myqcd.derivations.derive\_lattice\_link。
+\par\scriptsize 假设：a>0；A 为实且此处取可交换分量；非阿贝尔情形需使用矩阵指数
+\end{block}
+\BoundaryLine{在可交换单色分量验证幺正性和 a\ensuremath{^{2}} 展开；非阿贝尔使用矩阵指数。}
+\end{frame}
+
+\begin{frame}[t]{链接变量与平行输运：计算算法}\FrameAnchor{08.02-4}
+\footnotesize
+\AlgorithmID{08.02}\begin{enumerate}
+\item 把链接数组组织为 (Nt,Nz,Ny,Nx,4,3,3)。
+\item 用矩阵指数或生成算法得到 SU(3) 矩阵。
+\item 实现正向与反向取链的唯一函数。
+\item 检查每条链的 U†U-I 与 detU-1。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] a\ensuremath{\rightarrow}0 时 U\ensuremath{\rightarrow}I。
+\item[\CheckMark] 反向后再正向输运为单位矩阵。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{链接变量与平行输运：练习与完整解答}\FrameAnchor{08.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{08.02}}Abelian 常场 A 下，从 x 到 x+2a 的两链接乘积是多少？\end{block}
+\begin{exampleblock}{\SolutionID{08.02}}exp(iagA)\ensuremath{^{2}}=exp(i2agA)，与长度 2a 的直接输运一致。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{08.02-fbd7d20146}；\CourseRef{Eq}{08.02}；\CourseRef{SYM}{08.02}；\CourseRef{Alg}{08.02}。
+\SourceLine{BOOK-LQCD；MYQCD-FORMULAS}
+\end{frame}
+
+\begin{frame}[t]{Plaquette、场强与 Wilson 圈：问题与图像}\FrameAnchor{08.03-1}
+\footnotesize
+\begin{block}{本节问题}最小闭合方格怎样测量规范场的曲率？\end{block}
+\PhysicalFlow{沿 \ensuremath{\mu} 正向}{沿 \ensuremath{\nu}、再反向闭合}{plaquette 偏离单位元}{08.03}
+\begin{block}{物理原则}\KnowledgeID{08.03}\quad 四段路径的起点必须首尾相接；数组相乘合法不代表几何路径合法。\end{block}
+\SourceLine{BOOK-LQCD；P01}
+\end{frame}
+
+\begin{frame}[t]{Plaquette、场强与 Wilson 圈：定义与主公式}\FrameAnchor{08.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{08.03-f4df380cd6} plaquette & 一个基本方格边界上的有序链接乘积\\
+\DefinitionID{08.03-31fc4045c8} Wilson 圈 & 任意闭合路径上的链接迹\\
+\DefinitionID{08.03-75b6ef3660} 曲率 & 平行输运绕小圈后的净旋转\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{08.03} 主公式}\centering\CourseDisplayEquation{U_{\mu\nu}(x)=U_\mu(x)U_\nu(x+\hat\mu)U_\mu^\dagger(x+\hat\nu)U_\nu^\dagger(x)=e^{iga^2F_{\mu\nu}+O(a^3)}}\end{block}
+小 plaquette 的领先非平凡指数是面积 a\ensuremath{^{2}} 乘场强。
+\end{frame}
+
+\begin{frame}[t]{Plaquette、场强与 Wilson 圈：推导与证据边界}\FrameAnchor{08.03-3}
+\footnotesize
+\DerivationID{08.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{08.03}：
+\begin{enumerate}
+\item 逐段 Taylor 展开链接并把邻点 A 展开到共同起点。
+\item 一阶 A 项沿闭合圈相消。
+\item 二阶留下导数 curl 和交换子，组合成 iga\ensuremath{^{2}}F\ensuremath{\mu}\ensuremath{\nu}。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{08.03}\quad U(1) plaquette 的离散 curl；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：四个链接相位为实数
+\end{block}
+\BoundaryLine{非阿贝尔 Baker--Campbell--Hausdorff 展开和路径基点另行验证。}
+\end{frame}
+
+\begin{frame}[t]{Plaquette、场强与 Wilson 圈：计算算法}\FrameAnchor{08.03-4}
+\footnotesize
+\AlgorithmID{08.03}\begin{enumerate}
+\item 用带方向和位移的路径段描述几何。
+\item 逐段更新当前位置并取对应链接或共轭链接。
+\item 闭合后检查最终位移严格为零。
+\item 做局域规范变换，检查 plaquette 迹不变。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 纯规范场的闭圈为单位元。
+\item[\CheckMark] 交换 \ensuremath{\mu}、\ensuremath{\nu} 得 U\ensuremath{\nu}\ensuremath{\mu}=U\ensuremath{\mu}\ensuremath{\nu}† 到相同基点。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Plaquette、场强与 Wilson 圈：练习与完整解答}\FrameAnchor{08.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{08.03}}U(1) 中四段链接相位为 \ensuremath{\alpha}、\ensuremath{\beta}、-\ensuremath{\gamma}、-\ensuremath{\delta}，写出 plaquette。\end{block}
+\begin{exampleblock}{\SolutionID{08.03}}结果 exp[i(\ensuremath{\alpha}+\ensuremath{\beta}-\ensuremath{\gamma}-\ensuremath{\delta})]；其相位就是离散 curl。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{08.03-f4df380cd6}；\CourseRef{Eq}{08.03}；\CourseRef{SYM}{08.03}；\CourseRef{Alg}{08.03}。
+\SourceLine{BOOK-LQCD；P01}
+\end{frame}
+
+\begin{frame}[t]{Wilson 规范作用量与连续极限：问题与图像}\FrameAnchor{08.04-1}
+\footnotesize
+\begin{block}{本节问题}怎样从一格格 plaquette 恢复连续的 F\ensuremath{^{2}} 作用量？\end{block}
+\PhysicalFlow{每个 plaquette 的 1-ReTr}{全格点求和}{a\ensuremath{\rightarrow}0 恢复 Yang--Mills}{08.04}
+\begin{block}{物理原则}\KnowledgeID{08.04}\quad 连续极限不是简单把输入 a 改成零；需沿固定物理线调裸参数并用多格距外推。\end{block}
+\SourceLine{BOOK-LQCD；BOOK-QCD-LATTICE；P01}
+\end{frame}
+
+\begin{frame}[t]{Wilson 规范作用量与连续极限：定义与主公式}\FrameAnchor{08.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{08.04-50369ec4fc} Wilson 作用量 & 最简单的规范不变 plaquette 作用量\\
+\DefinitionID{08.04-d0cd18fb50} 裸耦合 & 格点截断下输入的耦合参数\\
+\DefinitionID{08.04-dc4acc220c} 连续极限 & 固定物理量时令 a\ensuremath{\rightarrow}0 的极限\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{08.04} 主公式}\centering\CourseDisplayEquation{S_g=\beta\sum_{x,\mu<\nu}\left(1-\frac13\operatorname{ReTr}U_{\mu\nu}(x)\right),\qquad\beta=\frac6{g_0^2}}\end{block}
+plaquette 迹的二阶展开给 a\ensuremath{^{4}} tr F\ensuremath{^{2}}，格点求和趋于四维积分。
+\end{frame}
+
+\begin{frame}[t]{Wilson 规范作用量与连续极限：推导与证据边界}\FrameAnchor{08.04-3}
+\footnotesize
+\DerivationID{08.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{08.04}：
+\begin{enumerate}
+\item 展开 U\ensuremath{\mu}\ensuremath{\nu}=exp(iga\ensuremath{^{2}}F)，线性项的迹因 F 无迹而消失。
+\item 实部领先偏离为 g\ensuremath{^{2}}a\ensuremath{^{4}} tr(F\ensuremath{^{2}})/\allowbreak{}2。
+\item \ensuremath{\Sigma}x a\ensuremath{^{4}}\ensuremath{\rightarrow}\ensuremath{\int}d\ensuremath{^{4}}x，代入 \ensuremath{\beta}=6/\allowbreak{}g0\ensuremath{^{2}} 后恢复约定归一化的 Yang--Mills 作用量。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{08.04}\quad Wilson plaquette 小场展开；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：U(1) 小相位代理
+\end{block}
+\BoundaryLine{SU(3) 迹归一化和格点求和系数依赖生成元约定。}
+\end{frame}
+
+\begin{frame}[t]{Wilson 规范作用量与连续极限：计算算法}\FrameAnchor{08.04-4}
+\footnotesize
+\AlgorithmID{08.04}\begin{enumerate}
+\item 遍历所有 x 和无序方向对 \ensuremath{\mu}<\ensuremath{\nu}。
+\item 构造 plaquette 并取实迹。
+\item 对体积求和并乘 \ensuremath{\beta}。
+\item 用单位构型得 S=0、规范变换不变和小场展开作测试。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 所有链接为 I 时每项为 0。
+\item[\CheckMark] 作用量实且非负，因为 SU(3) 的 ReTrU\ensuremath{\le}3。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Wilson 规范作用量与连续极限：练习与完整解答}\FrameAnchor{08.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{08.04}}一个 plaquette 的 ReTrU=2.7，\ensuremath{\beta}=6，它贡献多少？\end{block}
+\begin{exampleblock}{\SolutionID{08.04}}6\ensuremath{\times}(1-2.7/\allowbreak{}3)=6\ensuremath{\times}0.1=0.6。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{08.04-50369ec4fc}；\CourseRef{Eq}{08.04}；\CourseRef{SYM}{08.04}；\CourseRef{Alg}{08.04}。
+\SourceLine{BOOK-LQCD；BOOK-QCD-LATTICE；P01}
+\end{frame}
+
+\begin{frame}[t]{尺度、有限体积与 Symanzik 展开：问题与图像}\FrameAnchor{08.05-1}
+\footnotesize
+\begin{block}{本节问题}怎样判断格点结果是在逼近连续无限体积物理，而非格点伪影？\end{block}
+\PhysicalFlow{UV：a}{IR：L=Na}{多格距多体积联合控制}{08.05}
+\begin{block}{物理原则}\KnowledgeID{08.05}\quad 该拟合式是受理论指导的截断模型，阶数和先验必须由数据覆盖与稳定性检验。\end{block}
+\SourceLine{BOOK-LQCD；DOC-SYMANZIK}
+\end{frame}
+
+\begin{frame}[t]{尺度、有限体积与 Symanzik 展开：定义与主公式}\FrameAnchor{08.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{08.05-c1707b84fe} 尺度设定 & 用已知物理量把格点单位换成物理单位\\
+\DefinitionID{08.05-6bd8d817a4} 有限体积效应 & 空间盒子有限导致的系统偏差\\
+\DefinitionID{08.05-7d45eae1a6} Symanzik 展开 & 按 a 的幂组织格点伪影的有效理论\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{08.05} 主公式}\centering\CourseDisplayEquation{O(a,L)=O_{\rm cont}+c_a a^2+c_L e^{-m_\pi L}+\cdots}\end{block}
+对 O(a) 改进作用量，常见领先格距项为 a\ensuremath{^{2}}；有质量隙时有限体积修正常指数衰减。
+\end{frame}
+
+\begin{frame}[t]{尺度、有限体积与 Symanzik 展开：推导与证据边界}\FrameAnchor{08.05-3}
+\footnotesize
+\DerivationID{08.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{08.05}：
+\begin{enumerate}
+\item 连续对称性与格点离散对称性限制允许的修正算符。
+\item 若 O(a) 项已改进消去，领先解析格距项为 a\ensuremath{^{2}}。
+\item 粒子绕周期盒传播最短距离 L，质量隙 m\ensuremath{\pi} 给因子 exp(-m\ensuremath{\pi}L)。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{08.05}\quad 连续与无限体积极限；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：mass gap>0；O(a) 项已改进消去
+\end{block}
+\BoundaryLine{具体系数、幂次和有限体积函数须由作用量、算符与数据决定。}
+\end{frame}
+
+\begin{frame}[t]{尺度、有限体积与 Symanzik 展开：计算算法}\FrameAnchor{08.05-4}
+\footnotesize
+\AlgorithmID{08.05}\begin{enumerate}
+\item 至少准备多个格距和多个物理体积。
+\item 在共同物理参数处插值或联合拟合。
+\item 比较含/\allowbreak{}不含高阶 a\ensuremath{^{4}}、不同有限体积项的模型。
+\item 报告连续无限体积极限及模型平均或包络误差。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] a\ensuremath{\rightarrow}0、L\ensuremath{\rightarrow}\ensuremath{\infty} 时修正项消失。
+\item[\CheckMark] m\ensuremath{\pi}L 必须无量纲，通常要求 m\ensuremath{\pi}L\ensuremath{\gtrsim}4 只是经验门而非证明。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{尺度、有限体积与 Symanzik 展开：练习与完整解答}\FrameAnchor{08.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{08.05}}m\ensuremath{\pi}L 从 4 增至 5，简单指数有限体积项缩小多少倍？\end{block}
+\begin{exampleblock}{\SolutionID{08.05}}比值 e\ensuremath{^{-5}}/\allowbreak{}e\ensuremath{^{-4}}=e\ensuremath{^{-1}}\ensuremath{\approx}0.368。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{08.05-c1707b84fe}；\CourseRef{Eq}{08.05}；\CourseRef{SYM}{08.05}；\CourseRef{Alg}{08.05}。
+\SourceLine{BOOK-LQCD；DOC-SYMANZIK}
+\end{frame}
+
+\begin{frame}[t]{第 8 卷能力清单}\FrameAnchor{V08-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能换算格点坐标和动量
+\item[\CheckMark] 能构造链接、plaquette 和 Wilson 圈
+\item[\CheckMark] 能分析连续与有限体积极限
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 8 卷来源（1/1）}\FrameAnchor{V08-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\SourceID{BOOK-QCD-LATTICE} & Quantum Chromodynamics on the Lattice（仓库转排本） & 格点 QCD 形式体系、算法和系统误差的深入交叉核验。\\
+\SourceID{DOC-SYMANZIK} & Symanzik 有效理论 & 按格距幂次组织离散伪影。\\
+\SourceID{MYQCD-FORMULAS} & MyQCD 可执行公式注册表 & 复杂公式的 SymPy 精确代理与证据边界。\\
+\SourceID{P01} & 夸克禁闭 & 论文图谱 P01 的完整原始 PDF；底稿 books/\allowbreak{}复用(Wilson74)；SHA-256 6eadfb8d3e3cd217…。\\
+\bottomrule\end{tabularx}\end{frame}
+
