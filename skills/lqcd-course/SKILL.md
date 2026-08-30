@@ -94,9 +94,16 @@ frame 片段，不复制教学文字。论文图谱严格读取 `paper_sources.j
 `pages_expected` 和联系表总数完全一致；PDF 或渲染结果变化后旧记录立即失效。失败时先定位一个主因
 并最小修复，再做全回归；不要用缩小到不可读字号掩盖布局。
 
+活动视觉根目录固定为 `visual_audit/`，其 render manifest 必须使用
+`lattice-qcd-course-render-audit-v2`；外部人工记录与 manifest 内嵌记录都使用
+`lattice-qcd-course-manual-visual-review-v1`。两份人工记录的 status、审计指纹、页数、联系表数和三类
+缺陷计数必须逐字段相同。旧版本只允许保存在带版本或日期的归档目录，不得被验证器或 README 当作活动证据。
+
 每份 PDF 还必须保存通过状态、两遍 XeLaTeX、结构化内容/生成器/来源/验证结果的 generation 指纹、当前
 TeX/样式/片段（论文图谱另含原始 PDF）的输入指纹、PDF 哈希和日志哈希。逐页图与联系表分别保存唯一
 路径、尺寸和哈希。验证器必须重算并比对这些值，禁止旧 PDF 或重复图片仅凭页数相同继续通过。
+严格验收 JSON 还必须写出本次运行时间、严格模式开关、活动审计 schema 与精确指纹；旧失败快照或不同
+指纹的通过快照都不得用于当前交付摘要。
 
 ### 6. 交付
 
