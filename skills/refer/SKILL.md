@@ -108,10 +108,14 @@ cd <目录> && xelatex -interaction=nonstopmode -halt-on-error -output-directory
    xeCJK「bad native font flag」= 数学上标内 `\rm` 组含 `\bar{希腊}` →
    改 `\mathrm{CC},\bar{\nu}` 等价形式；缺图 → 从源包补齐 `images/`）；
 3. 收尾核对：各目录实测页数、EN/ZH 页数差异合理性。
+4. 文献将被课程/论文图谱消费时维护 `papers/provenance.json`。对原始 PDF 记录来源、源文件 SHA-256、
+   源页数、身份核对与检查状态；对转排件另记录源 PDF/源代码哈希、输出 PDF SHA-256、两遍编译日志哈希
+   和检查状态。任一适用输入变化都使旧通过状态失效；不得要求未经转排的原始 PDF 提供 XeLaTeX 日志。
 
 ### Step 5. 索引与文档收尾
 
-1. `papers/INDEX.md`：每篇一行——英文目录 / 中文目录 / EN页 / ZH页 / 底稿 / 备注；
+1. `papers/INDEX.md`：每篇一行——英文目录 / 中文目录 / EN页 / ZH页 / 底稿 / 备注；存在 provenance
+   manifest 时从其生成或逐项核对，禁止手写页数与 manifest 漂移；
 2. `papers/AGENTS.md`：结构约定、编译方式、质量说明、暂缺清单、勘误记录；
 3. 更新 `books/AGENTS.md` 或 refer 级 `AGENTS.md` 中相关段落；
 4. 过程只在终端输出，用户输入记录按工作区契约写入 `.agent.*.list`。

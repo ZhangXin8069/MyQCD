@@ -44,12 +44,15 @@
 4. `pages_expected=pages_actual=pages_rendered=pages_checked`；全页检查不是抽查。
 5. `occlusion_pairs=0`、`clipped_objects=0`、`outside_safe_area=0` 只能在视觉证据支持时填写。
 6. 主体文字保持投影可读；不使用 `tiny` 或整体缩放承载主信息。
-7. 当前 43 份主 PDF 应生成 57 张 8×8 联系表；必须逐张连续审阅。自动筛查无异常不能替代人工检查，
-   人工记录必须绑定源 PDF 与渲染参数的 SHA-256 审计指纹；PDF、页数或联系表变化后立即失效。
+7. 当前 43 份主 PDF 应生成 57 张 8×8 联系表；活动根目录固定为 `visual_audit/`，render schema 固定为
+   `lattice-qcd-course-render-audit-v2`。必须逐张连续审阅；自动筛查无异常不能替代人工检查。外部与
+   内嵌人工记录必须共享 manual schema、status、SHA-256 审计指纹、页数、联系表数和三类缺陷计数；
+   PDF、页数、参数或联系表变化后立即失效。旧 render 版本只可归档，不得作为活动输入。
 8. 生成片段中的空根号占位和字面 `\textasciicircum{}` 必须为零；根号参数、上标组与显式下标组需由
    序列化器回归用例验证，避免“版式通过但公式语义错误”。
 9. 严格验收必须现场重跑两层 SymPy，并核对精确 ID/lesson/check/assumption/boundary 集合；缓存 JSON 需
-   绑定脚本、SymPy 版本和结构化课程指纹，`0/0` 或任意伪造 ID 一律失败。
+   绑定脚本、SymPy 版本、结构化课程指纹、本次运行时间、严格模式开关以及活动视觉 schema/指纹，`0/0`、
+   任意伪造 ID、旧失败快照或不同视觉指纹的通过快照一律不得作为当前证据。
 10. 每页渲染图和每张联系表记录唯一预期路径、尺寸与 SHA-256；审计指纹还绑定 Ghostscript 版本、命令、
     DPI 和 8×8 网格。只核对页数或重复使用同一张图不得通过。
 

@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, List, Mapping, Optional, Sequence
 
@@ -1109,8 +1110,34 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     for item in checks:
         print(f"[{'PASS' if item.passed else 'FAIL'}] {item.name}: {item.detail}")
     failed = [item for item in checks if not item.passed]
+    audit_path = COURSE_DIR / "visual_audit" / "render_audit.json"
+    visual_audit_metadata: Optional[Mapping[str, object]] = None
+    if audit_path.is_file():
+        try:
+            audit = _load_json(audit_path)
+        except (OSError, ValueError) as exc:
+            visual_audit_metadata = {"error": f"{type(exc).__name__}: {exc}"}
+        else:
+            visual_audit_metadata = {
+                "root": "visual_audit",
+                "schema": audit.get("schema"),
+                "audit_fingerprint": audit.get("audit_fingerprint"),
+                "render_source_fingerprint": audit.get("render_source_fingerprint"),
+                "documents": audit.get("documents"),
+                "pages_expected": audit.get("pages_expected"),
+                "contact_sheets_total": audit.get("contact_sheets_total"),
+            }
     payload = {
         "schema": "lattice-qcd-course-verification-v1",
+        "verified_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "mode": {
+            "strict": args.strict,
+            "run_sympy": args.run_sympy,
+            "check_paper_identities": args.check_paper_identities,
+            "require_pdfs": args.require_pdfs,
+            "require_visual_audit": args.require_visual_audit,
+        },
+        "visual_audit": visual_audit_metadata,
         "passed": len(checks) - len(failed),
         "total": len(checks),
         "status": "passed" if not failed else "failed",

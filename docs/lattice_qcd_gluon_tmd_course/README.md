@@ -11,6 +11,7 @@
 - 核心全集实际 1159 页，编译页数与 Ghostscript 实测一致；
 - 6 份论文图谱收录 P01--P50，完整原始 PDF 共 1115 页，每篇恰好出现一次；
 - 175 条课程级 SymPy 验证，加 26 个可修改的教学代码例题。
+- 当前交付共 43 份 PDF、3489 个渲染页和 57 张 8×8 联系表；严格验收实测为 38/38 通过。
 
 ## 35 卷学习路线
 
@@ -55,7 +56,7 @@
 | `SOURCES.md` | book/paper/code/skill 的可追溯来源表 |
 | `generated/` | 35 分卷、核心全集、索引、6 图谱及 manifest |
 | `pdf/` | 通过构建闸门的最终 PDF |
-| `visual_audit/` | 3489 个渲染页、57 张联系表和人工审阅记录 |
+| `visual_audit/` | 当前活动的 v2 视觉证据：3489 个渲染页、57 张联系表和人工审阅记录 |
 
 知识对象统一使用 `K/Def/Eq/Thm/Fig/Tbl/Alg/Ex/Sol/Src/SYM-卷.单元`。论文使用 `Pxx`，具体原始页使用 `Pxx-pyyy`。分卷与全集共享同一 frame 片段，合订时编号不变。
 
@@ -93,24 +94,30 @@ python build_course.py all --target all --jobs 4
 编译日志通过后，将全部 43 份 PDF 渲染为逐页图并生成 8×8 联系表：
 
 ```bash
-conda run -n qcu python render_audit.py --jobs 4
+conda run -n qcu python render_audit.py --output visual_audit --dpi 96 --jobs 4 \
+  --columns 8 --rows 8
 ```
 
 必须逐张查看 `visual_audit/contact_sheets/` 中的全部联系表；只有连续覆盖所有页面，并核对自动标记的
 疑点页之后，才能在 `visual_audit/manual_review.json` 中填写 `status=passed`、实际检查页数以及三个零缺陷
 计数。`render_audit.py` 会对 43 份源 PDF、DPI 和联系表参数计算 SHA-256 审计指纹；源文件、页数、
-渲染参数或联系表数有任何变化，旧人工记录都不会被升级为通过。
+渲染参数或联系表数有任何变化，旧人工记录都不会被升级为通过。外部 `manual_review.json` 与
+`render_audit.json` 的内嵌人工记录必须在 schema、status、指纹、页数、联系表数和三类缺陷计数上完全一致。
+
+当前活动记录的 render schema 是 `lattice-qcd-course-render-audit-v2`，人工记录 schema 是
+`lattice-qcd-course-manual-visual-review-v1`，审计指纹为
+`69df4d909ef3ef85c4d838bf3ca64990f65050f2598517d455b27907d032991e`。历史 v1 证据保存在
+`visual_audit_v1_20260831/`；这里的 v1 专指历史 `render-audit-v1`，只用于追溯，不得作为当前验收输入。
 
 快速验收与严格验收：
 
 ```bash
 conda run -n qcu python verify_course.py --run-sympy --check-paper-identities
-conda run -n qcu python verify_course.py --run-sympy --check-paper-identities --require-pdfs \
-  --json generated/course_verification.json
+conda run -n qcu python verify_course.py --strict --json generated/verification_strict.json
 ```
 
 构建器拒绝 `Overfull`、`Float too large`、`Missing character`、未定义引用和实际页数不符。严格验收还
-要求 `pages_expected=pages_rendered=pages_checked`、57 张联系表齐全、自动疑点为空，并且遮挡、裁切和
+要求 `pages_expected=pages_actual=pages_rendered=pages_checked`、57 张联系表齐全、自动疑点为空，并且遮挡、裁切和
 安全区越界计数均为零。未完成人工逐页检查时只能写“编译验收完成”，不能写“视觉验收完成”。
 
 ## 论文与代码来源
