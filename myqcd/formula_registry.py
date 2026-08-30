@@ -534,6 +534,14 @@ CORE_FORMULAS: Dict[str, FormulaSpec] = {
         "derive_emt_trace_anomaly",
         "代入 beta=-b_0g^3-b_1g^5 与 gamma_m=d_0g^2+d_1g^4 验证规范项/质量项符号和阶数；不计算重正化算符矩阵元。",
     ),
+    "yang_mills_gradient_flow_emt": FormulaSpec(
+        "yang_mills_gradient_flow_emt",
+        r"U_{\mu\nu}=c_T\{T_{\mu\nu}\}_R+c_S\delta_{\mu\nu}\{F^2/4\}_R,\quad E=\langle E\rangle+c_E\{F^2/4\}_R,\quad \{T_{\mu\nu}\}_R=U_{\mu\nu}/c_T-c_S\delta_{\mu\nu}[E-\langle E\rangle]/(c_Tc_E)",
+        "refer/papers/杨米尔斯梯度流提取能动量张量_latex/chapters/section02.tex:1-139; chapters/section03.tex:1-100; chapters/section04.tex:1-110",
+        "verified",
+        "derive_yang_mills_gradient_flow_emt",
+        "用独立重正化算符代理验证纯 Yang--Mills 梯度流小时间展开的反解、D=4-2epsilon 下的迹恒等式、c_S 与 beta 函数关系及 Eq. (4.29) 系数重组；不计算圈积分和格点矩阵元。",
+    ),
     "auxiliary_field_wilson_renormalization": FormulaSpec(
         "auxiliary_field_wilson_renormalization",
         r"\langle\zeta(x+\xi n)\bar\zeta(x)\rangle=\theta(\xi)e^{-m\xi}W(x+\xi n,x),\quad \mathcal O^R_\Gamma=Z_\phi^2e^{-m|\xi|}\mathcal O_{\Gamma'},\quad \Gamma'=\Gamma+r_{\rm mix}\operatorname{sgn}(\xi)\{\slashed n,\Gamma\}+r_{\rm mix}^2\slashed n\Gamma\slashed n",
@@ -558,6 +566,14 @@ CORE_FORMULAS: Dict[str, FormulaSpec] = {
         "derive_hybrid_renormalization",
         "验证短/长距离在 z_S 的连续性、分段方案转换边界、混合核附加项在切换点消失及 exp(-m|z|) 产生的 Cauchy Fourier 核；不计算 C_ratio、plus 分布积分或格点拟合。",
     ),
+    "hybrid_momentum_matching_kernel": FormulaSpec(
+        "hybrid_momentum_matching_kernel",
+        r"C_{\rm hybrid}=C_{\rm ratio}+\frac{\alpha_sC_F}{2\pi}\frac32\left[-\frac{1}{|1-\xi|_+}+\frac{2\,\operatorname{Si}((1-\xi)\lambda_S)}{\pi(1-\xi)}\right],\quad \lambda_S=z_Sp^z,\quad \xi=y/x,\quad p^z=xP^z",
+        "refer/papers/准光前关联的混合重正化方案_latex/chapters/section03.tex:190-198",
+        "verified",
+        "derive_hybrid_momentum_matching_kernel",
+        "保留 C_ratio 为未展开的比值方案核，用 SymPy 验证 Si 项的两侧端点极限、plus 定义的 cutoff counterterm 在光滑测试函数上的消发散作用，以及 lambda_S 与部分子动量代换；不计算一般广义函数积分、端点 delta 配平或 PDF 矩阵元。",
+    ),
     "quasi_tmd_matching_and_cs_kernel": FormulaSpec(
         "quasi_tmd_matching_and_cs_kernel",
         r"\tilde\Psi^{\pm}S_r^{1/2}=H^{\pm}e^{K\ln[(-\zeta_z\mp i\epsilon)/\zeta]/2}\Psi^{\pm},\quad Z_E(2L,b_\perp)=\frac1{N_c}\mathrm{Tr}\langle U_\perp U_z\rangle,\quad K=\frac{\ln[H_2\tilde\Psi(P_1)/(H_1\tilde\Psi(P_2))]}{\ln(P_1/P_2)}",
@@ -565,6 +581,14 @@ CORE_FORMULAS: Dict[str, FormulaSpec] = {
         "verified",
         "derive_quasi_tmd_matching_and_cs_kernel",
         "验证 Wilson-loop 平方根抵消线性因子、乘法因子化、树级 form-factor 硬核与带硬因子的 CS 核提取；一圈硬核保留对数结构但不计算 i epsilon 复相位、running coupling 或非微扰矩阵元。",
+    ),
+    "quasi_tmd_hard_kernel_i_epsilon": FormulaSpec(
+        "quasi_tmd_hard_kernel_i_epsilon",
+        r"H^{\pm}=1+\frac{\alpha_sC_F}{4\pi}\left[-\frac{5\pi^2}{6}-4+\ell_{\pm}+\bar\ell_{\pm}-\frac12(\ell_{\pm}^2+\bar\ell_{\pm}^2)\right],\quad \ell_{\pm}=\ln[(-\zeta_z\pm i\epsilon)/\mu^2]",
+        "refer/papers/从准TMD波函数确定CS核_latex/chapters/section02.tex:79-89",
+        "verified",
+        "derive_quasi_tmd_hard_kernel_i_epsilon",
+        "在正实标度的主值复对数分支上验证 H^- 与 H^+ 的共轭关系、双对数虚部和树级极限；不取 i epsilon 分布极限，不计算 running coupling、非微扰 CS 核或格点矩阵元。",
     ),
     "ri_xmom_renormalization_conditions": FormulaSpec(
         "ri_xmom_renormalization_conditions",
@@ -589,6 +613,14 @@ CORE_FORMULAS: Dict[str, FormulaSpec] = {
         "verified",
         "derive_quasi_pdf_one_loop_matching_kernel",
         "逐段保留源文 xi>1、0<xi<1、xi<0 的一圈核和端点形式项，检查对数真数、无量纲参数与树级极限；不执行 plus 分布或端点广义积分。",
+    ),
+    "quasi_pdf_finite_momentum_one_loop_matching_kernel": FormulaSpec(
+        "quasi_pdf_finite_momentum_one_loop_matching_kernel",
+        r"\Lambda(\xi)=\sqrt{\mu^2+\xi^2(P^z)^2},\quad \widetilde q^{(1)}(\xi)\big|_{0<\xi<1}\sim\frac{1+\xi^2}{1-\xi}\ln\frac{(P^z)^2}{m^2}+\frac{1+\xi^2}{1-\xi}\ln\frac{4\xi[\Lambda(\xi)-\xi P^z]}{(1-\xi)[\Lambda(1-\xi)+(1-\xi)P^z]}-\frac{4\xi}{1-\xi}+1+\cdots",
+        "refer/papers/准部分子分布单圈匹配_latex/chapters/section02.tex:20-31; refer/papers/准部分子分布单圈匹配_latex/chapters/section03.tex:15-42",
+        "verified",
+        "derive_quasi_pdf_finite_momentum_one_loop_matching_kernel",
+        "区分有限 P^z 顶点、光锥顶点与未去除线性反项的匹配核；用平方根结构证明有限分支对数真数为正，并检查内区分支的代数相减。端点 delta、plus/principal-value 积分和完整圈积分仍未计算。",
     ),
     "collins_soper_evolution": FormulaSpec(
         "collins_soper_evolution",
