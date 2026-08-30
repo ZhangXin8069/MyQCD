@@ -9464,6 +9464,7 @@ def run_core_checks() -> Dict[str, Any]:
         derive_ri_mom_ratio_renormalization,
         derive_hybrid_renormalization,
         derive_hybrid_momentum_matching_kernel,
+        derive_twist2_flowed_moment_matching,
         derive_quasi_tmd_matching_and_cs_kernel,
         derive_quasi_tmd_hard_kernel_i_epsilon,
         derive_ri_xmom_renormalization_conditions,
