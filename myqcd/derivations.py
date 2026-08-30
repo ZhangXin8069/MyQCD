@@ -7642,8 +7642,7 @@ def derive_quasi_pdf_one_loop_matching_kernel() -> DerivationResult:
     ``xi<0`` 三个区域。这里逐字保留三段对数结构，并把端点归一化
     项保留为 ``DiracDelta(xi-1)`` 的形式。通过分别令
     ``xi=1+u``、``xi=u/(1+u)`` 和 ``xi=-u``（``u>0``），检查三段
-    对数的真数为正；共同的 ``mu/[P^z(1-xi)^2]`` 项保留为截断正规化
-    的线性发散；再检查 ``alpha_s->0`` 时匹配核回到树级端点。
+    对数的真数为正；再检查 ``alpha_s->0`` 时匹配核回到树级端点。
     不对端点的 plus 分布或 ``delta Z^(1)`` 形式积分作额外假设。
     """
 
@@ -7653,24 +7652,14 @@ def derive_quasi_pdf_one_loop_matching_kernel() -> DerivationResult:
     p_z = sp.Symbol("p_z", positive=True, real=True)
     mu = sp.Symbol("mu", positive=True, real=True)
     common_factor = (1 + xi**2) / (1 - xi)
-    linear_cutoff_term = mu / (p_z * (1 - xi) ** 2)
-    outer_branch = (
-        common_factor * sp.log(xi / (xi - 1))
-        + 1
-        + linear_cutoff_term
-    )
+    outer_branch = common_factor * sp.log(xi / (xi - 1)) + 1
     inner_branch = (
         common_factor * sp.log(p_z**2 / mu**2)
         + common_factor * sp.log(4 * xi * (1 - xi))
         - 2 * xi / (1 - xi)
         + 1
-        + linear_cutoff_term
     )
-    negative_branch = (
-        common_factor * sp.log((xi - 1) / xi)
-        - 1
-        + linear_cutoff_term
-    )
+    negative_branch = common_factor * sp.log((xi - 1) / xi) - 1
     z_one_loop_piecewise = sp.Piecewise(
         (outer_branch, xi > 1),
         (inner_branch, sp.And(xi > 0, xi < 1)),
@@ -7729,7 +7718,10 @@ def derive_quasi_pdf_one_loop_matching_kernel() -> DerivationResult:
     checks = {
         "outer_branch": _is_zero(
             outer_branch
-            - ((1 + xi**2) / (1 - xi) * sp.log(xi / (xi - 1)) + 1)
+            - (
+                (1 + xi**2) / (1 - xi) * sp.log(xi / (xi - 1))
+                + 1
+            )
         ),
         "inner_branch": _is_zero(
             inner_branch
@@ -7742,15 +7734,15 @@ def derive_quasi_pdf_one_loop_matching_kernel() -> DerivationResult:
         ),
         "negative_branch": _is_zero(
             negative_branch
-            - ((1 + xi**2) / (1 - xi) * sp.log((xi - 1) / xi) - 1)
+            - (
+                (1 + xi**2) / (1 - xi) * sp.log((xi - 1) / xi)
+                - 1
+            )
         ),
         "log_arguments": all(log_argument_checks),
         "tree_limit": _is_zero(tree_limit - sp.DiracDelta(xi - 1)),
         "dimensionless_arguments": _is_zero(
             dimensionless_argument_residual
-        ),
-        "linear_cutoff_dimensionless": _is_zero(
-            linear_cutoff_term * p_z / mu - 1 / (1 - xi) ** 2
         ),
     }
     return DerivationResult(
@@ -7760,7 +7752,6 @@ def derive_quasi_pdf_one_loop_matching_kernel() -> DerivationResult:
             "outer_branch": outer_branch,
             "inner_branch": inner_branch,
             "negative_branch": negative_branch,
-            "linear_cutoff_term": linear_cutoff_term,
             "delta_endpoint_integrand": delta_endpoint_integrand,
             "matching_kernel": matching_kernel,
             "tree_limit": tree_limit,
@@ -7782,6 +7773,286 @@ def derive_quasi_pdf_one_loop_matching_kernel() -> DerivationResult:
             "端点归一化保留为 DiracDelta(xi-1)，delta Z^(1) 只保留形式分支",
             "xi=y/x、p_z a 和 mu/p_z 是匹配核中的无量纲参数",
             "不执行 plus 分布、端点广义函数或完整一圈 Feynman 积分",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_quasi_pdf_finite_momentum_one_loop_matching_kernel() -> DerivationResult:
+    r"""复现未去除线性反项的有限动量准 PDF 单圈核。
+
+    ``准部分子分布单圈匹配`` 的有限 ``P^z`` 结果使用
+    ``Lambda(x)=sqrt(mu**2+x**2*(P^z)**2)``。这里先保留该结果的三段
+    顶点修正，再取 ``mu`` 为横向 cutoff 很大的渐近结构，并减去
+    ``0<xi<1`` 的光锥顶点项。这样得到的匹配核与原文的有限动量方案
+    一致，三个区域都含有
+    ``mu/[P^z*(1-xi)**2]`` 的 Wilson 线线性发散。
+
+    ``mu`` 在此函数中是 cutoff，``m`` 是调节共线发散的夸克质量，二者
+    不能混同。只验证有限维的分支代数、真数正性和准分布—光锥分支的
+    差值；不执行端点 delta 项、plus/principal-value 广义积分或完整
+    Feynman 图积分。
+    """
+
+    xi = sp.Symbol("xi", real=True)
+    alpha_s = sp.Symbol("alpha_s", real=True)
+    color_factor = sp.Symbol("C_F", positive=True, real=True)
+    p_z = sp.Symbol("p_z", positive=True, real=True)
+    cutoff_scale = sp.Symbol("mu", positive=True, real=True)
+    infrared_mass = sp.Symbol("m", positive=True, real=True)
+
+    def cutoff_energy(argument: sp.Expr) -> sp.Expr:
+        return sp.sqrt(cutoff_scale**2 + argument**2 * p_z**2)
+
+    lambda_x = cutoff_energy(xi)
+    lambda_one_minus_x = cutoff_energy(1 - xi)
+    common_factor = (1 + xi**2) / (1 - xi)
+    shared_finite_term = (
+        xi * lambda_one_minus_x + (1 - xi) * lambda_x
+    ) / ((1 - xi) ** 2 * p_z)
+
+    finite_outer = (
+        common_factor
+        * sp.log(
+            xi * (lambda_x - xi * p_z)
+            / ((xi - 1) * (lambda_one_minus_x + p_z * (1 - xi)))
+        )
+        + 1
+        - xi * p_z / lambda_x
+        + shared_finite_term
+    )
+    finite_inner = (
+        common_factor * sp.log(p_z**2 / infrared_mass**2)
+        + common_factor
+        * sp.log(
+            4
+            * xi
+            * (lambda_x - xi * p_z)
+            / ((1 - xi) * (lambda_one_minus_x + p_z * (1 - xi)))
+        )
+        - 4 * xi / (1 - xi)
+        + 1
+        - xi * p_z / lambda_x
+        + shared_finite_term
+    )
+    finite_negative = (
+        common_factor
+        * sp.log(
+            (xi - 1)
+            * (lambda_x - xi * p_z)
+            / (xi * (lambda_one_minus_x + p_z * (1 - xi)))
+        )
+        - 1
+        - xi * p_z / lambda_x
+        + shared_finite_term
+    )
+    finite_quasi_vertex = sp.Piecewise(
+        (finite_outer, xi > 1),
+        (finite_inner, sp.And(xi > 0, xi < 1)),
+        (finite_negative, xi < 0),
+        (sp.Integer(0), True),
+    )
+
+    linear_cutoff_term = cutoff_scale / (p_z * (1 - xi) ** 2)
+    asymptotic_outer = (
+        common_factor * sp.log(xi / (xi - 1))
+        + 1
+        + linear_cutoff_term
+    )
+    asymptotic_inner = (
+        common_factor * sp.log(p_z**2 / infrared_mass**2)
+        + common_factor * sp.log(4 * xi / (1 - xi))
+        - 4 * xi / (1 - xi)
+        + 1
+        + linear_cutoff_term
+    )
+    asymptotic_negative = (
+        common_factor * sp.log((xi - 1) / xi)
+        - 1
+        + linear_cutoff_term
+    )
+    asymptotic_quasi_vertex = sp.Piecewise(
+        (asymptotic_outer, xi > 1),
+        (asymptotic_inner, sp.And(xi > 0, xi < 1)),
+        (asymptotic_negative, xi < 0),
+        (sp.Integer(0), True),
+    )
+
+    lightcone_inner = (
+        common_factor * sp.log(cutoff_scale**2 / infrared_mass**2)
+        - common_factor * sp.log((1 - xi) ** 2)
+        - 2 * xi / (1 - xi)
+    )
+    lightcone_vertex = sp.Piecewise(
+        (lightcone_inner, sp.And(xi > 0, xi < 1)),
+        (sp.Integer(0), True),
+    )
+    matching_outer = asymptotic_outer
+    matching_inner = (
+        common_factor * sp.log(p_z**2 / cutoff_scale**2)
+        + common_factor * sp.log(4 * xi * (1 - xi))
+        - 2 * xi / (1 - xi)
+        + 1
+        + linear_cutoff_term
+    )
+    matching_negative = asymptotic_negative
+    matching_piecewise = sp.Piecewise(
+        (matching_outer, xi > 1),
+        (matching_inner, sp.And(xi > 0, xi < 1)),
+        (matching_negative, xi < 0),
+        (sp.Integer(0), True),
+    )
+    matching_kernel = sp.DiracDelta(xi - 1) + alpha_s * color_factor / (
+        2 * sp.pi
+    ) * matching_piecewise
+    tree_limit = sp.simplify(matching_kernel.subs(alpha_s, 0))
+
+    positive_parameter = sp.Symbol("u", positive=True, real=True)
+    outer_point = 1 + positive_parameter
+    inner_point = positive_parameter / (1 + positive_parameter)
+    negative_point = -positive_parameter
+
+    def log_argument(argument: sp.Expr) -> sp.Expr:
+        return sp.simplify(argument)
+
+    finite_log_arguments = (
+        log_argument(
+            finite_outer.args[0].args[0]
+            if isinstance(finite_outer.args[0], sp.log)
+            else finite_outer.args[0]
+        ),
+    )
+    outer_argument = sp.simplify(
+        outer_point
+        * (
+            cutoff_energy(outer_point) - outer_point * p_z
+        )
+        / (
+            (outer_point - 1)
+            * (
+                cutoff_energy(1 - outer_point)
+                + p_z * (1 - outer_point)
+            )
+        )
+    )
+    inner_argument = sp.simplify(
+        4
+        * inner_point
+        * (
+            cutoff_energy(inner_point) - inner_point * p_z
+        )
+        / (
+            (1 - inner_point)
+            * (
+                cutoff_energy(1 - inner_point)
+                + p_z * (1 - inner_point)
+            )
+        )
+    )
+    negative_argument = sp.simplify(
+        (negative_point - 1)
+        * (
+            cutoff_energy(negative_point) - negative_point * p_z
+        )
+        / (
+            negative_point
+            * (
+                cutoff_energy(1 - negative_point)
+                + p_z * (1 - negative_point)
+            )
+        )
+    )
+    asymptotic_log_arguments = (
+        sp.simplify(outer_point / (outer_point - 1)),
+        sp.simplify(4 * inner_point * (1 - inner_point)),
+        sp.simplify((negative_point - 1) / negative_point),
+    )
+
+    matching_subtraction_inner = sp.expand_log(
+        asymptotic_inner - lightcone_inner,
+        force=True,
+    )
+    matching_subtraction_residual = sp.simplify(
+        sp.logcombine(
+            matching_subtraction_inner - matching_inner,
+            force=True,
+        )
+    )
+    linear_dimensionless_residual = sp.simplify(
+        linear_cutoff_term * p_z / cutoff_scale
+        - 1 / (1 - xi) ** 2
+    )
+    finite_matching_residual = sp.simplify(
+        finite_quasi_vertex
+        - asymptotic_quasi_vertex
+    )
+
+    checks = {
+        "matching_subtraction": _is_zero(matching_subtraction_residual),
+        "linear_cutoff_dimensionless": _is_zero(
+            linear_dimensionless_residual
+        ),
+        "tree_limit": _is_zero(tree_limit - sp.DiracDelta(xi - 1)),
+        "finite_log_arguments": all(
+            sp.ask(sp.Q.positive(argument)) is True
+            for argument in (
+                outer_argument,
+                inner_argument,
+                negative_argument,
+            )
+        ),
+        "asymptotic_log_arguments": all(
+            sp.ask(sp.Q.positive(argument)) is True
+            for argument in asymptotic_log_arguments
+        ),
+        "matching_support": matching_piecewise.subs(xi, sp.Rational(1, 2))
+        == matching_inner.subs(xi, sp.Rational(1, 2)),
+    }
+    return DerivationResult(
+        name="quasi_pdf_finite_momentum_one_loop_matching_kernel",
+        equations={
+            "Lambda_x": lambda_x,
+            "Lambda_one_minus_x": lambda_one_minus_x,
+            "finite_quasi_vertex": finite_quasi_vertex,
+            "finite_outer_branch": finite_outer,
+            "finite_inner_branch": finite_inner,
+            "finite_negative_branch": finite_negative,
+            "asymptotic_quasi_vertex": asymptotic_quasi_vertex,
+            "asymptotic_outer_branch": asymptotic_outer,
+            "asymptotic_inner_branch": asymptotic_inner,
+            "asymptotic_negative_branch": asymptotic_negative,
+            "lightcone_vertex": lightcone_vertex,
+            "lightcone_inner_branch": lightcone_inner,
+            "matching_piecewise": matching_piecewise,
+            "outer_branch": matching_outer,
+            "inner_branch": matching_inner,
+            "negative_branch": matching_negative,
+            "linear_cutoff_term": linear_cutoff_term,
+            "matching_kernel": matching_kernel,
+            "tree_limit": tree_limit,
+            "finite_log_arguments": finite_log_arguments,
+            "asymptotic_log_arguments": asymptotic_log_arguments,
+            "matching_subtraction_inner": matching_subtraction_inner,
+            "matching_subtraction_residual": matching_subtraction_residual,
+            "linear_dimensionless_residual": linear_dimensionless_residual,
+            "finite_matching_residual": finite_matching_residual,
+        },
+        symbols={
+            "xi": xi,
+            "alpha_s": alpha_s,
+            "C_F": color_factor,
+            "p_z": p_z,
+            "mu": cutoff_scale,
+            "m": infrared_mass,
+            "u": positive_parameter,
+        },
+        assumptions=(
+            "p_z>0、mu>0、m>0；xi 的三个分支不含 0 与 1",
+            "Lambda(x)=sqrt(mu^2+x^2(P^z)^2) 是有限动量横向 cutoff 结构",
+            "0<xi<1 的光锥项含 log(mu^2/m^2)，m 只作共线红外调节",
+            "matching_piecewise 是渐近准顶点减去光锥顶点的分支差；共同线性项未被反项消除",
+            "不计算端点 delta Z、plus/principal-value 广义积分、running coupling 或完整 Feynman 积分",
         ),
         checks=checks,
         status="verified" if all(checks.values()) else "failed",
