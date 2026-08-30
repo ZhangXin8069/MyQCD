@@ -198,6 +198,218 @@ def test_tmd_soft_rge_and_collins_soper_solution_are_consistent() -> None:
     assert result.equations["initial_conditions_residual"] == 0
 
 
+def test_auxiliary_field_renormalization_expands_mixing_and_cancels_linear_divergence() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_auxiliary_field_wilson_renormalization",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    slash_n = result.symbols["slash_n"]
+    gamma = result.symbols["Gamma"]
+    mixing = result.symbols["r_mix"]
+    sign = result.symbols["sign_xi"]
+    expected_gamma_prime = (
+        gamma
+        + mixing * sign * (slash_n * gamma + gamma * slash_n)
+        + mixing**2 * slash_n * gamma * slash_n
+    )
+    assert result.equations["gamma_prime"] == expected_gamma_prime
+    assert result.equations["gamma_prime_residual"] == sp.zeros(2)
+    assert result.equations["wilson_line_renormalization_residual"] == 0
+
+
+def test_ri_mom_conversion_and_ratio_cancel_common_uv_factor() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_ri_mom_ratio_renormalization",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["ri_conversion_residual"] == 0
+    assert result.equations["ratio_uv_cancellation_residual"] == 0
+    lam = result.symbols["lambda"]
+    expected_tree_matching = 1 + lam + lam**2
+    assert result.equations["tree_coordinate_matching"] == expected_tree_matching
+    assert result.equations["coordinate_matching_residual"] == 0
+
+
+def test_hybrid_renormalization_matches_at_the_switch_and_loses_scheme_ambiguity_at_large_momentum() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_hybrid_renormalization",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["matching_point_residual"] == 0
+    assert result.equations["conversion_continuity_residual"] == 0
+    assert result.equations["hybrid_kernel_extra_at_matching"] == 0
+    assert result.equations["scheme_ambiguity_limit"] == 0
+
+
+def test_quasi_tmd_factorization_and_hard_corrected_cs_extraction_are_consistent() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_quasi_tmd_matching_and_cs_kernel",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["wilson_loop_cancellation_residual"] == 0
+    assert result.equations["factorization_residual"] == 0
+    assert result.equations["soft_extraction_residual"] == 0
+    assert result.equations["cs_extraction_residual"] == 0
+    assert result.equations["plus_minus_average_residual"] == 0
+    assert result.equations["hard_kernel_tree_limit"] == 1
+
+
+def test_ri_xmom_conditions_solve_auxiliary_field_renormalization_parameters() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_ri_xmom_renormalization_conditions",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["mass_condition_residual"] == 0
+    assert result.equations["zeta_condition_residual"] == 0
+    assert result.equations["phi_condition_residual"] == sp.zeros(2, 1)
+    assert result.equations["mixing_projection_residual"] == sp.zeros(2, 1)
+    assert result.equations["conversion_tree_limit"] == 1
+
+
+def test_wilson_line_self_energy_integral_matches_closed_form_and_counterterm() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_wilson_line_linear_counterterm",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    z = result.symbols["z"]
+    a = result.symbols["a"]
+    g = result.symbols["g"]
+    color_factor = result.symbols["C_F"]
+    expected_closed_form = g**2 * color_factor / (4 * sp.pi**2) * (
+        z / a * sp.atan(z / a)
+        - sp.Rational(1, 2) * sp.log(1 + z**2 / a**2)
+    )
+    assert result.equations["coordinate_closed_form"] == expected_closed_form
+    assert result.equations["coordinate_integral_residual"] == 0
+    assert result.equations["linear_divergence_cancellation_residual"] == 0
+    assert result.equations["cutoff_matching_residual"] == 0
+
+
+def test_quasi_pdf_one_loop_matching_kernel_preserves_all_three_momentum_branches() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_quasi_pdf_one_loop_matching_kernel",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    xi = result.symbols["xi"]
+    alpha_s = result.symbols["alpha_s"]
+    color_factor = result.symbols["C_F"]
+    p_z = result.symbols["p_z"]
+    mu = result.symbols["mu"]
+    linear_cutoff_term = mu / (p_z * (1 - xi) ** 2)
+    outer_expected = (
+        (1 + xi**2) / (1 - xi) * sp.log(xi / (xi - 1))
+        + 1
+        + linear_cutoff_term
+    )
+    inner_expected = (
+        (1 + xi**2) / (1 - xi) * sp.log(p_z**2 / mu**2)
+        + (1 + xi**2) / (1 - xi) * sp.log(4 * xi * (1 - xi))
+        - 2 * xi / (1 - xi)
+        + 1
+        + linear_cutoff_term
+    )
+    negative_expected = (
+        (1 + xi**2) / (1 - xi) * sp.log((xi - 1) / xi)
+        - 1
+        + linear_cutoff_term
+    )
+    assert result.equations["outer_branch"] == outer_expected
+    assert result.equations["inner_branch"] == inner_expected
+    assert result.equations["negative_branch"] == negative_expected
+    assert all(result.equations["log_argument_checks"])
+    assert result.equations["tree_limit"] == sp.DiracDelta(xi - 1)
+    assert result.equations["dimensionless_argument_residual"] == 0
+    assert result.equations["matching_kernel"].subs(alpha_s, 0) == sp.DiracDelta(
+        xi - 1
+    )
+    assert result.symbols["C_F"] == color_factor
+
+
+def test_quasi_pdf_one_loop_matching_kernel_keeps_the_source_linear_cutoff_term() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_quasi_pdf_one_loop_matching_kernel",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+    xi = result.symbols["xi"]
+    p_z = result.symbols["p_z"]
+    mu = result.symbols["mu"]
+    linear_cutoff_term = mu / (p_z * (1 - xi) ** 2)
+
+    assert sp.simplify(
+        result.equations["outer_branch"]
+        - ((1 + xi**2) / (1 - xi) * sp.log(xi / (xi - 1)) + 1)
+        - linear_cutoff_term
+    ) == 0
+    assert sp.simplify(
+        result.equations["inner_branch"]
+        - (
+            (1 + xi**2) / (1 - xi) * sp.log(p_z**2 / mu**2)
+            + (1 + xi**2) / (1 - xi) * sp.log(4 * xi * (1 - xi))
+            - 2 * xi / (1 - xi)
+            + 1
+        )
+        - linear_cutoff_term
+    ) == 0
+    assert sp.simplify(
+        result.equations["negative_branch"]
+        - ((1 + xi**2) / (1 - xi) * sp.log((xi - 1) / xi) - 1)
+        - linear_cutoff_term
+    ) == 0
+
+
 def test_gradient_flow_linearization_is_heat_kernel_evolution() -> None:
     result = derive_gradient_flow()
 
@@ -337,6 +549,13 @@ def test_formula_registry_covers_report_level_structural_formulas() -> None:
         "emt_operator_basis",
         "ringed_fermion_normalization",
         "emt_trace_anomaly",
+        "auxiliary_field_wilson_renormalization",
+        "ri_mom_ratio_renormalization",
+        "hybrid_renormalization",
+        "quasi_tmd_matching_and_cs_kernel",
+        "ri_xmom_renormalization_conditions",
+        "wilson_line_linear_counterterm",
+        "quasi_pdf_one_loop_matching_kernel",
         "lamet_lightcone_kinematics",
         "gpd_kinematics_and_matching",
         "pion_da_normalization",
@@ -351,6 +570,69 @@ def test_formula_registry_covers_report_level_structural_formulas() -> None:
 def test_new_derivations_are_exposed_by_the_package() -> None:
     import myqcd
 
+    auxiliary_field = getattr(
+        derivation_module,
+        "derive_auxiliary_field_wilson_renormalization",
+        None,
+    )
+    assert callable(auxiliary_field)
+    assert (
+        getattr(myqcd, "derive_auxiliary_field_wilson_renormalization", None)
+        is auxiliary_field
+    )
+    ri_mom_ratio = getattr(
+        derivation_module,
+        "derive_ri_mom_ratio_renormalization",
+        None,
+    )
+    assert callable(ri_mom_ratio)
+    assert (
+        getattr(myqcd, "derive_ri_mom_ratio_renormalization", None)
+        is ri_mom_ratio
+    )
+    hybrid = getattr(derivation_module, "derive_hybrid_renormalization", None)
+    assert callable(hybrid)
+    assert getattr(myqcd, "derive_hybrid_renormalization", None) is hybrid
+    quasi_tmd = getattr(
+        derivation_module,
+        "derive_quasi_tmd_matching_and_cs_kernel",
+        None,
+    )
+    assert callable(quasi_tmd)
+    assert (
+        getattr(myqcd, "derive_quasi_tmd_matching_and_cs_kernel", None)
+        is quasi_tmd
+    )
+    ri_xmom = getattr(
+        derivation_module,
+        "derive_ri_xmom_renormalization_conditions",
+        None,
+    )
+    assert callable(ri_xmom)
+    assert (
+        getattr(myqcd, "derive_ri_xmom_renormalization_conditions", None)
+        is ri_xmom
+    )
+    wilson_counterterm = getattr(
+        derivation_module,
+        "derive_wilson_line_linear_counterterm",
+        None,
+    )
+    assert callable(wilson_counterterm)
+    assert (
+        getattr(myqcd, "derive_wilson_line_linear_counterterm", None)
+        is wilson_counterterm
+    )
+    quasi_pdf_matching = getattr(
+        derivation_module,
+        "derive_quasi_pdf_one_loop_matching_kernel",
+        None,
+    )
+    assert callable(quasi_pdf_matching)
+    assert (
+        getattr(myqcd, "derive_quasi_pdf_one_loop_matching_kernel", None)
+        is quasi_pdf_matching
+    )
     assert myqcd.derive_pseudo_itd is derivation_module.derive_pseudo_itd
     assert myqcd.derive_langevin_fokker_planck is derivation_module.derive_langevin_fokker_planck
     assert myqcd.derive_hmc_scalar is derivation_module.derive_hmc_scalar
