@@ -547,6 +547,265 @@ def test_euclidean_ope_factorization_captures_support_and_quasi_moment_singulari
     )
 
 
+def test_euclidean_section04_scheme_conversion_and_ri_mom_are_exact() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_euclidean_renormalization_schemes",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    zero_equations = (
+        "operator_conversion_residual",
+        "regulator_cancellation_residual",
+        "coordinate_factorization_residual",
+        "pseudo_factorization_residual",
+        "fourier_definition_residual",
+        "fourier_inverse_residual",
+        "quasi_kernel_convolution_residual",
+        "ri_mom_condition_residual",
+        "ri_mom_tree_Z_residual",
+        "ri_mom_regulator_cancellation_residual",
+        "om_fourier_scaling_residual",
+        "om_matching_convolution_residual",
+        "pR_equals_Pz_shift_residual",
+        "smooth_scheme_limit_residual",
+        "smooth_current_limit_residual",
+        "mixing_covariance_residual",
+    )
+    assert all(result.equations[key] == 0 for key in zero_equations)
+    assert result.equations["Z_OM_tree"] == 1
+    assert result.equations["smooth_operator_limit"] == result.symbols[
+        "local_current"
+    ]
+
+    import myqcd
+
+    assert (
+        getattr(myqcd, "derive_euclidean_renormalization_schemes", None)
+        is derivation
+    )
+
+
+def test_euclidean_section05_isovector_antiquark_extension_is_exact() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_isovector_pdf_extension",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["negative_antiquark_extension_residual"] == 0
+    assert result.equations["isovector_rewrite_residual"] == 0
+    assert result.equations["isovector_formula_residual"] == 0
+
+    import myqcd
+
+    assert getattr(myqcd, "derive_isovector_pdf_extension", None) is derivation
+
+
+def test_euclidean_section06_lattice_window_keeps_units_and_truncation_kernel() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_euclidean_lattice_data_window",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["momentum_unit_residual"] == 0
+    assert result.equations["dimensionless_z_lambda_residual"] == 0
+    assert result.equations["dimensionless_lambda_over_pz_residual"] == 0
+    assert result.equations["fourier_truncation_kernel_residual"] == 0
+    assert result.equations["quadratic_data_scaling_residual"] == 0
+    assert result.equations["quasi_data_points"] == 9
+    assert result.equations["pseudo_data_points"] == 8
+    assert result.equations["source_m_values"] == (0, 1, 2, 3, 4)
+    assert result.equations["strict_m_values"] == (0, 1, 2, 3)
+    assert result.equations["source_n_values"] == (3, 4, 5, 6)
+
+    import myqcd
+
+    assert (
+        getattr(myqcd, "derive_euclidean_lattice_data_window", None)
+        is derivation
+    )
+
+
+def test_quasi_pdf_all_order_renormalization_reproduces_source_identities() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_quasi_pdf_all_order_renormalization",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    zero_equations = (
+        "one_loop_total_divergence_residual",
+        "small_x_fourier_scaling_residual",
+        "quasi_propagator_decomposition_residual",
+        "pdf_propagator_decomposition_residual",
+        "ordered_integral_n1_residual",
+        "ordered_integral_n2_residual",
+        "ordered_integral_n3_residual",
+        "exponential_resummation_residual",
+        "renormalization_factor_residual",
+        "no_mixing_residual",
+    )
+    assert all(result.equations[key] == 0 for key in zero_equations)
+    assert result.equations["small_x_fourier_limit"] == 2 * sp.I / result.symbols[
+        "xi_abs"
+    ]
+
+    import myqcd
+
+    assert (
+        getattr(myqcd, "derive_quasi_pdf_all_order_renormalization", None)
+        is derivation
+    )
+
+
+def test_quasi_gluon_operator_renormalization_reproduces_ward_and_factorization_structure() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_quasi_gluon_multiplicative_renormalization",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["independent_operator_count"] == 36
+    assert result.equations["linear_divergence_bc_residual"] == 0
+    assert result.equations["propagator_decomposition_residual"] == 0
+    assert result.equations["ward_constraint_solution_residual"] == 0
+    assert result.equations["ward_contracted_reduced_residual"] == 0
+    assert result.equations["vertex_power_sum"] == -1
+    assert result.equations["z_component_values"] == (0, 1, 2)
+    assert result.equations["tree_level_factor"] == 1
+
+    import myqcd
+
+    assert (
+        getattr(myqcd, "derive_quasi_gluon_multiplicative_renormalization", None)
+        is derivation
+    )
+
+
+def test_power_correction_renormalon_borel_rules_and_poles_are_exact() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_power_corrections_renormalons_quasi",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["borel_coefficient_rule_residual"] == 0
+    assert result.equations["borel_test_coefficients"] == (
+        1,
+        result.symbols["beta_0"],
+        2 * result.symbols["beta_0"] ** 2,
+        6 * result.symbols["beta_0"] ** 3,
+    )
+    assert result.equations["h0_at_zero"] == 1
+    assert result.equations["G0_at_zero"] == 1
+    assert result.equations["uv_renormalon_residue_residual"] == 0
+    assert result.equations["ir_parallel_pole_residual"] == 0
+    assert result.equations["ir_perpendicular_pole_residual"] == 0
+    assert result.equations["ambiguity_scaling_residual"] == (0, 0)
+
+
+def test_power_correction_qitd_kernels_and_plus_distribution_normalize() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_power_corrections_renormalons_quasi",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.equations["qitd_kernel_integrals"] == (
+        sp.Rational(1, 4),
+        sp.Rational(5, 12),
+    )
+    assert result.equations["plus_constant_actions"] == (0, 0)
+    assert result.equations["normalized_qitd_shift"] == (
+        sp.Rational(1, 4),
+        sp.Rational(5, 12),
+    )
+
+
+def test_power_correction_qpdf_and_ppdf_endpoint_scalings_match_source() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_power_corrections_renormalons_quasi",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.equations["qpdf_prefactor_identity_residuals"] == (0, 0)
+    assert result.equations["qpdf_endpoint_enhancement"] == (
+        sp.oo,
+        sp.oo,
+    )
+    assert result.equations["ppdf_endpoint_ratio"] == sp.Rational(1, 4)
+    assert result.equations["target_mass_parallel_residual"] == 0
+    assert result.equations["target_mass_pseudo_residual"] == 0
+
+
+def test_nonperturbative_composite_renormalization_conditions_are_consistent() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_nonperturbative_renormalization_conditions",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    scalar_zero_equations = (
+        "operator_renormalization_residual",
+        "renormalization_condition_residual",
+        "amputated_green_residual",
+        "projection_normalization_residual",
+        "field_Zpsi_residual",
+        "vector_ward_identity_residual",
+        "four_fermion_mixing_residual",
+        "landau_cancellation_residual",
+        "delta_one_loop_residual",
+        "boosted_coupling_residual",
+    )
+    assert all(result.equations[key] == 0 for key in scalar_zero_equations)
+    assert result.equations["mixing_projector_solution_residual"] == sp.zeros(2, 1)
+    assert result.equations["window_example_is_ordered"] is True
+
+
 def test_gradient_flow_linearization_is_heat_kernel_evolution() -> None:
     result = derive_gradient_flow()
 
@@ -677,6 +936,14 @@ def test_formula_registry_covers_report_level_structural_formulas() -> None:
         "twist2_flowed_moment_matching",
         "euclidean_lightcone_factorization",
         "euclidean_ope_factorization",
+        "euclidean_renormalization_schemes",
+        "isovector_pdf_extension",
+        "isovector_systematic_renorm_matching",
+        "euclidean_lattice_data_window",
+        "quasi_pdf_all_order_renormalization",
+        "quasi_gluon_multiplicative_renormalization",
+        "power_corrections_renormalons_quasi",
+        "nonperturbative_renormalization_conditions",
         "quasi_pdf_tmd_relation",
         "langevin_fokker_planck",
         "hmc_scalar",
@@ -807,6 +1074,23 @@ def test_new_derivations_are_exposed_by_the_package() -> None:
             None,
         )
         is finite_momentum_quasi_pdf
+    )
+    renormalon_power = getattr(
+        derivation_module,
+        "derive_power_corrections_renormalons_quasi",
+        None,
+    )
+    assert callable(renormalon_power)
+    assert getattr(myqcd, "derive_power_corrections_renormalons_quasi", None) is renormalon_power
+    isovector_matching = getattr(
+        derivation_module,
+        "derive_isovector_systematic_renorm_matching",
+        None,
+    )
+    assert callable(isovector_matching)
+    assert (
+        getattr(myqcd, "derive_isovector_systematic_renorm_matching", None)
+        is isovector_matching
     )
     assert myqcd.derive_pseudo_itd is derivation_module.derive_pseudo_itd
     assert myqcd.derive_langevin_fokker_planck is derivation_module.derive_langevin_fokker_planck
@@ -1578,3 +1862,41 @@ def test_emt_trace_anomaly_expansion_has_the_source_signs() -> None:
     assert all(result.checks.values())
     assert result.equations["gauge_trace_coefficient_residual"] == 0
     assert result.equations["mass_trace_coefficient_residual"] == 0
+
+
+def test_isovector_ri_mom_projection_and_matching_chain_is_consistent() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_isovector_systematic_renorm_matching",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["minimal_projection_residual"] == 0
+    assert result.equations["slash_p_projection_residual"] == 0
+    assert result.equations["generalized_plus_constant_action"] == 0
+    assert result.equations["bare_matching_residual"] == 0
+    assert result.equations["matching_counterterm_residual"] == 0
+    assert result.equations["matching_tree_limit"] == sp.DiracDelta(
+        result.symbols["x"] - 1
+    )
+
+
+def test_isovector_ri_mom_renormalization_preserves_factorization_and_power_orders() -> None:
+    derivation = getattr(
+        derivation_module,
+        "derive_isovector_systematic_renorm_matching",
+        None,
+    )
+    assert callable(derivation)
+
+    result = derivation()
+
+    assert result.equations["renormalized_matrix_element_residual"] == 0
+    assert result.equations["fourier_definition_residual"] == 0
+    assert result.equations["projection_difference_at_zero_residual"] == 0
+    assert result.equations["power_correction_dimension"] == 2
