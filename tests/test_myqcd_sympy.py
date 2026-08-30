@@ -35,6 +35,7 @@ from myqcd.derivations import (
     derive_gpd_kinematics_and_matching,
     derive_pion_da_normalization,
     derive_tmd_soft_rge_consistency,
+    derive_euclidean_lightcone_factorization,
     run_core_checks,
 )
 from myqcd.formula_registry import CORE_FORMULAS
@@ -484,6 +485,17 @@ def test_twist2_flowed_moment_matching_reproduces_rg_structure() -> None:
     assert result.equations["rg_solution_residual"] == 0
 
 
+def test_euclidean_lightcone_factorization_handles_gamma_z_and_infinity_plus() -> None:
+    result = derive_euclidean_lightcone_factorization()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["gamma_z_support_integral"] == 1
+    assert result.equations["gamma_z_plus_constant_test_action"] == 0
+    assert result.equations["infinity_endpoint_power_limit"] == 0
+    assert result.equations["infinity_endpoint_log_limit"] == 0
+
+
 def test_gradient_flow_linearization_is_heat_kernel_evolution() -> None:
     result = derive_gradient_flow()
 
@@ -612,6 +624,7 @@ def test_formula_registry_covers_report_level_structural_formulas() -> None:
         "pseudo_itd",
         "pdf_moment_relations",
         "twist2_flowed_moment_matching",
+        "euclidean_lightcone_factorization",
         "quasi_pdf_tmd_relation",
         "langevin_fokker_planck",
         "hmc_scalar",
@@ -768,6 +781,10 @@ def test_new_derivations_are_exposed_by_the_package() -> None:
     assert (
         myqcd.derive_twist2_flowed_moment_matching
         is derivation_module.derive_twist2_flowed_moment_matching
+    )
+    assert (
+        myqcd.derive_euclidean_lightcone_factorization
+        is derivation_module.derive_euclidean_lightcone_factorization
     )
     assert myqcd.derive_quasi_pdf_tmd_relation is derivation_module.derive_quasi_pdf_tmd_relation
     assert myqcd.derive_wilson_flow_five_dimensional is derivation_module.derive_wilson_flow_five_dimensional
