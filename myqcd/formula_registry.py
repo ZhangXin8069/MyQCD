@@ -438,6 +438,14 @@ CORE_FORMULAS: Dict[str, FormulaSpec] = {
         "derive_pdf_moment_relations",
         "用可积多项式 PDF 验证负 xi 延拓和 Mellin 矩恒等式，并验证靶质量多项式 K_n；不计算局域 twist-two 矩阵元。",
     ),
+    "twist2_flowed_moment_matching": FormulaSpec(
+        "twist2_flowed_moment_matching",
+        r"\int_0^1dx\,x^{n-1}F_1(x,Q^2)=\sum_aC_{1,n}^a(Q^2/\mu^2)A_n^{a/h}(\mu),\quad A_n=\langle x^{n-1}\rangle,\quad c_n^{(1)}=C_F[\gamma_n\ln(8\pi\mu^2t)+B_n],\quad c_n^{\rm RG}=c_n(\bar g(q))\exp\{-\int_{\bar g(\mu)}^{\bar g(q)}dx\,\gamma_n(x)/\beta(x)\}",
+        "refer/papers/任意阶部分子分布矩_latex/chapters/section02.tex:3-15,34-53,84-88; refer/papers/任意阶部分子分布矩_latex/chapters/section03.tex:9-49; refer/papers/任意阶部分子分布矩_latex/chapters/section04.tex:11-78; refer/papers/任意阶部分子分布矩_latex/chapters/backmatter.tex:90-100",
+        "verified",
+        "derive_twist2_flowed_moment_matching",
+        "用归一化幂律 PDF 精确计算 Mellin 矩，验证带流算符重正化、环场双线性转换、gamma_n 的 harmonic-number 形式、B_n 的 Lerch 项及一圈 RG 重求和指数；不计算 H(4) 混合、费曼积分、NLL 数值或非微扰强子矩阵元。",
+    ),
     "langevin_fokker_planck": FormulaSpec(
         "langevin_fokker_planck",
         r"\partial_\tau\phi=-\frac{\delta S_E}{\delta\phi}+\eta,\quad P_{\rm eq}[\phi]\propto e^{-S_E[\phi]/\alpha}",
