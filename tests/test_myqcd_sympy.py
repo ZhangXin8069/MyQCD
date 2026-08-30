@@ -25,6 +25,16 @@ from myqcd.derivations import (
     derive_renormalization,
     derive_tmd_fourier,
     derive_wilson_area_law,
+    derive_wilson_edge_universal_formulas,
+    derive_wilson_flow_five_dimensional,
+    derive_wilson_flow_runge_kutta,
+    derive_gradient_flow_duhamel_solution,
+    derive_wilson_flow_reference_scale,
+    derive_wilson_lattice_flow_monotonicity,
+    derive_lamet_lightcone_kinematics,
+    derive_gpd_kinematics_and_matching,
+    derive_pion_da_normalization,
+    derive_tmd_soft_rge_consistency,
     run_core_checks,
 )
 from myqcd.formula_registry import CORE_FORMULAS
@@ -62,6 +72,130 @@ def test_wilson_area_law_gives_linear_static_potential() -> None:
     assert result.status == "verified"
     assert result.checks["large_T_limit"]
     assert sp.simplify(result.equations["V_of_R"] - result.symbols["sigma"] * result.symbols["R"]) == 0
+
+
+def test_wilson_flow_has_five_dimensional_form_and_decreases_action() -> None:
+    result = derive_wilson_flow_five_dimensional()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["dimensions"]["tau"] == 2
+    assert result.equations["dimensions"]["partial_tau_A"] == result.equations["dimensions"]["D_mu_F_mu_nu"]
+    assert sp.simplify(
+        result.equations["explicit_action_rate"]
+        + result.symbols["momentum"].dot(result.symbols["momentum"])
+        * result.equations["curl_amplitude"] ** 2
+    ) == 0
+
+
+def test_wilson_edge_integrals_and_airy_kernel_are_consistent() -> None:
+    result = derive_wilson_edge_universal_formulas()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["painleve_II"].lhs == (
+        sp.diff(result.symbols["q"](result.symbols["s"]), result.symbols["s"], 2)
+    )
+    assert sp.simplify(
+        result.equations["extreme_density_log_derivative_residual"]
+    ) == 0
+
+
+def test_wilson_flow_runge_kutta_matches_the_scalar_exact_solution_to_third_order() -> None:
+    result = derive_wilson_flow_runge_kutta()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["local_error_order"] == 4
+    assert result.equations["global_error_order"] == 3
+    assert sp.simplify(
+        result.equations["leading_local_error"]
+        + sp.Rational(35, 432) * result.symbols["V"] ** 5
+    ) == 0
+
+
+def test_gradient_flow_duhamel_solution_satisfies_its_ode_and_degenerate_limit() -> None:
+    result = derive_gradient_flow_duhamel_solution()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["flow_equation_residual"] == 0
+    assert result.equations["initial_condition_residual"] == 0
+    assert result.equations["degenerate_response"] == (
+        result.symbols["R"]
+        * result.symbols["flow_time"]
+        * sp.exp(-result.symbols["lambda"] * result.symbols["flow_time"])
+    )
+
+
+def test_wilson_flow_reference_scale_is_dimensionless_and_cutoff_stable() -> None:
+    result = derive_wilson_flow_reference_scale()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert sp.simplify(
+        result.equations["reference_condition_residual"]
+    ) == 0
+    assert sp.simplify(
+        result.equations["continuum_ratio"]
+        - result.equations["reference_ratio"]
+    ) == 0
+
+
+def test_wilson_lattice_flow_preserves_unitarity_and_decreases_action() -> None:
+    result = derive_wilson_lattice_flow_monotonicity()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["angle_flow"] == -sp.sin(
+        result.symbols["theta"]
+    )
+    assert sp.simplify(
+        result.equations["action_rate"]
+        + sp.sin(result.symbols["theta"]) ** 2
+        / result.symbols["g_0"] ** 2
+    ) == 0
+
+
+def test_lamet_lightcone_kinematics_preserves_mass_shell_and_bjorken_relation() -> None:
+    result = derive_lamet_lightcone_kinematics()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["mass_shell_residual"] == 0
+    assert result.equations["photon_virtuality_residual"] == 0
+    assert result.equations["lightcone_decomposition_residual"] == sp.zeros(4, 1)
+    assert result.equations["power_correction_limit"] == 0
+
+
+def test_gpd_kinematics_derives_skewness_bounds_and_matching_measure() -> None:
+    result = derive_gpd_kinematics_and_matching()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["lightcone_transverse_bound_residual"] == 0
+    assert result.equations["quasi_transverse_bound_residual"] == 0
+    assert result.equations["matching_measure_residual"] == 0
+
+
+def test_pion_da_asymptotic_shape_is_normalized_and_symmetric() -> None:
+    result = derive_pion_da_normalization()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["normalization"] == 1
+    assert result.equations["first_central_moment"] == 0
+    assert result.equations["second_central_moment"] == sp.Rational(1, 20)
+
+
+def test_tmd_soft_rge_and_collins_soper_solution_are_consistent() -> None:
+    result = derive_tmd_soft_rge_consistency()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["soft_rge_residual"] == 0
+    assert result.equations["collins_soper_residual"] == 0
+    assert result.equations["initial_conditions_residual"] == 0
 
 
 def test_gradient_flow_linearization_is_heat_kernel_evolution() -> None:
@@ -143,6 +277,12 @@ def test_formula_registry_covers_report_level_structural_formulas() -> None:
         "generating_functional",
         "lattice_link",
         "gradient_flow",
+        "wilson_flow_five_dimensional",
+        "wilson_flow_runge_kutta",
+        "gradient_flow_duhamel_solution",
+        "wilson_flow_reference_scale",
+        "wilson_lattice_flow_monotonicity",
+        "wilson_edge_universal_formulas",
         "gradient_flow_energy_density",
         "heat_kernel_semigroup",
         "gradient_flow_pole_cancellation",
@@ -169,6 +309,8 @@ def test_formula_registry_covers_report_level_structural_formulas() -> None:
         "wilson_continuum_scale",
         "two_dimensional_wilson_loop",
         "instanton_holonomy_su2",
+        "grassmann_determinant_identity",
+        "wilson_gap_scaling",
         "flowed_propagators",
         "u1_topological_charge",
         "u1_compact_action",
@@ -187,6 +329,18 @@ def test_formula_registry_covers_report_level_structural_formulas() -> None:
         "langevin_fokker_planck",
         "hmc_scalar",
         "trivializing_map",
+        "trivializing_flow_factorization",
+        "euler_map_inverse_and_jacobian",
+        "flow_integral_ibp",
+        "gradient_flow_rg_log_recursion",
+        "gradient_flow_scheme_conversion",
+        "emt_operator_basis",
+        "ringed_fermion_normalization",
+        "emt_trace_anomaly",
+        "lamet_lightcone_kinematics",
+        "gpd_kinematics_and_matching",
+        "pion_da_normalization",
+        "tmd_soft_rge_consistency",
     }
 
     assert expected <= set(CORE_FORMULAS)
@@ -201,6 +355,18 @@ def test_new_derivations_are_exposed_by_the_package() -> None:
     assert myqcd.derive_langevin_fokker_planck is derivation_module.derive_langevin_fokker_planck
     assert myqcd.derive_hmc_scalar is derivation_module.derive_hmc_scalar
     assert myqcd.derive_trivializing_map is derivation_module.derive_trivializing_map
+    assert myqcd.derive_trivializing_flow_factorization is derivation_module.derive_trivializing_flow_factorization
+    assert myqcd.derive_euler_map_inverse_and_jacobian is derivation_module.derive_euler_map_inverse_and_jacobian
+    assert myqcd.derive_flow_integral_ibp is derivation_module.derive_flow_integral_ibp
+    assert myqcd.derive_gradient_flow_rg_log_recursion is derivation_module.derive_gradient_flow_rg_log_recursion
+    assert myqcd.derive_gradient_flow_scheme_conversion is derivation_module.derive_gradient_flow_scheme_conversion
+    assert myqcd.derive_emt_operator_basis is derivation_module.derive_emt_operator_basis
+    assert myqcd.derive_ringed_fermion_normalization is derivation_module.derive_ringed_fermion_normalization
+    assert myqcd.derive_emt_trace_anomaly is derivation_module.derive_emt_trace_anomaly
+    assert myqcd.derive_lamet_lightcone_kinematics is derivation_module.derive_lamet_lightcone_kinematics
+    assert myqcd.derive_gpd_kinematics_and_matching is derivation_module.derive_gpd_kinematics_and_matching
+    assert myqcd.derive_pion_da_normalization is derivation_module.derive_pion_da_normalization
+    assert myqcd.derive_tmd_soft_rge_consistency is derivation_module.derive_tmd_soft_rge_consistency
     assert myqcd.derive_diffusion_processes is derivation_module.derive_diffusion_processes
     assert myqcd.derive_phi4_lattice_observables is derivation_module.derive_phi4_lattice_observables
     assert myqcd.derive_mcmc_autocorrelation is derivation_module.derive_mcmc_autocorrelation
@@ -208,6 +374,12 @@ def test_new_derivations_are_exposed_by_the_package() -> None:
     assert myqcd.derive_gauge_flow_kernel is derivation_module.derive_gauge_flow_kernel
     assert myqcd.derive_pdf_moment_relations is derivation_module.derive_pdf_moment_relations
     assert myqcd.derive_quasi_pdf_tmd_relation is derivation_module.derive_quasi_pdf_tmd_relation
+    assert myqcd.derive_wilson_flow_five_dimensional is derivation_module.derive_wilson_flow_five_dimensional
+    assert myqcd.derive_wilson_flow_runge_kutta is derivation_module.derive_wilson_flow_runge_kutta
+    assert myqcd.derive_gradient_flow_duhamel_solution is derivation_module.derive_gradient_flow_duhamel_solution
+    assert myqcd.derive_wilson_flow_reference_scale is derivation_module.derive_wilson_flow_reference_scale
+    assert myqcd.derive_wilson_lattice_flow_monotonicity is derivation_module.derive_wilson_lattice_flow_monotonicity
+    assert myqcd.derive_wilson_edge_universal_formulas is derivation_module.derive_wilson_edge_universal_formulas
     quark_smearing = getattr(derivation_module, "derive_quark_gaussian_smearing", None)
     assert callable(quark_smearing)
     assert getattr(myqcd, "derive_quark_gaussian_smearing", None) is quark_smearing
@@ -268,6 +440,12 @@ def test_new_derivations_are_exposed_by_the_package() -> None:
     instanton_holonomy = getattr(derivation_module, "derive_instanton_holonomy_su2", None)
     assert callable(instanton_holonomy)
     assert getattr(myqcd, "derive_instanton_holonomy_su2", None) is instanton_holonomy
+    grassmann_identity = getattr(derivation_module, "derive_grassmann_determinant_identity", None)
+    assert callable(grassmann_identity)
+    assert getattr(myqcd, "derive_grassmann_determinant_identity", None) is grassmann_identity
+    gap_scaling = getattr(derivation_module, "derive_wilson_gap_scaling", None)
+    assert callable(gap_scaling)
+    assert getattr(myqcd, "derive_wilson_gap_scaling", None) is gap_scaling
 
 
 def test_refer_papers_formula_inventory_is_traceable_and_excludes_build_outputs() -> None:
@@ -805,7 +983,129 @@ def test_instanton_su2_parallel_transport_has_group_properties_and_limits() -> N
     assert all(result.checks.values())
     assert result.equations["U_unitarity_residual"] == sp.zeros(2)
     assert result.equations["U_su2_residual"] == 0
+    assert result.equations["A4_hermitian_residual"] == sp.zeros(2)
+    assert result.equations["A4_traceless_residual"] == 0
     assert result.equations["holonomy_unitarity_residual"] == sp.zeros(2)
     assert result.equations["holonomy_su2_residual"] == 0
     assert result.equations["small_instanton_limit_residual"] == sp.zeros(2)
     assert result.equations["large_instanton_limit_residual"] == sp.zeros(2)
+
+
+def test_grassmann_block_matrix_has_the_cyclic_determinant_identity() -> None:
+    derivation = getattr(derivation_module, "derive_grassmann_determinant_identity", None)
+    assert callable(derivation)
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["block_determinant_residual"] == 0
+    assert result.equations["boundary_sign_residual"] == 0
+    assert result.equations["scalar_n3_determinant_residual"] == 0
+
+
+def test_wilson_gap_scaling_has_the_expected_square_root_and_log_limits() -> None:
+    derivation = getattr(derivation_module, "derive_wilson_gap_scaling", None)
+    assert callable(derivation)
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["square_root_relation_residual"] == 0
+    assert result.equations["gap_closing_limit_residual"] == 0
+    assert result.equations["log_argument_dimensionless_residual"] == 0
+    assert result.equations["log_critical_point_residual"] == 0
+
+
+def test_trivializing_flow_factorization_removes_the_action_at_unit_flow_time() -> None:
+    derivation = getattr(derivation_module, "derive_trivializing_flow_factorization", None)
+    assert callable(derivation)
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["effective_action_residual"] == 0
+    assert result.equations["unit_flow_action_residual"] == 0
+
+
+def test_euler_flow_inverse_iteration_and_jacobian_composition_are_consistent() -> None:
+    derivation = getattr(derivation_module, "derive_euler_map_inverse_and_jacobian", None)
+    assert callable(derivation)
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["fixed_point_residual"] == 0
+    assert result.equations["contraction_bound_residual"] == 0
+    assert result.equations["composition_jacobian_residual"] == 0
+
+
+def test_flow_integral_ibp_and_scaling_relations_are_exact() -> None:
+    derivation = getattr(derivation_module, "derive_flow_integral_ibp", None)
+    assert callable(derivation)
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["radial_integral_ibp_residual"] == 0
+    assert result.equations["scaling_residual"] == 0
+    assert result.equations["flow_time_ibp_residual"] == 0
+
+
+def test_gradient_flow_log_coefficients_follow_the_rg_recursion() -> None:
+    derivation = getattr(derivation_module, "derive_gradient_flow_rg_log_recursion", None)
+    assert callable(derivation)
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["e11_recurrence_residual"] == 0
+    assert result.equations["e21_recurrence_residual"] == 0
+    assert result.equations["e22_recurrence_residual"] == 0
+    assert result.equations["rg_residual_through_x3"] == 0
+    assert result.equations["log_scale_derivative"] == 1
+
+
+def test_gradient_flow_scheme_conversion_preserves_the_first_two_beta_coefficients() -> None:
+    derivation = getattr(derivation_module, "derive_gradient_flow_scheme_conversion", None)
+    assert callable(derivation)
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["inverse_series_residual"] == 0
+    assert result.equations["beta_first_two_residual"] == 0
+    assert result.equations["beta_two_loop_residual"] == 0
+
+
+def test_emt_operator_basis_reconstructs_the_flowed_coefficient_combination() -> None:
+    derivation = getattr(derivation_module, "derive_emt_operator_basis", None)
+    assert callable(derivation)
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["coefficient_basis_residual"] == sp.zeros(1, 5)
+    assert result.equations["gauge_trace_residual"] == 0
+
+
+def test_ringed_fermion_normalization_is_tree_level_unity_in_four_dimensions() -> None:
+    derivation = getattr(derivation_module, "derive_ringed_fermion_normalization", None)
+    assert callable(derivation)
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["tree_normalization_squared_residual"] == 0
+    assert result.equations["D4_normalization_residual"] == 0
+    assert result.equations["ringed_dimension_residual"] == 0
+
+
+def test_emt_trace_anomaly_expansion_has_the_source_signs() -> None:
+    derivation = getattr(derivation_module, "derive_emt_trace_anomaly", None)
+    assert callable(derivation)
+    result = derivation()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["gauge_trace_coefficient_residual"] == 0
+    assert result.equations["mass_trace_coefficient_residual"] == 0
