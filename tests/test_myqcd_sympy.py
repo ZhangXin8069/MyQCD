@@ -36,6 +36,7 @@ from myqcd.derivations import (
     derive_pion_da_normalization,
     derive_tmd_soft_rge_consistency,
     derive_euclidean_lightcone_factorization,
+    derive_euclidean_ope_factorization,
     run_core_checks,
 )
 from myqcd.formula_registry import CORE_FORMULAS
@@ -490,10 +491,60 @@ def test_euclidean_lightcone_factorization_handles_gamma_z_and_infinity_plus() -
 
     assert result.status == "verified"
     assert all(result.checks.values())
+    alpha = result.symbols["alpha"]
+    expected_gamma_z = (
+        result.equations["matching_prefactor"]
+        * 2
+        * (1 - alpha)
+        * sp.Heaviside(alpha)
+        * sp.Heaviside(1 - alpha)
+    )
+    assert (
+        sp.simplify(
+            result.equations["gamma_z_pseudo_correction"] - expected_gamma_z
+        )
+        == 0
+    )
+    assert result.equations["gamma_z_variable_change_residual"] == 0
     assert result.equations["gamma_z_support_integral"] == 1
     assert result.equations["gamma_z_plus_constant_test_action"] == 0
+    assert result.equations["gamma_z_plus_polynomial_test_action"] == sp.Rational(-3, 2)
+    assert result.equations["delta_endpoint_residual"] == 0
     assert result.equations["infinity_endpoint_power_limit"] == 0
     assert result.equations["infinity_endpoint_log_limit"] == 0
+
+
+def test_euclidean_ope_factorization_reproduces_moment_and_scale_structure() -> None:
+    result = derive_euclidean_ope_factorization()
+
+    assert result.status == "verified"
+    assert all(result.checks.values())
+    assert result.equations["renormalization_residual"] == 0
+    assert result.equations["pdf_normalization"] == 1
+    assert result.equations["kernel_inverse_transform_residual"] == 0
+    assert result.equations["coordinate_factorization_residual"] == 0
+    assert result.equations["quasi_scaling_residual"] == 0
+    assert all(residual == 0 for residual in result.equations["pseudo_moment_residuals"])
+    assert result.equations["C0_one_loop_residual"] == 0
+    assert result.equations["gamma_z_moment_residual"] == 0
+    assert result.equations["ratio_factorization_residual"] == 0
+
+
+def test_euclidean_ope_factorization_captures_support_and_quasi_moment_singularity() -> None:
+    result = derive_euclidean_ope_factorization()
+
+    assert result.status == "verified"
+    assert result.equations["pseudo_support_positive_interval"] == sp.Interval(
+        result.symbols["x_fraction"], 1
+    )
+    assert result.equations["pseudo_support_negative_interval"] == sp.Interval(
+        -1, -result.symbols["x_fraction"]
+    )
+    assert result.equations["pseudo_support_residuals"] == (0, 0, 0, 0)
+    assert all(
+        bool(limit.is_infinite)
+        for limit in result.equations["quasi_moment_singularity_limits"]
+    )
 
 
 def test_gradient_flow_linearization_is_heat_kernel_evolution() -> None:
@@ -625,6 +676,7 @@ def test_formula_registry_covers_report_level_structural_formulas() -> None:
         "pdf_moment_relations",
         "twist2_flowed_moment_matching",
         "euclidean_lightcone_factorization",
+        "euclidean_ope_factorization",
         "quasi_pdf_tmd_relation",
         "langevin_fokker_planck",
         "hmc_scalar",
@@ -785,6 +837,10 @@ def test_new_derivations_are_exposed_by_the_package() -> None:
     assert (
         myqcd.derive_euclidean_lightcone_factorization
         is derivation_module.derive_euclidean_lightcone_factorization
+    )
+    assert (
+        myqcd.derive_euclidean_ope_factorization
+        is derivation_module.derive_euclidean_ope_factorization
     )
     assert myqcd.derive_quasi_pdf_tmd_relation is derivation_module.derive_quasi_pdf_tmd_relation
     assert myqcd.derive_wilson_flow_five_dimensional is derivation_module.derive_wilson_flow_five_dimensional
