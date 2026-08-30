@@ -1,0 +1,370 @@
+\begin{frame}[plain]\FrameAnchor{V25-title}
+\centering
+{\Large\bfseries\color{courseblue}第 25 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 规范场论深化：规范固定、鬼场、BRST 与反常\par}
+\vspace{0.35cm}
+{\large 区分规范冗余和物理自由度，掌握量子规范理论的一致性条件。\par}
+\vfill
+\CourseID{Tbl}{25.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 25 卷路线图}\FrameAnchor{V25-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+25.01 & Hamilton 桥梁：相空间、约束与两个物理偏振\\
+25.02 & Grassmann 桥梁与 Faddeev--Popov 行列式\\
+25.03 & 完整 BRST、分次 Leibniz 与规范固定作用量\\
+25.04 & Z1、Z2、Ward 与 Slavnov--Taylor 恒等式\\
+25.05 & 轴反常统一约定与一代标准模型反常抵消\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-QFT；BOOK-GROUP；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V25-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V24
+\item V07
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能推导 Faddeev--Popov 行列式
+\item 能使用 BRST 与 Ward 恒等式
+\item 能判断规范反常是否抵消
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：协变规范传播子的纵向系数}\FrameAnchor{V25-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0,xmax=2,ymin=0,ymax=2,xlabel={规范参数 $\xi$},ylabel={纵向权重},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0:2,samples=160] {x};
+\addlegendentry{纵向系数}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{25.00}：仅显示规范依赖部分；物理 S 矩阵应与 \ensuremath{\xi} 无关。
+\SourceLine{协变规范固定}
+\end{frame}
+
+\begin{frame}[t]{Hamilton 桥梁：相空间、约束与两个物理偏振：问题与图像}\FrameAnchor{25.01-1}
+\footnotesize
+\begin{block}{本节问题}从只有位置—速度概念出发，怎样看见 A\ensuremath{\mu} 的四个分量最终只剩两个光子偏振？\end{block}
+\PhysicalFlow{由 Lagrangian 定义共轭动量和相空间}{区分初级、二级与一类约束}{按相空间维数计数}{25.01}
+\begin{block}{物理原则}\KnowledgeID{25.01}\quad 规范固定不是再删除一种物理，而是为每条一类约束选择一个轨道代表；若先把规范条件连同一类约束当作二类对处理，计数必须得到同样的两个偏振。非阿贝尔时把 \ensuremath{\partial}i 换成 Di，约束代数按结构常数闭合。\end{block}
+\SourceLine{BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{Hamilton 桥梁：相空间、约束与两个物理偏振：定义与主公式}\FrameAnchor{25.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{25.01-ede4c04353} 相空间 & 把每个配置变量 q 及其共轭动量 p=\ensuremath{\partial}L/\allowbreak{}\ensuremath{\partial}qdot 作为独立坐标的空间；一个普通自由度占二维\\
+\DefinitionID{25.01-d2bfd56c56} Poisson 括号 & \{F,G\}=\ensuremath{\Sigma}(\ensuremath{\partial}F/\allowbreak{}\ensuremath{\partial}q \ensuremath{\partial}G/\allowbreak{}\ensuremath{\partial}p-\ensuremath{\partial}F/\allowbreak{}\ensuremath{\partial}p \ensuremath{\partial}G/\allowbreak{}\ensuremath{\partial}q)，把 Hamiltonian 变成时间演化 dF/\allowbreak{}dt=\{F,H\}\\
+\DefinitionID{25.01-30ab4342f1} 约束 & 相空间坐标必须满足的关系；直接由动量定义得到的是初级约束，保持其随时间成立又产生二级约束\\
+\DefinitionID{25.01-9ea241150a} 一类约束 & 与全部约束的 Poisson 括号在约束面上为零或闭合到约束，并沿规范轨道生成冗余变换\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{25.01} 主公式}\centering\CourseDisplayEquation{\pi^0=0,\quad \pi^i=F^{i0}=E^i,\quad \mathcal G=\partial_i\pi^i-\rho\approx0;\qquad N_{\rm phys}=\frac12(2N_q-2N_{\rm 1st}-N_{\rm 2nd})=\frac12(8-4)=2}\end{block}
+Maxwell Lagrangian 不含 A0dot，所以 \ensuremath{\pi}0\ensuremath{\approx}0 是初级约束；要求它在 Hamilton 演化中继续为零得到 Gauss 二级约束。二者都是一类：每个既把相空间限制一维，又沿规范轨道识别一维。符号 \ensuremath{\approx} 表示只在约束面成立。
+\end{frame}
+
+\begin{frame}[t]{Hamilton 桥梁：相空间、约束与两个物理偏振：推导与证据边界}\FrameAnchor{25.01-3}
+\footnotesize
+\DerivationID{25.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{25.01}：
+\begin{enumerate}
+\item 普通离散系统先由 pi=\ensuremath{\partial}L/\allowbreak{}\ensuremath{\partial}qidot 做 Legendre 变换 H=\ensuremath{\Sigma}pi qidot-L；若速度不能由 p 唯一反解，就出现约束。场论把求和换为空间积分、偏导换成功能导数。
+\item 对 L=-F\ensuremath{\mu}\ensuremath{\nu}F\ensuremath{^{\mu\nu}}/\allowbreak{}4-J\ensuremath{\mu}A\ensuremath{\mu} 求动量：F00=0 使 \ensuremath{\pi}0=0，而空间分量给 \ensuremath{\pi}i=Ei；A0 只作 Lagrange multiplier。
+\item 总 Hamiltonian 加任意乘子 u\ensuremath{\pi}0。计算 \ensuremath{\pi}0dot=\{\ensuremath{\pi}0,H\}=-\ensuremath{\delta}H/\allowbreak{}\ensuremath{\delta}A0，要求约等于零便得 G=\ensuremath{\partial}i\ensuremath{\pi}i-\ensuremath{\rho}\ensuremath{\approx}0；继续保持 G 不产生新约束且 \{\ensuremath{\pi}0,G\}=0。
+\item 每点 Nq=4，未约束相空间维数 8；两个一类约束各移除‘约束面一维+规范轨道一维’，剩 8-2\ensuremath{\times}2=4 个相空间维数，即 4/\allowbreak{}2=2 个配置自由度，也就是两种横向偏振。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{25.01}\quad Hamilton 桥梁：相空间、约束与两个物理偏振；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：一维周期有限差分作为 Gauss 散度代理
+\end{block}
+\BoundaryLine{只验证常场散度为零；非 Abelian 约束代数与物理 Hilbert 空间另论。}
+\end{frame}
+
+\begin{frame}[t]{Hamilton 桥梁：相空间、约束与两个物理偏振：计算算法}\FrameAnchor{25.01-4}
+\footnotesize
+\AlgorithmID{25.01}\begin{enumerate}
+\item 先在有限格点/\allowbreak{}有限 Fourier 模上列 q、p，避免每点计数与全局零模混淆。
+\item 由离散作用量自动微分得到动量和对速度的二阶导数矩阵（Hessian），其零方向提示初级约束。
+\item 计算约束 Poisson 矩阵、区分一类/\allowbreak{}二类并核对自由度公式。
+\item 选 Coulomb/\allowbreak{}Lorenz 规范后检查可观测横向振幅与规范参数无关。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] Abelian 真空中 G=div E=0，只允许横向电场辐射模。
+\item[\CheckMark] A0 没有共轭速度并不等于可随意删除；先删会丢失 Gauss 定律。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Hamilton 桥梁：相空间、约束与两个物理偏振：练习与完整解答}\FrameAnchor{25.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{25.01}}Maxwell 场有 Nq=4、两个一类约束且无二类约束；物理配置自由度是多少？\end{block}
+\begin{exampleblock}{\SolutionID{25.01}}Nphys=[2\ensuremath{\times}4-2\ensuremath{\times}2-0]/\allowbreak{}2=2。\ensuremath{\pi}0\ensuremath{\approx}0 和 Gauss 各去一个约束面方向及一个规范轨道方向，留下两种横向光子偏振。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{25.01-ede4c04353}；\CourseRef{Eq}{25.01}；\CourseRef{SYM}{25.01}；\CourseRef{Alg}{25.01}。
+\SourceLine{BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{Grassmann 桥梁与 Faddeev--Popov 行列式：问题与图像}\FrameAnchor{25.02-1}
+\footnotesize
+\begin{block}{本节问题}为什么反对易的‘数’能把规范固定 Jacobian 写成局域场作用量？\end{block}
+\PhysicalFlow{先定义 Grassmann 代数和 Berezin 积分}{证明有限维高斯积分等于 det M}{再应用于规范轨道 Jacobian}{25.02}
+\begin{block}{物理原则}\KnowledgeID{25.02}\quad FP 构造在每条规范轨道局部插入 1 并除去共同规范群体积。非微扰下同一轨道可能多次满足 F=0（Gribov copies），所以局部行列式并不自动解决全局规范固定。\end{block}
+\SourceLine{BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{Grassmann 桥梁与 Faddeev--Popov 行列式：定义与主公式}\FrameAnchor{25.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{25.02-254db78048} Grassmann 变量 & 满足 \ensuremath{\eta}i\ensuremath{\eta}j=-\ensuremath{\eta}j\ensuremath{\eta}i 的反对易代数生成元，因而 \ensuremath{\eta}i\ensuremath{^{2}}=0；它不是普通实数或复数\\
+\DefinitionID{25.02-c463a85581} Berezin 积分 & 由 \ensuremath{\int}d\ensuremath{\eta} 1=0、\ensuremath{\int}d\ensuremath{\eta} \ensuremath{\eta}=1 定义的代数取系数操作，也等于 Grassmann 微分\\
+\DefinitionID{25.02-69eba53f1e} Faddeev--Popov 算符 & MFP=\ensuremath{\delta}F(A\ensuremath{^{\alpha}})/\allowbreak{}\ensuremath{\delta}\ensuremath{\alpha}，是规范条件沿规范轨道变化的 Jacobian\\
+\DefinitionID{25.02-3969b8466b} 鬼场 & 承载该 Grassmann 行列式的反对易 Lorentz 标量场，不作为物理外态\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{25.02} 主公式}\centering\CourseDisplayEquation{\eta_i\eta_j=-\eta_j\eta_i,\quad \eta_i^2=0,\quad \int d\eta\,1=0,\quad\int d\eta\,\eta=1;\qquad \det M=\int\mathcal D\bar c\,\mathcal Dc\,e^{-\bar c_iM_{ij}c_j},\quad 1=\Delta_{\rm FP}[A]\int\mathcal D\alpha\,\delta[F(A^\alpha)]}\end{block}
+因为每个 Grassmann 变量平方为零，指数在有限阶终止；按固定测度顺序积分只选出包含全部 bar(c)i、ci 的最高次项，其系数正是 det M。课程把测度取向定义成上式的正号。
+\end{frame}
+
+\begin{frame}[t]{Grassmann 桥梁与 Faddeev--Popov 行列式：推导与证据边界}\FrameAnchor{25.02-3}
+\footnotesize
+\DerivationID{25.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{25.02}：
+\begin{enumerate}
+\item 单对变量有 exp(-bar(c)mc)=1-bar(c)mc；Berezin 积分丢掉常数并抽取 bar(c)c 系数，按约定给 m。
+\item n 对变量只有从指数取 n 个双线性项才含所有变量；反对易重排产生置换符号，求和 \ensuremath{\Sigma}\ensuremath{\sigma} sgn(\ensuremath{\sigma})\ensuremath{\Pi}iMi\ensuremath{\sigma}(i) 正是 det M。
+\item 在规范路径积分插入 \ensuremath{\Delta}FP\ensuremath{\int}D\ensuremath{\alpha} \ensuremath{\delta}[F(A\ensuremath{^{\alpha}})]=1，沿轨道换元后 D\ensuremath{\alpha} 只给共同群体积，而 \ensuremath{\Delta}FP=det(\ensuremath{\delta}F/\allowbreak{}\ensuremath{\delta}\ensuremath{\alpha}) 留在每个轨道代表上。
+\item 以 Grassmann 场指数化 det MFP 得 ghost action \ensuremath{\int}bar(c)MFPc；非阿贝尔 MFP 依 A，产生鬼—胶子顶角，Abelian 线性规范中它与 A 无关而解耦。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{25.02}\quad Grassmann 桥梁与 Faddeev--Popov 行列式；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：以二维规范条件 Jacobian 代理 functional determinant
+\end{block}
+\BoundaryLine{不处理无限维行列式、Gribov copies 或正则化。}
+\end{frame}
+
+\begin{frame}[t]{Grassmann 桥梁与 Faddeev--Popov 行列式：计算算法}\FrameAnchor{25.02-4}
+\footnotesize
+\AlgorithmID{25.02}\begin{enumerate}
+\item 先用 1\ensuremath{\times}1、对角 2\ensuremath{\times}2 和一般 2\ensuremath{\times}2 矩阵手算 Berezin 积分，固定测度顺序。
+\item 选 F=\ensuremath{\partial}\ensuremath{\mu}A\ensuremath{\mu}，求 Abelian 与 Yang--Mills 的 \ensuremath{\delta}F/\allowbreak{}\ensuremath{\delta}\ensuremath{\alpha}。
+\item 由 MFP 读出鬼传播子和鬼—胶子顶角，并给每个闭合鬼环加反对易负号。
+\item 逐圈检查规范参数、BRST 与 Slavnov--Taylor 恒等式。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 若 M 有零本征值，Grassmann 积分和 det M 都为零，表示规范条件在该处不横截轨道。
+\item[\CheckMark] Abelian Lorenz 规范 MFP=\ensuremath{\partial}\ensuremath{^{2}} 与 A 无关，鬼场只贡献可约去的常数行列式。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Grassmann 桥梁与 Faddeev--Popov 行列式：练习与完整解答}\FrameAnchor{25.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{25.02}}若 M=diag(m1,m2)，Grassmann 高斯积分为何给 m1m2？\end{block}
+\begin{exampleblock}{\SolutionID{25.02}}指数分解为 (1-bar(c)1m1c1)(1-bar(c)2m2c2)；只有含四个变量的最高次项能被全部 Berezin 积分选中，按已固定的测度取向其系数为 m1m2=det M。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{25.02-254db78048}；\CourseRef{Eq}{25.02}；\CourseRef{SYM}{25.02}；\CourseRef{Alg}{25.02}。
+\SourceLine{BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{完整 BRST、分次 Leibniz 与规范固定作用量：问题与图像}\FrameAnchor{25.03-1}
+\footnotesize
+\begin{block}{本节问题}规范固定后，怎样用一个可逐项验证的幂零对称同时组织 A、c、bar(c) 和 B？\end{block}
+\PhysicalFlow{给每个场指定 Grassmann parity}{用分次乘法规则验证 s\ensuremath{^{2}}=0}{把 gauge-fixing+ghost 写成 sΨ}{25.03}
+\begin{block}{物理原则}\KnowledgeID{25.03}\quad 遗漏分次 Leibniz 的负号会同时破坏鬼作用量和 s\ensuremath{^{2}}=0。BRST 反常会破坏 Slavnov--Taylor 恒等式、幺正性和可重整化一致性；正则化与反项必须保持或恢复它。\end{block}
+\SourceLine{BOOK-QFT；BOOK-GROUP}
+\end{frame}
+
+\begin{frame}[t]{完整 BRST、分次 Leibniz 与规范固定作用量：定义与主公式}\FrameAnchor{25.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{25.03-2b05fdd2d2} ghost number & 整数分级：A、B 为 0，c 为 +1，bar(c) 为 -1，BRST 微分 s 使它增加 1\\
+\DefinitionID{25.03-9d2fa9bd79} BRST 微分 s & Grassmann-odd、使 ghost number 增加 1 的分次导子\\
+\DefinitionID{25.03-eb8f9a05cd} 分次 Leibniz & 对 parity |X|=0或1，s(XY)=(sX)Y+(-1)\ensuremath{^{|}}X| X(sY)\\
+\DefinitionID{25.03-b5a1eea671} Nakanishi--Lautrup 场 B & 无传播自由度的 even 辅助场，使 off-shell 幂零性和规范固定写法直接可见\\
+\DefinitionID{25.03-c921aab0db} 上同调 & s-闭对象模去 s-正合对象，即 Ker(s)/\allowbreak{}Im(s)\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{25.03} 主公式}\centering\CourseDisplayEquation{sA_\mu^a=(D_\mu c)^a,\quad sc^a=-\frac g2f^{abc}c^bc^c,\quad s\bar c^a=B^a,\quad sB^a=0,\quad s(XY)=(sX)Y+(-1)^{|X|}X(sY);\qquad \Psi=\int d^dx\,\bar c^a\!\left(\partial^\mu A_\mu^a+\frac\xi2B^a\right),\quad S_{\rm gf+gh}=s\Psi}\end{block}
+取 D\ensuremath{\mu}c=\ensuremath{\partial}\ensuremath{\mu}c+gf\ensuremath{^{abc}}A\ensuremath{\mu}\ensuremath{^{b}} c\ensuremath{^{c}}。由分次 Leibniz 展开可得 sΨ=\ensuremath{\int}[B\ensuremath{^{a}}\ensuremath{\partial}·A\ensuremath{^{a}}+\ensuremath{\xi}(B\ensuremath{^{a}})\ensuremath{^{2}}/\allowbreak{}2-bar(c)\ensuremath{^{a}}\ensuremath{\partial}\ensuremath{\mu}(D\ensuremath{\mu}c)\ensuremath{^{a}}]；消去代数方程 B=-\ensuremath{\partial}·A/\allowbreak{}\ensuremath{\xi} 后得到 -(\ensuremath{\partial}·A)\ensuremath{^{2}}/\allowbreak{}(2\ensuremath{\xi}) 与 FP 鬼作用量。
+\end{frame}
+
+\begin{frame}[t]{完整 BRST、分次 Leibniz 与规范固定作用量：推导与证据边界}\FrameAnchor{25.03-3}
+\footnotesize
+\DerivationID{25.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{25.03}：
+\begin{enumerate}
+\item A、B 为 even，c、bar(c)、s 为 odd，且 s 与普通导数交换。由 s\ensuremath{^{2}}bar(c)=sB=0、s\ensuremath{^{2}}B=0 立即检查辅助扇区。
+\item 对 A 再作用 s：因 A 为 even，s(Dc)=D(sc)+g f(sA)c；代入 sc=-gfcc/\allowbreak{}2 后，导数项借助 ghost 反对易相消，余项由 Jacobi 恒等式相消。真正的分次负号出现在 s 作用于两个 odd ghost 的乘积时。
+\item 对 c 再作用 s，s(c\ensuremath{^{b}}c\ensuremath{^{c}})=(sc\ensuremath{^{b}})c\ensuremath{^{c}}-c\ensuremath{^{b}}(sc\ensuremath{^{c}})；所得三鬼项同样按 f 的 Jacobi 恒等式为零，所以 s\ensuremath{^{2}}c=0。
+\item Yang--Mills 作用量规范不变故 sSYM=0；又因 s\ensuremath{^{2}}=0，有 sSgf+gh=s\ensuremath{^{2}}Ψ=0。于是总规范固定作用量具有可用于量子 Ward/\allowbreak{}Slavnov--Taylor 恒等式的 BRST 对称。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{25.03}\quad 完整 BRST、分次 Leibniz 与规范固定作用量；4/4 项通过；SymPy exact。
+\par\scriptsize 假设：SU(2) 结构常数用三维叉积表示；s bar\_c=B、sB=0；s(XY)=(sX)Y+(-1)\ensuremath{^{|}}X|X(sY)
+\end{block}
+\BoundaryLine{有限矩阵实现验证两个 Grassmann 生成元和分次符号，并核对 s[bar\_c(G+xi B/\allowbreak{}2)]；完整时空作用量、测度与 Gribov 问题仍需场论处理。}
+\end{frame}
+
+\begin{frame}[t]{完整 BRST、分次 Leibniz 与规范固定作用量：计算算法}\FrameAnchor{25.03-4}
+\footnotesize
+\AlgorithmID{25.03}\begin{enumerate}
+\item 用符号 parity 表实现乘积规则，禁止把 s 当普通无分次导数。
+\item 逐场生成 s\ensuremath{^{2}}A、s\ensuremath{^{2}}c、s\ensuremath{^{2}}bar(c)、s\ensuremath{^{2}}B，并以反对称性/\allowbreak{}Jacobi 约简到零。
+\item 直接展开 sΨ、消去 B，与 FP 算符所得 ghost action 比较。
+\item 圈级检查 Slavnov--Taylor 残差；物理外态只取 BRST 上同调，排除鬼与纵向规范模。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] Abelian f=0 时 sc=0，鬼场在 Lorenz 线性规范解耦。
+\item[\CheckMark] s\ensuremath{^{2}}=0 蕴含 Im(s)\ensuremath{\subset}Ker(s)，因此 Ker/\allowbreak{}Im 才有定义。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{完整 BRST、分次 Leibniz 与规范固定作用量：练习与完整解答}\FrameAnchor{25.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{25.03}}计算 s[bar(c)\ensuremath{^{a}} \ensuremath{\partial}\ensuremath{\mu}A\ensuremath{\mu}\ensuremath{^{a}}]，哪个符号最容易漏？\end{block}
+\begin{exampleblock}{\SolutionID{25.03}}bar(c) 为 odd，所以分次 Leibniz 给 s[bar(c)F]=(sbar(c))F-bar(c)sF=B\ensuremath{^{a}}\ensuremath{\partial}·A\ensuremath{^{a}}-bar(c)\ensuremath{^{a}}\ensuremath{\partial}\ensuremath{\mu}(D\ensuremath{\mu}c)\ensuremath{^{a}}；第二项前的负号正是 ghost Lagrangian 的符号。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{25.03-2b05fdd2d2}；\CourseRef{Eq}{25.03}；\CourseRef{SYM}{25.03}；\CourseRef{Alg}{25.03}。
+\SourceLine{BOOK-QFT；BOOK-GROUP}
+\end{frame}
+
+\begin{frame}[t]{Z1、Z2、Ward 与 Slavnov--Taylor 恒等式：问题与图像}\FrameAnchor{25.04-1}
+\footnotesize
+\begin{block}{本节问题}量子修正为何不能任意改变规范顶角，QED 的 Z1=Z2 又具体指什么？\end{block}
+\PhysicalFlow{对路径积分做变量变换}{测度/\allowbreak{}作用量不变}{得到 Green 函数约束}{25.04}
+\begin{block}{物理原则}\KnowledgeID{25.04}\quad 非阿贝尔情形含鬼 dressing 和更多核；不可把 QED 标量式直接套到 QCD。\end{block}
+\SourceLine{BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{Z1、Z2、Ward 与 Slavnov--Taylor 恒等式：定义与主公式}\FrameAnchor{25.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{25.04-ed458a9423} Z2 & 费米子波函数/\allowbreak{}动能项重整化常数：\ensuremath{\psi}0=sqrt(Z2)\ensuremath{\psi}\\
+\DefinitionID{25.04-063067ec04} Z1 & QED 的 photon--fermion--fermion 顶角重整化常数，即重整化 Lagrangian 中 e bar(\ensuremath{\psi})\ensuremath{\gamma}\ensuremath{\mu}\ensuremath{\psi}A\ensuremath{\mu} 前的对应系数\\
+\DefinitionID{25.04-3915458167} Ward 恒等式 & Abelian 规范对称给出的关联函数关系\\
+\DefinitionID{25.04-79454c87bf} Slavnov--Taylor 恒等式 & 非阿贝尔 BRST 对 Green 函数的推广约束\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{25.04} 主公式}\centering\CourseDisplayEquation{q_\mu\Gamma^\mu(p+q,p)=S^{-1}(p+q)-S^{-1}(p),\qquad \psi_0=Z_2^{1/2}\psi,\quad e_0=\mu^{\epsilon/2}Z_1Z_2^{-1}Z_3^{-1/2}e,\quad Z_1=Z_2\ \text{(QED)}}\end{block}
+QED Ward--Takahashi 恒等式把顶角纵向部分与费米子逆传播子差联系；相同 UV 发散必须分别由 Z1 和 Z2 消去，故保持规范对称的重整化方案中 Z1=Z2，电荷重整化只剩 photon 场因子 Z3。
+\end{frame}
+
+\begin{frame}[t]{Z1、Z2、Ward 与 Slavnov--Taylor 恒等式：推导与证据边界}\FrameAnchor{25.04-3}
+\footnotesize
+\DerivationID{25.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{25.04}：
+\begin{enumerate}
+\item 对含费米子源的 QED 生成泛函做局域相位变量变换；积分变量重命名不能改变 Z。
+\item 作用量、测度、源和规范固定项的总变化为零；对源求导、Fourier 并截肢，得到 q·\ensuremath{\Gamma}=S\ensuremath{^{-1}}(p+q)-S\ensuremath{^{-1}}(p)。
+\item 令 q\ensuremath{\rightarrow}0 得 \ensuremath{\Gamma}\ensuremath{\mu}(p,p)=\ensuremath{\partial}S\ensuremath{^{-1}}/\allowbreak{}\ensuremath{\partial}p\ensuremath{\mu}，因此顶角和费米子动能的发散逐阶相同；用 Z1、Z2 反项消去时只能取 Z1=Z2。
+\item 同一身份还给 q\ensuremath{\mu}\ensuremath{\Pi}\ensuremath{\mu}\ensuremath{\nu}=0；非阿贝尔则从 BRST 变量变换得到含 ghost 的 Slavnov--Taylor 系统。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{25.04}\quad Z1、Z2、Ward 与 Slavnov--Taylor 恒等式；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：树级逆传播子 S\ensuremath{^{-1}}=slash(p)；二维 gamma 代理
+\end{block}
+\BoundaryLine{只验证树级纵向恒等式；圈级 Slavnov--Taylor 含鬼核与重整化。}
+\end{frame}
+
+\begin{frame}[t]{Z1、Z2、Ward 与 Slavnov--Taylor 恒等式：计算算法}\FrameAnchor{25.04-4}
+\footnotesize
+\AlgorithmID{25.04}\begin{enumerate}
+\item 以统一动量流向生成自能和顶角。
+\item 在每个外动量计算 q·\ensuremath{\Gamma} 与逆传播子差。
+\item 同时检查真空极化横向性。
+\item 将残差随格距、求解容差和圈截断作收敛图。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] q\ensuremath{\rightarrow}0 给 \ensuremath{\Gamma}\ensuremath{\mu}(p,p)=\ensuremath{\partial}S\ensuremath{^{-1}}/\allowbreak{}\ensuremath{\partial}p\ensuremath{\mu}。
+\item[\CheckMark] 树级 \ensuremath{\Gamma}\ensuremath{\mu}=\ensuremath{\gamma}\ensuremath{\mu}，右侧 slash(p+q)-slash(p)=slash q。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Z1、Z2、Ward 与 Slavnov--Taylor 恒等式：练习与完整解答}\FrameAnchor{25.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{25.04}}Ward 恒等式在 QED 中暗示哪两个重整化常数相等？\end{block}
+\begin{exampleblock}{\SolutionID{25.04}}在保持规范对称的方案中给 Z1=Z2，即顶角和费米子波函数重整化相关。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{25.04-ed458a9423}；\CourseRef{Eq}{25.04}；\CourseRef{SYM}{25.04}；\CourseRef{Alg}{25.04}。
+\SourceLine{BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{轴反常统一约定与一代标准模型反常抵消：问题与图像}\FrameAnchor{25.05-1}
+\footnotesize
+\begin{block}{本节问题}经典轴流为何不守恒，而标准模型的规范流为何仍能量子一致？\end{block}
+\PhysicalFlow{先固定 q(x) 与 flavor 归一化}{把一代全部改写成左手 Weyl 场}{逐项算四类局域规范/\allowbreak{}引力反常}{25.05}
+\begin{block}{物理原则}\KnowledgeID{25.05}\quad 反常求和只数左手 Weyl 场及其 multiplicity；Higgs 是标量，不贡献手征规范反常。不同超荷 convention 会同时改变所有 Y 与公式，不能混用 V23 的 Q=T3+YEW 与 Q=T3+Y/\allowbreak{}2。\end{block}
+\SourceLine{BOOK-QFT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{轴反常统一约定与一代标准模型反常抵消：定义与主公式}\FrameAnchor{25.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{25.05-b939e09925} 轴反常 & 全局手征 U(1) 的量子散度；它改变经典选择定则但不使规范理论失去一致性\\
+\DefinitionID{25.05-8d9e1854bd} 规范反常 & 局域规范电流的量子不守恒，会破坏约束和幺正性，必须在全部左手费米子谱中精确抵消\\
+\DefinitionID{25.05-08365a0a09} Dynkin 指数 T(R) & 由 trR(TaTb)=T(R)\ensuremath{\delta}ab 定义；本课 SU(N) 基本与反基本均取 T=1/\allowbreak{}2\\
+\DefinitionID{25.05-b8e2902f2b} 左手共轭 & 把右手粒子写成左手反粒子：非阿贝尔表示共轭、所有 Abelian 荷反号\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{25.05} 主公式}\centering\CourseDisplayEquation{q(x)\equiv\frac{g^2}{32\pi^2}F_{\mu\nu}^a\widetilde F^{a\mu\nu},\quad \partial_\mu J_5^\mu=2i\sum_{f=1}^{N_f}m_f\bar\psi_f\gamma_5\psi_f+2N_fq(x);\qquad \mathcal A_{33Y}=2\frac16\frac12-\frac23\frac12+\frac13\frac12=0,\quad \mathcal A_{22Y}=3\frac16\frac12-\frac12\frac12=0}\end{block}
+这里 J5 是 Nf 个 Dirac flavor 的 singlet 轴流、Ftilde\ensuremath{^{\mu\nu}}=\ensuremath{\epsilon}\ensuremath{^{\mu\nu\rho\sigma}}F\ensuremath{\rho}\ensuremath{\sigma}/\allowbreak{}2；因此单 flavor 质量为零时系数是 2q=g\ensuremath{^{2}}F Ftilde/\allowbreak{}(16\ensuremath{\pi}\ensuremath{^{2}})，与 V26 的积分拓扑荷完全同一 q 定义。
+\end{frame}
+
+\begin{frame}[t]{轴反常统一约定与一代标准模型反常抵消：推导与证据边界}\FrameAnchor{25.05-3}
+\footnotesize
+\DerivationID{25.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{25.05}：
+\begin{enumerate}
+\item Fujikawa 方法对轴旋转的费米测度 Jacobian 作 Dirac 本征模/\allowbreak{}热核正规化，有限项给 2Nfq；质量项已在经典层给 2im bar(\ensuremath{\psi})\ensuremath{\gamma}5\ensuremath{\psi}。
+\item 无右手中微子的一代全左手表为 QL：6 个、Y=1/\allowbreak{}6；uR\ensuremath{^{c}}：3 个、Y=-2/\allowbreak{}3；dR\ensuremath{^{c}}：3 个、Y=1/\allowbreak{}3；LL：2 个、Y=-1/\allowbreak{}2；eR\ensuremath{^{c}}：1 个、Y=1。数字已包含颜色和弱分量 multiplicity。
+\item SU(3)\ensuremath{^{2}}U(1)：2(1/\allowbreak{}6)T(3)+(-2/\allowbreak{}3)T(3bar)+(1/\allowbreak{}3)T(3bar)=1/\allowbreak{}6-1/\allowbreak{}3+1/\allowbreak{}6=0；SU(2)\ensuremath{^{2}}U(1)：3(1/\allowbreak{}6)T(2)+(-1/\allowbreak{}2)T(2)=1/\allowbreak{}4-1/\allowbreak{}4=0。
+\item U(1)\ensuremath{^{3}}：6(1/\allowbreak{}6)\ensuremath{^{3}}+3(-2/\allowbreak{}3)\ensuremath{^{3}}+3(1/\allowbreak{}3)\ensuremath{^{3}}+2(-1/\allowbreak{}2)\ensuremath{^{3}}+1\ensuremath{^{3}}=0；gravity\ensuremath{^{2}}U(1)：6(1/\allowbreak{}6)+3(-2/\allowbreak{}3)+3(1/\allowbreak{}3)+2(-1/\allowbreak{}2)+1=0。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{25.05}\quad 轴反常统一约定与一代标准模型反常抵消；5/5 项通过；SymPy exact。
+\par\scriptsize 假设：一代标准模型全部写成左手 Weyl 场 Q,u\ensuremath{^{c}},d\ensuremath{^{c}},L,e\ensuremath{^{c}}；T(fundamental)=1/\allowbreak{}2；q(x)=g\ensuremath{^{2}} F\ensuremath{^{a}} tildeF\ensuremath{^{a}}/\allowbreak{}(32pi\ensuremath{^{2}})
+\end{block}
+\BoundaryLine{精确核对四类局域规范反常及课程轴 Ward 恒等式系数；全局反常、正则化推导和非微扰拓扑涨落不由电荷求和证明。}
+\end{frame}
+
+\begin{frame}[t]{轴反常统一约定与一代标准模型反常抵消：计算算法}\FrameAnchor{25.05-4}
+\footnotesize
+\AlgorithmID{25.05}\begin{enumerate}
+\item 用数据表逐行保存 chirality、Rc、Rw、Y 和 multiplicity；程序只接受全左手输入。
+\item 分别实现 SU(3)\ensuremath{^{2}}Y、SU(2)\ensuremath{^{2}}Y、Y\ensuremath{^{3}} 与 gravity\ensuremath{^{2}}Y 求和，并对任一荷或 multiplicity 的故障注入返回非零。
+\item 补做纯 SU(3)\ensuremath{^{3}}：QL 的两个 3 与 uR\ensuremath{^{c}}、dR\ensuremath{^{c}} 的两个 3bar 相消；SU(2) 有 3+1=4 个左手 doublet，为偶数，避开全局 Witten 反常。
+\item 格点手征方案用 index 与 \ensuremath{\int}q 核对 singlet 轴 Ward 恒等式，同时确认矢量规范流无反常。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 若漏掉颜色 multiplicity，Y\ensuremath{^{3}} 和引力混合和不会为零。
+\item[\CheckMark] 右手场若不先共轭就直接与左手场同号相加，会制造假的标准模型反常。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{轴反常统一约定与一代标准模型反常抵消：练习与完整解答}\FrameAnchor{25.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{25.05}}用全左手一代表验证 SU(3)\ensuremath{^{2}}Y、SU(2)\ensuremath{^{2}}Y、Y\ensuremath{^{3}} 和 gravity\ensuremath{^{2}}Y 四个系数。\end{block}
+\begin{exampleblock}{\SolutionID{25.05}}依次为 2(1/\allowbreak{}6)(1/\allowbreak{}2)+(-2/\allowbreak{}3)(1/\allowbreak{}2)+(1/\allowbreak{}3)(1/\allowbreak{}2)=0；3(1/\allowbreak{}6)(1/\allowbreak{}2)+(-1/\allowbreak{}2)(1/\allowbreak{}2)=0；6(1/\allowbreak{}6)\ensuremath{^{3}}+3(-2/\allowbreak{}3)\ensuremath{^{3}}+3(1/\allowbreak{}3)\ensuremath{^{3}}+2(-1/\allowbreak{}2)\ensuremath{^{3}}+1=0；6(1/\allowbreak{}6)+3(-2/\allowbreak{}3)+3(1/\allowbreak{}3)+2(-1/\allowbreak{}2)+1=0。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{25.05-b939e09925}；\CourseRef{Eq}{25.05}；\CourseRef{SYM}{25.05}；\CourseRef{Alg}{25.05}。
+\SourceLine{BOOK-QFT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{第 25 卷能力清单}\FrameAnchor{V25-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能推导 Faddeev--Popov 行列式
+\item[\CheckMark] 能使用 BRST 与 Ward 恒等式
+\item[\CheckMark] 能判断规范反常是否抵消
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 25 卷来源（1/1）}\FrameAnchor{V25-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-QFT} & An Introduction to Quantum Field Theory（仓库转排本） & 量子场论、规范理论、QCD 和重整化的主教材交叉核验。\\
+\SourceID{BOOK-GROUP} & 连续群与生成元预备课（课程自编） & 从旋转群过渡到 SU(2)/\allowbreak{}SU(3)。\\
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\bottomrule\end{tabularx}\end{frame}
+

@@ -1,0 +1,381 @@
+\begin{frame}[plain]\FrameAnchor{V17-title}
+\centering
+{\Large\bfseries\color{courseblue}第 17 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 核子中 flowed 胶子 TMD 的格点测量\par}
+\vspace{0.35cm}
+{\large 把流后链接、非零 bT staple 算符与核子二点函数组合成真实断连三点测量。\par}
+\vfill
+\CourseID{Tbl}{17.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 17 卷路线图}\FrameAnchor{V17-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+17.01 & 从原始链接到 flowed 场强\\
+17.02 & 批量生成 z、bT、\ensuremath{\ell} 与投影\\
+17.03 & boost 核子二点函数与动量涂抹\\
+17.04 & 构型级断连三点与真空扣除\\
+17.05 & 平台、summation 与两态联合分析\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{PYQCD-TMD；PYQCD-ANALYSIS；P40；P41；P44}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V17-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V11
+\item V12
+\item V15
+\item V16
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能规划构型级测量张量
+\item 能完成真空扣除和三种激发态分析
+\item 能建立几何、对称性和数据质量门
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：平台法与 summation 法的激发态标度}\FrameAnchor{V17-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0.0,xmax=6.0,ymin=0.0,ymax=1.05,xlabel={$\Delta E\,t_{\rm sep}$},ylabel={相对污染（单位振幅）},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0.0:6.0,samples=160] {exp(-x/2)};
+\addlegendentry{平台中心点}
+\addplot[very thick,courseorange,domain=0.0:6.0,samples=160] {exp(-x)};
+\addlegendentry{summation 斜率}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{17.00}：理想单能隙示意；实际振幅、接触项和多态相关性需拟合。
+\SourceLine{三点谱展开}
+\end{frame}
+
+\begin{frame}[t]{从原始链接到 flowed 场强：问题与图像}\FrameAnchor{17.01-1}
+\footnotesize
+\begin{block}{本节问题}一份规范构型怎样变成带流时标签的胶子场强数据？\end{block}
+\PhysicalFlow{加载并校验 U}{流到 \ensuremath{\tau}1…\ensuremath{\tau}n}{每个 \ensuremath{\tau} 构造 Fcl\ensuremath{\mu}\ensuremath{\nu}}{17.01}
+\begin{block}{物理原则}\KnowledgeID{17.01}\quad 不能对已平均的场强补做配置级真空扣除；应保留构型级算符与核子数据配对。\end{block}
+\SourceLine{PYQCD-GAUGE；PYQCD-TMD；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{从原始链接到 flowed 场强：定义与主公式}\FrameAnchor{17.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{17.01-5cded93a30} 构型级数据 & 尚未跨规范系综平均的观测量\\
+\DefinitionID{17.01-c32aa16977} 流时检查点 & 积分轨迹上指定输出的 \ensuremath{\tau}\\
+\DefinitionID{17.01-9c62aff705} 群漂移 & 链接偏离 SU(3) 的数值残差\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{17.01} 主公式}\centering\CourseDisplayEquation{V_\mu(0,x)=U_\mu(x),\qquad F_{\mu\nu}(\tau,x)=F_{\mu\nu}^{\rm cl}[V(\tau)](x)}\end{block}
+先流链接，再由同一流时的链接构造场强；两步约定必须显式连接。
+\end{frame}
+
+\begin{frame}[t]{从原始链接到 flowed 场强：推导与证据边界}\FrameAnchor{17.01-3}
+\footnotesize
+\DerivationID{17.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{17.01}：
+\begin{enumerate}
+\item Wilson 流是以 U 为初值的一阶初值问题，给定积分器后 V(\ensuremath{\tau}) 唯一。
+\item clover F 是 V(\ensuremath{\tau}) 的局域确定函数。
+\item 因此每个构型和 \ensuremath{\tau} 的 F 可重现；跨构型平均应留到统计层。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{17.01}\quad 流轨迹检查点的半群复用；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：线性化单动量模；tau1,tau2,p2>0
+\end{block}
+\BoundaryLine{非线性群值 Wilson 流由数值积分器回归测试，不由单模代理替代。}
+\end{frame}
+
+\begin{frame}[t]{从原始链接到 flowed 场强：计算算法}\FrameAnchor{17.01-4}
+\footnotesize
+\AlgorithmID{17.01}\begin{enumerate}
+\item 加载链接并验证 shape、precision、U†U、detU 与边界条件。
+\item 一次积分按升序访问全部 \ensuremath{\tau} 检查点，避免重复从零流。
+\item 构造全部 \ensuremath{\mu}<\ensuremath{\nu} 的 clover F，保存反对称补全规则。
+\item 记录步长收敛、作用量、t\ensuremath{^{2}}E(t) 和每 \ensuremath{\tau} 的校验和。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\tau}=0 输出应在容差内等于原始链接算符。
+\item[\CheckMark] 交换 \ensuremath{\mu}、\ensuremath{\nu} 时 F 变号；迹应接近零。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}gradient\_\allowbreak{}flow.\allowbreak{}py；operator/\allowbreak{}\_\allowbreak{}gluon\_\allowbreak{}ope.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{从原始链接到 flowed 场强：练习与完整解答}\FrameAnchor{17.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{17.01}}若需要 5 个递增 \ensuremath{\tau}，为什么应按一次流轨迹依次输出？\end{block}
+\begin{exampleblock}{\SolutionID{17.01}}一阶流具有半群性质；一次推进可复用前一 \ensuremath{\tau} 状态，并保持积分历史一致。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{17.01-5cded93a30}；\CourseRef{Eq}{17.01}；\CourseRef{SYM}{17.01}；\CourseRef{Alg}{17.01}。
+\SourceLine{PYQCD-GAUGE；PYQCD-TMD；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{批量生成 z、bT、\ensuremath{\ell} 与投影：问题与图像}\FrameAnchor{17.02-1}
+\footnotesize
+\begin{block}{本节问题}怎样在不混淆几何的前提下高效覆盖完整 TMD 参数网格？\end{block}
+\PhysicalFlow{笛卡尔参数清单}{路径签名去重与分组}{张量收缩后保留完整元数据}{17.02}
+\begin{block}{物理原则}\KnowledgeID{17.02}\quad bT 必须是实际非零向量，不可只保存模长后丢失方向和路径端点。\end{block}
+\SourceLine{PYQCD-TMD-GEOMETRY；P40；P44}
+\end{frame}
+
+\begin{frame}[t]{批量生成 z、bT、\ensuremath{\ell} 与投影：定义与主公式}\FrameAnchor{17.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{17.02-b7c0b4c71c} 几何网格 & 全部 z、bT、\ensuremath{\ell}、方向组合的离散集合\\
+\DefinitionID{17.02-1cb311fbae} 路径签名 & 唯一编码有序路径段与端点的哈希输入\\
+\DefinitionID{17.02-cc3b270b80} 对称轨道 & 格点旋转/\allowbreak{}反射群联系的一组几何\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{17.02} 主公式}\centering\CourseDisplayEquation{N_{\rm op}=N_\tau N_z N_{b_T}N_\ell N_{\rm proj}N_{\rm orient}}\end{block}
+朴素算符数是各独立轴长度乘积；对称平均只能在验证关系后减少独立成本。
+\end{frame}
+
+\begin{frame}[t]{批量生成 z、bT、\ensuremath{\ell} 与投影：推导与证据边界}\FrameAnchor{17.02-3}
+\footnotesize
+\DerivationID{17.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{17.02}：
+\begin{enumerate}
+\item 参数空间是六个有限集合的笛卡尔积。
+\item 每选择一个轴元素，组合数相乘。
+\item 使用对称轨道时，只能合并离散几何、边界和动量关系等价的元素。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{17.02}\quad 算符几何网格计数；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：各轴为正整数；朴素笛卡尔积、尚未对称约化
+\end{block}
+\BoundaryLine{路径缓存可减计算量但不能改变逻辑数据项数。}
+\end{frame}
+
+\begin{frame}[t]{批量生成 z、bT、\ensuremath{\ell} 与投影：计算算法}\FrameAnchor{17.02-4}
+\footnotesize
+\AlgorithmID{17.02}\begin{enumerate}
+\item 先生成显式参数表，拒绝空 staple 段与 bT=0 的 TMD 标签。
+\item 将共享长腿的路径按前缀分组，缓存 Wilson 线部分积。
+\item 对每项计算未投影张量和目标投影，保持复数值。
+\item 按路径签名、流时和投影写分块数据，并做旋转轨道比较。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 任一轴长度为零时产物为空，应在运行前失败。
+\item[\CheckMark] 对称平均前后中心值应相容。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}tmd.\allowbreak{}py；TMD geometry 技能}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{批量生成 z、bT、\ensuremath{\ell} 与投影：练习与完整解答}\FrameAnchor{17.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{17.02}}N\ensuremath{\tau}=3、Nz=7、Nb=4、N\ensuremath{\ell}=5、Nproj=2、Norient=2，算符项数是多少？\end{block}
+\begin{exampleblock}{\SolutionID{17.02}}3\ensuremath{\times}7\ensuremath{\times}4\ensuremath{\times}5\ensuremath{\times}2\ensuremath{\times}2=1680（每构型、每动量、每插入时刻之前）。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{17.02-b7c0b4c71c}；\CourseRef{Eq}{17.02}；\CourseRef{SYM}{17.02}；\CourseRef{Alg}{17.02}。
+\SourceLine{PYQCD-TMD-GEOMETRY；P40；P44}
+\end{frame}
+
+\begin{frame}[t]{boost 核子二点函数与动量涂抹：问题与图像}\FrameAnchor{17.03-1}
+\footnotesize
+\begin{block}{本节问题}胶子算符不接到价夸克线上，为何仍需高质量核子传播子？\end{block}
+\PhysicalFlow{多 Pz 动量涂抹源}{核子 C2 构型级时间序列}{与同构型胶子算符配对}{17.03}
+\begin{block}{物理原则}\KnowledgeID{17.03}\quad 大 Pz 改善 LaMET 幂修正，却通常恶化信噪比和离散误差，需多动量折中。\end{block}
+\SourceLine{P04；P41；PYQCD-CORRELATOR}
+\end{frame}
+
+\begin{frame}[t]{boost 核子二点函数与动量涂抹：定义与主公式}\FrameAnchor{17.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{17.03-7d4fbb843d} boosted nucleon & 具有非零大纵向动量的核子外态\\
+\DefinitionID{17.03-21767430fc} 源平均 & 同一构型多个源位置的相关平均\\
+\DefinitionID{17.03-27cd167e82} 配对键 & 保证 C2 与 O 来自同一构型的标识\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{17.03} 主公式}\centering\CourseDisplayEquation{E_N(P_z)=\sqrt{M_N^2+P_z^2}\left[1+O(a^2P_z^2)\right]}\end{block}
+连续色散是首个检查；有限格距可有按 a\ensuremath{^{2}}Pz\ensuremath{^{2}} 增长的修正。
+\end{frame}
+
+\begin{frame}[t]{boost 核子二点函数与动量涂抹：推导与证据边界}\FrameAnchor{17.03-3}
+\footnotesize
+\DerivationID{17.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{17.03}：
+\begin{enumerate}
+\item 连续质壳给 E\ensuremath{^{2}}=M\ensuremath{^{2}}+Pz\ensuremath{^{2}}。
+\item 改进后领先格点旋转不变量允许 a\ensuremath{^{2}}Pz\ensuremath{^{4}} 修正 E\ensuremath{^{2}}。
+\item 对 E 提出连续平方根后，相对修正按 a\ensuremath{^{2}}Pz\ensuremath{^{2}} 计数。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{17.03}\quad boost 核子连续色散；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：M\_N>0；取正能支
+\end{block}
+\BoundaryLine{有限 a 的格点色散和信噪比须由多动量数据检查。}
+\end{frame}
+
+\begin{frame}[t]{boost 核子二点函数与动量涂抹：计算算法}\FrameAnchor{17.03-4}
+\footnotesize
+\AlgorithmID{17.03}\begin{enumerate}
+\item 对每个 Pz 调谐并记录动量涂抹参数，不能跨格距照搬整数相位。
+\item 计算多个源位置 C2，先保留源级数据诊断异常值。
+\item 用共同多态/\allowbreak{}色散拟合约束 E(P) 和重叠。
+\item 以 ensemble/\allowbreak{}config/\allowbreak{}momentum/\allowbreak{}source-policy 键与胶子算符严格连接。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] Pz=0 时 E=M。
+\item[\CheckMark] 无外场时 E(P)=E(-P)，偏离可诊断统计或约定问题。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}analysis/\allowbreak{}\_\allowbreak{}proton\_\allowbreak{}energy.\allowbreak{}py 与 vertex 模块}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{boost 核子二点函数与动量涂抹：练习与完整解答}\FrameAnchor{17.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{17.03}}M=0.94 GeV、Pz=2 GeV 时连续能量是多少？\end{block}
+\begin{exampleblock}{\SolutionID{17.03}}E=\ensuremath{\sqrt{0.94^{2}+4}}\ensuremath{\approx}2.210 GeV。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{17.03-7d4fbb843d}；\CourseRef{Eq}{17.03}；\CourseRef{SYM}{17.03}；\CourseRef{Alg}{17.03}。
+\SourceLine{P04；P41；PYQCD-CORRELATOR}
+\end{frame}
+
+\begin{frame}[t]{构型级断连三点与真空扣除：问题与图像}\FrameAnchor{17.04-1}
+\footnotesize
+\begin{block}{本节问题}如何把 flowed staple 胶子算符真正放进核子外态，而不把真空涨落误当信号？\end{block}
+\PhysicalFlow{按插入时间平移 Oi}{与 C2i 同构型相乘}{重采样内减去均值乘积}{17.04}
+\begin{block}{物理原则}\KnowledgeID{17.04}\quad 所有平均、真空扣除和比值须在同一重采样样本内重算，才能保留非线性相关。\end{block}
+\SourceLine{PYQCD-ANALYSIS；PYQCD-TMD；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{构型级断连三点与真空扣除：定义与主公式}\FrameAnchor{17.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{17.04-5a035f394a} 时间平移平均 & 在周期时间上对等价插入位置平均\\
+\DefinitionID{17.04-43336526bf} 配置配对 & C2i 和 Oi 保持相同构型索引\\
+\DefinitionID{17.04-b3093bddce} 接触区 & 算符过近源/\allowbreak{}汇时短距效应显著的时间片\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{17.04} 主公式}\centering\CourseDisplayEquation{\widehat G_3=\frac{1}{N-1}\sum_{i=1}^{N}(C_{2,i}-\bar C_2)(O_i-\bar O)=\frac{N}{N-1}\left[\overline{C_2O}-\bar C_2\bar O\right]}\end{block}
+独立块的 1/\allowbreak{}(N-1) 样本协方差给无偏估计；原始 1/\allowbreak{}N 形式还差 N/\allowbreak{}(N-1) 校正。
+\end{frame}
+
+\begin{frame}[t]{构型级断连三点与真空扣除：推导与证据边界}\FrameAnchor{17.04-3}
+\footnotesize
+\DerivationID{17.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{17.04}：
+\begin{enumerate}
+\item 先写总体目标 Cov(C2,O)=\ensuremath{\langle}C2O\ensuremath{\rangle}-\ensuremath{\langle}C2\ensuremath{\rangle}\ensuremath{\langle}O\ensuremath{\rangle}。
+\item 有限 N 用中心化和除以 N-1；等价于给 1/\allowbreak{}N 差式乘 N/\allowbreak{}(N-1)。
+\item 若 O 加常数 c，中心化后的 O 不变，故真空常数严格相消。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{17.04}\quad 构型级无偏断连协方差；3/3 项通过；SymPy exact。
+\par\scriptsize 假设：N=4 个独立块作为一般符号实例；C2 与 O 使用相同索引配对；生产接口要求 N>=2
+\end{block}
+\BoundaryLine{SymPy 验证 1/\allowbreak{}(N-1) 中心化形式与 N/\allowbreak{}(N-1) 均值差式等价；N<2 必须由接口显式失败，构型错配仍需故障注入测试。}
+\end{frame}
+
+\begin{frame}[t]{构型级断连三点与真空扣除：计算算法}\FrameAnchor{17.04-4}
+\footnotesize
+\AlgorithmID{17.04}\begin{enumerate}
+\item 对每构型/\allowbreak{}源时间，把算符时间轴相对源重新对齐并周期卷绕。
+\item 先形成配置配对表，缺失构型按预先规则共同剔除。
+\item 每个独立 block 或重采样样本内计算中心化协方差，并保留 jackknife bias correction。
+\item 剔除接触区，检查 O\ensuremath{\rightarrow}O+c、构型乱序失败；N<2 必须拒绝而非返回物理零。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] N=1 时无偏样本协方差未定义，接口必须失败。
+\item[\CheckMark] 打乱 O 的构型顺序应把真实协方差信号压向零。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}analysis/\allowbreak{}\_\allowbreak{}disconnected.\allowbreak{}py 与 \_\allowbreak{}tmd\_\allowbreak{}ratio.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{构型级断连三点与真空扣除：练习与完整解答}\FrameAnchor{17.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{17.04}}若所有 Oi 相同为常数 c，G3 是多少？\end{block}
+\begin{exampleblock}{\SolutionID{17.04}}第一项和第二项均为 c C̄2，因此 G3=0。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{17.04-5a035f394a}；\CourseRef{Eq}{17.04}；\CourseRef{SYM}{17.04}；\CourseRef{Alg}{17.04}。
+\SourceLine{PYQCD-ANALYSIS；PYQCD-TMD；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{平台、summation 与两态联合分析：问题与图像}\FrameAnchor{17.05-1}
+\footnotesize
+\begin{block}{本节问题}同一裸矩阵元怎样通过三种方法相互约束，而不是挑最平的平台？\end{block}
+\PhysicalFlow{平台法看中心 \ensuremath{\tau}}{summation 看 tsep 斜率}{两态法拟合完整谱结构}{17.05}
+\begin{block}{物理原则}\KnowledgeID{17.05}\quad 三种方法共享数据且高度相关；相容性应在联合重采样上判断。\end{block}
+\SourceLine{DOC-3PT；PYQCD-ANALYSIS；P41}
+\end{frame}
+
+\begin{frame}[t]{平台、summation 与两态联合分析：定义与主公式}\FrameAnchor{17.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{17.05-1947b6be0d} summation method & 对安全插入时间求和后由 tsep 斜率提取矩阵元\\
+\DefinitionID{17.05-fc266b45c2} 两态拟合 & 显式保留基态和第一激发态\\
+\DefinitionID{17.05-82836e23f1} 稳定性扫描 & 系统改变窗、态数和先验的分析\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{17.05} 主公式}\centering\CourseDisplayEquation{S(t_{\rm sep})=\sum_{\tau=\tau_c}^{t_{\rm sep}-\tau_c}R(\tau,t_{\rm sep})=C+M_{00}t_{\rm sep}+O(e^{-\Delta E t_{\rm sep}})}\end{block}
+求和把两侧指数污染主要变成常数，并使斜率污染按完整间隔指数抑制。
+\end{frame}
+
+\begin{frame}[t]{平台、summation 与两态联合分析：推导与证据边界}\FrameAnchor{17.05-3}
+\footnotesize
+\DerivationID{17.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{17.05}：
+\begin{enumerate}
+\item 把 R=M00+Aexp(-\ensuremath{\Delta}E\ensuremath{\tau})+Bexp[-\ensuremath{\Delta}E(tsep-\ensuremath{\tau})]+… 对安全 \ensuremath{\tau} 求和。
+\item M00 项产生 M00 乘可用时间片数，即线性于 tsep 加常数偏移。
+\item 两个几何级数的斜率余项按 exp(-\ensuremath{\Delta}Etsep) 衰减。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{17.05}\quad 双态领先项的 summation 几何级数；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：N>=2；q=exp(-Delta E) 且 q!=1；接触剔除取一格作代表
+\end{block}
+\BoundaryLine{真实多态、相关噪声和有限 T 需共享 C2 参数的联合拟合。}
+\end{frame}
+
+\begin{frame}[t]{平台、summation 与两态联合分析：计算算法}\FrameAnchor{17.05-4}
+\footnotesize
+\AlgorithmID{17.05}\begin{enumerate}
+\item 预先定义多个 tsep、接触剔除 \ensuremath{\tau}c 和候选拟合窗。
+\item 在同一重采样样本中做平台、summation 和共享 C2 谱的两态拟合。
+\item 比较随最小 tsep、\ensuremath{\tau}c、态数和先验的变化。
+\item 若方法不相容，停止后续重整化并增加 tsep/\allowbreak{}统计。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 若 R 恒为 M00，S 的斜率精确为 M00。
+\item[\CheckMark] 改变接触剔除只改截距，不应改渐近斜率。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}analysis/\allowbreak{}\_\allowbreak{}ratio\_\allowbreak{}fit.\allowbreak{}py 与 \_\allowbreak{}tmd\_\allowbreak{}ratio.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{平台、summation 与两态联合分析：练习与完整解答}\FrameAnchor{17.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{17.05}}R=M 且 \ensuremath{\tau} 从 1 到 tsep-1，共有多少项，S 是什么？\end{block}
+\begin{exampleblock}{\SolutionID{17.05}}共有 tsep-1 项，S=(tsep-1)M=Mtsep-M，斜率为 M。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{17.05-1947b6be0d}；\CourseRef{Eq}{17.05}；\CourseRef{SYM}{17.05}；\CourseRef{Alg}{17.05}。
+\SourceLine{DOC-3PT；PYQCD-ANALYSIS；P41}
+\end{frame}
+
+\begin{frame}[t]{第 17 卷能力清单}\FrameAnchor{V17-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能规划构型级测量张量
+\item[\CheckMark] 能完成真空扣除和三种激发态分析
+\item[\CheckMark] 能建立几何、对称性和数据质量门
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 17 卷来源（1/3）}\FrameAnchor{V17-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{PYQCD-TMD} & PyQCD TMD 主链技能 & 六阶段 TMD 物理链和端到端接口。\\
+\SourceID{PYQCD-ANALYSIS} & PyQCD 分析技能与模块 & 断连、比值、多态拟合和图表。\\
+\SourceID{P40} & 梯度流中的非光锥威尔逊线算符 & 论文图谱 P40 的完整原始 PDF；底稿 arXiv:2312.05032；SHA-256 31292da5c276c237…。\\
+\SourceID{P41} & 首个核子胶子部分子分布 & 论文图谱 P41 的完整原始 PDF；底稿 arXiv:2505.13321；SHA-256 09eff6064b5d9c67…。\\
+\SourceID{P44} & 从准TMD波函数确定CS核 & 论文图谱 P44 的完整原始 PDF；底稿 arXiv:2204.00200；SHA-256 589d870d484889ae…。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 17 卷来源（2/3）}\FrameAnchor{V17-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{PYQCD-GAUGE} & PyQCD 规范场技能 & 链接、plaquette、flow 和规范不变量。\\
+\SourceID{REPORT-TMD} & 梯度流核子胶子 TMD 项目报告 & 本课程终点定义、实现现状、证据分级和关键物理边界。\\
+\SourceID{PYQCD-TMD-GEOMETRY} & PyQCD TMD 几何规范 & 非零 bT、finite staple、端点和路径签名。\\
+\SourceID{P04} & 高动量强子新夸克涂抹 & 论文图谱 P04 的完整原始 PDF；底稿 arXiv:1602.05525；SHA-256 f174c9940ab18237…。\\
+\SourceID{PYQCD-CORRELATOR} & PyQCD 关联函数技能 & 强子二点/\allowbreak{}三点与谱学检查。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 17 卷来源（3/3）}\FrameAnchor{V17-sources-3}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{DOC-3PT} & 格点 QCD 中的三点函数构造 & 核子三点函数、谱分解和代码接口。\\
+\bottomrule\end{tabularx}\end{frame}
+

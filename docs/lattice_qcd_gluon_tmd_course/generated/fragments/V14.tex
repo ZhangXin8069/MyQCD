@@ -1,0 +1,383 @@
+\begin{frame}[plain]\FrameAnchor{V14-title}
+\centering
+{\Large\bfseries\color{courseblue}第 14 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries LaMET、quasi 分布与 Collins--Soper 演化\par}
+\vspace{0.35cm}
+{\large 理解欧氏等时矩阵元如何在大动量下因子化为光锥/\allowbreak{}TMD 物理。\par}
+\vfill
+\CourseID{Tbl}{14.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 14 卷路线图}\FrameAnchor{V14-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+14.01 & 欧氏等时相关与 quasi-PDF\\
+14.02 & LaMET 因子化与幂修正\\
+14.03 & 匹配卷积与胶子—夸克混合\\
+14.04 & 伪分布与 Ioffe-time 分布\\
+14.05 & Collins--Soper 核与多动量比值\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{P11；P18；P44；P45；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V14-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V08
+\item V11
+\item V13
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能写 quasi-PDF Fourier 对
+\item 能区分匹配与幂修正
+\item 能从多动量比值提取 CS 核
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：大动量幂修正}\FrameAnchor{V14-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=1.0,xmax=8.0,ymin=0.0,ymax=1.05,xlabel={$P_z/M$},ylabel={$M^2/P_z^2$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=1.0:8.0,samples=160] {1/x^2};
+\addlegendentry{领先幂修正}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{14.00}：解析标度示意；系数及更高阶由算符和运动学决定。
+\SourceLine{LaMET 幂计数}
+\end{frame}
+
+\begin{frame}[t]{欧氏等时相关与 quasi-PDF：问题与图像}\FrameAnchor{14.01-1}
+\footnotesize
+\begin{block}{本节问题}格点不能计算光状实时分离，怎样改测一个可匹配的等时量？\end{block}
+\PhysicalFlow{沿 z 的等时分离}{boost 核子 Pz}{对 z Fourier 得 quasi 分布}{14.01}
+\begin{block}{物理原则}\KnowledgeID{14.01}\quad 有限格点只给有限、离散 z；Fourier 反演必须处理截断、窗函数和相关误差。\end{block}
+\SourceLine{P11；P12；P18}
+\end{frame}
+
+\begin{frame}[t]{欧氏等时相关与 quasi-PDF：定义与主公式}\FrameAnchor{14.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{14.01-e4e4de9554} quasi-PDF & 空间等时双局域矩阵元的 Fourier 变换\\
+\DefinitionID{14.01-4ddf9d204a} Ioffe 时间 & \ensuremath{\nu}=P·z 的无量纲相位变量\\
+\DefinitionID{14.01-da5db61777} 大动量极限 & Pz 远大于强子尺度时的有效理论展开\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{14.01} 主公式}\centering\CourseDisplayEquation{\tilde q(x,P_z)=\int_{-\infty}^{\infty}\frac{dz}{2\pi}e^{ixP_zz}\,h(z,P_z)}\end{block}
+空间分离 z 可在欧氏格点计算，Pzz 与 x 共轭。
+\end{frame}
+
+\begin{frame}[t]{欧氏等时相关与 quasi-PDF：推导与证据边界}\FrameAnchor{14.01-3}
+\footnotesize
+\DerivationID{14.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{14.01}：
+\begin{enumerate}
+\item 定义 \ensuremath{\nu}=Pzz，坐标矩阵元写作 h(z,Pz)。
+\item 以 exp(ix\ensuremath{\nu}) 做 Fourier 变换定义 quasi 分布。
+\item 逆变换给 h(z,Pz)=Pz\ensuremath{\int}dx exp(-ixPzz)q̃(x,Pz)，归一化取决于约定。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{14.01}\quad quasi/\allowbreak{}pseudo Fourier 反演；4/4 项通过；SymPy exact；复用 myqcd.derivations.derive\_qpdf\_ppdf\_fourier\_inversion。
+\par\scriptsize 假设：momentum\_projection=|pv|>0 且 fixed\_separation=|z|>0；width>0，示例 q(y) 在整个实轴归一化；Fourier 约定含 1/\allowbreak{}(2 pi)，与源码 qPDF/\allowbreak{}pPDF 定义一致
+\end{block}
+\BoundaryLine{验证受控测试函数的正反变换；有限 z 重建的病态性需数值覆盖测试。}
+\end{frame}
+
+\begin{frame}[t]{欧氏等时相关与 quasi-PDF：计算算法}\FrameAnchor{14.01-4}
+\footnotesize
+\AlgorithmID{14.01}\begin{enumerate}
+\item 统一 z 正方向、Fourier 指数和 Pz 符号。
+\item 在每个重采样样本中对有限 z 数据做对称性检查。
+\item 比较截断 Fourier、导数法和受约束重建。
+\item 用合成已知分布验证分辨率、泄漏和不确定度覆盖。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] z=0 给 x 积分归一化。
+\item[\CheckMark] h(-z,P)=h(z,P)* 仅在相应厄米与离散对称条件成立时使用。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{欧氏等时相关与 quasi-PDF：练习与完整解答}\FrameAnchor{14.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{14.01}}若 h(z)=exp(-\ensuremath{\alpha}z\ensuremath{^{2}})，其 quasi 分布形状是什么？\end{block}
+\begin{exampleblock}{\SolutionID{14.01}}仍为高斯，正比 \ensuremath{\alpha}\ensuremath{^{-1/2}}exp[-x\ensuremath{^{2}}Pz\ensuremath{^{2}}/\allowbreak{}(4\ensuremath{\alpha})]。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{14.01-e4e4de9554}；\CourseRef{Eq}{14.01}；\CourseRef{SYM}{14.01}；\CourseRef{Alg}{14.01}。
+\SourceLine{P11；P12；P18}
+\end{frame}
+
+\begin{frame}[t]{LaMET 因子化与幂修正：问题与图像}\FrameAnchor{14.02-1}
+\footnotesize
+\begin{block}{本节问题}有限 Pz 的 quasi 分布与无限动量光锥分布相差什么？\end{block}
+\PhysicalFlow{可微扰短程匹配}{同 twist 光锥/\allowbreak{}TMD 分布}{x 端点、bT、\ensuremath{\ell} 与有限 Pz 修正}{14.02}
+\begin{block}{物理原则}\KnowledgeID{14.02}\quad x\ensuremath{\rightarrow}0、1 时 partonic boost 消失；Pz 增大还会恶化信噪比和 apz 误差。\ensuremath{\ell} 是独立有限长度调节量，不能被一个通用 1/\allowbreak{}Pz\ensuremath{^{2}} 项吸收。\end{block}
+\SourceLine{P12；P14；P18}
+\end{frame}
+
+\begin{frame}[t]{LaMET 因子化与幂修正：定义与主公式}\FrameAnchor{14.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{14.02-c6394eef8e} LaMET & 大动量可计算等时量到光锥量的有效理论匹配\\
+\DefinitionID{14.02-cfbda0a3aa} 匹配核 & 连接两种方案短距离差异的微扰系数\\
+\DefinitionID{14.02-4a17ac5aac} 幂修正 & 被大动量幂次抑制的高阶贡献\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{14.02} 主公式}\centering\CourseDisplayEquation{\begin{aligned}\chi&=\min(x,1-x),\\ \widetilde F(x,b_T,P_z,\ell)&=C\!\otimes F(x,b_T;\mu,\zeta)\\ &\quad+O\!\left(\frac{M^2}{P_z^2},\frac{\Lambda^2}{\chi^2P_z^2},\frac{1}{\chi^2P_z^2b_T^2},\delta_\ell\right)\end{aligned}}\end{block}
+匹配核处理短程方案差；大动量展开只在 x 远离端点、\ensuremath{\chi}Pz 和 \ensuremath{\chi}PzbT 足够大且 finite-staple 修正 \ensuremath{\delta}ell 受控的窗口内一致。
+\end{frame}
+
+\begin{frame}[t]{LaMET 因子化与幂修正：推导与证据边界}\FrameAnchor{14.02-3}
+\footnotesize
+\DerivationID{14.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{14.02}：
+\begin{enumerate}
+\item 等时与光锥算符在大 Pz 下共享相同红外长距离物理。
+\item 二者短距离差异可由微扰核 C 卷积吸收。
+\item 靶质量给 M\ensuremath{^{2}}/\allowbreak{}Pz\ensuremath{^{2}}；端点由 xPz 与 (1-x)Pz 控制，非零 bT 又允许 1/\allowbreak{}(xPzbT)\ensuremath{^{2}} 型修正。
+\item 有限 staple 的端点/\allowbreak{}长度效应写成方案依赖的 \ensuremath{\delta}ell(z,bT,Pz)，须靠多 \ensuremath{\ell} 数据约束。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{14.02}\quad LaMET 匹配与幂计数；3/3 项通过；SymPy exact；复用 myqcd.derivations.derive\_lamet\_matching。
+\par\scriptsize 假设：P\_z>0, Lambda>0；Lambda 与 P\_z 同为质量量纲；匹配核 C 和 PDF q 满足积分可积性
+\end{block}
+\BoundaryLine{验证代理核的卷积、尺度和极限；修正系数一般依 x、bT、ell，且小 x/\allowbreak{}端点展开可能非一致，QCD 因子化定理本身不是 SymPy 结论。}
+\end{frame}
+
+\begin{frame}[t]{LaMET 因子化与幂修正：计算算法}\FrameAnchor{14.02-4}
+\footnotesize
+\AlgorithmID{14.02}\begin{enumerate}
+\item 准备至少三个物理 Pz、多个非零 bT 与多个 \ensuremath{\ell}，并保证 apz 不过大。
+\item 预先定义 \ensuremath{\chi}Pz、\ensuremath{\chi}PzbT 和 \ensuremath{\ell}/\allowbreak{}盒长的有效性 mask，端点区单独降级。
+\item 在同一重整化方案下计算每个 quasi 矩阵元。
+\item 应用与胶子/\allowbreak{}夸克通道一致的匹配矩阵。
+\item 联合扫描 1/\allowbreak{}Pz\ensuremath{^{2}}、x/\allowbreak{}bT 依赖项、finite-\ensuremath{\ell} 模型和动量窗口。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 固定内点 x、非零 bT 并受控处理 \ensuremath{\ell} 时，Pz\ensuremath{\rightarrow}\ensuremath{\infty} 才压低所列 boost 修正。
+\item[\CheckMark] 核和 PDF 的卷积必须保持相应和规则。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{LaMET 因子化与幂修正：练习与完整解答}\FrameAnchor{14.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{14.02}}M=1 GeV，Pz 从 2 增至 3 GeV，M\ensuremath{^{2}}/\allowbreak{}Pz\ensuremath{^{2}} 缩小多少倍？\end{block}
+\begin{exampleblock}{\SolutionID{14.02}}从 1/\allowbreak{}4 变 1/\allowbreak{}9，后者是前者的 4/\allowbreak{}9\ensuremath{\approx}0.444。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{14.02-c6394eef8e}；\CourseRef{Eq}{14.02}；\CourseRef{SYM}{14.02}；\CourseRef{Alg}{14.02}。
+\SourceLine{P12；P14；P18}
+\end{frame}
+
+\begin{frame}[t]{匹配卷积与胶子—夸克混合：问题与图像}\FrameAnchor{14.03-1}
+\footnotesize
+\begin{block}{本节问题}胶子分布能否只靠一个标量匹配核得到？\end{block}
+\PhysicalFlow{输入 singlet 夸克与胶子向量}{2\ensuremath{\times}2 卷积核}{输出同方案物理分布}{14.03}
+\begin{block}{物理原则}\KnowledgeID{14.03}\quad 忽略 off-diagonal 核需有量化依据；接口存在或纯胶子 demo 不能证明混合可忽略。\end{block}
+\SourceLine{P26；P41；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{匹配卷积与胶子—夸克混合：定义与主公式}\FrameAnchor{14.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{14.03-4839323187} singlet & 所有夸克与反夸克 flavor 求和\\
+\DefinitionID{14.03-da5f6d9315} 通道混合 & 重整化或匹配使胶子与 singlet 算符相互贡献\\
+\DefinitionID{14.03-f8ce202c87} 卷积恒等核 & \ensuremath{\delta}(1-x/\allowbreak{}y) 对分布保持不变\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{14.03} 主公式}\centering\CourseDisplayEquation{\binom{\tilde g}{\tilde\Sigma}=\begin{pmatrix}C_{gg}&C_{gq}\\C_{qg}&C_{qq}\end{pmatrix}\!\otimes\binom{g}{\Sigma}+O\!\big(\delta_{\rm LaMET}(x,b_T,\ell,P_z)\big)}\end{block}
+胶子与 flavor-singlet 夸克共享量子数并在微扰匹配中形成矩阵问题。
+\end{frame}
+
+\begin{frame}[t]{匹配卷积与胶子—夸克混合：推导与证据边界}\FrameAnchor{14.03-3}
+\footnotesize
+\DerivationID{14.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{14.03}：
+\begin{enumerate}
+\item 把两通道 OPE 系数按输出和输入通道排列。
+\item 线性叠加给每个 quasi 通道等于两个物理通道的卷积和。
+\item 树级 Cgg=Cqq=\ensuremath{\delta}、交叉核为 0 时矩阵退化为单位映射。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{14.03}\quad 两通道胶子—singlet 线性混合代理；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：用常数 2x2 矩阵代理每个矩阵元的 x 卷积；det C 非零
+\end{block}
+\BoundaryLine{真实匹配核含分布、尺度和卷积；这里只检查通道线性代数。}
+\end{frame}
+
+\begin{frame}[t]{匹配卷积与胶子—夸克混合：计算算法}\FrameAnchor{14.03-4}
+\footnotesize
+\AlgorithmID{14.03}\begin{enumerate}
+\item 在同一 x 网格存储向量 (g,\ensuremath{\Sigma}) 与 2\ensuremath{\times}2 核。
+\item 逐输出—输入通道执行守恒离散卷积。
+\item 用单位 \ensuremath{\delta} 核和解析多项式做精确回归。
+\item 传播核尺度、截断阶和输入 singlet 不确定度。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 关闭交叉核后应复现两个独立标量卷积。
+\item[\CheckMark] 动量和规则要求匹配/\allowbreak{}演化后的总动量一致到截断阶。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}matching.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{匹配卷积与胶子—夸克混合：练习与完整解答}\FrameAnchor{14.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{14.03}}常数 2\ensuremath{\times}2 核 [[2,1],[1,3]] 作用于 (g,\ensuremath{\Sigma})=(1,2)，结果是什么？\end{block}
+\begin{exampleblock}{\SolutionID{14.03}}线性代理结果为 (4,7)；真实情形每个矩阵元是 x 卷积算符。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{14.03-4839323187}；\CourseRef{Eq}{14.03}；\CourseRef{SYM}{14.03}；\CourseRef{Alg}{14.03}。
+\SourceLine{P26；P41；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{伪分布与 Ioffe-time 分布：问题与图像}\FrameAnchor{14.04-1}
+\footnotesize
+\begin{block}{本节问题}与其先 Fourier 到 x，能否直接在坐标空间组织短距离因子化？\end{block}
+\PhysicalFlow{不变量 \ensuremath{\nu}=P·z}{空间间隔 z\ensuremath{^{2}}}{reduced ITD 消去部分重整化}{14.04}
+\begin{block}{物理原则}\KnowledgeID{14.04}\quad 比值可消去共同 UV 因子，但不能自动消去所有 higher-twist、有限体积或 TMD rapidity 结构。\end{block}
+\SourceLine{P15；P16；P49}
+\end{frame}
+
+\begin{frame}[t]{伪分布与 Ioffe-time 分布：定义与主公式}\FrameAnchor{14.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{14.04-89e778acf7} Ioffe-time distribution & 矩阵元关于 \ensuremath{\nu}=P·z 的表示\\
+\DefinitionID{14.04-1f142ff9f8} pseudo-PDF & 固定 z\ensuremath{^{2}} 的 Ioffe-time Fourier 表示\\
+\DefinitionID{14.04-4079ad8d19} reduced ratio & 用零动量或零 Ioffe 时间比值消去共同因子\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{14.04} 主公式}\centering\CourseDisplayEquation{\mathcal M(\nu,z^2)=\int_{-1}^{1}dx\,e^{ix\nu}\,\mathcal P(x,z^2)}\end{block}
+ITD 与 pseudo-PDF 在 \ensuremath{\nu} 和 x 间 Fourier 共轭，同时保留短距离变量 z\ensuremath{^{2}}。
+\end{frame}
+
+\begin{frame}[t]{伪分布与 Ioffe-time 分布：推导与证据边界}\FrameAnchor{14.04-3}
+\footnotesize
+\DerivationID{14.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{14.04}：
+\begin{enumerate}
+\item 由 Lorentz 协变，标量矩阵元可写成 \ensuremath{\nu}=P·z 与 z\ensuremath{^{2}} 的函数。
+\item 对 \ensuremath{\nu} 作 Fourier 表示，定义 pseudo 分布 P(x,z\ensuremath{^{2}})。
+\item \ensuremath{\nu}=0 时积分退化为 P 的归一化，用于构造 reduced ratio。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{14.04}\quad pseudo-ITD Fourier 关系；6/6 项通过；SymPy exact；复用 myqcd.derivations.derive\_pseudo\_itd。
+\par\scriptsize 假设：x\ensuremath{\in}[-1,1] 且示例 PDF f(x)=1/\allowbreak{}2；伪 ITD 的 UV 发散取乘法形式 Z(z\_3)；OPE 右端保留形式积分与 O(z\ensuremath{^{2}}) 高扭度项
+\end{block}
+\BoundaryLine{验证有限测试分布的 Ioffe-time 变换和归一化；短距因子化域另判。}
+\end{frame}
+
+\begin{frame}[t]{伪分布与 Ioffe-time 分布：计算算法}\FrameAnchor{14.04-4}
+\footnotesize
+\AlgorithmID{14.04}\begin{enumerate}
+\item 把不同 P、z 数据重排到共同 \ensuremath{\nu} 和 z\ensuremath{^{2}}。
+\item 构造比值前保持同一构型重采样相关性。
+\item 选择短距窗口 z\ensuremath{^{2}}\ensuremath{\Lambda}\ensuremath{^{2}}\ensuremath{\ll}1 做坐标空间匹配。
+\item 比较直接 ITD 拟合和 x 空间重建的稳定性。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\nu}=0 时 M 是 x 积分。
+\item[\CheckMark] 若 P(x) 为实，M(-\ensuremath{\nu})=M(\ensuremath{\nu})*。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{伪分布与 Ioffe-time 分布：练习与完整解答}\FrameAnchor{14.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{14.04}}P(x)=1/\allowbreak{}2（-1\ensuremath{\le}x\ensuremath{\le}1）时求 M(\ensuremath{\nu})。\end{block}
+\begin{exampleblock}{\SolutionID{14.04}}M=(1/\allowbreak{}2)\ensuremath{\int}\ensuremath{_{-1}}\ensuremath{^{1}}e\ensuremath{^{ix\nu}}dx=sin\ensuremath{\nu}/\allowbreak{}\ensuremath{\nu}，\ensuremath{\nu}=0 的连续极限为 1。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{14.04-89e778acf7}；\CourseRef{Eq}{14.04}；\CourseRef{SYM}{14.04}；\CourseRef{Alg}{14.04}。
+\SourceLine{P15；P16；P49}
+\end{frame}
+
+\begin{frame}[t]{Collins--Soper 核与多动量比值：问题与图像}\FrameAnchor{14.05-1}
+\footnotesize
+\begin{block}{本节问题}TMD 对强子 boost 的依赖如何从非微扰横向结构中分离？\end{block}
+\PhysicalFlow{至少三个大动量 Pz}{共同 x 或共同 Ioffe time}{相关斜率与幂修正提取 K(bT,\ensuremath{\mu})}{14.05}
+\begin{block}{物理原则}\KnowledgeID{14.05}\quad 格点提取还含 perturbative matching、有限 Pz、有限 staple 与混合修正；两点对数比只能作退化代数测试，不能辨认斜率与 1/\allowbreak{}Pz\ensuremath{^{2}} 污染。\end{block}
+\SourceLine{P44；P45；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{Collins--Soper 核与多动量比值：定义与主公式}\FrameAnchor{14.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{14.05-c88ee0eb9d} Collins--Soper 核 & 控制 TMD rapidity 尺度演化的非微扰核\\
+\DefinitionID{14.05-bbd22c0489} rapidity 尺度 \ensuremath{\zeta} & 近光状方向能量的尺度参数\\
+\DefinitionID{14.05-f7804f30cb} 多动量比值 & 利用共同因子消去并读出演化斜率\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{14.05} 主公式}\centering\CourseDisplayEquation{\frac{\partial\ln \tilde f(x,b_T;\mu,\zeta)}{\partial\ln\sqrt\zeta}=K(b_T,\mu)}\end{block}
+在固定 x、bT、\ensuremath{\mu} 下，ln TMD 对 ln\ensuremath{\sqrt{\zeta}} 的斜率是 CS 核。
+\end{frame}
+
+\begin{frame}[t]{Collins--Soper 核与多动量比值：推导与证据边界}\FrameAnchor{14.05-3}
+\footnotesize
+\DerivationID{14.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{14.05}：
+\begin{enumerate}
+\item 把演化方程在 \ensuremath{\zeta}1 到 \ensuremath{\zeta}2 间积分。
+\item 在固定 x、bT、\ensuremath{\mu} 下，若 K 与 \ensuremath{\zeta} 无关，则 ln[f(\ensuremath{\zeta}2)/\allowbreak{}f(\ensuremath{\zeta}1)]=K ln\ensuremath{\sqrt{\zeta2/\zeta1}}。
+\item 选定方案中 \ensuremath{\sqrt{\zeta}}z 通常正比 xPz；坐标空间比较必须固定 \ensuremath{\nu}=zPz，而不是固定 z。
+\item 至少三个 Pz 才能同时检验线性斜率并加入首个有限动量修正。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{14.05}\quad Collins--Soper 演化积分；4/4 项通过；SymPy exact。
+\par\scriptsize 假设：zeta,zeta0,mu,mu0>0；K 与 Gamma\_cusp 在该简化示例中视为常数；running coupling 情形需改用积分解
+\end{block}
+\BoundaryLine{只验证固定 bT 的演化积分；相同 z、不同 P\_z 不满足共同 nu，两点比值也不能辨认 K 与 1/\allowbreak{}P\_z\ensuremath{^{2}} 污染。}
+\end{frame}
+
+\begin{frame}[t]{Collins--Soper 核与多动量比值：计算算法}\FrameAnchor{14.05-4}
+\footnotesize
+\AlgorithmID{14.05}\begin{enumerate}
+\item 在相同 bT、staple、flow time 和方案下准备至少三个 Pz 数据。
+\item x 空间在共同 x 网格比较；坐标空间则插值到共同 \ensuremath{\nu}，使各动量使用 z=\ensuremath{\nu}/\allowbreak{}Pz。
+\item 先应用各动量对应的短程匹配和有限动量修正。
+\item 对 ln quasi-TMD 随 lnPz 做含 1/\allowbreak{}Pz\ensuremath{^{2}}（及必要 x/\allowbreak{}bT/\allowbreak{}\ensuremath{\ell} 项）的相关拟合。
+\item 扫描 x、Pz、\ensuremath{\ell} 窗，并与已知 small-bT 微扰核衔接。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\zeta}1=\ensuremath{\zeta}2 时积分变化为 0。
+\item[\CheckMark] 同一 z、不同 Pz 会改变 \ensuremath{\nu}，不能直接归因于 CS 演化；K 的符号须连同定义报告。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}tmdextract.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Collins--Soper 核与多动量比值：练习与完整解答}\FrameAnchor{14.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{14.05}}若 f2/\allowbreak{}f1=0.8 且 \ensuremath{\sqrt{\zeta2/\zeta1}}=2，按本式求 K。\end{block}
+\begin{exampleblock}{\SolutionID{14.05}}K=ln0.8/\allowbreak{}ln2\ensuremath{\approx}-0.322。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{14.05-c88ee0eb9d}；\CourseRef{Eq}{14.05}；\CourseRef{SYM}{14.05}；\CourseRef{Alg}{14.05}。
+\SourceLine{P44；P45；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{第 14 卷能力清单}\FrameAnchor{V14-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能写 quasi-PDF Fourier 对
+\item[\CheckMark] 能区分匹配与幂修正
+\item[\CheckMark] 能从多动量比值提取 CS 核
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 14 卷来源（1/3）}\FrameAnchor{V14-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{P11} & 欧氏格点上的部分子物理 & 论文图谱 P11 的完整原始 PDF；底稿 arXiv:1305.1539；SHA-256 8a8877826d6fd23b…。\\
+\SourceID{P18} & 大动量有效理论综述 & 论文图谱 P18 的完整原始 PDF；底稿 arXiv:2004.03543；SHA-256 bfcdc7b4100d0da2…。\\
+\SourceID{P44} & 从准TMD波函数确定CS核 & 论文图谱 P44 的完整原始 PDF；底稿 arXiv:2204.00200；SHA-256 589d870d484889ae…。\\
+\SourceID{P45} & LaMET计算TMD软函数 & 论文图谱 P45 的完整原始 PDF；底稿 arXiv:2005.14572；SHA-256 22b1f2cbca968f30…。\\
+\SourceID{PYQCD-TMD} & PyQCD TMD 主链技能 & 六阶段 TMD 物理链和端到端接口。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 14 卷来源（2/3）}\FrameAnchor{V14-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{P12} & 大动量有效理论与部分子物理 & 论文图谱 P12 的完整原始 PDF；底稿 arXiv:1404.6680；SHA-256 d852e74b8817d53b…。\\
+\SourceID{P14} & 大动量有效理论再论 & 论文图谱 P14 的完整原始 PDF；底稿 arXiv:1706.07416；SHA-256 fdc102ad02bd3cc5…。\\
+\SourceID{P26} & 大动量有效理论获取胶子分布 & 论文图谱 P26 的完整原始 PDF；底稿 arXiv:1808.10824；SHA-256 51ef82db68b39777…。\\
+\SourceID{P41} & 首个核子胶子部分子分布 & 论文图谱 P41 的完整原始 PDF；底稿 arXiv:2505.13321；SHA-256 09eff6064b5d9c67…。\\
+\SourceID{P15} & 准分布动量分布与伪分布 & 论文图谱 P15 的完整原始 PDF；底稿 arXiv:1705.01488；SHA-256 a76dcf322909d269…。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 14 卷来源（3/3）}\FrameAnchor{V14-sources-3}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{P16} & 部分子伪分布的格点探索 & 论文图谱 P16 的完整原始 PDF；底稿 arXiv:1706.05373；SHA-256 12401554a993d92d…。\\
+\SourceID{P49} & 伪部分子分布的单圈演化 & 论文图谱 P49 的完整原始 PDF；底稿 arXiv:1801.02427；SHA-256 79c2772567b5119c…。\\
+\bottomrule\end{tabularx}\end{frame}
+

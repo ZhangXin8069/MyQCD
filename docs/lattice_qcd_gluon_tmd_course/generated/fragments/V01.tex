@@ -1,0 +1,362 @@
+\begin{frame}[plain]\FrameAnchor{V01-title}
+\centering
+{\Large\bfseries\color{courseblue}第 1 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 数学语言、量纲与连续变化\par}
+\vspace{0.35cm}
+{\large 把高中代数和微积分整理成以后可反复使用的物理语言。\par}
+\vfill
+\CourseID{Tbl}{01.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 1 卷路线图}\FrameAnchor{V01-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+01.01 & 量、单位与量纲\\
+01.02 & 函数、指数与对数\\
+01.03 & 复数与相位\\
+01.04 & 导数：局部变化率\\
+01.05 & 积分：累积量与平均\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-MATH；BOOK-NUMERICS；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V01-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item 高中代数
+\item 三角函数
+\item 会读直角坐标图
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能做量纲审计
+\item 能读写复数相位
+\item 能用导数和积分描述连续变化
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 第 1 卷从高中毕业知识起步；诊断项答不出时直接学习本卷对应单元。
+\end{frame}
+
+\begin{frame}[t]{定量图：中心差分的二阶收敛}\FrameAnchor{V01-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0.02,xmax=1.0,ymin=0.0,ymax=0.18,xlabel={步长 $h$},ylabel={误差 $|\sin h/h-1|$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0.02:1.0,samples=160] {abs(sin(x)/x-1)};
+\addlegendentry{二阶误差}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{01.00}：解析示意：横轴无量纲；小步长区误差按 h\ensuremath{^{2}} 下降。
+\SourceLine{由精确函数值生成；二阶原因在 V03.04 系统推导}
+\end{frame}
+
+\begin{frame}[t]{量、单位与量纲：问题与图像}\FrameAnchor{01.01-1}
+\footnotesize
+\begin{block}{本节问题}为什么一个公式在代数上能算通，在物理上仍可能是错的？\end{block}
+\PhysicalFlow{选择基本量 M、L、T}{把每一项写成量纲幂}{比较等号两侧}{01.01}
+\begin{block}{物理原则}\KnowledgeID{01.01}\quad 量纲一致是必要条件，不是动力学正确性的充分条件。\end{block}
+\SourceLine{BOOK-MATH；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{量、单位与量纲：定义与主公式}\FrameAnchor{01.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{01.01-0b9aa7dbaf} 物理量 & 可测数值与单位的组合\\
+\DefinitionID{01.01-b33afd2b5d} 量纲 & 不依赖单位制的类型\\
+\DefinitionID{01.01-c26f8c54e0} 无量纲量 & 量纲幂全部为零的量\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{01.01} 主公式}\centering\CourseDisplayEquation{[F]=[ma]=M\,L\,T^{-2}}\end{block}
+力的量纲由质量与加速度相乘得到；等式两侧必须有相同量纲。
+\end{frame}
+
+\begin{frame}[t]{量、单位与量纲：推导与证据边界}\FrameAnchor{01.01-3}
+\footnotesize
+\DerivationID{01.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{01.01}：
+\begin{enumerate}
+\item 由速度定义 v=\ensuremath{\Delta}x/\allowbreak{}\ensuremath{\Delta}t，得到 [v]=L T\ensuremath{^{-1}}。
+\item 再由 a=\ensuremath{\Delta}v/\allowbreak{}\ensuremath{\Delta}t，得到 [a]=L T\ensuremath{^{-2}}。
+\item 牛顿第二定律 F=ma 给出 [F]=M L T\ensuremath{^{-2}}；加法项必须逐项相同。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{01.01}\quad 量纲指数相加；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：基本量取 M,L,T；乘法对应量纲指数相加
+\end{block}
+\BoundaryLine{量纲一致只是否定错误的必要条件，不证明动力学公式。}
+\end{frame}
+
+\begin{frame}[t]{量、单位与量纲：计算算法}\FrameAnchor{01.01-4}
+\footnotesize
+\AlgorithmID{01.01}\begin{enumerate}
+\item 列出问题中的基本量和所用单位。
+\item 为每个中间变量保存量纲指数向量 (M,L,T)。
+\item 乘除对应指数向量加减，幂运算对应数乘。
+\item 遇到加法、指数或对数时检查输入是否同量纲或无量纲。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 极限检查：质量加倍且加速度不变，力应加倍。
+\item[\CheckMark] 单位检查：1 N=1 kg·m·s\ensuremath{^{-2}}。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{量、单位与量纲：练习与完整解答}\FrameAnchor{01.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{01.01}}某程序写出扩散半径 r=8t。若 t 的量纲是 L\ensuremath{^{2}}，指出错误并修正。\end{block}
+\begin{exampleblock}{\SolutionID{01.01}}8t 的量纲是 L\ensuremath{^{2}}，不能直接等于长度；正确关系是 r=\ensuremath{\sqrt{8t}}。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{01.01-0b9aa7dbaf}；\CourseRef{Eq}{01.01}；\CourseRef{SYM}{01.01}；\CourseRef{Alg}{01.01}。
+\SourceLine{BOOK-MATH；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{函数、指数与对数：问题与图像}\FrameAnchor{01.02-1}
+\footnotesize
+\begin{block}{本节问题}怎样把跨越许多数量级的变化写成可比较的直线？\end{block}
+\PhysicalFlow{输入 x}{函数规则 f}{输出 f(x)}{01.02}
+\begin{block}{物理原则}\KnowledgeID{01.02}\quad 指数只能作用在无量纲数上；物理式 exp(-Et) 隐含自然单位下 Et 无量纲。\end{block}
+\SourceLine{BOOK-MATH}
+\end{frame}
+
+\begin{frame}[t]{函数、指数与对数：定义与主公式}\FrameAnchor{01.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{01.02-26a18fdab2} 函数 & 每个允许输入对应唯一输出的规则\\
+\DefinitionID{01.02-2c1125ff28} 指数 & 重复乘法的连续推广\\
+\DefinitionID{01.02-69ead85a21} 对数 & 指数函数的反函数\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{01.02} 主公式}\centering\CourseDisplayEquation{\log_b x=\frac{\ln x}{\ln b}\quad (x>0,\ b>0,\ b\ne1)}\end{block}
+换底公式把任意底数的对数化为自然对数。
+\end{frame}
+
+\begin{frame}[t]{函数、指数与对数：推导与证据边界}\FrameAnchor{01.02-3}
+\footnotesize
+\DerivationID{01.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{01.02}：
+\begin{enumerate}
+\item 令 y=log\_b x，按定义有 b\ensuremath{^{y}}=x。
+\item 两边取自然对数：y ln b=ln x。
+\item 因 b\ensuremath{\ne}1，所以 ln b\ensuremath{\ne}0，解得 y=ln x/\allowbreak{}ln b。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{01.02}\quad 对数换底；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：x>0；b>0 且 b\ensuremath{\ne}1；第二项在实主值对数域
+\end{block}
+\BoundaryLine{不验证数据是否真的服从幂律或指数律。}
+\end{frame}
+
+\begin{frame}[t]{函数、指数与对数：计算算法}\FrameAnchor{01.02-4}
+\footnotesize
+\AlgorithmID{01.02}\begin{enumerate}
+\item 先确定函数定义域，排除对数的非正输入。
+\item 画线性坐标图，观察是否被极端值压扁。
+\item 若变量跨数量级，改用半对数或双对数坐标。
+\item 用斜率区分指数律和幂律，并回代原坐标检验。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 边界检查：x=1 时任意合法底数的对数均为 0。
+\item[\CheckMark] 换底检查：b=e 时公式退化为恒等式。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{函数、指数与对数：练习与完整解答}\FrameAnchor{01.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{01.02}}若误差 \ensuremath{\epsilon}(a)=C a\ensuremath{^{2}}，双对数图上斜率是多少？\end{block}
+\begin{exampleblock}{\SolutionID{01.02}}ln \ensuremath{\epsilon}=ln C+2 ln a，因此横轴 ln a、纵轴 ln \ensuremath{\epsilon} 时斜率为 2。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{01.02-26a18fdab2}；\CourseRef{Eq}{01.02}；\CourseRef{SYM}{01.02}；\CourseRef{Alg}{01.02}。
+\SourceLine{BOOK-MATH}
+\end{frame}
+
+\begin{frame}[t]{复数与相位：问题与图像}\FrameAnchor{01.03-1}
+\footnotesize
+\begin{block}{本节问题}为什么波、量子态和傅里叶变换都偏爱复数？\end{block}
+\PhysicalFlow{实部与虚部}{极坐标 r、\ensuremath{\theta}}{旋转因子 exp(i\ensuremath{\theta})}{01.03}
+\begin{block}{物理原则}\KnowledgeID{01.03}\quad 把 z=i\ensuremath{\theta} 代入指数级数便得到 Euler 公式；V03.04 再教授一般 Taylor 展开与余项。可观测量通常由共轭配对得到实数。\end{block}
+\SourceLine{BOOK-MATH；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{复数与相位：定义与主公式}\FrameAnchor{01.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{01.03-f7438c2e38} 复数 & 形如 z=x+iy 的数\\
+\DefinitionID{01.03-5f17a87e8d} 共轭 & 把 i 的符号反转\\
+\DefinitionID{01.03-05a53b9ad4} 相位 & 复平面上的方向角\\
+\DefinitionID{01.03-1301c33849} 幂级数 & 把无穷多个幂次项按收敛极限相加；本节只引入三种所需级数\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{01.03} 主公式}\centering\CourseDisplayEquation{e^z=\sum_{n=0}^{\infty}\frac{z^n}{n!},\quad\cos\theta=\sum_{k=0}^{\infty}\frac{(-1)^k\theta^{2k}}{(2k)!},\quad\sin\theta=\sum_{k=0}^{\infty}\frac{(-1)^k\theta^{2k+1}}{(2k+1)!}}\end{block}
+复指数把平面旋转写成乘法；相位改变方向而不改变模长。
+\end{frame}
+
+\begin{frame}[t]{复数与相位：推导与证据边界}\FrameAnchor{01.03-3}
+\footnotesize
+\DerivationID{01.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{01.03}：
+\begin{enumerate}
+\item 本节把 exp、cos、sin 的收敛幂级数作为定义；先计算有限部分和，再取项数趋于无穷。
+\item 代入 z=i\ensuremath{\theta}，把偶次幂与奇次幂分组，分别得到 cos\ensuremath{\theta} 与 i sin\ensuremath{\theta}。
+\item 与共轭 exp(-i\ensuremath{\theta}) 相乘，利用 cos\ensuremath{^{2}}\ensuremath{\theta}+sin\ensuremath{^{2}}\ensuremath{\theta}=1 得单位模。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{01.03}\quad Euler 公式与单位模；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：theta 为实数
+\end{block}
+\BoundaryLine{复相位的物理可观测性还需具体算符和对称性。}
+\end{frame}
+
+\begin{frame}[t]{复数与相位：计算算法}\FrameAnchor{01.03-4}
+\footnotesize
+\AlgorithmID{01.03}\begin{enumerate}
+\item 用一对实数保存复数，明确约定实部和虚部顺序。
+\item 乘法采用 (x+iy)(u+iv)=(xu-yv)+i(xv+yu)。
+\item 需要模平方时计算 z* z，而不是 z\ensuremath{^{2}}。
+\item 对相位数据做展开或环形统计，避免 \ensuremath{\pm}\ensuremath{\pi} 跳变。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\theta}=0 时复指数为 1。
+\item[\CheckMark] \ensuremath{\theta}\ensuremath{\rightarrow}-\ensuremath{\theta} 时结果等于原结果的复共轭。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{复数与相位：练习与完整解答}\FrameAnchor{01.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{01.03}}计算 (1+i)/\allowbreak{}(1-i)，并写出模与相位。\end{block}
+\begin{exampleblock}{\SolutionID{01.03}}乘以分母共轭得 i；模为 1，相位为 \ensuremath{\pi}/\allowbreak{}2（模 2\ensuremath{\pi}）。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{01.03-f7438c2e38}；\CourseRef{Eq}{01.03}；\CourseRef{SYM}{01.03}；\CourseRef{Alg}{01.03}。
+\SourceLine{BOOK-MATH；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{导数：局部变化率：问题与图像}\FrameAnchor{01.04-1}
+\footnotesize
+\begin{block}{本节问题}计算机只看到离散点，怎样逼近连续曲线的斜率？\end{block}
+\PhysicalFlow{两点割线}{缩小间隔 h}{极限得到切线}{01.04}
+\begin{block}{物理原则}\KnowledgeID{01.04}\quad 导数有量纲：[df/\allowbreak{}dx]=[f]/\allowbreak{}[x]；差分步长过大有截断误差，过小有舍入误差。\end{block}
+\SourceLine{BOOK-MATH；BOOK-NUMERICS}
+\end{frame}
+
+\begin{frame}[t]{导数：局部变化率：定义与主公式}\FrameAnchor{01.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{01.04-d4be23fa40} 导数 & 函数的局部线性变化率\\
+\DefinitionID{01.04-0fb314e51c} 极限 & 变量无限接近时的稳定值\\
+\DefinitionID{01.04-b33b7ba471} 中心差分 & 用点的两侧对称估计导数\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{01.04} 主公式}\centering\CourseDisplayEquation{\frac{d}{dx}x^n=n x^{n-1}}\end{block}
+幂函数求导法则是后续变分、误差传播和演化方程的基本工具。
+\end{frame}
+
+\begin{frame}[t]{导数：局部变化率：推导与证据边界}\FrameAnchor{01.04-3}
+\footnotesize
+\DerivationID{01.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{01.04}：
+\begin{enumerate}
+\item 从定义 [(x+h)\ensuremath{^{n}}-x\ensuremath{^{n}}]/\allowbreak{}h 出发。
+\item 用二项式展开，常数项相消，最低剩余项是 n x\ensuremath{^{n-1}}h。
+\item 除以 h 后令 h\ensuremath{\rightarrow}0，高阶 h 项消失，得到 n x\ensuremath{^{n-1}}。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{01.04}\quad 幂函数求导；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：n 为正整数；一般实/\allowbreak{}复幂需指定分支
+\end{block}
+\BoundaryLine{数值差分的舍入误差不在符号检查内。}
+\end{frame}
+
+\begin{frame}[t]{导数：局部变化率：计算算法}\FrameAnchor{01.04-4}
+\footnotesize
+\AlgorithmID{01.04}\begin{enumerate}
+\item 选取一串按 2 缩小的 h。
+\item 计算中心差分 [f(x+h)-f(x-h)]/\allowbreak{}(2h)。
+\item 与解析值或更细网格结果比较。
+\item 在双对数图上确认二阶区间，并避开舍入误差反弹区。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 常数函数对应 n=0，导数为 0。
+\item[\CheckMark] 中心差分在 h\ensuremath{\rightarrow}-h 下不变，奇数阶误差相消。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{导数：局部变化率：练习与完整解答}\FrameAnchor{01.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{01.04}}对 f(x)=x\ensuremath{^{3}}，在 x=1 用中心差分计算导数，并直接由代数写出误差。\end{block}
+\begin{exampleblock}{\SolutionID{01.04}}[(1+h)\ensuremath{^{3}}-(1-h)\ensuremath{^{3}}]/\allowbreak{}(2h)=3+h\ensuremath{^{2}}；精确导数为 3，故误差为 h\ensuremath{^{2}}，无需预先使用 Taylor 展开。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{01.04-d4be23fa40}；\CourseRef{Eq}{01.04}；\CourseRef{SYM}{01.04}；\CourseRef{Alg}{01.04}。
+\SourceLine{BOOK-MATH；BOOK-NUMERICS}
+\end{frame}
+
+\begin{frame}[t]{积分：累积量与平均：问题与图像}\FrameAnchor{01.05-1}
+\footnotesize
+\begin{block}{本节问题}如何从每一小段的局部贡献恢复总量？\end{block}
+\PhysicalFlow{区间切片}{小矩形求和}{网格无限细的极限}{01.05}
+\begin{block}{物理原则}\KnowledgeID{01.05}\quad 积分结果的量纲等于被积函数量纲乘积分变量量纲。\end{block}
+\SourceLine{BOOK-MATH；BOOK-NUMERICS}
+\end{frame}
+
+\begin{frame}[t]{积分：累积量与平均：定义与主公式}\FrameAnchor{01.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{01.05-158c70d47f} 定积分 & 区间内带符号面积的极限\\
+\DefinitionID{01.05-1d04ace9df} 原函数 & 导数等于被积函数的函数\\
+\DefinitionID{01.05-a8bfdf1452} 测度 & 规定怎样给积分区域计权\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{01.05} 主公式}\centering\CourseDisplayEquation{\int_a^b f'(x)\,dx=f(b)-f(a)}\end{block}
+微积分基本定理把局部变化率与总变化联系起来。
+\end{frame}
+
+\begin{frame}[t]{积分：累积量与平均：推导与证据边界}\FrameAnchor{01.05-3}
+\footnotesize
+\DerivationID{01.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{01.05}：
+\begin{enumerate}
+\item 把 [a,b] 分成小区间，区间内变化约为 f'(\ensuremath{\xi})\ensuremath{\Delta}x。
+\item 把全部小变化相加，中间端点望远镜相消。
+\item 令最大分片宽度趋零，Riemann 和收敛到积分，端点差保留。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{01.05}\quad 微积分基本定理的多项式实例；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：以四次多项式作精确代表；积分端点为实数
+\end{block}
+\BoundaryLine{一般函数需满足可积性和绝对连续等分析条件。}
+\end{frame}
+
+\begin{frame}[t]{积分：累积量与平均：计算算法}\FrameAnchor{01.05-4}
+\footnotesize
+\AlgorithmID{01.05}\begin{enumerate}
+\item 写清积分域、积分变量与边界条件。
+\item 选择矩形、梯形或高斯求积并逐级加密。
+\item 同步计算守恒量或已知解析积分。
+\item 以网格加密后的差作为离散积分误差估计。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] a=b 时积分和端点差都为 0。
+\item[\CheckMark] 交换上下限时积分变号。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{积分：累积量与平均：练习与完整解答}\FrameAnchor{01.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{01.05}}由定义计算 \ensuremath{\int}\ensuremath{_{0}}\ensuremath{^{L}} x dx，并检查量纲。\end{block}
+\begin{exampleblock}{\SolutionID{01.05}}原函数为 x\ensuremath{^{2}}/\allowbreak{}2，结果 L\ensuremath{^{2}}/\allowbreak{}2；若 x 是长度，积分量纲为 L\ensuremath{^{2}}。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{01.05-158c70d47f}；\CourseRef{Eq}{01.05}；\CourseRef{SYM}{01.05}；\CourseRef{Alg}{01.05}。
+\SourceLine{BOOK-MATH；BOOK-NUMERICS}
+\end{frame}
+
+\begin{frame}[t]{第 1 卷能力清单}\FrameAnchor{V01-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能做量纲审计
+\item[\CheckMark] 能读写复数相位
+\item[\CheckMark] 能用导数和积分描述连续变化
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 1 卷来源（1/1）}\FrameAnchor{V01-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-MATH} & 数学预备课（课程自编） & 补足高中到微积分、Fourier 和量纲分析的完整推导。\\
+\SourceID{BOOK-NUMERICS} & 数值分析预备课（课程自编） & 差分、求积、收敛阶、线性求解和误差账本。\\
+\SourceID{REPORT-TMD} & 梯度流核子胶子 TMD 项目报告 & 本课程终点定义、实现现状、证据分级和关键物理边界。\\
+\SourceID{BOOK-QFT} & An Introduction to Quantum Field Theory（仓库转排本） & 量子场论、规范理论、QCD 和重整化的主教材交叉核验。\\
+\bottomrule\end{tabularx}\end{frame}
+

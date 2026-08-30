@@ -1,0 +1,369 @@
+\begin{frame}[plain]\FrameAnchor{V11-title}
+\centering
+{\Large\bfseries\color{courseblue}第 11 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 核子插值算符与二、三点关联函数\par}
+\vspace{0.35cm}
+{\large 从夸克传播子构造核子外态，并用谱分解隔离目标矩阵元。\par}
+\vfill
+\CourseID{Tbl}{11.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 11 卷路线图}\FrameAnchor{V11-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+11.01 & 质子插值算符与量子数\\
+11.02 & 核子二点函数与谱分解\\
+11.03 & 有效质量与相关拟合\\
+11.04 & 三点函数、比值与激发态\\
+11.05 & 断连图与真空扣除\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-LQCD；DOC-3PT；DOC-DISCONNECTED；PYQCD-ANALYSIS}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V11-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V06
+\item V09
+\item V10
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能写出质子插值算符
+\item 能构造二点与三点比值
+\item 能正确处理断连真空扣除
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：核子有效质量趋近平台}\FrameAnchor{V11-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0.0,xmax=14.0,ymin=0.45,ymax=0.9,xlabel={时间片 $t/a$},ylabel={$a m_{\rm eff}(t)$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0.0:14.0,samples=160] {ln((exp(-0.5*x)+0.45*exp(-1.0*x))/(exp(-0.5*(x+1))+0.45*exp(-1.0*(x+1))))};
+\addlegendentry{双态示意}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{11.00}：双指数解析示意；未加入统计噪声与有限 T 后向传播。
+\SourceLine{二点函数谱分解}
+\end{frame}
+
+\begin{frame}[t]{质子插值算符与量子数：问题与图像}\FrameAnchor{11.01-1}
+\footnotesize
+\begin{block}{本节问题}怎样用三个夸克场构造一个具有质子量子数的局域算符？\end{block}
+\PhysicalFlow{uud 味结构}{\ensuremath{\epsilon}abc 颜色反对称}{自旋投影与宇称}{11.01}
+\begin{block}{物理原则}\KnowledgeID{11.01}\quad 插值算符不等于纯基态；它耦合所有具有相同量子数的本征态。\end{block}
+\SourceLine{BOOK-LQCD；PYQCD-CORRELATOR}
+\end{frame}
+
+\begin{frame}[t]{质子插值算符与量子数：定义与主公式}\FrameAnchor{11.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{11.01-d094d097cd} 插值算符 & 从真空产生所需量子数态的复合场\\
+\DefinitionID{11.01-e38c067fd5} 重子算符 & 由三个夸克场构成的色单态\\
+\DefinitionID{11.01-2bd89dac2c} 重叠因子 & 算符与能量本征态之间的矩阵元\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{11.01} 主公式}\centering\CourseDisplayEquation{\chi_p(x)=\epsilon^{abc}\big[u^{aT}(x)C\gamma_5d^b(x)\big]u^c(x)}\end{block}
+\ensuremath{\epsilon}abc 把三种颜色收缩成 SU(3) 单态，括号内形成常用自旋零二夸克结构。
+\end{frame}
+
+\begin{frame}[t]{质子插值算符与量子数：推导与证据边界}\FrameAnchor{11.01-3}
+\footnotesize
+\DerivationID{11.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{11.01}：
+\begin{enumerate}
+\item 三个基本表示在颜色空间的完全反对称组合由 \ensuremath{\epsilon}abc 给出。
+\item 整体颜色变换产生三个 U 因子，\ensuremath{\epsilon}abcUa a\ensuremath{^{\prime}}Ub b\ensuremath{^{\prime}}Uc c\ensuremath{^{\prime}}=det(U)\ensuremath{\epsilon}a\ensuremath{^{\prime}}b\ensuremath{^{\prime}}c\ensuremath{^{\prime}}。
+\item SU(3) 有 detU=1，因此颜色部分不变。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{11.01}\quad 三夸克反对称颜色单态；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：以 SU(3) 对角子群显式检查 epsilon\_123 分量
+\end{block}
+\BoundaryLine{一般 SU(3) 结论依赖 epsilon U U U=det(U)epsilon；旋量/\allowbreak{}费米符号另测。}
+\end{frame}
+
+\begin{frame}[t]{质子插值算符与量子数：计算算法}\FrameAnchor{11.01-4}
+\footnotesize
+\AlgorithmID{11.01}\begin{enumerate}
+\item 集中定义 C、\ensuremath{\gamma}5、转置和共轭约定。
+\item 为三条夸克线分配不同的颜色与旋量指标。
+\item 先由自动 Wick 工具枚举，再用显式小张量复核符号。
+\item 对零动量和宇称投影做已知谱学回归。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 交换 \ensuremath{\epsilon} 中任意两条颜色线会变号。
+\item[\CheckMark] 整体 SU(3) 变换下算符不变。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}contraction/\allowbreak{}\_\allowbreak{}baroperator.\allowbreak{}py 与 \_\allowbreak{}autowick.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{质子插值算符与量子数：练习与完整解答}\FrameAnchor{11.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{11.01}}为什么不能把 \ensuremath{\epsilon}abc 替换成 \ensuremath{\delta}ab\ensuremath{\delta}bc？\end{block}
+\begin{exampleblock}{\SolutionID{11.01}}\ensuremath{\delta}ab\ensuremath{\delta}bc 强迫三色相同且不是三个基本表示的规范不变收缩；\ensuremath{\epsilon}abc 才给唯一完全反对称色单态。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{11.01-d094d097cd}；\CourseRef{Eq}{11.01}；\CourseRef{SYM}{11.01}；\CourseRef{Alg}{11.01}。
+\SourceLine{BOOK-LQCD；PYQCD-CORRELATOR}
+\end{frame}
+
+\begin{frame}[t]{核子二点函数与谱分解：问题与图像}\FrameAnchor{11.02-1}
+\footnotesize
+\begin{block}{本节问题}怎样从真空涨落中测出一个核子的能量？\end{block}
+\PhysicalFlow{源时刻产生核子}{欧氏时间传播}{汇时刻湮灭并 Fourier 投影}{11.02}
+\begin{block}{物理原则}\KnowledgeID{11.02}\quad 有限时间周期边界会产生后向传播；是否可忽略必须由 t 与 T-t 的范围判断。\end{block}
+\SourceLine{BOOK-LQCD；PYQCD-CORRELATOR}
+\end{frame}
+
+\begin{frame}[t]{核子二点函数与谱分解：定义与主公式}\FrameAnchor{11.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{11.02-92a668714d} 二点函数 & 两个插值算符的欧氏期望值\\
+\DefinitionID{11.02-abf98f9be0} 动量投影 & 对空间位置乘平面波并求和\\
+\DefinitionID{11.02-30ea33df80} 宇称投影 & 用 Dirac 投影矩阵选择宇称分量\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{11.02} 主公式}\centering\CourseDisplayEquation{C_2(t,\bm P)=\sum_n\frac{|Z_n(\bm P)|^2}{2E_n}e^{-E_n t}+\text{后向项}}\end{block}
+插入动量能量本征态后，每态按能量指数衰减。
+\end{frame}
+
+\begin{frame}[t]{核子二点函数与谱分解：推导与证据边界}\FrameAnchor{11.02-3}
+\footnotesize
+\DerivationID{11.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{11.02}：
+\begin{enumerate}
+\item 在 \ensuremath{\langle}\ensuremath{\chi}(t)\ensuremath{\chi}̄(0)\ensuremath{\rangle} 中插入固定动量完备关系。
+\item 时间平移给 exp(-Ent)，空间求和给动量 Kronecker \ensuremath{\delta}。
+\item 采用相对论态归一化后出现 1/\allowbreak{}(2En)，其余矩阵元并入 Zn。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{11.02}\quad 二点谱的基态投影；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：A0,A1,E0,Delta>0；忽略有限 T 后向传播的双态代理
+\end{block}
+\BoundaryLine{真实重叠可有投影与归一化因子；有限时间边界须加入拟合。}
+\end{frame}
+
+\begin{frame}[t]{核子二点函数与谱分解：计算算法}\FrameAnchor{11.02-4}
+\footnotesize
+\AlgorithmID{11.02}\begin{enumerate}
+\item 对汇空间坐标做带明确符号的 Fourier 投影。
+\item 执行颜色旋量收缩并取指定宇称投影迹。
+\item 按构型、源位置和动量保存，不提前丢弃层级。
+\item 检查平移平均、C(P)*=C(-P) 和色散关系。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] t 大时最低非零 Zn 的态主导。
+\item[\CheckMark] P=0 时正能核子 E0=mN。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}analysis/\allowbreak{}\_\allowbreak{}correlators.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{核子二点函数与谱分解：练习与完整解答}\FrameAnchor{11.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{11.02}}若只有两态，写出激发态相对污染。\end{block}
+\begin{exampleblock}{\SolutionID{11.02}}提出基态项后为 (|Z1|\ensuremath{^{2}}E0/\allowbreak{}(|Z0|\ensuremath{^{2}}E1))exp[-(E1-E0)t]。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{11.02-92a668714d}；\CourseRef{Eq}{11.02}；\CourseRef{SYM}{11.02}；\CourseRef{Alg}{11.02}。
+\SourceLine{BOOK-LQCD；PYQCD-CORRELATOR}
+\end{frame}
+
+\begin{frame}[t]{有效质量与相关拟合：问题与图像}\FrameAnchor{11.03-1}
+\footnotesize
+\begin{block}{本节问题}怎样从指数衰减中读出能量，并避免凭眼睛挑平台？\end{block}
+\PhysicalFlow{相邻时间比}{有效质量}{相关多指数拟合}{11.03}
+\begin{block}{物理原则}\KnowledgeID{11.03}\quad 平台图用于诊断，不应代替带协方差、窗稳定性和模型比较的拟合。\end{block}
+\SourceLine{BOOK-LQCD；PYQCD-ANALYSIS}
+\end{frame}
+
+\begin{frame}[t]{有效质量与相关拟合：定义与主公式}\FrameAnchor{11.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{11.03-438a3c85e4} 有效质量 & 相邻关联函数比的对数\\
+\DefinitionID{11.03-f430f2ebae} 平台 & 统计允许下近似常数的时间区间\\
+\DefinitionID{11.03-5267c71261} 拟合窗 & 纳入参数估计的时间片集合\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{11.03} 主公式}\centering\CourseDisplayEquation{aE_{\rm eff}(t)=\ln\frac{C_2(t)}{C_2(t+a)}\xrightarrow[t\to\infty]{}aE_0}\end{block}
+单指数比值精确消去振幅，双态以上只在激发态被抑制后趋于基态能量。
+\end{frame}
+
+\begin{frame}[t]{有效质量与相关拟合：推导与证据边界}\FrameAnchor{11.03-3}
+\footnotesize
+\DerivationID{11.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{11.03}：
+\begin{enumerate}
+\item 单态 C(t)=Aexp(-Et)。
+\item 比值 C(t)/\allowbreak{}C(t+a)=exp(Ea)。
+\item 取自然对数得到 aE；多态时高能项按能隙指数衰减。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{11.03}\quad 单指数有效质量；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：A0,E0,a\_t>0；纯单指数
+\end{block}
+\BoundaryLine{多态、噪声导致的非正关联函数与后向项需相关拟合。}
+\end{frame}
+
+\begin{frame}[t]{有效质量与相关拟合：计算算法}\FrameAnchor{11.03-4}
+\footnotesize
+\AlgorithmID{11.03}\begin{enumerate}
+\item 先在每个重采样样本上构造有效质量。
+\item 选择满足信噪比和边界条件的候选拟合窗。
+\item 对原始 C2 做相关单态/\allowbreak{}多态联合拟合。
+\item 扫描 tmin、tmax 和态数，报告稳定性与模型误差。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 纯单指数时所有 t 给相同有效质量。
+\item[\CheckMark] 若 C(t) 非正，实对数无定义，不能静默取绝对值。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}analysis/\allowbreak{}\_\allowbreak{}fitter.\allowbreak{}py 与 \_\allowbreak{}proton\_\allowbreak{}energy.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{有效质量与相关拟合：练习与完整解答}\FrameAnchor{11.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{11.03}}C(t)=10e\ensuremath{^{-0.4t}} 时求 a=1 的有效质量。\end{block}
+\begin{exampleblock}{\SolutionID{11.03}}ln[e\ensuremath{^{0.4}}]=0.4，与振幅 10 无关。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{11.03-438a3c85e4}；\CourseRef{Eq}{11.03}；\CourseRef{SYM}{11.03}；\CourseRef{Alg}{11.03}。
+\SourceLine{BOOK-LQCD；PYQCD-ANALYSIS}
+\end{frame}
+
+\begin{frame}[t]{三点函数、比值与激发态：问题与图像}\FrameAnchor{11.04-1}
+\footnotesize
+\begin{block}{本节问题}怎样在核子传播途中插入胶子算符并提取矩阵元？\end{block}
+\PhysicalFlow{源 0}{插入 \ensuremath{\tau} 的算符 O}{汇 tsep}{11.04}
+\begin{block}{物理原则}\KnowledgeID{11.04}\quad 不能把 M00(\ensuremath{\Pi}) 静默等同于目标标量矩阵元；必须按目标 Lorentz 张量除去 projector trace/\allowbreak{}运动学因子并补回 2E。单一 tsep 的平坦外观也不能排除激发态污染。\end{block}
+\SourceLine{DOC-3PT；PYQCD-CORRELATOR}
+\end{frame}
+
+\begin{frame}[t]{三点函数、比值与激发态：定义与主公式}\FrameAnchor{11.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{11.04-8ba4e2ae41} 三点函数 & 源、算符插入和汇组成的欧氏关联函数\\
+\DefinitionID{11.04-dc2e342a9a} Euclidean projector & 对核子 Dirac 指标取迹并固定自旋/\allowbreak{}宇称通道的矩阵 \ensuremath{\Pi}\\
+\DefinitionID{11.04-37e1f6c7f7} 约化矩阵元 & C3/\allowbreak{}C2 平台给出的、尚含 1/\allowbreak{}(2E) 与投影运动学因子的量\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{11.04} 主公式}\centering\CourseDisplayEquation{\begin{aligned}R_\Pi&=\frac{\operatorname{Tr}[\Pi C_3]}{\operatorname{Tr}[\Pi C_2]}\xrightarrow[\tau,\,t_{\rm sep}-\tau\gg1/\Delta E]{}M_{00}^{(\Pi)},\\ M_{00}^{(\Pi)}&=\frac{1}{2E_{\bm P}}\frac{\operatorname{Tr}[\Pi\Lambda_E(\bm P)\mathcal O_E\Lambda_E(\bm P)]}{\operatorname{Tr}[\Pi\Lambda_E(\bm P)]}\end{aligned}}\end{block}
+平台值是指定 Euclidean projector 下的约化矩阵元；\ensuremath{\Lambda}E 是 Euclidean 自旋和，1/\allowbreak{}(2E) 来自相对论态归一化。
+\end{frame}
+
+\begin{frame}[t]{三点函数、比值与激发态：推导与证据边界}\FrameAnchor{11.04-3}
+\footnotesize
+\DerivationID{11.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{11.04}：
+\begin{enumerate}
+\item C2 的基态项正比 Z\ensuremath{^{2}}e\ensuremath{^{-Et}}\ensuremath{\Lambda}E/\allowbreak{}(2E)。
+\item C3 的基态项正比 Z\ensuremath{^{2}}e\ensuremath{^{-Et}}\ensuremath{\Lambda}E O\_E \ensuremath{\Lambda}E/\allowbreak{}(2E)\ensuremath{^{2}}。
+\item 取同一个 \ensuremath{\Pi} 的迹并相除，Z 与指数消去，但保留一个 1/\allowbreak{}(2E) 和 projector 运动学迹。
+\item 保留一侧第一激发态后，另有 A\ensuremath{\Pi}exp(-\ensuremath{\Delta}E\ensuremath{\tau})+B\ensuremath{\Pi}exp[-\ensuremath{\Delta}E(tsep-\ensuremath{\tau})]。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{11.04}\quad 三点中心插入的激发态抑制；3/3 项通过；SymPy exact。
+\par\scriptsize 假设：Delta>0；双态领先污染；中心插入 tau=tsep/\allowbreak{}2
+\end{block}
+\BoundaryLine{A、B 的关系取决于算符与运动学，未强制对称；实际 K\_Pi 来自 Euclidean 自旋和与目标 Lorentz 投影，不能由标量代理猜测。}
+\end{frame}
+
+\begin{frame}[t]{三点函数、比值与激发态：计算算法}\FrameAnchor{11.04-4}
+\footnotesize
+\AlgorithmID{11.04}\begin{enumerate}
+\item 固定并保存 \ensuremath{\Pi}、\ensuremath{\Lambda}E、\ensuremath{\gamma} 矩阵、态归一化和每个 Lorentz 通道的运动学因子。
+\item 计算多个 tsep，在复数 C2/\allowbreak{}C3 上使用共享能量与重叠因子的联合多态拟合。
+\item 在每个重采样样本内用拟合 E 和 projector 因子把 M00(\ensuremath{\Pi}) 转成目标矩阵元。
+\item 并行做平台、summation 与两态法，扫描端点剔除、态数和先验。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\Pi} 乘任意非零常数时迹比不变。
+\item[\CheckMark] P=0 的标量通道仍须按所用约定处理 2mN；交换源汇两侧时 A、B 的关系不能先验强制。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}analysis/\allowbreak{}\_\allowbreak{}ratio\_\allowbreak{}fit.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{三点函数、比值与激发态：练习与完整解答}\FrameAnchor{11.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{11.04}}\ensuremath{\Delta}E=0.5、\ensuremath{\tau}=4 时一侧污染相对系数缩小为多少？\end{block}
+\begin{exampleblock}{\SolutionID{11.04}}指数因子 e\ensuremath{^{-2}}\ensuremath{\approx}0.135；还需乘未知振幅 A。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{11.04-8ba4e2ae41}；\CourseRef{Eq}{11.04}；\CourseRef{SYM}{11.04}；\CourseRef{Alg}{11.04}。
+\SourceLine{DOC-3PT；PYQCD-CORRELATOR}
+\end{frame}
+
+\begin{frame}[t]{断连图与真空扣除：问题与图像}\FrameAnchor{11.05-1}
+\footnotesize
+\begin{block}{本节问题}胶子算符不接到价夸克线上时，核子信息从哪里进入？\end{block}
+\PhysicalFlow{同一构型上的核子二点 C2}{胶子环 O}{跨系综协方差给断连信号}{11.05}
+\begin{block}{物理原则}\KnowledgeID{11.05}\quad 对单个构型做 O-该构型自身 O 会恒等为零；同一样本的 1/\allowbreak{}N 协方差还带 (N-1)/\allowbreak{}N 有限样本偏差，须由独立块的 N/\allowbreak{}(N-1) 因子或 jackknife bias correction 处理。\end{block}
+\SourceLine{DOC-DISCONNECTED；PYQCD-ANALYSIS；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{断连图与真空扣除：定义与主公式}\FrameAnchor{11.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{11.05-eaccc3faec} 断连插入 & 算符与价夸克线不直接相连的 Wick 拓扑\\
+\DefinitionID{11.05-97540cf128} 真空扣除 & 去掉 \ensuremath{\langle}C2\ensuremath{\rangle}\ensuremath{\langle}O\ensuremath{\rangle} 的非连通乘积\\
+\DefinitionID{11.05-6832caf0e7} 协方差 & 两个构型观测量共同涨落的平均\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{11.05} 主公式}\centering\CourseDisplayEquation{C_3^{\rm disc}=\langle C_2 O\rangle-\langle C_2\rangle\langle O\rangle}\end{block}
+断连信号是同一规范构型上 C2 与胶子算符的跨系综协方差。
+\end{frame}
+
+\begin{frame}[t]{断连图与真空扣除：推导与证据边界}\FrameAnchor{11.05-3}
+\footnotesize
+\DerivationID{11.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{11.05}：
+\begin{enumerate}
+\item 完整期望 \ensuremath{\langle}C2O\ensuremath{\rangle} 包含核子相关部分与真空乘积。
+\item 减去 \ensuremath{\langle}C2\ensuremath{\rangle}\ensuremath{\langle}O\ensuremath{\rangle} 后只留下连通于共同规范涨落的协方差。
+\item 有限 N 时 E[overline(C2O)-C̄2Ō]=(N-1)Cov(C2,O)/\allowbreak{}N；N=1 时结构性为零。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{11.05}\quad 断连真空扣除的有限样本协方差结构；3/3 项通过；SymPy exact。
+\par\scriptsize 假设：三个独立等权块作一般符号样本；无偏形式采用 1/\allowbreak{}(N-1)
+\end{block}
+\BoundaryLine{验证 1/\allowbreak{}N 均值差式须乘 N/\allowbreak{}(N-1)；非零物理信号需要真实系综配对，N<2 必须由接口拒绝。}
+\end{frame}
+
+\begin{frame}[t]{断连图与真空扣除：计算算法}\FrameAnchor{11.05-4}
+\footnotesize
+\AlgorithmID{11.05}\begin{enumerate}
+\item 在每个构型上先完成源平均，保留 C2i 与 Oi 的配对。
+\item 在每个 jackknife/\allowbreak{}bootstrap 样本内重新计算两个均值。
+\item 形成连接组合且不可打乱配对；独立块用 N/\allowbreak{}(N-1) 或明确采用重采样偏差校正。
+\item 用 O 加常数不改变结果、N=1 返回结构性零作测试。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] O\ensuremath{\rightarrow}O+c 时常数项严格抵消。
+\item[\CheckMark] 若 C2 与 O 在系综上独立，期望断连信号为零。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}analysis/\allowbreak{}\_\allowbreak{}disconnected.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{断连图与真空扣除：练习与完整解答}\FrameAnchor{11.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{11.05}}两独立块 C2=(1,3)、O=(2,4)，先求 1/\allowbreak{}N 连接估计，再求无偏块协方差。\end{block}
+\begin{exampleblock}{\SolutionID{11.05}}1/\allowbreak{}N 连接估计为 7-2\ensuremath{\times}3=1；乘 N/\allowbreak{}(N-1)=2 后，无偏块协方差为 2。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{11.05-eaccc3faec}；\CourseRef{Eq}{11.05}；\CourseRef{SYM}{11.05}；\CourseRef{Alg}{11.05}。
+\SourceLine{DOC-DISCONNECTED；PYQCD-ANALYSIS；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{第 11 卷能力清单}\FrameAnchor{V11-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能写出质子插值算符
+\item[\CheckMark] 能构造二点与三点比值
+\item[\CheckMark] 能正确处理断连真空扣除
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 11 卷来源（1/2）}\FrameAnchor{V11-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\SourceID{DOC-3PT} & 格点 QCD 中的三点函数构造 & 核子三点函数、谱分解和代码接口。\\
+\SourceID{DOC-DISCONNECTED} & 连通图与非连通图 & 断连拓扑与真空扣除。\\
+\SourceID{PYQCD-ANALYSIS} & PyQCD 分析技能与模块 & 断连、比值、多态拟合和图表。\\
+\SourceID{PYQCD-CORRELATOR} & PyQCD 关联函数技能 & 强子二点/\allowbreak{}三点与谱学检查。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 11 卷来源（2/2）}\FrameAnchor{V11-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{PYQCD-TMD} & PyQCD TMD 主链技能 & 六阶段 TMD 物理链和端到端接口。\\
+\bottomrule\end{tabularx}\end{frame}
+

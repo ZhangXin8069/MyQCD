@@ -1,0 +1,360 @@
+\begin{frame}[plain]\FrameAnchor{V02-title}
+\centering
+{\Large\bfseries\color{courseblue}第 2 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 向量、矩阵、张量与对称性\par}
+\vspace{0.35cm}
+{\large 掌握 QCD 中颜色、旋量、洛伦兹指标所依赖的线性代数。\par}
+\vfill
+\CourseID{Tbl}{02.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 2 卷路线图}\FrameAnchor{V02-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+02.01 & 向量、内积与正交\\
+02.02 & 矩阵、逆与线性方程\\
+02.03 & 本征值与谱分解\\
+02.04 & 指标、张量与缩并\\
+02.05 & 群、生成元与连续对称\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-LINALG；BOOK-GROUP；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V02-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V01
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能操作内积与矩阵
+\item 能读懂指标缩并
+\item 能用群变换表达对称性
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：二维旋转保持向量长度}\FrameAnchor{V02-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0.0,xmax=6.2832,ymin=0.8,ymax=1.2,xlabel={旋转角 $\theta$ / rad},ylabel={$\|R(\theta)v\|^2$（取 $\|v\|=1$）},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0.0:6.2832,samples=160] {cos(x)^2+sin(x)^2};
+\addlegendentry{旋转后模方}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{02.00}：解析恒等式，不是数值测量；纵轴无量纲。
+\SourceLine{二维正交矩阵定义}
+\end{frame}
+
+\begin{frame}[t]{向量、内积与正交：问题与图像}\FrameAnchor{02.01-1}
+\footnotesize
+\begin{block}{本节问题}怎样用一个数判断两个方向的相似程度？\end{block}
+\PhysicalFlow{向量分量}{逐分量相乘求和}{长度与夹角}{02.01}
+\begin{block}{物理原则}\KnowledgeID{02.01}\quad 对称性意味着变换前后可观测量不变；先找不变量往往比逐分量计算更有效。\end{block}
+\SourceLine{BOOK-LINALG}
+\end{frame}
+
+\begin{frame}[t]{向量、内积与正交：定义与主公式}\FrameAnchor{02.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{02.01-0322ea8957} 向量 & 带方向且可线性相加的对象\\
+\DefinitionID{02.01-528b4faf3a} 内积 & 把两个向量映成标量\\
+\DefinitionID{02.01-790c567be8} 正交 & 内积为零\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{02.01} 主公式}\centering\CourseDisplayEquation{\|R\bm v\|^2=\bm v^{T}R^{T}R\bm v=\|\bm v\|^2\quad(R^TR=I)}\end{block}
+正交矩阵保持内积、长度与角度，是有限维旋转的代数刻画。
+\end{frame}
+
+\begin{frame}[t]{向量、内积与正交：推导与证据边界}\FrameAnchor{02.01-3}
+\footnotesize
+\DerivationID{02.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{02.01}：
+\begin{enumerate}
+\item 长度定义为 ||v||\ensuremath{^{2}}=v\ensuremath{^{T}}v。
+\item 变换后长度为 (Rv)\ensuremath{^{T}}(Rv)=v\ensuremath{^{T}}R\ensuremath{^{T}}Rv。
+\item 正交条件 R\ensuremath{^{T}}R=I 立即给出 v\ensuremath{^{T}}v。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{02.01}\quad 正交变换保持长度；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：二维实向量；R 使用显式 sin/\allowbreak{}cos 参数化
+\end{block}
+\BoundaryLine{有限维正交代理；Lorentz 变换使用不同度规。}
+\end{frame}
+
+\begin{frame}[t]{向量、内积与正交：计算算法}\FrameAnchor{02.01-4}
+\footnotesize
+\AlgorithmID{02.01}\begin{enumerate}
+\item 把向量最后一维作为分量轴。
+\item 用共轭内积处理复向量，不能漏掉共轭。
+\item 随机生成若干向量并比较变换前后模长。
+\item 报告最大相对残差及所用浮点精度。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] R=I 时结论显然成立。
+\item[\CheckMark] 连续两次正交变换的乘积仍正交。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{向量、内积与正交：练习与完整解答}\FrameAnchor{02.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{02.01}}证明二维旋转矩阵 [[cos\ensuremath{\theta},-sin\ensuremath{\theta}],[sin\ensuremath{\theta},cos\ensuremath{\theta}]] 是正交矩阵。\end{block}
+\begin{exampleblock}{\SolutionID{02.01}}直接相乘 R\ensuremath{^{T}}R；非对角元相消，对角元均为 cos\ensuremath{^{2}}\ensuremath{\theta}+sin\ensuremath{^{2}}\ensuremath{\theta}=1。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{02.01-0322ea8957}；\CourseRef{Eq}{02.01}；\CourseRef{SYM}{02.01}；\CourseRef{Alg}{02.01}。
+\SourceLine{BOOK-LINALG}
+\end{frame}
+
+\begin{frame}[t]{矩阵、逆与线性方程：问题与图像}\FrameAnchor{02.02-1}
+\footnotesize
+\begin{block}{本节问题}为什么格点费米子计算的核心会变成求解一个巨大线性方程？\end{block}
+\PhysicalFlow{线性映射 A}{右端 b}{求解 x=A\ensuremath{^{-1}}b}{02.02}
+\begin{block}{物理原则}\KnowledgeID{02.02}\quad 生产计算不显式构造巨大逆矩阵，而是用迭代法求 A x=b。\end{block}
+\SourceLine{BOOK-LINALG；BOOK-NUMERICS}
+\end{frame}
+
+\begin{frame}[t]{矩阵、逆与线性方程：定义与主公式}\FrameAnchor{02.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{02.02-9b8bb3d2ea} 矩阵 & 线性映射在基底中的分量表\\
+\DefinitionID{02.02-e39feeb45f} 逆矩阵 & 撤销可逆线性映射的矩阵\\
+\DefinitionID{02.02-c205963c11} 条件数 & 输入误差被解放大的最坏倍数\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{02.02} 主公式}\centering\CourseDisplayEquation{A^{-1}=\frac{1}{ad-bc}\begin{pmatrix}d&-b\\-c&a\end{pmatrix}}\end{block}
+二阶矩阵仅当 det A=ad-bc 非零时可逆。
+\end{frame}
+
+\begin{frame}[t]{矩阵、逆与线性方程：推导与证据边界}\FrameAnchor{02.02-3}
+\footnotesize
+\DerivationID{02.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{02.02}：
+\begin{enumerate}
+\item 设逆矩阵元素未知，要求 A A\ensuremath{^{-1}}=I。
+\item 解四个线性方程，公共分母为行列式 ad-bc。
+\item 把候选逆矩阵与 A 相乘，非对角项相消、对角项为 det A。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{02.02}\quad 二阶矩阵逆；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：ad-bc 非零；元素可交换
+\end{block}
+\BoundaryLine{大稀疏矩阵的稳定求解和条件数需数值验证。}
+\end{frame}
+
+\begin{frame}[t]{矩阵、逆与线性方程：计算算法}\FrameAnchor{02.02-4}
+\footnotesize
+\AlgorithmID{02.02}\begin{enumerate}
+\item 先检查数组形状和矩阵作用方向。
+\item 估计条件数或监控残差下降。
+\item 用直接法校验小矩阵，用迭代法处理大稀疏矩阵。
+\item 同时报告残差 ||Ax-b|| 与可观测量稳定性。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] det A=0 时公式发散，正对应不可逆。
+\item[\CheckMark] A=I 时逆矩阵仍为 I。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{矩阵、逆与线性方程：练习与完整解答}\FrameAnchor{02.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{02.02}}求 A=[[2,1],[1,2]] 对 b=(3,0) 的解。\end{block}
+\begin{exampleblock}{\SolutionID{02.02}}det A=3，A\ensuremath{^{-1}}=(1/\allowbreak{}3)[[2,-1],[-1,2]]，故 x=(2,-1)。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{02.02-9b8bb3d2ea}；\CourseRef{Eq}{02.02}；\CourseRef{SYM}{02.02}；\CourseRef{Alg}{02.02}。
+\SourceLine{BOOK-LINALG；BOOK-NUMERICS}
+\end{frame}
+
+\begin{frame}[t]{本征值与谱分解：问题与图像}\FrameAnchor{02.03-1}
+\footnotesize
+\begin{block}{本节问题}怎样找出线性演化中彼此不混合的自然模式？\end{block}
+\PhysicalFlow{矩阵 A}{特征方程 det(A-\ensuremath{\lambda}I)=0}{本征向量独立缩放}{02.03}
+\begin{block}{物理原则}\KnowledgeID{02.03}\quad 关联函数的指数衰减、Dirac 算符低模和协方差主成分都依赖谱观点。\end{block}
+\SourceLine{BOOK-LINALG；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{本征值与谱分解：定义与主公式}\FrameAnchor{02.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{02.03-55d5486449} 本征值 & 在线性变换下的缩放因子\\
+\DefinitionID{02.03-cd56a7c1fa} 本征向量 & 变换后方向不变的非零向量\\
+\DefinitionID{02.03-c4880792b7} 谱分解 & 用本征投影重建算符\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{02.03} 主公式}\centering\CourseDisplayEquation{A=\sum_n \lambda_n\,|n\rangle\langle n|\quad(A=A^\dagger)}\end{block}
+厄米矩阵具有实本征值与完备正交本征向量。
+\end{frame}
+
+\begin{frame}[t]{本征值与谱分解：推导与证据边界}\FrameAnchor{02.03-3}
+\footnotesize
+\DerivationID{02.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{02.03}：
+\begin{enumerate}
+\item 由 A|n\ensuremath{\rangle}=\ensuremath{\lambda}n|n\ensuremath{\rangle}，取两个本征态并利用 A=A† 证明异本征值态正交。
+\item 把任意向量按完备基展开 |v\ensuremath{\rangle}=\ensuremath{\Sigma}n|n\ensuremath{\rangle}\ensuremath{\langle}n|v\ensuremath{\rangle}。
+\item 作用 A 后比较任意 |v\ensuremath{\rangle} 的结果，得到算符恒等式。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{02.03}\quad 对称二阶矩阵谱分解；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：a,b 为实数；展示一个可完全解析的厄米实例
+\end{block}
+\BoundaryLine{一般厄米谱定理由线性代数证明；近简并数值稳定性另测。}
+\end{frame}
+
+\begin{frame}[t]{本征值与谱分解：计算算法}\FrameAnchor{02.03-4}
+\footnotesize
+\AlgorithmID{02.03}\begin{enumerate}
+\item 先验证矩阵的厄米残差。
+\item 使用稳定的厄米本征求解器并按本征值排序。
+\item 检查本征向量正交性和重建残差。
+\item 近简并空间内比较投影子，不逐根比较任意相位的向量。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] A=\ensuremath{\lambda}I 时任意正交基都可作本征基。
+\item[\CheckMark] 迹等于本征值之和，行列式等于本征值之积。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{本征值与谱分解：练习与完整解答}\FrameAnchor{02.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{02.03}}求 [[a,b],[b,a]] 的两个本征值和归一化本征向量。\end{block}
+\begin{exampleblock}{\SolutionID{02.03}}本征值 a+b、a-b；对应向量 (1,1)/\allowbreak{}\ensuremath{\sqrt{2}}、(1,-1)/\allowbreak{}\ensuremath{\sqrt{2}}。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{02.03-55d5486449}；\CourseRef{Eq}{02.03}；\CourseRef{SYM}{02.03}；\CourseRef{Alg}{02.03}。
+\SourceLine{BOOK-LINALG；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{指标、张量与缩并：问题与图像}\FrameAnchor{02.04-1}
+\footnotesize
+\begin{block}{本节问题}公式中的重复上下标为什么能代表一次求和？\end{block}
+\PhysicalFlow{选择基底}{记录多方向分量}{重复指标求和成不变量}{02.04}
+\begin{block}{物理原则}\KnowledgeID{02.04}\quad 自由指标必须在等号两侧一致；哑指标可改名但不能重复超过两次。\end{block}
+\SourceLine{BOOK-LINALG；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{指标、张量与缩并：定义与主公式}\FrameAnchor{02.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{02.04-3554950f0e} 张量 & 在基变换下按规定方式变换的多线性对象\\
+\DefinitionID{02.04-0e5ca5d207} 指标 & 标记分量方向的位置\\
+\DefinitionID{02.04-c0ce0e526d} 缩并 & 对一对指标求和以降低阶数\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{02.04} 主公式}\centering\CourseDisplayEquation{\sum_{k=1}^{2}\epsilon_{ik}\epsilon_{jk}=\delta_{ij}}\end{block}
+二维 Levi-Civita 符号的缩并给出 Kronecker \ensuremath{\delta}。
+\end{frame}
+
+\begin{frame}[t]{指标、张量与缩并：推导与证据边界}\FrameAnchor{02.04-3}
+\footnotesize
+\DerivationID{02.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{02.04}：
+\begin{enumerate}
+\item 取 \ensuremath{\epsilon}12=1、\ensuremath{\epsilon}21=-1、对角元为 0。
+\item 逐一计算 i,j=1,2 的四种组合。
+\item 同指标时平方和为 1，异指标时每项均为 0，因此得到 \ensuremath{\delta}ij。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{02.04}\quad 二维 Levi--Civita 缩并；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：epsilon\_12=1
+\end{block}
+\BoundaryLine{高维缩并的符号取决于指标位置和度规约定。}
+\end{frame}
+
+\begin{frame}[t]{指标、张量与缩并：计算算法}\FrameAnchor{02.04-4}
+\footnotesize
+\AlgorithmID{02.04}\begin{enumerate}
+\item 先列出每个轴的物理含义和长度。
+\item 用 einsum 字符串显式写出自由指标和缩并指标。
+\item 在小数组上与嵌套循环结果比较。
+\item 检查轴置换后的对称或反对称关系。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 交换 \ensuremath{\epsilon} 的两个指标会变号。
+\item[\CheckMark] 结果 \ensuremath{\delta}ij 在正交基变换下不变。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{指标、张量与缩并：练习与完整解答}\FrameAnchor{02.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{02.04}}证明二维 \ensuremath{\epsilon}ij \ensuremath{\epsilon}ij=2，并说明哪些项非零。\end{block}
+\begin{exampleblock}{\SolutionID{02.04}}仅 \ensuremath{\epsilon}12\ensuremath{^{2}} 与 \ensuremath{\epsilon}21\ensuremath{^{2}} 非零，各为 1，总和为 2。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{02.04-3554950f0e}；\CourseRef{Eq}{02.04}；\CourseRef{SYM}{02.04}；\CourseRef{Alg}{02.04}。
+\SourceLine{BOOK-LINALG；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{群、生成元与连续对称：问题与图像}\FrameAnchor{02.05-1}
+\footnotesize
+\begin{block}{本节问题}如何用无穷小变化生成有限旋转？\end{block}
+\PhysicalFlow{无穷小生成元 T}{指数映射 exp(i\ensuremath{\theta}T)}{连续群变换 U}{02.05}
+\begin{block}{物理原则}\KnowledgeID{02.05}\quad 规范链接和 Wilson 线是群元素；更新后必须保持幺正性及单位行列式。\end{block}
+\SourceLine{BOOK-GROUP；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{群、生成元与连续对称：定义与主公式}\FrameAnchor{02.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{02.05-2785865778} 群 & 带封闭结合乘法、单位元和逆元的集合\\
+\DefinitionID{02.05-ac4e76f28d} 李群 & 群参数连续可微\\
+\DefinitionID{02.05-9bc4973b99} 生成元 & 单位元附近切空间的基\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{02.05} 主公式}\centering\CourseDisplayEquation{U(\theta)=e^{i\theta\sigma_3/2},\quad U^\dagger U=I,\quad\det U=1}\end{block}
+Pauli 矩阵 \ensuremath{\sigma}3 生成 SU(2) 的一个一参数子群。
+\end{frame}
+
+\begin{frame}[t]{群、生成元与连续对称：推导与证据边界}\FrameAnchor{02.05-3}
+\footnotesize
+\DerivationID{02.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{02.05}：
+\begin{enumerate}
+\item \ensuremath{\sigma}3=diag(1,-1)，矩阵指数可逐对角元计算。
+\item 得到 U=diag(exp(i\ensuremath{\theta}/\allowbreak{}2),exp(-i\ensuremath{\theta}/\allowbreak{}2))。
+\item 与共轭转置相乘为 I，两对角元乘积为 1。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{02.05}\quad SU(2) 一参数子群；3/3 项通过；SymPy exact。
+\par\scriptsize 假设：theta 为实数
+\end{block}
+\BoundaryLine{仅验证 SU(2) 对角子群，不代替一般 SU(3) 群算法。}
+\end{frame}
+
+\begin{frame}[t]{群、生成元与连续对称：计算算法}\FrameAnchor{02.05-4}
+\footnotesize
+\AlgorithmID{02.05}\begin{enumerate}
+\item 选定生成元的厄米或反厄米约定并始终一致。
+\item 用矩阵指数构造有限变换。
+\item 数值检查 U†U-I 与 det U-1。
+\item 连乘许多群元素时定期监测而不随意投影掩盖误差。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\theta}=0 给出单位元。
+\item[\CheckMark] U(\ensuremath{\theta})U(\ensuremath{\phi})=U(\ensuremath{\theta}+\ensuremath{\phi})，因为同一生成元彼此对易。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{群、生成元与连续对称：练习与完整解答}\FrameAnchor{02.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{02.05}}写出 U(2\ensuremath{\pi}) 并解释为什么它不是 2\ensuremath{\times}2 单位矩阵。\end{block}
+\begin{exampleblock}{\SolutionID{02.05}}U(2\ensuremath{\pi})=diag(-1,-1)=-I；SU(2) 是 SO(3) 的双覆盖，旋量需 4\ensuremath{\pi} 才回到自身。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{02.05-2785865778}；\CourseRef{Eq}{02.05}；\CourseRef{SYM}{02.05}；\CourseRef{Alg}{02.05}。
+\SourceLine{BOOK-GROUP；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{第 2 卷能力清单}\FrameAnchor{V02-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能操作内积与矩阵
+\item[\CheckMark] 能读懂指标缩并
+\item[\CheckMark] 能用群变换表达对称性
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 2 卷来源（1/1）}\FrameAnchor{V02-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-LINALG} & 线性代数预备课（课程自编） & 向量、谱分解、张量指标和矩阵数值检查。\\
+\SourceID{BOOK-GROUP} & 连续群与生成元预备课（课程自编） & 从旋转群过渡到 SU(2)/\allowbreak{}SU(3)。\\
+\SourceID{BOOK-QFT} & An Introduction to Quantum Field Theory（仓库转排本） & 量子场论、规范理论、QCD 和重整化的主教材交叉核验。\\
+\SourceID{BOOK-NUMERICS} & 数值分析预备课（课程自编） & 差分、求积、收敛阶、线性求解和误差账本。\\
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\bottomrule\end{tabularx}\end{frame}
+

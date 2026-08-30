@@ -1,0 +1,363 @@
+\begin{frame}[plain]\FrameAnchor{V10-title}
+\centering
+{\Large\bfseries\color{courseblue}第 10 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries Monte Carlo、HMC 与规范系综\par}
+\vspace{0.35cm}
+{\large 理解欧氏路径积分如何转化为可抽样概率分布，并可靠地产生与诊断系综。\par}
+\vfill
+\CourseID{Tbl}{10.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 10 卷路线图}\FrameAnchor{V10-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+10.01 & 欧氏权重与重要性抽样\\
+10.02 & Metropolis--Hastings 与详细平衡\\
+10.03 & 热化、自相关与有效样本数\\
+10.04 & Hybrid Monte Carlo\\
+10.05 & 系综元数据、尺度与质量门\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-LQCD；BOOK-STAT；P05；PYQCD-PIPELINE}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V10-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V03
+\item V06
+\item V08
+\item V09
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能解释重要性抽样和详细平衡
+\item 能估计自相关
+\item 能阅读 HMC 轨迹诊断
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：自相关造成的有效样本损失}\FrameAnchor{V10-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0.5,xmax=10.0,ymin=0.0,ymax=1.05,xlabel={积分自相关时间 $\tau_{\rm int}$},ylabel={$N_{\rm eff}/N$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0.5:10.0,samples=160] {1/(2*x)};
+\addlegendentry{有效比例}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{10.00}：采用 Neff\ensuremath{\approx}N/\allowbreak{}(2\ensuremath{\tau}int) 的大样本估计；\ensuremath{\tau}int 约定需一致。
+\SourceLine{Markov 链中心极限定理}
+\end{frame}
+
+\begin{frame}[t]{欧氏权重与重要性抽样：问题与图像}\FrameAnchor{10.01-1}
+\footnotesize
+\begin{block}{本节问题}无法枚举所有规范场时，怎样仍能计算路径积分期望？\end{block}
+\PhysicalFlow{目标密度 exp(-S)}{按高权重区域抽样}{样本平均估计期望}{10.01}
+\begin{block}{物理原则}\KnowledgeID{10.01}\quad 归一化常数 Z 通常未知但在 Metropolis 比率和期望比值中抵消。\end{block}
+\SourceLine{BOOK-LQCD；BOOK-STAT}
+\end{frame}
+
+\begin{frame}[t]{欧氏权重与重要性抽样：定义与主公式}\FrameAnchor{10.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{10.01-7db3fee457} 配分函数 & 所有构型 Boltzmann 权重的归一化\\
+\DefinitionID{10.01-a4ed7fa58f} 重要性抽样 & 按目标权重频繁访问贡献大的区域\\
+\DefinitionID{10.01-9bb91c615c} 系综 & 同一理论参数下的一组代表性构型\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{10.01} 主公式}\centering\CourseDisplayEquation{\langle O\rangle=\frac{\sum_U O(U)e^{-S(U)}}{\sum_U e^{-S(U)}}\approx\frac1N\sum_{i=1}^{N}O(U_i)}\end{block}
+若 Ui 来自归一化密度 e\ensuremath{^{-S}}/\allowbreak{}Z，普通样本均值就是期望估计。
+\end{frame}
+
+\begin{frame}[t]{欧氏权重与重要性抽样：推导与证据边界}\FrameAnchor{10.01-3}
+\footnotesize
+\DerivationID{10.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{10.01}：
+\begin{enumerate}
+\item 定义 p(U)=e\ensuremath{^{-S(U)}}/\allowbreak{}Z。
+\item 则 \ensuremath{\Sigma}U p(U)O(U)=Z\ensuremath{^{-1}}\ensuremath{\Sigma}U O(U)e\ensuremath{^{-S(U)}}。
+\item 独立同分布样本的样本均值期望正等于该 p-期望。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{10.01}\quad 两态 Boltzmann 归一化；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：有限两态模型
+\end{block}
+\BoundaryLine{Markov 链样本的无偏性还需平稳、遍历和热化条件。}
+\end{frame}
+
+\begin{frame}[t]{欧氏权重与重要性抽样：计算算法}\FrameAnchor{10.01-4}
+\footnotesize
+\AlgorithmID{10.01}\begin{enumerate}
+\item 先用两态或小 U(1) 模型枚举精确答案。
+\item 实现目标分布采样并丢弃热化段。
+\item 监控作用量与多个慢观测量的时间序列。
+\item 用分箱/\allowbreak{}自相关修正误差，并与枚举值比较。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] O=1 时期望严格为 1。
+\item[\CheckMark] 给 S 加构型无关常数不改变归一化期望。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{欧氏权重与重要性抽样：练习与完整解答}\FrameAnchor{10.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{10.01}}两态作用量 S0=0、S1=ln3，求状态 1 的概率。\end{block}
+\begin{exampleblock}{\SolutionID{10.01}}权重为 1 与 1/\allowbreak{}3，归一化后 p1=(1/\allowbreak{}3)/\allowbreak{}(4/\allowbreak{}3)=1/\allowbreak{}4。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{10.01-7db3fee457}；\CourseRef{Eq}{10.01}；\CourseRef{SYM}{10.01}；\CourseRef{Alg}{10.01}。
+\SourceLine{BOOK-LQCD；BOOK-STAT}
+\end{frame}
+
+\begin{frame}[t]{Metropolis--Hastings 与详细平衡：问题与图像}\FrameAnchor{10.02-1}
+\footnotesize
+\begin{block}{本节问题}如何用只知道未归一化权重的局部提议构造正确 Markov 链？\end{block}
+\PhysicalFlow{当前态 U}{提议 U\ensuremath{^{\prime}}}{以接受率 min(1,r) 接受}{10.02}
+\begin{block}{物理原则}\KnowledgeID{10.02}\quad 详细平衡是平稳性的充分条件；还需不可约和非周期性保证遍历收敛。\end{block}
+\SourceLine{BOOK-STAT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{Metropolis--Hastings 与详细平衡：定义与主公式}\FrameAnchor{10.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{10.02-670894dd0f} Markov 链 & 下一状态只依赖当前状态的随机过程\\
+\DefinitionID{10.02-0975d77967} 详细平衡 & 平衡分布下每对状态概率流相等\\
+\DefinitionID{10.02-95a32d7e11} 接受率 & 被接受提议的比例，不等于独立样本比例\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{10.02} 主公式}\centering\CourseDisplayEquation{A(U\to U')=\min\!\left(1,\frac{\pi(U')q(U|U')}{\pi(U)q(U'|U)}\right)}\end{block}
+接受规则使 \ensuremath{\pi}(U)q(U\ensuremath{^{\prime}}|U)A(U\ensuremath{\rightarrow}U\ensuremath{^{\prime}}) 在交换 U、U\ensuremath{^{\prime}} 后不变。
+\end{frame}
+
+\begin{frame}[t]{Metropolis--Hastings 与详细平衡：推导与证据边界}\FrameAnchor{10.02-3}
+\footnotesize
+\DerivationID{10.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{10.02}：
+\begin{enumerate}
+\item 记 r=\ensuremath{\pi}\ensuremath{^{\prime}}q反/\allowbreak{}(\ensuremath{\pi}q正)。
+\item 若 r\ensuremath{\le}1，正向流为 \ensuremath{\pi}q r=\ensuremath{\pi}\ensuremath{^{\prime}}q反，反向接受率为 1。
+\item 若 r>1，正向接受率为 1，反向比率为 1/\allowbreak{}r，同样得到相等流。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{10.02}\quad Metropolis--Hastings 两分支详细平衡；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：所有目标权重和提议概率为正；分别验证 r<=1 与 r>1 的代数分支
+\end{block}
+\BoundaryLine{遍历性和实际混合速度不由详细平衡单独保证。}
+\end{frame}
+
+\begin{frame}[t]{Metropolis--Hastings 与详细平衡：计算算法}\FrameAnchor{10.02-4}
+\footnotesize
+\AlgorithmID{10.02}\begin{enumerate}
+\item 实现可计算正反提议密度的 proposal。
+\item 用对数权重计算 log r，避免指数溢出。
+\item 以 log u<min(0,log r) 决定接受。
+\item 在可枚举模型上比较直方图、转移流和精确分布。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 对称提议时 q 比率抵消。
+\item[\CheckMark] 若 \ensuremath{\pi}\ensuremath{^{\prime}}=\ensuremath{\pi} 且提议对称，接受率为 1。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Metropolis--Hastings 与详细平衡：练习与完整解答}\FrameAnchor{10.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{10.02}}对称提议下 \ensuremath{\Delta}S=S\ensuremath{^{\prime}}-S=2，接受概率是多少？\end{block}
+\begin{exampleblock}{\SolutionID{10.02}}r=e\ensuremath{^{-\Delta{}S}}=e\ensuremath{^{-2}}，故接受概率约 0.1353。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{10.02-670894dd0f}；\CourseRef{Eq}{10.02}；\CourseRef{SYM}{10.02}；\CourseRef{Alg}{10.02}。
+\SourceLine{BOOK-STAT；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{热化、自相关与有效样本数：问题与图像}\FrameAnchor{10.03-1}
+\footnotesize
+\begin{block}{本节问题}有一千个构型，为什么可能只相当于几十个独立样本？\end{block}
+\PhysicalFlow{时间序列 Oi}{归一化自相关 \ensuremath{\rho}(t)}{积分自相关时间 \ensuremath{\tau}int}{10.03}
+\begin{block}{物理原则}\KnowledgeID{10.03}\quad \ensuremath{\tau}int 依赖观测量；只监控 plaquette 可能漏掉拓扑等更慢模式。\end{block}
+\SourceLine{BOOK-STAT；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{热化、自相关与有效样本数：定义与主公式}\FrameAnchor{10.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{10.03-d9c55c60da} 热化 & 链从初始分布接近平衡分布的过程\\
+\DefinitionID{10.03-319d76559e} 自相关 & 同一链不同间隔观测量的相关性\\
+\DefinitionID{10.03-a9203c6765} 有效样本数 & 具有相同均值方差的独立样本等效数量\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{10.03} 主公式}\centering\CourseDisplayEquation{\operatorname{Var}(\bar O)\simeq\frac{2\tau_{\rm int}}{N}\operatorname{Var}(O),\qquad N_{\rm eff}\simeq\frac{N}{2\tau_{\rm int}}}\end{block}
+正自相关把均值方差放大 2\ensuremath{\tau}int，独立样本对应 \ensuremath{\tau}int=1/\allowbreak{}2 的本课程约定。
+\end{frame}
+
+\begin{frame}[t]{热化、自相关与有效样本数：推导与证据边界}\FrameAnchor{10.03-3}
+\footnotesize
+\DerivationID{10.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{10.03}：
+\begin{enumerate}
+\item 展开 Var(\ensuremath{\Sigma}Oi/\allowbreak{}N) 为双重协方差求和。
+\item 平稳性使协方差只依赖间隔，边界效应在 N\ensuremath{\gg}相关长度时可忽略。
+\item 提出 C(0)/\allowbreak{}N，剩余 1+2\ensuremath{\Sigma}t\ensuremath{\ge}1\ensuremath{\rho}(t)=2\ensuremath{\tau}int。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{10.03}\quad Markov 链自相关与有效样本数；6/6 项通过；SymPy exact；复用 myqcd.derivations.derive\_mcmc\_autocorrelation。
+\par\scriptsize 假设：拒绝概率取值于[0,1]，状态权重满足0<=state\_weight<=1；独立提议使 rho(tau)/\allowbreak{}rho(0)=E[p\_rej(phi)\ensuremath{^{t}}au]；Jensen 下界对整数 tau>=1 成立；此处用 tau=2 的非退化示例
+\end{block}
+\BoundaryLine{验证有限自回归代理的自相关和方差放大；真实链需窗口与误差分析。}
+\end{frame}
+
+\begin{frame}[t]{热化、自相关与有效样本数：计算算法}\FrameAnchor{10.03-4}
+\footnotesize
+\AlgorithmID{10.03}\begin{enumerate}
+\item 画原始时间序列并识别热化漂移。
+\item 用 FFT 或直接法估计自相关函数。
+\item 采用自洽窗口截断噪声主导的长尾。
+\item 按最大相关尺度分箱，并报告 \ensuremath{\tau}int 的约定和误差。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 独立样本 \ensuremath{\rho}(t>0)=0，\ensuremath{\tau}int=1/\allowbreak{}2。
+\item[\CheckMark] 强负相关可减小均值方差，但需稳定估计完整和。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{热化、自相关与有效样本数：练习与完整解答}\FrameAnchor{10.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{10.03}}N=1000、\ensuremath{\tau}int=5 时 Neff 约为多少？\end{block}
+\begin{exampleblock}{\SolutionID{10.03}}Neff\ensuremath{\approx}1000/\allowbreak{}(2\ensuremath{\times}5)=100。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{10.03-d9c55c60da}；\CourseRef{Eq}{10.03}；\CourseRef{SYM}{10.03}；\CourseRef{Alg}{10.03}。
+\SourceLine{BOOK-STAT；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{Hybrid Monte Carlo：问题与图像}\FrameAnchor{10.04-1}
+\footnotesize
+\begin{block}{本节问题}怎样利用作用量梯度一次提出全格点的远距离更新？\end{block}
+\PhysicalFlow{引入高斯共轭动量}{可逆保体积分子动力学}{Metropolis 校正积分误差}{10.04}
+\begin{block}{物理原则}\KnowledgeID{10.04}\quad 接受率高不代表遍历快；轨迹长度、步长、力误差和慢模需联合诊断。\end{block}
+\SourceLine{P05；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{Hybrid Monte Carlo：定义与主公式}\FrameAnchor{10.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{10.04-3c4da2cdcf} HMC & Hamilton 动力学提议与接受校正结合的全局算法\\
+\DefinitionID{10.04-c3903c45ab} leapfrog & 可逆辛二阶积分器\\
+\DefinitionID{10.04-948438f2c9} Hamiltonian 违背 & 有限步长造成的 \ensuremath{\Delta}H\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{10.04} 主公式}\centering\CourseDisplayEquation{P_{\rm acc}=\min(1,e^{-\Delta H}),\qquad \Delta H=H_{\rm final}-H_{\rm initial}}\end{block}
+可逆保体积提议的接受率只由 Hamiltonian 数值误差决定。
+\end{frame}
+
+\begin{frame}[t]{Hybrid Monte Carlo：推导与证据边界}\FrameAnchor{10.04-3}
+\footnotesize
+\DerivationID{10.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{10.04}：
+\begin{enumerate}
+\item 扩展目标密度为 exp[-S(U)-p\ensuremath{^{2}}/\allowbreak{}2]=exp(-H)。
+\item 精确 Hamilton 流保持 H 和相空间体积，有限步长只近似保持 H。
+\item 对可逆提议使用 Metropolis 比率 exp(-\ensuremath{\Delta}H)，恢复精确平稳分布。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{10.04}\quad HMC 标量 leapfrog 与接受校正；6/6 项通过；SymPy exact；复用 myqcd.derivations.derive\_hmc\_scalar。
+\par\scriptsize 假设：jacobian\_scale>0, mass\_squared>0；U=jacobian\_scale*V 的一维可逆线性场变换；连续 Hamilton 流；不验证离散积分器误差与接受率
+\end{block}
+\BoundaryLine{验证一维标量代理的可逆/\allowbreak{}保体积及 Hamiltonian 误差；SU(3) 力另测。}
+\end{frame}
+
+\begin{frame}[t]{Hybrid Monte Carlo：计算算法}\FrameAnchor{10.04-4}
+\footnotesize
+\AlgorithmID{10.04}\begin{enumerate}
+\item 刷新高斯动量并保存初始 U、p、H。
+\item 用对称 kick-drift-kick 步进规范链接和动量。
+\item 反转动量，计算 \ensuremath{\Delta}H 并接受或恢复旧构型。
+\item 检查可逆残差、exp(-\ensuremath{\Delta}H) 平均、接受率和自相关。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 步长\ensuremath{\rightarrow}0 时 \ensuremath{\Delta}H\ensuremath{\rightarrow}0、接受率\ensuremath{\rightarrow}1。
+\item[\CheckMark] 把轨迹正向积分后反转动量再积分，应回到初态。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Hybrid Monte Carlo：练习与完整解答}\FrameAnchor{10.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{10.04}}若 \ensuremath{\Delta}H=-0.3 与 +0.3，接受率分别是多少？\end{block}
+\begin{exampleblock}{\SolutionID{10.04}}前者 min(1,e\ensuremath{^{0.3}})=1；后者 e\ensuremath{^{-0.3}}\ensuremath{\approx}0.741。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{10.04-3c4da2cdcf}；\CourseRef{Eq}{10.04}；\CourseRef{SYM}{10.04}；\CourseRef{Alg}{10.04}。
+\SourceLine{P05；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{系综元数据、尺度与质量门：问题与图像}\FrameAnchor{10.05-1}
+\footnotesize
+\begin{block}{本节问题}拿到一批规范构型后，如何确认它们能回答目标物理问题？\end{block}
+\PhysicalFlow{裸参数与算法历史}{尺度设定和质量}{质量门与可追溯 ID}{10.05}
+\begin{block}{物理原则}\KnowledgeID{10.05}\quad m\ensuremath{\pi}L\ensuremath{\gtrsim}4 是常用经验线而非误差证明，TMD 长距离算符还要单独检查路径与边界。\end{block}
+\SourceLine{BOOK-LQCD；PYQCD-PIPELINE}
+\end{frame}
+
+\begin{frame}[t]{系综元数据、尺度与质量门：定义与主公式}\FrameAnchor{10.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{10.05-2e9c9e9c38} ensemble ID & 唯一标识一组共同生成参数的稳定名称\\
+\DefinitionID{10.05-bed914fcc0} 配置间隔 & 保存构型之间的轨迹距离\\
+\DefinitionID{10.05-7a5d0e382a} 质量门 & 进入下一阶段前必须满足的可检验条件\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{10.05} 主公式}\centering\CourseDisplayEquation{L=N_s a,\qquad T=N_t a,\qquad m_\pi L\gtrsim4}\end{block}
+点数与格距共同决定物理盒子；m\ensuremath{\pi}L 是有限体积风险的无量纲指标。
+\end{frame}
+
+\begin{frame}[t]{系综元数据、尺度与质量门：推导与证据边界}\FrameAnchor{10.05-3}
+\footnotesize
+\DerivationID{10.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{10.05}：
+\begin{enumerate}
+\item 由尺度设定得到 a 及其不确定度。
+\item 乘空间和时间点数得到 L、T。
+\item 把 m\ensuremath{\pi} 换成逆长度，与 L 相乘得到无量纲 m\ensuremath{\pi}L。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{10.05}\quad 系综物理尺寸与 m\_pi L；3/3 项通过；SymPy exact。
+\par\scriptsize 假设：各向同性格距；m\_pi 以逆长度单位表示
+\end{block}
+\BoundaryLine{m\_pi L 大于某经验值不构成有限体积误差证明。}
+\end{frame}
+
+\begin{frame}[t]{系综元数据、尺度与质量门：计算算法}\FrameAnchor{10.05-4}
+\footnotesize
+\AlgorithmID{10.05}\begin{enumerate}
+\item 读取但不猜测 \ensuremath{\beta}、\ensuremath{\kappa}、a、体积、边界条件和配置轨迹号。
+\item 验证文件校验和、数组形状、精度和链接群性质。
+\item 计算 m\ensuremath{\pi}L、最小动量和目标 boost 可达范围。
+\item 把所有派生量、代码版本和筛选原因写入不可变清单。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 改变单位制不应改变 m\ensuremath{\pi}L。
+\item[\CheckMark] 同 a 增大 Ns 可减有限体积效应，但计算成本随四维体积增长。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}ensembles.\allowbreak{}py 与 pipeline 元数据守卫}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{系综元数据、尺度与质量门：练习与完整解答}\FrameAnchor{10.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{10.05}}a=0.09 fm、Ns=48、m\ensuremath{\pi}=0.14 GeV，估算 m\ensuremath{\pi}L。\end{block}
+\begin{exampleblock}{\SolutionID{10.05}}L=4.32 fm；m\ensuremath{\pi}\ensuremath{\approx}0.14/\allowbreak{}0.1973=0.710 fm\ensuremath{^{-1}}，故 m\ensuremath{\pi}L\ensuremath{\approx}3.07，低于经验 4。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{10.05-2e9c9e9c38}；\CourseRef{Eq}{10.05}；\CourseRef{SYM}{10.05}；\CourseRef{Alg}{10.05}。
+\SourceLine{BOOK-LQCD；PYQCD-PIPELINE}
+\end{frame}
+
+\begin{frame}[t]{第 10 卷能力清单}\FrameAnchor{V10-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能解释重要性抽样和详细平衡
+\item[\CheckMark] 能估计自相关
+\item[\CheckMark] 能阅读 HMC 轨迹诊断
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 10 卷来源（1/1）}\FrameAnchor{V10-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\SourceID{BOOK-STAT} & Monte Carlo 统计与拟合讲义（课程自编） & 协方差、重采样、覆盖率和模型系统学。\\
+\SourceID{P05} & 平凡化映射威尔逊流与HMC & 论文图谱 P05 的完整原始 PDF；底稿 arXiv:0907.5491；SHA-256 3320b1d4caaa4e90…。\\
+\SourceID{PYQCD-PIPELINE} & PyQCD 流水线技能 & 配置、守卫、元数据、断点续跑和产物清单。\\
+\SourceID{PYQCD-STATISTICS} & PyQCD 统计技能 & 自相关、重采样、协方差和拟合验证。\\
+\bottomrule\end{tabularx}\end{frame}
+

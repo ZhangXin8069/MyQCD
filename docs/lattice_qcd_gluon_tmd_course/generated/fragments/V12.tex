@@ -1,0 +1,361 @@
+\begin{frame}[plain]\FrameAnchor{V12-title}
+\centering
+{\Large\bfseries\color{courseblue}第 12 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 重采样、协方差与多态拟合\par}
+\vspace{0.35cm}
+{\large 从相关 Monte Carlo 数据得到可复现的中心值、统计误差和拟合系统学。\par}
+\vfill
+\CourseID{Tbl}{12.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 12 卷路线图}\FrameAnchor{V12-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+12.01 & 样本均值、协方差与相关性\\
+12.02 & Jackknife 与非线性观测量\\
+12.03 & Bootstrap、分位数与非高斯分布\\
+12.04 & 相关 \ensuremath{\chi}\ensuremath{^{2}} 与协方差正则化\\
+12.05 & 多态联合拟合与模型系统学\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-STAT；PYQCD-STATISTICS；PYQCD-ANALYSIS}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V12-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V03
+\item V10
+\item V11
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能正确实施 jackknife/\allowbreak{}bootstrap
+\item 能做相关 \ensuremath{\chi}\ensuremath{^{2}} 拟合
+\item 能建立拟合稳定性与系统误差账本
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：均值标准误差的样本数标度}\FrameAnchor{V12-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=1.0,xmax=100.0,ymin=0.0,ymax=1.05,xlabel={有效样本数 $N_{\rm eff}$},ylabel={$\sigma_{\bar x}/\sigma$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=1.0:100.0,samples=160] {1/sqrt(x)};
+\addlegendentry{独立样本}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{12.00}：独立同分布解析关系；Markov 链应以 Neff 替代原始 N。
+\SourceLine{中心极限定理}
+\end{frame}
+
+\begin{frame}[t]{样本均值、协方差与相关性：问题与图像}\FrameAnchor{12.01-1}
+\footnotesize
+\begin{block}{本节问题}多个时间片来自同一批构型，为什么不能逐点独立拟合？\end{block}
+\PhysicalFlow{构型向量 yi}{样本均值 \ensuremath{\bar y}}{协方差矩阵 C}{12.01}
+\begin{block}{物理原则}\KnowledgeID{12.01}\quad 相关数据的误差椭球由整个协方差矩阵决定，只看对角误差会错误加权。\end{block}
+\SourceLine{BOOK-STAT；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{样本均值、协方差与相关性：定义与主公式}\FrameAnchor{12.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{12.01-daf7773b68} 样本均值 & 观测量样本的算术平均\\
+\DefinitionID{12.01-4c8c77dc2b} 协方差矩阵 & 记录各分量共同涨落的矩阵\\
+\DefinitionID{12.01-ec1bb8843d} 相关系数 & 归一化到 [-1,1] 的协方差\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{12.01} 主公式}\centering\CourseDisplayEquation{\operatorname{Cov}(A,B)=\langle AB\rangle-\langle A\rangle\langle B\rangle}\end{block}
+协方差是乘积均值减均值乘积；对角元就是方差。
+\end{frame}
+
+\begin{frame}[t]{样本均值、协方差与相关性：推导与证据边界}\FrameAnchor{12.01-3}
+\footnotesize
+\DerivationID{12.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{12.01}：
+\begin{enumerate}
+\item 定义中心变量 \ensuremath{\delta}A=A-\ensuremath{\langle}A\ensuremath{\rangle}、\ensuremath{\delta}B=B-\ensuremath{\langle}B\ensuremath{\rangle}。
+\item 展开 \ensuremath{\langle}\ensuremath{\delta}A\ensuremath{\delta}B\ensuremath{\rangle} 的四项。
+\item 利用常数可提出期望并相消，留下 \ensuremath{\langle}AB\ensuremath{\rangle}-\ensuremath{\langle}A\ensuremath{\rangle}\ensuremath{\langle}B\ensuremath{\rangle}。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{12.01}\quad 协方差的中心与原始矩形式；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：四个等权实样本；使用 1/\allowbreak{}N 总体矩定义
+\end{block}
+\BoundaryLine{无偏样本协方差改用 1/\allowbreak{}(N-1)；自相关需块处理。}
+\end{frame}
+
+\begin{frame}[t]{样本均值、协方差与相关性：计算算法}\FrameAnchor{12.01-4}
+\footnotesize
+\AlgorithmID{12.01}\begin{enumerate}
+\item 保持每个构型的完整观测向量。
+\item 先减样本均值，再做外积并求和。
+\item 总体协方差估计使用 N-1 分母。
+\item 检查对称性、非负本征值和相关系数范围。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] Cov(A,A)=Var(A)\ensuremath{\ge}0。
+\item[\CheckMark] A 加常数不改变协方差。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{样本均值、协方差与相关性：练习与完整解答}\FrameAnchor{12.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{12.01}}若 B=2A+3，求 Cov(A,B)。\end{block}
+\begin{exampleblock}{\SolutionID{12.01}}常数项无贡献，Cov(A,B)=2Var(A)。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{12.01-daf7773b68}；\CourseRef{Eq}{12.01}；\CourseRef{SYM}{12.01}；\CourseRef{Alg}{12.01}。
+\SourceLine{BOOK-STAT；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{Jackknife 与非线性观测量：问题与图像}\FrameAnchor{12.02-1}
+\footnotesize
+\begin{block}{本节问题}比值、拟合和 Fourier 变换的误差为何必须贯穿整条分析链？\end{block}
+\PhysicalFlow{分成 B 个块}{逐块删除重算全流程}{删除样本波动估误差}{12.02}
+\begin{block}{物理原则}\KnowledgeID{12.02}\quad 真空扣除、拟合、重整化和匹配都必须在每个重采样样本内重算，不能最后只传播对角误差。\end{block}
+\SourceLine{BOOK-STAT；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{Jackknife 与非线性观测量：定义与主公式}\FrameAnchor{12.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{12.02-2cdc8cfec0} 删除一法 & 每次删除一个样本或块的重采样\\
+\DefinitionID{12.02-8d92171d58} 块 jackknife & 删除相关数据块而非单构型\\
+\DefinitionID{12.02-4cdf790c83} 伪值 & 由全样本与删除样本组合的偏差校正量\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{12.02} 主公式}\centering\CourseDisplayEquation{\operatorname{Var}_{\rm JK}(\hat\theta)=\frac{B-1}{B}\sum_{b=1}^{B}(\hat\theta_{(b)}-\bar\theta_{(.)})^2}\end{block}
+B 个删除块估计之间高度相关，前因子是 (B-1)/\allowbreak{}B 而不是普通样本方差因子。
+\end{frame}
+
+\begin{frame}[t]{Jackknife 与非线性观测量：推导与证据边界}\FrameAnchor{12.02-3}
+\footnotesize
+\DerivationID{12.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{12.02}：
+\begin{enumerate}
+\item 对线性均值，删除块估计与被删块均值可精确关联。
+\item 计算删除估计围绕其平均的平方和。
+\item 乘 (B-1)/\allowbreak{}B 后恢复全样本均值方差；非线性情形是一阶渐近结果。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{12.02}\quad 样本均值的删除一 jackknife 方差；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：N=3 的一般符号样本；目标估计量为线性样本均值
+\end{block}
+\BoundaryLine{非线性估计量关系只在大样本下一阶成立；课程算法仍重跑完整链。}
+\end{frame}
+
+\begin{frame}[t]{Jackknife 与非线性观测量：计算算法}\FrameAnchor{12.02-4}
+\footnotesize
+\AlgorithmID{12.02}\begin{enumerate}
+\item 块长取大于主要观测量的自相关尺度。
+\item 每次删除整块并重跑从原始构型量到最终估计的函数。
+\item 保存每个删除样本的完整向量以构造协方差。
+\item 扫描块长，确认误差进入稳定区。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] B=1 时无法估计方差。
+\item[\CheckMark] 所有删除估计相同则 jackknife 方差为 0。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{PyQCD statistics 技能；分析链的样本轴约定}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Jackknife 与非线性观测量：练习与完整解答}\FrameAnchor{12.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{12.02}}B=3，删除估计为 1、2、3，求 jackknife 方差。\end{block}
+\begin{exampleblock}{\SolutionID{12.02}}平均为 2，平方偏差和为 2，乘 (2/\allowbreak{}3) 得 4/\allowbreak{}3。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{12.02-2cdc8cfec0}；\CourseRef{Eq}{12.02}；\CourseRef{SYM}{12.02}；\CourseRef{Alg}{12.02}。
+\SourceLine{BOOK-STAT；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{Bootstrap、分位数与非高斯分布：问题与图像}\FrameAnchor{12.03-1}
+\footnotesize
+\begin{block}{本节问题}当估计量分布偏斜或有边界时，标准差还够用吗？\end{block}
+\PhysicalFlow{有放回抽取块}{每次重跑估计量}{经验分布给区间}{12.03}
+\begin{block}{物理原则}\KnowledgeID{12.03}\quad 重采样单位必须与独立信息单位一致；对自相关链应抽块而非打乱单构型。\end{block}
+\SourceLine{BOOK-STAT；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{Bootstrap、分位数与非高斯分布：定义与主公式}\FrameAnchor{12.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{12.03-3a14f758f5} Bootstrap & 从经验分布有放回重采样\\
+\DefinitionID{12.03-1f491efd78} 分位数区间 & 用经验分布分位点给出的区间\\
+\DefinitionID{12.03-2c0da6b2ef} 偏斜 & 分布相对中心不对称\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{12.03} 主公式}\centering\CourseDisplayEquation{\mathbb E_*[\bar X^*]=\bar X,\qquad \operatorname{Var}_*(\bar X^*)=\frac{s_N^2}{N}}\end{block}
+条件于原样本，非参数 bootstrap 均值以经验均值为中心；这里 sN\ensuremath{^{2}} 使用 1/\allowbreak{}N 定义。
+\end{frame}
+
+\begin{frame}[t]{Bootstrap、分位数与非高斯分布：推导与证据边界}\FrameAnchor{12.03-3}
+\footnotesize
+\DerivationID{12.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{12.03}：
+\begin{enumerate}
+\item 每个 bootstrap 抽取指标在 N 个原样本上等概率。
+\item 单个抽取的条件均值为 X̄，N 个抽取均值的条件期望仍为 X̄。
+\item 独立有放回抽取使均值方差为经验总体方差 sN\ensuremath{^{2}} 除以 N。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{12.03}\quad N=2 bootstrap 均值的精确枚举；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：枚举两个样本的 2\ensuremath{^{2}} 个有序有放回重样本
+\end{block}
+\BoundaryLine{真实分析的块 bootstrap 和分位数覆盖需重复模拟验证。}
+\end{frame}
+
+\begin{frame}[t]{Bootstrap、分位数与非高斯分布：计算算法}\FrameAnchor{12.03-4}
+\footnotesize
+\AlgorithmID{12.03}\begin{enumerate}
+\item 预先固定随机种子和重采样索引表。
+\item 以构型块为单位有放回抽取到原样本长度。
+\item 对每个样本执行相同拟合和后处理。
+\item 报告中位数、分位数区间，并检查重采样数收敛。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 常量样本的 bootstrap 分布退化为单点。
+\item[\CheckMark] 重采样次数增加只减 Monte Carlo 的 bootstrap 数值噪声，不增加原数据的信息。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Bootstrap、分位数与非高斯分布：练习与完整解答}\FrameAnchor{12.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{12.03}}样本 (0,2) 中抽取一个值，bootstrap 条件均值和方差是多少？\end{block}
+\begin{exampleblock}{\SolutionID{12.03}}均值为 1；以 1/\allowbreak{}N 定义的经验方差为 [(\ensuremath{-}1)\ensuremath{^{2}}+1\ensuremath{^{2}}]/\allowbreak{}2=1。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{12.03-3a14f758f5}；\CourseRef{Eq}{12.03}；\CourseRef{SYM}{12.03}；\CourseRef{Alg}{12.03}。
+\SourceLine{BOOK-STAT；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{相关 \ensuremath{\chi}\ensuremath{^{2}} 与协方差正则化：问题与图像}\FrameAnchor{12.04-1}
+\footnotesize
+\begin{block}{本节问题}拟合残差应沿误差椭球的哪些方向计权？\end{block}
+\PhysicalFlow{残差 r=y-f(\ensuremath{\theta})}{协方差逆 C\ensuremath{^{-1}}}{最小化 r\ensuremath{^{T}}C\ensuremath{^{-1}}r}{12.04}
+\begin{block}{物理原则}\KnowledgeID{12.04}\quad 协方差来自有限样本；直接求逆可能放大噪声，任何截断必须记录有效秩并做稳定性扫描。\end{block}
+\SourceLine{BOOK-STAT；MYQCD-FORMULAS}
+\end{frame}
+
+\begin{frame}[t]{相关 \ensuremath{\chi}\ensuremath{^{2}} 与协方差正则化：定义与主公式}\FrameAnchor{12.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{12.04-7526fc5cb4} 相关 \ensuremath{\chi}\ensuremath{^{2}} & 用协方差逆度量残差的二次型\\
+\DefinitionID{12.04-e7043a3d89} 奇异值截断 & 丢弃估计不稳定的小协方差本征模\\
+\DefinitionID{12.04-1f97d54517} 自由度 & 有效数据约束数减拟合参数数\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{12.04} 主公式}\centering\CourseDisplayEquation{\chi^2(\theta)=[y-f(\theta)]^TC^{-1}[y-f(\theta)]}\end{block}
+白化变换 C=LL\ensuremath{^{T}} 后，相关 \ensuremath{\chi}\ensuremath{^{2}} 等于 ||L\ensuremath{^{-1}}r||\ensuremath{^{2}}。
+\end{frame}
+
+\begin{frame}[t]{相关 \ensuremath{\chi}\ensuremath{^{2}} 与协方差正则化：推导与证据边界}\FrameAnchor{12.04-3}
+\footnotesize
+\DerivationID{12.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{12.04}：
+\begin{enumerate}
+\item 对正定 C 做 Cholesky 分解 C=LL\ensuremath{^{T}}。
+\item 令 z=L\ensuremath{^{-1}}r，则 r=Lz。
+\item 代入 r\ensuremath{^{T}}L\ensuremath{^{-T}}L\ensuremath{^{-1}}r=z\ensuremath{^{T}}z，得到白化残差平方和。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{12.04}\quad 相关 chi-square 与 nuisance profile；7/7 项通过；SymPy exact；复用 myqcd.derivations.derive\_correlated\_chi\_square\_profile。
+\par\scriptsize 假设：s\_1,s\_2>0，d\_i=D\_i-T\_i，beta\_i 是单个相关系统误差源的响应；chi\ensuremath{^{2}}=(d-B lambda)\ensuremath{^{T}} W(d-B lambda)+lambda\ensuremath{^{2}}；A=1+B\ensuremath{^{T}} W B>0，因此 nuisance 剖面解唯一
+\end{block}
+\BoundaryLine{在有限维精确模型验证驻点、Woodbury 形式和 profile；协方差估计误差另测。}
+\end{frame}
+
+\begin{frame}[t]{相关 \ensuremath{\chi}\ensuremath{^{2}} 与协方差正则化：计算算法}\FrameAnchor{12.04-4}
+\footnotesize
+\AlgorithmID{12.04}\begin{enumerate}
+\item 在同一重采样层级估计 y 和 C。
+\item 检查 C 的本征谱、条件数和有效秩。
+\item 优先线性求解 Cx=r，不显式形成逆矩阵。
+\item 扫描 shrinkage/\allowbreak{}SVD 阈值并用合成覆盖率测试。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] C=\ensuremath{\sigma}\ensuremath{^{2}}I 时退化为 \ensuremath{\Sigma}(ri/\allowbreak{}\ensuremath{\sigma})\ensuremath{^{2}}。
+\item[\CheckMark] \ensuremath{\chi}\ensuremath{^{2}} 非负；若出现显著负值说明数值或协方差错误。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}analysis/\allowbreak{}\_\allowbreak{}fitter.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{相关 \ensuremath{\chi}\ensuremath{^{2}} 与协方差正则化：练习与完整解答}\FrameAnchor{12.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{12.04}}C=diag(1,4)、r=(1,2)，求 \ensuremath{\chi}\ensuremath{^{2}}。\end{block}
+\begin{exampleblock}{\SolutionID{12.04}}\ensuremath{\chi}\ensuremath{^{2}}=1\ensuremath{^{2}}/\allowbreak{}1+2\ensuremath{^{2}}/\allowbreak{}4=2。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{12.04-7526fc5cb4}；\CourseRef{Eq}{12.04}；\CourseRef{SYM}{12.04}；\CourseRef{Alg}{12.04}。
+\SourceLine{BOOK-STAT；MYQCD-FORMULAS}
+\end{frame}
+
+\begin{frame}[t]{多态联合拟合与模型系统学：问题与图像}\FrameAnchor{12.05-1}
+\footnotesize
+\begin{block}{本节问题}怎样把激发态污染变成可量化参数，而不是主观平台选择？\end{block}
+\PhysicalFlow{C2 约束能量与重叠}{C3 共享同一谱参数}{多窗多态模型比较}{12.05}
+\begin{block}{物理原则}\KnowledgeID{12.05}\quad 态数增加并不自动更可靠；必须有数据约束、先验敏感性和留出预测检验。\end{block}
+\SourceLine{BOOK-STAT；PYQCD-ANALYSIS}
+\end{frame}
+
+\begin{frame}[t]{多态联合拟合与模型系统学：定义与主公式}\FrameAnchor{12.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{12.05-f903e5aec4} 联合拟合 & 多个相关数据集共享物理参数的同步拟合\\
+\DefinitionID{12.05-7c2e35b881} 先验 & 拟合前对参数合理范围的概率信息\\
+\DefinitionID{12.05-ca1d1ceef0} 模型平均 & 按预测或证据权重组合多个截断模型\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{12.05} 主公式}\centering\CourseDisplayEquation{C_2(t)=\sum_{n=0}^{N_s-1}|Z_n|^2e^{-E_nt},\qquad E_n=E_0+\sum_{j=1}^{n}e^{\delta_j}}\end{block}
+用正指数参数化能隙保证 E0<E1<…，避免拟合中能级交换。
+\end{frame}
+
+\begin{frame}[t]{多态联合拟合与模型系统学：推导与证据边界}\FrameAnchor{12.05-3}
+\footnotesize
+\DerivationID{12.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{12.05}：
+\begin{enumerate}
+\item 定义正能隙 \ensuremath{\Delta}j=exp(\ensuremath{\delta}j)>0。
+\item 递推 En=E\ensuremath{_{n-1}}+\ensuremath{\Delta}n。
+\item 因此 En-E\ensuremath{_{n-1}}>0，严格保持能量有序。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{12.05}\quad 正能隙参数化；3/3 项通过；SymPy exact。
+\par\scriptsize 假设：delta\_j 为实数，因此 exp(delta\_j)>0
+\end{block}
+\BoundaryLine{参数有序不保证多态模型可由有限数据辨识。}
+\end{frame}
+
+\begin{frame}[t]{多态联合拟合与模型系统学：计算算法}\FrameAnchor{12.05-4}
+\footnotesize
+\AlgorithmID{12.05}\begin{enumerate}
+\item 先用 C2 多动量数据约束 E、Z 与色散关系。
+\item 把 C3 全 tsep、\ensuremath{\tau} 与 C2 放入同一协方差拟合。
+\item 扫描态数、窗、先验宽度和协方差处理。
+\item 用后验预测、留出点和模型平均给出最终系统误差。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] Ns=1 退化为单指数。
+\item[\CheckMark] \ensuremath{\delta}j 任意实数都给正能隙，避免非物理解。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}analysis/\allowbreak{}\_\allowbreak{}ratio\_\allowbreak{}fit.\allowbreak{}py 与 \_\allowbreak{}fitter.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{多态联合拟合与模型系统学：练习与完整解答}\FrameAnchor{12.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{12.05}}若 E0=0.5、\ensuremath{\delta}1=ln0.3、\ensuremath{\delta}2=ln0.2，求 E1、E2。\end{block}
+\begin{exampleblock}{\SolutionID{12.05}}E1=0.8，E2=1.0。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{12.05-f903e5aec4}；\CourseRef{Eq}{12.05}；\CourseRef{SYM}{12.05}；\CourseRef{Alg}{12.05}。
+\SourceLine{BOOK-STAT；PYQCD-ANALYSIS}
+\end{frame}
+
+\begin{frame}[t]{第 12 卷能力清单}\FrameAnchor{V12-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能正确实施 jackknife/\allowbreak{}bootstrap
+\item[\CheckMark] 能做相关 \ensuremath{\chi}\ensuremath{^{2}} 拟合
+\item[\CheckMark] 能建立拟合稳定性与系统误差账本
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 12 卷来源（1/1）}\FrameAnchor{V12-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-STAT} & Monte Carlo 统计与拟合讲义（课程自编） & 协方差、重采样、覆盖率和模型系统学。\\
+\SourceID{PYQCD-STATISTICS} & PyQCD 统计技能 & 自相关、重采样、协方差和拟合验证。\\
+\SourceID{PYQCD-ANALYSIS} & PyQCD 分析技能与模块 & 断连、比值、多态拟合和图表。\\
+\SourceID{MYQCD-FORMULAS} & MyQCD 可执行公式注册表 & 复杂公式的 SymPy 精确代理与证据边界。\\
+\bottomrule\end{tabularx}\end{frame}
+

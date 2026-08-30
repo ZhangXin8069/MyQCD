@@ -1,0 +1,398 @@
+\begin{frame}[plain]\FrameAnchor{V34-title}
+\centering
+{\Large\bfseries\color{courseblue}第 34 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 非局域算符与 TMD 重整化方案\par}
+\vspace{0.35cm}
+{\large 以自旋平均非极化胶子 \ensuremath{f_1^{g[-,-]}} 为主目标，处理 Wilson-line 线性发散、辅助场、自重整化、ratio/\allowbreak{}hybrid、算符混合、soft 与 rapidity 方案转换。\par}
+\vfill
+\CourseID{Tbl}{34.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 34 卷路线图}\FrameAnchor{V34-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+34.01 & Wilson-line 线性发散与乘法结构\\
+34.02 & 辅助场方法：Wilson line 化为静态传播子\\
+34.03 & ratio 与自重整化：从同源数据消去 UV 因子\\
+34.04 & hybrid 方案、切换尺度与连续拼接\\
+34.05 & 方案标记的 quasi-TMD、soft、CS kernel 与 flow 转换\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{PYQCD-TMD；PYQCD-TMD-RENORM；P20；P29；P31；P41}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V34-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V17
+\item V18
+\item V33
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能分离线性/\allowbreak{}对数/\allowbreak{}rapidity 发散
+\item 能实现并比较 ratio、自重整化与 hybrid
+\item 能建立梯度流 TMD 到 MSbar/\allowbreak{}CS 方案的闭合转换链
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：Wilson-line 裸矩阵元的线性发散}\FrameAnchor{V34-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0,xmax=8,ymin=0,ymax=1.05,xlabel={$|z|/a$},ylabel={$h_B/h_{\rm finite}$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0:8,samples=160] {exp(-0.35*x)};
+\addlegendentry{\ensuremath{\delta}m=0.35}
+\addplot[very thick,courseorange,domain=0:8,samples=160] {exp(-0.60*x)};
+\addlegendentry{\ensuremath{\delta}m=0.60}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{34.00}：示意 exp[-\ensuremath{\delta}m|z|/\allowbreak{}a]；\ensuremath{\delta}m 依 action、smearing/\allowbreak{}flow 和方案，不能跨设置套用。
+\SourceLine{Wilson-line self energy}
+\end{frame}
+
+\begin{frame}[t]{Wilson-line 线性发散与乘法结构：问题与图像}\FrameAnchor{34.01-1}
+\footnotesize
+\begin{block}{本节问题}为什么固定物理长度 z 时，裸非局域矩阵元会在 a\ensuremath{\rightarrow}0 指数消失或爆炸？\end{block}
+\PhysicalFlow{每单位格点长度积累静态自能}{N=|z|/\allowbreak{}a 段贡献相乘}{形成 exp[-\ensuremath{\delta}m|z|/\allowbreak{}a]}{34.01}
+\begin{block}{物理原则}\KnowledgeID{34.01}\quad \ensuremath{\delta}m 的符号与定义可移入 Z；梯度流/\allowbreak{}链接涂抹会改变或软化 UV 结构，但有限流时不是自动 MSbar。\end{block}
+\SourceLine{P20；P21；P25；PYQCD-TMD-RENORM}
+\end{frame}
+
+\begin{frame}[t]{Wilson-line 线性发散与乘法结构：定义与主公式}\FrameAnchor{34.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{34.01-7832c588bb} linear divergence & Wilson line 自能中正比 cutoff 1/\allowbreak{}a 的幂发散\\
+\DefinitionID{34.01-3a286d6af6} endpoint divergence & 非局域线端点与场相接处的对数 UV 发散\\
+\DefinitionID{34.01-bb1966f7cb} cusp divergence & 路径转角产生、依 cusp angle 的附加对数发散\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{34.01} 主公式}\centering\CourseDisplayEquation{O_B(z,a)=e^{-\delta m(a)|z|/a}\,Z_{\log}(z,a,\mu)\,O_R(z,\mu)+\text{mixing}}\end{block}
+路径由 |z|/\allowbreak{}a 个局部段组成，静态自能按长度指数化；剩余端点/\allowbreak{}cusp 对数因子和 mixing 需另解。
+\end{frame}
+
+\begin{frame}[t]{Wilson-line 线性发散与乘法结构：推导与证据边界}\FrameAnchor{34.01-3}
+\footnotesize
+\DerivationID{34.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{34.01}：
+\begin{enumerate}
+\item 把长直 Wilson line 看作重静态源的传播子。
+\item 每单位格点长度的 self-energy shift 为 \ensuremath{\delta}m/\allowbreak{}a。
+\item 传播 Euclidean 长度 |z| 的权重为 exp[-(\ensuremath{\delta}m/\allowbreak{}a)|z|]。
+\item 非 Abelian exponentiation 组织可约 self-energy，而端点/\allowbreak{}cusp 与算符 mixing 保留为额外矩阵。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{34.01}\quad Wilson-line 线性发散与乘法结构；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：同一路径、同一 \ensuremath{\delta}m，z1,z2>0
+\end{block}
+\BoundaryLine{端点/\allowbreak{}cusp 对数、mixing 与 flow scheme 仍需独立处理。}
+\end{frame}
+
+\begin{frame}[t]{Wilson-line 线性发散与乘法结构：计算算法}\FrameAnchor{34.01-4}
+\footnotesize
+\AlgorithmID{34.01}\begin{enumerate}
+\item 对每种 action、smearing/\allowbreak{}flow 与表示单独测 Z(z,a)。
+\item 在多个 a、固定物理 z 比较 ln|hB| 对 |z|/\allowbreak{}a 的斜率。
+\item 分离线性项、对数 running 与短距 OPE。
+\item 用不同重整化方案转换后检查 continuum 矩阵元一致。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] z=0 时线性长度因子为 1，应回到局域算符重整化。
+\item[\CheckMark] 同一路径拼接 z1+z2 时纯 self-energy 指数应相乘。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{multi-a slope of log matrix elements + scheme comparison}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Wilson-line 线性发散与乘法结构：练习与完整解答}\FrameAnchor{34.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{34.01}}\ensuremath{\delta}m=0.4、|z|/\allowbreak{}a=5 时线性因子是多少？\end{block}
+\begin{exampleblock}{\SolutionID{34.01}}exp(-2)\ensuremath{\approx}0.1353；这只是裸 UV 因子，不是物理长程衰减。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{34.01-7832c588bb}；\CourseRef{Eq}{34.01}；\CourseRef{SYM}{34.01}；\CourseRef{Alg}{34.01}。
+\SourceLine{P20；P21；P25；PYQCD-TMD-RENORM}
+\end{frame}
+
+\begin{frame}[t]{辅助场方法：Wilson line 化为静态传播子：问题与图像}\FrameAnchor{34.02-1}
+\footnotesize
+\begin{block}{本节问题}能否把非局域线算符改写成局域复合算符的乘积来组织重整化？\end{block}
+\PhysicalFlow{引入沿路径传播的辅助色荷 Q}{Wilson line 等于 Q propagator}{端点变成局域 heavy-light currents}{34.02}
+\begin{block}{物理原则}\KnowledgeID{34.02}\quad staple/\allowbreak{}TMD 有多个方向、cusp 和表示，需为每段/\allowbreak{}转角定义辅助场与 mixing；等价重写不自动计算 soft factor。\end{block}
+\SourceLine{P24；P25；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{辅助场方法：Wilson line 化为静态传播子：定义与主公式}\FrameAnchor{34.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{34.02-a2095b2cd2} auxiliary field & 只沿指定方向传播、其传播子生成 Wilson line 的静态场\\
+\DefinitionID{34.02-5bb129c110} endpoint current & 原场与辅助场在路径端点组成的局域复合算符\\
+\DefinitionID{34.02-6e7db2028d} mass counterterm & 辅助静态场质量移位，对应 Wilson-line 线性发散\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{34.02} 主公式}\centering\CourseDisplayEquation{W(0,z)=\langle Q(z)\bar Q(0)\rangle_Q,\qquad \bar\psi(0)\Gamma W(0,z)\psi(z)=[\bar\psi\Gamma Q](0)[\bar Q\psi](z)}\end{block}
+在固定背景规范场中积分掉一维静态辅助场，其 Green 函数就是路径有序指数。
+\end{frame}
+
+\begin{frame}[t]{辅助场方法：Wilson line 化为静态传播子：推导与证据边界}\FrameAnchor{34.02-3}
+\footnotesize
+\DerivationID{34.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{34.02}：
+\begin{enumerate}
+\item 定义 Q 沿路径参数 s 的一阶协变作用量 Qbar(n·D+m)Q。
+\item 其 Green 函数满足 (n·D+m)G=\ensuremath{\delta}，解为 e\ensuremath{^{-m|z|}}Pexp[ig\ensuremath{\int}A·dx]。
+\item 把 Wilson line 替换为 G 并把端点原场与 Q 配对。
+\item 静态质量反项吸收线性发散，端点 currents 按局域复合算符重整化。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{34.02}\quad 辅助场方法：Wilson line 化为静态传播子；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：辅助静态传播子使用单一质量移位
+\end{block}
+\BoundaryLine{不验证路径有序、表示、cusp 或端点 current mixing。}
+\end{frame}
+
+\begin{frame}[t]{辅助场方法：Wilson line 化为静态传播子：计算算法}\FrameAnchor{34.02-4}
+\footnotesize
+\AlgorithmID{34.02}\begin{enumerate}
+\item 固定路径方向、表示、端点 gamma/\allowbreak{}Lorentz 与辅助场离散化。
+\item 在背景场或小格点上比较直接 path product 与 Q propagator。
+\item 构造端点 mixing matrix 并施加 RI/\allowbreak{}SMOM 或其他条件。
+\item 对直线、分段和 cusp 逐级验证，最后与直接非局域方案 continuum 对照。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 零规范场时 W=I，辅助传播子只剩质量指数。
+\item[\CheckMark] 反向路径应给 W(z,0)=W(0,z)†。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{direct Wilson path vs auxiliary propagator unit tests}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{辅助场方法：Wilson line 化为静态传播子：练习与完整解答}\FrameAnchor{34.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{34.02}}若辅助质量项 mQ 被平移 \ensuremath{\Delta}m，长度 z 的传播子多出什么因子？\end{block}
+\begin{exampleblock}{\SolutionID{34.02}}多出 exp(-\ensuremath{\Delta}m|z|)，正对应线性 counterterm 的方案变化。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{34.02-a2095b2cd2}；\CourseRef{Eq}{34.02}；\CourseRef{SYM}{34.02}；\CourseRef{Alg}{34.02}。
+\SourceLine{P24；P25；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{ratio 与自重整化：从同源数据消去 UV 因子：问题与图像}\FrameAnchor{34.03-1}
+\footnotesize
+\begin{block}{本节问题}不单独求巨大指数 Z，能否用比值让共同 UV 因子抵消？\end{block}
+\PhysicalFlow{选共享同一路径 UV 的分子分母}{形成矩阵元比值}{短距归一化/\allowbreak{}多 a 全局拟合}{34.03}
+\begin{block}{物理原则}\KnowledgeID{34.03}\quad 把 z0=0 或 P0=0 当分母可能改变 operator mixing、IR physics 或引入零点；必须证明共同因子而非凭名称。\end{block}
+\SourceLine{P20；P23；P29；P30；PYQCD-TMD-RENORM}
+\end{frame}
+
+\begin{frame}[t]{ratio 与自重整化：从同源数据消去 UV 因子：定义与主公式}\FrameAnchor{34.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{34.03-32644db312} ratio scheme & 用参考态、参考长度或零动量矩阵元作分母的重整化方案\\
+\DefinitionID{34.03-f215525ae5} self-renormalization & 利用多格距/\allowbreak{}多长度数据共同拟合 UV 发散与有限物理函数\\
+\DefinitionID{34.03-993d9c6278} reference dependence & 有限比值仍依参考点，需匹配到标准方案\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{34.03} 主公式}\centering\CourseDisplayEquation{R(z,P;z_0,P_0)=\frac{h_B(z,P,a)}{h_B(z_0,P_0,a)}\xrightarrow[Z(z)=Z(z_0)]{}\frac{h_R(z,P)}{h_R(z_0,P_0)}}\end{block}
+只有分子分母的 Wilson 几何和 UV 因子真正相同，Z 才精确抵消；不同长度通常还需显式线性项处理。
+\end{frame}
+
+\begin{frame}[t]{ratio 与自重整化：从同源数据消去 UV 因子：推导与证据边界}\FrameAnchor{34.03-3}
+\footnotesize
+\DerivationID{34.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{34.03}：
+\begin{enumerate}
+\item 写 hB(z,P,a)=Z(z,a)hR(z,P)+power corrections。
+\item 分子分母相除后得到 [Z(z,a)/\allowbreak{}Z(z0,a)]\ensuremath{\times}[hR/\allowbreak{}hR0]。
+\item 若几何保证 Z 相同则完全抵消；若长度不同，保留 exp[-\ensuremath{\delta}m(|z|-|z0|)/\allowbreak{}a]。
+\item 自重整化用多 a 数据同时约束该 UV 斜率、对数项和 continuum hR。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{34.03}\quad ratio 与自重整化：从同源数据消去 UV 因子；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：分子分母 UV 因子完全相同且分母非零
+\end{block}
+\BoundaryLine{不同长度/\allowbreak{}几何的 Z 比、IR 参考依赖和绝对匹配未验证。}
+\end{frame}
+
+\begin{frame}[t]{ratio 与自重整化：从同源数据消去 UV 因子：计算算法}\FrameAnchor{34.03-4}
+\footnotesize
+\AlgorithmID{34.03}\begin{enumerate}
+\item 为候选 ratio 逐项比对长度、方向、表示、flow time、cusp 和端点。
+\item 保留逐组态相关分子分母并在同一 resample 中求比。
+\item 做多 a、z、P 全局层级拟合分离 UV 与物理项。
+\item 以局域极限/\allowbreak{}OPE 或 perturbative conversion 锚定绝对归一化并比较替代参考点。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 分子=分母时 R=1，是实现退化检查。
+\item[\CheckMark] 换参考点后经正确 scheme conversion 的标准方案结果应一致。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{shared-resample ratios + multi-a self-renormalization fit}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{ratio 与自重整化：从同源数据消去 UV 因子：练习与完整解答}\FrameAnchor{34.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{34.03}}若 Z(z)=2、Z(z0)=2、hR=3、hR0=4，裸比值是多少？\end{block}
+\begin{exampleblock}{\SolutionID{34.03}}hB/\allowbreak{}hB0=(2\ensuremath{\times}3)/\allowbreak{}(2\ensuremath{\times}4)=3/\allowbreak{}4，Z 精确抵消。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{34.03-32644db312}；\CourseRef{Eq}{34.03}；\CourseRef{SYM}{34.03}；\CourseRef{Alg}{34.03}。
+\SourceLine{P20；P23；P29；P30；PYQCD-TMD-RENORM}
+\end{frame}
+
+\begin{frame}[t]{hybrid 方案、切换尺度与连续拼接：问题与图像}\FrameAnchor{34.04-1}
+\footnotesize
+\begin{block}{本节问题}短距离适合 ratio、长距离适合质量反项时，怎样无跳变地组合？\end{block}
+\PhysicalFlow{|z|\ensuremath{\le}zs 使用短距 ratio}{|z|>zs 使用线性反项延拓}{在 zs 连续匹配}{34.04}
+\begin{block}{物理原则}\KnowledgeID{34.04}\quad 具体指数符号依 Z 定义；zs 应同时满足短距因子化可用和长距信噪可控，需扫描而非固定成物理常数。\end{block}
+\SourceLine{P29；P30；PYQCD-TMD-RENORM；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{hybrid 方案、切换尺度与连续拼接：定义与主公式}\FrameAnchor{34.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{34.04-b168d953a3} hybrid renormalization & 在切换长度 zs 两侧采用不同但连续拼接的重整化定义\\
+\DefinitionID{34.04-193830f581} switching scale & 决定短距/\allowbreak{}长距处理分界的物理长度 zs\\
+\DefinitionID{34.04-d55a5c5a27} continuity factor & 保证 hR 在 zs 左右相等的有限归一化常数\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{34.04} 主公式}\centering\CourseDisplayEquation{h_R^{\rm hyb}(z)=\begin{cases}h_B(z)/Z_{\rm ratio}(z),&|z|\le z_s,\\ h_R(z_s)e^{\delta m(|z|-z_s)/a}\,h_B(z)/h_B(z_s),&|z|>z_s,\end{cases}}\end{block}
+长距支以 z\_s 的已重整化值作锚，并只补偿新增线长的 self-energy，因而在 z=z\_s 连续。
+\end{frame}
+
+\begin{frame}[t]{hybrid 方案、切换尺度与连续拼接：推导与证据边界}\FrameAnchor{34.04-3}
+\footnotesize
+\DerivationID{34.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{34.04}：
+\begin{enumerate}
+\item 短距支直接按选定 ratio/\allowbreak{}RI 条件定义 hR。
+\item 长距裸比 hB(z)/\allowbreak{}hB(zs) 含新增长度的 exp[-\ensuremath{\delta}m(|z|-zs)/\allowbreak{}a]。
+\item 乘逆指数并以 hR(zs) 归一即得长距支。
+\item 令 z=zs，指数和裸比都为 1，所以两支值连续。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{34.04}\quad hybrid 方案、切换尺度与连续拼接；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：在 z=zs 使用同一裸锚点
+\end{block}
+\BoundaryLine{指数符号、zs 窗口、导数平滑和 Fourier 系统学需方案扫描。}
+\end{frame}
+
+\begin{frame}[t]{hybrid 方案、切换尺度与连续拼接：计算算法}\FrameAnchor{34.04-4}
+\footnotesize
+\AlgorithmID{34.04}\begin{enumerate}
+\item 用物理单位选多个 zs 候选并保证所有 a 上可实现。
+\item 在 shared bootstrap 内估 \ensuremath{\delta}m、hR(zs) 和长距比。
+\item 检查值连续、离散导数可接受及 Fourier 伪振荡。
+\item 把 zs、\ensuremath{\delta}m、短距 scheme 与长距尾模型变化纳入系统平均。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] z=zs 两支必须严格一致。
+\item[\CheckMark] 若 \ensuremath{\delta}m=0 且同一 Z 适用，hybrid 应退化为普通 ratio 延拓。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{pyqcd.\allowbreak{}renorm.\allowbreak{}\_\allowbreak{}hybrid + continuity/\allowbreak{}derivative/\allowbreak{}Fourier tests}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{hybrid 方案、切换尺度与连续拼接：练习与完整解答}\FrameAnchor{34.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{34.04}}长距式在 z=zs 时等于什么？\end{block}
+\begin{exampleblock}{\SolutionID{34.04}}指数 exp(0)=1、裸比 hB(zs)/\allowbreak{}hB(zs)=1，所以精确等于 hR(zs)。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{34.04-b168d953a3}；\CourseRef{Eq}{34.04}；\CourseRef{SYM}{34.04}；\CourseRef{Alg}{34.04}。
+\SourceLine{P29；P30；PYQCD-TMD-RENORM；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{方案标记的 quasi-TMD、soft、CS kernel 与 flow 转换：问题与图像}\FrameAnchor{34.05-1}
+\footnotesize
+\begin{block}{本节问题}消去普通 UV 发散后，哪些组合才是闭合的 \ensuremath{f_1^{g[-,-]}}，哪些比值只能给 Collins--Soper 信息？\end{block}
+\PhysicalFlow{固定 f1 横向投影、past-pointing [-,-] 并写具体 factorization scheme}{区分显式 quasi-soft 除法与 Pz 比值中的 soft 抵消}{最后做 flow/\allowbreak{}UV/\allowbreak{}mixing 与标准方案匹配}{34.05}
+\begin{block}{物理原则}\KnowledgeID{34.05}\quad 若同一 scheme、bT、ell、\ensuremath{\tau}、算符和重整化下未知 soft 因子与 Pz 无关，它可在两个 Pz 的比值中抵消，从而提取一个经短距系数校正的 CS 有限差分；这不是‘已经单独测得物理 soft’，也不产生归一化的标准 TMD。有限 \ensuremath{\tau} 只软化部分 UV，绝不自动消除 rapidity divergence、Wilson-line self energy、soft subtraction 或 MSbar 转换。\end{block}
+\SourceLine{P26；P27；P31；P32；P41；P42；P43；P44；P45；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{方案标记的 quasi-TMD、soft、CS kernel 与 flow 转换：定义与主公式}\FrameAnchor{34.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{34.05-b2dca0f7e1} 目标 TMD & 自旋平均核子中的非极化胶子 \ensuremath{f_1^{g[-,-]}}；两条规范链均为 past-pointing，配置中固定 staple\_sign=-1\\
+\DefinitionID{34.05-b132f0e990} quasi-TMD scheme 与 soft & beam、专用 quasi-soft/\allowbreak{}rapidity regulator、flow/\allowbreak{}UV/\allowbreak{}mixing、零区重叠和 conversion 必须在同一已证明方案中闭合；路径相似不足以替代证明\\
+\DefinitionID{34.05-9520262806} Collins--Soper kernel & 由 \ensuremath{\partial\ln F/\partial\ln\sqrt{\zeta}=K(b_T,\mu)} 定义、控制 rapidity 尺度演化的核\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{34.05} 主公式}\centering\CourseDisplayEquation{\begin{gathered}\widetilde f_{1,\rm q}^{g[-,-],[\mathcal S]}=Z_{\rm UV/mix}^{[\mathcal S]}\,\dfrac{\mathcal P_{f_1}^{ij}\widetilde B_{ij}^{[-,-]}}{\sqrt{\widetilde S_{\mathcal S}}},\qquad f_1^{g[-,-]}=C_{\mathcal S\to\rm std}\otimes\widetilde f_{1,\rm q}^{g[-,-],[\mathcal S]}+\text{power corrections},\\ K(b_T,\mu)=\dfrac{\Delta_{P_z}[\ln B_R-\ln C]}{\Delta_{P_z}\ln P_z}+O(\Lambda_{\rm QCD}^2/P_z^2),\qquad \dfrac{\partial\ln f_1^{g[-,-]}}{\partial\ln\sqrt\zeta}=K\end{gathered}}\end{block}
+第一式只有在 S 指明且 factorization/\allowbreak{}matching 证明该 quasi-soft 正好消去相应 overlap/\allowbreak{}rapidity 结构时才定义 quasi-TMD；任意‘同几何’真空圈相除并不会自动变成标准 light-cone soft，已知的朴素 quasi-soft 构造可能留下错误的 bT/\allowbreak{}rapidity 结构。
+\end{frame}
+
+\begin{frame}[t]{方案标记的 quasi-TMD、soft、CS kernel 与 flow 转换：推导与证据边界}\FrameAnchor{34.05-3}
+\footnotesize
+\DerivationID{34.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{34.05}：
+\begin{enumerate}
+\item 一般 quasi beam 可示意分解为 BR(Pz)=S\_unknown(bT,ell,\ensuremath{\tau}) C(Pz,\ensuremath{\mu}) exp[K ln(Pz/\allowbreak{}P0)] Flong+幂修正；每个因子的含义必须由选定的 quasi-TMD 定理给出，而非由路径名称猜测。
+\item 若有该定理并显式计算其 S\_S，形成 BR/\allowbreak{}sqrt(S\_S) 后仍只是 scheme S 的 quasi-TMD；还需 C\ensuremath{_{S\rightarrow{}std}}、LaMET 幂修正和 \ensuremath{\mu}/\allowbreak{}\ensuremath{\zeta} 演化才到标准 TMD。
+\item 若不单算 S\_S，但它对 Pz 共同，取 lnBR(P1)-lnBR(P2) 会消去 lnS\_unknown 和 Flong；再减 matching 系数之差、除以 ln(P1/\allowbreak{}P2)，得到按当前 convention 定义的 K 加有限 Pz 修正。
+\item 两个 Pz 只给一个最小差分，无法检验 plateau 或 1/\allowbreak{}Pz\ensuremath{^{2}}；声称幂修正受控通常至少需要三个 Pz 或多个独立 Pz 对，并显示共同 K 的稳定性。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{34.05}\quad 方案标记的 quasi-TMD、soft、CS kernel 与 flow 转换；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：y=sqrt(zeta)>0；soft 数值只作代数代理
+\end{block}
+\BoundaryLine{不证明 soft 几何匹配、rapidity 因子化、flow conversion 或胶子 matching。}
+\end{frame}
+
+\begin{frame}[t]{方案标记的 quasi-TMD、soft、CS kernel 与 flow 转换：计算算法}\FrameAnchor{34.05-4}
+\footnotesize
+\AlgorithmID{34.05}\begin{enumerate}
+\item 为候选方案登记 beam、soft 路径/\allowbreak{}方向、rapidity regulator、zero-bin、表示、\ensuremath{\tau}、UV/\allowbreak{}mixing 与 conversion 文献公式，缺一项就不得标记 scheme-closed。
+\item 在同一 resample 内分别形成显式 soft-subtracted quasi-TMD 与同方案 Pz ratios，并把它们作为不同 estimand。
+\item 用至少两个 Pz 做最小 K 差分；若报告 plateau/\allowbreak{}幂修正控制，规划至少三个 Pz、多个 pair 和匹配阶扫描。
+\item 扫描 ell、\ensuremath{\tau}、a、L、Pz、\ensuremath{\mu}；固定物理 \ensuremath{\tau} 先做 continuum，再作 small-flow-time matching，最后才比较标准方案。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] soft=1 只能测试接口在单位输入下的退化，不能升级任何真实数据的证据状态。
+\item[\CheckMark] bT=0 或直线路径是 quasi-PDF/\allowbreak{}局域边界检查，不代表非零 bT 的 TMD soft 问题。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{pyqcd TMD geometry\ensuremath{\rightarrow}soft\ensuremath{\rightarrow}mixing\ensuremath{\rightarrow}CS\ensuremath{\rightarrow}matching validation gates}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{方案标记的 quasi-TMD、soft、CS kernel 与 flow 转换：练习与完整解答}\FrameAnchor{34.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{34.05}}没有单独测 soft，但已证明同方案未知 soft 与 Pz 无关；两个 Pz 的比值最多支持什么结论？\end{block}
+\begin{exampleblock}{\SolutionID{34.05}}可支持一个经 matching 校正的最小 CS-kernel 有限差分，并须保留有限 Pz 幂修正；不能声称已测得 soft、形成 scheme-closed quasi-TMD 或得到标准 TMD。要声称 plateau/\allowbreak{}幂修正受控通常还需至少第三个 Pz 或多个独立动量对。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{34.05-b2dca0f7e1}；\CourseRef{Eq}{34.05}；\CourseRef{SYM}{34.05}；\CourseRef{Alg}{34.05}。
+\SourceLine{P26；P27；P31；P32；P41；P42；P43；P44；P45；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{第 34 卷能力清单}\FrameAnchor{V34-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能分离线性/\allowbreak{}对数/\allowbreak{}rapidity 发散
+\item[\CheckMark] 能实现并比较 ratio、自重整化与 hybrid
+\item[\CheckMark] 能建立梯度流 TMD 到 MSbar/\allowbreak{}CS 方案的闭合转换链
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 34 卷来源（1/4）}\FrameAnchor{V34-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{PYQCD-TMD} & PyQCD TMD 主链技能 & 六阶段 TMD 物理链和端到端接口。\\
+\SourceID{PYQCD-TMD-RENORM} & PyQCD TMD 重整化规范 & soft、ZR、hybrid、CS 和匹配边界。\\
+\SourceID{P20} & 准部分子分布的可重正性 & 论文图谱 P20 的完整原始 PDF；底稿 arXiv:1707.03107；SHA-256 ec49d7b2ca691de6…。\\
+\SourceID{P29} & 准光前关联函数的自重正化 & 论文图谱 P29 的完整原始 PDF；底稿 arXiv:2103.02965；SHA-256 1474d215f0d5e7c0…。\\
+\SourceID{P31} & CT18全局分析 & 论文图谱 P31 的完整原始 PDF；底稿 arXiv:1912.10053；SHA-256 98d4b253c3c926d5…。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 34 卷来源（2/4）}\FrameAnchor{V34-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{P41} & 首个核子胶子部分子分布 & 论文图谱 P41 的完整原始 PDF；底稿 arXiv:2505.13321；SHA-256 09eff6064b5d9c67…。\\
+\SourceID{P21} & 威尔逊线重正化改进准分布 & 论文图谱 P21 的完整原始 PDF；底稿 arXiv:1609.08102；SHA-256 722b1a13447fe16b…。\\
+\SourceID{P25} & 准部分子算符乘法可重正性 & 论文图谱 P25 的完整原始 PDF；底稿 arXiv:1809.01836；SHA-256 90299e0614e9fbab…。\\
+\SourceID{P24} & 准PDF完整非微扰重正化方案 & 论文图谱 P24 的完整原始 PDF；底稿 arXiv:1706.00265；SHA-256 aa8daa6632b2cc37…。\\
+\SourceID{BOOK-QFT} & An Introduction to Quantum Field Theory（仓库转排本） & 量子场论、规范理论、QCD 和重整化的主教材交叉核验。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 34 卷来源（3/4）}\FrameAnchor{V34-sources-3}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{P23} & 非定域夸克双线性的非微扰重正化 & 论文图谱 P23 的完整原始 PDF；底稿 arXiv:1707.07152；SHA-256 71cc84a9fecb09fd…。\\
+\SourceID{P30} & 准光前关联的混合重正化方案 & 论文图谱 P30 的完整原始 PDF；底稿 arXiv:2008.03886；SHA-256 56f633040d3bcd07…。\\
+\SourceID{P26} & 大动量有效理论获取胶子分布 & 论文图谱 P26 的完整原始 PDF；底稿 arXiv:1808.10824；SHA-256 51ef82db68b39777…。\\
+\SourceID{P27} & 胶子伪分布的短距行为 & 论文图谱 P27 的完整原始 PDF；底稿 arXiv:1910.13963；SHA-256 616f7927c036d311…。\\
+\SourceID{P32} & NNPDF17高精度数据部分子分布 & 论文图谱 P32 的完整原始 PDF；底稿 arXiv:1706.00428；SHA-256 9d3daadd61fc48bc…。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 34 卷来源（4/4）}\FrameAnchor{V34-sources-4}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{P42} & \ensuremath{\pi}介子胶子部分子分布 & 论文图谱 P42 的完整原始 PDF；底稿 arXiv:2104.06372；SHA-256 9c567ec3e62b2009…。\\
+\SourceID{P43} & K介子胶子分布初探 & 论文图谱 P43 的完整原始 PDF；底稿 arXiv:2112.03124；SHA-256 e1aeac0db815750f…。\\
+\SourceID{P44} & 从准TMD波函数确定CS核 & 论文图谱 P44 的完整原始 PDF；底稿 arXiv:2204.00200；SHA-256 589d870d484889ae…。\\
+\SourceID{P45} & LaMET计算TMD软函数 & 论文图谱 P45 的完整原始 PDF；底稿 arXiv:2005.14572；SHA-256 22b1f2cbca968f30…。\\
+\bottomrule\end{tabularx}\end{frame}
+

@@ -1,0 +1,544 @@
+\documentclass[aspectratio=169,10pt]{ctexbeamer}
+\input{../course_style.tex}
+\title[格点 QCD 核心全集]{从零开始学习格点 QCD：梯度流核子胶子 TMD-PDF}
+\author[格点 QCD 核心课]{格点 QCD 核心课程讲义}
+\institute{从第一性原理到梯度流核子胶子 TMD-PDF}
+\date{2026 年 8 月}
+\begin{document}
+
+\begin{frame}[plain]\FrameAnchor{course-cover}
+\titlepage
+\vfill\centering\small 核心主线超过 1000 页；另附 50 篇中文论文逐页图谱。
+\end{frame}
+
+\begin{frame}[t]{编号、跳转与证据语言}\FrameAnchor{course-numbering}
+\small\begin{tabularx}{\linewidth}{p{0.22\linewidth}Y}
+\toprule 前缀 & 对象\\\midrule
+K / Def / Eq / Der / Thm & 知识点、定义、主公式、推导链、显式命名定理\\
+Fig / Tbl / Alg & 图、表、算法\\
+Ex / Sol / Src / SYM & 练习、解答、来源、SymPy 证据\\
+\bottomrule\end{tabularx}\vspace{0.2cm}
+\begin{tabularx}{\linewidth}{p{0.23\linewidth}Y}
+\toprule 状态 & 含义\\\midrule
+\StatusImplemented & 接口或函数存在；尚未证明数值和物理闭合\\
+\StatusTested & 单元、性质或合成测试通过\\
+\StatusClosed & 物理定义、几何、重整化、统计和极限方案闭合\\
+\StatusPhysical & 真实多构型、多尺度数据完成验证\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{全课程路线（1/5）}\FrameAnchor{course-map-1}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.07\linewidth}p{0.27\linewidth}Y}
+\toprule 卷 & 主题 & 能力出口\\\midrule
+01 & 数学语言、量纲与连续变化 & 把高中代数和微积分整理成以后可反复使用的物理语言。\\
+02 & 向量、矩阵、张量与对称性 & 掌握 QCD 中颜色、旋量、洛伦兹指标所依赖的线性代数。\\
+03 & 傅里叶分析、概率与数值误差 & 建立从格点数据到动量空间、统计误差和收敛判断的共同语言。\\
+04 & 时空、作用量与经典场 & 从粒子轨迹过渡到场，并建立相对论协变与变分原理。\\
+05 & 量子态、算符与测量 & 理解量子振幅、非对易算符、谱和统计解释，为场量子化作准备。\\
+06 & 从量子力学到量子场论 & 理解场的量子化、路径积分、Wick 收缩和欧氏谱表示。\\
+07 & QCD：颜色规范理论 & 从 SU(3) 局域对称性推出胶子、场强和 QCD 作用量的结构。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{全课程路线（2/5）}\FrameAnchor{course-map-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.07\linewidth}p{0.27\linewidth}Y}
+\toprule 卷 & 主题 & 能力出口\\\midrule
+08 & 欧氏格点与规范链接 & 把连续 QCD 放到有限四维超立方格点上，并保持精确格点规范对称。\\
+09 & 格点费米子、传播子与涂抹 & 理解费米子倍增、Wilson/\allowbreak{}Clover 离散化和大型稀疏线性求解。\\
+10 & Monte Carlo、HMC 与规范系综 & 理解欧氏路径积分如何转化为可抽样概率分布，并可靠地产生与诊断系综。\\
+11 & 核子插值算符与二、三点关联函数 & 从夸克传播子构造核子外态，并用谱分解隔离目标矩阵元。\\
+12 & 重采样、协方差与多态拟合 & 从相关 Monte Carlo 数据得到可复现的中心值、统计误差和拟合系统学。\\
+13 & 深度非弹性散射与部分子分布 & 从实验运动学、光锥关联函数和 OPE 理解 PDF 的定义、矩与演化。\\
+14 & LaMET、quasi 分布与 Collins--Soper 演化 & 理解欧氏等时矩阵元如何在大动量下因子化为光锥/\allowbreak{}TMD 物理。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{全课程路线（3/5）}\FrameAnchor{course-map-3}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.07\linewidth}p{0.27\linewidth}Y}
+\toprule 卷 & 主题 & 能力出口\\\midrule
+15 & 胶子 TMD 算符、投影与 staple 几何 & 以自旋平均非极化 \ensuremath{f_1^{g[-,-]}} 为主目标，构造具有非零横向分离、有限 past-pointing staple 和明确极化投影的规范不变胶子算符。\\
+16 & 梯度流与流时重整化方案 & 从扩散图像、Yang--Mills 流方程和小流时展开建立可控的流时窗口。\\
+17 & 核子中 flowed 胶子 TMD 的格点测量 & 把流后链接、非零 bT staple 算符与核子二点函数组合成真实断连三点测量。\\
+18 & soft、ZR、hybrid 重整化与匹配 & 把裸 flowed quasi-TMD 转换为具有明确 UV、rapidity 和大动量方案的可比较分布。\\
+19 & 连续、大动量、零流时与无限 staple 联合极限 & 用多系综、多动量、多流时、多长度数据控制所有非物理调节量并建立总误差预算。\\
+20 & 自主实现：从数据契约到可发布结果 & 完成一条可测试、可断点续跑、可审计的梯度流核子胶子 TMD-PDF 生产流水线。\\
+21 & 有限群、表示与格点对称性 & 系统掌握群作用、不可约表示、特征标和格点立方群投影。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{全课程路线（4/5）}\FrameAnchor{course-map-4}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.07\linewidth}p{0.27\linewidth}Y}
+\toprule 卷 & 主题 & 能力出口\\\midrule
+22 & 李群、李代数与 SU(3) 表示 & 从流形切空间、根权系统、Casimir 和 Haar 测度深入理解颜色对称性。\\
+23 & 粒子物理、标准模型与强子量子数 & 补齐从规范群、粒子谱、离散对称性到散射与因子化的粒子物理背景。\\
+24 & 量子场论深化：传播子、微扰论与 LSZ & 从场的正则量子化一直推到散射振幅、圈积分和重整化群。\\
+25 & 规范场论深化：规范固定、鬼场、BRST 与反常 & 区分规范冗余和物理自由度，掌握量子规范理论的一致性条件。\\
+26 & 非微扰场论：对称破缺、有效理论、拓扑与禁闭 & 建立微扰展开之外的真空、低能自由度和规范拓扑物理图像。\\
+27 & 格点谱学：从关联函数到强子能谱 & 掌握谱分解、有效质量、相关矩阵、GEVP、distillation 与连续自旋指认的完整分析链。\\
+28 & 多强子谱、Lüscher 方法与共振极点 & 从有限盒离散能级反推出无限体积散射振幅、耦合道和共振极点。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{全课程路线（5/5）}\FrameAnchor{course-map-5}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.07\linewidth}p{0.27\linewidth}Y}
+\toprule 卷 & 主题 & 能力出口\\\midrule
+29 & 格点有限体积系统学 & 系统区分指数型单粒子修正、两体幂律效应、扭曲边界与 QED 长程有限体积效应。\\
+30 & 有限温度格点 QCD 与热介质 & 从热配分函数、Polyakov loop、手征恢复、状态方程到实时间谱函数反演建立完整有限温度方法。\\
+31 & 格点费米子方案全景 & 比较 staggered、domain-wall、overlap、twisted-mass 与 mixed-action 的对称性、代价和连续极限。\\
+32 & 改进规范作用量、各向异性、拓扑与尺度设定 & 掌握从 Symanzik 改进到开放边界、拓扑自相关和多尺度一致性的生产系综设计。\\
+33 & 局域算符重整化方案与非微扰演化 & 贯通 MSbar、RI/\allowbreak{}MOM、RI/\allowbreak{}SMOM、Schrödinger functional、step scaling 与 gradient-flow coupling。\\
+34 & 非局域算符与 TMD 重整化方案 & 以自旋平均非极化胶子 \ensuremath{f_1^{g[-,-]}} 为主目标，处理 Wilson-line 线性发散、辅助场、自重整化、ratio/\allowbreak{}hybrid、算符混合、soft 与 rapidity 方案转换。\\
+35 & 研究级联合设计、可复现审计与最终资格考核 & 把 34 卷知识汇成可执行、可证伪、可复现的梯度流核子非极化胶子 \ensuremath{f_1^{g[-,-]}} 研究方案并通过资格考核。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{全局索引：第 1 卷}\FrameAnchor{course-index-01}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:01.01-1}{01.01} & 量、单位与量纲 & Eq 01.01 / SYM 01.01\\
+\hyperlink{Fr:01.02-1}{01.02} & 函数、指数与对数 & Eq 01.02 / SYM 01.02\\
+\hyperlink{Fr:01.03-1}{01.03} & 复数与相位 & Eq 01.03 / SYM 01.03\\
+\hyperlink{Fr:01.04-1}{01.04} & 导数：局部变化率 & Eq 01.04 / SYM 01.04\\
+\hyperlink{Fr:01.05-1}{01.05} & 积分：累积量与平均 & Eq 01.05 / SYM 01.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V01-title}{进入第 1 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 2 卷}\FrameAnchor{course-index-02}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:02.01-1}{02.01} & 向量、内积与正交 & Eq 02.01 / SYM 02.01\\
+\hyperlink{Fr:02.02-1}{02.02} & 矩阵、逆与线性方程 & Eq 02.02 / SYM 02.02\\
+\hyperlink{Fr:02.03-1}{02.03} & 本征值与谱分解 & Eq 02.03 / SYM 02.03\\
+\hyperlink{Fr:02.04-1}{02.04} & 指标、张量与缩并 & Eq 02.04 / SYM 02.04\\
+\hyperlink{Fr:02.05-1}{02.05} & 群、生成元与连续对称 & Eq 02.05 / SYM 02.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V02-title}{进入第 2 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 3 卷}\FrameAnchor{course-index-03}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:03.01-1}{03.01} & 离散傅里叶变换 & Eq 03.01 / SYM 03.01\\
+\hyperlink{Fr:03.02-1}{03.02} & 高斯积分与傅里叶宽度 & Eq 03.02 / SYM 03.02\\
+\hyperlink{Fr:03.03-1}{03.03} & 概率、期望与方差 & Eq 03.03 / SYM 03.03\\
+\hyperlink{Fr:03.04-1}{03.04} & Taylor 展开与差分误差 & Eq 03.04 / SYM 03.04\\
+\hyperlink{Fr:03.05-1}{03.05} & 数值积分、收敛与误差账本 & Eq 03.05 / SYM 03.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V03-title}{进入第 3 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 4 卷}\FrameAnchor{course-index-04}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:04.01-1}{04.01} & Lorentz 变换与不变量 & Eq 04.01 / SYM 04.01\\
+\hyperlink{Fr:04.02-1}{04.02} & 四动量与质壳 & Eq 04.02 / SYM 04.02\\
+\hyperlink{Fr:04.03-1}{04.03} & 作用量与 Euler--Lagrange 方程 & Eq 04.03 / SYM 04.03\\
+\hyperlink{Fr:04.04-1}{04.04} & Noether 思想与守恒量 & Eq 04.04 / SYM 04.04\\
+\hyperlink{Fr:04.05-1}{04.05} & 规范势与电磁场强 & Eq 04.05 / SYM 04.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V04-title}{进入第 4 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 5 卷}\FrameAnchor{course-index-05}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:05.01-1}{05.01} & 量子态与归一化 & Eq 05.01 / SYM 05.01\\
+\hyperlink{Fr:05.02-1}{05.02} & 算符与对易子 & Eq 05.02 / SYM 05.02\\
+\hyperlink{Fr:05.03-1}{05.03} & 本征态、两能级与时间演化 & Eq 05.03 / SYM 05.03\\
+\hyperlink{Fr:05.04-1}{05.04} & Born 规则与期望值 & Eq 05.04 / SYM 05.04\\
+\hyperlink{Fr:05.05-1}{05.05} & 不确定关系与高斯最小波包 & Eq 05.05 / SYM 05.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V05-title}{进入第 5 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 6 卷}\FrameAnchor{course-index-06}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:06.01-1}{06.01} & 自由标量场与 Klein--Gordon 方程 & Eq 06.01 / SYM 06.01\\
+\hyperlink{Fr:06.02-1}{06.02} & 场的正则量子化 & Eq 06.02 / SYM 06.02\\
+\hyperlink{Fr:06.03-1}{06.03} & 路径积分与生成泛函 & Eq 06.03 / SYM 06.03\\
+\hyperlink{Fr:06.04-1}{06.04} & Wick 定理与收缩 & Eq 06.04 / SYM 06.04\\
+\hyperlink{Fr:06.05-1}{06.05} & Wick 转动与欧氏谱表示 & Eq 06.05 / SYM 06.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V06-title}{进入第 6 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 7 卷}\FrameAnchor{course-index-07}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:07.01-1}{07.01} & 夸克、胶子与颜色 & Eq 07.01 / SYM 07.01\\
+\hyperlink{Fr:07.02-1}{07.02} & SU(3) 生成元与李代数 & Eq 07.02 / SYM 07.02\\
+\hyperlink{Fr:07.03-1}{07.03} & 局域规范协变与协变导数 & Eq 07.03 / SYM 07.03\\
+\hyperlink{Fr:07.04-1}{07.04} & 非阿贝尔场强与 QCD 作用量 & Eq 07.04 / SYM 07.04\\
+\hyperlink{Fr:07.05-1}{07.05} & 运行耦合、渐近自由与禁闭 & Eq 07.05 / SYM 07.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V07-title}{进入第 7 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 8 卷}\FrameAnchor{course-index-08}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:08.01-1}{08.01} & 有限周期格点与动量量子化 & Eq 08.01 / SYM 08.01\\
+\hyperlink{Fr:08.02-1}{08.02} & 链接变量与平行输运 & Eq 08.02 / SYM 08.02\\
+\hyperlink{Fr:08.03-1}{08.03} & Plaquette、场强与 Wilson 圈 & Eq 08.03 / SYM 08.03\\
+\hyperlink{Fr:08.04-1}{08.04} & Wilson 规范作用量与连续极限 & Eq 08.04 / SYM 08.04\\
+\hyperlink{Fr:08.05-1}{08.05} & 尺度、有限体积与 Symanzik 展开 & Eq 08.05 / SYM 08.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V08-title}{进入第 8 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 9 卷}\FrameAnchor{course-index-09}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:09.01-1}{09.01} & Dirac 旋量与 \ensuremath{\gamma} 矩阵 & Eq 09.01 / SYM 09.01\\
+\hyperlink{Fr:09.02-1}{09.02} & 朴素离散与费米子倍增 & Eq 09.02 / SYM 09.02\\
+\hyperlink{Fr:09.03-1}{09.03} & Wilson 与 Clover 改进 & Eq 09.03 / SYM 09.03\\
+\hyperlink{Fr:09.04-1}{09.04} & 传播子与迭代线性求解 & Eq 09.04 / SYM 09.04\\
+\hyperlink{Fr:09.05-1}{09.05} & 夸克场涂抹与高动量源 & Eq 09.05 / SYM 09.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V09-title}{进入第 9 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 10 卷}\FrameAnchor{course-index-10}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:10.01-1}{10.01} & 欧氏权重与重要性抽样 & Eq 10.01 / SYM 10.01\\
+\hyperlink{Fr:10.02-1}{10.02} & Metropolis--Hastings 与详细平衡 & Eq 10.02 / SYM 10.02\\
+\hyperlink{Fr:10.03-1}{10.03} & 热化、自相关与有效样本数 & Eq 10.03 / SYM 10.03\\
+\hyperlink{Fr:10.04-1}{10.04} & Hybrid Monte Carlo & Eq 10.04 / SYM 10.04\\
+\hyperlink{Fr:10.05-1}{10.05} & 系综元数据、尺度与质量门 & Eq 10.05 / SYM 10.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V10-title}{进入第 10 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 11 卷}\FrameAnchor{course-index-11}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:11.01-1}{11.01} & 质子插值算符与量子数 & Eq 11.01 / SYM 11.01\\
+\hyperlink{Fr:11.02-1}{11.02} & 核子二点函数与谱分解 & Eq 11.02 / SYM 11.02\\
+\hyperlink{Fr:11.03-1}{11.03} & 有效质量与相关拟合 & Eq 11.03 / SYM 11.03\\
+\hyperlink{Fr:11.04-1}{11.04} & 三点函数、比值与激发态 & Eq 11.04 / SYM 11.04\\
+\hyperlink{Fr:11.05-1}{11.05} & 断连图与真空扣除 & Eq 11.05 / SYM 11.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V11-title}{进入第 11 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 12 卷}\FrameAnchor{course-index-12}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:12.01-1}{12.01} & 样本均值、协方差与相关性 & Eq 12.01 / SYM 12.01\\
+\hyperlink{Fr:12.02-1}{12.02} & Jackknife 与非线性观测量 & Eq 12.02 / SYM 12.02\\
+\hyperlink{Fr:12.03-1}{12.03} & Bootstrap、分位数与非高斯分布 & Eq 12.03 / SYM 12.03\\
+\hyperlink{Fr:12.04-1}{12.04} & 相关 \ensuremath{\chi}\ensuremath{^{2}} 与协方差正则化 & Eq 12.04 / SYM 12.04\\
+\hyperlink{Fr:12.05-1}{12.05} & 多态联合拟合与模型系统学 & Eq 12.05 / SYM 12.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V12-title}{进入第 12 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 13 卷}\FrameAnchor{course-index-13}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:13.01-1}{13.01} & DIS 运动学与 Bjorken x & Eq 13.01 / SYM 13.01\\
+\hyperlink{Fr:13.02-1}{13.02} & 光锥 PDF 的算符定义 & Eq 13.02 / SYM 13.02\\
+\hyperlink{Fr:13.03-1}{13.03} & OPE、Mellin 矩与局域算符 & Eq 13.03 / SYM 13.03\\
+\hyperlink{Fr:13.04-1}{13.04} & DGLAP 演化与尺度依赖 & Eq 13.04 / SYM 13.04\\
+\hyperlink{Fr:13.05-1}{13.05} & 从 collinear PDF 到 TMD & Eq 13.05 / SYM 13.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V13-title}{进入第 13 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 14 卷}\FrameAnchor{course-index-14}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:14.01-1}{14.01} & 欧氏等时相关与 quasi-PDF & Eq 14.01 / SYM 14.01\\
+\hyperlink{Fr:14.02-1}{14.02} & LaMET 因子化与幂修正 & Eq 14.02 / SYM 14.02\\
+\hyperlink{Fr:14.03-1}{14.03} & 匹配卷积与胶子—夸克混合 & Eq 14.03 / SYM 14.03\\
+\hyperlink{Fr:14.04-1}{14.04} & 伪分布与 Ioffe-time 分布 & Eq 14.04 / SYM 14.04\\
+\hyperlink{Fr:14.05-1}{14.05} & Collins--Soper 核与多动量比值 & Eq 14.05 / SYM 14.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V14-title}{进入第 14 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 15 卷}\FrameAnchor{course-index-15}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:15.01-1}{15.01} & Clover 场强与梯度流后胶子场 & Eq 15.01 / SYM 15.01\\
+\hyperlink{Fr:15.02-1}{15.02} & 胶子双场强算符与规范不变性 & Eq 15.02 / SYM 15.02\\
+\hyperlink{Fr:15.03-1}{15.03} & 非零 bT 的有限 staple 路径 & Eq 15.03 / SYM 15.03\\
+\hyperlink{Fr:15.04-1}{15.04} & 非极化与极化张量投影 & Eq 15.04 / SYM 15.04\\
+\hyperlink{Fr:15.05-1}{15.05} & 算符基底、混合与接口契约 & Eq 15.05 / SYM 15.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V15-title}{进入第 15 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 16 卷}\FrameAnchor{course-index-16}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:16.01-1}{16.01} & 热方程、热核与平滑半径 & Eq 16.01 / SYM 16.01\\
+\hyperlink{Fr:16.02-1}{16.02} & Yang--Mills/\allowbreak{}Wilson 流方程 & Eq 16.02 / SYM 16.02\\
+\hyperlink{Fr:16.03-1}{16.03} & 流时窗口与尺度分离 & Eq 16.03 / SYM 16.03\\
+\hyperlink{Fr:16.04-1}{16.04} & 有限流时复合算符与重整化边界 & Eq 16.04 / SYM 16.04\\
+\hyperlink{Fr:16.05-1}{16.05} & 局域小流时展开与非局域路径边界 & Eq 16.05 / SYM 16.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V16-title}{进入第 16 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 17 卷}\FrameAnchor{course-index-17}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:17.01-1}{17.01} & 从原始链接到 flowed 场强 & Eq 17.01 / SYM 17.01\\
+\hyperlink{Fr:17.02-1}{17.02} & 批量生成 z、bT、\ensuremath{\ell} 与投影 & Eq 17.02 / SYM 17.02\\
+\hyperlink{Fr:17.03-1}{17.03} & boost 核子二点函数与动量涂抹 & Eq 17.03 / SYM 17.03\\
+\hyperlink{Fr:17.04-1}{17.04} & 构型级断连三点与真空扣除 & Eq 17.04 / SYM 17.04\\
+\hyperlink{Fr:17.05-1}{17.05} & 平台、summation 与两态联合分析 & Eq 17.05 / SYM 17.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V17-title}{进入第 17 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 18 卷}\FrameAnchor{course-index-18}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:18.01-1}{18.01} & Wilson 线自能、线性发散与流时 & Eq 18.01 / SYM 18.01\\
+\hyperlink{Fr:18.02-1}{18.02} & 方案化 quasi-soft、rapidity 扣除与标准 TMD 转换 & Eq 18.02 / SYM 18.02\\
+\hyperlink{Fr:18.03-1}{18.03} & ZR 比值重整化 & Eq 18.03 / SYM 18.03\\
+\hyperlink{Fr:18.04-1}{18.04} & 直线算符的 hybrid 重整化与 staple 推广边界 & Eq 18.04 / SYM 18.04\\
+\hyperlink{Fr:18.05-1}{18.05} & 从重整化坐标矩阵元到物理胶子 TMD & Eq 18.05 / SYM 18.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V18-title}{进入第 18 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 19 卷}\FrameAnchor{course-index-19}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:19.01-1}{19.01} & 连续极限 a\ensuremath{\rightarrow}0 & Eq 19.01 / SYM 19.01\\
+\hyperlink{Fr:19.02-1}{19.02} & 大动量极限 Pz\ensuremath{\rightarrow}\ensuremath{\infty} & Eq 19.02 / SYM 19.02\\
+\hyperlink{Fr:19.03-1}{19.03} & 零流时/\allowbreak{}方案转换：局域模型与 staple 停止门 & Eq 19.03 / SYM 19.03\\
+\hyperlink{Fr:19.04-1}{19.04} & 有限 staple 长度与边界极限 & Eq 19.04 / SYM 19.04\\
+\hyperlink{Fr:19.05-1}{19.05} & 联合拟合、可辨识性与总误差预算 & Eq 19.05 / SYM 19.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V19-title}{进入第 19 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 20 卷}\FrameAnchor{course-index-20}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:20.01-1}{20.01} & 物理对象到数组与元数据契约 & Eq 20.01 / SYM 20.01\\
+\hyperlink{Fr:20.02-1}{20.02} & 六阶段流水线与断点续跑 & Eq 20.02 / SYM 20.02\\
+\hyperlink{Fr:20.03-1}{20.03} & 分层测试：代数、几何、统计与物理闭合 & Eq 20.03 / SYM 20.03\\
+\hyperlink{Fr:20.04-1}{20.04} & 并行、I/\allowbreak{}O、性能与可复现运行 & Eq 20.04 / SYM 20.04\\
+\hyperlink{Fr:20.05-1}{20.05} & 结课项目：生产判据与发布审计 & Eq 20.05 / SYM 20.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V20-title}{进入第 20 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 21 卷}\FrameAnchor{course-index-21}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:21.01-1}{21.01} & 群作用、子群、陪集与 Lagrange 定理 & Eq 21.01 / SYM 21.01\\
+\hyperlink{Fr:21.02-1}{21.02} & 表示、不可约表示与 Schur 引理三情形 & Eq 21.02 / SYM 21.02\\
+\hyperlink{Fr:21.03-1}{21.03} & 特征标正交与表示分解 & Eq 21.03 / SYM 21.03\\
+\hyperlink{Fr:21.04-1}{21.04} & 立方旋转群 O、O\_h、宇称与自旋下沉 & Eq 21.04 / SYM 21.04\\
+\hyperlink{Fr:21.05-1}{21.05} & 有限群投影算符 & Eq 21.05 / SYM 21.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V21-title}{进入第 21 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 22 卷}\FrameAnchor{course-index-22}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:22.01-1}{22.01} & 微分几何桥梁：流形、切空间与指数映射 & Eq 22.01 / SYM 22.01\\
+\hyperlink{Fr:22.02-1}{22.02} & 厄米生成元、结构常数、Jacobi 恒等式与 BCH & Eq 22.02 / SYM 22.02\\
+\hyperlink{Fr:22.03-1}{22.03} & SU(2) 角动量表示与 Casimir & Eq 22.03 / SYM 22.03\\
+\hyperlink{Fr:22.04-1}{22.04} & SU(3) 根、权、Dynkin 标号、维数与 Casimir & Eq 22.04 / SYM 22.04\\
+\hyperlink{Fr:22.05-1}{22.05} & 测度桥梁、Haar 积分与矩阵元正交 & Eq 22.05 / SYM 22.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V22-title}{进入第 22 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 23 卷}\FrameAnchor{course-index-23}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:23.01-1}{23.01} & 一代标准模型场表、手征性与电荷 & Eq 23.01 / SYM 23.01\\
+\hyperlink{Fr:23.02-1}{23.02} & 夸克模型、flavor 多重态与强子分类 & Eq 23.02 / SYM 23.02\\
+\hyperlink{Fr:23.03-1}{23.03} & 角动量耦合、宇称、荷共轭与 JPC & Eq 23.03 / SYM 23.03\\
+\hyperlink{Fr:23.04-1}{23.04} & 两体相空间、散射截面与衰变宽度 & Eq 23.04 / SYM 23.04\\
+\hyperlink{Fr:23.05-1}{23.05} & 显式卷积、硬散射因子化与部分子模型 & Eq 23.05 / SYM 23.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V23-title}{进入第 23 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 24 卷}\FrameAnchor{course-index-24}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:24.01-1}{24.01} & 正则量子化、模展开与真空 & Eq 24.01 / SYM 24.01\\
+\hyperlink{Fr:24.02-1}{24.02} & 复分析与分布桥梁：传播子、留数和 i\ensuremath{\epsilon} & Eq 24.02 / SYM 24.02\\
+\hyperlink{Fr:24.03-1}{24.03} & 相互作用图、生成泛函与 Feynman 规则 & Eq 24.03 / SYM 24.03\\
+\hyperlink{Fr:24.04-1}{24.04} & 固定归一化的 Minkowski LSZ 与 Euclidean 边界 & Eq 24.04 / SYM 24.04\\
+\hyperlink{Fr:24.05-1}{24.05} & \ensuremath{\lambda}\ensuremath{\phi}\ensuremath{^{4}} 一圈：正则化、极点、反项与 beta & Eq 24.05 / SYM 24.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V24-title}{进入第 24 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 25 卷}\FrameAnchor{course-index-25}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:25.01-1}{25.01} & Hamilton 桥梁：相空间、约束与两个物理偏振 & Eq 25.01 / SYM 25.01\\
+\hyperlink{Fr:25.02-1}{25.02} & Grassmann 桥梁与 Faddeev--Popov 行列式 & Eq 25.02 / SYM 25.02\\
+\hyperlink{Fr:25.03-1}{25.03} & 完整 BRST、分次 Leibniz 与规范固定作用量 & Eq 25.03 / SYM 25.03\\
+\hyperlink{Fr:25.04-1}{25.04} & Z1、Z2、Ward 与 Slavnov--Taylor 恒等式 & Eq 25.04 / SYM 25.04\\
+\hyperlink{Fr:25.05-1}{25.05} & 轴反常统一约定与一代标准模型反常抵消 & Eq 25.05 / SYM 25.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V25-title}{进入第 25 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 26 卷}\FrameAnchor{course-index-26}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:26.01-1}{26.01} & 自发对称破缺与 Goldstone 定理 & Eq 26.01 / SYM 26.01\\
+\hyperlink{Fr:26.02-1}{26.02} & Higgs 机制与规范玻色子质量 & Eq 26.02 / SYM 26.02\\
+\hyperlink{Fr:26.03-1}{26.03} & 有效场论、OPE、matching 与系统幂计数 & Eq 26.03 / SYM 26.03\\
+\hyperlink{Fr:26.04-1}{26.04} & 拓扑桥梁：S\ensuremath{^{3}}\ensuremath{\infty}\ensuremath{\rightarrow}SU(N)、\ensuremath{\pi}3=Z 与 instanton & Eq 26.04 / SYM 26.04\\
+\hyperlink{Fr:26.05-1}{26.05} & Wilson 圈、Polyakov loop 中心对称与禁闭边界 & Eq 26.05 / SYM 26.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V26-title}{进入第 26 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 27 卷}\FrameAnchor{course-index-27}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:27.01-1}{27.01} & 转移矩阵与二点函数谱分解 & Eq 27.01 / SYM 27.01\\
+\hyperlink{Fr:27.02-1}{27.02} & 有效质量、周期边界与多态拟合 & Eq 27.02 / SYM 27.02\\
+\hyperlink{Fr:27.03-1}{27.03} & 相关矩阵与广义本征值问题 & Eq 27.03 / SYM 27.03\\
+\hyperlink{Fr:27.04-1}{27.04} & LapH distillation、perambulator 与算符因子化 & Eq 27.04 / SYM 27.04\\
+\hyperlink{Fr:27.05-1}{27.05} & 立方群下沉、算符重叠与连续自旋指认 & Eq 27.05 / SYM 27.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V27-title}{进入第 27 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 28 卷}\FrameAnchor{course-index-28}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:28.01-1}{28.01} & 两粒子运动学与非相互作用能级 & Eq 28.01 / SYM 28.01\\
+\hyperlink{Fr:28.02-1}{28.02} & 弹性 Lüscher 量化条件与相移 & Eq 28.02 / SYM 28.02\\
+\hyperlink{Fr:28.03-1}{28.03} & 有效程展开、散射长度与束缚态 & Eq 28.03 / SYM 28.03\\
+\hyperlink{Fr:28.04-1}{28.04} & moving frame、little group 与分波混合 & Eq 28.04 / SYM 28.04\\
+\hyperlink{Fr:28.05-1}{28.05} & 耦合道振幅、解析延拓与共振极点 & Eq 28.05 / SYM 28.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V28-title}{进入第 28 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 29 卷}\FrameAnchor{course-index-29}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:29.01-1}{29.01} & Poisson 求和与有限盒修正的来源 & Eq 29.01 / SYM 29.01\\
+\hyperlink{Fr:29.02-1}{29.02} & 质量隙、m\ensuremath{\pi}L 与单强子指数修正 & Eq 29.02 / SYM 29.02\\
+\hyperlink{Fr:29.03-1}{29.03} & 两粒子在壳传播与幂律体积效应 & Eq 29.03 / SYM 29.03\\
+\hyperlink{Fr:29.04-1}{29.04} & 扭曲边界条件与连续动量调谐 & Eq 29.04 / SYM 29.04\\
+\hyperlink{Fr:29.05-1}{29.05} & QED 有限体积、零模与方案依赖 & Eq 29.05 / SYM 29.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V29-title}{进入第 29 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 30 卷}\FrameAnchor{course-index-30}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:30.01-1}{30.01} & 热迹、Euclidean 时间圆与温度设定 & Eq 30.01 / SYM 30.01\\
+\hyperlink{Fr:30.02-1}{30.02} & Polyakov loop、中心对称与自由能 & Eq 30.02 / SYM 30.02\\
+\hyperlink{Fr:30.03-1}{30.03} & 手征凝聚、susceptibility 与 crossover & Eq 30.03 / SYM 30.03\\
+\hyperlink{Fr:30.04-1}{30.04} & 状态方程、trace anomaly 与积分法 & Eq 30.04 / SYM 30.04\\
+\hyperlink{Fr:30.05-1}{30.05} & 热谱函数、输运系数与病态反演 & Eq 30.05 / SYM 30.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V30-title}{进入第 30 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 31 卷}\FrameAnchor{course-index-31}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:31.01-1}{31.01} & staggered 费米子、taste 与 rooting & Eq 31.01 / SYM 31.01\\
+\hyperlink{Fr:31.02-1}{31.02} & domain-wall 费米子与剩余质量 & Eq 31.02 / SYM 31.02\\
+\hyperlink{Fr:31.03-1}{31.03} & overlap 算子与 Ginsparg--Wilson 关系 & Eq 31.03 / SYM 31.03\\
+\hyperlink{Fr:31.04-1}{31.04} & twisted-mass Wilson 与最大扭转自动改进 & Eq 31.04 / SYM 31.04\\
+\hyperlink{Fr:31.05-1}{31.05} & mixed-action、partial quenching 与统一连续极限 & Eq 31.05 / SYM 31.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V31-title}{进入第 31 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 32 卷}\FrameAnchor{course-index-32}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:32.01-1}{32.01} & Symanzik 改进规范作用量 & Eq 32.01 / SYM 32.01\\
+\hyperlink{Fr:32.02-1}{32.02} & 各向异性格点与色散调谐 & Eq 32.02 / SYM 32.02\\
+\hyperlink{Fr:32.03-1}{32.03} & 拓扑冻结、自相关与算法临界变慢 & Eq 32.03 / SYM 32.03\\
+\hyperlink{Fr:32.04-1}{32.04} & 开放时间边界与边界污染 & Eq 32.04 / SYM 32.04\\
+\hyperlink{Fr:32.05-1}{32.05} & 尺度设定：r0、t0、w0 与误差传播 & Eq 32.05 / SYM 32.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V32-title}{进入第 32 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 33 卷}\FrameAnchor{course-index-33}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:33.01-1}{33.01} & 重整化矩阵、算符混合与 MSbar & Eq 33.01 / SYM 33.01\\
+\hyperlink{Fr:33.02-1}{33.02} & RI/\allowbreak{}MOM：固定规范下的非微扰重整化 & Eq 33.02 / SYM 33.02\\
+\hyperlink{Fr:33.03-1}{33.03} & RI/\allowbreak{}SMOM：非例外动量与 Ward 恒等式 & Eq 33.03 / SYM 33.03\\
+\hyperlink{Fr:33.04-1}{33.04} & Schrödinger functional 与算符 step scaling & Eq 33.04 / SYM 33.04\\
+\hyperlink{Fr:33.05-1}{33.05} & gradient-flow coupling 与有限体积 beta function & Eq 33.05 / SYM 33.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V33-title}{进入第 33 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 34 卷}\FrameAnchor{course-index-34}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:34.01-1}{34.01} & Wilson-line 线性发散与乘法结构 & Eq 34.01 / SYM 34.01\\
+\hyperlink{Fr:34.02-1}{34.02} & 辅助场方法：Wilson line 化为静态传播子 & Eq 34.02 / SYM 34.02\\
+\hyperlink{Fr:34.03-1}{34.03} & ratio 与自重整化：从同源数据消去 UV 因子 & Eq 34.03 / SYM 34.03\\
+\hyperlink{Fr:34.04-1}{34.04} & hybrid 方案、切换尺度与连续拼接 & Eq 34.04 / SYM 34.04\\
+\hyperlink{Fr:34.05-1}{34.05} & 方案标记的 quasi-TMD、soft、CS kernel 与 flow 转换 & Eq 34.05 / SYM 34.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V34-title}{进入第 34 卷}
+\end{frame}
+
+\begin{frame}[t]{全局索引：第 35 卷}\FrameAnchor{course-index-35}
+\small\begin{tabularx}{\linewidth}{p{0.15\linewidth}Yp{0.27\linewidth}}
+\toprule 单元 & 主题 & 稳定对象 ID\\\midrule
+\hyperlink{Fr:35.01-1}{35.01} & 从 \ensuremath{f_1^{g[-,-]}} estimand 到四级证据状态、DAG 与停止门 & Eq 35.01 / SYM 35.01\\
+\hyperlink{Fr:35.02-1}{35.02} & flow window 与 a、\ensuremath{\tau}、L、Pz、ell 的分阶段层级极限 & Eq 35.02 / SYM 35.02\\
+\hyperlink{Fr:35.03-1}{35.03} & 有限 Ioffe-time 数据的 Fourier 逆问题 & Eq 35.03 / SYM 35.03\\
+\hyperlink{Fr:35.04-1}{35.04} & 可复现管线、数据谱系与审计 & Eq 35.04 / SYM 35.04\\
+\hyperlink{Fr:35.05-1}{35.05} & 最终资格考核：按四级证据独立实现 \ensuremath{f_1^{g[-,-]}} 链 & Eq 35.05 / SYM 35.05\\
+\bottomrule\end{tabularx}
+\vfill\hyperlink{Fr:V35-title}{进入第 35 卷}
+\end{frame}
+
+\input{fragments/V01.tex}
+\input{fragments/V02.tex}
+\input{fragments/V03.tex}
+\input{fragments/V04.tex}
+\input{fragments/V05.tex}
+\input{fragments/V06.tex}
+\input{fragments/V07.tex}
+\input{fragments/V08.tex}
+\input{fragments/V09.tex}
+\input{fragments/V10.tex}
+\input{fragments/V11.tex}
+\input{fragments/V12.tex}
+\input{fragments/V13.tex}
+\input{fragments/V14.tex}
+\input{fragments/V15.tex}
+\input{fragments/V16.tex}
+\input{fragments/V17.tex}
+\input{fragments/V18.tex}
+\input{fragments/V19.tex}
+\input{fragments/V20.tex}
+\input{fragments/V21.tex}
+\input{fragments/V22.tex}
+\input{fragments/V23.tex}
+\input{fragments/V24.tex}
+\input{fragments/V25.tex}
+\input{fragments/V26.tex}
+\input{fragments/V27.tex}
+\input{fragments/V28.tex}
+\input{fragments/V29.tex}
+\input{fragments/V30.tex}
+\input{fragments/V31.tex}
+\input{fragments/V32.tex}
+\input{fragments/V33.tex}
+\input{fragments/V34.tex}
+\input{fragments/V35.tex}
+\end{document}

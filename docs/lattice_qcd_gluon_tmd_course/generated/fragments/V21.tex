@@ -1,0 +1,361 @@
+\begin{frame}[plain]\FrameAnchor{V21-title}
+\centering
+{\Large\bfseries\color{courseblue}第 21 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 有限群、表示与格点对称性\par}
+\vspace{0.35cm}
+{\large 系统掌握群作用、不可约表示、特征标和格点立方群投影。\par}
+\vfill
+\CourseID{Tbl}{21.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 21 卷路线图}\FrameAnchor{V21-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+21.01 & 群作用、子群、陪集与 Lagrange 定理\\
+21.02 & 表示、不可约表示与 Schur 引理三情形\\
+21.03 & 特征标正交与表示分解\\
+21.04 & 立方旋转群 O、O\_h、宇称与自旋下沉\\
+21.05 & 有限群投影算符\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-GROUP；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V21-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V02
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能用特征标分解表示
+\item 能构造有限群投影算符
+\item 能把连续自旋下沉到格点不可约表示
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：循环群特征标}\FrameAnchor{V21-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0,xmax=7,ymin=-1.1,ymax=1.1,xlabel={群元指数 $n$},ylabel={$\Re\,e^{2\pi i n/8}$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0:7,samples=160] {cos(2*pi*x/8)};
+\addlegendentry{k=1}
+\addplot[very thick,courseorange,domain=0:7,samples=160] {cos(4*pi*x/8)};
+\addlegendentry{k=2}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{21.00}：C8 的两个一维不可约特征标实部；纵轴无量纲。
+\SourceLine{有限群表示论}
+\end{frame}
+
+\begin{frame}[t]{群作用、子群、陪集与 Lagrange 定理：问题与图像}\FrameAnchor{21.01-1}
+\footnotesize
+\begin{block}{本节问题}群怎样作用在没有乘法的普通集合上，子群大小又为何整除群大小？\end{block}
+\PhysicalFlow{先验证作用的两条公理}{左陪集 gH 不交或相同}{等大陪集铺满 G}{21.01}
+\begin{block}{物理原则}\KnowledgeID{21.01}\quad 群作用等价于同态 G\ensuremath{\rightarrow}Sym(X)，只要求变换的复合保持群乘法；只有 X 另有代数结构且作用取自自同构时才谈保持该结构。\end{block}
+\SourceLine{BOOK-GROUP}
+\end{frame}
+
+\begin{frame}[t]{群作用、子群、陪集与 Lagrange 定理：定义与主公式}\FrameAnchor{21.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{21.01-8fbb79b5ab} 群作用 & 映射 G\ensuremath{\times}X\ensuremath{\rightarrow}X，满足 e·x=x 与 (gh)·x=g·(h·x)，集合 X 本身无需乘法\\
+\DefinitionID{21.01-aad34280ff} 子群 & 含单位元并对群乘法和逆元封闭的子集\\
+\DefinitionID{21.01-92511063af} 左陪集 & 固定 g 后的集合 gH=\{gh:h\ensuremath{\in}H\}\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{21.01} 主公式}\centering\CourseDisplayEquation{e\cdot x=x,\quad(gh)\cdot x=g\cdot(h\cdot x);\qquad |G|=[G:H]\,|H|}\end{block}
+前两式定义群作用；后一式来自有限群被等大的左陪集分割。
+\end{frame}
+
+\begin{frame}[t]{群作用、子群、陪集与 Lagrange 定理：推导与证据边界}\FrameAnchor{21.01-3}
+\footnotesize
+\DerivationID{21.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{21.01}：
+\begin{enumerate}
+\item 单位元作用恒等，且先作用 h 再作用 g 等于 gh 一次作用，所以 g\ensuremath{\mapsto}(x\ensuremath{\mapsto}g·x) 保持复合。
+\item 映射 h\ensuremath{\mapsto}gh 是 H 到 gH 的双射，故每个陪集含 |H| 个元素。
+\item 两个左陪集若相交，则消去公共元素可证它们相同；所有 g 都在 gH 中，故这些陪集分割 G 并给出 Lagrange 计数。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{21.01}\quad 群作用、子群、陪集与 Lagrange 定理；4/4 项通过；SymPy exact。
+\par\scriptsize 假设：C3 以置换矩阵作用在三点集合上；S3/\allowbreak{}A3 用于 Lagrange 计数实例
+\end{block}
+\BoundaryLine{矩阵实例精确验证 e·x=x 与 (gh)·x=g·(h·x)；一般群作用、轨道稳定子和 Lagrange 定理由集合双射证明。}
+\end{frame}
+
+\begin{frame}[t]{群作用、子群、陪集与 Lagrange 定理：计算算法}\FrameAnchor{21.01-4}
+\footnotesize
+\AlgorithmID{21.01}\begin{enumerate}
+\item 给出作用表并逐项检查 e·x=x 与结合公理。
+\item 验证候选 H 含单位元、闭合且含逆元。
+\item 从未覆盖群元开始生成新陪集。
+\item 检查陪集互不相交、并集为 G 且元素总数守恒。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 平凡作用 g·x=x 总满足两条公理。
+\item[\CheckMark] H=\{e\} 时 [G:H]=|G|；H=G 时指数为 1。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{群作用、子群、陪集与 Lagrange 定理：练习与完整解答}\FrameAnchor{21.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{21.01}}S3 作用在集合 \{1,2,3\} 上时，写出作用公理；再求 A3 在 S3 中的指数。\end{block}
+\begin{exampleblock}{\SolutionID{21.01}}置换恒等元不改变元素，置换复合满足 (gh)·x=g·(h·x)，故是群作用；|S3|=6、|A3|=3，所以 [S3:A3]=2。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{21.01-8fbb79b5ab}；\CourseRef{Eq}{21.01}；\CourseRef{SYM}{21.01}；\CourseRef{Alg}{21.01}。
+\SourceLine{BOOK-GROUP}
+\end{frame}
+
+\begin{frame}[t]{表示、不可约表示与 Schur 引理三情形：问题与图像}\FrameAnchor{21.02-1}
+\footnotesize
+\begin{block}{本节问题}两个不可约表示之间的交织算符究竟何时为零、同构或标量？\end{block}
+\PhysicalFlow{群同态 D(g)}{寻找不变子空间}{分解为不可约块}{21.02}
+\begin{block}{物理原则}\KnowledgeID{21.02}\quad 证明依赖不可约性；简并能级、算符混合和选择定则都可由表示块理解。\end{block}
+\SourceLine{BOOK-GROUP；BOOK-LINALG}
+\end{frame}
+
+\begin{frame}[t]{表示、不可约表示与 Schur 引理三情形：定义与主公式}\FrameAnchor{21.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{21.02-fd711a3307} 表示 & 把群元映为可逆线性算符且保持乘法\\
+\DefinitionID{21.02-f843e8899a} 不可约表示 & 除零和全空间外没有共同不变子空间\\
+\DefinitionID{21.02-34f9d56204} 交织算符 & 满足 AD\_R(g)=D\_S(g)A 的线性映射\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{21.02} 主公式}\centering\CourseDisplayEquation{R\not\simeq S:\ \operatorname{Hom}_G(R,S)=\{0\};\qquad R\simeq S\ \text{via }U:\ \operatorname{Hom}_G(R,S)=\mathbb C\,U;\qquad \operatorname{End}_G(R)=\mathbb C\,I}\end{block}
+复数域上：不等价不可约表示之间只有零交织；等价副本之间是固定同构 U 的标量倍；同一表示的自交织才是 cI。
+\end{frame}
+
+\begin{frame}[t]{表示、不可约表示与 Schur 引理三情形：推导与证据边界}\FrameAnchor{21.02-3}
+\footnotesize
+\DerivationID{21.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{21.02}：
+\begin{enumerate}
+\item A 的核在 R 下不变、像在 S 下不变；不可约性迫使非零 A 的核为 0、像为全空间，因此 A 是同构并推出 R\ensuremath{\simeq}S。
+\item 若 R不等价S，非零 A 会造成矛盾，所以 HomG(R,S)=\{0\}。
+\item 若 U:R\ensuremath{\rightarrow}S 是一个固定等价同构，则 U\ensuremath{^{-1}}A 是 R 的自交织；在复数域取其本征值 \ensuremath{\lambda}，Schur 论证给 U\ensuremath{^{-1}}A=\ensuremath{\lambda}I，所以 A=\ensuremath{\lambda}U；令 S=R、U=I 得 cI。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{21.02}\quad 表示、不可约表示与 Schur 引理三情形；3/3 项通过；SymPy exact。
+\par\scriptsize 假设：复数域；C3 的两个非平凡一维不可约表示不等价；S=P R P\ensuremath{^{-1}} 给等价副本
+\end{block}
+\BoundaryLine{有限实例分别核对 Schur 引理的不等价、同一表示与等价副本三种情形；一般证明仍依不可约表示的核与像。}
+\end{frame}
+
+\begin{frame}[t]{表示、不可约表示与 Schur 引理三情形：计算算法}\FrameAnchor{21.02-4}
+\footnotesize
+\AlgorithmID{21.02}\begin{enumerate}
+\item 构造每个生成元的表示矩阵。
+\item 联立求解 AD\_R=D\_SA 的线性方程。
+\item 计算解空间维数以判断等价与重数。
+\item 用随机群元复核乘法关系和交织残差。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 一维不可约表示中自交织必为标量。
+\item[\CheckMark] 实数域上自交织代数还可能是实数、复数或四元数，不能照搬复数结论。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{表示、不可约表示与 Schur 引理三情形：练习与完整解答}\FrameAnchor{21.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{21.02}}若 S(g)=U R(g)U\ensuremath{^{-1}} 是 R 的等价副本，写出全部 R\ensuremath{\rightarrow}S 交织算符；若 R 与 S 不等价呢？\end{block}
+\begin{exampleblock}{\SolutionID{21.02}}等价时全部为 A=cU，因为 U\ensuremath{^{-1}}A=cI；不等价时只有 A=0。同一副本 U=I 才简化成 A=cI。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{21.02-fd711a3307}；\CourseRef{Eq}{21.02}；\CourseRef{SYM}{21.02}；\CourseRef{Alg}{21.02}。
+\SourceLine{BOOK-GROUP；BOOK-LINALG}
+\end{frame}
+
+\begin{frame}[t]{特征标正交与表示分解：问题与图像}\FrameAnchor{21.03-1}
+\footnotesize
+\begin{block}{本节问题}不逐个求基变换，怎样判断一个表示含哪些不可约成分？\end{block}
+\PhysicalFlow{矩阵迹给特征标 \ensuremath{\chi}}{按共轭类求内积}{内积给不可约重数}{21.03}
+\begin{block}{物理原则}\KnowledgeID{21.03}\quad 数值特征标表需连同共轭类大小计权；漏掉类大小会得到非整数假重数。\end{block}
+\SourceLine{BOOK-GROUP}
+\end{frame}
+
+\begin{frame}[t]{特征标正交与表示分解：定义与主公式}\FrameAnchor{21.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{21.03-68be0dc41d} 特征标 & 表示矩阵的迹，只依赖共轭类\\
+\DefinitionID{21.03-33b6cdfa35} 类函数 & 在每个共轭类上取相同值的函数\\
+\DefinitionID{21.03-901c887253} 重数 & 某不可约表示在直和分解中出现的次数\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{21.03} 主公式}\centering\CourseDisplayEquation{n_\alpha=\frac1{|G|}\sum_{g\in G}\chi_\alpha(g)^*\chi_D(g)}\end{block}
+不可约特征标构成类函数空间的正交基，内积直接给非负整数重数。
+\end{frame}
+
+\begin{frame}[t]{特征标正交与表示分解：推导与证据边界}\FrameAnchor{21.03-3}
+\footnotesize
+\DerivationID{21.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{21.03}：
+\begin{enumerate}
+\item 矩阵元正交关系对同一不可约表示给 \ensuremath{\delta} 指标。
+\item 对角缩并得到特征标正交 \ensuremath{\langle}\ensuremath{\chi}\ensuremath{\alpha},\ensuremath{\chi}\ensuremath{\beta}\ensuremath{\rangle}=\ensuremath{\delta}\ensuremath{\alpha}\ensuremath{\beta}。
+\item 把 \ensuremath{\chi}D=\ensuremath{\Sigma}\ensuremath{\alpha}n\ensuremath{\alpha}\ensuremath{\chi}\ensuremath{\alpha} 代入内积，正交性立即选出 n\ensuremath{\alpha}。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{21.03}\quad 特征标正交与表示分解；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：C3 三维正规型特征标取 (3,0,0)
+\end{block}
+\BoundaryLine{验证 C3 精确实例；一般群需完整共轭类和特征标表。}
+\end{frame}
+
+\begin{frame}[t]{特征标正交与表示分解：计算算法}\FrameAnchor{21.03-4}
+\footnotesize
+\AlgorithmID{21.03}\begin{enumerate}
+\item 列出群的共轭类、类大小和不可约特征标表。
+\item 由生成元矩阵计算目标表示在每类的迹。
+\item 做带类大小的复内积并检查结果接近非负整数。
+\item 核对维数和规则 dimD=\ensuremath{\Sigma}n\ensuremath{\alpha}dim\ensuremath{\alpha}。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 正规表示中每个不可约表示出现 dim\ensuremath{\alpha} 次。
+\item[\CheckMark] 所有重数必须为非负整数。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{特征标正交与表示分解：练习与完整解答}\FrameAnchor{21.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{21.03}}C3 表示的特征标 \ensuremath{\chi}=(3,0,0)，三个一维不可约表示各出现几次？\end{block}
+\begin{exampleblock}{\SolutionID{21.03}}与每个单位模特征标内积均为 3/\allowbreak{}3=1，故三个不可约表示各一次。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{21.03-68be0dc41d}；\CourseRef{Eq}{21.03}；\CourseRef{SYM}{21.03}；\CourseRef{Alg}{21.03}。
+\SourceLine{BOOK-GROUP}
+\end{frame}
+
+\begin{frame}[t]{立方旋转群 O、O\_h、宇称与自旋下沉：问题与图像}\FrameAnchor{21.04-1}
+\footnotesize
+\begin{block}{本节问题}只含正旋转的 O 与再含空间反演的 O\_h 应怎样区分？\end{block}
+\PhysicalFlow{SO(3) 自旋 J 先限制到 O}{按特征标分成 A、E、T}{再以宇称 P 附加 g/\allowbreak{}u 标签}{21.04}
+\begin{block}{物理原则}\KnowledgeID{21.04}\quad 把 O 与 O\_h 混写会漏掉宇称并错误比较特征标；单一格点 irrep 仍可含多个 J，最终自旋指认还需后续谱学中的跨 irrep 重叠证据。\end{block}
+\SourceLine{BOOK-LQCD；PYQCD-CORRELATOR}
+\end{frame}
+
+\begin{frame}[t]{立方旋转群 O、O\_h、宇称与自旋下沉：定义与主公式}\FrameAnchor{21.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{21.04-2ff28c14ce} 立方旋转群 O & 保持立方体且保持取向的 24 个正旋转\\
+\DefinitionID{21.04-e120b24fb1} 全八面体群 O\_h & O 再乘反演群 C\_i，整数自旋态还需宇称 g/\allowbreak{}u\\
+\DefinitionID{21.04-5fc42527b3} 下沉 & 把连续群表示限制到离散子群并按其不可约表示分解\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{21.04} 主公式}\centering\CourseDisplayEquation{D^{(J)}\!\downarrow_O=\bigoplus_{\Lambda=A_1,A_2,E,T_1,T_2}n_\Lambda^{(J)}\Lambda,\qquad O_h=O\times C_i,\quad I|J,P\rangle=P|J,P\rangle}\end{block}
+SO(3) 只含正旋转，故先下沉到 O；加入反演后，P=+ 对应 g、P=- 对应 u。半整数自旋则使用相应双群 O\ensuremath{^{D}} 或 O\_h\ensuremath{^{D}}。
+\end{frame}
+
+\begin{frame}[t]{立方旋转群 O、O\_h、宇称与自旋下沉：推导与证据边界}\FrameAnchor{21.04-3}
+\footnotesize
+\DerivationID{21.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{21.04}：
+\begin{enumerate}
+\item 正旋转角 \ensuremath{\theta} 上 \ensuremath{\chi}J(\ensuremath{\theta})=sin[(J+1/\allowbreak{}2)\ensuremath{\theta}]/\allowbreak{}sin(\ensuremath{\theta}/\allowbreak{}2)，恒等类用极限 \ensuremath{\chi}J(0)=2J+1。
+\item 把 O 的五个共轭类大小与 \ensuremath{\chi}\ensuremath{\alpha} 相乘做有限群内积，得到非负整数 n\ensuremath{\Lambda}并核对 \ensuremath{\Sigma}n\ensuremath{\Lambda}dim\ensuremath{\Lambda}=2J+1。
+\item 反演不属于 SO(3)；由态的独立宇称 P 把 \ensuremath{\Lambda} 标为 \ensuremath{\Lambda}g 或 \ensuremath{\Lambda}u，例如 J=2 先给 E\ensuremath{\oplus}T2，再附加共同宇称。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{21.04}\quad 立方旋转群 O、O\_h、宇称与自旋下沉；4/4 项通过；SymPy exact。
+\par\scriptsize 假设：proper octahedral group O 的类序取 E,8C3,3C2,6C4,6C2'；O\_h=O\ensuremath{\times}C\_i 时另附 g/\allowbreak{}u 宇称标签
+\end{block}
+\BoundaryLine{精确完成 J=2↓O=E\ensuremath{\oplus}T2 的特征标内积；实际格点自旋指认仍需宇称、能级简并、连续外推与重叠。}
+\end{frame}
+
+\begin{frame}[t]{立方旋转群 O、O\_h、宇称与自旋下沉：计算算法}\FrameAnchor{21.04-4}
+\footnotesize
+\AlgorithmID{21.04}\begin{enumerate}
+\item 静止态使用 O\_h，非零动量先求保持该动量的 little group。
+\item 按完整群元素和表示矩阵生成 irrep/\allowbreak{}行投影。
+\item 先验证投影幂等、维数和宇称，再把投影算符交给 V27 的相关矩阵/\allowbreak{}GEVP。
+\item 跨格距比较 E 与 T2 等通道的近简并和重叠后再报告连续 J。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] J=0 下沉为 A1；加 P=+/\allowbreak{}- 后分别为 A1g/\allowbreak{}A1u。
+\item[\CheckMark] J=2 的 5 维必须满足 dimE+dimT2=2+3=5。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{立方旋转群 O、O\_h、宇称与自旋下沉：练习与完整解答}\FrameAnchor{21.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{21.04}}静止的 J\ensuremath{^{P}}=2\ensuremath{^{+}} 与 2\ensuremath{^{-}} 分别下沉到哪些 O\_h irrep？\end{block}
+\begin{exampleblock}{\SolutionID{21.04}}J=2 在 O 下为 E\ensuremath{\oplus}T2；正宇称附加 g 得 Eg\ensuremath{\oplus}T2g，负宇称附加 u 得 Eu\ensuremath{\oplus}T2u，两者维数均为 5。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{21.04-2ff28c14ce}；\CourseRef{Eq}{21.04}；\CourseRef{SYM}{21.04}；\CourseRef{Alg}{21.04}。
+\SourceLine{BOOK-LQCD；PYQCD-CORRELATOR}
+\end{frame}
+
+\begin{frame}[t]{有限群投影算符：问题与图像}\FrameAnchor{21.05-1}
+\footnotesize
+\begin{block}{本节问题}怎样从任意算符池中机械选出指定格点量子数？\end{block}
+\PhysicalFlow{群作用 U(g)O}{以特征标加权求和}{得到 irrep \ensuremath{\alpha} 子空间}{21.05}
+\begin{block}{物理原则}\KnowledgeID{21.05}\quad 只用特征标投影得到整个等型分量；若要固定 irrep 行，需用完整表示矩阵元。\end{block}
+\SourceLine{BOOK-GROUP；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{有限群投影算符：定义与主公式}\FrameAnchor{21.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{21.05-4a94e19f09} 群平均 & 对所有群元等权求和\\
+\DefinitionID{21.05-4f7d695911} 中心幂等元 & 群代数中投影到不可约等型分量的元素\\
+\DefinitionID{21.05-82b9c7e12a} 行投影 & 进一步选定不可约表示矩阵行的投影\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{21.05} 主公式}\centering\CourseDisplayEquation{P_\alpha=\frac{d_\alpha}{|G|}\sum_{g\in G}\chi_\alpha(g)^*U(g),\qquad P_\alpha^2=P_\alpha}\end{block}
+特征标正交使 P\ensuremath{\alpha} 在 \ensuremath{\alpha} 等型分量上为 1，在其他不可约分量上为 0。
+\end{frame}
+
+\begin{frame}[t]{有限群投影算符：推导与证据边界}\FrameAnchor{21.05-3}
+\footnotesize
+\DerivationID{21.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{21.05}：
+\begin{enumerate}
+\item 在表示直和基中，U(g) 按不可约块分解。
+\item 把加权和限制到 \ensuremath{\beta} 块，矩阵元正交给 \ensuremath{\delta}\ensuremath{\alpha}\ensuremath{\beta} I。
+\item 因此 P\ensuremath{\alpha} 的本征值仅为 0 或 1，立即有 P\ensuremath{\alpha}\ensuremath{^{2}}=P\ensuremath{\alpha} 且不同 \ensuremath{\alpha} 正交。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{21.05}\quad 有限群投影算符；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：C2 奇表示投影 P=(I-U)/\allowbreak{}2；U\ensuremath{^{2}}=I
+\end{block}
+\BoundaryLine{验证 C2 投影实例；一般公式依矩阵元/\allowbreak{}特征标正交。}
+\end{frame}
+
+\begin{frame}[t]{有限群投影算符：计算算法}\FrameAnchor{21.05-4}
+\footnotesize
+\AlgorithmID{21.05}\begin{enumerate}
+\item 生成群全部元素及其对算符的空间/\allowbreak{}自旋作用。
+\item 按共轭类或逐元素累加特征标权重。
+\item 检查 P\ensuremath{^{2}}-P、P†-P 和不同投影乘积。
+\item 把投影算符用于相关矩阵并验证不同 irrep 交叉关联为零。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 平凡表示投影就是普通群平均。
+\item[\CheckMark] 所有不可约投影之和应在完整表示空间上等于 I。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{课程内纸笔/\allowbreak{}符号计算练习}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{有限群投影算符：练习与完整解答}\FrameAnchor{21.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{21.05}}C2=\{e,r\} 的奇表示 \ensuremath{\chi}=(1,-1)，写出投影。\end{block}
+\begin{exampleblock}{\SolutionID{21.05}}P\_-=(I-U(r))/\allowbreak{}2；若 U(r)\ensuremath{^{2}}=I，则直接算得 P\_-\ensuremath{^{2}}=P\_-。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{21.05-4a94e19f09}；\CourseRef{Eq}{21.05}；\CourseRef{SYM}{21.05}；\CourseRef{Alg}{21.05}。
+\SourceLine{BOOK-GROUP；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{第 21 卷能力清单}\FrameAnchor{V21-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能用特征标分解表示
+\item[\CheckMark] 能构造有限群投影算符
+\item[\CheckMark] 能把连续自旋下沉到格点不可约表示
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 21 卷来源（1/1）}\FrameAnchor{V21-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-GROUP} & 连续群与生成元预备课（课程自编） & 从旋转群过渡到 SU(2)/\allowbreak{}SU(3)。\\
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\SourceID{BOOK-LINALG} & 线性代数预备课（课程自编） & 向量、谱分解、张量指标和矩阵数值检查。\\
+\SourceID{PYQCD-CORRELATOR} & PyQCD 关联函数技能 & 强子二点/\allowbreak{}三点与谱学检查。\\
+\bottomrule\end{tabularx}\end{frame}
+

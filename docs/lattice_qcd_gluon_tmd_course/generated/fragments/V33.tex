@@ -1,0 +1,385 @@
+\begin{frame}[plain]\FrameAnchor{V33-title}
+\centering
+{\Large\bfseries\color{courseblue}第 33 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 局域算符重整化方案与非微扰演化\par}
+\vspace{0.35cm}
+{\large 贯通 MSbar、RI/\allowbreak{}MOM、RI/\allowbreak{}SMOM、Schrödinger functional、step scaling 与 gradient-flow coupling。\par}
+\vfill
+\CourseID{Tbl}{33.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 33 卷路线图}\FrameAnchor{V33-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+33.01 & 重整化矩阵、算符混合与 MSbar\\
+33.02 & RI/\allowbreak{}MOM：固定规范下的非微扰重整化\\
+33.03 & RI/\allowbreak{}SMOM：非例外动量与 Ward 恒等式\\
+33.04 & Schrödinger functional 与算符 step scaling\\
+33.05 & gradient-flow coupling 与有限体积 beta function\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-QFT；BOOK-LQCD；P20；P22；P24；PYQCD-GAUGE}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V33-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V18
+\item V24
+\item V25
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能建立局域算符混合矩阵
+\item 能实施 RI/\allowbreak{}SMOM 到 MSbar 的非微扰重整化
+\item 能用有限体积 step scaling 跨越强耦合到微扰尺度
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：一步 step-scaling 的迭代}\FrameAnchor{V33-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0,xmax=6,ymin=0,ymax=70,xlabel={步数 $n$},ylabel={$\mu_n/\mu_0$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0:6,samples=160] {2^x};
+\addlegendentry{尺度因子 s=2}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{33.00}：每一步把线性尺度缩半、重整化尺度加倍；误差与连续外推需逐步传播。
+\SourceLine{finite-volume step scaling}
+\end{frame}
+
+\begin{frame}[t]{重整化矩阵、算符混合与 MSbar：问题与图像}\FrameAnchor{33.01-1}
+\footnotesize
+\begin{block}{本节问题}裸格点算符怎样变成可跨计算比较的连续方案算符？\end{block}
+\PhysicalFlow{枚举同量子数裸算符基}{求 Z 矩阵消去 UV/\allowbreak{}混合}{转换到 \ensuremath{\mu} 下的 MSbar}{33.01}
+\begin{block}{物理原则}\KnowledgeID{33.01}\quad 低维算符的 power-divergent mixing 不能仅靠有限阶微扰可靠消除；EOM、BRST 与 total derivative 基底也需按外态纳入。\end{block}
+\SourceLine{BOOK-QFT；DOC-OPE；P20；P21}
+\end{frame}
+
+\begin{frame}[t]{重整化矩阵、算符混合与 MSbar：定义与主公式}\FrameAnchor{33.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{33.01-968d1ba9b5} 重整化常数 & 连接 bare 与给定 scheme/\allowbreak{}scale 算符的矩阵 Z\\
+\DefinitionID{33.01-bba54c2490} 算符混合 & 正则化允许同量子数算符在重整化下线性组合\\
+\DefinitionID{33.01-a41e2ff1cc} MSbar & 维数正则化中减去极点及约定常数的质量无关方案\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{33.01} 主公式}\centering\CourseDisplayEquation{O_i^{\overline{\rm MS}}(\mu)=C_{ij}^{\overline{\rm MS}\leftarrow S}(\mu,p)\,Z_{jk}^{S}(p,a)\,O_k^{\rm bare}(a)}\end{block}
+非微扰格点 Z 先进入可实现方案 S，再以连续微扰 conversion C 转到 MSbar；矩阵次序由基底约定固定。
+\end{frame}
+
+\begin{frame}[t]{重整化矩阵、算符混合与 MSbar：推导与证据边界}\FrameAnchor{33.01-3}
+\footnotesize
+\DerivationID{33.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{33.01}：
+\begin{enumerate}
+\item 列出正则化下所有同维或更低维、相同严格量子数的算符基。
+\item 定义方案 S 的投影 Green 函数条件并解 Z，使重整化顶角等于树级。
+\item 在连续理论计算同一 S 与 MSbar 的有限差，得到 C。
+\item 裸矩阵元左乘 Z/\allowbreak{}C 后，\ensuremath{\mu} 依赖由 anomalous dimension 控制。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{33.01}\quad 重整化矩阵、算符混合与 MSbar；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：二维对角 mixing/\allowbreak{}conversion 数值代理
+\end{block}
+\BoundaryLine{实际算符基、power mixing 和 perturbative truncation 未验证。}
+\end{frame}
+
+\begin{frame}[t]{重整化矩阵、算符混合与 MSbar：计算算法}\FrameAnchor{33.01-4}
+\footnotesize
+\AlgorithmID{33.01}\begin{enumerate}
+\item 固定 gamma、导数方向、flavor、迹减除和算符基顺序。
+\item 在多外动量求完整 amputated vertex 与 mixing matrix。
+\item 解 Z 并检查 tree/\allowbreak{}free limit、Ward identities 和矩阵条件数。
+\item 转换 MSbar 后扫描 p\ensuremath{^{2}}、a\ensuremath{^{2}}p\ensuremath{^{2}}、loop order 与基底扩展。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] g\ensuremath{\rightarrow}0、a\ensuremath{\rightarrow}0 时 Z与C 应趋单位矩阵。
+\item[\CheckMark] 在基底变换 O'=RO 下，Z 应协变变换并给相同物理矩阵元。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{operator basis registry + matrix-valued renormalization}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{重整化矩阵、算符混合与 MSbar：练习与完整解答}\FrameAnchor{33.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{33.01}}若 Z=diag(2,3)、C=diag(1.1,0.9)、Obare=(1,2)\ensuremath{^{T}}，求 OMS。\end{block}
+\begin{exampleblock}{\SolutionID{33.01}}先 ZO=(2,6)\ensuremath{^{T}}，再乘 C 得 (2.2,5.4)\ensuremath{^{T}}。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{33.01-968d1ba9b5}；\CourseRef{Eq}{33.01}；\CourseRef{SYM}{33.01}；\CourseRef{Alg}{33.01}。
+\SourceLine{BOOK-QFT；DOC-OPE；P20；P21}
+\end{frame}
+
+\begin{frame}[t]{RI/\allowbreak{}MOM：固定规范下的非微扰重整化：问题与图像}\FrameAnchor{33.02-1}
+\footnotesize
+\begin{block}{本节问题}怎样直接在格点外夸克态上定义可计算的 Z？\end{block}
+\PhysicalFlow{Landau 规范与 off-shell 夸克}{截肢顶角并树级投影}{p\ensuremath{^{2}}=\ensuremath{\mu}\ensuremath{^{2}} 处施加 MOM 条件}{33.02}
+\begin{block}{物理原则}\KnowledgeID{33.02}\quad exceptional kinematics 的软子图易受手征破缺和 Goldstone pole 污染；规范固定、Gribov 与超立方伪影要记录。\end{block}
+\SourceLine{BOOK-QFT；P20；P22；PYQCD-PROPAGATOR}
+\end{frame}
+
+\begin{frame}[t]{RI/\allowbreak{}MOM：固定规范下的非微扰重整化：定义与主公式}\FrameAnchor{33.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{33.02-f50302317d} RI/\allowbreak{}MOM & 在固定规范、exceptional Euclidean 动量上定义的 regularization-independent MOM 方案\\
+\DefinitionID{33.02-c0820f7ccd} amputation & 用逆传播子去掉 Green 函数外腿\\
+\DefinitionID{33.02-0aace72ff9} window problem & 需要 \ensuremath{\Lambda}QCD\ensuremath{^{2}}\ensuremath{\ll}p\ensuremath{^{2}}\ensuremath{\ll}\ensuremath{\pi}\ensuremath{^{2}}/\allowbreak{}a\ensuremath{^{2}} 同时成立的尺度窗口\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{33.02} 主公式}\centering\CourseDisplayEquation{Z_q^{-1}Z_O\,\mathcal P_O[\Lambda_O(p)]\big|_{p^2=\mu^2}=1,\qquad \Lambda_O=S^{-1}(p)G_O(p)S^{-1}(p)}\end{block}
+投影器选出树级 Dirac/\allowbreak{}color 结构；乘场重整化后，把重整化顶角归一到 1。
+\end{frame}
+
+\begin{frame}[t]{RI/\allowbreak{}MOM：固定规范下的非微扰重整化：推导与证据边界}\FrameAnchor{33.02-3}
+\footnotesize
+\DerivationID{33.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{33.02}：
+\begin{enumerate}
+\item 计算含算符插入的 off-shell Green 函数 G\_O=<q O qbar>。
+\item 用同一组态/\allowbreak{}动量的逆传播子在两侧截肢得 \ensuremath{\Lambda}O。
+\item 选择满足 P[\ensuremath{\Lambda}tree]=1 的投影器。
+\item 在 p\ensuremath{^{2}}=\ensuremath{\mu}\ensuremath{^{2}} 令重整化投影等于树级，解 ZO/\allowbreak{}Zq。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{33.02}\quad RI/\allowbreak{}MOM：固定规范下的非微扰重整化；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：标量投影顶角代理
+\end{block}
+\BoundaryLine{Landau 规范、Goldstone pole、H(4) 和窗口问题需格点数据。}
+\end{frame}
+
+\begin{frame}[t]{RI/\allowbreak{}MOM：固定规范下的非微扰重整化：计算算法}\FrameAnchor{33.02-4}
+\footnotesize
+\AlgorithmID{33.02}\begin{enumerate}
+\item 固定 Landau gauge 容差并保存 gauge-fixing residual。
+\item 使用 momentum sources/\allowbreak{}扭曲边界生成稠密 p\ensuremath{^{2}}。
+\item 逐 momentum orbit 做 H(4) 或民主化动量筛选。
+\item 减 Goldstone pole、拟合 a\ensuremath{^{2}}p\ensuremath{^{2}} 与 1/\allowbreak{}p\ensuremath{^{2}} 后，在窗口内转换并运行到共同 \ensuremath{\mu}。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 自由场中投影顶角与 Zq 均应给 ZO=1。
+\item[\CheckMark] 同 p\ensuremath{^{2}} 不同 H(4) 轨道差异应随 a\ensuremath{\rightarrow}0 消失。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{Landau gauge + propagator/\allowbreak{}vertex amputation + momentum-window fit}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{RI/\allowbreak{}MOM：固定规范下的非微扰重整化：练习与完整解答}\FrameAnchor{33.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{33.02}}若 Zq=0.8、裸投影 P\ensuremath{\Lambda}=1.25，按条件求 ZO。\end{block}
+\begin{exampleblock}{\SolutionID{33.02}}Zq\ensuremath{^{-1}}ZO\ensuremath{\times}1.25=1，故 ZO=Zq/\allowbreak{}1.25=0.64。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{33.02-f50302317d}；\CourseRef{Eq}{33.02}；\CourseRef{SYM}{33.02}；\CourseRef{Alg}{33.02}。
+\SourceLine{BOOK-QFT；P20；P22；PYQCD-PROPAGATOR}
+\end{frame}
+
+\begin{frame}[t]{RI/\allowbreak{}SMOM：非例外动量与 Ward 恒等式：问题与图像}\FrameAnchor{33.03-1}
+\footnotesize
+\begin{block}{本节问题}把动量转移设为非零，怎样减弱红外污染并改善匹配？\end{block}
+\PhysicalFlow{p1\ensuremath{^{2}}=p2\ensuremath{^{2}}=q\ensuremath{^{2}}=\ensuremath{\mu}\ensuremath{^{2}}}{无软 exceptional 子道}{对称投影定义 Z}{33.03}
+\begin{block}{物理原则}\KnowledgeID{33.03}\quad 不同 SMOM projector 是不同方案，conversion 系数不可混用；三动量还需满足格点 Fourier/\allowbreak{}扭曲约束。\end{block}
+\SourceLine{BOOK-QFT；P22；P23}
+\end{frame}
+
+\begin{frame}[t]{RI/\allowbreak{}SMOM：非例外动量与 Ward 恒等式：定义与主公式}\FrameAnchor{33.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{33.03-7378178c43} symmetric momentum & p1\ensuremath{^{2}}=p2\ensuremath{^{2}}=(p1-p2)\ensuremath{^{2}} 的非例外 Euclidean 运动学\\
+\DefinitionID{33.03-c978651506} RI/\allowbreak{}SMOM & 以对称非例外动量定义的一族 MOM 方案\\
+\DefinitionID{33.03-62495e7eb7} projector choice & \ensuremath{\gamma}\ensuremath{\mu} 型、qslash 型等不同有限方案选择\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{33.03} 主公式}\centering\CourseDisplayEquation{p_1^2=p_2^2=q^2=\mu^2,\quad q=p_1-p_2,\qquad Z_q^{-1}Z_O\mathcal P_O[\Lambda_O(p_1,p_2)]=1}\end{block}
+所有外部与转移动量都硬，减少 exceptional 通道中小动量穿过算符的长程污染。
+\end{frame}
+
+\begin{frame}[t]{RI/\allowbreak{}SMOM：非例外动量与 Ward 恒等式：推导与证据边界}\FrameAnchor{33.03-3}
+\footnotesize
+\DerivationID{33.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{33.03}：
+\begin{enumerate}
+\item exceptional RI/\allowbreak{}MOM 取 p1=p2，使 q=0，可有软 Goldstone 子图。
+\item 选择 p1\ensuremath{^{2}}=p2\ensuremath{^{2}}=q\ensuremath{^{2}}=\ensuremath{\mu}\ensuremath{^{2}} 后，没有任一非平凡外腿和为零。
+\item 按给定 projector 施加与树级相同的归一条件。
+\item Ward--Takahashi identity 可把 vector/\allowbreak{}axial 顶角与传播子差联系作独立检查。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{33.03}\quad RI/\allowbreak{}SMOM：非例外动量与 Ward 恒等式；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：p1\ensuremath{^{2}}=p2\ensuremath{^{2}}=(p1-p2)\ensuremath{^{2}}=\ensuremath{\mu}\ensuremath{^{2}}
+\end{block}
+\BoundaryLine{只验证非例外运动学；projector 与 MSbar conversion 需具体方案。}
+\end{frame}
+
+\begin{frame}[t]{RI/\allowbreak{}SMOM：非例外动量与 Ward 恒等式：计算算法}\FrameAnchor{33.03-4}
+\footnotesize
+\AlgorithmID{33.03}\begin{enumerate}
+\item 用 twisted boundary 连续调 p1、p2 满足对称条件。
+\item 计算完整两动量三点顶角并按同一 convention 截肢。
+\item 分别实现每种 SMOM projector 与对应 conversion。
+\item 比较 RI/\allowbreak{}MOM/\allowbreak{}SMOM 的窗口、手征外推、a\ensuremath{^{2}}p\ensuremath{^{2}} 和截断稳定性。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] p1\ensuremath{^{2}}=p2\ensuremath{^{2}}=q\ensuremath{^{2}} 必须在数值容差内同时成立。
+\item[\CheckMark] vector current 的 Z 应与独立 charge/\allowbreak{}Ward 定义在连续极限一致。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{twisted momentum + SMOM projectors + Ward residual}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{RI/\allowbreak{}SMOM：非例外动量与 Ward 恒等式：练习与完整解答}\FrameAnchor{33.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{33.03}}在 Euclidean 空间 p1\ensuremath{^{2}}=p2\ensuremath{^{2}}=\ensuremath{\mu}\ensuremath{^{2}} 且 q\ensuremath{^{2}}=\ensuremath{\mu}\ensuremath{^{2}}，p1·p2 等于多少？\end{block}
+\begin{exampleblock}{\SolutionID{33.03}}q\ensuremath{^{2}}=p1\ensuremath{^{2}}+p2\ensuremath{^{2}}-2p1·p2=\ensuremath{\mu}\ensuremath{^{2}}，所以 p1·p2=\ensuremath{\mu}\ensuremath{^{2}}/\allowbreak{}2。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{33.03-7378178c43}；\CourseRef{Eq}{33.03}；\CourseRef{SYM}{33.03}；\CourseRef{Alg}{33.03}。
+\SourceLine{BOOK-QFT；P22；P23}
+\end{frame}
+
+\begin{frame}[t]{Schrödinger functional 与算符 step scaling：问题与图像}\FrameAnchor{33.04-1}
+\footnotesize
+\begin{block}{本节问题}怎样不依赖极大单格点动量，把 Z 从强耦合逐级跑到微扰区？\end{block}
+\PhysicalFlow{有限盒边界定义重整化条件}{\ensuremath{\mu}=1/\allowbreak{}L}{L\ensuremath{\rightarrow}L/\allowbreak{}s 递归升尺度}{33.04}
+\begin{block}{物理原则}\KnowledgeID{33.04}\quad 每一步都需独立连续外推并传播相关性；边界 O(a) counterterms 和 mistuning 不能忽略。\end{block}
+\SourceLine{BOOK-LQCD；BOOK-QFT；P24}
+\end{frame}
+
+\begin{frame}[t]{Schrödinger functional 与算符 step scaling：定义与主公式}\FrameAnchor{33.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{33.04-1424bad69e} Schrödinger functional & 具有固定时间边界场的有限体积重整化方案\\
+\DefinitionID{33.04-e103eaa6fc} step-scaling function & 尺度改变 s 时重整化量的有限比值 \ensuremath{\sigma}(u)\\
+\DefinitionID{33.04-f98e334cc4} continuum step & 固定 renormalized coupling u 后把格点 step \ensuremath{\Sigma}(u,a/\allowbreak{}L) 外推 a/\allowbreak{}L\ensuremath{\rightarrow}0\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{33.04} 主公式}\centering\CourseDisplayEquation{\Sigma_O(u,a/L)=\left.\frac{Z_O(g_0,a/(sL))}{Z_O(g_0,a/L)}\right|_{\bar g^2(L)=u},\qquad \sigma_O(u)=\lim_{a/L\to0}\Sigma_O(u,a/L)}\end{block}
+同一 bare coupling 上比较 L 与 sL 的 Z 得有限步；在固定 u 的 line of constant physics 上取连续极限。
+\end{frame}
+
+\begin{frame}[t]{Schrödinger functional 与算符 step scaling：推导与证据边界}\FrameAnchor{33.04-3}
+\footnotesize
+\DerivationID{33.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{33.04}：
+\begin{enumerate}
+\item 有限体积本身提供唯一尺度 \ensuremath{\mu}=1/\allowbreak{}L。
+\item 选择重整化 Green 函数比值定义 ZO，使边界场 Z 因子相消。
+\item 在相同 u 上计算尺寸 L/\allowbreak{}a 与 sL/\allowbreak{}a 的 Z 比得到 lattice \ensuremath{\Sigma}。
+\item 多分辨率外推得到 universal continuum \ensuremath{\sigma}，再递归相乘跨尺度。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{33.04}\quad Schrödinger functional 与算符 step scaling；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：连续 step factors 按尺度链相乘
+\end{block}
+\BoundaryLine{每步的调谐、相关误差与 a/\allowbreak{}L 连续外推未验证。}
+\end{frame}
+
+\begin{frame}[t]{Schrödinger functional 与算符 step scaling：计算算法}\FrameAnchor{33.04-4}
+\footnotesize
+\AlgorithmID{33.04}\begin{enumerate}
+\item 为一组 u 建立调谐表 g0、\ensuremath{\kappa}、L/\allowbreak{}a。
+\item 每个 u 至少使用三种 L/\allowbreak{}a 计算成对体积。
+\item 联合拟合 mistuning 与 (a/\allowbreak{}L)\ensuremath{^{p}} 外推 \ensuremath{\Sigma}。
+\item 递归构造 running，最终在高 \ensuremath{\mu} 与微扰 anomalous dimension/\allowbreak{}MSbar 匹配。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] s=1 时 \ensuremath{\Sigma}=1。
+\item[\CheckMark] 分割同一总尺度变化为两步或一步，连续极限应满足群组合律。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{paired-volume tuning + continuum step recursion}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Schrödinger functional 与算符 step scaling：练习与完整解答}\FrameAnchor{33.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{33.04}}若 \ensuremath{\sigma}O(u1)=1.10、\ensuremath{\sigma}O(u2)=1.05，连续两步总 Z 比是多少？\end{block}
+\begin{exampleblock}{\SolutionID{33.04}}按递归相乘为 1.10\ensuremath{\times}1.05=1.155；误差需保留两步相关性。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{33.04-1424bad69e}；\CourseRef{Eq}{33.04}；\CourseRef{SYM}{33.04}；\CourseRef{Alg}{33.04}。
+\SourceLine{BOOK-LQCD；BOOK-QFT；P24}
+\end{frame}
+
+\begin{frame}[t]{gradient-flow coupling 与有限体积 beta function：问题与图像}\FrameAnchor{33.05-1}
+\footnotesize
+\begin{block}{本节问题}流化能量密度怎样定义低噪声、可 step-scale 的运行耦合？\end{block}
+\PhysicalFlow{流时间给平滑半径 sqrt(8t)}{固定 c=sqrt(8t)/\allowbreak{}L}{t\ensuremath{^{2}}<E> 定义 gGF\ensuremath{^{2}}(L)}{33.05}
+\begin{block}{物理原则}\KnowledgeID{33.05}\quad flow、E 离散化、边界条件和 c 都定义方案；t>0 有限不等于已转到 MSbar，也不等于 TMD soft 重整化。\end{block}
+\SourceLine{P07；P08；P09；BOOK-LQCD；PYQCD-GAUGE}
+\end{frame}
+
+\begin{frame}[t]{gradient-flow coupling 与有限体积 beta function：定义与主公式}\FrameAnchor{33.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{33.05-60aea7affb} gradient-flow coupling & 由正流时能量密度归一化定义的有限体积耦合\\
+\DefinitionID{33.05-05fabda309} c scheme & 固定 c=sqrt(8t)/\allowbreak{}L 决定的具体流耦合方案\\
+\DefinitionID{33.05-19fbb5ffda} discrete beta function & 有限尺度因子 s 下 [g\ensuremath{^{2}}(sL)-g\ensuremath{^{2}}(L)]/\allowbreak{}ln s\ensuremath{^{2}}\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{33.05} 主公式}\centering\CourseDisplayEquation{g_{\rm GF}^2(L)=\mathcal N^{-1}t^2\langle E(t)\rangle\big|_{\sqrt{8t}=cL},\qquad \beta_s(u)=\frac{g^2(sL)-g^2(L)}{\ln s^2}\Big|_{g^2(L)=u}}\end{block}
+t\ensuremath{^{2}}E 无量纲且树级正比 g\ensuremath{^{2}}；固定流半径占盒长比例使 \ensuremath{\mu}\ensuremath{\approx}1/\allowbreak{}(cL) 并适合有限体积递归。
+\end{frame}
+
+\begin{frame}[t]{gradient-flow coupling 与有限体积 beta function：推导与证据边界}\FrameAnchor{33.05-3}
+\footnotesize
+\DerivationID{33.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{33.05}：
+\begin{enumerate}
+\item 四维中 E=F\ensuremath{^{2}}/\allowbreak{}4 量纲为 4，故 t\ensuremath{^{2}}E 无量纲。
+\item 弱耦合展开 t\ensuremath{^{2}}<E>=N g\ensuremath{^{2}}+O(g\ensuremath{^{4}})，选 N 归一化树级。
+\item 固定 c 后 t\ensuremath{\propto}L\ensuremath{^{2}}，盒长改变就是重整化尺度改变。
+\item 成对体积的耦合差除以 ln s\ensuremath{^{2}} 给有限步 beta function。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{33.05}\quad gradient-flow coupling 与有限体积 beta function；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：s=2 且采用课程 beta\_s 符号
+\end{block}
+\BoundaryLine{不验证 flow coupling 的 tree normalization、scheme 或连续外推。}
+\end{frame}
+
+\begin{frame}[t]{gradient-flow coupling 与有限体积 beta function：计算算法}\FrameAnchor{33.05-4}
+\footnotesize
+\AlgorithmID{33.05}\begin{enumerate}
+\item 固定 flow/\allowbreak{}action/\allowbreak{}E/\allowbreak{}boundary/\allowbreak{}c 组合并计算 tree-level normalization。
+\item 在 L/\allowbreak{}a 与 sL/\allowbreak{}a 成对系综上调 g\ensuremath{^{2}}(L)=u。
+\item 扫描 flow step size 与 t-shift，连续外推 \ensuremath{\beta}s(u,a/\allowbreak{}L)。
+\item 检查 scheme 变化下固定点/\allowbreak{}运行的 universal 内容，并与微扰区匹配。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 自由极限 g0\ensuremath{\rightarrow}0 时 gGF\ensuremath{^{2}}\ensuremath{\rightarrow}g0\ensuremath{^{2}} 加高阶。
+\item[\CheckMark] s\ensuremath{\rightarrow}1 的极限应趋连续 beta function（按符号约定）。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{gradient-flow E + paired-volume continuum extrapolation}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{gradient-flow coupling 与有限体积 beta function：练习与完整解答}\FrameAnchor{33.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{33.05}}若 g\ensuremath{^{2}}(L)=4.0、g\ensuremath{^{2}}(2L)=4.6，求 s=2 的离散 beta。\end{block}
+\begin{exampleblock}{\SolutionID{33.05}}\ensuremath{\beta}2=(4.6-4.0)/\allowbreak{}ln4\ensuremath{\approx}0.6/\allowbreak{}1.3863\ensuremath{\approx}0.433。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{33.05-60aea7affb}；\CourseRef{Eq}{33.05}；\CourseRef{SYM}{33.05}；\CourseRef{Alg}{33.05}。
+\SourceLine{P07；P08；P09；BOOK-LQCD；PYQCD-GAUGE}
+\end{frame}
+
+\begin{frame}[t]{第 33 卷能力清单}\FrameAnchor{V33-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能建立局域算符混合矩阵
+\item[\CheckMark] 能实施 RI/\allowbreak{}SMOM 到 MSbar 的非微扰重整化
+\item[\CheckMark] 能用有限体积 step scaling 跨越强耦合到微扰尺度
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 33 卷来源（1/3）}\FrameAnchor{V33-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-QFT} & An Introduction to Quantum Field Theory（仓库转排本） & 量子场论、规范理论、QCD 和重整化的主教材交叉核验。\\
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\SourceID{P20} & 准部分子分布的可重正性 & 论文图谱 P20 的完整原始 PDF；底稿 arXiv:1707.03107；SHA-256 ec49d7b2ca691de6…。\\
+\SourceID{P22} & 大动量有效理论的重正化 & 论文图谱 P22 的完整原始 PDF；底稿 arXiv:1706.08962；SHA-256 7a288164a4f20121…。\\
+\SourceID{P24} & 准PDF完整非微扰重正化方案 & 论文图谱 P24 的完整原始 PDF；底稿 arXiv:1706.00265；SHA-256 aa8daa6632b2cc37…。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 33 卷来源（2/3）}\FrameAnchor{V33-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{PYQCD-GAUGE} & PyQCD 规范场技能 & 链接、plaquette、flow 和规范不变量。\\
+\SourceID{DOC-OPE} & 格点 QCD 中的 OPE 算符 & 局域矩、twist 与算符基底。\\
+\SourceID{P21} & 威尔逊线重正化改进准分布 & 论文图谱 P21 的完整原始 PDF；底稿 arXiv:1609.08102；SHA-256 722b1a13447fe16b…。\\
+\SourceID{PYQCD-PROPAGATOR} & PyQCD 传播子技能 & 线性求解、序贯源和传播子契约。\\
+\SourceID{P23} & 非定域夸克双线性的非微扰重正化 & 论文图谱 P23 的完整原始 PDF；底稿 arXiv:1707.07152；SHA-256 71cc84a9fecb09fd…。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 33 卷来源（3/3）}\FrameAnchor{V33-sources-3}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{P07} & 威尔逊流的性质与应用 & 论文图谱 P07 的完整原始 PDF；底稿 arXiv:1006.4518；SHA-256 63426411712d8b00…。\\
+\SourceID{P08} & 梯度流的微扰分析 & 论文图谱 P08 的完整原始 PDF；底稿 arXiv:1101.0963；SHA-256 da3927cb38f6f864…。\\
+\SourceID{P09} & 手征对称性与杨米尔斯梯度流 & 论文图谱 P09 的完整原始 PDF；底稿 arXiv:1302.5246；SHA-256 e284d70671c4eec0…。\\
+\bottomrule\end{tabularx}\end{frame}
+

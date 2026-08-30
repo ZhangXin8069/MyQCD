@@ -1,0 +1,380 @@
+\begin{frame}[plain]\FrameAnchor{V18-title}
+\centering
+{\Large\bfseries\color{courseblue}第 18 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries soft、ZR、hybrid 重整化与匹配\par}
+\vspace{0.35cm}
+{\large 把裸 flowed quasi-TMD 转换为具有明确 UV、rapidity 和大动量方案的可比较分布。\par}
+\vfill
+\CourseID{Tbl}{18.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 18 卷路线图}\FrameAnchor{V18-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+18.01 & Wilson 线自能、线性发散与流时\\
+18.02 & 方案化 quasi-soft、rapidity 扣除与标准 TMD 转换\\
+18.03 & ZR 比值重整化\\
+18.04 & 直线算符的 hybrid 重整化与 staple 推广边界\\
+18.05 & 从重整化坐标矩阵元到物理胶子 TMD\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{P20；P26；P30；P44；P45；PYQCD-TMD-RENORM}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V18-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V14
+\item V15
+\item V16
+\item V17
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能区分 UV 与 rapidity 扣除
+\item 能实现 ZR/\allowbreak{}hybrid 连续拼接
+\item 能执行胶子—夸克矩阵匹配和 CS 演化
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：Wilson 线线性发散的长度依赖}\FrameAnchor{V18-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0.0,xmax=12.0,ymin=0.0,ymax=1.05,xlabel={路径长度 $L/a$},ylabel={裸因子 $e^{-\delta m L}$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0.0:12.0,samples=160] {exp(-0.2*x)};
+\addlegendentry{\ensuremath{\delta}m a=0.2}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{18.00}：示意曲线；\ensuremath{\delta}m 依赖作用量、方案和截断。
+\SourceLine{Wilson 线自能指数化}
+\end{frame}
+
+\begin{frame}[t]{Wilson 线自能、线性发散与流时：问题与图像}\FrameAnchor{18.01-1}
+\footnotesize
+\begin{block}{本节问题}为什么长非局域路径的裸矩阵元会随格距和长度急剧变化？\end{block}
+\PhysicalFlow{每单位长度 UV 自能}{沿路径累积}{指数因子 exp(-\ensuremath{\delta}mL)}{18.01}
+\begin{block}{物理原则}\KnowledgeID{18.01}\quad 梯度流把 1/\allowbreak{}a 型敏感性改写成流半径方案依赖，但仍需转换、端点/\allowbreak{}尖点和 rapidity 处理。\end{block}
+\SourceLine{P20；P21；P25；P40}
+\end{frame}
+
+\begin{frame}[t]{Wilson 线自能、线性发散与流时：定义与主公式}\FrameAnchor{18.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{18.01-4869e409b8} 线性发散 & 与 Wilson 线长度 L/\allowbreak{}a 成正比的 UV 自能\\
+\DefinitionID{18.01-4ddd8c0858} 质量反项 & 指数消去线性自能的路径长度系数\\
+\DefinitionID{18.01-10e2eee449} 端点/\allowbreak{}尖点发散 & 由端点和折角产生的额外 UV 结构\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{18.01} 主公式}\centering\CourseDisplayEquation{O^{B}(L,a)=e^{-\delta m(a)L}\,Z_{\rm end/cusp}(a,\mu)\,O^{R}(L,\mu)}\end{block}
+局域线自能沿长度可加，因而在 Wilson 线乘积中指数化。
+\end{frame}
+
+\begin{frame}[t]{Wilson 线自能、线性发散与流时：推导与证据边界}\FrameAnchor{18.01-3}
+\footnotesize
+\DerivationID{18.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{18.01}：
+\begin{enumerate}
+\item 把长度 L 切成 n 段，每段共同自能因子近似 1-\ensuremath{\delta}m\ensuremath{\Delta}L。
+\item 连乘并取 n\ensuremath{\rightarrow}\ensuremath{\infty}、\ensuremath{\Delta}L=L/\allowbreak{}n，得到 (1-\ensuremath{\delta}mL/\allowbreak{}n)\ensuremath{^{n}}\ensuremath{\rightarrow}e\ensuremath{^{-\delta{}mL}}。
+\item 端点和 cusp 不是广延长度项，另收进乘法因子 Z。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{18.01}\quad Wilson 线线性反项指数化；4/4 项通过；SymPy exact；复用 myqcd.derivations.derive\_wilson\_line\_linear\_counterterm。
+\par\scriptsize 假设：z>0、a>0；坐标积分中的传播子短距调节为 1/\allowbreak{}((z\_1-z\_2)\ensuremath{^{2}}+a\ensuremath{^{2}})；alpha\_s=g\ensuremath{^{2}}/\allowbreak{}(4pi)，只比较线性发散系数，不比较 scheme-dependent 有限项；连续 cutoff 取 Lambda=1/\allowbreak{}a，格点自能的线性项取 Lambda=pi/\allowbreak{}a\_L
+\end{block}
+\BoundaryLine{验证长度可加自能的指数形式；端点、cusp、flow-time 与方案依赖另列。}
+\end{frame}
+
+\begin{frame}[t]{Wilson 线自能、线性发散与流时：计算算法}\FrameAnchor{18.01-4}
+\footnotesize
+\AlgorithmID{18.01}\begin{enumerate}
+\item 在多 L、a、\ensuremath{\tau} 上测量同几何真空线对象或矩阵元比值。
+\item 拟合 lnO 对 L 的斜率并保留端点常数。
+\item 比较流时、静态势、ZR 和 hybrid 等方案的一致转换。
+\item 扫描拟合长度窗与高阶项，传播 \ensuremath{\delta}m 协方差。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] L=0 时线性指数为 1，但局域算符仍可需重整化。
+\item[\CheckMark] \ensuremath{\delta}m 的量纲为质量，使 \ensuremath{\delta}mL 无量纲。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}zr.\allowbreak{}py 与 \_\allowbreak{}hybrid.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Wilson 线自能、线性发散与流时：练习与完整解答}\FrameAnchor{18.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{18.01}}\ensuremath{\delta}m=0.4 GeV、L=0.5 fm 时指数约多少？\end{block}
+\begin{exampleblock}{\SolutionID{18.01}}L\ensuremath{\approx}2.534 GeV\ensuremath{^{-1}}，指数 e\ensuremath{^{-1.014}}\ensuremath{\approx}0.363。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{18.01-4869e409b8}；\CourseRef{Eq}{18.01}；\CourseRef{SYM}{18.01}；\CourseRef{Alg}{18.01}。
+\SourceLine{P20；P21；P25；P40}
+\end{frame}
+
+\begin{frame}[t]{方案化 quasi-soft、rapidity 扣除与标准 TMD 转换：问题与图像}\FrameAnchor{18.02-1}
+\footnotesize
+\begin{block}{本节问题}何时 B/\allowbreak{}\ensuremath{\sqrt{S}} 是合法定义，而不是把任意真空 staple 叫作 soft factor？\end{block}
+\PhysicalFlow{先固定 link class 与两方向 v、vbar}{定义 regulator/\allowbreak{}zero-bin 的 quasi-soft}{用转换核进入目标 TMD 方案}{18.02}
+\begin{block}{物理原则}\KnowledgeID{18.02}\quad 有限 Euclidean 真空 Wilson 线不自动等于光锥 soft；缺少 v、vbar、\ensuremath{\rho}、link class 或 Cqsoft\ensuremath{\rightarrow}S 时只能标记 prototype。\end{block}
+\SourceLine{P44；P45；PYQCD-TMD-RENORM}
+\end{frame}
+
+\begin{frame}[t]{方案化 quasi-soft、rapidity 扣除与标准 TMD 转换：定义与主公式}\FrameAnchor{18.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{18.02-153db619b7} quasi-soft factor & 由指定两条 Wilson 方向、闭合方式和 regulator 定义的真空对象\\
+\DefinitionID{18.02-3bedf2ab0b} zero-bin & 按同一因子化定理避免 collinear 与 soft 区重复计数的扣除\\
+\DefinitionID{18.02-50ad940095} 方案转换核 & 把所选 Euclidean quasi-soft 组合转换到指定 Collins 型标准方案的短程因子\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{18.02} 主公式}\centering\CourseDisplayEquation{\tilde F^{S}=C_{\rm qsoft\to S}(\mu,\zeta;Y,\rho)\,Z_{\rm UV/mix}^{S}\,\frac{\tilde B_{v}^{\rm flow}(b_T,\ell,\tau;\rho)}{\sqrt{S_{v\bar v}^{\rm flow}(b_T,\ell,\tau;\rho)}}}\end{block}
+本式只定义一个已声明的对称平方根 quasi-soft 约定；分子/\allowbreak{}分母方向由 zero-bin 和目标方案共同固定。
+\end{frame}
+
+\begin{frame}[t]{方案化 quasi-soft、rapidity 扣除与标准 TMD 转换：推导与证据边界}\FrameAnchor{18.02-3}
+\footnotesize
+\DerivationID{18.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{18.02}：
+\begin{enumerate}
+\item 先从选定因子化定理写出两条 beam、soft/\allowbreak{}zero-bin 和 regulator 的乘法关系。
+\item 在该特定对称约定中，每条 beam 分配 S\ensuremath{^{-1/2}}；其他约定可把 S 放在不同位置。
+\item Cqsoft\ensuremath{\rightarrow}S 再补偿 Euclidean quasi-soft 与目标标准 soft/\allowbreak{}rapidity 方案的短程差异。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{18.02}\quad 已声明方案中的对称 quasi-soft 平方根分配；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：固定 f1g[-,-] link class、Wilson 方向 v 与 vbar；固定 rapidity regulator rho、zero-bin 和目标方案 S；S\_qsoft>0 的实正代理；复值情形需连续平方根分支
+\end{block}
+\BoundaryLine{只核对特定对称约定的代数。任意 Euclidean 真空 staple 不自动是标准 soft；缺 C\_qsoft\_to\_S、方向、regulator 或 zero-bin 时必须保持 prototype。}
+\end{frame}
+
+\begin{frame}[t]{方案化 quasi-soft、rapidity 扣除与标准 TMD 转换：计算算法}\FrameAnchor{18.02-4}
+\footnotesize
+\AlgorithmID{18.02}\begin{enumerate}
+\item 固定目标 f1g[-,-]、两条 past-pointing beam link、v/\allowbreak{}vbar 方向、\ensuremath{\rho}、zero-bin 与标准方案 S。
+\item 构造与 beam 兼容而非简单复制的真空路径，并验证端点、转角、表示、\ensuremath{\tau} 和 bT。
+\item 在共享重采样中估计 B、S 和相关性，连续跟踪复平方根分支。
+\item 应用已推导的 Cqsoft\ensuremath{\rightarrow}S；任何定义缺失或 S=1 占位都强制停在 prototype。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 若 S=1，数值不变但证据状态仍未完成。
+\item[\CheckMark] 改变 regulator/\allowbreak{}zero-bin 后，连同 Cqsoft\ensuremath{\rightarrow}S 的物理组合应在截断阶内稳定。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}tmd.\allowbreak{}py 与 \_\allowbreak{}tmdextract.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{方案化 quasi-soft、rapidity 扣除与标准 TMD 转换：练习与完整解答}\FrameAnchor{18.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{18.02}}在已定义的对称约定且 Cqsoft\ensuremath{\rightarrow}S=Z=1 时，B=6、S=9，求组合。\end{block}
+\begin{exampleblock}{\SolutionID{18.02}}\ensuremath{\sqrt{S}}=3，组合为 2；这只验证该约定的代数，不证明方案闭合。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{18.02-153db619b7}；\CourseRef{Eq}{18.02}；\CourseRef{SYM}{18.02}；\CourseRef{Alg}{18.02}。
+\SourceLine{P44；P45；PYQCD-TMD-RENORM}
+\end{frame}
+
+\begin{frame}[t]{ZR 比值重整化：问题与图像}\FrameAnchor{18.03-1}
+\footnotesize
+\begin{block}{本节问题}怎样用参考矩阵元消去共同的非局域 UV 因子，同时保留目标长距离结构？\end{block}
+\PhysicalFlow{目标 h(z,b,P)}{同方案参考 h(z,b,Pref)}{比值乘已知参考归一化}{18.03}
+\begin{block}{物理原则}\KnowledgeID{18.03}\quad 共同因子假设要求算符几何、流时、格距和投影完全一致；参考态的 IR 依赖不会自动消失。\end{block}
+\SourceLine{P29；PYQCD-TMD-RENORM}
+\end{frame}
+
+\begin{frame}[t]{ZR 比值重整化：定义与主公式}\FrameAnchor{18.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{18.03-afd5c34ea6} 比值重整化 & 用共享 UV 因子的参考量构造有限比值\\
+\DefinitionID{18.03-cc927fc4d8} 参考态/\allowbreak{}参考点 & 用于定义方案的固定运动学\\
+\DefinitionID{18.03-6e07b921bc} 归一化条件 & 在指定点规定重整化量数值\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{18.03} 主公式}\centering\CourseDisplayEquation{h^{Z_R}(z,b,P)=\frac{h^B(z,b,P)}{h^B(z,b,P_{\rm ref})}\,h^{R}_{\rm ref}(z,b,\mu)}\end{block}
+若分子分母具有相同乘法 UV 因子，它在比值中精确消去。
+\end{frame}
+
+\begin{frame}[t]{ZR 比值重整化：推导与证据边界}\FrameAnchor{18.03-3}
+\footnotesize
+\DerivationID{18.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{18.03}：
+\begin{enumerate}
+\item 写 hB(P)=Z(z,b,a,\ensuremath{\tau})hR(P)、hB(Pref)=Z hR(Pref)。
+\item 相除后 Z 抵消，得到 hR(P)/\allowbreak{}hR(Pref)。
+\item 乘回方案定义的 hRref，恢复目标重整化矩阵元。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{18.03}\quad 比值型非微扰重整化；4/4 项通过；SymPy exact；复用 myqcd.derivations.derive\_ri\_mom\_ratio\_renormalization。
+\par\scriptsize 假设：Z\_RI 与 Z\_MS 非零，且 O\_bare=Z\_RI O\_RI；比值方案中的 Z\_X=Z\_UV X，X 为有限的外部矩阵元因子；树级 C\ensuremath{^{X}}(alpha)=delta(alpha-1) 用 epsilon>0 的单侧指数核逼近
+\end{block}
+\BoundaryLine{验证共同乘法因子的消去与参考条件；参考态 IR 系统学不自动消失。}
+\end{frame}
+
+\begin{frame}[t]{ZR 比值重整化：计算算法}\FrameAnchor{18.03-4}
+\footnotesize
+\AlgorithmID{18.03}\begin{enumerate}
+\item 选择信号良好且短程可控的参考运动学，并写入方案版本。
+\item 逐重采样样本形成相关比值，避免独立误差传播。
+\item 检查分母远离零并量化 reference-choice 依赖。
+\item 与独立 RI/\allowbreak{}MOM、流时转换或 hybrid 方案在重叠区比较。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] P=Pref 时结果等于 hRref。
+\item[\CheckMark] 分子分母乘同一任意常数不改变比值。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}zr.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{ZR 比值重整化：练习与完整解答}\FrameAnchor{18.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{18.03}}hB(P)=6、hB(Pref)=3、hRref=2，求 hZR。\end{block}
+\begin{exampleblock}{\SolutionID{18.03}}(6/\allowbreak{}3)\ensuremath{\times}2=4。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{18.03-afd5c34ea6}；\CourseRef{Eq}{18.03}；\CourseRef{SYM}{18.03}；\CourseRef{Alg}{18.03}。
+\SourceLine{P29；PYQCD-TMD-RENORM}
+\end{frame}
+
+\begin{frame}[t]{直线算符的 hybrid 重整化与 staple 推广边界：问题与图像}\FrameAnchor{18.04-1}
+\footnotesize
+\begin{block}{本节问题}直线 z 拼接公式何时成立，为什么不能原样套到有限 staple？\end{block}
+\PhysicalFlow{直线 |z|\ensuremath{\le}zs 用短距方案}{直线长支补偿新增线长}{staple 另需总路径/\allowbreak{}cusp 方案}{18.04}
+\begin{block}{物理原则}\KnowledgeID{18.04}\quad finite-staple 的周长 L\ensuremath{\Gamma}(z,bT,\ensuremath{\ell}) 及 cusp/\allowbreak{}mixing 会变；没有专门推导时本式只能作直线对照。\end{block}
+\SourceLine{P30；PYQCD-TMD-RENORM}
+\end{frame}
+
+\begin{frame}[t]{直线算符的 hybrid 重整化与 staple 推广边界：定义与主公式}\FrameAnchor{18.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{18.04-5a8b418f34} straight-line hybrid & 只对单一直 Wilson 线按 |z| 切换两种定义\\
+\DefinitionID{18.04-04d2e533d3} 拼接点 & 直线算符方案切换的物理距离 zs\\
+\DefinitionID{18.04-ab75024d42} 路径依赖反项 & finite-staple 中依赖总周长、端点、转角和 mixing 的推广\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{18.04} 主公式}\centering\CourseDisplayEquation{h_{\rm str}^{\rm hyb}(z)=\begin{cases}h_S(z),&|z|\le z_s,\\ A e^{\delta m(|z|-z_s)}h_L(z),&|z|>z_s,\end{cases}\quad A=\frac{h_S(z_s)}{h_L(z_s)}}\end{block}
+直线算符的新增周长就是 |z|-zs，故指数在拼接点为 1；A 强制值连续。
+\end{frame}
+
+\begin{frame}[t]{直线算符的 hybrid 重整化与 staple 推广边界：推导与证据边界}\FrameAnchor{18.04-3}
+\footnotesize
+\DerivationID{18.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{18.04}：
+\begin{enumerate}
+\item 对直线在 |z|=zs 代入长支，指数 e\ensuremath{^{0}}=1，值为 A hL(zs)。
+\item 选择 A=hS(zs)/\allowbreak{}hL(zs)，长支值变为 hS(zs)。
+\item 因此左右值连续；导数连续需额外条件，通常不强制。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{18.04}\quad 直线算符的 hybrid 重整化连续拼接；3/3 项通过；SymPy exact。
+\par\scriptsize 假设：z,z\_s>0 表示直线 Wilson 线的 |z|、|z\_s|；h\_L 非零；只要求拼接点函数值连续
+\end{block}
+\BoundaryLine{该检查严格限定为 straight-line hybrid。finite-staple 必须以完整路径周长差 L\_Gamma-L\_Gamma,s 重新推导，并另处理端点、cusp 与 mixing；不得由本记录升级为已重整化 TMD。}
+\end{frame}
+
+\begin{frame}[t]{直线算符的 hybrid 重整化与 staple 推广边界：计算算法}\FrameAnchor{18.04-4}
+\footnotesize
+\AlgorithmID{18.04}\begin{enumerate}
+\item 先标记算符为 straight；在每个重采样样本上计算两支和 \ensuremath{\delta}m。
+\item 选多个候选 zs，要求两方案在邻域有重叠和非零分母。
+\item 由同一样本的拼接点值计算 A，再生成完整 z 序列。
+\item 若目标是 staple，改用 L\ensuremath{\Gamma} 差并另处理端点/\allowbreak{}cusp/\allowbreak{}mixing；否则验证器拒绝升级状态。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] z=zs 时两支完全相等。
+\item[\CheckMark] \ensuremath{\delta}m=0 时长支只乘常数 A，仍需检查方案差。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}hybrid.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{直线算符的 hybrid 重整化与 staple 推广边界：练习与完整解答}\FrameAnchor{18.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{18.04}}hS(zs)=4、hL(zs)=2，A 是多少？长支在 zs 的值呢？\end{block}
+\begin{exampleblock}{\SolutionID{18.04}}A=2；长支值 2\ensuremath{\times}2=4，与短支一致。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{18.04-5a8b418f34}；\CourseRef{Eq}{18.04}；\CourseRef{SYM}{18.04}；\CourseRef{Alg}{18.04}。
+\SourceLine{P30；PYQCD-TMD-RENORM}
+\end{frame}
+
+\begin{frame}[t]{从重整化坐标矩阵元到物理胶子 TMD：问题与图像}\FrameAnchor{18.05-1}
+\footnotesize
+\begin{block}{本节问题}Fourier、CS 演化和胶子—夸克匹配应按什么顺序闭合？\end{block}
+\PhysicalFlow{同方案 b,z 空间矩阵元}{z\ensuremath{\rightarrow}x Fourier 与多 Pz CS 分析}{2\ensuremath{\times}2 匹配到 \ensuremath{\mu}、\ensuremath{\zeta} 的物理 TMD}{18.05}
+\begin{block}{物理原则}\KnowledgeID{18.05}\quad 具体顺序可因方案重排，但所有核必须在共同 \ensuremath{\mu}、\ensuremath{\zeta}、几何和 Fourier 约定下组合。\end{block}
+\SourceLine{P26；P41；P44；P45；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{从重整化坐标矩阵元到物理胶子 TMD：定义与主公式}\FrameAnchor{18.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{18.05-6eb8b09b0f} 方案转换 & 把流时/\allowbreak{}hybrid 定义转换到标准因子化方案\\
+\DefinitionID{18.05-30f4aaf0c0} CS 演化 & 在 \ensuremath{\zeta} 尺度间演化 TMD\\
+\DefinitionID{18.05-40d43e803c} 矩阵匹配 & 胶子与 singlet 夸克的耦合卷积\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{18.05} 主公式}\centering\CourseDisplayEquation{\bm F^{\rm phys}=\bm C^{-1}_{gq}\!\otimes\mathcal U_{\rm CS}(\zeta,\zeta_0)\,\mathcal F_z[h^{\rm sub,R}(z,b_T,P_z)]}\end{block}
+先有已扣 soft、已重整化矩阵元，再做受控 Fourier、CS 演化与通道匹配。
+\end{frame}
+
+\begin{frame}[t]{从重整化坐标矩阵元到物理胶子 TMD：推导与证据边界}\FrameAnchor{18.05-3}
+\footnotesize
+\DerivationID{18.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{18.05}：
+\begin{enumerate}
+\item z-Fourier 把坐标矩阵元变为 x 的 quasi-TMD 向量。
+\item CS 演化算符在固定 bT 上把 \ensuremath{\zeta}0 变到目标 \ensuremath{\zeta}。
+\item LaMET 关系写作 Fquasi=C\ensuremath{\otimes}Fphys；在线性可逆子空间反卷积。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{18.05}\quad quasi-TMD 匹配与 CS 核；6/6 项通过；SymPy exact。
+\par\scriptsize 假设：裸 staple 的线性因子取 exp(delta\_line L)，矩形 Wilson loop 长度为 2L；S\_r、H 和 Psi\_LC 取正实代理，rapidity-log 与 K 取实变量；树级 form-factor 硬核 H=1/\allowbreak{}(2N\_c)，F 的具体格点矩阵元未计算
+\end{block}
+\BoundaryLine{底层有限模型只验证 leading-power 两点比值代数，不是生产充分条件；完整 f1g[-,-] 胶子-singlet 匹配、共同运动学、三动量联合拟合与真实数据闭合仍须另验。}
+\end{frame}
+
+\begin{frame}[t]{从重整化坐标矩阵元到物理胶子 TMD：计算算法}\FrameAnchor{18.05-4}
+\footnotesize
+\AlgorithmID{18.05}\begin{enumerate}
+\item 每个重采样样本先完成 soft、ZR/\allowbreak{}hybrid 与有限 z 重建。
+\item 在共同 x 重建或共同 Ioffe time 上用至少三个有效 Pz 联合提取 CS 核及幂修正。
+\item 在统一 x 网格应用完整 2\ensuremath{\times}2 胶子—singlet 匹配并运行到目标 \ensuremath{\mu}、\ensuremath{\zeta}。
+\item 检查和规则、正反 Fourier、尺度变化和合成闭合数据。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 树级单位核且 \ensuremath{\zeta}=\ensuremath{\zeta}0 时退化为 Fourier 变换。
+\item[\CheckMark] 交叉核非零而无 singlet 输入时问题不闭合。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}renorm/\allowbreak{}\_\allowbreak{}matching.\allowbreak{}py、\_\allowbreak{}tmdextract.\allowbreak{}py、\_\allowbreak{}tmd.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{从重整化坐标矩阵元到物理胶子 TMD：练习与完整解答}\FrameAnchor{18.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{18.05}}若所有变换都是单位算符，最终结果与哪个对象相等？\end{block}
+\begin{exampleblock}{\SolutionID{18.05}}等于完成 soft 扣除和重整化后的 z-Fourier 结果；这只是树级测试极限。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{18.05-6eb8b09b0f}；\CourseRef{Eq}{18.05}；\CourseRef{SYM}{18.05}；\CourseRef{Alg}{18.05}。
+\SourceLine{P26；P41；P44；P45；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{第 18 卷能力清单}\FrameAnchor{V18-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能区分 UV 与 rapidity 扣除
+\item[\CheckMark] 能实现 ZR/\allowbreak{}hybrid 连续拼接
+\item[\CheckMark] 能执行胶子—夸克矩阵匹配和 CS 演化
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 18 卷来源（1/3）}\FrameAnchor{V18-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{P20} & 准部分子分布的可重正性 & 论文图谱 P20 的完整原始 PDF；底稿 arXiv:1707.03107；SHA-256 ec49d7b2ca691de6…。\\
+\SourceID{P26} & 大动量有效理论获取胶子分布 & 论文图谱 P26 的完整原始 PDF；底稿 arXiv:1808.10824；SHA-256 51ef82db68b39777…。\\
+\SourceID{P30} & 准光前关联的混合重正化方案 & 论文图谱 P30 的完整原始 PDF；底稿 arXiv:2008.03886；SHA-256 56f633040d3bcd07…。\\
+\SourceID{P44} & 从准TMD波函数确定CS核 & 论文图谱 P44 的完整原始 PDF；底稿 arXiv:2204.00200；SHA-256 589d870d484889ae…。\\
+\SourceID{P45} & LaMET计算TMD软函数 & 论文图谱 P45 的完整原始 PDF；底稿 arXiv:2005.14572；SHA-256 22b1f2cbca968f30…。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 18 卷来源（2/3）}\FrameAnchor{V18-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{PYQCD-TMD-RENORM} & PyQCD TMD 重整化规范 & soft、ZR、hybrid、CS 和匹配边界。\\
+\SourceID{P21} & 威尔逊线重正化改进准分布 & 论文图谱 P21 的完整原始 PDF；底稿 arXiv:1609.08102；SHA-256 722b1a13447fe16b…。\\
+\SourceID{P25} & 准部分子算符乘法可重正性 & 论文图谱 P25 的完整原始 PDF；底稿 arXiv:1809.01836；SHA-256 90299e0614e9fbab…。\\
+\SourceID{P40} & 梯度流中的非光锥威尔逊线算符 & 论文图谱 P40 的完整原始 PDF；底稿 arXiv:2312.05032；SHA-256 31292da5c276c237…。\\
+\SourceID{P29} & 准光前关联函数的自重正化 & 论文图谱 P29 的完整原始 PDF；底稿 arXiv:2103.02965；SHA-256 1474d215f0d5e7c0…。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 18 卷来源（3/3）}\FrameAnchor{V18-sources-3}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{P41} & 首个核子胶子部分子分布 & 论文图谱 P41 的完整原始 PDF；底稿 arXiv:2505.13321；SHA-256 09eff6064b5d9c67…。\\
+\SourceID{PYQCD-TMD} & PyQCD TMD 主链技能 & 六阶段 TMD 物理链和端到端接口。\\
+\bottomrule\end{tabularx}\end{frame}
+

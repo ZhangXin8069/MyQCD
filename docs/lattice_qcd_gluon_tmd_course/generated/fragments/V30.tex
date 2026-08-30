@@ -1,0 +1,373 @@
+\begin{frame}[plain]\FrameAnchor{V30-title}
+\centering
+{\Large\bfseries\color{courseblue}第 30 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 有限温度格点 QCD 与热介质\par}
+\vspace{0.35cm}
+{\large 从热配分函数、Polyakov loop、手征恢复、状态方程到实时间谱函数反演建立完整有限温度方法。\par}
+\vfill
+\CourseID{Tbl}{30.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 30 卷路线图}\FrameAnchor{V30-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+30.01 & 热迹、Euclidean 时间圆与温度设定\\
+30.02 & Polyakov loop、中心对称与自由能\\
+30.03 & 手征凝聚、susceptibility 与 crossover\\
+30.04 & 状态方程、trace anomaly 与积分法\\
+30.05 & 热谱函数、输运系数与病态反演\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{BOOK-QFT；BOOK-LQCD；PYQCD-GAUGE；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V30-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V11
+\item V12
+\item V26
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能设计 fixed-scale 或 fixed-Nt 温度扫描
+\item 能区分退禁闭与手征 crossover 诊断
+\item 能诚实处理 Euclidean 到实时间的病态逆问题
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：Euclidean 热核对频率的抑制}\FrameAnchor{V30-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=0.05,xmax=12,ymin=0,ymax=2.05,xlabel={$\omega/T$},ylabel={$K(\tau=\beta/2,\omega)$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=0.05:12,samples=160] {1/sinh(x/2)};
+\addlegendentry{中点热核}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{30.00}：高频贡献在 Euclidean 中点被指数压低，说明谱重建信息损失。
+\SourceLine{热谱表示}
+\end{frame}
+
+\begin{frame}[t]{热迹、Euclidean 时间圆与温度设定：问题与图像}\FrameAnchor{30.01-1}
+\footnotesize
+\begin{block}{本节问题}为什么有限温度等价于长度 \ensuremath{\beta} 的 Euclidean 时间圆？\end{block}
+\PhysicalFlow{统计迹 Tr e\ensuremath{^{-\beta{}H}}}{插入场本征态并首尾相接}{玻色周期/\allowbreak{}费米反周期时间边界}{30.01}
+\begin{block}{物理原则}\KnowledgeID{30.01}\quad 费米子因 Grassmann 迹带负号而反周期；各向异性格点必须使用 at 而不是 as。\end{block}
+\SourceLine{BOOK-QFT；BOOK-LQCD；PYQCD-CONVENTIONS}
+\end{frame}
+
+\begin{frame}[t]{热迹、Euclidean 时间圆与温度设定：定义与主公式}\FrameAnchor{30.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{30.01-dbedd1afe5} 逆温度 & \ensuremath{\beta}=1/\allowbreak{}T，自然单位下具有时间/\allowbreak{}长度量纲\\
+\DefinitionID{30.01-5e8cf8e961} Matsubara 边界 & 玻色场沿时间周期、费米场反周期\\
+\DefinitionID{30.01-8f6a58dd1f} 温度扫描 & 通过 Nt、at 或耦合改变 T=1/\allowbreak{}(Nt at)\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{30.01} 主公式}\centering\CourseDisplayEquation{Z(T)=\operatorname{Tr}e^{-\beta H}=\int_{\phi(\beta)=\phi(0)}\!\mathcal D\phi\,e^{-S_E},\qquad T=\frac1{N_ta_t}}\end{block}
+迹把初末场构型识别，形成时间圆；格点时间方向总物理长度 Nt at 就是 \ensuremath{\beta}。
+\end{frame}
+
+\begin{frame}[t]{热迹、Euclidean 时间圆与温度设定：推导与证据边界}\FrameAnchor{30.01-3}
+\footnotesize
+\DerivationID{30.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{30.01}：
+\begin{enumerate}
+\item 把 \ensuremath{\beta} 分成 N 个小步并在每步插入场完备集。
+\item 矩阵元 <\ensuremath{\phi}\ensuremath{_{j+1}}|e\ensuremath{^{-\Delta\tau{}H}}|\ensuremath{\phi}\_j> 在连续极限生成 Euclidean 作用量。
+\item 迹要求最后状态与初始状态求和并识别，得到 \ensuremath{\phi}(\ensuremath{\beta})=\ensuremath{\phi}(0)。
+\item 离散时间圆长度 Nt at=\ensuremath{\beta}，故 T=1/\allowbreak{}(Nt at)。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{30.01}\quad 热迹、Euclidean 时间圆与温度设定；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：自然单位 kB=\ensuremath{\hbar}=c=1
+\end{block}
+\BoundaryLine{不验证路径积分测度和费米反周期迹符号。}
+\end{frame}
+
+\begin{frame}[t]{热迹、Euclidean 时间圆与温度设定：计算算法}\FrameAnchor{30.01-4}
+\footnotesize
+\AlgorithmID{30.01}\begin{enumerate}
+\item 选择 fixed-scale（固定 a 改 Nt）或 fixed-Nt（改耦合/\allowbreak{}格距）策略。
+\item 记录 as、at、各向异性和零温配对系综。
+\item 核对温度、空间体积和最低 Matsubara 频率。
+\item 同时做 Nt 连续外推和 Ns/\allowbreak{}Nt 体积检查。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] Nt\ensuremath{\rightarrow}\ensuremath{\infty} 且 at 固定时 T\ensuremath{\rightarrow}0。
+\item[\CheckMark] 玻色 Matsubara 频率 2\ensuremath{\pi}nT；费米为 (2n+1)\ensuremath{\pi}T。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{thermal ensemble metadata；零温 subtraction 配对}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{热迹、Euclidean 时间圆与温度设定：练习与完整解答}\FrameAnchor{30.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{30.01}}at=0.08 fm、Nt=12 时温度约多少 MeV？\end{block}
+\begin{exampleblock}{\SolutionID{30.01}}\ensuremath{\beta}=0.96 fm；T=197.326/\allowbreak{}0.96 MeV\ensuremath{\approx}205.5 MeV。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{30.01-dbedd1afe5}；\CourseRef{Eq}{30.01}；\CourseRef{SYM}{30.01}；\CourseRef{Alg}{30.01}。
+\SourceLine{BOOK-QFT；BOOK-LQCD；PYQCD-CONVENTIONS}
+\end{frame}
+
+\begin{frame}[t]{Polyakov loop、中心对称与自由能：问题与图像}\FrameAnchor{30.02-1}
+\footnotesize
+\begin{block}{本节问题}一条绕时间圆的 Wilson 线怎样诊断纯规范退禁闭？\end{block}
+\PhysicalFlow{静态颜色源沿时间绕一周}{取有序链接乘积与颜色迹}{中心变换下获得相位}{30.02}
+\begin{block}{物理原则}\KnowledgeID{30.02}\quad 裸 Polyakov loop 含静态自能发散，需明确重整化；有动力学夸克时中心对称显式破缺，只剩 crossover 指示。\end{block}
+\SourceLine{BOOK-LQCD；PYQCD-GAUGE}
+\end{frame}
+
+\begin{frame}[t]{Polyakov loop、中心对称与自由能：定义与主公式}\FrameAnchor{30.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{30.02-4e7ca4fce5} Polyakov loop & 固定空间点、沿完整 Euclidean 时间方向闭合的 Wilson 线迹\\
+\DefinitionID{30.02-b4b9ab267c} 中心对称 & 纯 SU(N) 规范理论的全局 ZN 变换\\
+\DefinitionID{30.02-790c700eb9} 静态夸克自由能 & 经重整化后由 Lren\ensuremath{\approx}e\ensuremath{^{-FQ/T}} 定义\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{30.02} 主公式}\centering\CourseDisplayEquation{L(\bm x)=\frac1{N_c}\operatorname{Tr}\prod_{\tau=0}^{N_t-1}U_4(\bm x,\tau),\qquad \langle L_R\rangle=e^{-F_Q/T}}\end{block}
+绕时间的静态世界线插入一个无限重颜色源，其热权重给静态自由能。
+\end{frame}
+
+\begin{frame}[t]{Polyakov loop、中心对称与自由能：推导与证据边界}\FrameAnchor{30.02-3}
+\footnotesize
+\DerivationID{30.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{30.02}：
+\begin{enumerate}
+\item 重夸克在静态极限不作空间传播，只连续乘时间链接。
+\item 时间周期性使该路径闭合，颜色迹给规范不变量。
+\item 在路径积分中插入此世界线等价于带一个静态源的配分函数 ZQ/\allowbreak{}Z。
+\item 因此 <LR>=ZQ/\allowbreak{}Z=exp(-FQ/\allowbreak{}T)。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{30.02}\quad Polyakov loop、中心对称与自由能；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：SU(3) 中心元 z=e\ensuremath{^{2\pi{}i/3}}
+\end{block}
+\BoundaryLine{静态自由能重整化和动力学夸克显式破缺未验证。}
+\end{frame}
+
+\begin{frame}[t]{Polyakov loop、中心对称与自由能：计算算法}\FrameAnchor{30.02-4}
+\footnotesize
+\AlgorithmID{30.02}\begin{enumerate}
+\item 逐空间点计算有序时间链接积并平均。
+\item 检查规范变换不变性和中心变换 L\ensuremath{\rightarrow}zL。
+\item 用静态势匹配或 flow 方案重整化，并固定方案。
+\item 扫描 T、体积、Nt，联合看 |L|、susceptibility 与分布。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] T低且纯规范无限体积中心未破缺时 <L>=0。
+\item[\CheckMark] 单位链接场给 L=1，是代码路径乘积的退化检查。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{pyqcd-gauge Polyakov path + renormalization metadata}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{Polyakov loop、中心对称与自由能：练习与完整解答}\FrameAnchor{30.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{30.02}}SU(3) 中把某一时间切片全部 U4 乘 z=e\ensuremath{^{2\pi{}i/3}}，Polyakov loop 如何变？\end{block}
+\begin{exampleblock}{\SolutionID{30.02}}每条绕时间线穿过该切片一次，故 L\ensuremath{\rightarrow}zL；纯规范作用量 plaquette 中 z 与 z* 相消。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{30.02-4e7ca4fce5}；\CourseRef{Eq}{30.02}；\CourseRef{SYM}{30.02}；\CourseRef{Alg}{30.02}。
+\SourceLine{BOOK-LQCD；PYQCD-GAUGE}
+\end{frame}
+
+\begin{frame}[t]{手征凝聚、susceptibility 与 crossover：问题与图像}\FrameAnchor{30.03-1}
+\footnotesize
+\begin{block}{本节问题}怎样用自由能对夸克质量的响应定位手征恢复？\end{block}
+\PhysicalFlow{质量是手征对称显式外源}{自由能一阶导给凝聚}{二阶导给涨落峰}{30.03}
+\begin{block}{物理原则}\KnowledgeID{30.03}\quad 凝聚有加性/\allowbreak{}乘性重整化且 Tc 定义依观测量；应使用重整化组合并做连续、体积和质量外推。\end{block}
+\SourceLine{BOOK-QFT；BOOK-LQCD；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{手征凝聚、susceptibility 与 crossover：定义与主公式}\FrameAnchor{30.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{30.03-8d6caabbeb} 手征凝聚 & <bar\ensuremath{\psi}\ensuremath{\psi}>=(T/\allowbreak{}V)\ensuremath{\partial} lnZ/\allowbreak{}\ensuremath{\partial}m 的约定性序参量\\
+\DefinitionID{30.03-6e3e446181} 手征 susceptibility & 凝聚对质量的导数，含 connected 与 disconnected 部分\\
+\DefinitionID{30.03-e342a03f76} 赝临界温度 & 有限质量 crossover 中某一明确定义观测量的峰/\allowbreak{}拐点温度\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{30.03} 主公式}\centering\CourseDisplayEquation{\langle\bar\psi\psi\rangle=\frac{T}{V}\frac{\partial\ln Z}{\partial m},\qquad \chi_m=\frac{\partial\langle\bar\psi\psi\rangle}{\partial m}=\frac{T}{V}\frac{\partial^2\ln Z}{\partial m^2}}\end{block}
+质量导数把费米行列式拉下一条传播子迹；二阶导分解为涨落项和接触/\allowbreak{}connected 项。
+\end{frame}
+
+\begin{frame}[t]{手征凝聚、susceptibility 与 crossover：推导与证据边界}\FrameAnchor{30.03-3}
+\footnotesize
+\DerivationID{30.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{30.03}：
+\begin{enumerate}
+\item 积分掉费米子得 Z=\ensuremath{\int}DU e\ensuremath{^{-Sg}}det M(m)。
+\item 使用 \ensuremath{\partial} ln detM/\allowbreak{}\ensuremath{\partial}m=Tr[M\ensuremath{^{-1}}\ensuremath{\partial}M/\allowbreak{}\ensuremath{\partial}m] 得凝聚。
+\item 再求一次导数，一部分来自组态间 TrM\ensuremath{^{-1}} 的方差，另一部分来自 \ensuremath{\partial}M\ensuremath{^{-1}}/\allowbreak{}\ensuremath{\partial}m。
+\item 峰值反映自由能曲率最大，但有限质量/\allowbreak{}体积下不必发散。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{30.03}\quad 手征凝聚、susceptibility 与 crossover；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：ln Z 的二阶局部 Taylor 代理；V非零
+\end{block}
+\BoundaryLine{真实 stochastic trace、加性/\allowbreak{}乘性重整化和临界缩放未处理。}
+\end{frame}
+
+\begin{frame}[t]{手征凝聚、susceptibility 与 crossover：计算算法}\FrameAnchor{30.03-4}
+\footnotesize
+\AlgorithmID{30.03}\begin{enumerate}
+\item 选择减法或 m<bar\ensuremath{\psi}\ensuremath{\psi}>/\allowbreak{}m\ensuremath{\pi}\ensuremath{^{4}} 等明确重整化组合。
+\item 用独立噪声估计 TrM\ensuremath{^{-1}} 并校正随机噪声偏差。
+\item 对 T 做 correlated spline/\allowbreak{}缩放拟合定位峰或拐点。
+\item 扫描 Ns、Nt 和轻夸克质量，分别报告统计与定义系统误差。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 高温自由极限中质量归一化凝聚按预期减小。
+\item[\CheckMark] 方差项应非负；connected 部分符号由定义决定。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{stochastic trace + shared-resample temperature fit}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{手征凝聚、susceptibility 与 crossover：练习与完整解答}\FrameAnchor{30.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{30.03}}若 lnZ=A+Bm+Cm\ensuremath{^{2}}，求凝聚和 susceptibility。\end{block}
+\begin{exampleblock}{\SolutionID{30.03}}凝聚=(T/\allowbreak{}V)(B+2Cm)，\ensuremath{\chi}m=(T/\allowbreak{}V)2C；这是局部 Taylor 代理。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{30.03-8d6caabbeb}；\CourseRef{Eq}{30.03}；\CourseRef{SYM}{30.03}；\CourseRef{Alg}{30.03}。
+\SourceLine{BOOK-QFT；BOOK-LQCD；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{状态方程、trace anomaly 与积分法：问题与图像}\FrameAnchor{30.04-1}
+\footnotesize
+\begin{block}{本节问题}格点只给无量纲作用量期望值时，怎样得到 p、\ensuremath{\epsilon} 和 s？\end{block}
+\PhysicalFlow{lnZ 的体积/\allowbreak{}温度导数}{零温扣除去 UV 真空项}{沿裸参数积分重建压力}{30.04}
+\begin{block}{物理原则}\KnowledgeID{30.04}\quad 格点上的 I 还需 beta functions、质量导数和同参数零温扣除；低温积分常数不能静默设零。\end{block}
+\SourceLine{BOOK-QFT；BOOK-LQCD；BOOK-NUMERICS}
+\end{frame}
+
+\begin{frame}[t]{状态方程、trace anomaly 与积分法：定义与主公式}\FrameAnchor{30.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{30.04-8387eb6af6} trace anomaly & I=\ensuremath{\epsilon}-3p，衡量热介质偏离共形性\\
+\DefinitionID{30.04-9654757cfb} 积分法 & 对裸耦合导数的作用量差积分得到 p/\allowbreak{}T\ensuremath{^{4}}\\
+\DefinitionID{30.04-fc5b41a59f} line of constant physics & 改变格距时保持重整化质量比等物理量固定的裸参数轨迹\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{30.04} 主公式}\centering\CourseDisplayEquation{I=\epsilon-3p=T^5\frac{d}{dT}\left(\frac{p}{T^4}\right),\qquad \frac{p(T)}{T^4}-\frac{p(T_0)}{T_0^4}=\int_{T_0}^{T}\frac{I(T')}{T'^5}\,dT'}\end{block}
+热力学恒等式 \ensuremath{\epsilon}=T dp/\allowbreak{}dT-p 直接给 I=T dp/\allowbreak{}dT-4p，并化为上式全导数。
+\end{frame}
+
+\begin{frame}[t]{状态方程、trace anomaly 与积分法：推导与证据边界}\FrameAnchor{30.04-3}
+\footnotesize
+\DerivationID{30.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{30.04}：
+\begin{enumerate}
+\item 由 p=(T/\allowbreak{}V)lnZ、s=dp/\allowbreak{}dT、\ensuremath{\epsilon}=Ts-p。
+\item 代入得 I=T dp/\allowbreak{}dT-4p。
+\item 计算 d(p/\allowbreak{}T\ensuremath{^{4}})/\allowbreak{}dT=(T dp/\allowbreak{}dT-4p)/\allowbreak{}T\ensuremath{^{5}}=I/\allowbreak{}T\ensuremath{^{5}}。
+\item 从参考温度 T0 积分即恢复压力，再由 \ensuremath{\epsilon}=I+3p、s=(\ensuremath{\epsilon}+p)/\allowbreak{}T。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{30.04}\quad 状态方程、trace anomaly 与积分法；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：p 可微；第二项取 I/\allowbreak{}T\ensuremath{^{4}}=c
+\end{block}
+\BoundaryLine{格点 beta functions、零温扣除和积分常数需实测。}
+\end{frame}
+
+\begin{frame}[t]{状态方程、trace anomaly 与积分法：计算算法}\FrameAnchor{30.04-4}
+\footnotesize
+\AlgorithmID{30.04}\begin{enumerate}
+\item 建立每个热系综与零温系综的裸参数配对。
+\item 测量规范/\allowbreak{}费米作用量导数并做 subtraction。
+\item 用非微扰尺度设定求 beta functions 与 line of constant physics。
+\item 相关积分 I/\allowbreak{}T\ensuremath{^{5}}，传播插值、T0、连续外推和尺度误差。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 共形极限 \ensuremath{\epsilon}=3p 时 I=0，p/\allowbreak{}T\ensuremath{^{4}} 为常数。
+\item[\CheckMark] 热力学恒等式应数值满足 sT=\ensuremath{\epsilon}+p。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{zero-T subtraction + beta-function + correlated quadrature}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{状态方程、trace anomaly 与积分法：练习与完整解答}\FrameAnchor{30.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{30.04}}若 I/\allowbreak{}T\ensuremath{^{4}}=c 在某温区为常数，p/\allowbreak{}T\ensuremath{^{4}} 随 lnT 如何变化？\end{block}
+\begin{exampleblock}{\SolutionID{30.04}}I/\allowbreak{}T\ensuremath{^{5}}=c/\allowbreak{}T，所以积分给 p/\allowbreak{}T\ensuremath{^{4}}=c ln(T/\allowbreak{}T0)+p(T0)/\allowbreak{}T0\ensuremath{^{4}}。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{30.04-8387eb6af6}；\CourseRef{Eq}{30.04}；\CourseRef{SYM}{30.04}；\CourseRef{Alg}{30.04}。
+\SourceLine{BOOK-QFT；BOOK-LQCD；BOOK-NUMERICS}
+\end{frame}
+
+\begin{frame}[t]{热谱函数、输运系数与病态反演：问题与图像}\FrameAnchor{30.05-1}
+\footnotesize
+\begin{block}{本节问题}有限个含噪 Euclidean 时间点能否唯一恢复连续实时间谱？\end{block}
+\PhysicalFlow{谱函数经热核积分}{核平滑并压低高频细节}{先验/\allowbreak{}正则化给可控但非唯一重建}{30.05}
+\begin{block}{物理原则}\KnowledgeID{30.05}\quad 最大熵、Bayesian、Backus--Gilbert 或神经网络都引入先验/\allowbreak{}正则化；必须做 mock-data 覆盖，不能把单一重建当唯一真值。\end{block}
+\SourceLine{BOOK-QFT；BOOK-LQCD；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{热谱函数、输运系数与病态反演：定义与主公式}\FrameAnchor{30.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{30.05-601c33f4d0} 谱函数 & 实时间响应的频率密度 \ensuremath{\rho}(\ensuremath{\omega})\\
+\DefinitionID{30.05-21228553ad} 热核 & 把 \ensuremath{\rho} 映射到 Euclidean G(\ensuremath{\tau}) 的已知积分核\\
+\DefinitionID{30.05-79786b996a} 输运系数 & 由 \ensuremath{\rho}(\ensuremath{\omega})/\allowbreak{}\ensuremath{\omega} 在 \ensuremath{\omega}\ensuremath{\rightarrow}0 的极限给出的黏度、扩散等\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{30.05} 主公式}\centering\CourseDisplayEquation{G(\tau)=\int_0^\infty\frac{d\omega}{2\pi}\,K(\tau,\omega)\rho(\omega),\quad K=\frac{\cosh[\omega(\tau-\beta/2)]}{\sinh(\omega\beta/2)}}\end{block}
+Euclidean 数据是谱函数的平滑积分；离散时间点远少于频率自由度，逆算子条件数极大。
+\end{frame}
+
+\begin{frame}[t]{热谱函数、输运系数与病态反演：推导与证据边界}\FrameAnchor{30.05-3}
+\footnotesize
+\DerivationID{30.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{30.05}：
+\begin{enumerate}
+\item 对热关联函数插入能量本征态并按能量差分组。
+\item 用详细平衡把正负频率组合成 \ensuremath{\omega}>0 的 cosh/\allowbreak{}sinh 热核。
+\item 离散化频率后 G=K\ensuremath{\rho}，K 的奇异值快速衰减。
+\item 因此小噪声沿小奇异值方向被放大，需限制可辨识函数空间。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{30.05}\quad 热谱函数、输运系数与病态反演；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：\ensuremath{\omega},\ensuremath{\beta}>0；2\ensuremath{\times}3 矩阵作欠定离散核代理
+\end{block}
+\BoundaryLine{不证明连续谱唯一性；先验偏差必须用 mock-data 覆盖。}
+\end{frame}
+
+\begin{frame}[t]{热谱函数、输运系数与病态反演：计算算法}\FrameAnchor{30.05-4}
+\footnotesize
+\AlgorithmID{30.05}\begin{enumerate}
+\item 先给 UV 渐近、正性/\allowbreak{}奇偶和 sum rules 等可证明约束。
+\item SVD 检查核的有效秩并选择目标分辨函数。
+\item 以多种先验/\allowbreak{}正则强度重建并用合成谱盲测覆盖。
+\item 只报告数据能约束的积分量/\allowbreak{}分辨尺度，并联合 continuum Nt 扫描。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 把重建 \ensuremath{\rho} 前向卷积应在完整协方差下复现 G。
+\item[\CheckMark] 零噪声但有限 Nt 仍存在 null space，不能声称唯一性。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{SVD/\allowbreak{}Backus--Gilbert + mock-spectrum coverage}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{热谱函数、输运系数与病态反演：练习与完整解答}\FrameAnchor{30.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{30.05}}若离散核 K 是 12\ensuremath{\times}200 矩阵，最多有多少个非零奇异值？\end{block}
+\begin{exampleblock}{\SolutionID{30.05}}rank(K)\ensuremath{\le}min(12,200)=12；实际有效秩因奇异值衰减通常更小。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{30.05-601c33f4d0}；\CourseRef{Eq}{30.05}；\CourseRef{SYM}{30.05}；\CourseRef{Alg}{30.05}。
+\SourceLine{BOOK-QFT；BOOK-LQCD；PYQCD-STATISTICS}
+\end{frame}
+
+\begin{frame}[t]{第 30 卷能力清单}\FrameAnchor{V30-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能设计 fixed-scale 或 fixed-Nt 温度扫描
+\item[\CheckMark] 能区分退禁闭与手征 crossover 诊断
+\item[\CheckMark] 能诚实处理 Euclidean 到实时间的病态逆问题
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 30 卷来源（1/2）}\FrameAnchor{V30-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-QFT} & An Introduction to Quantum Field Theory（仓库转排本） & 量子场论、规范理论、QCD 和重整化的主教材交叉核验。\\
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\SourceID{PYQCD-GAUGE} & PyQCD 规范场技能 & 链接、plaquette、flow 和规范不变量。\\
+\SourceID{PYQCD-STATISTICS} & PyQCD 统计技能 & 自相关、重采样、协方差和拟合验证。\\
+\SourceID{PYQCD-CONVENTIONS} & PyQCD 共享约定技能 & gamma、轴顺序、精度和接口约定。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 30 卷来源（2/2）}\FrameAnchor{V30-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{BOOK-NUMERICS} & 数值分析预备课（课程自编） & 差分、求积、收敛阶、线性求解和误差账本。\\
+\bottomrule\end{tabularx}\end{frame}
+

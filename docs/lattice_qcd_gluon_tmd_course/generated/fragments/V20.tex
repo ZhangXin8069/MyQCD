@@ -1,0 +1,378 @@
+\begin{frame}[plain]\FrameAnchor{V20-title}
+\centering
+{\Large\bfseries\color{courseblue}第 20 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 自主实现：从数据契约到可发布结果\par}
+\vspace{0.35cm}
+{\large 完成一条可测试、可断点续跑、可审计的梯度流核子胶子 TMD-PDF 生产流水线。\par}
+\vfill
+\CourseID{Tbl}{20.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 20 卷路线图}\FrameAnchor{V20-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+20.01 & 物理对象到数组与元数据契约\\
+20.02 & 六阶段流水线与断点续跑\\
+20.03 & 分层测试：代数、几何、统计与物理闭合\\
+20.04 & 并行、I/\allowbreak{}O、性能与可复现运行\\
+20.05 & 结课项目：生产判据与发布审计\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{REPORT-TMD；PYQCD-TMD；PYQCD-PIPELINE；P40；P41；P44；P45}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V20-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V01--V19 全部核心能力
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能设计模块化端到端实现
+\item 能用合成与真实数据分级验证
+\item 能明确判断何时结果仍只是原型
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：强标度的理想与通信受限示意}\FrameAnchor{V20-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=1.0,xmax=32.0,ymin=0.0,ymax=20.0,xlabel={并行进程数 $p$},ylabel={相对加速比},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=1.0:32.0,samples=160] {x};
+\addlegendentry{理想线性}
+\addplot[very thick,courseorange,domain=1.0:32.0,samples=160] {1/(0.05+0.95/x)};
+\addlegendentry{Amdahl：串行占比 5\%}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{20.00}：解析性能模型，不代表 PyQCD 实测；生产优化前须 profile。
+\SourceLine{Amdahl 定律}
+\end{frame}
+
+\begin{frame}[t]{物理对象到数组与元数据契约：问题与图像}\FrameAnchor{20.01-1}
+\footnotesize
+\begin{block}{本节问题}怎样让公式中的每个指标在磁盘和内存里都有唯一、可检查的含义？\end{block}
+\PhysicalFlow{物理对象与自由指标}{命名数组轴和单位}{schema/\allowbreak{}几何/\allowbreak{}约定哈希}{20.01}
+\begin{block}{物理原则}\KnowledgeID{20.01}\quad 实现可分块或稀疏存储，但逻辑命名维度不能因性能布局而丢失。\end{block}
+\SourceLine{PYQCD-INFRA；PYQCD-PIPELINE；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{物理对象到数组与元数据契约：定义与主公式}\FrameAnchor{20.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{20.01-d8d7fd6c97} 数据契约 & 规定字段、轴、dtype、单位、约定和不变量的协议\\
+\DefinitionID{20.01-deb31ef2e1} 命名维度 & 以语义名称而非位置猜测数组轴\\
+\DefinitionID{20.01-17c92d8d6a} 溯源 & 从最终点追到输入构型、代码和参数的记录链\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{20.01} 主公式}\centering\CourseDisplayEquation{\texttt{shape}(O)=(N_{\rm cfg},N_\tau,N_P,N_z,N_b,N_\ell,N_{t_{\rm ins}},N_{\rm proj})}\end{block}
+构型轴必须保留到真空扣除与重采样完成；其余轴对应明确物理调节量。
+\end{frame}
+
+\begin{frame}[t]{物理对象到数组与元数据契约：推导与证据边界}\FrameAnchor{20.01-3}
+\footnotesize
+\DerivationID{20.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{20.01}：
+\begin{enumerate}
+\item 从 O(cfg,\ensuremath{\tau},P,z,b,\ensuremath{\ell},tins,proj) 的自由标签逐一建立逻辑轴。
+\item 笛卡尔数据元素数是各轴长度乘积；分块只改变布局。
+\item 把 target=f1g[-,-]、spin\_average、a、单位、方向、2E/\allowbreak{}projector、Fourier/\allowbreak{}\ensuremath{\gamma}/\allowbreak{}生成元约定和路径签名附为不可变元数据。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{20.01}\quad 命名轴笛卡尔积的元素数；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：所有逻辑轴长度为正整数
+\end{block}
+\BoundaryLine{分块、压缩和稀疏布局只改变物理存储，不改变逻辑契约。}
+\end{frame}
+
+\begin{frame}[t]{物理对象到数组与元数据契约：计算算法}\FrameAnchor{20.01-4}
+\footnotesize
+\AlgorithmID{20.01}\begin{enumerate}
+\item 为每阶段定义输入/\allowbreak{}输出 dataclass 或 JSON schema。
+\item 加载时验证轴名、长度、dtype、有限值、单位和版本。
+\item 拒绝隐式 broadcasting、缺失 bT、空 staple 与无构型轴的生产输入。
+\item 写 manifest，含输入校验和、代码状态、命令、随机种子和上游产物 ID。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 任意切片后剩余轴名必须同步更新。
+\item[\CheckMark] 相同数值但不同单位/\allowbreak{}路径哈希的数据不得自动合并。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}tools/\allowbreak{}\_\allowbreak{}io.\allowbreak{}py、pipeline/\allowbreak{}\_\allowbreak{}config.\allowbreak{}py、\_\allowbreak{}validate.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{物理对象到数组与元数据契约：练习与完整解答}\FrameAnchor{20.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{20.01}}Ncfg=100，其余七轴长度均为 2，逻辑元素数是多少？\end{block}
+\begin{exampleblock}{\SolutionID{20.01}}100\ensuremath{\times}2\ensuremath{^{7}}=12,800；复数 128 位裸存储约 204,800 字节。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{20.01-d8d7fd6c97}；\CourseRef{Eq}{20.01}；\CourseRef{SYM}{20.01}；\CourseRef{Alg}{20.01}。
+\SourceLine{PYQCD-INFRA；PYQCD-PIPELINE；REPORT-TMD}
+\end{frame}
+
+\begin{frame}[t]{六阶段流水线与断点续跑：问题与图像}\FrameAnchor{20.02-1}
+\footnotesize
+\begin{block}{本节问题}如何把一天到数月的计算拆成失败可恢复、结果不漂移的阶段？\end{block}
+\PhysicalFlow{flow/\allowbreak{}operator}{C2+断连三点}{renorm/\allowbreak{}soft\ensuremath{\rightarrow}Fourier/\allowbreak{}CS/\allowbreak{}matching\ensuremath{\rightarrow}limits}{20.02}
+\begin{block}{物理原则}\KnowledgeID{20.02}\quad 哈希保证可识别性而非物理正确；每阶段仍需不变量和统计质量门。\end{block}
+\SourceLine{PYQCD-PIPELINE；PYQCD-INFRA}
+\end{frame}
+
+\begin{frame}[t]{六阶段流水线与断点续跑：定义与主公式}\FrameAnchor{20.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{20.02-d453c01332} 有向无环图 & 按产物依赖组织且无循环的任务图\\
+\DefinitionID{20.02-822e551ad3} 幂等 & 相同输入重复运行产生相同可识别输出\\
+\DefinitionID{20.02-9c63b8df4c} checkpoint & 完成阶段的原子状态和产物记录\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{20.02} 主公式}\centering\CourseDisplayEquation{H_{\rm out}=\operatorname{SHA256}(H_{\rm inputs},H_{\rm config},H_{\rm code},\text{stage})}\end{block}
+内容寻址 ID 由输入、配置、代码状态和阶段共同决定。
+\end{frame}
+
+\begin{frame}[t]{六阶段流水线与断点续跑：推导与证据边界}\FrameAnchor{20.02-3}
+\footnotesize
+\DerivationID{20.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{20.02}：
+\begin{enumerate}
+\item 把决定性字段按固定顺序规范化编码。
+\item SHA256 对同一字节串给同一摘要，任一输入变化通常改变摘要。
+\item 将输出 ID 与完成标记原子写入；下游只接受全部依赖 ID 匹配的产物。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{20.02}\quad 内容寻址依赖的符号结构；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：把 SHA256 视为四元输入的确定性构造函数
+\end{block}
+\BoundaryLine{碰撞抗性是密码学性质，不由 SymPy 证明；实际实现还需规范化字节编码和原子写入。}
+\end{frame}
+
+\begin{frame}[t]{六阶段流水线与断点续跑：计算算法}\FrameAnchor{20.02-4}
+\footnotesize
+\AlgorithmID{20.02}\begin{enumerate}
+\item 划分 flow、operator、correlator、disc-fit、renorm-soft、extract-limits 六阶段。
+\item 每阶段启动前验证依赖、资源估计和输出目录不冲突。
+\item 先写临时分块，校验后原子重命名并写完成清单。
+\item 重启时只跳过 ID、schema、校验和与质量门全部一致的阶段。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 相同输入应产生相同 stage ID。
+\item[\CheckMark] 只改 soft 几何时，flow 可复用而 renorm-soft 及下游必须失效。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}pipeline/\allowbreak{}\_\allowbreak{}runner.\allowbreak{}py、\_\allowbreak{}steps.\allowbreak{}py、\_\allowbreak{}tmd9.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{六阶段流水线与断点续跑：练习与完整解答}\FrameAnchor{20.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{20.02}}配置改变 Pz 列表，哪些阶段至少必须重跑？\end{block}
+\begin{exampleblock}{\SolutionID{20.02}}核子 correlator/\allowbreak{}断连拟合及下游必须重跑；只依赖规范链接的 flow 可复用。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{20.02-d453c01332}；\CourseRef{Eq}{20.02}；\CourseRef{SYM}{20.02}；\CourseRef{Alg}{20.02}。
+\SourceLine{PYQCD-PIPELINE；PYQCD-INFRA}
+\end{frame}
+
+\begin{frame}[t]{分层测试：代数、几何、统计与物理闭合：问题与图像}\FrameAnchor{20.03-1}
+\footnotesize
+\begin{block}{本节问题}在昂贵真实系综运行前，哪些错误必须在小测试中被截住？\end{block}
+\PhysicalFlow{单位/\allowbreak{}性质测试}{合成端到端注入回收}{小真实系综 smoke 与生产验证}{20.03}
+\begin{block}{物理原则}\KnowledgeID{20.03}\quad 单次 |pull|<2 不是证明；需随机重复、故障注入和真实数据不变量共同建立证据。\end{block}
+\SourceLine{PYQCD-TMD-VALIDATION；PYQCD-STATISTICS；MYQCD-FORMULAS}
+\end{frame}
+
+\begin{frame}[t]{分层测试：代数、几何、统计与物理闭合：定义与主公式}\FrameAnchor{20.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{20.03-f1ae34ca85} property test & 对一类随机输入检查不变量\\
+\DefinitionID{20.03-d48705fcfb} 合成注入 & 从已知真值生成数据并检验能否回收\\
+\DefinitionID{20.03-539b3cfda0} 闭合测试 & 正向生成与逆向提取组合后回到目标\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{20.03} 主公式}\centering\CourseDisplayEquation{\delta_{\rm closure}=\frac{\hat\theta-\theta_{\rm true}}{\sigma_{\hat\theta}},\qquad |\delta_{\rm closure}|\lesssim2\quad\text{（单次诊断）}}\end{block}
+pull 用估计误差归一化偏差；重复实验应检验均值、宽度与覆盖率。
+\end{frame}
+
+\begin{frame}[t]{分层测试：代数、几何、统计与物理闭合：推导与证据边界}\FrameAnchor{20.03-3}
+\footnotesize
+\DerivationID{20.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{20.03}：
+\begin{enumerate}
+\item 若估计无偏且 \ensuremath{\sigma} 校准，pull 近似标准正态。
+\item 标准正态约 95.45\% 落在 [-2,2]。
+\item 单次超界提示问题；长期覆盖率才判断误差估计是否可靠。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{20.03}\quad 标准正态两倍标准差覆盖率；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：pull 服从标准正态的理想校准模型
+\end{block}
+\BoundaryLine{真实覆盖率必须由重复合成实验测量，单次 |pull|<2 不证明正确。}
+\end{frame}
+
+\begin{frame}[t]{分层测试：代数、几何、统计与物理闭合：计算算法}\FrameAnchor{20.03-4}
+\footnotesize
+\AlgorithmID{20.03}\begin{enumerate}
+\item 代数层测试 SU(3)、\ensuremath{\gamma} 代数、Fourier 归一化和 SymPy 公式。
+\item 几何层测试端点、反向、规范不变和非零 bT 守卫。
+\item 统计层注入多态、协方差、soft、匹配与四极限，检验偏差/\allowbreak{}覆盖。
+\item 小真实系综只验证链路；生产声明需完整统计、多尺度和外部交叉检查。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 输入乘共同 UV 因子后 ZR 比值应不变。
+\item[\CheckMark] 打乱构型配对应使断连信号消失。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{本课程 sympy\_\allowbreak{}validation.\allowbreak{}py；PyQCD TMD validation 参考}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{分层测试：代数、几何、统计与物理闭合：练习与完整解答}\FrameAnchor{20.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{20.03}}1000 次覆盖实验中 950 个 95\% 区间含真值，经验覆盖率是多少？\end{block}
+\begin{exampleblock}{\SolutionID{20.03}}95\%；二项标准误约 \ensuremath{\sqrt{0.95\times 0.05/1000}}=0.69\%。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{20.03-f1ae34ca85}；\CourseRef{Eq}{20.03}；\CourseRef{SYM}{20.03}；\CourseRef{Alg}{20.03}。
+\SourceLine{PYQCD-TMD-VALIDATION；PYQCD-STATISTICS；MYQCD-FORMULAS}
+\end{frame}
+
+\begin{frame}[t]{并行、I/\allowbreak{}O、性能与可复现运行：问题与图像}\FrameAnchor{20.04-1}
+\footnotesize
+\begin{block}{本节问题}如何扩展到许多构型和几何点，同时不牺牲确定性与数据完整性？\end{block}
+\PhysicalFlow{按构型/\allowbreak{}参数独立分片}{MPI 汇总与分块 I/\allowbreak{}O}{profile 后优化计算/\allowbreak{}通信}{20.04}
+\begin{block}{物理原则}\KnowledgeID{20.04}\quad 先测量真实瓶颈；GPU/\allowbreak{}MPI 接口存在不等于当前路径已获加速或数值一致。\end{block}
+\SourceLine{PYQCD-INFRA；PYQCD-PIPELINE}
+\end{frame}
+
+\begin{frame}[t]{并行、I/\allowbreak{}O、性能与可复现运行：定义与主公式}\FrameAnchor{20.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{20.04-e43bf33539} 数据并行 & 不同进程处理独立构型或参数块\\
+\DefinitionID{20.04-0a008ea643} collective I/\allowbreak{}O & 进程协同写入全局数据集\\
+\DefinitionID{20.04-3316d23eab} 强标度 & 固定总问题规模增加资源的加速行为\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{20.04} 主公式}\centering\CourseDisplayEquation{S(p)=\frac{1}{f+(1-f)/p}}\end{block}
+Amdahl 定律说明串行比例 f 给强标度加速设置上限 1/\allowbreak{}f。
+\end{frame}
+
+\begin{frame}[t]{并行、I/\allowbreak{}O、性能与可复现运行：推导与证据边界}\FrameAnchor{20.04-3}
+\footnotesize
+\DerivationID{20.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{20.04}：
+\begin{enumerate}
+\item 把串行时间归一为 f，并行部分为 1-f。
+\item p 个理想进程把并行时间缩为 (1-f)/\allowbreak{}p。
+\item 总相对时间为 f+(1-f)/\allowbreak{}p，取倒数得到加速比。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{20.04}\quad Amdahl 强标度；3/3 项通过；SymPy exact。
+\par\scriptsize 假设：0<f<=1；并行部分理想均分且忽略额外通信开销
+\end{block}
+\BoundaryLine{真实性能必须 profile；模型不是 PyQCD 实测。}
+\end{frame}
+
+\begin{frame}[t]{并行、I/\allowbreak{}O、性能与可复现运行：计算算法}\FrameAnchor{20.04-4}
+\footnotesize
+\AlgorithmID{20.04}\begin{enumerate}
+\item 优先按构型分配，以保持配置级统计独立和少通信。
+\item 对路径前缀、flow checkpoints 和 Fourier 核做只读缓存。
+\item 每 rank 写独立临时分块或经验证 collective I/\allowbreak{}O，禁止无锁追加。
+\item 记录 wall time、内存、I/\allowbreak{}O、通信、硬件和确定性归约。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] p=1 时 S=1。
+\item[\CheckMark] p\ensuremath{\rightarrow}\ensuremath{\infty} 时 S\ensuremath{\rightarrow}1/\allowbreak{}f；f=0 才有理想无限线性标度。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}pyqcd/\allowbreak{}parallel/\allowbreak{}\_\allowbreak{}mpi.\allowbreak{}py、\_\allowbreak{}mpi\_\allowbreak{}transport.\allowbreak{}py；tools/\allowbreak{}\_\allowbreak{}io.\allowbreak{}py}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{并行、I/\allowbreak{}O、性能与可复现运行：练习与完整解答}\FrameAnchor{20.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{20.04}}f=0.05、p=16 时理论加速比是多少？\end{block}
+\begin{exampleblock}{\SolutionID{20.04}}1/\allowbreak{}[0.05+0.95/\allowbreak{}16]\ensuremath{\approx}9.14，明显小于理想 16。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{20.04-e43bf33539}；\CourseRef{Eq}{20.04}；\CourseRef{SYM}{20.04}；\CourseRef{Alg}{20.04}。
+\SourceLine{PYQCD-INFRA；PYQCD-PIPELINE}
+\end{frame}
+
+\begin{frame}[t]{结课项目：生产判据与发布审计：问题与图像}\FrameAnchor{20.05-1}
+\footnotesize
+\begin{block}{本节问题}什么时候可以把图称为“梯度流方案的核子胶子 TMD-PDF”，而不是演示曲线？\end{block}
+\PhysicalFlow{完整物理链和四级证据}{预注册质量门逐项通过}{可重现产物、误差预算与限制声明}{20.05}
+\begin{block}{物理原则}\KnowledgeID{20.05}\quad 极限只在 C\ensuremath{\Gamma} 已消去 finite-staple 的非解析流时结构、且数据覆盖支持时有意义；每个方向都要有误差与停止门。\end{block}
+\SourceLine{REPORT-TMD；P40；P41；P44；P45；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{结课项目：生产判据与发布审计：定义与主公式}\FrameAnchor{20.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{20.05-e7fe51c115} 证据状态 & 接口存在、测试通过、方案闭合、真实数据验证的分级\\
+\DefinitionID{20.05-d7d8280e5b} 发布审计 & 对物理定义、数据、代码、统计和声明逐项核查\\
+\DefinitionID{20.05-78246921e1} 降级措辞 & 关键环节缺失时准确描述原型/\allowbreak{}演示\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{20.05} 主公式}\centering\CourseDisplayEquation{\begin{aligned}f_1^{g[-,-]}&=\lim_{\substack{a\to0,\ P_z\to\infty\\ \tau\to0,\ \ell\to\infty}}\!\Biggl[\bm C_{g\Sigma}^{-1}\!\otimes\mathcal U_{\rm CS}\mathcal F_z\\ &\qquad\times C_{\Gamma,{\rm flow}\to S}\mathcal R_{\rm qsoft,UV}^{S}\frac{2E_{\bm P}}{\mathcal K_\Pi}R_{3{\rm pt}/2{\rm pt}}^{B,\Pi}\Biggr]\end{aligned}}\end{block}
+最终主对象是自旋平均 [-,-] 通道的测量、运动学归一化、quasi-soft/\allowbreak{}UV/\allowbreak{}流方案转换、Fourier、CS、胶子--singlet 匹配和四类极限的受控组合。
+\end{frame}
+
+\begin{frame}[t]{结课项目：生产判据与发布审计：推导与证据边界}\FrameAnchor{20.05-3}
+\footnotesize
+\DerivationID{20.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{20.05}：
+\begin{enumerate}
+\item R3pt/\allowbreak{}2ptB 来自真实核子二点与 flowed 非零 bT、past-pointing finite-staple 胶子断连三点；2E/\allowbreak{}K\ensuremath{\Pi} 恢复目标矩阵元。
+\item Rqsoft,UVS 使用方案兼容的 v/\allowbreak{}vbar、regulator 与 zero-bin；C\ensuremath{\Gamma},flow\ensuremath{\rightarrow}S 处理完整路径、端点、cusp 和 mixing。
+\item Fz、UCS、Cg\ensuremath{\Sigma}\ensuremath{^{-1}} 在共同 x/\allowbreak{}\ensuremath{\nu} 与至少三个 Pz 上处理有限 z、rapidity 演化和胶子—singlet 匹配；联合极限移除调节量。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{20.05}\quad 四类调节量的联合理想极限；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：使用可分离的领先修正代理；P,ell 为正
+\end{block}
+\BoundaryLine{真实极限含交叉项、对数、混合和相关数据；该检查只验证终章流程骨架。}
+\end{frame}
+
+\begin{frame}[t]{结课项目：生产判据与发布审计：计算算法}\FrameAnchor{20.05-4}
+\footnotesize
+\AlgorithmID{20.05}\begin{enumerate}
+\item 阶段 A：小格点合成数据通过公式、几何、统计、闭合和故障注入测试。
+\item 阶段 B：真实多构型检查信号、对称性、流时窗、tsep、bT、\ensuremath{\ell} 与多 Pz。
+\item 阶段 C：多格距、多 Pz、多 \ensuremath{\tau}、多 \ensuremath{\ell} 完成相关联合外推和误差预算。
+\item 阶段 D：冻结配置/\allowbreak{}代码/\allowbreak{}环境，独立复算关键点，生成 manifest 与限制声明。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] bT=0 只能称裸几何退化/\allowbreak{}直线原型；物理 collinear 联系需 small-bT OPE。
+\item[\CheckMark] soft=1、缺 C\ensuremath{\Gamma}、单构型扣除或无混合/\allowbreak{}多尺度外推时不得标为真实 TMD 验证。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{.\allowbreak{}.\allowbreak{}/\allowbreak{}PyQCD/\allowbreak{}examples/\allowbreak{}pyqcd/\allowbreak{}test9\_\allowbreak{}gluon\_\allowbreak{}tmd\_\allowbreak{}nucleon.\allowbreak{}py 与 pipeline/\allowbreak{}\_\allowbreak{}tmd9.\allowbreak{}py（实现入口；证据状态须另审计）}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{结课项目：生产判据与发布审计：练习与完整解答}\FrameAnchor{20.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{20.05}}给出最小但不可省略的“物理结果”输入维度。\end{block}
+\begin{exampleblock}{\SolutionID{20.05}}至少需多构型；非零多个 bT；多个 \ensuremath{\ell}、z、tsep、\ensuremath{\tau}、a；至少三个有效 Pz；方案兼容且已定义 regulator/\allowbreak{}zero-bin/\allowbreak{}转换核的 quasi-soft；胶子与 singlet 匹配输入。点数由可辨识性和误差目标决定，不能用单点替代极限。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{20.05-e7fe51c115}；\CourseRef{Eq}{20.05}；\CourseRef{SYM}{20.05}；\CourseRef{Alg}{20.05}。
+\SourceLine{REPORT-TMD；P40；P41；P44；P45；PYQCD-TMD}
+\end{frame}
+
+\begin{frame}[t]{第 20 卷能力清单}\FrameAnchor{V20-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能设计模块化端到端实现
+\item[\CheckMark] 能用合成与真实数据分级验证
+\item[\CheckMark] 能明确判断何时结果仍只是原型
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 20 卷来源（1/3）}\FrameAnchor{V20-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{REPORT-TMD} & 梯度流核子胶子 TMD 项目报告 & 本课程终点定义、实现现状、证据分级和关键物理边界。\\
+\SourceID{PYQCD-TMD} & PyQCD TMD 主链技能 & 六阶段 TMD 物理链和端到端接口。\\
+\SourceID{PYQCD-PIPELINE} & PyQCD 流水线技能 & 配置、守卫、元数据、断点续跑和产物清单。\\
+\SourceID{P40} & 梯度流中的非光锥威尔逊线算符 & 论文图谱 P40 的完整原始 PDF；底稿 arXiv:2312.05032；SHA-256 31292da5c276c237…。\\
+\SourceID{P41} & 首个核子胶子部分子分布 & 论文图谱 P41 的完整原始 PDF；底稿 arXiv:2505.13321；SHA-256 09eff6064b5d9c67…。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 20 卷来源（2/3）}\FrameAnchor{V20-sources-2}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{P44} & 从准TMD波函数确定CS核 & 论文图谱 P44 的完整原始 PDF；底稿 arXiv:2204.00200；SHA-256 589d870d484889ae…。\\
+\SourceID{P45} & LaMET计算TMD软函数 & 论文图谱 P45 的完整原始 PDF；底稿 arXiv:2005.14572；SHA-256 22b1f2cbca968f30…。\\
+\SourceID{PYQCD-INFRA} & PyQCD 基础设施技能 & 后端、I/\allowbreak{}O、MPI 和资源治理。\\
+\SourceID{PYQCD-TMD-VALIDATION} & PyQCD TMD 验证矩阵 & 合成闭合、故障注入和生产质量门。\\
+\SourceID{PYQCD-STATISTICS} & PyQCD 统计技能 & 自相关、重采样、协方差和拟合验证。\\
+\bottomrule\end{tabularx}\end{frame}
+
+\begin{frame}[t]{第 20 卷来源（3/3）}\FrameAnchor{V20-sources-3}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{MYQCD-FORMULAS} & MyQCD 可执行公式注册表 & 复杂公式的 SymPy 精确代理与证据边界。\\
+\bottomrule\end{tabularx}\end{frame}
+

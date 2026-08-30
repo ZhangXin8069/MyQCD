@@ -1,0 +1,368 @@
+\begin{frame}[plain]\FrameAnchor{V31-title}
+\centering
+{\Large\bfseries\color{courseblue}第 31 卷\par}
+\vspace{0.35cm}
+{\LARGE\bfseries 格点费米子方案全景\par}
+\vspace{0.35cm}
+{\large 比较 staggered、domain-wall、overlap、twisted-mass 与 mixed-action 的对称性、代价和连续极限。\par}
+\vfill
+\CourseID{Tbl}{31.00}\quad 5 个学习单元，固定编号不随合订方式改变
+\end{frame}
+
+\begin{frame}[t]{第 31 卷路线图}\FrameAnchor{V31-route}
+\small
+\begin{tabularx}{\linewidth}{p{0.14\linewidth}Y}
+\toprule 编号 & 学习单元\\\midrule
+31.01 & staggered 费米子、taste 与 rooting\\
+31.02 & domain-wall 费米子与剩余质量\\
+31.03 & overlap 算子与 Ginsparg--Wilson 关系\\
+31.04 & twisted-mass Wilson 与最大扭转自动改进\\
+31.05 & mixed-action、partial quenching 与统一连续极限\\
+\bottomrule\end{tabularx}
+\vfill
+\SourceLine{DOC-FERMIONS；DOC-SYMANZIK；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{先修诊断与本卷出口}\FrameAnchor{V31-diagnostic}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}\begin{block}{开始前应能回答}
+\small\begin{itemize}
+\item V10
+\item V25
+\end{itemize}\end{block}
+\column{0.48\textwidth}\begin{block}{学完后应能独立完成}
+\small\begin{itemize}
+\item 能用 Nielsen--Ninomiya 权衡解释各方案
+\item 能为目标观测量选择费米子离散化
+\item 能把方案特有伪影写入外推与误差账本
+\end{itemize}\end{block}
+\end{columns}
+\vfill\scriptsize 若先修项答不出，回到相应前卷；不要以术语熟悉代替可计算能力。
+\end{frame}
+
+\begin{frame}[t]{定量图：domain-wall 剩余手征破缺示意}\FrameAnchor{V31-chart}
+\centering\begin{tikzpicture}
+\begin{axis}[width=0.88\linewidth,height=0.63\textheight,xmin=2,xmax=32,ymin=0,ymax=0.7,xlabel={第五维长度 $L_s$},ylabel={$m_{\rm res}/A$},grid=major,grid style={courseline!55},legend style={font=\scriptsize,draw=none,fill=white},tick label style={font=\scriptsize},label style={font=\small}]
+\addplot[very thick,courseblue,domain=2:32,samples=160] {exp(-0.16*x)};
+\addlegendentry{理想指数衰减}
+\addplot[very thick,courseorange,domain=2:32,samples=160] {exp(-0.16*x)+0.025};
+\addlegendentry{带 dislocation 平台}
+\end{axis}\end{tikzpicture}
+\par\scriptsize\FigureID{31.00}：第二条的非零平台示意近零模/\allowbreak{}粗糙规范场影响，不是普适定量公式。
+\SourceLine{domain-wall transfer matrix}
+\end{frame}
+
+\begin{frame}[t]{staggered 费米子、taste 与 rooting：问题与图像}\FrameAnchor{31.01-1}
+\footnotesize
+\begin{block}{本节问题}怎样把 16 个 naive doublers 组织成 4 个 tastes？\end{block}
+\PhysicalFlow{自旋对角化分散 gamma}{一个分量 staggered 场}{连续极限四 taste 多重态}{31.01}
+\begin{block}{物理原则}\KnowledgeID{31.01}\quad rooted 理论在有限 a 非局域；其可接受性依赖正确连续极限与 taste 恢复，必须做多格距检查。\end{block}
+\SourceLine{DOC-FERMIONS；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{staggered 费米子、taste 与 rooting：定义与主公式}\FrameAnchor{31.01-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{31.01-775637f7da} taste & staggered 离散化中同一 flavor 的四个连续极限副本\\
+\DefinitionID{31.01-fcfd0f288a} taste breaking & 有限格距高动量胶子导致 taste 多重态劈裂的 O(a\ensuremath{^{2}}) 伪影\\
+\DefinitionID{31.01-9afda3e03a} rooting & 对 staggered determinant 取四次根以表示每 flavor 一个 taste\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{31.01} 主公式}\centering\CourseDisplayEquation{\det D_{\rm stag}^{\,1/4}\xrightarrow[a\to0]{}\det D_{1\,\mathrm{flavor}},\qquad m_{\pi,t}^2=m_\pi^2+a^2\Delta_t+\cdots}\end{block}
+taste 对称在连续极限恢复时，四次根去掉四重简并；不同 pion taste 的质量劈裂量化有限 a 破缺。
+\end{frame}
+
+\begin{frame}[t]{staggered 费米子、taste 与 rooting：推导与证据边界}\FrameAnchor{31.01-3}
+\footnotesize
+\DerivationID{31.01}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{31.01}：
+\begin{enumerate}
+\item naive Dirac 算子在 Brillouin 区 16 个角点有零点。
+\item 位置依赖自旋对角化把自旋分量分配到超立方体角点，剩四个 tastes。
+\item 连续极限 taste 对称使 determinant 近似为四个相同单味 determinant 的乘积。
+\item 取四次根在该极限留下一个 determinant；a\ensuremath{^{2}}\ensuremath{\Delta}t 描述恢复速度。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{31.01}\quad staggered 费米子、taste 与 rooting；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：taste 劈裂领先 O(a\ensuremath{^{2}})
+\end{block}
+\BoundaryLine{rooting 的局域性和正确 universality 不能由质量极限单独证明。}
+\end{frame}
+
+\begin{frame}[t]{staggered 费米子、taste 与 rooting：计算算法}\FrameAnchor{31.01-4}
+\footnotesize
+\AlgorithmID{31.01}\begin{enumerate}
+\item 选择 staggered action 和 link improvement，并记录 taste 结构。
+\item 测量完整 pion taste multiplet，而非只测 Goldstone pion。
+\item 在 rooted staggered \ensuremath{\chi}PT 中联合质量、体积和 a\ensuremath{^{2}} 外推。
+\item 检查不同 taste、格距和局域性敏感量收敛到同一连续结果。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] a\ensuremath{\rightarrow}0 时所有 \ensuremath{\Delta}t 劈裂应消失。
+\item[\CheckMark] 未 rooting 的单 staggered 场连续极限含四 tastes。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{taste multiplet spectroscopy + rooted continuum fit}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{staggered 费米子、taste 与 rooting：练习与完整解答}\FrameAnchor{31.01-5}
+\footnotesize
+\begin{block}{\ExerciseID{31.01}}若 m\ensuremath{\pi}=0.14 GeV、a\ensuremath{^{2}}\ensuremath{\Delta}t=0.04 GeV\ensuremath{^{2}}，非 Goldstone taste 质量是多少？\end{block}
+\begin{exampleblock}{\SolutionID{31.01}}mt=sqrt(0.14\ensuremath{^{2}}+0.04) GeV\ensuremath{\approx}0.244 GeV。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{31.01-775637f7da}；\CourseRef{Eq}{31.01}；\CourseRef{SYM}{31.01}；\CourseRef{Alg}{31.01}。
+\SourceLine{DOC-FERMIONS；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{domain-wall 费米子与剩余质量：问题与图像}\FrameAnchor{31.02-1}
+\footnotesize
+\begin{block}{本节问题}额外第五维怎样近似恢复四维手征对称？\end{block}
+\PhysicalFlow{左右手模束缚在第五维两墙}{有限 Ls 允许指数隧穿}{mres 量化残余混合}{31.02}
+\begin{block}{物理原则}\KnowledgeID{31.02}\quad mres 不是唯一质量调谐量；还要监测 Ward identity、M5、体积和拓扑采样。\end{block}
+\SourceLine{DOC-FERMIONS；BOOK-LQCD；PYQCD-ANALYSIS}
+\end{frame}
+
+\begin{frame}[t]{domain-wall 费米子与剩余质量：定义与主公式}\FrameAnchor{31.02-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{31.02-386b066b30} 第五维 & 用于实现手征边界模的算法维度，不是物理时空\\
+\DefinitionID{31.02-8ba9531803} domain wall height & 控制五维 kernel 与边界局域性的参数 M5\\
+\DefinitionID{31.02-7919266eed} 剩余质量 & 有限 Ls 造成的额外显式手征破缺 mres\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{31.02} 主公式}\centering\CourseDisplayEquation{m_{\rm eff}=m_f+m_{\rm res},\qquad m_{\rm res}\sim A e^{-\alpha L_s}+\text{dislocation contribution}}\end{block}
+左右墙模重叠随间距 Ls 指数减小；粗糙规范场近零模可给更慢尾项。
+\end{frame}
+
+\begin{frame}[t]{domain-wall 费米子与剩余质量：推导与证据边界}\FrameAnchor{31.02-3}
+\footnotesize
+\DerivationID{31.02}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{31.02}：
+\begin{enumerate}
+\item 五维质量缺陷在两边界产生相反手性的低能局域模。
+\item 有限 Ls 时两模波函数尾部重叠，形成小 Dirac 质量。
+\item 若 transfer-matrix mobility gap 为 \ensuremath{\alpha}，重叠按 e\ensuremath{^{-\alpha{}Ls}}。
+\item dislocation 近零模使简单单指数失效并贡献额外尾项。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{31.02}\quad domain-wall 费米子与剩余质量；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：单一 mobility-gap 指数模型
+\end{block}
+\BoundaryLine{dislocation 尾、M5 调谐和 Ward identity 需真实数据。}
+\end{frame}
+
+\begin{frame}[t]{domain-wall 费米子与剩余质量：计算算法}\FrameAnchor{31.02-4}
+\footnotesize
+\AlgorithmID{31.02}\begin{enumerate}
+\item 扫描 M5、Ls 与 gauge smearing，先测 transfer/\allowbreak{}残差诊断。
+\item 由轴 Ward identity 比值提取 mres 平台。
+\item 用 mf+mres 调谐物理轻夸克质量。
+\item 在多个 a、Ls 上传播残余手征破缺到算符混合与连续外推。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] Ls\ensuremath{\rightarrow}\ensuremath{\infty} 且 mobility gap 非零时 mres\ensuremath{\rightarrow}0。
+\item[\CheckMark] 自由平滑规范场应显示清晰指数衰减。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{axial Ward ratio + Ls scan}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{domain-wall 费米子与剩余质量：练习与完整解答}\FrameAnchor{31.02-5}
+\footnotesize
+\begin{block}{\ExerciseID{31.02}}若 mres=Ae\ensuremath{^{-0.2Ls}}，Ls 增加 10 后缩小多少？\end{block}
+\begin{exampleblock}{\SolutionID{31.02}}乘 e\ensuremath{^{-2}}\ensuremath{\approx}0.1353，即约缩小 7.39 倍。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{31.02-386b066b30}；\CourseRef{Eq}{31.02}；\CourseRef{SYM}{31.02}；\CourseRef{Alg}{31.02}。
+\SourceLine{DOC-FERMIONS；BOOK-LQCD；PYQCD-ANALYSIS}
+\end{frame}
+
+\begin{frame}[t]{overlap 算子与 Ginsparg--Wilson 关系：问题与图像}\FrameAnchor{31.03-1}
+\footnotesize
+\begin{block}{本节问题}能否在有限格距实现精确修正后的手征对称？\end{block}
+\PhysicalFlow{Wilson kernel 的矩阵 sign}{构造 overlap D}{GW 关系给精确格点手征变换}{31.03}
+\begin{block}{物理原则}\KnowledgeID{31.03}\quad 矩阵 sign 的近零本征值决定近似阶数和成本；需显式投影低模并验证 GW residual。\end{block}
+\SourceLine{DOC-FERMIONS；BOOK-LQCD；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{overlap 算子与 Ginsparg--Wilson 关系：定义与主公式}\FrameAnchor{31.03-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{31.03-c45760ad34} overlap operator & 由 Hermitian Wilson kernel 的 sign 函数构造的格点 Dirac 算子\\
+\DefinitionID{31.03-0d541e3d5f} Ginsparg--Wilson & \ensuremath{\gamma}5D+D\ensuremath{\gamma}5=aD\ensuremath{\gamma}5D 的格点手征关系\\
+\DefinitionID{31.03-bd56e1b42a} index & 零模手征数 n\_-\ensuremath{-}n\_+，与拓扑荷相连\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{31.03} 主公式}\centering\CourseDisplayEquation{D_{\rm ov}=\frac1a\left(1+\gamma_5\operatorname{sign}H_W\right),\qquad \gamma_5D+D\gamma_5=aD\gamma_5D}\end{block}
+sign(HW)\ensuremath{^{2}}=1 与 gamma5-Hermiticity 使 D 满足 GW；手征变换被 aD 项修正但作用量精确不变。
+\end{frame}
+
+\begin{frame}[t]{overlap 算子与 Ginsparg--Wilson 关系：推导与证据边界}\FrameAnchor{31.03-3}
+\footnotesize
+\DerivationID{31.03}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{31.03}：
+\begin{enumerate}
+\item 记 \ensuremath{\epsilon}=sign(HW)，有 \ensuremath{\epsilon}†=\ensuremath{\epsilon}、\ensuremath{\epsilon}\ensuremath{^{2}}=1，并令 aD=1+\ensuremath{\gamma}5\ensuremath{\epsilon}。
+\item 展开 a(\ensuremath{\gamma}5D+D\ensuremath{\gamma}5)=\ensuremath{\gamma}5(1+\ensuremath{\gamma}5\ensuremath{\epsilon})+(1+\ensuremath{\gamma}5\ensuremath{\epsilon})\ensuremath{\gamma}5。
+\item 展开 a\ensuremath{^{2}}D\ensuremath{\gamma}5D=(1+\ensuremath{\gamma}5\ensuremath{\epsilon})\ensuremath{\gamma}5(1+\ensuremath{\gamma}5\ensuremath{\epsilon})。
+\item 利用 \ensuremath{\epsilon}\ensuremath{^{2}}=1 与相同项整理，两式相等，得到 GW。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{31.03}\quad overlap 算子与 Ginsparg--Wilson 关系；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：设 a=1 的 2\ensuremath{\times}2 Hermitian-unitary sign kernel 代理
+\end{block}
+\BoundaryLine{不验证 overlap 局域性、低模近似误差或 index theorem。}
+\end{frame}
+
+\begin{frame}[t]{overlap 算子与 Ginsparg--Wilson 关系：计算算法}\FrameAnchor{31.03-4}
+\footnotesize
+\AlgorithmID{31.03}\begin{enumerate}
+\item 计算 HW 的最低本征值并选 sign 有理/\allowbreak{}多项式近似区间。
+\item 精确投影低模，其余用多移位求解。
+\item 测 ||\ensuremath{\gamma}5D+D\ensuremath{\gamma}5-aD\ensuremath{\gamma}5D|| 和 sign\ensuremath{^{2}}-I residual。
+\item 按拓扑扇区、质量和体积验证零模/\allowbreak{}index，并计入拓扑冻结风险。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] sign 近似精确时 GW residual 受求解容差控制。
+\item[\CheckMark] a\ensuremath{\rightarrow}0 时右侧 aD\ensuremath{\gamma}5D 消失，恢复连续反对易。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{low-mode projection + sign/\allowbreak{}GW residual tests}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{overlap 算子与 Ginsparg--Wilson 关系：练习与完整解答}\FrameAnchor{31.03-5}
+\footnotesize
+\begin{block}{\ExerciseID{31.03}}若 D 的本征值满足 GW 圆，为什么不能直接把有限 a 的 \ensuremath{\gamma}5D+D\ensuremath{\gamma}5 设零？\end{block}
+\begin{exampleblock}{\SolutionID{31.03}}因为精确关系右侧是 aD\ensuremath{\gamma}5D，一般非零；强行设零会与无倍增、局域性条件冲突。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{31.03-c45760ad34}；\CourseRef{Eq}{31.03}；\CourseRef{SYM}{31.03}；\CourseRef{Alg}{31.03}。
+\SourceLine{DOC-FERMIONS；BOOK-LQCD；BOOK-QFT}
+\end{frame}
+
+\begin{frame}[t]{twisted-mass Wilson 与最大扭转自动改进：问题与图像}\FrameAnchor{31.04-1}
+\footnotesize
+\begin{block}{本节问题}怎样用 flavor 手征旋转改善近零模并消去 O(a) 伪影？\end{block}
+\PhysicalFlow{Wilson 双重态加 i\ensuremath{\mu}\ensuremath{\gamma}5\ensuremath{\tau}3}{调 PCAC 质量到零}{物理偶观测量自动 O(a) 改进}{31.04}
+\begin{block}{物理原则}\KnowledgeID{31.04}\quad 自动改进有适用观测量和正确调谐条件；有限 a 的 flavor/\allowbreak{}parity breaking 仍为 O(a\ensuremath{^{2}}) 并可明显。\end{block}
+\SourceLine{DOC-FERMIONS；DOC-SYMANZIK；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{twisted-mass Wilson 与最大扭转自动改进：定义与主公式}\FrameAnchor{31.04-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{31.04-aba9b6662e} twisted mass & Wilson 双重态中的 i\ensuremath{\mu}\ensuremath{\gamma}5\ensuremath{\tau}3 质量项\\
+\DefinitionID{31.04-4eab33a3d8} 最大扭转 & 重整化 untwisted mass 调到临界值、扭转角 \ensuremath{\pi}/\allowbreak{}2\\
+\DefinitionID{31.04-c87ba08911} PCAC mass & 由轴 Ward identity 比值定义的调谐诊断\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{31.04} 主公式}\centering\CourseDisplayEquation{D_{\rm tm}=D_W(m_0)+i\mu\gamma_5\tau_3,qquad m_{\rm PCAC}=0\Longrightarrow O_{\rm physical}(a)=O(0)+O(a^2)}\end{block}
+在最大扭转处，Symanzik 展开中的 O(a) 项在适当物理偶观测量下因 spurionic symmetry 消失。
+\end{frame}
+
+\begin{frame}[t]{twisted-mass Wilson 与最大扭转自动改进：推导与证据边界}\FrameAnchor{31.04-3}
+\footnotesize
+\DerivationID{31.04}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{31.04}：
+\begin{enumerate}
+\item 对双重态作 flavor 非奇异轴旋转，把普通质量与 twisted mass 组成极坐标。
+\item 最大扭转对应普通重整化质量为零、角度 \ensuremath{\pi}/\allowbreak{}2。
+\item Symanzik O(a) 插入在扭转宇称下为奇，对物理偶观测量期望值消失。
+\item 首个剩余通用离散误差因此为 O(a\ensuremath{^{2}})。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{31.04}\quad twisted-mass Wilson 与最大扭转自动改进；2/2 项通过；SymPy exact。
+\par\scriptsize 假设：最大扭转已由对称性消去线性 a 项
+\end{block}
+\BoundaryLine{不验证 PCAC 临界质量调谐和 flavor/\allowbreak{}parity O(a\ensuremath{^{2}}) 劈裂。}
+\end{frame}
+
+\begin{frame}[t]{twisted-mass Wilson 与最大扭转自动改进：计算算法}\FrameAnchor{31.04-4}
+\footnotesize
+\AlgorithmID{31.04}\begin{enumerate}
+\item 在每个 \ensuremath{\beta}、\ensuremath{\mu} 附近扫描 m0 并由 Ward ratio 拟合 mPCAC=0。
+\item 监测 neutral/\allowbreak{}charged pion splitting 和 exceptional configuration。
+\item 把物理算符从 twisted basis 旋回并核对重整化。
+\item 做至少三格距 a\ensuremath{^{2}} 外推，并传播临界质量调谐误差。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] \ensuremath{\mu}\ensuremath{\rightarrow}0 且未精确调临界质量时会回到普通 Wilson 风险。
+\item[\CheckMark] 在最大扭转，改变 a 符号的对称平均应消去线性项。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{PCAC tuning + charged/\allowbreak{}neutral splitting + a\ensuremath{^{2}} fit}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{twisted-mass Wilson 与最大扭转自动改进：练习与完整解答}\FrameAnchor{31.04-5}
+\footnotesize
+\begin{block}{\ExerciseID{31.04}}若 O(a)=O0+c1a+c2a\ensuremath{^{2}}，而最大扭转对称性令 c1=0，两格距差的主导标度是什么？\end{block}
+\begin{exampleblock}{\SolutionID{31.04}}主导为 c2(a1\ensuremath{^{2}}-a2\ensuremath{^{2}})，所以连续拟合应先用 a\ensuremath{^{2}} 而非 a。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{31.04-aba9b6662e}；\CourseRef{Eq}{31.04}；\CourseRef{SYM}{31.04}；\CourseRef{Alg}{31.04}。
+\SourceLine{DOC-FERMIONS；DOC-SYMANZIK；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{mixed-action、partial quenching 与统一连续极限：问题与图像}\FrameAnchor{31.05-1}
+\footnotesize
+\begin{block}{本节问题}价夸克和海夸克采用不同离散化时，如何控制不幺正伪影？\end{block}
+\PhysicalFlow{海组态由 action A 生成}{价传播子用 action B}{mixed-action EFT 参数化有限 a 失配}{31.05}
+\begin{block}{物理原则}\KnowledgeID{31.05}\quad 有限 a 可能出现 double pole、错误符号权重等非幺正现象，不能把漂亮平台等同物理。\end{block}
+\SourceLine{DOC-FERMIONS；DOC-SYMANZIK；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{mixed-action、partial quenching 与统一连续极限：定义与主公式}\FrameAnchor{31.05-2}
+\footnotesize\begin{tabularx}{\linewidth}{p{0.30\linewidth}Y}
+\toprule 术语 & 本课程中的精确定义\\\midrule
+\DefinitionID{31.05-5289490c5d} mixed action & sea 与 valence 使用不同格点费米子作用量\\
+\DefinitionID{31.05-e79d5f1841} partial quenching & valence 质量/\allowbreak{}离散化不完全匹配 sea determinant 的非幺正设置\\
+\DefinitionID{31.05-e626fae398} unitary point & 价海质量与作用量在连续物理意义上匹配的位置\\
+\bottomrule\end{tabularx}\vspace{0.15cm}
+\begin{block}{\EquationID{31.05} 主公式}\centering\CourseDisplayEquation{m_{vs}^2=B_0(m_v+m_s)+a^2\Delta_{\rm mix}+\cdots,\qquad \Delta_{\rm mix}\xrightarrow[a\to0]{}0}\end{block}
+价—海介子质量含 mixed-action 特有 a\ensuremath{^{2}} 位移；连续极限若正确应恢复共同幺正理论。
+\end{frame}
+
+\begin{frame}[t]{mixed-action、partial quenching 与统一连续极限：推导与证据边界}\FrameAnchor{31.05-3}
+\footnotesize
+\DerivationID{31.05}\quad 由本节定义与前置结论逐步推出 \CourseRef{Eq}{31.05}：
+\begin{enumerate}
+\item sea determinant 决定组态概率，而 valence propagator 不反作用于 determinant。
+\item 不同离散对称允许 Symanzik EFT 中新增 a\ensuremath{^{2}} mixed operator。
+\item 在手征 EFT 中它给 valence--sea meson 质量位移 a\ensuremath{^{2}}\ensuremath{\Delta}mix。
+\item 当 a\ensuremath{\rightarrow}0 且质量匹配时该项消失，unitarity 恢复。
+\end{enumerate}\begin{block}{可执行检查}
+\SympyID{31.05}\quad mixed-action、partial quenching 与统一连续极限；1/1 项通过；SymPy exact。
+\par\scriptsize 假设：mixed-action 特有项领先 O(a\ensuremath{^{2}})
+\end{block}
+\BoundaryLine{partial-quenching double poles 与 EFT 高阶未验证。}
+\end{frame}
+
+\begin{frame}[t]{mixed-action、partial quenching 与统一连续极限：计算算法}\FrameAnchor{31.05-4}
+\footnotesize
+\AlgorithmID{31.05}\begin{enumerate}
+\item 记录 sea/\allowbreak{}valence action、质量与各自 Zm。
+\item 测 vv、ss、vs pseudoscalar masses 以确定 \ensuremath{\Delta}mix。
+\item 用 mixed-action \ensuremath{\chi}PT 联合拟合目标矩阵元、质量和体积。
+\item 做 valence mass unitary-point 插值及多 a 连续外推，检查不同 valence action 一致。
+\end{enumerate}\begin{columns}[T,onlytextwidth]
+\column{0.56\textwidth}\begin{block}{停止条件与交叉检查}\scriptsize\begin{itemize}
+\item[\CheckMark] 相同 action、相同质量时 \ensuremath{\Delta}mix 特有失配应消失。
+\item[\CheckMark] a\ensuremath{\rightarrow}0 后结果不应依赖 valence 离散化选择。
+\end{itemize}\end{block}
+\column{0.40\textwidth}\begin{block}{代码映射}
+\scriptsize \texttt{mixed meson spectrum + mixed-action EFT fit}
+\end{block}\end{columns}\end{frame}
+
+\begin{frame}[t]{mixed-action、partial quenching 与统一连续极限：练习与完整解答}\FrameAnchor{31.05-5}
+\footnotesize
+\begin{block}{\ExerciseID{31.05}}若 mvs\ensuremath{^{2}}-B0(mv+ms)=0.01 GeV\ensuremath{^{2}} 且 a=0.1 fm，这一数据点单独能给连续 \ensuremath{\Delta}mix 吗？\end{block}
+\begin{exampleblock}{\SolutionID{31.05}}不能；它只给该格距的 a\ensuremath{^{2}}\ensuremath{\Delta}mix。需要单位一致换算及多个 a 才能验证 a\ensuremath{^{2}} 标度并外推。\end{exampleblock}
+\vfill
+\scriptsize 回看：\CourseRef{Def}{31.05-5289490c5d}；\CourseRef{Eq}{31.05}；\CourseRef{SYM}{31.05}；\CourseRef{Alg}{31.05}。
+\SourceLine{DOC-FERMIONS；DOC-SYMANZIK；BOOK-LQCD}
+\end{frame}
+
+\begin{frame}[t]{第 31 卷能力清单}\FrameAnchor{V31-outcomes}
+\small\begin{itemize}
+\item[\CheckMark] 能用 Nielsen--Ninomiya 权衡解释各方案
+\item[\CheckMark] 能为目标观测量选择费米子离散化
+\item[\CheckMark] 能把方案特有伪影写入外推与误差账本
+\end{itemize}\vfill\begin{block}{通过标准}
+不以“看懂”为标准：应能从空白纸推导主公式、实现算法、解释检查失败意味着什么，并完成本卷练习。
+\end{block}\end{frame}
+
+\begin{frame}[t]{第 31 卷来源（1/1）}\FrameAnchor{V31-sources}
+\scriptsize\begin{tabularx}{\linewidth}{p{0.17\linewidth}p{0.28\linewidth}Y}
+\toprule ID & 来源 & 本卷用途\\\midrule
+\SourceID{DOC-FERMIONS} & 格点费米子方案 & 倍增、Wilson/\allowbreak{}Clover 与方案比较。\\
+\SourceID{DOC-SYMANZIK} & Symanzik 有效理论 & 按格距幂次组织离散伪影。\\
+\SourceID{BOOK-LQCD} & Introduction to Lattice QCD /\allowbreak{} 格点 QCD 导论（仓库转排本） & 欧氏化、规范链接、费米子、连续极限和关联函数。\\
+\SourceID{PYQCD-ANALYSIS} & PyQCD 分析技能与模块 & 断连、比值、多态拟合和图表。\\
+\SourceID{BOOK-QFT} & An Introduction to Quantum Field Theory（仓库转排本） & 量子场论、规范理论、QCD 和重整化的主教材交叉核验。\\
+\bottomrule\end{tabularx}\end{frame}
+
