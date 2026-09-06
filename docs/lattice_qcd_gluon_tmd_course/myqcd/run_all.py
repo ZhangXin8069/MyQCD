@@ -1,4 +1,4 @@
-"""运行课程 myqcd 子目录中的全部 SymPy 教学例题。"""
+"""运行课程 myqcd 子目录中的全部 SymPy 课程模块。"""
 
 from __future__ import annotations
 
@@ -45,7 +45,7 @@ def _validate_examples(examples: object) -> tuple:
         missing = sorted(set(EXPECTED_EXAMPLE_IDS) - set(ids))
         extra = sorted(set(ids) - set(EXPECTED_EXAMPLE_IDS), key=str)
         raise AssertionError(
-            "教学例题必须按固定顺序精确为 26 个预期 ID："
+            "课程模块必须按固定顺序精确为 26 个预期 ID："
             f"actual={len(ids)} missing={missing} extra={extra}"
         )
     for item in examples:

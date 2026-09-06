@@ -1,4 +1,4 @@
-"""格点色散、有限时间谱学、GEVP、有限体积与统计例题。"""
+"""格点色散、有限时间谱学、GEVP、有限体积与统计模块。"""
 
 from __future__ import annotations
 

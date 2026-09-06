@@ -1,4 +1,4 @@
-"""群论、李代数与量子场论的有限维 SymPy 例题。"""
+"""群论、李代数与量子场论的有限维 SymPy 模块。"""
 
 from __future__ import annotations
 

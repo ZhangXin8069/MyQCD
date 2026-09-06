@@ -1,4 +1,4 @@
-"""格点 QCD 长课程的可运行 SymPy 教学例题。"""
+"""格点 QCD 长课程的可运行 SymPy 课程模块。"""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from ._common import SymbolicExample
 
 
 def all_examples() -> Tuple[SymbolicExample, ...]:
-    """延迟构造全部例题，避免导入包时执行符号积分。"""
+    """延迟构造全部模块，避免导入包时执行符号积分。"""
 
     from .group_qft import build_examples as build_group_qft
     from .lattice_spectroscopy import build_examples as build_spectroscopy
@@ -18,4 +18,3 @@ def all_examples() -> Tuple[SymbolicExample, ...]:
 
 
 __all__ = ["SymbolicExample", "all_examples"]
-
