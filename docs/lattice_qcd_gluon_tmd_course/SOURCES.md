@@ -29,8 +29,8 @@
 | DOC-SYMANZIK | Symanzik 有效理论 | ../PyQCD/docs/格点QCD中的Symanzik有效理论.tex | 按格距幂次组织离散伪影。 |
 | DOC-TMD | 格点 QCD 中的 TMD-PDF | ../PyQCD/docs/格点QCD中的TMD_PDF.tex | TMD、soft、rapidity 与冲击参数定义。 |
 | LQCDDB | lqcddb distillation 与谱学技能 | ../PyQCD/skills/sush/lqcddb/SKILL.md | distillation、perambulator、GEVP、多强子缩并与独立审计边界。 |
-| MYQCD-COURSE-EXAMPLES | 课程配套 SymPy 代码参考 | docs/lattice_qcd_gluon_tmd_course/myqcd/ | 群论/QFT、格点谱学、重整化与 TMD 的 26 个可运行教学例题。 |
-| MYQCD-FORMULAS | MyQCD 可执行公式注册表 | myqcd/formula_registry.py；myqcd/derivations.py；tests/test_myqcd_sympy.py | 复杂公式的 SymPy 精确代理与证据边界。 |
+| MYQCD-COURSE-EXAMPLES | 课程配套 SymPy 代码参考 | docs/lattice_qcd_gluon_tmd_course/myqcd/ | 群论/QFT、格点谱学、重整化与 TMD 的 26 个可运行课程模块。 |
+| MYQCD-FORMULAS | MyQCD 完整公式链 | myqcd/formula_registry.py；myqcd/derivations.py；tests/test_myqcd_sympy.py | 复杂公式的 SymPy 精确代理与证据边界。 |
 | PYQCD-ANALYSIS | PyQCD 分析技能与模块 | ../PyQCD/skills/pyqcd-analysis/SKILL.md；../PyQCD/pyqcd/analysis/ | 断连、比值、多态拟合和图表。 |
 | PYQCD-CONVENTIONS | PyQCD 共享约定技能 | ../PyQCD/skills/pyqcd-conventions/SKILL.md | gamma、轴顺序、精度和接口约定。 |
 | PYQCD-CORRELATOR | PyQCD 关联函数技能 | ../PyQCD/skills/pyqcd-physics-correlator/SKILL.md | 强子二点/三点与谱学检查。 |

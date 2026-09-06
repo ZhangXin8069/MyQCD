@@ -1,4 +1,4 @@
-"""梯度流、重整化、soft/rapidity 与 TMD 提取的 SymPy 例题。"""
+"""梯度流、重整化、soft/rapidity 与 TMD 提取的 SymPy 模块。"""
 
 from __future__ import annotations
 

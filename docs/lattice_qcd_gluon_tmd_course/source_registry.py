@@ -49,14 +49,14 @@ SOURCES: Dict[str, Source] = {
         "本课程终点定义、实现现状、证据分级和关键物理边界。",
     ),
     "MYQCD-FORMULAS": Source(
-        "MyQCD 可执行公式注册表",
+        "MyQCD 完整公式链",
         "myqcd/formula_registry.py；myqcd/derivations.py；tests/test_myqcd_sympy.py",
         "复杂公式的 SymPy 精确代理与证据边界。",
     ),
     "MYQCD-COURSE-EXAMPLES": Source(
         "课程配套 SymPy 代码参考",
         "docs/lattice_qcd_gluon_tmd_course/myqcd/",
-        "群论/QFT、格点谱学、重整化与 TMD 的 26 个可运行教学例题。",
+        "群论/QFT、格点谱学、重整化与 TMD 的 26 个可运行课程模块。",
     ),
     "DOC-3PT": Source("格点 QCD 中的三点函数构造", "../PyQCD/docs/格点QCD中的3pt构造.tex", "核子三点函数、谱分解和代码接口。"),
     "DOC-DGLAP": Source("格点 QCD 中的 DGLAP 演化", "../PyQCD/docs/格点QCD中的DGLAP演化方程.tex", "部分子演化与卷积。"),

@@ -201,7 +201,7 @@ def validate_teaching_payload(payload: object) -> Sequence[Mapping[str, object]]
             )
         if record.get("example_id") != expected_id:
             raise ValueError(
-                f"教学例题顺序/ID 错误：expected={expected_id}, "
+                f"课程模块顺序/ID 错误：expected={expected_id}, "
                 f"actual={record.get('example_id')}"
             )
         for field in ("title", "boundary"):

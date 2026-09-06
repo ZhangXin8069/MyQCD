@@ -1,4 +1,4 @@
-"""报告公式注册表及其证据边界。"""
+"""报告完整公式链及其证据边界。"""
 
 from __future__ import annotations
 
