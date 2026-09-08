@@ -1,7 +1,12 @@
 from __future__ import annotations
 
+import json
+import subprocess
+import sys
+from functools import lru_cache
 from pathlib import Path
 
+import pytest
 import sympy as sp
 
 from myqcd import derivations as derivation_module
@@ -40,10 +45,28 @@ from myqcd.derivations import (
     run_core_checks,
 )
 from myqcd.formula_registry import CORE_FORMULAS
+from myqcd.audit import build_audit_report, scan_refer_papers as audit_scan_refer_papers
 from myqcd.latex_inventory import extract_display_formulas, scan_refer_papers
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+@lru_cache(maxsize=1)
+def _full_refer_papers_inventory():
+    return scan_refer_papers(ROOT)
+
+
+def _expected_refer_papers_subset(*paper_ids: str):
+    requested_paper_ids = tuple(dict.fromkeys(paper_ids))
+    requested_paper_id_set = set(requested_paper_ids)
+    records = tuple(
+        record
+        for record in _full_refer_papers_inventory().records
+        if record.paper_id in requested_paper_id_set
+    )
+    source_files = tuple(dict.fromkeys(record.source_file for record in records))
+    return requested_paper_ids, records, source_files
 
 
 def test_gaussian_generating_functional_variations_are_exact() -> None:
@@ -1202,7 +1225,7 @@ def test_new_derivations_are_exposed_by_the_package() -> None:
 
 
 def test_refer_papers_formula_inventory_is_traceable_and_excludes_build_outputs() -> None:
-    inventory = scan_refer_papers(ROOT)
+    inventory = _full_refer_papers_inventory()
 
     assert inventory.paper_count == 50
     assert inventory.formula_count > 1000
@@ -1211,6 +1234,231 @@ def test_refer_papers_formula_inventory_is_traceable_and_excludes_build_outputs(
     assert all("/build/" not in record.source_file for record in inventory.records)
     assert all(record.source_file.startswith("refer/papers/") for record in inventory.records)
     assert any(record.status == "unparsed" for record in inventory.records)
+
+
+def test_refer_papers_subset_scan_filters_to_requested_papers() -> None:
+    paper_ids = ("P03", "P01")
+    paper_directories = {
+        "P01": "夸克禁闭_latex",
+        "P03": "夸克场产生算符构造_latex",
+    }
+
+    def count_source_files(paper_id: str) -> int:
+        paper_root = ROOT / "refer" / "papers" / paper_directories[paper_id]
+        return sum(
+            1
+            for path in paper_root.rglob("*.tex")
+            if "build" not in path.relative_to(paper_root).parts
+            and not any(part.startswith(".") for part in path.relative_to(paper_root).parts)
+        )
+
+    inventory = scan_refer_papers(ROOT, paper_ids=paper_ids)
+    full_inventory = _full_refer_papers_inventory()
+    requested_ids = set(paper_ids)
+    expected_records = tuple(
+        record for record in full_inventory.records if record.paper_id in requested_ids
+    )
+    expected_source_file_count = sum(count_source_files(paper_id) for paper_id in paper_ids)
+
+    assert inventory.paper_count == len(requested_ids)
+    assert inventory.source_file_count == expected_source_file_count
+    assert inventory.formula_count == len(expected_records)
+    assert inventory.records == expected_records
+    assert {record.paper_id for record in inventory.records} == requested_ids
+    assert all(record.paper_id in paper_ids for record in inventory.records)
+
+
+def test_audit_refer_papers_subset_scan_supports_paper_id_files_only(
+    tmp_path: Path,
+) -> None:
+    paper_id_file = tmp_path / "paper_ids.txt"
+    paper_id_file.write_text("# comment\nP03\nP01\nP03\n", encoding="utf-8")
+
+    inventory = audit_scan_refer_papers(ROOT, paper_id_files=(paper_id_file,))
+    requested_paper_ids, expected_records, _ = _expected_refer_papers_subset("P03", "P01")
+
+    assert inventory.paper_count == len(requested_paper_ids)
+    assert inventory.formula_count == len(expected_records)
+    assert inventory.records == expected_records
+
+
+def test_refer_papers_rejects_missing_paper_ids() -> None:
+    with pytest.raises(ValueError, match=r"paper_ids 中存在未收录的论文编号: P99"):
+        scan_refer_papers(ROOT, paper_ids="P99")
+
+
+def test_build_audit_report_can_filter_inventory_by_paper_ids() -> None:
+    report = build_audit_report(ROOT, paper_ids=("P01", "P03"))
+    requested_paper_ids, _, source_files = _expected_refer_papers_subset("P01", "P03")
+
+    assert report["status"] == "verified_core_with_unparsed_inventory"
+    assert report["paper_ids"] == list(requested_paper_ids)
+    assert report["paper_filter"]["enabled"] is True
+    assert report["paper_filter"]["requested_paper_ids"] == list(requested_paper_ids)
+    assert report["paper_filter"]["requested_count"] == len(requested_paper_ids)
+    assert report["paper_filter"]["selected_paper_count"] == len(requested_paper_ids)
+    assert report["paper_filter"]["source_files"] == list(source_files)
+    assert report["inventory"]["paper_count"] == len(requested_paper_ids)
+    assert report["inventory"]["unparsed_count"] > 0
+
+
+def test_build_audit_report_can_merge_paper_ids_from_file_and_arguments(tmp_path: Path) -> None:
+    paper_id_file = tmp_path / "paper_ids.txt"
+    paper_id_file.write_text("# comment\nP01\n\nP05\nP03\nP05\n", encoding="utf-8")
+
+    report = build_audit_report(
+        ROOT,
+        paper_ids=("P03", "P01", "P03"),
+        paper_id_files=(paper_id_file,),
+    )
+    requested_paper_ids, expected_records, source_files = _expected_refer_papers_subset(
+        "P03", "P01", "P05"
+    )
+
+    assert report["paper_ids"] == list(requested_paper_ids)
+    assert report["paper_filter"]["enabled"] is True
+    assert report["paper_filter"]["requested_paper_ids"] == list(requested_paper_ids)
+    assert report["paper_filter"]["requested_count"] == len(requested_paper_ids)
+    assert report["paper_filter"]["selected_paper_count"] == len(requested_paper_ids)
+    assert report["paper_filter"]["source_files"] == list(source_files)
+    assert report["inventory"]["paper_count"] == len(requested_paper_ids)
+    assert report["inventory"]["formula_count"] == len(expected_records)
+    assert report["inventory"]["unparsed_count"] == len(expected_records)
+
+
+def test_build_audit_report_supports_paper_id_files_only_and_stable_source_files(
+    tmp_path: Path,
+) -> None:
+    paper_id_file = tmp_path / "paper_ids.txt"
+    paper_id_file.write_text("# comment\nP03\nP01\nP03\n", encoding="utf-8")
+
+    report = build_audit_report(ROOT, paper_id_files=(paper_id_file,))
+    requested_paper_ids, expected_records, source_files = _expected_refer_papers_subset(
+        "P03", "P01"
+    )
+
+    assert report["paper_ids"] == list(requested_paper_ids)
+    assert report["paper_filter"]["enabled"] is True
+    assert report["paper_filter"]["requested_paper_ids"] == list(requested_paper_ids)
+    assert report["paper_filter"]["requested_count"] == len(requested_paper_ids)
+    assert report["paper_filter"]["selected_paper_count"] == len(requested_paper_ids)
+    assert report["paper_filter"]["source_files"] == list(source_files)
+    assert report["inventory"]["paper_count"] == len(requested_paper_ids)
+    assert report["inventory"]["formula_count"] == len(expected_records)
+    assert report["inventory"]["unparsed_count"] == len(expected_records)
+
+
+def test_myqcd_cli_writes_inventory_json(tmp_path: Path) -> None:
+    output_path = tmp_path / "inventory.json"
+    result = subprocess.run(
+        [sys.executable, "-m", "myqcd", "--inventory-json", str(output_path)],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    report = json.loads(result.stdout)
+    payload = json.loads(output_path.read_text(encoding="utf-8"))
+    expected_payload = _full_refer_papers_inventory().to_dict()
+
+    assert report["status"] == "verified_core_with_unparsed_inventory"
+    assert report["inventory"]["paper_count"] == 50
+    assert report["inventory_json"] == str(output_path)
+    expected_source_files = list(
+        dict.fromkeys(record["source_file"] for record in expected_payload["records"])
+    )
+    assert report["paper_filter"]["enabled"] is False
+    assert report["paper_filter"]["requested_paper_ids"] == []
+    assert report["paper_filter"]["requested_count"] == 0
+    assert report["paper_filter"]["selected_paper_count"] == expected_payload["paper_count"]
+    assert report["paper_filter"]["source_files"] == expected_source_files
+    assert payload == expected_payload
+
+
+def test_myqcd_cli_filters_inventory_json_by_paper_ids(tmp_path: Path) -> None:
+    output_path = tmp_path / "subset-inventory.json"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "myqcd",
+            "--paper-id",
+            "P01",
+            "--paper-id",
+            "P03",
+            "--inventory-json",
+            str(output_path),
+        ],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    report = json.loads(result.stdout)
+    payload = json.loads(output_path.read_text(encoding="utf-8"))
+
+    assert report["paper_ids"] == ["P01", "P03"]
+    assert report["paper_filter"]["requested_paper_ids"] == ["P01", "P03"]
+    assert report["paper_filter"]["requested_count"] == 2
+    assert report["paper_filter"]["selected_paper_count"] == 2
+    assert report["inventory"]["paper_count"] == 2
+    assert payload["paper_count"] == 2
+    assert payload["formula_count"] < _full_refer_papers_inventory().formula_count
+
+
+def test_myqcd_cli_merges_paper_id_file_and_arguments_in_order(tmp_path: Path) -> None:
+    paper_id_file = tmp_path / "paper_ids.txt"
+    paper_id_file.write_text("# comment\nP03\nP01\nP03\n", encoding="utf-8")
+    output_path = tmp_path / "merged-inventory.json"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "myqcd",
+            "--paper-id-file",
+            str(paper_id_file),
+            "--paper-id",
+            "P02",
+            "--paper-id",
+            "P03",
+            "--inventory-json",
+            str(output_path),
+        ],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    report = json.loads(result.stdout)
+    payload = json.loads(output_path.read_text(encoding="utf-8"))
+
+    assert report["paper_ids"] == ["P03", "P01", "P02"]
+    assert report["paper_filter"]["requested_paper_ids"] == ["P03", "P01", "P02"]
+    assert report["paper_filter"]["requested_count"] == 3
+    assert report["paper_filter"]["selected_paper_count"] == 3
+    assert payload["paper_count"] == 3
+
+
+def test_myqcd_cli_rejects_missing_paper_ids_from_file(tmp_path: Path) -> None:
+    paper_id_file = tmp_path / "missing-paper-id.txt"
+    paper_id_file.write_text("P01\nP999\n", encoding="utf-8")
+
+    result = subprocess.run(
+        [sys.executable, "-m", "myqcd", "--paper-id-file", str(paper_id_file)],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 2
+    assert result.stderr == "error: 不存在的 paper id: P999\n"
 
 
 def test_formula_inventory_handles_custom_display_environments_and_nested_aligned() -> None:

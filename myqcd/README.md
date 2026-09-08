@@ -70,6 +70,17 @@ python -m myqcd
 python -m myqcd --inventory-json /tmp/myqcd_formula_inventory.json
 ```
 
+若要统一控制论文选择层：
+
+- `--paper-id` 可重复指定，也可在单个参数中用逗号分隔。
+- `--paper-id-file` 读取每行一个 `paper id`，空行和以 `#` 开头的注释会忽略。
+- 两者可混用，合并顺序按命令行出现顺序；重复项只保留第一次出现的位置。
+- 输出 JSON 的 `paper_filter` 会汇总 `enabled`、`requested_paper_ids`、`requested_count`、`selected_paper_count` 和 `source_files`。
+
+```bash
+python -m myqcd --paper-id P01 --paper-id-file /tmp/papers.txt --inventory-json /tmp/subset.json
+```
+
 这里的“验证”只覆盖代码中写出的假设和模型。非阿贝尔指标收缩、特定
 重正化方案、完整一圈/多圈匹配核、格点数据和论文数值结果没有被自动猜测；
 它们会留在来源索引中，不能被本目录的核心检查替代。随机量化的标量例子还
