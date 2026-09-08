@@ -233,6 +233,46 @@ def _indexed_chinese_directories(papers_dir: Path) -> Tuple[Tuple[str, str], ...
     return tuple(entries)
 
 
+def _normalize_paper_ids(paper_ids: Iterable[str] | str | None) -> Tuple[str, ...]:
+    if paper_ids is None:
+        return ()
+    if isinstance(paper_ids, str):
+        paper_ids = (paper_ids,)
+
+    normalized: List[str] = []
+    seen: set[str] = set()
+    for paper_id in paper_ids:
+        for chunk in paper_id.split(","):
+            candidate = chunk.strip()
+            if candidate and candidate not in seen:
+                seen.add(candidate)
+                normalized.append(candidate)
+    return tuple(normalized)
+
+
+def _select_indexed_papers(
+    paper_entries: Tuple[Tuple[str, str], ...],
+    paper_ids: Iterable[str] | str | None,
+) -> Tuple[Tuple[str, str], ...]:
+    requested_ids = _normalize_paper_ids(paper_ids)
+    if not requested_ids:
+        return paper_entries
+
+    available_ids = {paper_id for paper_id, _ in paper_entries}
+    missing_ids = tuple(
+        dict.fromkeys(paper_id for paper_id in requested_ids if paper_id not in available_ids)
+    )
+    if missing_ids:
+        raise ValueError(
+            "paper_ids 中存在未收录的论文编号: " + ", ".join(missing_ids)
+        )
+
+    requested_id_set = set(requested_ids)
+    return tuple(
+        entry for entry in paper_entries if entry[0] in requested_id_set
+    )
+
+
 def _source_files(directory: Path) -> Iterable[Path]:
     for path in sorted(directory.rglob("*.tex")):
         relative_parts = path.relative_to(directory).parts
@@ -241,18 +281,25 @@ def _source_files(directory: Path) -> Iterable[Path]:
         yield path
 
 
-def scan_refer_papers(root: Path | str) -> InventoryReport:
-    """扫描 INDEX.md 列出的 50 个中文论文目录。
+def scan_refer_papers(
+    root: Path | str,
+    paper_ids: Iterable[str] | str | None = None,
+) -> InventoryReport:
+    """扫描 ``INDEX.md`` 列出的中文论文目录，必要时可按论文编号过滤。
 
     只读取 ``refer/papers/<中文目录>`` 下的 TeX 源文件，排除 build 产物，
-    因此每条记录都可以直接回到工作区中的文件和行号。
+    因此每条记录都可以直接回到工作区中的文件和行号。``paper_ids`` 为空时
+    保持全量扫描；非空时仅扫描 INDEX 命中的论文，并按 INDEX 原始顺序返回。
     """
 
     root_path = Path(root).resolve()
     papers_dir = root_path / "refer" / "papers"
     records: List[FormulaRecord] = []
     source_file_count = 0
-    paper_entries = _indexed_chinese_directories(papers_dir)
+    paper_entries = _select_indexed_papers(
+        _indexed_chinese_directories(papers_dir),
+        paper_ids,
+    )
     for paper_id, directory_name in paper_entries:
         directory = papers_dir / directory_name
         paper_formula_number = 0
