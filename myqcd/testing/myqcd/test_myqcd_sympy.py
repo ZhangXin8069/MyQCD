@@ -49,7 +49,7 @@ from myqcd.audit import build_audit_report, scan_refer_papers as audit_scan_refe
 from myqcd.latex_inventory import extract_display_formulas, scan_refer_papers
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[3]
 
 
 @lru_cache(maxsize=1)
