@@ -25,8 +25,8 @@
 ### Task 1: 建立可复查语料 manifest
 
 **Files:**
-- Create: `docs/build_refer_papers_report.py`
-- Create: `docs/report_refer_papers_all_20260828.manifest.tsv`
+- Create: `data/docs/build_refer_papers_report.py`
+- Create: `logs/docs/report_refer_papers_all_20260828.manifest.tsv`
 - Read only: `refer/papers/INDEX.md`、50 个中文目录、50 个英文目录及随附指南
 
 **Interfaces:**
@@ -39,22 +39,22 @@
 
 - [ ] **Step 2: 运行 manifest 生成并核对集合**
 
-  Run: `python3 docs/build_refer_papers_report.py --manifest-only`
+  Run: `python3 data/docs/build_refer_papers_report.py --manifest-only`
 
   Expected: 退出码 0；生成 50 行数据；每行有唯一 `paper_id`；索引页数总和为 `EN=1285`、`ZH=1175`、合计 `2460`；缺失目录和缺失摘要列表为空或被明确写入 `evidence_state`。
 
 - [ ] **Step 3: 做结构化 smoke test**
 
-  Run: `python3 docs/build_refer_papers_report.py --check-manifest docs/report_refer_papers_all_20260828.manifest.tsv`
+  Run: `python3 data/docs/build_refer_papers_report.py --check-manifest logs/docs/report_refer_papers_all_20260828.manifest.tsv`
 
   Expected: 退出码 0；报告 `papers=50`、`unique_ids=50`、`missing_required_fields=0`，并打印每篇的章节数、公式/图/表命中数和证据状态分布。
 
 ### Task 2: 生成逐页结构和 LaTeX 主文件
 
 **Files:**
-- Modify: `docs/build_refer_papers_report.py`
+- Modify: `data/docs/build_refer_papers_report.py`
 - Create: `docs/report_refer_papers_all_20260828.tex`
-- Modify: `docs/report_refer_papers_all_20260828.manifest.tsv`（仅在重新生成时保持字段一致）
+- Modify: `logs/docs/report_refer_papers_all_20260828.manifest.tsv`（仅在重新生成时保持字段一致）
 
 **Interfaces:**
 - Consumes: Task 1 的 50 条 manifest。
@@ -74,14 +74,14 @@
 
 - [ ] **Step 4: 生成并做静态占位符检查**
 
-  Run: `python3 docs/build_refer_papers_report.py --generate`
+  Run: `python3 data/docs/build_refer_papers_report.py --generate`
 
   Expected: 退出码 0；生成 `.tex` 与 manifest；`rg -n '占位符|PLACEHOLDER|TEMPLATE' docs/report_refer_papers_all_20260828.tex` 无匹配；`frame_manifest` 的 expected frame 数不少于 200；50 个 `paper_id` 各出现四次。
 
 ### Task 3: 编译与修复 LaTeX
 
 **Files:**
-- Modify: `docs/build_refer_papers_report.py` 或 `docs/report_refer_papers_all_20260828.tex`（只修复实际发现的问题）
+- Modify: `data/docs/build_refer_papers_report.py` 或 `docs/report_refer_papers_all_20260828.tex`（只修复实际发现的问题）
 - Create outside repository: 临时 XeLaTeX 构建目录
 - Final: `docs/report_refer_papers_all_20260828.pdf`
 
@@ -109,7 +109,7 @@
 
 **Files:**
 - Read: 临时 PDF、全量 PNG、manifest、生成的 `.tex`
-- Modify: `docs/build_refer_papers_report.py` 或 `.tex`（若检查发现问题）
+- Modify: `data/docs/build_refer_papers_report.py` 或 `.tex`（若检查发现问题）
 
 **Interfaces:**
 - Consumes: Task 3 的 PDF。
