@@ -15,14 +15,14 @@
 本项目约定使用 Conda 的 `qcu` 环境（Python 3.11、SymPy 1.14）。从仓库根目录执行：
 
 ```bash
-conda run -n qcu python docs/lattice_qcd_gluon_tmd_course/myqcd/run_all.py
+conda run -n qcu python data/docs/lattice_qcd_gluon_tmd_course/myqcd/run_all.py
 ```
 
 需要保存便于检索的完整记录时：
 
 ```bash
-conda run -n qcu python docs/lattice_qcd_gluon_tmd_course/myqcd/run_all.py \
-  --json docs/lattice_qcd_gluon_tmd_course/generated/myqcd_examples.json
+conda run -n qcu python data/docs/lattice_qcd_gluon_tmd_course/myqcd/run_all.py \
+  --json logs/docs/lattice_qcd_gluon_tmd_course/generated/myqcd_examples.json
 ```
 
 也可以进入课程目录后按模块运行或导入：

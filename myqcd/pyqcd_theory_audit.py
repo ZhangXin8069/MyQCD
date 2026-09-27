@@ -7,7 +7,7 @@
 为完整 TMD/PDF 物理验证。
 
 脚本的 JSON 输出是报告的机器可读证据源。默认输出到
-data/pyqcd_theory_audit/theory_audit.json，可用
+logs/data/pyqcd_theory_audit/theory_audit.json，可用
 python -m myqcd.pyqcd_theory_audit 运行。
 """
 
@@ -856,7 +856,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--output",
         type=Path,
         default=None,
-        help="JSON 输出路径；默认 data/pyqcd_theory_audit/theory_audit.json",
+        help="JSON 输出路径；默认 logs/data/pyqcd_theory_audit/theory_audit.json",
     )
     parser.add_argument(
         "--skip-core",
@@ -865,7 +865,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
     root = args.root.resolve()
-    output = args.output or root / "data/pyqcd_theory_audit/theory_audit.json"
+    output = (
+        args.output
+        or root / "logs/data/pyqcd_theory_audit/theory_audit.json"
+    )
     report = build_audit_report(
         root,
         args.pyqcd_root,

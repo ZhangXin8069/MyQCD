@@ -20,7 +20,7 @@
 ### Task 1: 辅助场与非局域 Wilson 线重整化
 
 **Files:**
-- Modify: `tests/test_myqcd_sympy.py`
+- Modify: `myqcd/testing/myqcd/test_myqcd_sympy.py`
 - Modify: `myqcd/derivations.py`
 - Modify: `myqcd/__init__.py`
 - Modify: `myqcd/formula_registry.py`
@@ -38,7 +38,7 @@
 ### Task 2: RI/MOM、比值方案与坐标空间因子化
 
 **Files:**
-- Modify: `tests/test_myqcd_sympy.py`
+- Modify: `myqcd/testing/myqcd/test_myqcd_sympy.py`
 - Modify: `myqcd/derivations.py`
 - Modify: `myqcd/__init__.py`
 - Modify: `myqcd/formula_registry.py`
@@ -56,7 +56,7 @@
 ### Task 3: 混合重整化的匹配点连续性和大动量方案模糊性
 
 **Files:**
-- Modify: `tests/test_myqcd_sympy.py`
+- Modify: `myqcd/testing/myqcd/test_myqcd_sympy.py`
 - Modify: `myqcd/derivations.py`
 - Modify: `myqcd/__init__.py`
 - Modify: `myqcd/formula_registry.py`
@@ -74,7 +74,7 @@
 ### Task 4: quasi-TMD 因子化、Wilson-loop 抵消和 CS 核提取
 
 **Files:**
-- Modify: `tests/test_myqcd_sympy.py`
+- Modify: `myqcd/testing/myqcd/test_myqcd_sympy.py`
 - Modify: `myqcd/derivations.py`
 - Modify: `myqcd/__init__.py`
 - Modify: `myqcd/formula_registry.py`
@@ -92,7 +92,7 @@
 ### Task 6: RI-xMOM 条件的非微扰参数解法
 
 **Files:**
-- Modify: `tests/test_myqcd_sympy.py`
+- Modify: `myqcd/testing/myqcd/test_myqcd_sympy.py`
 - Modify: `myqcd/derivations.py`
 - Modify: `myqcd/__init__.py`
 - Modify: `myqcd/formula_registry.py`
@@ -110,7 +110,7 @@
 ### Task 7: Wilson 线自能积分与线性反项
 
 **Files:**
-- Modify: `tests/test_myqcd_sympy.py`
+- Modify: `myqcd/testing/myqcd/test_myqcd_sympy.py`
 - Modify: `myqcd/derivations.py`
 - Modify: `myqcd/__init__.py`
 - Modify: `myqcd/formula_registry.py`
@@ -128,7 +128,7 @@
 ### Task 8: 准 PDF 单圈匹配核的分支结构
 
 **Files:**
-- Modify: `tests/test_myqcd_sympy.py`
+- Modify: `myqcd/testing/myqcd/test_myqcd_sympy.py`
 - Modify: `myqcd/derivations.py`
 - Modify: `myqcd/__init__.py`
 - Modify: `myqcd/formula_registry.py`
