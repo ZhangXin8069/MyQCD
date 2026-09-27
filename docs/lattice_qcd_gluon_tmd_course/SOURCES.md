@@ -6,17 +6,17 @@
 
 | ID | 来源 | 定位 | 用途 |
 |---|---|---|---|
-| BOOK-EM | 规范势与经典场预备课（课程自编） | data/docs/lattice_qcd_gluon_tmd_course/content/ | Abelian 场强与规范冗余。 |
-| BOOK-GROUP | 连续群与生成元预备课（课程自编） | data/docs/lattice_qcd_gluon_tmd_course/content/ | 从旋转群过渡到 SU(2)/SU(3)。 |
-| BOOK-LINALG | 线性代数预备课（课程自编） | data/docs/lattice_qcd_gluon_tmd_course/content/ | 向量、谱分解、张量指标和矩阵数值检查。 |
+| BOOK-EM | 规范势与经典场预备课（课程自编） | skills/lqcd-course/scripts/content/ | Abelian 场强与规范冗余。 |
+| BOOK-GROUP | 连续群与生成元预备课（课程自编） | skills/lqcd-course/scripts/content/ | 从旋转群过渡到 SU(2)/SU(3)。 |
+| BOOK-LINALG | 线性代数预备课（课程自编） | skills/lqcd-course/scripts/content/ | 向量、谱分解、张量指标和矩阵数值检查。 |
 | BOOK-LQCD | Introduction to Lattice QCD / 格点 QCD 导论（仓库转排本） | ../PyQCD/refer/books/INTRODUCTION_TO_LATTICE_QCD_latex/；../PyQCD/refer/books/格点QCD导论_latex/ | 欧氏化、规范链接、费米子、连续极限和关联函数。 |
-| BOOK-MATH | 数学预备课（课程自编） | data/docs/lattice_qcd_gluon_tmd_course/content/ | 补足高中到微积分、Fourier 和量纲分析的完整推导。 |
-| BOOK-MECHANICS | 作用量与经典力学预备课（课程自编） | data/docs/lattice_qcd_gluon_tmd_course/content/ | 变分、Euler--Lagrange 与 Noether 思想。 |
-| BOOK-NUMERICS | 数值分析预备课（课程自编） | data/docs/lattice_qcd_gluon_tmd_course/content/ | 差分、求积、收敛阶、线性求解和误差账本。 |
+| BOOK-MATH | 数学预备课（课程自编） | skills/lqcd-course/scripts/content/ | 补足高中到微积分、Fourier 和量纲分析的完整推导。 |
+| BOOK-MECHANICS | 作用量与经典力学预备课（课程自编） | skills/lqcd-course/scripts/content/ | 变分、Euler--Lagrange 与 Noether 思想。 |
+| BOOK-NUMERICS | 数值分析预备课（课程自编） | skills/lqcd-course/scripts/content/ | 差分、求积、收敛阶、线性求解和误差账本。 |
 | BOOK-QCD-LATTICE | Quantum Chromodynamics on the Lattice（仓库转排本） | ../PyQCD/refer/books/Quantum_Chromodynamics_on_the_Lattice_latex/ | 格点 QCD 形式体系、算法和系统误差的深入交叉核验。 |
 | BOOK-QFT | An Introduction to Quantum Field Theory（仓库转排本） | ../PyQCD/refer/books/An_Introduction_to_Quantum_Field_Theory_latex/ | 量子场论、规范理论、QCD 和重整化的主教材交叉核验。 |
-| BOOK-QM | 量子力学预备课（课程自编） | data/docs/lattice_qcd_gluon_tmd_course/content/ | 态、算符、测量、谱与不确定关系。 |
-| BOOK-STAT | Monte Carlo 统计与拟合讲义（课程自编） | data/docs/lattice_qcd_gluon_tmd_course/content/ | 协方差、重采样、覆盖率和模型系统学。 |
+| BOOK-QM | 量子力学预备课（课程自编） | skills/lqcd-course/scripts/content/ | 态、算符、测量、谱与不确定关系。 |
+| BOOK-STAT | Monte Carlo 统计与拟合讲义（课程自编） | skills/lqcd-course/scripts/content/ | 协方差、重采样、覆盖率和模型系统学。 |
 | DOC-3PT | 格点 QCD 中的三点函数构造 | ../PyQCD/docs/格点QCD中的3pt构造.tex | 核子三点函数、谱分解和代码接口。 |
 | DOC-DGLAP | 格点 QCD 中的 DGLAP 演化 | ../PyQCD/docs/格点QCD中的DGLAP演化方程.tex | 部分子演化与卷积。 |
 | DOC-DISCONNECTED | 连通图与非连通图 | ../PyQCD/docs/格点QCD中的连通图与非连通图.tex | 断连拓扑与真空扣除。 |
@@ -29,7 +29,7 @@
 | DOC-SYMANZIK | Symanzik 有效理论 | ../PyQCD/docs/格点QCD中的Symanzik有效理论.tex | 按格距幂次组织离散伪影。 |
 | DOC-TMD | 格点 QCD 中的 TMD-PDF | ../PyQCD/docs/格点QCD中的TMD_PDF.tex | TMD、soft、rapidity 与冲击参数定义。 |
 | LQCDDB | lqcddb distillation 与谱学技能 | ../PyQCD/skills/sush/lqcddb/SKILL.md | distillation、perambulator、GEVP、多强子缩并与独立审计边界。 |
-| MYQCD-COURSE-EXAMPLES | 课程配套 SymPy 代码参考 | data/docs/lattice_qcd_gluon_tmd_course/myqcd/ | 群论/QFT、格点谱学、重整化与 TMD 的 26 个可运行课程模块。 |
+| MYQCD-COURSE-EXAMPLES | 课程配套 SymPy 代码参考 | skills/lqcd-course/scripts/course_examples/ | 群论/QFT、格点谱学、重整化与 TMD 的 26 个可运行课程模块。 |
 | MYQCD-FORMULAS | MyQCD 完整公式链 | myqcd/formula_registry.py；myqcd/derivations.py；myqcd/testing/myqcd/test_myqcd_sympy.py | 复杂公式的 SymPy 精确代理与证据边界。 |
 | PYQCD-ANALYSIS | PyQCD 分析技能与模块 | ../PyQCD/skills/pyqcd-analysis/SKILL.md；../PyQCD/pyqcd/analysis/ | 断连、比值、多态拟合和图表。 |
 | PYQCD-CONVENTIONS | PyQCD 共享约定技能 | ../PyQCD/skills/pyqcd-conventions/SKILL.md | gamma、轴顺序、精度和接口约定。 |

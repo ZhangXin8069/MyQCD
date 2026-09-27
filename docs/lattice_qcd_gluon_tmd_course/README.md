@@ -46,19 +46,19 @@
 | 路径 | 用途 |
 |---|---|
 | `docs/lattice_qcd_gluon_tmd_course/` | 课程成品文档、LaTeX 样式与来源说明 |
-| `data/docs/lattice_qcd_gluon_tmd_course/content/` | 35 卷结构化内容的单一事实源 |
+| `skills/lqcd-course/scripts/content/` | 35 卷结构化内容的单一事实源 |
 | `course_style.tex` | 统一视觉、编号、跳转与安全区 |
-| `data/docs/lattice_qcd_gluon_tmd_course/sympy_validation.py` | 与 175 单元一一对应的课程验收 |
-| `data/docs/lattice_qcd_gluon_tmd_course/myqcd/` | 26 个面向学习者的 SymPy 模块 |
+| `skills/lqcd-course/scripts/sympy_validation.py` | 与 175 单元一一对应的课程验收 |
+| `skills/lqcd-course/scripts/course_examples/` | 26 个面向学习者的 SymPy 模块 |
 | `logs/docs/lattice_qcd_gluon_tmd_course/paper_sources.json` | P01--P50 完整原始 PDF 的唯一路径、URL 与缓存哈希 |
-| `data/docs/lattice_qcd_gluon_tmd_course/build_course.py` | 同源生成和两遍 XeLaTeX 构建 |
-| `data/docs/lattice_qcd_gluon_tmd_course/verify_course.py` | 结构、来源、页数、日志和产物硬门 |
-| `data/docs/lattice_qcd_gluon_tmd_course/render_audit.py` | 43 份 PDF 的全页渲染、自动筛查与联系表生成 |
+| `skills/lqcd-course/scripts/build_course.py` | 同源生成和两遍 XeLaTeX 构建 |
+| `skills/lqcd-course/scripts/verify_course.py` | 结构、来源、页数、日志和产物硬门 |
+| `skills/lqcd-course/scripts/render_audit.py` | 43 份 PDF 的全页渲染、自动筛查与联系表生成 |
 | `SOURCES.md` | book/paper/code/skill 的可追溯来源表 |
 | `generated/` | 35 分卷、核心全集、索引和 6 份图谱 TeX |
 | `logs/docs/lattice_qcd_gluon_tmd_course/generated/` | manifest、编译记录和机器验证 JSON |
 | `pdf/` | 通过构建闸门的最终 PDF |
-| `data/docs/lattice_qcd_gluon_tmd_course/visual_audit/` | 当前活动的 v2 视觉数据：3489 个渲染页和 57 张联系表 |
+| `data/lattice_qcd_gluon_tmd_course/visual_audit/` | 当前活动的 v2 视觉数据：3489 个渲染页和 57 张联系表 |
 | `logs/docs/lattice_qcd_gluon_tmd_course/visual_audit/` | 视觉审计 JSON 与人工审阅记录 |
 
 知识对象统一使用 `K/Def/Eq/Thm/Fig/Tbl/Alg/Ex/Sol/Src/SYM-卷.单元`。论文使用 `Pxx`，具体原始页使用 `Pxx-pyyy`。分卷与全集共享同一 frame 片段，合订时编号不变。
@@ -68,41 +68,41 @@
 SymPy 必须使用项目的 Conda `qcu` 环境。以下命令均从仓库根目录执行：
 
 ```bash
-LQCD_COURSE=data/docs/lattice_qcd_gluon_tmd_course
+LQCD_COURSE=skills/lqcd-course/scripts
 conda run -n qcu python "$LQCD_COURSE/sympy_validation.py"
-conda run -n qcu python "$LQCD_COURSE/myqcd/run_all.py" \
+conda run -n qcu python "$LQCD_COURSE/course_examples/run_all.py" \
   --json logs/docs/lattice_qcd_gluon_tmd_course/generated/myqcd_examples.json
 ```
 
 生成 43 份主 TeX、35 个共享片段、来源表和 manifest：
 
 ```bash
-python data/docs/lattice_qcd_gluon_tmd_course/build_course.py generate
+python skills/lqcd-course/scripts/build_course.py generate
 ```
 
 分层编译；每份文档均运行两遍 XeLaTeX：
 
 ```bash
-python data/docs/lattice_qcd_gluon_tmd_course/build_course.py compile --target index
-python data/docs/lattice_qcd_gluon_tmd_course/build_course.py compile --target volumes --jobs 4
-python data/docs/lattice_qcd_gluon_tmd_course/build_course.py compile --target atlases --jobs 2
-python data/docs/lattice_qcd_gluon_tmd_course/build_course.py compile --target core
+python skills/lqcd-course/scripts/build_course.py compile --target index
+python skills/lqcd-course/scripts/build_course.py compile --target volumes --jobs 4
+python skills/lqcd-course/scripts/build_course.py compile --target atlases --jobs 2
+python skills/lqcd-course/scripts/build_course.py compile --target core
 ```
 
 全量生成并编译也可使用：
 
 ```bash
-python data/docs/lattice_qcd_gluon_tmd_course/build_course.py all --target all --jobs 4
+python skills/lqcd-course/scripts/build_course.py all --target all --jobs 4
 ```
 
 编译日志通过后，将全部 43 份 PDF 渲染为逐页图并生成 8×8 联系表：
 
 ```bash
-conda run -n qcu python data/docs/lattice_qcd_gluon_tmd_course/render_audit.py \
+conda run -n qcu python skills/lqcd-course/scripts/render_audit.py \
   --dpi 96 --jobs 4 --columns 8 --rows 8
 ```
 
-必须逐张查看 `data/docs/lattice_qcd_gluon_tmd_course/visual_audit/contact_sheets/` 中的全部联系表；只有连续覆盖所有页面，并核对自动标记的
+必须逐张查看 `data/lattice_qcd_gluon_tmd_course/visual_audit/contact_sheets/` 中的全部联系表；只有连续覆盖所有页面，并核对自动标记的
 疑点页之后，才能在 `logs/docs/lattice_qcd_gluon_tmd_course/visual_audit/manual_review.json` 中填写 `status=passed`、实际检查页数以及三个零缺陷
 计数。`render_audit.py` 会对 43 份源 PDF、DPI 和联系表参数计算 SHA-256 审计指纹；源文件、页数、
 渲染参数或联系表数有任何变化，旧人工记录都不会被升级为通过。外部 `manual_review.json` 与
@@ -116,9 +116,9 @@ conda run -n qcu python data/docs/lattice_qcd_gluon_tmd_course/render_audit.py \
 快速验收与严格验收：
 
 ```bash
-conda run -n qcu python data/docs/lattice_qcd_gluon_tmd_course/verify_course.py \
+conda run -n qcu python skills/lqcd-course/scripts/verify_course.py \
   --run-sympy --check-paper-identities
-conda run -n qcu python data/docs/lattice_qcd_gluon_tmd_course/verify_course.py \
+conda run -n qcu python skills/lqcd-course/scripts/verify_course.py \
   --strict --json logs/docs/lattice_qcd_gluon_tmd_course/generated/verification_strict.json
 ```
 

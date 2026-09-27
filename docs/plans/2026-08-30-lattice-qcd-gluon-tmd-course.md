@@ -1,6 +1,6 @@
 # 格点 QCD 到梯度流核子胶子 TMD-PDF 课程实施计划
 
-**目标：** 在 `docs/lattice_qcd_gluon_tmd_course/` 交付文档成品，在 `data/docs/lattice_qcd_gluon_tmd_course/` 交付生成与验证代码，并在 `logs/docs/lattice_qcd_gluon_tmd_course/` 保存机器产物，形成一套面向高中毕业生、无需外部补充资料、可长期自学并最终独立实现梯度流重整化核子胶子 TMD-PDF 的中文 16:9 Beamer/PDF 课程。
+**目标：** 在 `docs/lattice_qcd_gluon_tmd_course/` 交付文档成品，在 `skills/lqcd-course/scripts/` 交付生成与验证代码，并在 `logs/docs/lattice_qcd_gluon_tmd_course/` 保存机器产物，形成一套面向高中毕业生、无需外部补充资料、可长期自学并最终独立实现梯度流重整化核子胶子 TMD-PDF 的中文 16:9 Beamer/PDF 课程。
 
 **架构：** 课程由 35 卷教学主线、6 卷论文原文图谱、一个核心全集和一个全局索引组成。教学主线采用同一套结构化内容数据生成，确保术语、公式、算法、练习和来源编号一致；论文图谱逐页纳入 50 篇完整原始 PDF，并赋予稳定的 `Pxx-pyyy` 页面 ID。构建器只依赖 Python 标准库、XeLaTeX、Ghostscript 和已登记的本地资料。
 
@@ -23,14 +23,14 @@
 |---|---|
 | `docs/lattice_qcd_gluon_tmd_course/README.md` | 学习路径、构建命令、编号和引用规则 |
 | `docs/lattice_qcd_gluon_tmd_course/course_style.tex` | 16:9 主题、编号/跳转宏、安全区和统一视觉语义 |
-| `data/docs/lattice_qcd_gluon_tmd_course/course_content.py` | 35 卷、175 个学习单元的稳定导入入口（正文按 `content/` 分卷） |
-| `data/docs/lattice_qcd_gluon_tmd_course/build_course.py` | 生成核心分卷、核心全集、全局索引和论文图谱 TeX |
-| `data/docs/lattice_qcd_gluon_tmd_course/sympy_validation.py` | 为每条主推导生成 `SYM-<EqID>` 可执行验证证据 |
-| `data/docs/lattice_qcd_gluon_tmd_course/verify_course.py` | 清单、编号、引用、占位符、页数、日志和渲染验证 |
-| `data/docs/lattice_qcd_gluon_tmd_course/render_audit.py` | 43 份 PDF 的 3489 页渲染、自动筛查和联系表生成 |
-| `data/docs/lattice_qcd_gluon_tmd_course/visual_audit/` | 57 张联系表和逐页图 |
+| `skills/lqcd-course/scripts/course_content.py` | 35 卷、175 个学习单元的稳定导入入口（正文按 `content/` 分卷） |
+| `skills/lqcd-course/scripts/build_course.py` | 生成核心分卷、核心全集、全局索引和论文图谱 TeX |
+| `skills/lqcd-course/scripts/sympy_validation.py` | 为每条主推导生成 `SYM-<EqID>` 可执行验证证据 |
+| `skills/lqcd-course/scripts/verify_course.py` | 清单、编号、引用、占位符、页数、日志和渲染验证 |
+| `skills/lqcd-course/scripts/render_audit.py` | 43 份 PDF 的 3489 页渲染、自动筛查和联系表生成 |
+| `data/lattice_qcd_gluon_tmd_course/visual_audit/` | 57 张联系表和逐页图 |
 | `logs/docs/lattice_qcd_gluon_tmd_course/visual_audit/` | 人工视觉验收和渲染审计 JSON |
-| `data/docs/lattice_qcd_gluon_tmd_course/myqcd/` | 26 个群论/QFT、谱学、重整化/TMD 的可运行 SymPy 教学例题 |
+| `skills/lqcd-course/scripts/course_examples/` | 26 个群论/QFT、谱学、重整化/TMD 的可运行 SymPy 教学例题 |
 | `logs/docs/lattice_qcd_gluon_tmd_course/paper_sources.json` | P01--P50 完整原始 PDF 的唯一路径、URL 与缓存哈希 |
 | `docs/lattice_qcd_gluon_tmd_course/generated/` | 机械生成的 Beamer 源文件 |
 | `docs/lattice_qcd_gluon_tmd_course/pdf/` | 编译后的核心分卷、全集、索引和论文图谱 PDF |

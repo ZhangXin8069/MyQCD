@@ -34,6 +34,8 @@ metadata:
 
 遵循当前目录 `AGENTS.md`「技能执行公共契约」；仅按需读取技能正文与 reference。
 工作目录内已有 refer 结构时，先读其 `AGENTS.md` 与 `INDEX.md` 对齐既有约定。
+文献报告生成器位于 `skills/refer/scripts/`，运行入口和输出路径以生成器 `--help`
+与 `docs/` 中报告头为准。
 
 ## 触发时机
 
