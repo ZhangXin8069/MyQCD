@@ -182,6 +182,14 @@ CORE_FORMULAS: Dict[str, FormulaSpec] = {
         "derive_grassmann_determinant_identity",
         "对 N=2、n=2 对角颜色块矩阵和标量 n=3 构造二次型系数矩阵，验证周期反号边界与 det(z^n I+U_1...U_n)；不执行 Grassmann 积分或大 N 鞍点。",
     ),
+    "wick_pairing_enumeration": FormulaSpec(
+        "wick_pairing_enumeration",
+        r"N_{\mathrm{Wick}}=\prod_f n_{q,f}!,\qquad \epsilon_w=(-1)^{\mathrm{inv}(q_0,\ldots,q_n,\bar q_{\pi(0)},\ldots,\bar q_{\pi(n)})}",
+        "docs/reference-repositories-audit-20261020.md:63-70",
+        "verified",
+        "derive_wick_pairing_enumeration",
+        "按精确味道枚举配对并显式保存 Grassmann 重排符号；验证 pn=36、ppn=2880、Delta++Delta-=36。Gamma、颜色和源共轭不作为组合枚举的一部分。",
+    ),
     "wilson_gap_scaling": FormulaSpec(
         "wilson_gap_scaling",
         r"g(f,L,b)=A(L,b)\sqrt{f-F_c(L,b)},\quad g^2(l t_c)=A\ln\frac{l}{l_c}",

@@ -68,6 +68,7 @@ from .derivations import (
     derive_two_dimensional_wilson_loop,
     derive_instanton_holonomy_su2,
     derive_grassmann_determinant_identity,
+    derive_wick_pairing_enumeration,
     derive_wilson_gap_scaling,
     derive_wilson_smearing_kernel,
     derive_wilson_smearing_scaling,
@@ -113,13 +114,23 @@ from .latex_inventory import (
     extract_display_formulas,
     scan_refer_papers,
 )
+from .wick import (
+    FermionField,
+    WickPairing,
+    count_wick_pairings,
+    enumerate_wick_pairings,
+    fermion_fields,
+)
 
 __all__ = [
     "CORE_FORMULAS",
     "DerivationResult",
     "FormulaRecord",
     "FormulaSpec",
+    "FermionField",
     "InventoryReport",
+    "WickPairing",
+    "count_wick_pairings",
     "derive_correlator_spectrum",
     "derive_diffusion_processes",
     "derive_gauge_flow_kernel",
@@ -177,6 +188,7 @@ __all__ = [
     "derive_two_dimensional_wilson_loop",
     "derive_instanton_holonomy_su2",
     "derive_grassmann_determinant_identity",
+    "derive_wick_pairing_enumeration",
     "derive_wilson_gap_scaling",
     "derive_wilson_smearing_kernel",
     "derive_wilson_smearing_scaling",
@@ -214,6 +226,8 @@ __all__ = [
     "derive_quasi_pdf_one_loop_matching_kernel",
     "derive_quasi_pdf_finite_momentum_one_loop_matching_kernel",
     "extract_display_formulas",
+    "enumerate_wick_pairings",
+    "fermion_fields",
     "run_core_checks",
     "scan_refer_papers",
 ]
