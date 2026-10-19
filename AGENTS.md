@@ -31,7 +31,10 @@
   `__init__.py`、`__main__.py` 是语言强制例外。
 - 顶层目录白名单：`data/`、`docs/`、`logs/`、`myqcd/`、`refer/`、`skills/`。
   根目录仅允许 `README.md`、`LICENSE`、`.gitignore`、`pytest.ini` 和 agent 配置文件。
-- `docs/` 只放 Markdown、TeX、PDF 和图片；`logs/` 只放 `AGENT.md` 以及
+- Agent 指令文件唯一名称是 `AGENTS.md`；`AGENT.md` 是历史输入错误，不是兼容别名。
+  同目录同时存在两者时，必须先将 `AGENT.md` 的有效内容合并到 `AGENTS.md` 并去重，
+  再删除 `AGENT.md`，并同步全部现行引用。
+- `docs/` 只放 Markdown、TeX、PDF 和图片；`logs/` 只放 `AGENTS.md` 以及
   `log/json/tsv/csv/txt` 文件，不允许 `.DS_Store`；`data/` 只跟踪 `.gitignore`、
   `AGENTS.md`、`README.md`。
 - 课程代码位于 `skills/lqcd-course/scripts/`，教学模块位于其 `course_examples/`；
