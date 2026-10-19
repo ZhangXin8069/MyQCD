@@ -29,7 +29,8 @@ LaTeX/Markdown。通用命名矩阵、快照证据与交付模板读取全局
 ## 不可破坏的不变量
 
 1. `data/` 仅跟踪 `.gitignore`、`AGENTS.md`、`README.md`。
-2. `logs/` 仅跟踪 `log/json/tsv/csv/txt`；LaTeX 中间文件不提交。
+2. `logs/` 仅跟踪 `AGENT.md` 以及 `log/json/tsv/csv/txt` 文件，不允许 `.DS_Store`；
+   LaTeX 中间文件不提交。
 3. 课程源码、内容与验证器不得放回 `data/`；成品与机器日志分别留在
    `docs/` 和 `logs/`。
 4. `refer/**` 的上游命名和内容不因本库格式治理而批量小写或重排。
