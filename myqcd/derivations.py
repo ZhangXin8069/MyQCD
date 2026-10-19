@@ -7,10 +7,18 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import dataclass
 from typing import Any, Dict, Mapping, Tuple
 
 import sympy as sp
+
+from .wick import (
+    FermionField,
+    count_wick_pairings,
+    enumerate_wick_pairings,
+    fermion_fields,
+)
 
 
 @dataclass(frozen=True)
@@ -2016,6 +2024,106 @@ def derive_grassmann_determinant_identity() -> DerivationResult:
             "psi_{n+1}=-psi_1 使最后一行左下块为 +U_n",
             "有限维 Grassmann 高斯积分的系数矩阵行列式给出源文结构",
             "只验证块行列式和符号约定，不执行 Grassmann 积分或大 N 鞍点",
+        ),
+        checks=checks,
+        status="verified" if all(checks.values()) else "failed",
+    )
+
+
+def derive_wick_pairing_enumeration() -> DerivationResult:
+    r"""检查精确味道 Wick 配对数与 Grassmann 重排符号。
+
+    对每个味道 ``f``，若有 ``n_f`` 个夸克和相同数目的反夸克，则配对数为
+    ``prod_f n_f!``。这里显式枚举单介子、双介子以及 ``pn``、``ppn``、
+    ``Delta++ Delta-`` 的配对，核对计数、映射唯一性和符号范围。
+    该检查只覆盖离散配对与 Grassmann 重排；Gamma 收缩、颜色张量和源算符
+    共轭仍由具体关联函数约定提供。
+    """
+
+    one_meson_fields = (
+        FermionField.anti("u"),
+        FermionField.quark("u"),
+    )
+    one_meson_pairings = enumerate_wick_pairings(one_meson_fields)
+
+    pipi_fields = (
+        FermionField.anti("u"),
+        FermionField.quark("u"),
+        FermionField.anti("u"),
+        FermionField.quark("u"),
+    )
+    pipi_pairings = enumerate_wick_pairings(pipi_fields)
+
+    fixture_fields = {
+        "pn": fermion_fields(
+            ("u", "d", "u", "d", "u", "d"),
+            ("u", "d", "u", "d", "u", "d"),
+        ),
+        "ppn": fermion_fields(
+            ("u", "d", "u", "u", "d", "u", "d", "u", "d"),
+            ("u", "d", "u", "u", "d", "u", "d", "u", "d"),
+        ),
+        "delta++delta-": fermion_fields(
+            ("u", "u", "u", "d", "d", "d"),
+            ("u", "u", "u", "d", "d", "d"),
+        ),
+    }
+    fixture_counts = {
+        name: count_wick_pairings(fields)
+        for name, fields in fixture_fields.items()
+    }
+    fixture_enumerations = {
+        name: enumerate_wick_pairings(fields)
+        for name, fields in fixture_fields.items()
+    }
+    expected_counts = {
+        "pn": 36,
+        "ppn": 2880,
+        "delta++delta-": 36,
+    }
+    sign_distribution = Counter(pairing.sign for pairing in pipi_pairings)
+
+    checks = {
+        "single_meson_sign_from_interleaved_order": (
+            one_meson_pairings[0].quark_to_antiquark == (0,)
+            and one_meson_pairings[0].sign == -1
+        ),
+        "two_meson_pairings_are_complete": {
+            pairing.quark_to_antiquark for pairing in pipi_pairings
+        }
+        == {(0, 1), (1, 0)},
+        "two_meson_signs_alternate": sign_distribution == Counter({-1: 1, 1: 1}),
+        "fixture_counts_match_reference": fixture_counts == expected_counts,
+        "enumeration_matches_closed_form": all(
+            len(fixture_enumerations[name]) == fixture_counts[name]
+            for name in fixture_fields
+        ),
+        "pairings_are_unique": all(
+            len({pairing.quark_to_antiquark for pairing in pairings})
+            == len(pairings)
+            for pairings in fixture_enumerations.values()
+        ),
+        "signs_are_fermionic": all(
+            pairing.sign in (-1, 1)
+            for pairings in fixture_enumerations.values()
+            for pairing in pairings
+        ),
+    }
+    return DerivationResult(
+        name="wick_pairing_enumeration",
+        equations={
+            "closed_form": r"N_{\mathrm{Wick}}=\prod_f n_{q,f}!",
+            "one_meson_pairings": one_meson_pairings,
+            "pipi_pairings": pipi_pairings,
+            "fixture_counts": fixture_counts,
+            "pipi_sign_distribution": dict(sign_distribution),
+        },
+        symbols={},
+        assumptions=(
+            "输入字段按实际算符乘积顺序排列，配对只连接相同味道",
+            "每个味道的夸克数与反夸克数相等；否则关联函数为零，本函数报错",
+            "符号是重排到 q...q bar...bar 的 Grassmann 奇偶性",
+            "Gamma、颜色、源共轭和整体 Berezin 约定不在此组合层内",
         ),
         checks=checks,
         status="verified" if all(checks.values()) else "failed",
@@ -12910,6 +13018,7 @@ def run_core_checks() -> Dict[str, Any]:
         derive_two_dimensional_wilson_loop,
         derive_instanton_holonomy_su2,
         derive_grassmann_determinant_identity,
+        derive_wick_pairing_enumeration,
         derive_wilson_gap_scaling,
         derive_wilson_smearing_kernel,
         derive_wilson_smearing_scaling,

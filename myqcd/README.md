@@ -57,6 +57,10 @@
 3. `latex_inventory.py` 扫描 `refer/papers/INDEX.md` 列出的 50 个中文论文
    目录，保留每个显示公式的源文件、起止行、环境和原文正文；不扫描
    `build/`。`unparsed` 是诚实的未语义化标记，不是对原文正确性的否定。
+4. `wick.py` 按精确味道枚举 Wick 配对，显式保留输入场顺序对 Grassmann
+   重排符号的影响；它只做组合层检查，不把 Gamma、颜色张量、source 共轭
+   或整体 Berezin 约定暗中混入。新增参考仓库的审计边界见
+   `docs/reference-repositories-audit-20261020.md`。
 
 运行核心检查和索引统计：
 

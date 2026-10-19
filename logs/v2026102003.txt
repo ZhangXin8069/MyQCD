@@ -1,0 +1,94 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-10-20 03:23:11 +0800
+批次: refer-wick-audit-20261020
+主任务: 分析新增参考文档与代码并合并有效内容
+触发原因: 任务完成
+摘要: 审计两个新增参考子模块，记录上游错误与许可边界，独立实现并验证 Wick 精确味道配对枚举。
+Git 根目录: /Users/zhangxin/MyQCD
+
+## 关键日志
+### S1 — 范围定位与技能基线
+- 目标: 识别新增参考文档与代码，建立只读审计边界。
+- 命令/操作: 读取根 AGENTS、refer/AGENTS、skills/refer 与 skills/form；检查 Git 状态和最近提交。
+- 关键输出: 新增内容为 refer/git-rep/LQCD_Wickcontraction_reduce 与 refer/git-rep/feyncalc 两个干净子模块。
+- 退出码: 0。
+- 证据与判断: 子模块 gitlink 分别为 1c996a86b778b33d6fd670f025b8074bd6798093 和 1ee480093293a01a82b3e365d026808f1d4e1c17。
+
+### S2 — 上游代码审计
+- 目标: 查找参考逻辑、文档契约和工程安全问题。
+- 命令/操作: 并行只读审查两个子模块；本机安装隔离 pytest 到 data/.testdeps 后建立主库基线。
+- 关键输出: Wick 项目 153 项 unittest 通过，未发现可复现的配对符号、Dirac/Gamma 或 epsilon/delta 收缩错误；发现非法 JSON 记录静默丢弃、phase/clebsch 在 normal-special 不进入系数、cross_time endpoint key 漏 sink、sink_routes 校验不足及默认槽位不一致等问题。
+- 退出码: 0；pn normal-special-check 因超过 4 分钟人工中断，未验证。
+- 证据与判断: FeynCalc 无 Mathematica/Wolfram 运行时；其安装器存在先删除旧目录再下载、可变远端和未校验执行风险。
+
+### S3 — 独立合并实现
+- 目标: 合并可验证的组合层思想而不复制第三方实现。
+- 命令/操作: 新增 myqcd/wick.py、derive_wick_pairing_enumeration、公式注册与 8 项回归测试；补审计文档和子模块说明。
+- 关键输出: 实现精确味道配对、Grassmann 重排符号、输入校验，以及不展开全部配对的 factorial 计数。
+- 退出码: 0。
+- 证据与判断: LQCD 子模块无许可证，FeynCalc 为 GPL-3.0-or-later，MyQCD 为 MIT；新代码为独立实现。
+
+## 验证与证据
+- 测试/检查: PYTHONPATH=data/.testdeps python -m pytest -q
+- 结果: 120 passed；最终清理后相关定向回归 10 passed。
+- 测试/检查: python -m myqcd 核心审计
+- 结果: status=verified，derivations=94，failed=0。
+- 测试/检查: MyQCD 与上游短序列交叉比较
+- 结果: 102 cases exact match。
+- 测试/检查: 课程 SymPy 与教学模块
+- 结果: SymPy 175/175；course examples 26/26。
+- 测试/检查: 上游 Wick 项目
+- 结果: 153 项 unittest 通过；default 为 2 Wick/288 basis，pip 为 24 Wick，pn normal-wick-check 为 36/18/18；delta 与 pipi special check 通过；随机单介子收缩最大残差 3.6e-14。
+- 测试/检查: form-audit --strict、form-snapshot-verify、compileall、git diff --check
+- 结果: 全部退出码 0。
+- 未验证项: FeynCalc 运行测试因缺少 Mathematica/Wolfram 未执行；pn normal-special-check 超时中断。仓库既有 ../PyQCD 路径引用仍在，未纳入本次范围。
+
+## 变更与产物
+- 文件: myqcd/wick.py；myqcd/derivations.py；myqcd/formula_registry.py；myqcd/__init__.py；myqcd/testing/myqcd/test_myqcd_wick.py；myqcd/README.md；README.md；refer/git-rep/README.md；docs/reference-repositories-audit-20261020.md。
+- 产物: 参考仓库审计报告与可执行 Wick 配对枚举 API。
+- 未改动范围: 外部子模块、logs 历史证据、课程内容和既有 ../PyQCD 集成。
+
+## 风险、限制与下一步
+- 风险: 新模块只处理离散配对，不包含 Gamma、颜色、source 共轭或整体 Berezin 约定。
+- 阻塞: 无。
+- 下一步: 若采用上游约化器，先向上游报告输入校验与 endpoint key 问题，并在明确许可证后评估；FeynCalc 引入固定哈希、校验与原子替换的安装方案。
+
+## 用户输入指令
+分析新增的参考文档与代码,并寻找其中可能存在的错误,然后将有参考意义的内容合并到本库,并进行优化与正确性检验
+
+## Agent 全文报告
+--- report begin ---
+## 改动内容
+- 新增 `myqcd/wick.py`：独立实现精确味道 Wick 配对枚举、Grassmann 重排符号、严格输入校验和不展开配对的 factorial 计数。
+- 将 `wick_pairing_enumeration` 接入 `derive_*`、`run_core_checks`、公式注册表和包导出，并新增 8 项专项测试。
+- 新增 `docs/reference-repositories-audit-20261020.md`，记录两个新增子模块的锁定提交、许可、错误、测试证据与验证边界。
+- 重写 `refer/git-rep/README.md`，明确“只引用子模块、不复制第三方代码”、FeynCalc 开发快照状态和许可证不兼容风险。
+- 更新根 README 与 `myqcd/README.md`，给出审计报告和组合层 API 的入口。
+
+## 推理依据
+- 对每个味道 `f`，若夸克和反夸克数均为 `n_f`，完全配对数由 `prod_f n_f!` 给出。
+- 物理符号由原始算符场顺序重排到 `q...q bar...bar` 的置换奇偶性决定；交错介子与块状旋量顺序不能混用。
+- Gamma 收缩、颜色张量、source 共轭和 Berezin 整体约定依赖具体关联函数，不能藏进纯组合枚举器。
+- `LQCD_Wickcontraction_reduce` 未声明许可证，FeynCalc 为 GPL-3.0-or-later，MyQCD 为 MIT；因此只吸收算法思想，不复制源码。
+- 上游审计确认：非法 JSON 记录可被静默丢弃、字符串 flavors 可误解析、normal-special 可忽略 phase/clebsch、cross_time 端点键漏 sink 标签、sink_routes 未校验唯一性、两个入口默认槽位不一致。
+- FeynCalc 锁定提交是 10.2.1 之后的开发快照；安装器先删除旧目录再下载，并从可变 master 获取未校验代码，存在不可复现和供应链风险。
+
+## 验证结果
+- `python -m pytest -q`：120 passed。
+- 最终清理后的相关定向回归：10 passed。
+- 核心审计：94 项推导，0 失败。
+- 新枚举器与上游短字段序列交叉比较：102 个 case 精确一致。
+- 课程 SymPy：175/175；教学模块：26/26。
+- form 严格审计、快照校验、compileall、git diff --check：全部通过。
+- Wick 上游：153 项 unittest 通过；默认样例、pip、pn、delta、pipi 与随机 Dirac 收缩均通过；未发现可复现的符号、Gamma 或颜色收缩错误。
+- FeynCalc：静态审计完成，但本机没有 Mathematica/Wolfram，未运行 MUnit/集成测试。
+- 未验证：pn normal-special-check 超过 4 分钟被中断；既有 ../PyQCD 引用不属于本次改动，保留为仓库已有缺口。
+
+## 后续步骤
+1. 若上游修复 Wick 项目输入契约，优先补 JSON schema、phase/clebsch 语义、sink endpoint key 和 sink_routes 唯一性测试。
+2. 若引入 FeynCalc，固定提交与哈希，采用下载校验成功后原子替换的安装流程，并保留回滚目录。
+3. 如需把组合枚举扩展到完整关联函数，在 `myqcd.wick` 之外单独实现 Gamma、颜色和 source 共轭层，并逐层交叉验证。
+
+finished
+--- report end ---

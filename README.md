@@ -13,6 +13,9 @@ MyQCD 是 ZhangXin 的格点 QCD 理论审计与课程工程仓库。
 | `data/` | 不入库的运行数据和缓存 |
 | `refer/` | 外部书籍、论文及参考仓库 |
 
+新增外部代码的版本、许可、已知问题和验证边界记录在
+[`docs/reference-repositories-audit-20261020.md`](docs/reference-repositories-audit-20261020.md)。
+
 ## 验证
 
 ```bash
