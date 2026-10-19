@@ -17,3 +17,12 @@
 - 关键内容: 已删除 3 个大文件，重写并推送 main 与 11 个标签，独立远端克隆验证通过
 - 验证: path, size, required sections, conflict markers
 - 批次状态: complete
+
+## form-myqcd-20261020 - final - 2026-10-20 01:27:59 +0800
+- 主任务: MyQCD ~form 整改：清理 logs/.DS_Store、同步根 form 标记块并完成验证
+- 日志文件: logs/v2026102001-2.txt
+- 文件大小: 8556 bytes
+- 触发原因: 任务完成
+- 关键内容: 完成唯一格式冲突清理、精确忽略与根规则同步；全部测试和审计通过，未提交或推送
+- 验证: path, size, required sections, conflict markers
+- 批次状态: complete

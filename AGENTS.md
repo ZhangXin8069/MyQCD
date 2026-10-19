@@ -18,7 +18,10 @@
 4. 不编造物理结论、测试结果、远端状态或文件证据；未执行或不具备条件的验证明确标记为缺口。
 5. 完成后按「改动内容 → 推理依据 → 验证结果 → 后续步骤」汇报。
 
+<!-- form-skill:start -->
 ## form 格式约定
+
+> 本库原有明确约定与本节通用规则冲突时，以原有约定为准；用户明确指令优先于二者。
 
 - 库类型：`complex`。
 - 主导语言：根包与技能脚本为 Python，交付文档和参考转排为 LaTeX/Markdown，其他资源为数据或图片。
@@ -28,8 +31,9 @@
   `__init__.py`、`__main__.py` 是语言强制例外。
 - 顶层目录白名单：`data/`、`docs/`、`logs/`、`myqcd/`、`refer/`、`skills/`。
   根目录仅允许 `README.md`、`LICENSE`、`.gitignore`、`pytest.ini` 和 agent 配置文件。
-- `docs/` 只放 Markdown、TeX、PDF 和图片；`logs/` 只放 `log/json/tsv/csv/txt`；
-  `data/` 只跟踪 `.gitignore`、`AGENTS.md`、`README.md`。
+- `docs/` 只放 Markdown、TeX、PDF 和图片；`logs/` 只放 `AGENT.md` 以及
+  `log/json/tsv/csv/txt` 文件，不允许 `.DS_Store`；`data/` 只跟踪 `.gitignore`、
+  `AGENTS.md`、`README.md`。
 - 课程代码位于 `skills/lqcd-course/scripts/`，教学模块位于其 `course_examples/`；
   文献报告生成器位于 `skills/refer/scripts/`。
 - 测试入口：`python -m pytest`。课程证据入口：
@@ -42,3 +46,4 @@
   不得继续使用旧路径。
 - `data/**` 的运行内容、缓存和图片是本库唯一批准的不入库例外；由 `data/.gitignore`
   统一排除。
+<!-- form-skill:end -->
