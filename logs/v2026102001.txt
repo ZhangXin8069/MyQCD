@@ -1,0 +1,67 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-10-20 01:03:58 +0800
+批次: git-history-large-files-cleanup
+主任务: 删除远端 Git 历史中大于 10MB 的文件并完成本地和远端历史瘦身
+触发原因: 任务完成
+摘要: 已删除 3 个大文件，重写并推送 main 与 11 个标签，独立远端克隆验证通过
+Git 根目录: /root/MyQCD
+
+## 关键日志
+### S1 — 只读审计
+- 目标: 枚举 Gitee 所有分支和标签可达历史中大于 10 MiB 的唯一 blob。
+- 命令/操作: git ls-remote；git rev-list --objects --all；git cat-file --batch-check；git log --find-object。
+- 关键输出: 共 3 个唯一大文件，合计 112503944 bytes；三者在旧 HEAD 均存在。
+- 退出码: 0
+- 证据与判断: 受影响引用包括 main，以及 bug0、dev0、dev1、dev2、stab4、stab5、stab6。
+
+### S2 — 本地历史重写
+- 目标: 从所有本地历史和引用永久移除三个路径。
+- 命令/操作: 建立并 fsck 校验 data/git_history_slimming_20261020T004434/repo.git 镜像；执行 git filter-repo --force --invert-paths --prune-empty never。
+- 关键输出: 37 个提交全部重写；旧 blob 在新对象库中均为 missing；目标路径不存在。
+- 退出码: 0
+- 证据与判断: 重写后 fsck --full --no-dangling 无错误；所有引用可达对象中无大于 10 MiB 的 blob。
+
+### S3 — 远端原子替换
+- 目标: 用显式旧对象 ID 的 force-with-lease 更新远端 main 和全部 11 个标签。
+- 命令/操作: git push --atomic --force-with-lease=... origin ...。
+- 关键输出: main fbadaa7...676647e；11 个标签均更新到新对象 ID。
+- 退出码: 0
+- 证据与判断: Gitee 返回 forced update，远端原子事务成功。
+
+### S4 — 独立远端验证
+- 目标: 从 Gitee 重新克隆并验证清理结果。
+- 命令/操作: git clone --mirror；git fsck；对象大小扫描；旧 blob 查询；路径全历史搜索。
+- 关键输出: 新镜像 main=676647e8d62aa0457a07f22faf28339e9aba8da1；37 个提交；pack 217.07 MiB；旧 blob 均 missing；无目标路径和大于 10 MiB 的 blob。
+- 退出码: 0
+- 证据与判断: 新克隆独立确认远端可达历史已完成清理。
+
+## 验证与证据
+- 测试/检查: python -m pytest；python -m compileall；git fsck；旧路径 rg；远端全新镜像校验；form strict audit。
+- 结果: pytest 112 passed in 356.48s；语法检查退出码 0；旧路径搜索无匹配（rg 退出码 1）；本地和全新远端镜像 fsck 均通过。
+- 未验证项: Gitee 服务端不可达对象的实际物理 GC 时间无法由 Git 客户端验证。
+- 格式审计: form-audit 退出码 1，唯一输出为既有 logs/.DS_Store 不允许；本次未擅自修改该无关文件。
+
+## 变更与产物
+- 文件: 删除 docs/report_refer_papers_all_contents_20260830.pdf、docs/lattice_qcd_gluon_tmd_course/pdf/paper_atlas_E.pdf、docs/lattice_qcd_gluon_tmd_course/pdf/paper_atlas_D.pdf。
+- 产物: logs/v202610200039.txt、本最终日志、logs/AGENT.md；data/git_history_slimming_20261020T004434/ref-map.txt 与 commit-map.txt。
+- 未改动范围: 项目源代码和常规文档内容未改；原始大文件临时镜像和远端验证克隆已在成功后删除。
+
+## 风险、限制与下一步
+- 风险: 旧提交和标签对象 ID 已失效，其他克隆必须重新克隆或按 ref-map 迁移。
+- 阻塞: 无。
+- 下一步: 提交并普通推送本次日志；Gitee 服务端按平台策略回收旧不可达对象。
+- 存储结果: 本地 .git 由约 318M 降至约 218M；旧 pack 为 220.19 MiB，全新远端镜像 pack 为 217.07 MiB。
+
+## 用户输入指令
+1. 给出本git库已经提交到远程的所有大于10MB的文件,给用户审核并经过用户确认后将这些文件从本地和远程git永久删除以此给本git库瘦身
+2. A
+
+## Agent 全文报告
+--- report begin ---
+已按方案 A 完成清理。远端可达历史中大于 10 MiB 的 3 个 PDF 已从本地和远端全部引用移除：docs/report_refer_papers_all_contents_20260830.pdf（72409786 bytes）、docs/lattice_qcd_gluon_tmd_course/pdf/paper_atlas_E.pdf（28403800 bytes）、docs/lattice_qcd_gluon_tmd_course/pdf/paper_atlas_D.pdf（11690358 bytes）。
+main 已由 fbadaa78c6f38493be4c66921a4f46d7130b584d 重写为 676647e8d62aa0457a07f22faf28339e9aba8da1；全部 11 个标签也已更新。37 个提交全部保留。独立从 Gitee 全新镜像克隆后，三个旧 blob 均为 missing，目标路径不存在，所有引用可达对象中没有大于 10 MiB 的 blob，fsck 无错误。
+本地 .git 由约 318M 降至约 218M；远端新 pack 为 217.07 MiB。pytest 112 项全部通过，Python 语法检查通过，旧路径在当前非日志内容中无匹配。
+严格格式审计仍因既有 logs/.DS_Store 文件类型违规而退出 1；该问题与本次大文件清理无关，未擅自扩大修改范围。Gitee 何时物理回收不可达旧对象由平台决定。
+临时原始镜像和远端验证克隆已在成功后删除，仅保留提交/引用映射作为审计证据。
+--- report end ---

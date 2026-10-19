@@ -1,0 +1,42 @@
+[日志元数据]
+日志类型: stage
+生成时间: 2026-10-20 00:39:59 +0800
+批次: git-history-large-files-audit
+主任务: 审计并清理远程 Git 历史中大于 10MB 的文件
+触发原因: 阶段成果
+摘要: 列出远端可达历史中 3 个大文件并等待破坏性操作确认
+Git 根目录: /root/MyQCD
+
+## 关键日志
+### S1 — 远程可达历史只读审计
+- 目标: 列出 Gitee 远端所有分支与标签可达历史中大于 10 MiB 的唯一 Git blob。
+- 命令/操作: git ls-remote --heads --tags origin；git rev-list --objects --all；git cat-file --batch-check；git log --find-object；git branch/tag --contains。
+- 关键输出: 远端 main 为 fbadaa78c6f38493be4c66921a4f46d7130b584d；远端共 11 个标签；未配置 Git LFS。
+- 退出码: 0
+- 证据与判断: 超过 10 MiB 的唯一 blob 共 3 个，合计 112503944 bytes（107.292 MiB），且三者当前仍在 HEAD。
+
+## 验证与证据
+- 测试/检查: 远端引用查询、对象类型/大小检查、首次引入提交检查、标签可达性检查、当前工作树检查。
+- 结果: git status --short --branch 输出为 ## main...origin/main；git diff --check 无输出；当前 docs/ 下仅有这 3 个文件大于 10000000 bytes。
+- 未验证项: 尚未执行历史重写、强制推送、远端服务器垃圾回收或清理后克隆体积验证。
+
+## 变更与产物
+- 文件: 本次阶段仅新增本日志及日志索引。
+- 产物: 大文件候选清单与远端引用审计证据。
+- 未改动范围: 三个候选 PDF、Git 历史、远端引用和分支/标签均未改动。
+
+## 风险、限制与下一步
+- 风险: 清理需要重写 887df72 及其后共 21 个提交；main 与 bug0、dev0、dev1、dev2、stab4、stab5、stab6 的远端引用必须更新，普通推送无法完成。
+- 阻塞: 必须取得用户对强制历史重写和强制推送的明确确认。
+- 下一步: 用户确认后先在 data/ 建立临时镜像回退点，使用 git-filter-repo 删除三个路径，本地 gc 与对象复核，再显式 force-with-lease 推送受影响引用，最后重新克隆验证。
+- 服务端限制: 强制推送只能使对象从远端可达历史移除；Gitee 何时物理清除不可达对象无法由 Git 客户端保证，若要求立即物理清除需仓库删除重建或由 Gitee 管理端执行 GC。
+
+## Agent 全文报告
+--- report begin ---
+远端可达历史中大于 10 MiB 的唯一大文件共 3 个，合计 112503944 bytes（107.292 MiB）：
+1. docs/report_refer_papers_all_contents_20260830.pdf，72409786 bytes，blob fc8902b2368dc48fce7e62fb63d1d99a21076905，首次引入 887df72。
+2. docs/lattice_qcd_gluon_tmd_course/pdf/paper_atlas_E.pdf，28403800 bytes，blob e152c6703893f0053fe6e44f48541f4bf2f7f58a，首次引入 449eac7。
+3. docs/lattice_qcd_gluon_tmd_course/pdf/paper_atlas_D.pdf，11690358 bytes，blob fbfd4490f9bb25e1afaf479aef7b0cb4f9b76367，首次引入 449eac7。
+三者在当前 HEAD 均存在。受影响的远端标签为 bug0、dev0、dev1、dev2、stab4、stab5、stab6；远端 main 同样受影响。
+本次仅审计并归档证据，未删除文件、未重写历史、未推送。
+--- report end ---
