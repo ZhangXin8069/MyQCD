@@ -1,6 +1,8 @@
 # 原文论文 LaTeX 转排库 · 索引（50 篇）
 
-每篇两个目录：英文转排 `<Slug>_latex/`（article 类）+ 中文译本 `<中文名>_latex/`（ctexart）。编译：`cd <目录> && xelatex -interaction=nonstopmode -halt-on-error -output-directory=build main.tex`（两遍）。页数取自 build/main.pdf 实测。
+每篇两个目录：英文转排 `<Slug>_latex/`（article 类）+ 中文译本 `<中文名>_latex/`（ctexart）。编译：`cd <目录> && xelatex -interaction=nonstopmode -halt-on-error -output-directory=build main.tex`（两遍）。
+
+页数为 2026-08-26 的 `build/main.pdf` 历史实测记录；当前工作区未保留 PDF，尚未全量复验。本索引只覆盖 50 篇原文；两套 38 篇导读文选见文末单列一节。
 
 | # | 英文目录 | 中文目录 | EN页 | ZH页 | 底稿 | 备注 |
 |---|---|---|---|---|---|---|
@@ -54,3 +56,11 @@
 | 48 | `Power_Corrections_Renormalons_Quasi_latex` | `准分布的幂修正与renormalon_latex` | 24 | 24 | arXiv:1810.00048 |  |
 | 49 | `One_Loop_Evolution_Pseudo_PDF_latex` | `伪部分子分布的单圈演化_latex` | 17 | 14 | arXiv:1801.02427 |  |
 | 50 | `Isovector_Systematic_Renorm_Matching_latex` | `同位旋矢量分布的重正化匹配系统分析_latex` | 24 | 22 | arXiv:1807.06566 |  |
+
+## 导读文选（不计入 50 篇）
+
+| 英文目录 | 中文目录 | EN页 | ZH页 | 备注 |
+|---|---|---|---|---|
+| `Essential_Papers_on_Lattice_QCD_Parton_Physics_latex` | `格点QCD部分子物理精华论文选_latex` | 36 | 35 | 38 篇评注导读；2026-10-21 两遍编译复验，零错误 |
+
+编译：`cd <选集目录>/build && xelatex -interaction=nonstopmode -halt-on-error ../main.tex`（两遍）。

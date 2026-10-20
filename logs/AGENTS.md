@@ -44,3 +44,19 @@
 - 关键内容: 检查 dev4 以来变更与全历史标签链，创建并验证本地附注标签 dev5，未推送。
 - 验证: path, size, required sections, conflict markers
 - 批次状态: complete
+## refer-docs-20261021 - final - 2026-10-21 04:25:08 +0800
+- 主任务: 整理参考子库 refer
+- 日志文件: logs/v2026102104.txt
+- 文件大小: 6535 bytes
+- 触发原因: 任务完成
+- 关键内容: 修正 refer 文档/索引漂移，补全 git-rep 子模块说明，复验两套选集 36/35 页
+- 验证: path, size, required sections, conflict markers
+- 批次状态: complete
+## tag-dev6-20261021 - final - 2026-10-21 04:27:19 +0800
+- 主任务: ~tag:dev
+- 日志文件: logs/v2026102104-2.txt
+- 文件大小: 4217 bytes
+- 触发原因: 任务完成
+- 关键内容: 在 HEAD 创建本地注释标签 dev6，记录子模块与日志提交，明确 refer 改动未纳入且未推送
+- 验证: path, size, required sections, conflict markers
+- 批次状态: complete
