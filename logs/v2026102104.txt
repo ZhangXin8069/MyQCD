@@ -1,0 +1,78 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-10-21 04:25:08 +0800
+批次: refer-docs-20261021
+主任务: 整理参考子库 refer
+触发原因: 任务完成
+摘要: 修正 refer 文档/索引漂移，补全 git-rep 子模块说明，复验两套选集 36/35 页
+Git 根目录: /root/MyQCD
+
+## 关键日志
+
+### S1 — 只读审计
+- 目标: 摸清 refer/ 目录结构、索引、编译产物与 git-rep 子模块状态。
+- 命令/操作: 读取 refer/AGENTS.md、books/AGENTS.md、papers/AGENTS.md、papers/INDEX.md、git-rep/README.md；用 Python/pdfinfo/git 统计目录、PDF、子模块与索引一致性。
+- 关键输出: papers/ 共 102 个目录（50 篇原文 × 2 + 2 套导读文选）；INDEX.md 仅 50 行；papers/、books/ 下 PDF 数为 0；20 个转排目录缺 AGENTS.md；两套选集缺 AGENTS.md 与 GUIDE；anomalpap5.tex 为 0 字节被跟踪文件；git-rep 有 4 个子模块，README 只列 2 个；LQCD_Wickcontraction_reduce 与 feyncalc 未初始化。
+- 退出码: 0
+- 证据与判断: refer/AGENTS.md 的“99 篇 PDF”“选集在 refer 级”描述与磁盘不符；papers/AGENTS.md 与 INDEX.md 未覆盖两套选集；git-rep/README.md 遗漏 PyQCD/PyQCU。
+
+### S2 — 文档与索引整改
+- 目标: 修正结构描述、补齐索引范围、同步子模块说明，不做破坏性删除或移动。
+- 命令/操作: 重写 refer/AGENTS.md、books/AGENTS.md、papers/AGENTS.md、git-rep/README.md；在 papers/INDEX.md 增加页数证据说明与“导读文选”单列小节。
+- 关键输出: 5 个文档更新；明确 PDF 不随库保存、当前工作区无 build/main.pdf；记录 20 个缺 AGENTS.md 的目录、2 个缺 GUIDE 的选集、0 字节遗留文件与未初始化子模块。
+- 退出码: 0
+- 证据与判断: 以磁盘实际结构为准，保留两套选集在 papers/ 下，避免移动破坏历史与相对路径。
+
+### S3 — 选集编译复验
+- 目标: 为选集页数提供当前工作区证据。
+- 命令/操作: 在两个选集目录的 build/ 内执行两遍 xelatex -interaction=nonstopmode -halt-on-error ../main.tex。
+- 关键输出: 英文 36 页、中文 35 页；两目录两遍 exit=0；main.log 无 '!' 行。
+- 退出码: 0
+- 证据与判断: 页数与历史记录一致，编译断言成立；原文 100 个目录未在本轮重编译。
+
+## 验证与证据
+- 测试/检查: xelatex 两遍（两套选集）；pdfinfo 页数；rg '^!' main.log；git diff --check；目录/索引/链接一致性脚本。
+- 结果: 选集 EN 36 / ZH 35 页，零错误；git diff --check 无输出；102 个 papers 目录与 INDEX 50 行关系已说明；文档引用目录均存在。
+- 未验证项: 50 篇原文（100 个目录）未全量重编译，历史 2460 页仅为 2026-08-26 记录；books/ 8 个目录未重编译；20 个缺 AGENTS.md 目录、2 个缺 GUIDE 选集未补齐；0 字节文件未删除；两个子模块未初始化。
+- 产物哈希: Essential_Papers.../build/main.pdf sha256=332d711498486dbc8c63e3da5ba71373f8dac5ffb5d4f8ae054157b6a6cceb9d；格点QCD部分子物理精华论文选.../build/main.pdf sha256=9d50572b5582dbdf8719d411cf33e3f2e9ace8fa05f5916a3ac04fc730ad6cde。
+
+## 变更与产物
+- 文件: refer/AGENTS.md、refer/books/AGENTS.md、refer/git-rep/README.md、refer/papers/AGENTS.md、refer/papers/INDEX.md。
+- 产物: 两个选集的 build/main.pdf（被 .gitignore 排除，未入库）。
+- 未改动范围: 所有 LaTeX 源码、原始目录结构、子模块内容、0 字节文件；未执行 git add/commit/push。
+
+## 风险、限制与下一步
+- 风险: 原文页数无当前 PDF 证据，不能宣称全量复验；README 对 PyQCD/PyQCU 的用途描述基于目录结构与 LICENSE，未做功能测试。
+- 阻塞: 无。
+- 下一步: 如需要，确认后删除 papers/anomalpap5.tex；批量补齐 20 个转排目录的 AGENTS.md 与两套选集的 GUIDE；按需初始化 LQCD_Wickcontraction_reduce/feyncalc 并复跑审计；全量重编译 100 个原文目录以复核 2460 页。
+
+## 用户输入指令
+整理参考子库
+
+## Agent 全文报告
+--- report begin ---
+已完成 refer/ 参考子库的非破坏性整理，状态：finished。
+
+改动内容
+- refer/AGENTS.md：按磁盘实际结构重写；明确 papers/ 为 50 篇原文双语转排（100 目录）+ 2 套 38 篇导读文选；修正“99 篇 PDF”和选集位置描述；记录 PDF 不随库保存、当前无 build/main.pdf；写入选集复验页数。
+- refer/papers/AGENTS.md：明确 102 个目录的分类与选集实际位于 papers/；补充索引范围、历史编译证据与当前验证缺口；列出 20 个缺 AGENTS.md 的目录、两套缺 GUIDE 的选集、anomalpap5.tex 空文件。
+- refer/papers/INDEX.md：增加页数证据说明；新增“导读文选（不计入 50 篇）”小节，列出 EN/ZH 目录与复验页数。
+- refer/books/AGENTS.md：修正“源 PDF 随库”的描述；补充缺 CONVERSION_GUIDE/TRANSLATION_GUIDE 的两本；注明历史页数未复验。
+- refer/git-rep/README.md：补全 PyQCD、PyQCU 两个子模块（锁定提交、MIT 许可、用途、只读边界）；记录 4 个子模块的初始化状态；同步上游地址与审计文档链接。
+
+推理依据
+- 以 git 跟踪状态、磁盘目录、INDEX 行数、submodule status 和实际 PDF 数量为准，不沿用与现状不符的旧描述。
+- 两套选集本来就在 papers/ 下（git 历史 b5a48b5 亦如此），移动会破坏相对路径；最小改动是修正文档而非搬目录。
+- 原文与书籍 PDF 均被 .gitignore 排除且当前不存在，不能把历史页数写成当前实测。
+
+验证结果
+- 两套选集在各自 build/ 内 xelatex 两遍：exit=0，日志无错误；英文 36 页、中文 35 页，与历史记录一致。
+- git diff --check 无输出；文档引用的目录均存在；papers 目录 102 个，INDEX 仍为 50 篇原文并单列 2 套选集。
+- 未验证：50 篇原文 100 个目录与 books 8 个目录未全量重编译；历史 2460 页未在当前工作区复核；两个未初始化子模块不可测试。
+
+后续步骤（需确认）
+1. 是否删除 0 字节的 papers/anomalpap5.tex（删除属不可逆操作，未执行）。
+2. 是否批量补齐 20 个转排目录的 AGENTS.md，以及两套选集的 AGENTS.md/GUIDE。
+3. 是否需要全量重编译 100 个原文目录以复核页数（耗时较长）。
+4. 是否初始化 LQCD_Wickcontraction_reduce 与 feyncalc（需网络，并应重新审查上游差异与许可）。
+--- report end ---

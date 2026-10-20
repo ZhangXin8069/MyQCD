@@ -1,0 +1,63 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-10-21 04:27:19 +0800
+批次: tag-dev6-20261021
+主任务: ~tag:dev
+触发原因: 任务完成
+摘要: 在 HEAD 创建本地注释标签 dev6，记录子模块与日志提交，明确 refer 改动未纳入且未推送
+Git 根目录: /root/MyQCD
+
+## 关键日志
+
+### S1 — 标签基线与工作区审计
+- 目标: 确定 dev 类型下一编号、基线标签与标签目标。
+- 命令/操作: git tag -l --sort=-v:refname；git log dev5..HEAD；git status；git diff --stat。
+- 关键输出: 现有 dev0–dev5，下一标签 dev6；dev5 指向 0de7688；HEAD=2980653，较 dev5 多 2 个提交（9b1280f 日志归档、2980653 新增 PyQCD/PyQCU 子模块）；工作区有 6 个已修改文档与 1 个未跟踪日志，均未提交。
+- 退出码: 0
+- 证据与判断: 最新 dev 标签是 dev5，按自动编号规则创建 dev6；工作区改动不在 HEAD 中，不能声称被标签包含。
+
+### S2 — 创建 dev6
+- 目标: 在 HEAD 创建注释标签，消息遵循 follow 链格式。
+- 命令/操作: git tag -a dev6 -m "follow dev5, 1. 新增 PyQCD/PyQCU 参考子模块并更新 .gitmodules; 2. 归档 2026-10-20 任务日志; 3. refer 文档与索引整改已完成但尚未提交，未纳入本标签; [opencode]."
+- 关键输出: dev6 创建成功，peeled commit=2980653f5cbd6ddf90f57639058e8bbf6722107d。
+- 退出码: 0
+- 证据与判断: 标签目标与 HEAD 一致；消息显式说明 refer 工作区改动未纳入，避免误读。
+
+### S3 — 历史链与远程状态
+- 目标: 校验标签链并确认远程同步状态。
+- 命令/操作: tag-chain.sh --check（本地）；tag-chain.sh --check --remote origin；git status。
+- 关键输出: 本地链 PASS，15 个受管标签；带 --remote 时报告 dev6 远端缺失，属未推送预期；未执行任何 push。
+- 退出码: 本地 0；带 --remote 为 1（仅因远端无 dev6）。
+- 证据与判断: 本地历史链、祖先关系正常；远程同步需用户明确授权，本轮未同步。
+
+## 验证与证据
+- 测试/检查: git tag -l dev6；git rev-parse dev6^{} 与 HEAD 对比；git cat-file -p dev6；tag-chain.sh --check；git status --short。
+- 结果: dev6 存在且指向 HEAD 2980653；注释标签格式与 follow 链正确；本地链 PASS；工作区改动保持原样。
+- 未验证项: 远程 origin 上没有 dev6；未推送分支或标签；refer 文档改动未被提交，因而不在 dev6 中。
+
+## 变更与产物
+- 文件: 仅新增 Git 标签 refs/tags/dev6；未修改被跟踪文件。
+- 产物: 注释标签 dev6（tagger: zhangxin，2026-10-21 04:27:01 +0800）。
+- 未改动范围: 工作区中 refer/ 文档、logs/AGENTS.md 与 logs/v2026102104.txt 未提交、未纳入标签；未执行 git add/commit/push。
+
+## 风险、限制与下一步
+- 风险: 若将 dev6 误认为包含 refer 整改，会与实际提交内容不符；标签消息已显式标注未纳入。
+- 阻塞: 无。
+- 下一步: 如需把 refer 改动纳入版本，先授权提交，再创建后续 dev7（或显式请求 dev6 子版本）；如需同步远程，明确授权后 push main 与 dev6。
+
+## 用户输入指令
+~tag:dev
+
+## Agent 全文报告
+--- report begin ---
+**finished**
+
+已创建本地注释标签 `dev6`。
+
+- 目标提交：`2980653f5cbd6ddf90f57639058e8bbf6722107d`（当前 `HEAD`）。
+- 基线：`dev5`；`HEAD` 相对 `dev5` 有 2 个提交：新增 PyQCD/PyQCU 子模块、归档 2026-10-20 日志。
+- 标签消息：`follow dev5, 1. 新增 PyQCD/PyQCU 参考子模块并更新 .gitmodules; 2. 归档 2026-10-20 任务日志; 3. refer 文档与索引整改已完成但尚未提交，未纳入本标签; [opencode].`
+- 校验：本地 `tag-chain.sh --check` 通过（15 个受管标签）；`dev6^{}` 与 `HEAD` 一致。
+- 未推送：未获远程同步授权，`origin` 上暂无 `dev6`；带 `--remote` 的检查因此报“远端缺失”，不是本地链错误。
+- 重要说明：本轮 refer/ 文档与索引改动、`logs/` 变更仍在工作区，未提交，因此不在 `dev6` 内。若要将这些改动纳入版本，需先授权提交，再创建 `dev7`（或显式请求 `dev6` 子版本）。
+--- report end ---
