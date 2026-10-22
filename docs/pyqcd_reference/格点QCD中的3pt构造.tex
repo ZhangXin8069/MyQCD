@@ -1,0 +1,783 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption,multirow}
+\usepackage{hyperref,xcolor,enumitem,mathtools}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的3pt构造：\\
+三点关联函数的理论、收缩与矩阵元提取}
+\author{基于本库全部相关文献、教材与代码的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+\textbf{三点关联函数（three-point correlation function, 3pt）}是格点QCD中连接基础夸克-胶子动力学与实验可观测量（形状因子、PDF、TMD-PDF、衰变常数等）的核心计算对象。与仅编码强子质量和重叠因子的两点关联函数（2pt）不同，三点关联函数通过在源和汇之间的中间时间片插入\textbf{流算符}（电磁流$V_\mu$、轴矢流$A_\mu$、准PDF算符$O(z)$、或四夸克算符），提取强子态之间的\textbf{跃迁矩阵元}——这正是所有强子结构物理的出发点。
+
+本文基于本库中的三本核心教材（Gattringer与Lang的\textit{Quantum Chromodynamics on the Lattice}第11章、Gupta的\textit{Introduction to Lattice QCD}、Peskin与Schroeder的\textit{An Introduction to Quantum Field Theory}）、约15篇研究论文、以及\texttt{refer/}和\texttt{snsc/}目录中的完整代码实现，从以下七个维度系统解析格点QCD中三点关联函数的完整构造链：
+
+\textbf{第一维度——理论基础：Euclidean关联函数与谱分解（§2）：}
+从Euclidean路径积分出发，推导三点关联函数的一般形式 $C_{3\text{pt}} = \langle O_{\text{snk}}(t_{\text{sep}}) J(\tau) O_{\text{src}}^\dagger(0) \rangle$。给出完整的四态谱分解——基态-基态信号、激发态-激发态散射项、以及基态-激发态跃迁项——并分析各项在大时间分离极限下的渐近行为。
+
+\textbf{第二维度——Wick收缩的构造（§3）：}
+系统推导三个核心收缩模式：(i) \textbf{介子三点函数}——通过迹公式 $\operatorname{Tr}[\Gamma_{\text{snk}} M^{-1}(t_{\text{sep}},\tau) \Gamma_J M^{-1}(\tau,0) \Gamma_{\text{src}} M^{-1}(0,t_{\text{sep}})]$ 表达；(ii) \textbf{重子三点函数}——通过$\epsilon_{abc}$颜色反对称化与全部$3! \times 3!$的quark-line配对收缩；(iii) \textbf{非连通三点函数（胶子）}——通过 $\langle (O_g - \langle O_g\rangle)(C_{2\text{pt}}^N - \langle C_{2\text{pt}}^N\rangle) \rangle$ 表达，详述真空期望值减除的物理原理与数值实现。
+
+\textbf{第三维度——顺序源方法（§4）：}
+阐述三点函数计算中最关键的算法创新——顺序源（sequential source）方法。详述如何通过将第二条传播子链``收缩''为组合对象 $\Sigma(y,0) = \sum_x e^{-ip_f \cdot x} S(y,x)\gamma_5 S(x,0)$，使三点函数的Dirac求逆次数从两次降为一次（加一个辅助求逆）。讨论成本-精度权衡及对多$Q^2$扫描的限制。
+
+\textbf{第四维度——蒸馏框架中的广义Perambulator（§5）：}
+阐述Peardon的蒸馏方法如何将3pt的Wick收缩因子化为Perambulator $\tau$ 和Elemental $\Phi$ 的乘积。定义广义Perambulator $J(t_f, t, t_i) = V^\dagger(t_f) M^{-1}(t_f,t) \Gamma(t) M^{-1}(t,t_i) V(t_i)$，给出介质和重子连接三点函数的紧凑迹表达式。讨论蒸馏框架中3pt计算的数值标度律 $O(N_{\text{ev}}^3)$ 到 $O(N_{\text{ev}}^4)$。
+
+\textbf{第五维度——矩阵元提取（§6）：}
+系统阐述从裸三点关联函数到物理矩阵元的提取流程：(i) \textbf{比值法}——$R = C_{3\text{pt}} / C_{2\text{pt}}$ 消除重叠因子和指数衰减；(ii) \textbf{R̃方法}——通过相邻$t_{\text{sep}}$的差分加速平台到达；(iii) \textbf{双态拟合}——用解析形式 $R \approx c_0 + c_1 e^{-\Delta E(t_{\text{sep}}-t)} + c_1 e^{-\Delta E t}$ 拟合以分离跃迁项污染。
+
+\textbf{第六维度——激发态污染的系统控制（§7）：}
+详述三类策略：(i) \textbf{多态拟合}——系统比较two-simRR、two-sim等拟合方案对$t_{\text{sep}}^{\min}$和$n_{\text{ex}}$的敏感性；(ii) \textbf{求和法}——通过对插入时间$t$求和消除$O(e^{-\Delta E t_{\text{sep}}})$的激发态贡献；(iii) \textbf{GEVP变分法}——通过求解$C(t)v = \lambda(t)C(t_0)v$从扩展算符基中分离近似独立的能级。
+
+\textbf{第七维度——代码实现与本库中的实战（§8）：}
+展示\texttt{refer/zhangxin/gluon\_pdf\_workflow.py}和\texttt{snsc/main.py}中三点函数构造的实际代码——从VVV张量构造、perambulator收缩、到OPE非连通三点函数的系综关联和bootstrap/jackknife误差传播。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+\section{引言：三点关联函数——从强子质量到强子结构}
+% ==============================================================================
+
+\subsection{2pt与3pt：强子物理的两个层次}
+
+格点QCD中，关联函数是连接基本夸克-胶子动力学与实验可观测量的唯一桥梁。这一桥梁有两个层次~\cite{GattringerLang2010}：
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{两点关联函数（2pt）：} $C_{2\text{pt}}(t) = \langle O(t) O^\dagger(0) \rangle$ — 从大$t$下的指数衰减率中提取\textbf{强子质量}$E_0$。这回答了``强子有多重？''的问题。
+    \item \textbf{三点关联函数（3pt）：} $C_{3\text{pt}}(t_{\text{sep}}, \tau) = \langle O_{\text{snk}}(t_{\text{sep}}) J(\tau) O_{\text{src}}^\dagger(0) \rangle$ — 在源与汇之间插入流算符$J$，提取\textbf{跃迁矩阵元}$\langle H_f|J|H_i\rangle$。这回答了``强子内部是什么样的？''的问题。
+\end{itemize}
+
+正如Gattringer与Lang所指出的~\cite{GattringerLang2010}：
+\begin{quote}
+``Since $\hat{O}$ can be a product of several operators, a wide range of matrix elements is accessible... Furthermore, one can also study the matrix elements $\langle n|\hat{O}|0\rangle$.''
+\end{quote}
+
+\textbf{三点函数的物理产出：} 通过选择不同的流算符$J$，3pt关联函数覆盖了几乎所有强子结构观测量~\cite{GattringerLang2010,correlationFunctions2026,formFactors2026}：
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{流算符 $J$} & \textbf{提取的物理量} & \textbf{典型应用} \\
+\midrule
+电磁流 $V_\mu = \bar{q}\gamma_\mu q$ & 电磁形状因子 $F(Q^2)$ & 电荷半径、弹性散射 \\
+轴矢流 $A_\mu = \bar{q}\gamma_\mu\gamma_5 q$ & 轴矢荷 $g_A$、轴矢形状因子 & $\beta$衰变、质子自旋 \\
+准PDF算符 $O(z) = \bar{q}\Gamma W q$ & 准PDF矩阵元 $\tilde{h}(z,P_z)$ & 部分子分布函数 \\
+胶子流 $O_g = F_{\mu\nu}W F_{\rho\sigma}$ & 胶子PDF矩阵元 & 胶子自旋、质量分解 \\
+四夸克算符 $O_{4q}$ & TMD软函数 $S_I(b_\perp)$ & 横动量依赖因子化 \\
+弱流 $J_\mu^{\text{weak}}$ & 衰变常数、CKM矩阵元 & 味物理、CP破坏 \\
+\toprule
+\end{tabular}
+\end{center}
+
+\subsection{三点函数的独特挑战}
+
+相比于2pt，3pt关联函数面临以下额外挑战~\cite{correlationFunctions2026,gluonQuasiOpReport2026}：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Wick收缩的拓扑复杂性：} 介子3pt涉及3条夸克线的一对一配对（连接图）或封闭圈（非连接图）；重子3pt涉及9条夸克线的$3! \times 3!$种配对方式，每种由$\epsilon_{abc}$的颜色反对称化约束。
+    \item \textbf{顺序源的计算成本：} 每个末态动量$p_f$需要一个独立的顺序传播子求逆——$Q^2$扫描时计算成本与动量点数成线性增长。
+    \item \textbf{激发态污染：} 3pt的谱分解包含基态-激发态跃迁项，这些项以$e^{-\Delta E(t_{\text{sep}}-\tau)}$衰减——比纯激发态项$e^{-\Delta E t_{\text{sep}}}$衰减更慢，成为主要的系统误差源。
+    \item \textbf{非连通图的信噪比：} 胶子流3pt本质上是非连通的——$O_g$和$C_{2\text{pt}}^N$独立计算后通过系综平均关联，信噪比远差于连通夸克流。
+    \item \textbf{真空减除：} 胶子流在QCD真空中有非零期望值，必须精细地减去真空背景才能提取核子态中的物理信号。
+\end{enumerate}
+
+\subsection{本库中的核心文献与代码}
+
+\begin{table}[H]
+\centering
+\caption{本库中3pt构造相关的核心文献与代码}
+\begin{tabular}{ll}
+\toprule
+\textbf{文献/代码} & \textbf{3pt相关内容} \\
+\midrule
+Gattringer \& Lang~\cite{GattringerLang2010} & Ch.11.4：$\pi$介子形状因子3pt计算，顺序源法，比值法 \\
+Gupta~\cite{GuptaLatticeQCD} & 强子谱学中的关联函数框架 \\
+Peskin \& Schroeder~\cite{PeskinSchroeder1995} & K\"all\'en-Lehmann谱表示，色散关系解析方法 \\
+关联函数解析~\cite{correlationFunctions2026} & §3.1--3.5：标准3pt、比值法、双态拟合、R̃方法、非连通3pt \\
+传播子求解~\cite{propagatorSolvers2026} & §3.3：顺序源方法 \\
+形状因子解析~\cite{formFactors2026} & §3.1--3.3：3pt构造、比值法、顺序源 \\
+维克收缩解析~\cite{wickContraction2026} & §2--3：介子/重子Wick收缩，广义Perambulator \\
+蒸馏方法解析~\cite{distillation2026} & §3.4：广义Perambulator与3pt的蒸馏框架表达 \\
+费曼图解析~\cite{feynmanDiagrams2026} & §5：连通3pt示意图与拓扑分类 \\
+胶子准算符报告~\cite{gluonQuasiOpReport2026} & §8--9：非连通3pt分解、真空减除、矩阵元提取 \\
+误差统计解析~\cite{errorStats2026} & §4：3pt激发态污染的bootstrap估计 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{相关代码：}
+\begin{itemize}[leftmargin=*]
+    \item \texttt{snsc/main.py} — PDF全流程（13步），含3pt构造、VVV张量、OPE非连通计算~\cite{snscMain2026}
+    \item \texttt{refer/zhangxin/gluon\_pdf\_workflow.py} — 生产级3pt工作流，含2pt/ope/pla子命令
+    \item \texttt{refer/zhangxin/main-3pt.py} — Pion 3pt IOG数据分析
+    \item \texttt{refer/zhangxin/include.py} — \texttt{data\_analyse}类，含3pt/2pt比值分析的完整实现
+    \item \texttt{refer/zhangxin/main\_iog.py} — IOG格式的3pt提取与ratio分析
+\end{itemize}
+
+% ==============================================================================
+\section{理论基础：Euclidean三点关联函数与谱分解}
+% ==============================================================================
+
+\subsection{Euclidean路径积分框架}
+
+在格点QCD中，任何物理观测量的期望值由Euclidean路径积分给出~\cite{GattringerLang2010,wickContraction2026}：
+\begin{equation}\label{eq:path_integral}
+    \langle O \rangle = \frac{1}{Z} \int DU\,D\bar{\psi}D\psi \; O\; e^{-S_G[U] - \bar{\psi}M[U]\psi},
+\end{equation}
+其中$S_G$是规范作用量，$M[U]$是Dirac算符，$Z$是配分函数。费米子场$\psi,\bar{\psi}$是Grassmann变量，其路径积分通过Wick定理解析求值——将费米子泛函积分转化为Dirac算符逆$M^{-1}$（夸克传播子）的乘积与迹的组合。
+
+\subsection{三点关联函数的标准形式}
+
+\textbf{介子三点函数（以$\pi$介子形状因子为例）}~\cite{GattringerLang2010,formFactors2026}：在时间0处产生$\pi$介子（源），在时间$\tau$处插入电磁流$V_\mu$，在时间$t$处湮灭（汇）。动量投影后的三点函数为：
+\begin{equation}\label{eq:meson_3pt}
+    C_{3\text{pt}}(t, \tau; \mathbf{p}_f, \mathbf{p}_i) =
+    \sum_{\mathbf{x},\mathbf{y}} e^{-i\mathbf{p}_f\cdot\mathbf{x}} e^{i(\mathbf{p}_f-\mathbf{p}_i)\cdot\mathbf{y}}\,
+    \langle P(t;\mathbf{x})\, V_\mu(\tau;\mathbf{y})\, P^\dagger(0;\mathbf{0}) \rangle,
+\end{equation}
+其中$P$是赝标量内插算符（如$\bar{d}\gamma_5 u$）。
+
+\textbf{核子三点函数（以胶子PDF为例）}~\cite{correlationFunctions2026}：具有动量$\mathbf{P}^z$的核子态中，插入胶子准PDF算符$O_g(z)$：
+\begin{equation}\label{eq:nucleon_3pt}
+    C_{3\text{pt}}(\mathbf{P}^z; z; t_{\text{sep}}, t) =
+    \sum_{t_0} \langle 0 | N(\mathbf{P}^z; t_0+t_{\text{sep}})\, O_g(z; t_0+t)\, N^\dagger(\mathbf{P}^z; t_0) | 0 \rangle,
+\end{equation}
+其中核子内插算符为~\cite{correlationFunctions2026,kineEnhance2015}：
+\begin{equation}\label{eq:nucleon_interp}
+    N(\mathbf{P}; t) = \sum_{\mathbf{x}} e^{-i\mathbf{x}\cdot\mathbf{P}} \epsilon_{abc} P^+ \bigl(u^T C\gamma_5\gamma_t d\bigr)^a(\mathbf{x};t)\, u^b(\mathbf{x};t),
+\end{equation}
+$C$是电荷共轭算符，$P^+ = \frac{1}{2}(1+\gamma_t)$是正宇称投影算符。
+
+\subsection{三点关联函数的四态谱分解}
+
+三点关联函数的最一般谱分解涉及四个贡献~\cite{correlationFunctions2026}：
+\begin{equation}\label{eq:spectral_decomp}
+\begin{aligned}
+    C_{3\text{pt}}(\mathbf{P}^z; z; t, t_{\text{sep}}) =&
+    |A_0|^2 \langle 0|O(z;t)|0\rangle\, e^{-E_0 t_{\text{sep}}} & \text{(i) 基态-基态（信号）} \\
+    &+ |A_1|^2 \langle 1|O(z;t)|1\rangle\, e^{-E_1 t_{\text{sep}}} & \text{(ii) 激发态-激发态（散射）} \\
+    &+ A_1 A_0^* \langle 1|O(z;t)|0\rangle\, e^{-E_1(t_{\text{sep}}-t)} e^{-E_0 t} & \text{(iii) 跃迁项 A} \\
+    &+ A_0 A_1^* \langle 0|O(z;t)|1\rangle\, e^{-E_0(t_{\text{sep}}-t)} e^{-E_1 t}. & \text{(iv) 跃迁项 B}
+\end{aligned}
+\end{equation}
+
+各项的物理意义~\cite{correlationFunctions2026}：
+\begin{itemize}[leftmargin=*]
+    \item \textbf{第(i)项：}所需的物理信号——基态到基态的矩阵元$c_0 = \langle 0|O|0\rangle$，在大$t_{\text{sep}}$下由$e^{-E_0 t_{\text{sep}}}$主导。
+    \item \textbf{第(ii)项：}激发态到激发态的散射——由$e^{-E_1 t_{\text{sep}}}$双重压制，通常在大$t_{\text{sep}}$下可忽略。
+    \item \textbf{第(iii)(iv)项：}基态与激发态之间的跃迁项——在$t \approx 0$或$t \approx t_{\text{sep}}$处（流插入位置接近源或汇时）最大。它们以$e^{-\Delta E(t_{\text{sep}}-t)}$和$e^{-\Delta E t}$衰减（$\Delta E = E_1 - E_0$），比第(ii)项衰减更慢，因此是\textbf{激发态污染的主要来源}。
+\end{itemize}
+
+\textbf{大时间分离极限：}当$t_{\text{sep}} \to \infty$且$0 \ll t \ll t_{\text{sep}}$（流插入远离源和汇）时，只有第(i)项存活，3pt简化为所需的纯基态矩阵元。
+
+\subsection{介子3pt的大时间极限}
+
+对于$\pi$介子形状因子的3pt函数，在大时间分离极限$t, \tau \gg 0$且$t-\tau \gg 0$下~\cite{GattringerLang2010,formFactors2026}：
+\begin{equation}\label{eq:pion_3pt_limit}
+    C_{3\text{pt}}(t,\tau;\mathbf{p}_f,\mathbf{p}_i) \xrightarrow{t,\tau \gg 0}
+    \frac{\langle 0|P|\pi(\mathbf{p}_f)\rangle}{2E_f} e^{-E_f(t-\tau)}\,
+    \langle\pi(\mathbf{p}_f)|V_\mu|\pi(\mathbf{p}_i)\rangle\,
+    e^{-E_i\tau}\,
+    \frac{\langle\pi(\mathbf{p}_i)|P^\dagger|0\rangle}{2E_i}.
+\end{equation}
+其中$\langle\pi(\mathbf{p}_f)|V_\mu|\pi(\mathbf{p}_i)\rangle$是所需的物理矩阵元，$\langle 0|P|\pi(\mathbf{p})\rangle$是内插算符-$\pi$态的重叠因子，$E_f, E_i$由色散关系确定。
+
+% ==============================================================================
+\section{Wick收缩的构造：从夸克场到格点可计算量}
+% ==============================================================================
+
+\subsection{Wick定理：费米子路径积分的解析求值}
+
+格点QCD中，费米子场不被直接采样（Grassmann变量的蒙特卡洛极其困难）。Wick定理将费米子路径积分解析地转化为传播子$M^{-1}$的乘积~\cite{GattringerLang2010,wickContraction2026}：
+\begin{equation}\label{eq:wick_theorem}
+    \frac{1}{Z_f} \int D\bar{\psi}D\psi\; \psi_a(x)\bar{\psi}_b(y)\, e^{-\bar{\psi}M\psi} = M^{-1}_{ab}(x,y),
+\end{equation}
+其中$a,b$是综合颜色、自旋和时空坐标的复合指标。对于$2n$个费米子场的乘积，Wick定理将其分解为所有可能``配对''（$M^{-1}$因子）的乘积之和，符号由费米子排列的宇称决定。
+
+\subsection{介子三点函数的Wick收缩}
+
+\textbf{介子连通三点函数：}以$\pi$介子为例，内插算符为$P = \bar{d}\gamma_5 u$，流算符为$V_\mu = \bar{q}\gamma_\mu q$。三项传播子链的Wick收缩为~\cite{wickContraction2026}：
+\begin{equation}\label{eq:meson_wick}
+    C_{3\text{pt}}^{\text{conn}} = -\operatorname{Tr}\Bigl[ \Gamma_{\text{snk}}\,M^{-1}(t_{\text{sep}},\tau)\,\Gamma_J\,M^{-1}(\tau,0)\,\Gamma_{\text{src}}\,M^{-1}(0,t_{\text{sep}}) \Bigr],
+\end{equation}
+其中迹$\operatorname{Tr}$同时对颜色（$3\times3$）、自旋（$4\times4$）和空间坐标求和。全局负号来自费米子圈的一个费米子环。
+
+\textbf{介子非连通三点函数：}对于同位旋单态组合，还需加上非连通贡献~\cite{wickContraction2026}：
+\begin{equation}
+    C_{3\text{pt}}^{\text{disc}} = \operatorname{Tr}\Bigl[ \Gamma_J M^{-1}(\tau,\tau) \Bigr] \cdot
+    \operatorname{Tr}\Bigl[ \Gamma_{\text{snk}} M^{-1}(t_{\text{sep}},0) \Gamma_{\text{src}} M^{-1}(0,t_{\text{sep}}) \Bigr].
+\end{equation}
+非连通部分由闭合夸克环$\operatorname{Tr}[\Gamma_J M^{-1}(\tau,\tau)]$与2pt关联函数的乘积构成。对于同位旋矢量（如$\pi^+$），在精确$SU(2)$同位旋对称性下此项为零。
+
+\subsection{重子三点函数的Wick收缩}
+
+重子（如核子）的Wick收缩远为复杂。核子内插算符涉及三个夸克场的$\epsilon_{abc}$反对称乘积~\cite{wickContraction2026,distillation2026}：
+\begin{equation}\label{eq:baryon_interp}
+    \chi_B(t) = \epsilon_{abc}\, S_{\alpha_1\alpha_2\alpha_3}\,
+    (D_1 d)^a_{\alpha_1} (D_2 u)^b_{\alpha_2} (D_3 u)^c_{\alpha_3}(t),
+\end{equation}
+其中$S_{\alpha_1\alpha_2\alpha_3}$是自旋张量，$D_i$是协变导数（用于构造非定域算符）。
+
+\textbf{蒸馏框架下的紧凑表达：}在蒸馏框架中，重子3pt的连接部分收缩为~\cite{distillation2026,wickContraction2026}：
+\begin{equation}\label{eq:baryon_3pt_distillation}
+    C_{3\text{pt}}^{(3)}(t_f, t, t_i) = \operatorname{Tr}\Bigl[ \Phi_B(t_f)\,J(t_f, t, t_i)\,\Phi_A(t_i)\,\gamma_5\,\tau^\dagger(t_f, t_i)\,\gamma_5 \Bigr],
+\end{equation}
+其中$\Phi_{A,B}$是elemental（将蒸馏矢量组合为强子内插算符），$\tau$是perambulator（夸克传播的酉编码），$J$是广义perambulator（编码流插入——见第5.3节）。
+
+\textbf{收缩的拓扑结构：}重子3pt涉及三条夸克线从源点$(t_i)$到汇点$(t_f)$的传播。中间时间片$t$处的一条夸克线上插入流算符$\Gamma(t)$。$\epsilon_{abc}$的颜色收缩意味着三条夸克线在不同的颜色指标之间``交叉配对''——反映在图10（费曼图解析~\cite{feynmanDiagrams2026}）中：三条夸克线经$\epsilon_{abc}$反对称化为色单态，信噪比$\sim e^{-m_N t_{\text{sep}}}$。
+
+\subsection{非连通三点函数：胶子流的特殊处理}
+
+胶子流算符$O_g$的一个本质特征是：它与核子态之间\textbf{没有夸克线连接}。因此胶子3pt函数\textbf{本质上是非连通的}~\cite{correlationFunctions2026,gluonQuasiOpReport2026}：
+\begin{equation}\label{eq:gluon_disconnected}
+    C_{3\text{pt}}(z, \mathbf{P}^z, t, t_i, t_0) =
+    \big\langle \bigl(O_g(z, t_i) - \langle O_g(z, t_i)\rangle\bigr)\,
+    \bigl(C_{2\text{pt}}^N(\mathbf{P}^z, t, t_0) - \langle C_{2\text{pt}}^N(\mathbf{P}^z, t, t_0)\rangle\bigr) \big\rangle.
+\end{equation}
+
+\textbf{真空期望值减除的重要性~\cite{gluonQuasiOpReport2026}：}
+\begin{itemize}[leftmargin=*]
+    \item 胶子流$O_g$的真空期望值非零——它是胶子场强平方算符，即使在QCD真空态中也有非零的期望值；
+    \item 不减除真空期望值将导致矩阵元被一个大的常数（真空贡献）主导，完全淹没核子态中的物理信号；
+    \item 实际计算中，$\langle O_g(z, t_i)\rangle$通过对所有$t_i$切片上的胶子流求平均来估计。
+\end{itemize}
+
+\textbf{独立计算的可操作性~\cite{gluonQuasiOpReport2026}：}式(\ref{eq:gluon_disconnected})的关键优势是$O_g$和$C_{2\text{pt}}^N$可以完全独立计算：
+\begin{itemize}[leftmargin=*]
+    \item $O_g(z, t_i)$仅依赖于规范组态——通过\texttt{Calc\_ope\_unpol.py}对所有组态和所有$z$独立计算；
+    \item $C_{2\text{pt}}^N(\mathbf{P}^z, t, t_0)$通过蒸馏框架对所有组态独立计算；
+    \item 两者在任何阶段都无需同时计算——只需在最终的系综平均中关联起来。
+\end{itemize}
+
+% ==============================================================================
+\section{顺序源方法：三点函数的核心算法}
+% ==============================================================================
+
+\subsection{从两个Dirac求逆到一个辅助求逆}
+
+在标准的格点计算中，每个夸克传播子需要对每个源点解一次Dirac方程$M \cdot S = \eta$。对于三点函数，表面上需要从三个独立源出发的传播子：
+\begin{enumerate}[leftmargin=*]
+    \item $S(x, 0)$ — 从源点0到空间任意点$x$的传播子；
+    \item $S(y, x)$ — 从算符插入点$x$（时间$\tau$）到汇点$y$（时间$t$）的传播子；
+    \item 或$S(y, \tau)$ — 直接从插入点出发。
+\end{enumerate}
+
+如果直接计算，需要两倍于2pt的Dirac求逆次数。
+
+\textbf{顺序源方法（sequential source method）}通过将第二条传播子链``收缩''为一个组合对象来绕过这一困难~\cite{GattringerLang2010,propagatorSolvers2026,formFactors2026}。
+
+\subsection{顺序传播子的数学构造}
+
+\textbf{定义4.1（顺序传播子）}~\cite{GattringerLang2010,formFactors2026}：
+\begin{equation}\label{eq:sequential_def}
+    \Sigma(y, 0) \equiv \sum_{\mathbf{x}; x_0=t} e^{-i\mathbf{p}_f\cdot\mathbf{x}}\,
+    S(y, x)\,\gamma_5\,S(x, 0).
+\end{equation}
+
+这个对象可以通过求解\textbf{一个辅助Dirac方程}获得：
+\begin{equation}\label{eq:sequential_dirac}
+    D(z, y)\,\Sigma(y, 0) = e^{-i\mathbf{p}_f\cdot\mathbf{z}}\,\gamma_5\,S(z, 0),
+\end{equation}
+其中右手边仅在时间片$z_0 = t$上非零（$\delta$函数源）。换句话说，$\Sigma$是带源$e^{-i\mathbf{p}_f\cdot\mathbf{z}}\gamma_5 S(z,0)$的Dirac方程的解——只需\textbf{一次额外的Dirac算符求逆}。
+
+\textbf{物理直观~\cite{propagatorSolvers2026}：}顺序传播子$\Sigma(y,0)$将``从0传播到$x$''和``从$x$传播到$y$''两步合并为一步。在形状因子计算中，这意味着：
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{第一步：}从源点0出发，解$M \cdot S(\cdot, 0) = \eta^{(0)}$获得$S(x,0)$；（标准求逆）
+    \item \textbf{第二步：}在时间$t$处，构造顺序源$\eta^{(\text{seq})}(z) = e^{-i\mathbf{p}_f\cdot\mathbf{z}}\gamma_5 S(z,0)$，解$M \cdot \Sigma(\cdot, 0) = \eta^{(\text{seq})}$获得$\Sigma(y,0)$。（辅助求逆）
+\end{enumerate}
+
+之后，3pt函数可以紧凑地用$\Sigma$表达：
+\begin{equation}
+    C_{3\text{pt}} \propto \sum_{\mathbf{y}} e^{i\mathbf{p}_i\cdot\mathbf{y}} \operatorname{Tr}\Bigl[ \Gamma_{\text{snk}}\,\Sigma(y,0)\,\Gamma_{\text{src}}^\dagger \Bigr].
+\end{equation}
+
+\subsection{成本-精度权衡}
+
+\textbf{优势~\cite{propagatorSolvers2026}：}
+\begin{itemize}[leftmargin=*]
+    \item 将``从头求逆''次数从2降为1（加一个辅助求逆）；
+    \item 对每个规范组态仅需存储$S(x,0)$而非全部$S(y,x)$——大幅减少I/O。
+\end{itemize}
+
+\textbf{局限~\cite{propagatorSolvers2026,formFactors2026}：}
+\begin{itemize}[leftmargin=*]
+    \item 每个末态动量$\mathbf{p}_f$需要一个新顺序源——扫描多个$Q^2$值时计算成本与动量点数呈线性增长；
+    \item 实践中常在单个$\mathbf{p}_f$处计算，通过不同的$\mathbf{p}_i$来变化$Q^2 = |\mathbf{p}_f - \mathbf{p}_i|^2$——从而$\mathbf{p}_i$的变化不影响顺序传播子（仅通过动量投影的相因子变化）。
+\end{itemize}
+
+% ==============================================================================
+\section{蒸馏框架中的3pt构造：广义Perambulator}
+% ==============================================================================
+
+\subsection{蒸馏的因子化结构}
+
+Peardon的蒸馏方法（distillation）~\cite{distillation2026,wickContraction2026}通过Laplacian本征矢量$V(t)$将夸克场投影到平滑的子空间，实现了Wick收缩的\textbf{完全因子化}。蒸馏框架的核心对象是perambulator：
+\begin{equation}\label{eq:perambulator}
+    \tau_{\alpha\beta}(t', t) = V^{(p)\dagger}(t')\,M^{-1}_{\alpha\beta}(t',t)\,V^{(p)}(t),
+\end{equation}
+其中$\alpha,\beta$是自旋指标，$V^{(p)}$是第$p$个``味道''的蒸馏矢量矩阵。perambulator的大小仅为$N_{\text{ev}} \times N_{\text{ev}} \times 4 \times 4$（$N_{\text{ev}} \sim 100$—$200$），远小于全传播子的$V \times V$。
+
+\subsection{广义Perambulator：流插入的因子化编码}
+
+对于涉及流插入的三点关联函数，必须将这一因子化推广到包含中间时间片的流算符$\Gamma(t)$~\cite{distillation2026,wickContraction2026}：
+
+\begin{definition}[广义Perambulator]\label{def:gen_perambulator}
+\begin{equation}
+    J_{\alpha\beta}(t_f, t, t_i) = \Bigl[ V^\dagger(t_f)\,M^{-1}(t_f, t)\,\Gamma(t)\,M^{-1}(t, t_i)\,V(t_i) \Bigr]_{\alpha\beta}.
+\end{equation}
+其中$\Gamma(t)$是插入的流算符（如$\gamma_\mu$、$\gamma_\mu\gamma_5$、或胶子场强张量组合）。广义perambulator将``源侧传播''（$t_i \to t$）、``流插入''和``汇侧传播''（$t \to t_f$）三个环节合并为一个紧凑的$N_{\text{ev}} \times N_{\text{ev}}$矩阵。
+\end{definition}
+
+\textbf{广义Perambulator的计算流程~\cite{wickContraction2026}：}
+\begin{enumerate}[leftmargin=*]
+    \item 对每个蒸馏矢量$v^{(i)}(t_i)$（源时间片），求解$M^{-1}(t, t_i) v^{(i)}(t_i)$——``源侧传播''；
+    \item 对每个蒸馏矢量$v^{(f)}(t_f)$（汇时间片），求解$M^{-1}(t, t_f) v^{(f)}(t_f)$——``汇侧传播''；
+    \item 在时间$t$处，通过流算符$\Gamma(t)$连接两者——即对两个传播子做内积$\sum_{\mathbf{x}} (V^\dagger M^{-1})(\mathbf{x}, t)\,\Gamma(t)\,(M^{-1}V)(\mathbf{x}, t)$。
+\end{enumerate}
+
+\subsection{介质与重子3pt的蒸馏框架表达式}
+
+\textbf{介质三点函数的连接部分~\cite{distillation2026}：}
+\begin{equation}\label{eq:meson_3pt_dist}
+    C_{\text{conn}}^{(3)}(t_f, t, t_i) =
+    \operatorname{Tr}\Bigl[ \Phi_B(t_f)\,J(t_f, t, t_i)\,\Phi_A(t_i)\,\gamma_5\,\tau^\dagger(t_f, t_i)\,\gamma_5 \Bigr].
+\end{equation}
+
+\textbf{重子三点函数的连接部分：}类似结构，但elemental $\Phi$包含三个蒸馏矢量的$\epsilon_{abc}$反对称化，且广义perambulator $J$中需考虑三种可能（流插入在三条夸克线的任一条上）。
+
+\textbf{数值标度律~\cite{wickContraction2026}：}
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{计算任务} & \textbf{计算复杂度} \\
+\midrule
+Dirac求逆（perambulator） & $\propto N_{\text{ev}}$ \\
+介质两点（连接） & $\propto N_{\text{ev}}^3$ \\
+重子两点 & $\propto N_{\text{ev}}^4$ \\
+介质三点（连接） & $\propto N_{\text{ev}}^3$ \\
+非连通图 & $\propto N_{\text{ev}}^3$（环）+ 独立$O_g$计算 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ==============================================================================
+\section{矩阵元提取：从裸3pt到物理矩阵元}
+% ==============================================================================
+
+\subsection{比值法：标准方法}
+
+从三点关联函数中提取物理矩阵元的核心挑战是消除未知的重叠因子$|A_0|^2$和指数衰减$e^{-E_0 t_{\text{sep}}}$。标准方法是比值法~\cite{GattringerLang2010,correlationFunctions2026,gluonQuasiOpReport2026}：
+\begin{equation}\label{eq:ratio_method}
+    R_{3\text{pt}}(\mathbf{P}^z; t_{\text{sep}}, t) =
+    \frac{C_{3\text{pt}}(\mathbf{P}^z; t_{\text{sep}}, t)}{C_{2\text{pt}}(\mathbf{P}^z; t_{\text{sep}})}.
+\end{equation}
+
+在大$t_{\text{sep}}$和$0 \ll t \ll t_{\text{sep}}$的极限下，比值趋近于裸基态矩阵元~\cite{correlationFunctions2026}：
+\begin{equation}\label{eq:ratio_limit}
+    \lim_{\substack{t_{\text{sep}} \to \infty \\ 0 \ll t \ll t_{\text{sep}}}}
+    R_{3\text{pt}}(\mathbf{P}^z; t_{\text{sep}}, t) = \langle 0|O|0\rangle.
+\end{equation}
+
+\textbf{形状因子的推广比值~}~\cite{GattringerLang2010,formFactors2026}：对于$\pi$介子形状因子，Gattringer与Lang构造了更精巧的比值（式(11.104)）：
+\begin{equation}\label{eq:ff_ratio}
+    R(t,\tau; \mathbf{p}_f, \mathbf{q}) =
+    \frac{C_{3\text{pt}}(t,\tau; \mathbf{p}_f, \mathbf{p}_i)}
+    {\sqrt{C_{2\text{pt}}(t; \mathbf{p}_f)\,C_{2\text{pt}}(t; \mathbf{p}_i)}} \times \text{(运动学因子)},
+\end{equation}
+其中分子上的两个2pt函数分别对应于末态和初态动量。这一比值设计使得重叠因子$\langle 0|P|\pi(\mathbf{p})\rangle$在分子和分母之间完全抵消；指数时间衰减因子$e^{-E_f(t-\tau)}e^{-E_i\tau}$也与分母中的相应因子相消。
+
+\textbf{平台拟合：}在中间时间区域（$t$既不接近0也不接近$t_{\text{sep}}$——避开激发态污染和周期性镜像），$R$作为$t$的函数应展现出平坦的平台行为。对平台的常数值拟合给出基态矩阵元。平台的存在性和稳定性是检验激发态污染是否被充分控制的\textbf{关键诊断}~\cite{correlationFunctions2026,formFactors2026}。
+
+\subsection{双态拟合：解析形式}
+
+将式(\ref{eq:spectral_decomp})的四态分解代入比值，得到用于拟合的解析形式~\cite{correlationFunctions2026}：
+\begin{equation}\label{eq:two_state_fit}
+    R_{3\text{pt}}(\mathbf{P}^z; t_{\text{sep}}, t) \approx
+    c_0 + c_1 e^{-\Delta E(t_{\text{sep}}-t)} + c_1 e^{-\Delta E t} + c_2 e^{-\Delta E t_{\text{sep}}},
+\end{equation}
+其中$c_0$对应于所需的裸准矩阵元$\langle 0|O|0\rangle$，$\Delta E = E_1 - E_0$是基态与第一激发态之间的能隙。
+
+\textbf{跃迁项主导的简化~\cite{correlationFunctions2026}：}在大$t_{\text{sep}}$下，$c_1 e^{-\Delta E(t_{\text{sep}}-t)} + c_1 e^{-\Delta E t}$（跃迁项）主导了$c_2 e^{-\Delta E t_{\text{sep}}}$（散射项）。因此实际拟合常忽略散射项：
+\begin{equation}\label{eq:two_state_simple}
+    R_{3\text{pt}}(\mathbf{P}^z; t_{\text{sep}}, t) \approx
+    c_0 + c_1 \bigl[e^{-\Delta E(t_{\text{sep}}-t)} + e^{-\Delta E t}\bigr].
+\end{equation}
+
+\subsection{双态拟合的关键技术要点}
+
+CLQCD/LPC合作组的实际分析~\cite{correlationFunctions2026}揭示了以下关键实践：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{联合拟合（joint fit）：}将$z = n_z a$和$z = 0$的数据同时纳入拟合。$z=0$的矩阵元对应于局域算符，通常具有更好的信噪比——这为$\Delta E$提供了更强的约束。
+
+    \item \textbf{Bootstrap重采样：}在计算3000个bootstrap重采样后的3pt和2pt关联函数之后才取比值——确保统计相关性在比值中正确传播。
+
+    \item \textbf{源-汇附近点的排除（$n_{\text{ex}}$）：}对于每个$t_{\text{sep}}$，排除源和汇附近的$n_{\text{ex}}$个时间片的数据——这些区域被更高激发态严重污染。CLQCD/LPC的分析表明：$n_{\text{ex}} = 2$的结果与$n_{\text{ex}} = 3$不一致，说明$n_{\text{ex}}=2$时仍有不可忽略的更高激发态污染。当$t_{\text{sep}}^{\min} \ge 7a$且$n_{\text{ex}} \ge 3$时，拟合结果趋于稳定。
+
+    \item \textbf{拟合范围的优化：}通过改变$n_{\text{ex}}$和$t_{\text{sep}}^{\min}$来测试拟合的稳定性——系统性变化这些参数并检查$c_0$的变化是否在统计误差范围内。
+\end{enumerate}
+
+\subsection{R̃方法：加速平台到达的替代方案}
+
+Fan等人在胶子准PDF计算中引入了一种替代性的信号提取方法~\cite{correlationFunctions2026}：
+\begin{equation}\label{eq:R_tilde}
+    \tilde{R}(z, \mathbf{P}^z; t_{\text{sep}}) =
+    \sum_{0 < t < t_{\text{sep}}} R(z, \mathbf{P}^z; t_{\text{sep}}, t) \;-\;
+    \sum_{0 < t < t_{\text{sep}}-1} R(z, \mathbf{P}^z; t_{\text{sep}}-1, t).
+\end{equation}
+
+\textbf{原理：}当$t_{\text{sep}} \gg t \gg 0$时，$\tilde{R}$和$R$都饱和到相同的基态矩阵元。但$\tilde{R}$通过对相邻$t_{\text{sep}}$的差分消去了激发态贡献中与$t_{\text{sep}}$线性相关的部分——因此\textbf{在较小的$t_{\text{sep}}$下就能达到平台}。
+
+\textbf{代价：}$\tilde{R}$涉及对$t$的求和（而非在$t$处的平台提取），因此对每个$t_{\text{sep}}$只产生一个数据点（而非一条$t$依赖的曲线），失去了平台存在性这一重要诊断工具。
+
+% ==============================================================================
+\section{激发态污染的系统控制}
+% ==============================================================================
+
+\subsection{多态拟合策略的系统比较}
+
+LP3合作组在其质子同位旋矢量螺旋度分布计算中，系统地比较了四种拟合策略~\cite{correlationFunctions2026}：
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{策略} & \textbf{说明} & \textbf{特点} \\
+\midrule
+Fit-1（two-simRR，所有$t_{\text{sep}}$） & 含小$t_{\text{sep}}$（如0.54~fm），同时拟合2pt和3pt & 数据多，但对激发态更敏感 \\
+Fit-2（two-simRR，最大5个$t_{\text{sep}}$） & 仅最大的5个$t_{\text{sep}}$，同时拟合 & 受激态污染小，但数据少 \\
+Fit-3（two-sim，最大4个$t_{\text{sep}}$） & 仅最大4个$t_{\text{sep}}$，不同时拟合2pt & 减少参数协方差 \\
+Fit-4（单态拟合） & 仅基态项 & 仅适用于最大$t_{\text{sep}}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{最佳实践：}比较不同策略的结果一致性是检验激发态污染是否受控的标准方法。当所有策略在误差范围内一致时，可以确信激发态污染已被充分控制。
+
+\subsection{求和法（Summation Method）}
+
+求和法的核心思想是对流插入时间$t$求和~\cite{correlationFunctions2026}：
+\begin{equation}\label{eq:summation}
+    S(t_{\text{sep}}) = \sum_{t = t_{\text{min}}}^{t_{\text{sep}}-t_{\text{min}}} R_{3\text{pt}}(t_{\text{sep}}, t),
+\end{equation}
+其中$t_{\text{min}}$排除了源和汇附近的激发态主导区域。求和法能够消除$O(e^{-\Delta E t_{\text{sep}}})$的激发态贡献——因为跃迁项的和$\sum_t e^{-\Delta E t} \approx 1/\Delta E$在大$t_{\text{sep}}$下趋于常数，不依赖于$t_{\text{sep}}$。
+
+\textbf{优势：}对$t_{\text{sep}}^{\min}$的要求不如比值法严格，可以在较小的$t_{\text{sep}}$下获得可靠结果。\textbf{局限：}仅适用于不依赖于插入时间$t$的矩阵元（即局域流插入，$\langle 0|O|0\rangle$与$t$无关）；对$z$依赖的准PDF算符不那么直接适用。
+
+\subsection{广义本征值问题（GEVP）变分法}
+
+变分法通过构建$N \times N$的内插算符交叉关联矩阵$C_{ij}(t) = \langle O_i(t) O_j^\dagger(0) \rangle$，求解广义本征值问题~\cite{hadronSpectroscopy2026,correlationFunctions2026}：
+\begin{equation}\label{eq:GEVP}
+    C(t)\,v^{(n)}(t, t_0) = \lambda^{(n)}(t, t_0)\,C(t_0)\,v^{(n)}(t, t_0),
+\end{equation}
+其中$t_0$是参考时间片。本征值$\lambda^{(n)}$在大$t$下的指数衰减率给出第$n$个能级$E_n$。
+
+\textbf{在3pt中的应用：}GEVP可以同时对角化2pt矩阵，从而将3pt关联函数投影到近似独立的能级上：
+\begin{equation}
+    C_{3\text{pt}}^{\text{eff}}(t) = (v^{(0)})^\dagger\,C_{3\text{pt}}(t)\,v^{(0)},
+\end{equation}
+其中$v^{(0)}$是对应于基态的本征矢。这相当于构造了一个``最优内插算符''——在所有$N$个基算符的线性组合中，该算符与基态的重叠最大、与激发态的重叠最小~\cite{hadronSpectroscopy2026,distillation2026}。
+
+\textbf{蒸馏框架中的自然实现：}蒸馏方法通过构造扩展的算符基（如静止核子的7算符基$B_{\mathbf{p}=0}$或boost核子的16算符基$B_{\mathbf{p}\neq 0}$）天然支持GEVP分析~\cite{correlationFunctions2026}。每个算符由谱学记号$N\;^{2S+1}L_P J^P$分类，其中$S$是Dirac自旋，$L$是由协变导数引入的轨道角动量，$P$是导数排列的置换对称性。
+
+% ==============================================================================
+\section{代码实现：本库中的3pt构造实战}
+% ==============================================================================
+
+\subsection{gluon\_pdf\_workflow.py中的3pt全流程}
+
+Zhangxin的生产级工作流代码\texttt{gluon\_pdf\_workflow.py}实现了从原始组态到物理矩阵元的完整管道~\cite{gluonWorkflow2026}。其3pt构造链被解耦为两个独立子任务：
+
+\textbf{子任务1——OPE算符计算（ope子命令）：}
+\begin{enumerate}[leftmargin=*]
+    \item 读取ILDG格式的规范组态（\texttt{read\_gauge\_config}，big-endian float64二进制）；
+    \item 对所有时空点计算Clover plaquette $F_{\mu\nu}$（\texttt{plaquette\_clover\_all}）；
+    \item 对每对Lorentz指标$(mu, nu)$和每个Wilson线长度$\delta_z$：
+    \begin{itemize}
+        \item 将$F_{\mu\nu}$沿Wilson线方向平移$\delta_z$；
+        \item 用$U_z^\dagger$链接累积Wilson线$W(z \leftarrow 0)$；
+        \item 构造非定域算符$F_{\mu\nu}(z) W(z \leftarrow 0) \tilde{F}_{\rho\sigma}(0) W(0 \leftarrow z)$；
+        \item 保存为\texttt{.npz}文件（逐配置、逐算符分量）；
+    \end{itemize}
+    \item 支持MPI并行——不同的Lorentz指标对分配给不同的MPI rank。
+\end{enumerate}
+
+\textbf{子任务2——核子2pt计算（2pt子命令）：}
+\begin{enumerate}[leftmargin=*]
+    \item 读取或计算Laplacian本征矢量（蒸馏基）；
+    \item 使用动量涂抹参数$\zeta$（由ensemble预设）构造相因子；
+    \item 计算蒸馏perambulator $\tau(t', t)$；
+    \item 计算VVV重子块$\Phi_{abc}(\mathbf{P}) = \sum_{\mathbf{x}} \phi_{\mathbf{P}}(\mathbf{x})\,\epsilon_{ijk} v_i^a v_j^b v_k^c$；
+    \item 收缩perambulator与VVV块获得$C_{2\text{pt}}^N$；
+    \item 支持perambulator缓存——跳过重复计算。
+\end{enumerate}
+
+\textbf{最终关联：}两个子任务的输出（OPE算符和核子2pt）在系综平均中关联起来，按式(\ref{eq:gluon_disconnected})计算非连通3pt函数。
+
+\subsection{snsc/main.py中的VVV张量与3pt流水线}
+
+\texttt{snsc/main.py}提供了统一的PDF全流程，其3pt相关步骤~\cite{snscMain2026}：
+
+\textbf{步骤6——VVV张量计算（\texttt{compute\_vvv\_baryon\_block}）：}
+\begin{verbatim}
+VVV_{abc}(P) = sum_x phi_P(x) * epsilon_{ijk} * v_i^a * v_j^b * v_k^c
+\end{verbatim}
+其中六个$\epsilon_{ijk}$置换：
+\begin{itemize}
+    \item $+1$: (0,1,2), (1,2,0), (2,0,1) ——偶排列
+    \item $-1$: (0,2,1), (1,0,2), (2,1,0) ——奇排列
+\end{itemize}
+
+\textbf{步骤7——3pt构造：}将VVV张量与perambulator和广义perambulator收缩，获得3pt关联函数。自动缓存VVV结果（\texttt{.npy}文件），避免重复计算。
+
+\textbf{关键特性：}
+\begin{itemize}[leftmargin=*]
+    \item 双后端：\texttt{numpy}（CPU）/\texttt{cupy}（GPU）；
+    \item 全程内存+耗时统计（\texttt{Timer}上下文管理器）；
+    \item 参考数据对比（读取/生成路径同时给出则自动计算max/mean绝对+相对偏差）；
+    \item 时间戳输出：\texttt{output\_YYYYMMDD\_HHMMSS/}；
+    \item 出版级作图（15+种图类型）。
+\end{itemize}
+
+\subsection{include.py中的3pt比值分析}
+
+Zhangxin的\texttt{include.py}提供了完整的3pt数据分析框架~\cite{include2026}。\texttt{data\_analyse}类支持：
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{数据读取：}IOG二进制格式（通过编译的\texttt{iog.so} C扩展）和\texttt{.npy}数据文件；
+    \item \textbf{比值分析：}\texttt{analyse\_type='ratio'}模式——自动计算$R = C_{3\text{pt}} / C_{2\text{pt}}$；
+    \item \textbf{Jackknife重采样：}在关联函数级别进行留一法重采样，正确传播统计相关性；
+    \item \textbf{多源汇分离：}支持多个$t_{\text{sep}}$值的联合分析；
+    \item \textbf{Wilson线分析：}对含有空间延伸Wilson线的3pt数据，支持不同link长度的联合分析。
+\end{itemize}
+
+具体使用示例（\texttt{main-3pt.py}）~\cite{main3pt2026}：
+\begin{verbatim}
+analyse = data_analyse(
+    num_data=2, hadron='pion',
+    filepath=[3pt_iog_path, 2pt_iog_path],
+    Nx=24, Nt=72, alttc=0.1053,
+    P=np.asarray([[0,0,0]]),
+    tsep=np.asarray([36]),
+    analyse_type='ratio',
+    read_type='iog',
+)
+np.save('_3pt.npy', analyse.readed_jcknf['readed_3pt_iog_U'])
+\end{verbatim}
+
+\subsection{从代码到物理：完整计算链}
+
+综合以上代码模块，本库中的完整3pt计算链为~\cite{snscMain2026,gluonWorkflow2026,correlationFunctions2026}：
+\begin{enumerate}[leftmargin=*]
+    \item 读取规范组态 $\to$ 计算Clover plaquette $F_{\mu\nu}$；
+    \item 构造非定域胶子准算符$O_g(z)$（含Wilson线）；
+    \item 计算蒸馏本征矢量 $\to$ perambulator $\tau$ $\to$ VVV张量；
+    \item 对每个核子动量$\mathbf{P}^z$，计算$C_{2\text{pt}}^N(\mathbf{P}^z)$；
+    \item 通过系综平均关联$O_g$和$C_{2\text{pt}}^N$，制作非连通3pt函数；
+    \item 对每个bootstrap重采样，计算比值$R(z, \mathbf{P}^z; t_{\text{sep}}, t)$；
+    \item 双态拟合$R \approx c_0(z, P_z) + c_1(\cdots)$提取裸矩阵元；
+    \item（后续步骤）重整化、Fourier变换、微扰匹配 $\to$ 光锥PDF。
+\end{enumerate}
+
+% ==============================================================================
+\section{总结与展望}
+% ==============================================================================
+
+\textbf{总结：}三点关联函数是格点QCD从``强子质量''走向``强子结构''的关键桥梁。其构造涉及一个高度非平凡的链条——从Euclidean路径积分的谱分解，到Wick收缩的拓扑分类，到顺序源方法和蒸馏框架的算法创新，再到比值法、双态拟合和GEVP的系统误差控制：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Wick收缩}决定了哪些夸克线连接源、汇和流——介子的迹公式、重子的$\epsilon_{abc}$反对称化、胶子流的非连通分离各具独特的拓扑结构；
+    \item \textbf{顺序源方法}将3pt的Dirac求逆成本从两次降为一次（加辅助求逆），是连接3pt和2pt计算复杂度的算法基石；
+    \item \textbf{蒸馏框架}通过perambulator/elemental因子化和广义perambulator，将3pt收缩的复杂度降至$O(N_{\text{ev}}^3)$，并使GEVP变分法分析成为可能；
+    \item \textbf{矩阵元提取}——比值法$C_3/C_2$、R̃方法、双态拟合——必须在消除重叠因子和指数衰减的同时，精细控制激发态跃迁项污染；
+    \item \textbf{系统误差控制}——多态拟合策略比较、求和法、GEVP变分法——是任何可信的格点3pt计算不可或缺的组成部分；
+    \item \textbf{非连通图}（胶子流）的特殊处理——真空期望值减除、独立计算+系综关联——提供了处理味单态矩阵元的通用范式。
+\end{enumerate}
+
+\textbf{展望：}随着格点QCD向更高精度（物理pion质量、连续外推、无限体积外推）推进，3pt构造面临的新挑战包括：
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{更高动量}下的激发态控制——$P_z$越大，信噪比越差，需要更大的$t_{\text{sep}}$和更精细的多态分析；
+    \item \textbf{更大算符基}——蒸馏框架支持$N_{\text{ev}} \sim 200$—$400$的算符基，计算复杂度$\propto N_{\text{ev}}^4$将成为瓶颈；
+    \item \textbf{多强子态}——L\"uscher有限体积方法需要从3pt中提取高于阈值的矩阵元，激发态谱更密集；
+    \item \textbf{梯度流3pt}——梯度流（gradient flow）作为新型的重整化方案，其与3pt的结合需要额外的流时间外推。
+\end{itemize}
+
+三点关联函数——作为格点QCD中最核心的``结构探针''——将继续在从夸克-胶子拉格朗日量到实验可观测量的漫长链条中扮演不可替代的角色。
+
+% ==============================================================================
+% 参考文献
+% ==============================================================================
+
+\begin{thebibliography}{99}
+
+\bibitem{GattringerLang2010}
+C.~Gattringer and C.~B.~Lang,
+\textit{Quantum Chromodynamics on the Lattice: An Introductory Presentation},
+Lect.\ Notes Phys.\ \textbf{788}, Springer (2010).
+[来源: \texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}]
+\begin{itemize}
+    \item 第11章（§11.4）：$\pi$介子形状因子的格点计算——3pt构造、顺序源法、比值法（式11.104）
+    \item 第6章：关联函数的谱分解、有效质量、变分法
+\end{itemize}
+
+\bibitem{GuptaLatticeQCD}
+R.~Gupta,
+\textit{Introduction to Lattice QCD},
+Lecture Notes, arXiv:hep-lat/9807028.
+[来源: \texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf}]
+\begin{itemize}
+    \item 第17章：强子谱学中的两点和三点关联函数
+\end{itemize}
+
+\bibitem{PeskinSchroeder1995}
+M.~E.~Peskin and D.~V.~Schroeder,
+\textit{An Introduction to Quantum Field Theory},
+Westview Press (1995).
+[来源: \texttt{refer/books/An Introduction to Quantum Field Theory.pdf}]
+\begin{itemize}
+    \item 第7章（§7.1）：K\"all\'en-Lehmann谱表示（3pt的场论基础）
+    \item 第18章：OPE与色散关系（3pt中流插入的算符分析）
+\end{itemize}
+
+\bibitem{correlationFunctions2026}
+\textit{格点QCD中的关联函数：谱分解、插值算符与激发态控制},
+基于本库全部相关文献、教材与代码的综合解析, 2026年7月.
+[来源: \texttt{docs/格点QCD中的关联函数.pdf}]
+\begin{itemize}
+    \item §3.1--3.5：标准3pt、比值法、双态拟合、R̃方法、非连通3pt
+    \item §5：激发态污染的系统控制——多态拟合、求和法、GEVP
+\end{itemize}
+
+\bibitem{wickContraction2026}
+\textit{格点QCD中的维克收缩与傅里叶变换},
+基于本库全部相关文献与教材的综合解析, 2026年7月.
+[来源: \texttt{docs/格点QCD中的维克收缩与傅里叶变换.pdf}]
+\begin{itemize}
+    \item §2：Wick定理、介子和重子的收缩公式、非连通图与真空减除
+    \item §3：蒸馏框架中的perambulator、elemental和广义perambulator
+    \item §3.4：蒸馏框架中收缩的数值标度律
+\end{itemize}
+
+\bibitem{distillation2026}
+\textit{格点QCD蒸馏方法解析},
+基于本库全部相关文献与教材的综合解析, 2026年7月.
+[来源: \texttt{docs/格点QCD蒸馏方法解析.pdf}]
+\begin{itemize}
+    \item §3.4（定义3.3）：广义Perambulator与三点函数的蒸馏框架表达
+\end{itemize}
+
+\bibitem{propagatorSolvers2026}
+\textit{格点QCD中的传播子求解：夸克源、Krylov子空间迭代器与多网格预条件},
+基于本库全部相关文献与教材的综合解析, 2026年7月.
+[来源: \texttt{docs/格点QCD中的传播子求解.pdf}]
+\begin{itemize}
+    \item §3.3：顺序源——三点函数的传播子链
+\end{itemize}
+
+\bibitem{formFactors2026}
+\textit{格点QCD中的形状因子：从电磁流到TMD软函数},
+基于本库全部相关文献与教材的综合解析, 2026年7月.
+[来源: \texttt{docs/格点QCD中的形状因子.pdf}]
+\begin{itemize}
+    \item §3.1--3.3：三点关联函数与流插入、比值法、顺序源方法
+\end{itemize}
+
+\bibitem{feynmanDiagrams2026}
+\textit{格点QCD中的常见费曼图},
+基于本库全部相关文献与教材的综合解析, 2026年7月.
+[来源: \texttt{docs/格点QCD中的常见费曼图.pdf}]
+\begin{itemize}
+    \item §5：连通三点函数示意图（图10）与拓扑分类
+\end{itemize}
+
+\bibitem{gluonQuasiOpReport2026}
+\textit{格点上计算胶子准算符},
+汇报, 2026年.
+[来源: \texttt{汇报/格点上计算胶子准算符.pdf}]
+\begin{itemize}
+    \item §8--9：非连通3pt分解、真空期望值减除、矩阵元提取与激发态控制
+\end{itemize}
+
+\bibitem{constructGluonQuasiOp2026}
+\textit{构造胶子准算符},
+汇报, 2026年.
+[来源: \texttt{汇报/构造胶子准算符.pdf}]
+\begin{itemize}
+    \item §6：三点函数与真空期望值减除
+\end{itemize}
+
+\bibitem{errorStats2026}
+\textit{格点QCD中的误差统计：从重采样到FLAG误差预算},
+基于本库全部相关文献与教材的综合解析, 2026年7月.
+[来源: \texttt{docs/格点QCD中的误差统计.pdf}]
+\begin{itemize}
+    \item §4：3pt激发态污染的bootstrap/Jackknife误差估计
+\end{itemize}
+
+\bibitem{hadronSpectroscopy2026}
+\textit{格点QCD中的强子谱学：从内插算符到淬火谱的完整解析},
+基于本库全部相关文献与教材的综合解析, 2026年7月.
+[来源: \texttt{docs/格点QCD中的强子谱学.pdf}]
+\begin{itemize}
+    \item §5.3：变分方法（GEVP）在激发态能谱提取中的应用
+\end{itemize}
+
+\bibitem{kineEnhance2015}
+R.~Zhang, W.~Detmold, A.~Grebe, et al.,
+\textit{Kinematically-enhanced interpolating operators for boosted hadrons},
+in preparation (2025).
+[来源: \texttt{refer/papers/Kinematically-enhanced interpolating operators for boosted hadrons.pdf}]
+\begin{itemize}
+    \item 运动学增强内插算符对boost态3pt信噪比的改进
+\end{itemize}
+
+\bibitem{snscMain2026}
+\textit{snsc/main.py} — 统一PDF全流程（2049行，3分析模式，13流水线步骤）,
+代码实现, Zhang Xin, 2026年7月.
+[来源: \texttt{snsc/main.py}]
+\begin{itemize}
+    \item 步骤6--7：VVV张量计算与3pt构造
+    \item 全程耗时+内存统计、bootstrap/jackknife、参考数据对比
+\end{itemize}
+
+\bibitem{gluonWorkflow2026}
+\textit{refer/zhangxin/gluon\_pdf\_workflow.py} — 生产级胶子PDF工作流,
+代码实现, consolidated from donghx's original code.
+[来源: \texttt{refer/zhangxin/gluon\_pdf\_workflow.py}]
+\begin{itemize}
+    \item ope子命令：$F_{\mu\nu}$、Wilson线、非定域算符构造
+    \item 2pt子命令：蒸馏perambulator + VVV + Wick收缩
+\end{itemize}
+
+\bibitem{main3pt2026}
+\textit{refer/zhangxin/main-3pt.py} — Pion 3pt IOG数据分析,
+代码实现.
+[来源: \texttt{refer/zhangxin/main-3pt.py}]
+\begin{itemize}
+    \item 读取IOG格式的3pt/2pt数据，执行jackknife比值分析
+\end{itemize}
+
+\bibitem{include2026}
+\textit{refer/zhangxin/include.py} — 核心分析模块（约900行）,
+代码实现.
+[来源: \texttt{refer/zhangxin/include.py}]
+\begin{itemize}
+    \item \texttt{data\_analyse}类：3pt比值分析、jackknife重采样、IOG读取
+\end{itemize}
+
+\end{thebibliography}
+
+\end{document}

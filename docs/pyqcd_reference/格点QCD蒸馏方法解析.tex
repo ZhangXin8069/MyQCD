@@ -1,0 +1,586 @@
+\documentclass[12pt,a4paper]{ctexart}
+
+% === 页面设置 ===
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+
+% === 数学和物理 ===
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{slashed}
+
+% === 图形和表格 ===
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% === 引用 ===
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+% === 其他 ===
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{multirow}
+\usepackage{tikz}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+}
+
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{remark}{注记}[section]
+\newtheorem{theorem}{定理}[section]
+
+\title{\heiti 格点QCD中的蒸馏方法：\\
+从夸克场涂抹到高动量强子结构计算}
+\author{基于本库文献的综合解析}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+蒸馏（Distillation）方法是格点量子色动力学（LQCD）中一种革命性的夸克场涂抹技术，由Peardon等人于2009年提出。该方法利用三维规范协变Laplace算符的低阶本征模构建低秩投影算符，将夸克场投影到由平滑模式张成的子空间上。蒸馏方法的核心优势在于将夸克传播子（perambulator）的计算与强子插值算符的构造完全解耦，使得可以在\textbf{后验}（a posteriori）方式下计算任意复杂的关联函数而无需重新进行Dirac算符求逆。本文系统梳理了蒸馏方法的理论基础、数学构造及其在格点QCD计算中的广泛应用——从强子谱学到部分子分布函数（PDFs）的第一性原理计算。特别讨论了蒸馏方法在高动量下的推广（动量涂抹蒸馏）及其在大动量有效理论（LaMET）框架下对核子胶子PDF和螺旋度分布计算的关键作用。本文所有讨论均基于本库中收集的相关研究文献。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{引言：为什么需要涂抹？}
+% ============================================================
+
+在格点QCD的蒙特卡洛计算中，强子关联函数中的物理信号随时间呈指数衰减，并迅速被统计涨落所主导\cite{Peardon2009}。关联函数的基本形式为：
+
+\begin{equation}
+C(t', t) = \langle \chi(t') \chi^\dagger(t) \rangle = \sum_k |\langle \chi|k\rangle|^2 e^{-E_k(t'-t)},
+\label{eq:correlator}
+\end{equation}
+
+其中$\chi$是强子的产生/湮灭算符，$|k\rangle$是具有相应量子数的哈密顿量本征态，$E_k$是其能量。
+
+为了精确提取低能态的能量，必须构造与这些轻模式具有最大重叠的算符。这要求插值算符能够在尽可能短的时间间隔内饱和关联函数的渐近行为。\textbf{涂抹（Smearing）}是实现这一目标的标准工具\cite{UKQCD1993}。
+
+\subsection{传统涂抹方法的演进}
+
+涂抹方法的演进大致经历了以下阶段\cite{UKQCD1993}：
+
+\begin{enumerate}
+    \item \textbf{非规范协变的涂抹：}最初的研究使用由$\delta$函数构成的扩展源，但它们不是规范协变的，导致在大的Euclidean时间处统计噪声增加。
+
+    \item \textbf{规范固定涂抹（Coulomb规范）：}通过固定到Coulomb规范，发展出了``立方''（cube）源和``墙''（wall）源等改进方案。然而这些方法破坏了规范不变性。
+
+    \item \textbf{规范协变涂抹：}基于格点Laplace算符的\textbf{Jacobi涂抹}方法\cite{UKQCD1993}（也称Wuppertal涂抹）实现了真正的规范协变涂抹：
+
+    \begin{equation}
+    J_{\sigma, n_\sigma}(t) = \left(1 + \frac{\sigma\nabla^2(t)}{n_\sigma}\right)^{n_\sigma},
+    \label{eq:jacobi_kernel}
+    \end{equation}
+
+    其中$\sigma$和$n_\sigma$是可调参数，用于优化对目标态的投影。在大$n_\sigma$极限下，这近似于$\sigma\nabla^2$的指数形式。
+
+    \item \textbf{蒸馏方法：}Peardon等人\cite{Peardon2009}在2009年提出了革命性的改进——直接使用Laplace算符的最低本征模来定义涂抹算符，即\textbf{蒸馏}。
+\end{enumerate}
+
+\section{蒸馏方法的数学构造}
+
+\subsection{格点Laplace算符}
+
+蒸馏方法的基础是三维规范协变Laplace算符\cite{Peardon2009,NoteGluonPDFs}。在格点上，其最简单的表示为：
+
+\begin{equation}
+-\nabla^2_{xy}(t) = 6\delta_{xy} - \sum_{j=1}^{3} \left[\tilde{U}_j(x,t)\delta_{x+\hat{j},y} + \tilde{U}^\dagger_j(x-\hat{j},t)\delta_{x-\hat{j},y}\right],
+\label{eq:laplacian}
+\end{equation}
+
+其中$\tilde{U}_j$可以是通过适当的规范场涂抹算法（如stout涂抹）构建的规范场。Laplace算符的维度为$M = N_c \times N_x \times N_y \times N_z$。
+
+Laplace算符继承了许多真空的对称性：它在旋转下像标量一样变换，在规范变换下是协变的，并且在宇称和电荷共轭下是不变的\cite{Peardon2009}。
+
+\subsection{本征值问题与谱滤波}
+
+对Laplace算符进行对角化，求解本征值问题\cite{Peardon2009,NoteGluonPDFs}：
+
+\begin{equation}
+-\nabla^2(t) v^{(i)} = \lambda_i v^{(i)}, \qquad v^{(i)} v^{(j)\dagger} = \delta_{ij},
+\label{eq:eigenvalue}
+\end{equation}
+
+得到本征值$\lambda_1, \ldots, \lambda_M$及其对应的归一化本征矢$v^{(1)}, \ldots, v^{(M)}$。
+
+Jacobi涂抹核的作用是\textbf{指数压制高本征模}\cite{NoteGluonPDFs}：
+
+\begin{equation}
+\lim_{n_\sigma \to \infty} J_{\sigma,n_\sigma}(t) = \exp(\sigma\nabla^2(t))。
+\label{eq:jacobi_limit}
+\end{equation}
+
+这意味着只有少数最低本征模对$J$有实质贡献。这一观察直接导致了蒸馏方法的核心思想：\textbf{涂抹算符可以通过截断到最低本征模的本征矢表示来有效近似}\cite{Peardon2009}。
+
+\subsection{蒸馏算符的定义}
+
+蒸馏算符定义为矢量空间$V_N$（由最低$N$个本征模张成）上的投影算符\cite{Peardon2009,NoteGluonPDFs}：
+
+\begin{definition}[蒸馏算符]
+时间片$t$上的蒸馏算符定义为一个$M \times N$矩阵$V(t)$与其厄米共轭的乘积：
+\begin{equation}
+\Box_{xy}(t) = \sum_{k=1}^{N_{\text{ev}}} v^{(k)}_x(t) v^{(k)\dagger}_y(t) \equiv V(t)V^\dagger(t),
+\label{eq:distillation_operator}
+\end{equation}
+其中$V(t)$的第$k$列包含按本征值排序的$\nabla^2$的第$k$个本征矢，$N_{\text{ev}} \ll M$是蒸馏空间的维数。
+\end{definition}
+
+该算符具有以下关键性质\cite{Peardon2009}：
+
+\begin{enumerate}
+    \item \textbf{投影性：}$\Box^2 = \Box$，因为它是到$V_N$子空间上的投影算符。
+    \item \textbf{低秩性：}算符的秩$N \ll M$，使得所有传播子矩阵元素可以在可承受的计算代价下计算。
+    \item \textbf{对称性保持：}蒸馏关联函数与使用Laplace涂抹方法构造的关联函数具有相同的格点对称性。
+    \item \textbf{极限行为：}当$N = M$时，蒸馏算符变为单位算符，场不被涂抹。
+\end{enumerate}
+
+原文图1展示了蒸馏算符的空间分布$\Psi(r) = \sum_{x,t} \sqrt{\operatorname{Tr}(\Box_{x,x+r}(t)\Box_{x+r,x}(t))}$。数据清楚地表明，对于$N$在8到64之间，蒸馏算符\textbf{很好地由高斯波函数描述}。$N$越大，分布的半径越小——这是预期的，因为$N = M$时蒸馏算符退化为单位算符，完全没有空间延展\cite{Peardon2009}。
+
+\section{蒸馏方法的核心技术：Perambulator与Elemental}
+
+蒸馏方法最革命性的特征是将夸克传播与算符构造\textbf{完全因子化}\cite{Peardon2009,Egerer2021a}。这使得关联函数的计算可以分解为两个独立的部分。
+
+\subsection{Perambulator：夸克传播的编码}
+
+Perambulator是蒸馏框架的核心数据结构，它编码了夸克在蒸馏空间中的传播\cite{Peardon2009,Egerer2021a}：
+
+\begin{definition}[Perambulator]
+\begin{equation}
+\tau^{(p,\bar{p})}_{\alpha\beta}(t', t) = V^{(p)\dagger}(t') M^{-1}_{\alpha\beta}(t', t) V^{(\bar{p})}(t),
+\label{eq:perambulator}
+\end{equation}
+其中$M^{-1}$是格点Dirac算符的逆，$\alpha,\beta$是Dirac自旋指标，$p,\bar{p}$是蒸馏空间指标。
+\end{definition}
+
+\textbf{Perambulator的关键性质}\cite{Peardon2009,NoteGluonPDFs}：
+
+\begin{itemize}
+    \item \textbf{仅依赖于规范场组态：}Perambulator的计算完全独立于插值算符的选择。
+    \item \textbf{一次计算，多次复用：}每个规范场系综的perambulator只需计算一次，之后可以在扩展的插值算符基上高效地重复使用。这带来了显著的计算节约\cite{NoteGluonPDFs}。
+    \item \textbf{可跨道共享：}介子和重子的perambulator计算可以共享。
+\end{itemize}
+
+\subsection{Elemental：算符构造的编码}
+
+Elemental编码了强子插值算符的构造信息\cite{Peardon2009,Egerer2021a}。以重子为例：
+
+\begin{definition}[Baryon Elemental]
+\begin{equation}
+\Phi^{(i,j,k)}_{\alpha_1\alpha_2\alpha_3}(t) = \epsilon^{abc} \left[D_1 v^{(i)}\right]_a \left[D_2 v^{(j)}\right]_b \left[D_3 v^{(k)}\right]_c (t) \, S_{\alpha_1\alpha_2\alpha_3},
+\label{eq:elemental}
+\end{equation}
+其中$D_i$是协变导数，$S_{\alpha_1\alpha_2\alpha_3}$是subduction系数，编码了具有连续旋量指标$\{\alpha_1,\alpha_2,\alpha_3\}$的插值算符如何在超立方格点及其相关小群的不可约表示之间混合。
+\end{definition}
+
+\subsection{因子化的关联函数构造}
+
+以核子两点关联函数为例\cite{Peardon2009,NoteGluonPDFs}：
+
+\begin{equation}
+\begin{aligned}
+\langle \mathcal{O}(t) \bar{\mathcal{O}}(t_0) \rangle &= (P_\pm)_{\alpha,\bar{\alpha}} (C\gamma_5)_{\beta\rho} (C\gamma_5)_{\bar{\beta}\bar{\rho}} \\
+&\quad \times \epsilon^{abc} \left[ V^{(p)}_a V^{(q)}_b V^{(r)}_c (t) \right] \\
+&\quad \times \tau^{(r,\bar{r})}_{\rho,\bar{\rho}} \left( \tau^{(p,\bar{p})}_{\alpha,\bar{\alpha}} \tau^{(q,\bar{q})}_{\beta,\bar{\beta}} - \tau^{(p,\bar{q})}_{\alpha,\bar{\beta}} \tau^{(q,\bar{p})}_{\beta,\bar{\alpha}} \right) \\
+&\quad \times \left[ V^{(\bar{p})\dagger}_{\bar{a}} V^{(\bar{q})\dagger}_{\bar{b}} V^{(\bar{r})\dagger}_{\bar{c}} (t_0) \right] \epsilon^{\bar{a}\bar{b}\bar{c}}。
+\end{aligned}
+\label{eq:factorized_2pt}
+\end{equation}
+
+这清晰展示了因子化结构：perambulator矩阵$\tau$完全独立于算符的构造细节——任何源和汇算符的选择都可以在perambulator计算完成后\textbf{后验地}确定\cite{Peardon2009}。
+
+\subsection{广义Perambulator与三点函数}
+
+对于三点函数，需要引入\textbf{广义Perambulator}（generalized perambulator）\cite{Peardon2009}：
+
+\begin{definition}[广义Perambulator]
+\begin{equation}
+\mathcal{J}_{\alpha\beta}(t_f, t, t_i) = V^\dagger(t_f) \left[ M^{-1}(t_f, t) \, \Gamma(t) \, M^{-1}(t, t_i) \right]_{\alpha\beta} V(t_i),
+\label{eq:generalized_perambulator}
+\end{equation}
+其中$\Gamma(t)$是插入的流算符。
+\end{definition}
+
+介质三点关联函数的连接部分可以表示为：
+
+\begin{equation}
+C^{(3)}_{\text{conn}}(t_f, t, t_i) = \operatorname{Tr}\left[ \Phi_B(t_f) \mathcal{J}(t_f, t, t_i) \Phi_A(t_i) \gamma_5 \tau^\dagger(t_f, t_i) \gamma_5 \right]。
+\label{eq:3pt_factorized}
+\end{equation}
+
+\section{蒸馏方法的优势与计算标度}
+
+\subsection{与传统方法的比较}
+
+在传统的point-to-all方法中，需要约10个前向传播子（对应不同的源）和$N_c \times N_\sigma = 12$次Dirac矩阵求逆来生成一个$T_1^{--}$道的关联函数。使用32个蒸馏矢量时，总求逆代价大致相同\cite{Peardon2009}：
+
+\begin{equation}
+(N_{\text{srcs}} = 10) \times (N_c = 3) \times (N_\sigma = 4) = 120 \approx (N = 32) \times (N_\sigma = 4) = 128。
+\label{eq:cost_comparison}
+\end{equation}
+
+然而，蒸馏方法在相同求逆代价下提供了\textbf{更多的算符}、\textbf{更好的统计精度}和\textbf{后验关联}的灵活性。
+
+\subsection{统计噪声的标度律}
+
+Peardon等人\cite{Peardon2009}对关联函数的噪声-信号比$r$作为矢量数$N$的函数进行了建模：
+
+\begin{equation}
+r = a + \frac{b}{N^p}。
+\label{eq:noise_scaling}
+\end{equation}
+
+拟合得到的标度指数$p$表明，噪声的降低\textbf{显著快于}简单统计标度$p = 0.5$：
+
+\begin{table}[H]
+\centering
+\caption{不同介子道的噪声标度指数$p$\cite{Peardon2009}}
+\label{tab:noise_exponents}
+\begin{tabular}{lc}
+\toprule
+算符 & $p$ \\
+\midrule
+$\bar{\psi}\gamma_i\psi$               & 0.8(1)  \\
+$a_0 \times \nabla_{T_1}$             & 1.1(2)  \\
+$\pi \times B_{T_1}$                  & 1.3(3)  \\
+$\rho \times D_{T_1}$                 & 1.8(2)  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{体积标度}
+
+蒸馏方法的一个关键发现是，在更大的体积上维持相同的物理分辨率需要成比例地增加本征矢数目\cite{Peardon2009}：
+
+\begin{quote}
+``Approximately twice as many eigenvectors in the $20^3$ case are required to have the same cut-off as in the $16^3$ case. This is equivalent to using a Heaviside approximation to smearing: $J_\lambda(t) = \Theta(\lambda + \nabla^2(t))$.''\cite{Peardon2009}
+\end{quote}
+
+这意味着\textbf{蒸馏空间的秩$N_{\text{ev}}$应与空间体积成正比}，以在不同系综上维持相同的关联函数分辨率\cite{Peardon2009,Egerer2021a}。
+
+\section{蒸馏方法在高动量下的推广}
+
+\subsection{动量涂抹与蒸馏的结合}
+
+LaMET和赝PDF方法要求格点计算在\textbf{大核子动量}下进行，而传统蒸馏在动量$|a_s\vec{p}|^2 \lesssim 4(2\pi/L_s)^2$之外效果急剧下降\cite{Egerer2021a}。
+
+Egerer等人\cite{Egerer2021a}系统研究了将Bali等人的动量涂抹方法与蒸馏框架结合的方案。四种候选方案为：
+
+\begin{enumerate}
+    \item \textbf{单相位（Type 1）：}$\tilde{\xi}^{(k)}_a(\vec{z}, t) = e^{i\vec{\zeta}\cdot\vec{z}} \xi^{(k)}_a(\vec{z}, t)$
+    \item \textbf{对向相位（Type 2）：}$\tilde{\xi}^{(k)}_a(\vec{z}, t) = 2\cos(\vec{\zeta}\cdot\vec{z}) \xi^{(k)}_a(\vec{z}, t)$
+    \item \textbf{恒等加对向相位（Type 3）}
+    \item \textbf{多单向相位（Type 4）}
+\end{enumerate}
+
+\textbf{平移不变性的要求}是选择方案的关键判据\cite{Egerer2021a}。可以证明，只有Type 1（单相位）方案保持平移不变性：
+
+\begin{equation}
+\begin{aligned}
+\tilde{\tau}^{ij}_{\mu\nu}(t', t) &= \xi^{(i)\dagger}(\vec{x}, t') e^{-i\vec{\zeta}\cdot(\vec{x}+\vec{d})} M^{-1}_{\mu\nu}(\vec{x}, t'; \vec{y}, t) e^{i\vec{\zeta}\cdot(\vec{y}+\vec{d})} \xi^{(j)}(\vec{y}, t) \\
+&= \xi^{(i)\dagger}(\vec{x}, t') e^{-i\vec{\zeta}\cdot\vec{x}} M^{-1}_{\mu\nu}(\vec{x}, t'; \vec{y}, t) e^{i\vec{\zeta}\cdot\vec{y}} \xi^{(j)}(\vec{y}, t) 。
+\end{aligned}
+\label{eq:translation_invariance}
+\end{equation}
+
+相位因子取为\cite{Egerer2021a,NoteGluonPDFs}：
+
+\begin{equation}
+\vec{\zeta} = 2 \times \frac{2\pi}{L} \hat{z},
+\label{eq:phase_factor}
+\end{equation}
+
+这给出了最高可达$P = 6 \times 2\pi/(aL)$的boost所需的动量涂抹\cite{NoteGluonPDFs}。
+
+在CLQCD/LPC的非极化胶子PDF计算中\cite{Chen2025gluon}，对三个组态$a = \{0.105, 0.0897, 0.0775\}$~fm，蒸馏本征矢数目均为$N_{\text{ev}} = 100$，核子动量最高可达1.97~GeV。
+
+\subsection{变分分析与扩展算符基}
+
+蒸馏方法允许在源和汇同时使用扩展的插值算符基，而无需重新计算夸克传播子。这是蒸馏相对于传统涂抹方案的一个关键优势\cite{Egerer2021a}。
+
+对于静止核子（$G_{1g}$不可约表示），使用的插值算符基包括\cite{Egerer2021a}：
+\begin{equation}
+\mathcal{B}_{\vec{p}=\vec{0}} = \{N\,^2S_S\frac{1}{2}^+, N\,^2S_M\frac{1}{2}^+, N\,^2S'_S\frac{1}{2}^+, N\,^2P_A\frac{1}{2}^+, N\,^2P_M\frac{1}{2}^+, N\,^4P_M\frac{1}{2}^+, N\,^4D_M\frac{1}{2}^+\}。
+\label{eq:basis_rest}
+\end{equation}
+
+对于boosted核子（$Dic_4$小群），算符基进一步扩展至包含更高自旋和负宇称的态\cite{Egerer2021a}，共16个算符。通过求解广义本征值问题（GEVP）：
+
+\begin{equation}
+C(T,\vec{p}) v_n(T, T_0) = \lambda_n(T, T_0) C(T_0,\vec{p}) v_n(T, T_0),
+\label{eq:GEVP}
+\end{equation}
+
+可以最优地分离出能量本征态\cite{Egerer2021a}。
+
+Egerer等人\cite{Egerer2021a}的结果表明，利用带相位的蒸馏本征矢，基态核子能量可以在$|\vec{p}| \lesssim 3$~GeV范围内可靠地提取，并且具有大动量依赖性的矩阵元可以被分辨。
+
+\section{蒸馏方法在部分子物理中的应用}
+
+\subsection{核子胶子PDF的连续极限计算}
+
+CLQCD/LPC合作组在LaMET框架下对核子非极化胶子PDF进行的最新计算\cite{Chen2025gluon}中，蒸馏方法发挥了关键作用。
+
+夸克传播子使用蒸馏夸克涂抹方法在所有时间片上计算\cite{Chen2025gluon}：
+
+\begin{quote}
+``The quark propagators are computed for all the time slices using distillation quark smearing method. The number of eigenvectors $N_{\text{ev}}$ in the smearing operator is 100 for all the three ensembles.''\cite{Chen2025gluon}
+\end{quote}
+
+该计算采用了核子插值算符$N = P^+(u^T C\gamma_5\gamma_t d)u$，其中$C$是电荷共轭算符，$P^+ = \frac{1}{2}(1+\gamma_t)$是正宇称投影算符。如Zhang等人\cite{Zhang2025kinematic}所示，该算符在大动量下与基态有\textbf{运动学增强}的重叠——这是蒸馏方法与运动学增强插值算符协同作用的一个例证。
+
+蒸馏方法的应用使得在879、900和777个组态上分别进行的高统计量计算成为可能，核子动量覆盖范围从0到1.97~GeV\cite{Chen2025gluon}。
+
+\subsection{胶子螺旋度分布的计算}
+
+HadStruc合作组在计算核子中极化胶子Ioffe-时间分布时\cite{Egerer2022}，采用了高统计量计算，使用$32^3 \times 64$格点系综（$\pi$介子质量358~MeV，格点间距0.094~fm），蒸馏矢量数$R_D = 64$，每个组态4个不同的源时间起点，共100个组态。
+
+该工作首次证明了赝PDF方法可以作为解决质子自旋难题的可行途径\cite{Egerer2022}。
+
+\subsection{运动学增强的插值算符}
+
+Zhang等人\cite{Zhang2025kinematic}最近提出了针对高boost强子的\textbf{运动学增强插值算符}的系统性方案。对于核子，他们指出：
+
+\begin{quote}
+``The standard interpolator for a static nucleon is $N_\Gamma = \epsilon^{abc}(d^T_a C\Gamma u_b)P_+ u_c$ with $\Gamma = \gamma_5$. The leading Fock component built from quark-field `plus' components has a spin-1 diquark.''\cite{Zhang2025kinematic}
+\end{quote}
+
+通过在蒸馏框架中使用这些运动学增强的插值算符，可以进一步提高大动量下核子态的信噪比\cite{Zhang2025kinematic,Chen2025gluon}。
+
+\section{蒸馏方法的综合评述}
+
+\subsection{优势总结}
+
+\begin{enumerate}
+    \item \textbf{后验关联：}Perambulator与算符构造的完全分离使得任意复杂的关联函数（包括多强子态算符）可以在不需要新的Dirac算符求逆的情况下进行计算\cite{Peardon2009}。
+
+    \item \textbf{扩展算符基与变分法：}蒸馏方法天然支持在源和汇同时使用大基组的插值算符，通过GEVP可以系统地分离出激发态\cite{Peardon2009,Egerer2021a}。
+
+    \item \textbf{动量投影的灵活性：}蒸馏方法允许在源和汇同时进行明确的动量投影（在传统point-to-all方法中这是不可能的），从而可以构造多强子关联函数\cite{Peardon2009}。
+
+    \item \textbf{非连通图的精确计算：}蒸馏方法对非连通图（如味单态介子关联函数中所需的图）的精确计算有天然优势。式(\ref{eq:disconnected})展示了这一能力\cite{Peardon2009}：
+
+    \begin{equation}
+    C^{(2,\text{disc})}_M(t', t) = \operatorname{Tr}\left[ \Phi_A(t)\tau(t,t) \right] \operatorname{Tr}\left[ \Phi_B(t')\tau^\dagger(t',t') \right]。
+    \label{eq:disconnected}
+    \end{equation}
+
+    \item \textbf{噪声抑制：}统计噪声的降低显著快于$1/\sqrt{N}$的简单统计标度，指数$p$在0.8到1.8之间\cite{Peardon2009}。
+
+    \item \textbf{全时间片采样：}Perambulator对所有时间片的计算增强了时间片采样，进一步改善了信噪比\cite{Egerer2021a}。
+\end{enumerate}
+
+\subsection{局限性与挑战}
+
+\begin{enumerate}
+    \item \textbf{初始计算成本：}蒸馏在计算存储和组件构造方面的初始成本较高\cite{Egerer2021a}。Perambulator的维数为$N \times N_\sigma$，需要$N \times N_\sigma$次费米子矩阵的求逆操作。
+
+    \item \textbf{体积标度：}$N_{\text{ev}}$需要与空间体积成正比以维持相同的物理分辨率\cite{Peardon2009}，这意味着在大体积系综上计算成本增长迅速。
+
+    \item \textbf{Wick收缩的计算复杂度：}介子和重子两点函数的Wick收缩分别标度为$N_{\text{ev}}^3$和$N_{\text{ev}}^4$\cite{Egerer2021a}。
+
+    \item \textbf{高动量的挑战：}对于$|\vec{p}| \gtrsim 2$~GeV（取决于具体的格点参数），即使使用动量涂抹蒸馏，信噪比也会显著恶化\cite{Egerer2021a,Chen2025gluon}。
+
+    \item \textbf{非连通插入的非涂抹性：}三点函数中的非连通插入涉及未涂抹的场，必须通过其他技术来计算\cite{Peardon2009}。
+\end{enumerate}
+
+\subsection{与其他方法的比较}
+
+\begin{table}[H]
+\centering
+\caption{蒸馏方法与其他夸克场涂抹方案的比较}
+\label{tab:comparison}
+\begin{tabular}{lcccc}
+\toprule
+特性 & 点源 & Jacobi/Wuppertal & 动量涂抹Jacobi & 蒸馏 \\
+\midrule
+规范协变性     & —     & \checkmark & \checkmark & \checkmark \\
+源动量投影     & —     & 仅汇      & 仅汇      & 源和汇 \\
+后验关联       & —     & —         & —         & \checkmark \\
+扩展算符基     & —     & 受限      & 受限      & \checkmark \\
+非连通图       & 差     & 中        & 中        & 优 \\
+高动量效率     & 差     & 中        & 优        & 优（带相位） \\
+初始计算成本   & 低     & 低        & 低        & 高 \\
+体积标度       & 无关   & 无关      & 无关      & $N_{\text{ev}} \propto V$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{总结与展望}
+
+蒸馏方法自Peardon等人\cite{Peardon2009}于2009年提出以来，已经发展成为格点QCD中最为强大和广泛使用的夸克场涂抹技术之一。其核心创新——将夸克传播子与算符构造完全因子化——使得后验关联、扩展算符基变分分析和高效非连通图计算成为可能。
+
+近年来，蒸馏方法在以下几个方向上取得了重要进展：
+
+\begin{enumerate}
+    \item \textbf{高动量推广：}Egerer等人\cite{Egerer2021a}将动量涂抹与蒸馏框架相结合，使得核子能量可以在$|\vec{p}| \lesssim 3$~GeV范围内可靠提取，为LaMET和赝PDF框架下的部分子结构计算奠定了基础。
+
+    \item \textbf{胶子结构计算：}CLQCD/LPC合作组\cite{Chen2025gluon}利用蒸馏方法在多格点间距系综上进行了核子非极化胶子PDF的连续极限计算。HadStruc合作组\cite{Egerer2022}利用蒸馏方法首次对极化胶子Ioffe-时间分布进行了格点计算。
+
+    \item \textbf{运动学增强算符：}Zhang等人\cite{Zhang2025kinematic}提出了针对高boost强子的运动学增强插值算符，与蒸馏方法协同使用可进一步改善大动量下的信噪比。
+
+    \item \textbf{多强子态物理：}蒸馏方法天然支持多强子算符的构造和关联，为从第一性原理研究强子共振态和散射过程提供了强有力的工具\cite{Peardon2009}。
+\end{enumerate}
+
+随着未来计算资源的增长和算法的改进，蒸馏方法有望在更大体积、更细格点间距和物理$\pi$介子质量的系综上发挥更加重要的作用，为从第一性原理解决质子自旋危机和精确确定部分子分布函数提供关键的理论输入。
+
+\begin{thebibliography}{99}
+
+% === 核心蒸馏文献 ===
+
+\bibitem{Peardon2009}
+M.~Peardon, J.~Bulava, J.~Foley, C.~Morningstar, J.~Dudek, R.~G.~Edwards, B.~Joo, H.-W.~Lin, D.~G.~Richards, and K.~J.~Juge (Hadron Spectrum Collaboration),
+``A novel quark-field creation operator construction for hadronic physics in lattice QCD,''
+Phys.\ Rev.\ D \textbf{80}, 054506 (2009), arXiv:0905.2160.
+\quad\textbf{[来源:} \texttt{refer/papers/A novel quark-field creation operator construction for hadronic physics in lattice QCD.pdf}\textbf{]}
+
+% === 传统涂抹文献 ===
+
+\bibitem{UKQCD1993}
+C.~R.~Allton \textit{et al.} (UKQCD Collaboration),
+``Gauge-invariant smearing and matrix correlators using Wilson fermions at $\beta=6.2$,''
+Phys.\ Rev.\ D \textbf{47}, 5128 (1993), arXiv:hep-lat/9303009.
+\quad\textbf{[来源:} \texttt{refer/papers/Gauge-Invariant Smearing and Matrix Correlators using Wilson Fermions at beta=6.2.pdf}\textbf{]}
+
+% === 高动量蒸馏 ===
+
+\bibitem{Egerer2021a}
+C.~Egerer, R.~G.~Edwards, K.~Orginos, and D.~G.~Richards (HadStruc Collaboration),
+``Distillation at high-momentum,''
+Phys.\ Rev.\ D \textbf{103}, 034502 (2021), arXiv:2009.10691.
+\quad\textbf{[来源:} \texttt{refer/papers/Distillation at High-Momentum.pdf}\textbf{]}
+
+% === 蒸馏方法笔记 ===
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,''
+内部笔记。（含蒸馏方法的详细推导和应用）
+\quad\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}
+
+% === 运动学增强算符 ===
+
+\bibitem{Zhang2025kinematic}
+R.~Zhang, A.~V.~Grebe, D.~C.~Hackett, M.~L.~Wagman, and Y.~Zhao,
+``Kinematically-enhanced interpolating operators for boosted hadrons,''
+(2025), arXiv:2501.00729.
+\quad\textbf{[来源:} \texttt{refer/papers/Kinematically-enhanced interpolating operators for boosted hadrons.pdf}\textbf{]}
+
+% === 胶子PDF计算中使用蒸馏的文献 ===
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\quad\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{Chen2025first}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``First self-renormalized gluon PDF of nucleon from large-momentum effective theory in the continuum limit,''
+Phys.\ Rev.\ D \textbf{111}, 074506 (2025), arXiv:2408.12819.
+\quad\textbf{[来源:} \texttt{refer/papers/First Self-Renormalized Gluon PDF of Nucleon from Large-Momentum Effective Theory in the Continuum Limit.pdf}\textbf{]}
+
+\bibitem{Good2025a}
+W.~Good, F.~Yao, and H.-W.~Lin,
+``First nucleon gluon PDF from large momentum effective theory,''
+(2025), arXiv:2505.13321.
+\quad\textbf{[来源:} \texttt{refer/papers/First Nucleon Gluon PDF from Large Momentum Effective Theory.pdf}\textbf{]}
+
+\bibitem{Lin2025gluon}
+W.~Good, K.~Hasan, and H.-W.~Lin,
+``Gluon parton distribution of the nucleon from $2+1+1$-flavor lattice QCD in the physical-continuum limit,''
+J.\ Phys.\ G \textbf{52}, 035105 (2025), arXiv:2409.02750.
+\quad\textbf{[来源:} \texttt{refer/papers/Gluon Parton Distribution of the Nucleon from 2+1+1-Flavor Lattice QCD in the Physical-Continuum Limit.pdf}\textbf{]}
+
+% === 胶子螺旋度计算中使用蒸馏的文献 ===
+
+\bibitem{Egerer2022}
+C.~Egerer \textit{et al.} (HadStruc Collaboration),
+``Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics,''
+Phys.\ Rev.\ D \textbf{106}, 094511 (2022), arXiv:2207.08733.
+\quad\textbf{[来源:} \texttt{refer/papers/Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics.pdf}\textbf{]}
+
+% === 其他使用蒸馏的相关计算 ===
+
+\bibitem{LP3helicity}
+H.-W.~Lin, J.-W.~Chen, X.~Ji, L.~Jin, R.~Li, Y.-S.~Liu, Y.-B.~Yang, J.-H.~Zhang, and Y.~Zhao (LP$^3$ Collaboration),
+``Proton isovector helicity distribution on the lattice at physical pion mass,''
+Phys.\ Rev.\ Lett.\ \textbf{121}, 242003 (2018), arXiv:1807.07431.
+\quad\textbf{[来源:} \texttt{refer/papers/Proton Isovector Helicity Distribution on the Lattice at Physical Pion Mass.pdf}\textbf{]}
+
+\bibitem{Lin2025nucleon}
+H.-W.~Lin \textit{et al.},
+``Nucleon gluon distribution function from $2+1+1$-flavor lattice QCD,''
+\quad\textbf{[来源:} \texttt{refer/papers/Nucleon Gluon Distribution Function from 2+1+1-Flavor Lattice QCD.pdf}\textbf{]}
+
+\bibitem{Fan2023}
+Z.~Fan, W.~Good, and H.-W.~Lin,
+``Physical-continuum limit of the nucleon gluon parton distribution from lattice QCD,''
+Phys.\ Rev.\ D \textbf{108}, 014508 (2023), arXiv:2210.09985.
+\quad\textbf{[来源:} \texttt{refer/papers/Physical-Continuum Limit of the Nucleon Gluon Parton Distribution from Lattice QCD.pdf}\textbf{]}
+
+% === LaMET 框架文献 ===
+
+\bibitem{Ji2013}
+X.~Ji,
+``Parton physics on a Euclidean lattice,''
+Phys.\ Rev.\ Lett.\ \textbf{110}, 262002 (2013), arXiv:1305.1539.
+\quad\textbf{[来源:} \texttt{refer/papers/Parton Physics on Euclidean Lattice.pdf}\textbf{]}
+
+\bibitem{Ji2014}
+X.~Ji,
+``Parton physics from large-momentum effective field theory,''
+Sci.\ China Phys.\ Mech.\ Astron.\ \textbf{57}, 1407 (2014), arXiv:1404.6680.
+\quad\textbf{[来源:} \texttt{refer/papers/Parton Physics from Large-Momentum Effective Field Theory.pdf}\textbf{]}
+
+\bibitem{Ji2021hybrid}
+X.~Ji, Y.~Liu, A.~Sch\"afer, W.~Wang, Y.-B.~Yang, J.-H.~Zhang, and Y.~Zhao,
+``A hybrid renormalization scheme for quasi light-front correlations in large-momentum effective theory,''
+Nucl.\ Phys.\ B \textbf{964}, 115311 (2021), arXiv:2008.03886.
+\quad\textbf{[来源:} \texttt{refer/papers/A Hybrid Renormalization Scheme for Quasi Light-Front Correlations in Large-Momentum Effective Theory.pdf}\textbf{]}
+
+% === 格点组态 ===
+
+\bibitem{CLQCD2024}
+Z.-C.~Hu \textit{et al.} (CLQCD),
+``Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{109}, 054507 (2024), arXiv:2310.00814.
+\quad\textbf{[来源:} \texttt{refer/papers/Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\bibitem{CLQCD2025}
+H.-Y.~Du \textit{et al.} (CLQCD),
+``Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{111}, 054504 (2025), arXiv:2408.03548.
+\quad\textbf{[来源:} \texttt{refer/papers/Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+% === 其他相关方法 ===
+
+\bibitem{Bali2016}
+G.~S.~Bali, B.~Lang, B.~U.~Musch, and A.~Sch\"afer,
+``A novel quark-field creation operator construction for hadronic physics in lattice QCD,''
+Phys.\ Rev.\ D \textbf{93}, 094515 (2016), arXiv:1602.05525.（动量涂抹方法的原始提出）
+
+\bibitem{Zhang2019}
+J.-H.~Zhang, X.~Ji, A.~Sch\"afer, W.~Wang, and S.~Zhao,
+``Accessing gluon parton distributions in large momentum effective theory,''
+Phys.\ Rev.\ Lett.\ \textbf{122}, 142001 (2019), arXiv:1808.10824.
+\quad\textbf{[来源:} \texttt{refer/papers/Accessing gluon parton distributions in large momentum effective theory.pdf}\textbf{]}
+
+\end{thebibliography}
+
+\end{document}

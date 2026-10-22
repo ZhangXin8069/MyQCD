@@ -12,6 +12,7 @@
 | PyQCD 自带参考 | `refer/git-rep/PyQCD/refer/` | 书籍、论文、历史代码、外部软件参考；只读 |
 | 可执行公式审计 | `myqcd/` | SymPy 恒等式、量纲、极限、有限维模型和 Wick 配对 |
 | PyQCD 物理论述 | 本目录两份 PDF/TeX | 代码—公式—物理对象—验证边界的系统解释 |
+| PyQCD 文档吸收 | `docs/pyqcd_reference/` | 上游 163 个格点 QCD 文档与历史报告的原样快照 |
 | 本地文献转排 | `refer/papers/`、`refer/books/` | 可检索、可编译的中英文公式与教材辅助 |
 
 ## 建议阅读顺序
@@ -20,9 +21,11 @@
    给出全链物理结构和源码入口。
 2. [`report_gluon_tmd_gradient_flow_20260828.pdf`](report_gluon_tmd_gradient_flow_20260828.pdf)
    聚焦核子胶子 `f_1^g` 的 finite-staple 方案、soft/rapidity、匹配和停止门。
-3. [`../../refer/git-rep/docs/pyqcd-physics-reference.md`](../../refer/git-rep/docs/pyqcd-physics-reference.md)
+3. [`../pyqcd_reference/README.md`](../pyqcd_reference/README.md)
+   查阅从 PyQCD 吸收的完整物理笔记、推导和历史报告。
+4. [`../../refer/git-rep/docs/pyqcd-physics-reference.md`](../../refer/git-rep/docs/pyqcd-physics-reference.md)
    用于从主题跳转到 PyQCD 自带书籍、论文和原始代码。
-4. [`../../myqcd/README.md`](../../myqcd/README.md) 用于运行公式审计和读取可执行证据。
+5. [`../../myqcd/README.md`](../../myqcd/README.md) 用于运行公式审计和读取可执行证据。
 
 ## 物理链与代码入口
 

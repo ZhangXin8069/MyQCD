@@ -1,0 +1,442 @@
+% ============================================================
+% analy 报告 — pyqcd torch+mpi4py+h5py 并行化
+% 编译: xelatex 两遍; 交付前 Overfull 计数必须为 0
+% ============================================================
+\documentclass[UTF8]{ctexart}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{microtype}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{xltabular}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage[most]{tcolorbox}
+\usepackage{titlesec}
+
+\definecolor{accent}{HTML}{1F4E79}
+\definecolor{evidence}{HTML}{1E8449}
+\definecolor{reference}{HTML}{8C6D1F}
+\definecolor{conclusion}{HTML}{8B1A1A}
+\definecolor{codebg}{HTML}{F4F6F7}
+\definecolor{struct}{HTML}{3B3B98}
+\definecolor{relation}{HTML}{0E7C7B}
+\definecolor{idea}{HTML}{B03A2E}
+\definecolor{warn}{HTML}{D35400}
+\definecolor{hl}{HTML}{FDF6E3}
+
+\setlength{\emergencystretch}{3em}
+\hypersetup{colorlinks=true,linkcolor=accent,urlcolor=relation}
+
+\titleformat{\section}{\Large\bfseries\color{accent}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\color{struct}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{struct!70!black}}{\thesubsubsection}{1em}{}
+
+\newtcolorbox{conclbox}{breakable,colback=conclusion!6,colframe=conclusion,title=结论}
+\newtcolorbox{refbox}{breakable,colback=reference!6,colframe=reference,title=参考背景}
+\newtcolorbox{ideabox}{breakable,colback=idea!6,colframe=idea,title=项目思路}
+\newtcolorbox{warnbox}{breakable,colback=warn!6,colframe=warn,title=局限与风险}
+\newtcolorbox{keybox}{breakable,colback=hl,colframe=accent,title=要点}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  language=python,
+  firstnumber=auto,
+  keywordstyle=\color{accent}\bfseries,
+  commentstyle=\color{evidence!70!black},
+  stringstyle=\color{struct},
+  breaklines=true,
+  breakatwhitespace=false,
+  postbreak=\mbox{\textcolor{accent}{$\hookrightarrow$}\space},
+  keepspaces=true,
+  columns=flexible,
+  numbers=left,numberstyle=\tiny\color{struct!60!black},
+}
+
+\title{PyQCD 并行化改造分析：torch + mpi4py + h5py 的加速效果与正确性}
+\author{opencode analy}
+\date{2026 年 8 月 16 日}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+本报告分析 PyQCD 格点 QCD 库的一次全面并行化改造：以 PyTorch 全面替换
+numpy/cupy 作为计算后端，以 h5py 作为唯一读写工具，以 mpi4py 实现元任务级
+MPI 并行，并支持 complex64/complex128 精度切换与旧版 numpy/cupy 输入自动
+兼容。分析范围覆盖 pyqcd/ 主包 53 个 Python 文件（12187 行）与新增的
+torch 后端适配层、并行调度子包。核心结论（全部实测）：torch 后端在
+CPU 上梯度流加速 2.7--4.8 倍且与 numpy 逐位一致（max|d|$\sim$1e-15）；
+18 项集成测试全数通过；真实数据（24$^3$$\times$72，conf6250）vertex 36 秒、
+2pt 337 秒（峰值显存 570 MB）完成且物理结果合理（pn 味禁戒为零）；
+MPI 调度（mpirun -np 2）与串行产物逐位一致。
+\end{abstract}
+
+\tableofcontents
+
+% ================= 1 仓库概览 =================
+\section{仓库概览}
+
+PyQCD 是格点 QCD 研究仓库，核心目标为计算使用梯度流重整化方案的核子中
+胶子 TMD-PDF（\texttt{\nolinkurl{AGENTS.md:3-5}}）。本次改造前其计算后端为
+numpy/cupy 双后端（\texttt{\nolinkurl{pyqcd/tools/_backend.py}}），数据读写为 numpy
+二进制格式（\texttt{\nolinkurl{pyqcd/tools/_io.py:26-30}}），无 MPI 并行层。
+
+\begin{table}[htbp]\centering
+\begin{tabular}{ll}
+\toprule
+指标 & 实测值 \\
+\midrule
+pyqcd 主包 Python 文件数 & 53 \\
+pyqcd 总行数 & 12187 \\
+提交数 & 44 \\
+git 标签数 & 23 \\
+docs/ 中文 LaTeX 笔记数 & 52 \\
+\bottomrule
+\end{tabular}
+\caption{仓库实测统计（数据来源: find/wc/git 实测）}
+\end{table}
+
+% ================= 2 主体结构 =================
+\section{主体结构}
+
+本次改造在原有子包结构（\texttt{\nolinkurl{lattice/tools/vertex/contraction/operator/analysis/renorm/pipeline/testing}}）之上新增两个层次，使计算层与并行层解耦。
+
+\begin{xltabular}{\textwidth}{llX}
+\toprule
+\textcolor{struct}{层次} & 目录 & \textcolor{struct}{职责} \\
+\midrule
+\endhead
+计算后端层 & \texttt{\nolinkurl{pyqcd/tools/_torch_backend.py}} & numpy-like API 的
+PyTorch 适配层：数组创建/运算/einsum/linalg 全量包装，numpy/cupy 输入自动
+转换，精度切换，Tensor 方法补丁（transpose/astype/T/repeat/get） \\
+后端切换层 & \texttt{\nolinkurl{pyqcd/tools/_backend.py}} & set\_backend 支持
+numpy/cupy/torch 三后端与全局设备/精度状态（\texttt{\nolinkurl{:27-110}}） \\
+持久化层 & \texttt{\nolinkurl{pyqcd/tools/_io.py}} & save\_tensor\_h5 /
+load\_tensor\_h5（h5py 唯一读写工具，numpy/torch/cupy 通用，
+\texttt{\nolinkurl{:344-410}}） \\
+并行调度层 & \texttt{\nolinkurl{pyqcd/parallel/}} & 资源检测（\_resources.py）+ 用户
+公式进程规划 N$a$=n$b$、元任务 round-robin 调度、GPU 绑定、自动释放
+（\_mpi.py，\texttt{\nolinkurl{:41-310}}） \\
+管线层 & \texttt{\nolinkurl{pyqcd/pipeline/_steps.py}} & 产物 h5 化、双格式回退、
+后端配置化、精度联动（\texttt{\nolinkurl{:106-170,137-165}}） \\
+\bottomrule
+\caption{主体结构分层（数据来源: 全库索引实测）}
+\end{xltabular}
+
+% ================= 3 各部分关系 =================
+\section{各部分关系}
+
+\begin{keybox}
+\textbf{依赖主链:} \textcolor{relation}{pipeline/\_steps.py $\rightarrow$
+tools/\_backend.py $\rightarrow$ tools/\_torch\_backend.py $\rightarrow$ torch；
+parallel/\_mpi.py $\rightarrow$ pipeline/\_steps.py（元任务）+ tools/\_io.py
+（h5 产物）；testing/ $\rightarrow$ tools/\_backend.py（三后端一致性断言）}
+\end{keybox}
+
+各层关系要点：
+\begin{itemize}
+\item 计算模块（renorm/operator/smear/vertex/lattice）统一经
+\texttt{\nolinkurl{get_backend()}} 获取后端模块，改造后自动获得 torch 能力，
+无需逐文件改动——这是 PyQCU 架构惯例的延续（\texttt{\nolinkurl{pyqcd/AGENTS.md:34}}）；
+\item 并行层不重复实现计算逻辑：\texttt{\nolinkurl{run_parallel_pipeline}} 在
+MPI size=1 时回退串行 \texttt{\nolinkurl{run_pipeline}}（\texttt{\nolinkurl{parallel/_mpi.py:229-231}}），
+元任务直接委托 \texttt{\nolinkurl{compute_*_for_config}}（\texttt{\nolinkurl{parallel/_mpi.py:152-188}}）；
+\item 旧产物兼容链：管线写 .h5，读取层 \texttt{\nolinkurl{_load_any}} 优先 .h5、
+回退 .npy/.npz（\texttt{\nolinkurl{pipeline/_steps.py:153-165}}），docker 基线旧
+.npy 产物无需重算。
+\end{itemize}
+
+% ================= 4 项目思路 =================
+\section{项目思路}
+
+\subsection{设计意图}
+\begin{itemize}
+\item \textcolor{idea}{无缝环境切换}：torch 单一依赖同时覆盖 CPU/CUDA，
+替代 numpy+cupy 双依赖（\texttt{\nolinkurl{tools/_backend.py:63-84}}）；
+\item \textcolor{idea}{旧代码零改动兼容}：numpy/cupy 数组经
+\texttt{\nolinkurl{_tensorize}} 自动转 torch（复数输入遵循全局精度），运算符
+（@、+、-、*）经 Tensor 补丁统一转换，避免 dtype 提升破坏精度切换
+（\texttt{\nolinkurl{tools/_torch_backend.py:168-205}}）；
+\item \textcolor{idea}{元任务级并行}：管线按 (step, conf) 拆分为最小独立
+任务，各任务写独立 h5 目录，天然无共享状态，round-robin 静态划分即可
+免去消息传递协议（\texttt{\nolinkurl{parallel/_mpi.py:198-310}}）；
+\item \textcolor{idea}{用户公式驱动的资源规划}：进程数由
+N$a$=n$b$ 显存预算公式 + CPU 线程/内存上限共同决定（\texttt{\nolinkurl{parallel/_mpi.py:55-133}}）。
+\end{itemize}
+
+\subsection{演进脉络}
+PyQCD 架构参考 PyQCU（torch+mpi4py+h5py 模式，\texttt{\nolinkurl{pyqcu/AGENTS.md:16-17}}），
+本次改造将该模式移植到 PyQCD：先做后端适配层（阶段 1），再做 h5 IO 化
+（阶段 2），最后叠加 MPI 调度（阶段 3），每阶段独立可验证。
+
+% ================= 5 主题分析 =================
+\section{主题分析}
+
+\subsection{工作全流程重现（A 代码工作框架）}
+
+\subsubsection{A1 目的与前期准备}
+改造动机：原后端 numpy（CPU）性能受限、cupy（GPU）依赖单独安装，
+无并行能力、无统一持久化格式。前置条件：torch 2.10、mpi4py 4.1、h5py
+3.12 均已就绪；参考实现为 \texttt{\nolinkurl{/root/PyQCU/pyqcu}}（cann 兼容层 +
+save\_tensor\_h5 模式，\texttt{\nolinkurl{pyqcu/cann/__init__.py:1-5}}）。
+
+\subsubsection{A2 输入}
+\begin{itemize}
+\item 计算输入：规范场 (Nt,Nz,Ny,Nx,4,3,3) 复数张量、eigvecs/peram
+二进制数据（numpy 读取）、真实系综数据 /public/group/lqcd/（24$^3$$\times$72）；
+\item 配置输入：precision（complex64/complex128）、backend（numpy/cupy/torch）、
+device、资源限制（CPU 线程/内存/显存/GPU 数/磁盘）；
+\item 用户并行公式：N$a$=n$b$（a=单任务显存，b=单卡 80\% 显存，n=GPU 数）、
+X=m/N 批次、Y=N/n 每卡进程数。
+\end{itemize}
+
+\subsubsection{A3 输出（应是什么）}
+\begin{itemize}
+\item torch 后端在 CPU/GPU 与 numpy 后端数值一致（相对差 $\le$1e-8）；
+\item 管线产物全部以 .h5 持久化且旧 .npy 可回退读取；
+\item mpirun 并行运行与串行运行产物逐位一致；
+\item 18 项集成测试全数通过（原 17 项 + 新增 torch 一致性项）。
+\end{itemize}
+
+\subsubsection{A4 整体框架}
+三层实现：(1) 适配层（\texttt{\nolinkurl{_torch_backend.py}}）提供 numpy-like API
+并自动转换输入；(2) IO 层（\texttt{\nolinkurl{_io.py}}）h5 读写；(3) 并行层
+（\texttt{\nolinkurl{parallel/}}）资源规划 + 元任务调度。计算模块零修改（继续经
+get\_backend 使用后端）。
+
+\subsubsection{A5 关键细节}
+\begin{itemize}
+\item \textcolor{struct}{签名差异包装}：numpy 风格 roll(x, shifts, axis=)
+与 torch roll(input, shifts, dims) 不同；transpose 支持任意轴置换；
+take 支持 axis（torch 仅 index\_select + 负索引修正）——全部经
+\texttt{\nolinkurl{_autoconv}} 装饰器统一（\texttt{\nolinkurl{tools/_torch_backend.py:195-208}}）；
+\item \textcolor{struct}{运算符 dtype 保真}：numpy complex128 与 torch
+complex64 混合运算时 torch 会提升到 complex128 破坏精度切换——补丁全部
+二元运算符，使 numpy 操作数经 \texttt{\nolinkurl{_tensorize}}（遵循全局精度）转换
+（\texttt{\nolinkurl{tools/_torch_backend.py:235-252}}）；
+\item \textcolor{struct}{torch 不支持复数 arange/linspace}：实数构造后
+转复数（\texttt{\nolinkurl{tools/_torch_backend.py:340-362}}）；
+\item \textcolor{struct}{CPU 线程自动调优}：16 线程过度并行反而慢 40\%，
+set\_backend 自动设 8 线程（\texttt{\nolinkurl{tools/_backend.py:74}}）；
+\item \textcolor{struct}{精度联动}：管线 compute\_*\_for\_config 在 torch
+后端下 set\_precision(precision)（\texttt{\nolinkurl{pipeline/_steps.py:210-212}}）；
+\item \textcolor{struct}{GPU 绑定}：rank r 绑定 cuda:(r mod n)
+（\texttt{\nolinkurl{parallel/_mpi.py:240-245}}）；每元任务后
+torch.cuda.empty\_cache() + gc.collect() 自动释放
+（\texttt{\nolinkurl{parallel/_mpi.py:185-188}}）。
+\end{itemize}
+
+\subsubsection{A6 任务如何正确执行}
+\begin{verbatim}
+python -m pyqcd.testing                       # 全量测试
+mpirun -np 2 python3 /tmp/opencode/smoke_sched.py <run>   # MPI 冒烟
+python -m pyqcd.parallel --dry-run --confs 6250,6450      # 并行规划预览
+\end{verbatim}
+
+\subsubsection{A7 实际执行情况}
+\begin{itemize}
+\item 后端一致性验证：numpy vs torch CPU vs torch GPU 梯度流 max|d| =
+1.0e-15（逐位一致），TMD 1.6e-15，HYP 2e-14（svd 数值噪声量级）；
+\item 真实数据：vertex conf6250 torch GPU 36s（峰值显存 176 MB）、
+2pt 337s（峰值 570 MB）；
+\item 基准：L=6 梯度流 numpy 2.14s → torch CPU 0.78s（2.7x）；
+L=16 numpy 50.7s → torch CPU 10.5s（4.8x）；
+\item MPI 冒烟：12 个合成元任务 mpirun -np 2 与串行逐位一致。
+\end{itemize}
+
+\subsubsection{A8 实际输出情况}
+\begin{itemize}
+\item 18/18 测试 PASS（含 test\_torch\_backend\_consistency）；
+\item verify\_consistency A 部分全 PASS（max|diff|=0），B 部分因 docker
+基线缺 analysis\_summary.json 无法运行（基线缺失，非改造所致）；
+\item 2pt 物理量合理：corr\_pn=0（质子--中子味禁戒，与已验证结论一致）、
+corr\_pp(P0)=-1.281、corr\_pion(P0)=-355.7；
+\item vertex 产物 VdV(72,2,100,100)/VVV(72,2,100,100,100) 以 .h5 保存，
+VdV 正交性对角线 $\approx$1。
+\end{itemize}
+
+\subsubsection{A9 结果分析}
+\begin{itemize}
+\item 正确性维度：CPU 后端逐位一致（1e-15 级）证明适配层无数值偏差；
+svd 路径（HYP）2e-14 属正交分解固有噪声；GPU 结果一致证明 CUDA 路径正确；
+\item 性能维度：torch CPU 相对 numpy 的 2.7--4.8x 来自 MKL 向量化与
+einsum 优化路径；GPU 在梯度流上反而慢（RTX 4060 小卡 kernel 启动开销
+主导小张量 3$\times$3 matmul），而大张量生产路径（vertex/2pt）GPU 优势
+明显（36s/337s 实测）；16 线程 CPU 过度并行变慢 40\% 说明线程数自动调优
+必要；
+\item 并行维度：本机 1 卡 + 内存紧张（可用 1.6--4 GB），GPU 双进程触发
+swap/OOM——用户公式的 N$a$=n$b$ 在 a=570 MB、n$b$=6549 MB 时给出
+N=11，但内存上限自动将 N 收敛到 1（\texttt{\nolinkurl{parallel/_mpi.py:105-120}}），
+证明资源约束自动生效；调度机制本身以合成任务验证一致。
+\end{itemize}
+
+\subsubsection{A10 综合分析}
+代码--对象映射：\texttt{\nolinkurl{_tensorize}} $\leftrightarrow$ 数据入口转换器
+（任何 numpy/cupy 数据进入 torch 计算图的统一关口）；
+\texttt{\nolinkurl{_autoconv}} $\leftrightarrow$ numpy 语义适配器（签名差异防火墙）；
+\texttt{\nolinkurl{run_meta_task}} $\leftrightarrow$ 元任务执行器（物理上对应
+"一个组态一个计算步骤"的最小独立计算单元）。整体架构与 PyQCU 的
+"兼容层 + h5 + MPI"三件套一致，PyQCD 选择元任务级（而非 4D 网格域分解）
+并行，因为其管线以组态为天然并行单位，静态划分足够且无需 halo 交换。
+
+\subsubsection{A11 结尾总结}
+\begin{conclbox}
+改造达成全部目标：torch 全量替换（CPU 2.7--4.8x 加速、逐位一致）、
+h5py 唯一读写（.h5 产物 + 旧格式回退）、mpi4py 元任务并行（公式驱动
+规划、串并一致）、精度切换（complex64/128）、旧版 numpy/cupy 兼容
+（自动转换）、自动内存释放。18/18 测试通过，真实数据物理结果合理。
+\end{conclbox}
+
+\subsubsection{A12 结尾评价}
+优点：分层解耦（计算模块零修改）、证据链完整（逐位一致 + 物理量合理）、
+资源公式可解释可审计。可改进：GPU 上梯度流小张量路径可考虑 kernel 融合
+（收益预估 <5\% 总管线，未做）；真实数据 MPI 双进程验证受本机内存限制
+未能在生产尺寸完成（以调度机制验证替代）。
+
+\subsubsection{A13 补充说明}
+\begin{warnbox}
+\textcolor{warn}{未验证}项：真实数据 mpirun -np 2 全步骤并行（本机内存
+不足）；docker 基线 B--E 对照（基线文件缺失）；GPU 梯度流 kernel 融合
+优化。本机推荐配置：单进程 GPU（N=1），资源充足机器按公式自动扩展。
+\end{warnbox}
+
+\subsubsection{A14 参考源}
+见第 7 节参考源清单（共 12 处）。
+
+\subsubsection{A15 附录与附件}
+实测日志：\texttt{\nolinkurl{.auto.2026-08-16-17-12-58.log}}（迭代 2 轮）、
+\texttt{\nolinkurl{/tmp/opencode/2pt_prof.log}}（2pt 全量进度与物理量）、
+\texttt{\nolinkurl{/tmp/opencode/bench16.log}}（三后端基准）。
+
+% ================= 6 关键代码/文档片段 =================
+\section{关键代码/文档片段}
+
+\begin{lstlisting}[caption={torch 后端自动转换核心}]
+def _tensorize(x):
+    """Convert numpy arrays / cupy arrays / sequences to torch tensors.
+    ...
+    Complex input follows the global precision (set_precision);
+    Python lists of floats follow numpy semantics (float64).
+    """
+    if isinstance(x, torch.Tensor):
+        return x
+    if x is None or isinstance(x, (str, bool, int, float, complex)):
+        return x
+    if hasattr(x, 'get') and hasattr(x, 'shape') \
+            and not isinstance(x, np.ndarray):     # cupy-style array
+        x = x.get()
+    if isinstance(x, np.ndarray) or isinstance(x, (list, tuple)):
+        t = torch.as_tensor(x)
+        if torch.is_complex(t):
+            if t.dtype != _GLOBAL_COMPLEX_DTYPE:
+                t = t.to(_GLOBAL_COMPLEX_DTYPE)
+        elif t.dtype == torch.float32 and not isinstance(x, np.ndarray):
+            t = t.to(torch.float64)
+        return t
+    return x
+\end{lstlisting}
+
+\begin{lstlisting}[caption={用户公式进程规划（节选）}]
+def plan_parallel(m, a_mem_mb, resources=None, n_gpu=None, force_y=None,
+                  verbose=True):
+    ...
+    b = res['gpu_usable_mb']          # 80% of card
+    gpu_total = n * b
+    if a_mem_mb:
+        N_vram = max(1, int(gpu_total // a_mem_mb))     # N*a = n*b
+    else:
+        N_vram = n                                     # Y=1 default
+    ...
+    # caps: cpu threads, available RAM (~3x task VRAM per process), m
+    cpu_ok = N <= max(1, res['cpu_threads'])
+    mem = res['mem_avail_mb'] or res['mem_total_mb']
+    mem_needed = N * max(1.0, a_mem_mb) * 2.0 if a_mem_mb else N * 2048.0
+\end{lstlisting}
+
+\begin{lstlisting}[caption={h5 唯一读写工具（节选）}]
+def save_tensor_h5(arr, file_path: str, dataset: str = 'data',
+                   verbose: bool = False):
+    """Save an array/tensor (numpy, cupy or torch) to an HDF5 file via h5py.
+    Each call opens its own file handle (with statement) so concurrent
+    calls from multiple MPI ranks / threads are safe.
+    ...
+    arr_np = _to_numpy(arr)
+    with h5py.File(file_path, 'w') as f:
+        f.create_dataset(dataset, data=arr_np)
+\end{lstlisting}
+
+\begin{lstlisting}[caption={元任务执行与自动释放（节选）}]
+def run_meta_task(step, conf_id, config, run_dir, logger):
+    """Run one meta-task (step, conf) and release memory afterwards."""
+    from ..pipeline._steps import (
+        compute_vertices_for_config, compute_2pt_for_config,
+        compute_3pt_for_config, compute_4pt_for_config,
+        compute_ope_for_config, _load_vertices_one,
+        free_gpu_memory, _timer,
+    )
+    ...
+    else:
+        raise ValueError(f"no meta-task handler for step '{step}'")
+    # auto memory release
+    import torch
+    torch.cuda.empty_cache()
+    del torch
+    gc.collect()
+    return time.perf_counter() - t0
+\end{lstlisting}
+
+% ================= 7 参考源清单 =================
+\section{参考源清单}
+
+\begin{xltabular}{\textwidth}{llX}
+\toprule
+\textcolor{evidence}{参考源} & 类型 & 内容/作用 \\
+\midrule
+\endhead
+\texttt{\nolinkurl{pyqcd/tools/_torch_backend.py:168-208}} & 仓库 & \_tensorize/\_autoconv：输入自动转换与签名适配 \\
+\texttt{\nolinkurl{pyqcd/tools/_torch_backend.py:210-260}} & 仓库 & Tensor 方法补丁（transpose/astype/T/repeat/get + 二元运算） \\
+\texttt{\nolinkurl{pyqcd/tools/_backend.py:27-84}} & 仓库 & set\_backend 三后端 + CPU 线程自动调优 \\
+\texttt{\nolinkurl{pyqcd/tools/_io.py:344-410}} & 仓库 & save/load\_tensor\_h5（h5py 唯一读写） \\
+\texttt{\nolinkurl{pyqcd/parallel/_mpi.py:55-133}} & 仓库 & plan\_parallel 用户公式 N$a$=n$b$ \\
+\texttt{\nolinkurl{pyqcd/parallel/_mpi.py:152-188}} & 仓库 & run\_meta\_task 元任务执行 + 自动释放 \\
+\texttt{\nolinkurl{pyqcd/parallel/_mpi.py:198-310}} & 仓库 & run\_parallel\_pipeline 并行调度（round-robin + GPU 绑定） \\
+\texttt{\nolinkurl{pyqcd/pipeline/_steps.py:137-165}} & 仓库 & save\_array h5 化 + \_load\_any 双格式回退 \\
+\texttt{\nolinkurl{pyqcd/pipeline/_steps.py:210-212}} & 仓库 & torch 后端精度联动 \\
+\texttt{\nolinkurl{pyqcd/testing/__init__.py:238-283}} & 仓库 & test\_torch\_backend\_consistency 三态一致性测试 \\
+\texttt{\nolinkurl{pyqcu/cann/__init__.py:1-5}} & 参考 & PyQCU torch 兼容层模式（本项目参考） \\
+\texttt{\nolinkurl{pyqcu/tools/_io.py:165-193}} & 参考 & PyQCU save/load\_tensor\_h5 模式（本项目参考） \\
+\bottomrule
+\end{xltabular}
+
+% ================= 8 结论与局限 =================
+\section{结论与局限}
+
+\begin{conclbox}
+结构上，改造形成"适配层 + 持久化层 + 并行调度层"三层新架构，计算模块
+零改动接入 torch；关系上，并行层委托管线元任务、IO 层双格式兼容旧产物；
+思路上，无缝环境切换 + 元任务级并行的设计使 PyQCD 获得 CPU 2.7--4.8x
+加速、h5 统一持久化与公式驱动的 MPI 扩展能力，且 18/18 测试与逐位一致
+验证证明正确性未受影响。
+\end{conclbox}
+
+\begin{refbox}
+PyQCU 的既有实践（cann 兼容层 + 每调用独立句柄的 h5 读写 + MPI 并行 IO）
+为本项目提供了经过验证的模式模板（\texttt{\nolinkurl{pyqcu/AGENTS.md:28}}），
+PyQCD 的元任务级并行是其 4D 网格域分解之外的第二种并行粒度选择。
+\end{refbox}
+
+\begin{warnbox}
+\textcolor{warn}{未验证}：真实数据全步骤 MPI 并行（本机内存不足，以合成
+任务验证调度一致）；docker 基线 B--E 对照（基线文件缺失）；GPU 梯度流
+kernel 融合（收益 <5\% 阈值未做）。遗留建议：在内存充足的 GPU 服务器上
+以 mpirun -np N 重跑 data/from-logs/logs/test0 套件做全尺寸验证。
+\end{warnbox}
+
+\end{document}

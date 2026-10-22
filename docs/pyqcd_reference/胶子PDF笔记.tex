@@ -1,0 +1,445 @@
+\documentclass[12pt,a4paper]{ctexart}
+
+% === 页面设置 ===
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+
+% === 数学和物理 ===
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{slashed}
+
+% === 图形和表格 ===
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% === 引用 ===
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+% === 其他 ===
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{multirow}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+}
+
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 胶子部分子分布函数笔记}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{格点上的胶子PDF}
+
+所谓的``质子自旋危机''引出了Jaffe-Manohar分解\cite{Jaffe1990}，它提供了如下的自旋求和规则：
+
+\begin{equation}
+J = \frac{1}{2}\Delta\Sigma + L_q + L_G + \Delta G,
+\label{eq:spin_sum}
+\end{equation}
+
+其中$\frac{1}{2}\Delta\Sigma$是夸克自旋贡献，$L_q$和$L_G$是夸克和胶子的轨道角动量，$\Delta G$是胶子自旋贡献。人们发现夸克自旋对质子自旋的贡献非常小。
+
+胶子自旋贡献$\Delta G$可以通过胶子螺旋度分布$\Delta g(x)$的一阶矩来得到：
+
+\begin{equation}
+\Delta G = \int dx\, \frac{i}{2xP^+} \int \frac{d\xi^-}{2\pi} e^{-ixP^+\xi^-} \langle PS| F^{+\alpha}_a(\xi^-) W^{ab}(\xi^-, 0) \tilde{F}^+_{\alpha,b}(0) |PS\rangle,
+\label{eq:DeltaG}
+\end{equation}
+
+其中$\xi^\pm = (\xi^0 \pm \xi^3)/\sqrt{2}$是光前坐标，$W^{ab}(\xi^-, 0)$是伴随表示中的光锥规范链。规范场张量$F^{\mu\nu}$及其对偶$\tilde{F}^{\mu\nu} = \frac{1}{2}\epsilon^{\mu\nu\rho\sigma}F_{\rho\sigma}$通过规范链连接起来，构成规范不变的算符。
+
+\subsection{蒸馏方法}
+
+蒸馏（Distillation）方法\cite{Peardon2009}通过对Jacobi涂抹算符\cite{Allton1993}进行低秩近似，提供了一种优化的夸克涂抹方案。后者通过对三维规范协变Laplace算符的格点正则化形式反复作用来实现规范协变的涂抹。这种谱滤波方法抑制了短距离涨落，同时放大了夸克场中物理上相关的长波分量。格点Laplace算符被定义为三维二阶微分算符的最简单表示：
+
+\begin{equation}
+-\nabla^2_{xy}(t) = 6\delta_{xy} - \sum_{j=1}^{3} \left[U_j(x,t)\delta_{x+\hat{j},y} + U^\dagger_j(x-\hat{j},t)\delta_{x-\hat{j},y}\right],
+\label{eq:laplacian}
+\end{equation}
+
+其中$x$和$y$对应于三维空间中的空间坐标。对于给定的时间$t$，我们可以构造并求解Laplace算符的本征值问题，得到本征值$\lambda_1, \ldots, \lambda_M$及其对应的归一化本征矢$v^{(1)}, \ldots, v^{(M)}$，其中$M = N_x \times N_y \times N_z \times N_c$。
+
+\begin{equation}
+-\nabla^2(t) v^{(i)} = \lambda_i v^{(i)}, \qquad v^{(i)} v^{(j)\dagger} = \delta_{ij}。
+\label{eq:eigenvalue}
+\end{equation}
+
+从格点Laplace算符出发，Jacobi涂抹核可以写为：
+
+\begin{equation}
+J_{\sigma,n_\sigma}(t) = \left(1 + \frac{\sigma\nabla^2(t)}{n_\sigma}\right)^{n_\sigma}, \qquad \lim_{n_\sigma \to \infty} J_{\sigma,n_\sigma}(t) = \exp(\sigma\nabla^2(t))。
+\label{eq:jacobi}
+\end{equation}
+
+这意味着更高的本征模被指数压制，表明主导贡献只来源于最小绝对值的少数几个模。因此，涂抹核可以通过构建仅限于这些低阶模的截断本征矢表示来有效近似。蒸馏技术\cite{Peardon2009}正是利用Jacobi核的最低本征模来显式构造的。具体而言，时间片$t$上的蒸馏算符定义为：
+
+\begin{equation}
+\Box_{xy}(t) = \sum_{k=1}^{N_{\text{ev}}} v^{(k)}_x(t) v^{(k)\dagger}_y(t) \equiv V(t)V^\dagger(t),
+\label{eq:distillation}
+\end{equation}
+
+其中$V(t)$是$M \times N_{\text{ev}}$的矩阵，$N_{\text{ev}}$是蒸馏空间的维数。$v^{(k)}_x$是$\nabla^2$在时间片$t$的第$k$个本征矢。蒸馏算符作用在每个夸克场上以实现涂抹。核子的涂抹湮灭算符可写为：
+
+\begin{equation}
+\begin{aligned}
+\mathcal{O}(t) &= \epsilon^{abc} (P_\pm)_\alpha (\Box u)^a_\alpha \left[ (\Box u)^b_\beta (C\gamma_5)_{\beta\rho} (\Box d)^c_\rho \right] \\
+&= \epsilon^{abc} (P_\pm)_\alpha \left[V^{(p)}_a V^{(q)}_b V^{(r)}_c (t) \right] \left[ u^{(p)}_\alpha \left( u^{(q)}_\beta (C\gamma_5)_{\beta\rho} d^{(r)}_\rho \right) \right] \left[ V^{(p)\dagger} V^{(q)\dagger} V^{(r)\dagger} (t) \right],
+\end{aligned}
+\label{eq:nucleon_op}
+\end{equation}
+
+其中$a,b,c$是颜色指标，$p,q,r$是蒸馏指标，重复的自旋指标$\alpha,\beta,\rho$被求和。在对夸克场积分后，两点关联函数变为：
+
+\begin{equation}
+\begin{aligned}
+\langle \mathcal{O}(t) \bar{\mathcal{O}}(t_0) \rangle &= (P_\pm)_{\alpha,\bar{\alpha}} (C\gamma_5)_{\beta\rho} (C\gamma_5)_{\bar{\beta}\bar{\rho}} \\
+&\quad \times \epsilon^{abc} \left[ V^{(p)}_a V^{(q)}_b V^{(r)}_c (t) \right] \\
+&\quad \times \left[ V^{(p)\dagger} V^{(q)\dagger} V^{(r)\dagger} (t) \right] M^{-1\, r,\bar{r}}_{\rho,\bar{\rho}} \left[ M^{-1\, p,\bar{p}}_{\alpha,\bar{\alpha}} M^{-1\, q,\bar{q}}_{\beta,\bar{\beta}} - M^{-1\, p,\bar{q}}_{\alpha,\bar{\beta}} M^{-1\, q,\bar{p}}_{\beta,\bar{\alpha}} \right] \\
+&\quad \times \left[ V^{(\bar{p})} V^{(\bar{q})} V^{(\bar{r})} (t_0) \right] \left[ V^{(\bar{p})\dagger}_{\bar{a}} V^{(\bar{q})\dagger}_{\bar{b}} V^{(\bar{r})\dagger}_{\bar{c}} (t_0) \right] \epsilon^{\bar{a}\bar{b}\bar{c}},
+\end{aligned}
+\label{eq:2pt_full}
+\end{equation}
+
+其中$M^{-1}$是格点Dirac算符。定义perambulator为：
+
+\begin{equation}
+\tau^{(p,\bar{p})}_{\alpha,\beta} = V^{(p)\dagger} M^{-1\, p,\bar{p}}_{\alpha,\beta} V^{(\bar{p})},
+\label{eq:perambulator}
+\end{equation}
+
+则两点关联函数为：
+
+\begin{equation}
+\begin{aligned}
+\langle \mathcal{O}(t) \bar{\mathcal{O}}(t_0) \rangle &= (P_\pm)_{\alpha,\bar{\alpha}} (C\gamma_5)_{\beta\rho} (C\gamma_5)_{\bar{\beta}\bar{\rho}} \\
+&\quad \times \epsilon^{abc} \left[ V^{(p)}_a V^{(q)}_b V^{(r)}_c (t) \right] \\
+&\quad \times \tau^{(r,\bar{r})}_{\rho,\bar{\rho}} \left( \tau^{(p,\bar{p})}_{\alpha,\bar{\alpha}} \tau^{(q,\bar{q})}_{\beta,\bar{\beta}} - \tau^{(p,\bar{q})}_{\alpha,\bar{\beta}} \tau^{(q,\bar{p})}_{\beta,\bar{\alpha}} \right) \\
+&\quad \times \left[ V^{(\bar{p})\dagger}_{\bar{a}} V^{(\bar{q})\dagger}_{\bar{b}} V^{(\bar{r})\dagger}_{\bar{c}} (t_0) \right] \epsilon^{\bar{a}\bar{b}\bar{c}}。
+\end{aligned}
+\label{eq:2pt_perambulator}
+\end{equation}
+
+理论中计算量密集的并行传播子（称为perambulator）仅依赖于规范场组态，而与插值算符的选择无关。这一关键性质使得perambulator可以针对每个规范场系综仅计算一次，之后就可以在扩展的插值算符基上高效地重复使用。这种重用带来了显著的计算节约，大幅降低了计算的总体数值成本。
+
+\subsection{场强张量}
+
+利用连接变量$U_\mu$（它与$A_\mu$场的关系为$U_\mu(n) = \exp(iaA_\mu(n))$），唯一规范不变的量是路径有序闭合环（称为Wilson圈）的迹。最简单的情形是plaquette，利用Baker-Campbell-Hausdorff公式，它可以表示为：
+
+\begin{equation}
+\begin{aligned}
+P_{\mu\nu} &= U_\mu(x) U_\nu(x+\hat{\mu}) U^\dagger_\mu(x+\hat{\nu}) U^\dagger_\nu(x) \\
+&= \exp\Big( iaA_\mu(x) + iaA_\nu(x+\hat{\mu}) - iaA_\mu(x+\hat{\nu}) - iaA_\nu(x) \\
+&\qquad -\frac{a^2}{2}[A_\mu(x), A_\nu(x+\hat{\mu})] -\frac{a^2}{2}[A_\mu(x+\hat{\nu}), A_\nu(x)] \\
+&\qquad +\frac{a^2}{2}[A_\mu(x), A_\mu(x+\hat{\nu})] +\frac{a^2}{2}[A_\mu(x), A_\nu(x)] \\
+&\qquad +\frac{a^2}{2}[A_\nu(x+\hat{\mu}), A_\mu(x+\hat{\nu})] +\frac{a^2}{2}[A_\nu(x+\hat{\mu}), A_\nu(x)] + O(a^3) \Big),
+\end{aligned}
+\label{eq:plaquette_exp}
+\end{equation}
+
+其中$A_\mu(x+\hat{\nu}) = A_\mu(x) + a\partial_\nu A_\mu(x) + O(a^2)$。利用Taylor展开，它可以表示为：
+
+\begin{equation}
+\begin{aligned}
+P_{\mu\nu} &= \exp\big( ia^2(\partial_\mu A_\nu(x) - \partial_\nu A_\mu(x) + i[A_\mu(x), A_\nu(x)]) + O(a^3) \big) \\
+&= 1 + ia^2 F_{\mu\nu}(x) + \cdots,
+\end{aligned}
+\label{eq:plaquette_expand}
+\end{equation}
+
+其中场强张量$F_{\mu\nu}(x) = -i[D_\mu(x), D_\nu(x)]$，$D_\mu(x) = \partial_\mu + iA_\mu(x)$。为减小统计涨落，取通过改变$\mu$和$\nu$的符号可以构造的四种可能plaquette的平均值。这一项通常称为clover项，场强张量可表示为：
+
+\begin{equation}
+\begin{aligned}
+Q_{\mu\nu}(x) &= P_{\mu\nu}(x) - P_{\nu-\mu}(x) + P_{-\nu\mu}(x) + P_{-\mu-\nu}, \\
+F_{\mu\nu} &= -\frac{i}{8a^2} (Q_{\mu\nu} - Q_{\nu\mu})。
+\end{aligned}
+\label{eq:clover}
+\end{equation}
+
+在Minkowski空间中，协变和逆变场强张量可写为：
+
+\begin{equation}
+F^{(M)}_{\mu\nu} =
+\begin{pmatrix}
+0   & F_{tx} & F_{ty} & F_{tz} \\
+F_{xt} & 0      & F_{xy} & F_{xz} \\
+F_{yt} & F_{yx} & 0       & F_{yz} \\
+F_{zt} & F_{zx} & F_{zy}  & 0
+\end{pmatrix},
+\qquad
+F^{\mu\nu,(M)} = g^{\mu\rho,(M)} F^{(M)}_{\rho\sigma} g^{\sigma\nu,(M)} =
+\begin{pmatrix}
+0      & -F_{tx} & -F_{ty} & -F_{tz} \\
+-F_{xt} & 0       & F_{xy}  & F_{xz} \\
+-F_{yt} & F_{yx}  & 0       & F_{yz} \\
+-F_{zt} & F_{zx}  & F_{zy}  & 0
+\end{pmatrix}。
+\label{eq:F_Minkowski}
+\end{equation}
+
+$tx$, $ty$, $xy$分量在Minkowski量和Euclidean量之间的关系可以写为：
+
+\begin{equation}
+F^{tx,(M)}F^{(M)}_{tx} = -F^{(E)}_{tx}F^{(E)}_{tx}, \qquad
+F^{xy,(M)}F^{(M)}_{xy} = F^{(E)}_{xy}F^{(E)}_{xy}。
+\label{eq:Minkowski_Euclidean}
+\end{equation}
+
+\subsection{非极化胶子算符}
+
+在基础表示下，非极化胶子PDF的矩阵元可以写为：
+
+\begin{equation}
+M_{\mu\alpha;\lambda\beta}(z,p) = \langle p| F_{\mu\alpha}(z) W[z,0] F_{\lambda\beta}(0) W[0,z] |p\rangle,
+\label{eq:matrix_element}
+\end{equation}
+
+其中$z_\mu = \{0, 0, 0, z_3\}$是胶子场之间的间隔。矩阵元可以分解为不变量振幅$M_{pp}$, $M_{pz}$, $M_{zz}$, $M_{zp}$, $M_{ppzz}$和$M_{gg}$\cite{Balitsky2020}。由于$g^{++} = g^{--} = 0$，$F^{++} = 0$，光锥胶子分布由下式得到：
+
+\begin{equation}
+g^{\alpha\beta} M_{+\alpha;\beta+}(z,p) = g^{ij} M_{+i;j+}(z,p) = -2p^2_+ M_{pp}(\nu, 0),
+\label{eq:lightcone_gluon}
+\end{equation}
+
+其中Ioffe时间$\nu = p_3 z_3$。胶子PDF由$M_{pp}$振幅确定：
+
+\begin{equation}
+-M_{pp} = \frac{1}{2} \int_{-1}^{1} dx\, e^{-ix\nu} x g(x)。
+\label{eq:Mpp_to_pdf}
+\end{equation}
+
+矩阵元$M_{ti;it}$和$M_{ij;ji}$可以组合起来提取twist-2不变振幅$M_{pp}$：
+
+\begin{equation}
+M_{ti;it} + M_{ji,ij} = 2p^2_0 M_{pp}。
+\label{eq:twist2}
+\end{equation}
+
+$M_{ti;it}$和$M_{ij;ji}$具有相同的单圈紫外反常量纲，这使得公式(\ref{eq:twist2})中的整个组合至少在单圈层次上是可乘性重整化的\cite{Balitsky2020}。
+
+插入核子中以计算矩阵元的胶子流并不通过任何夸克传播子与核子态相连接，因此这些流在很大程度上与核子部分的计算本身是解耦的。这样一来，在格点上，胶子流和核子两点关联函数可以分别计算。三点关联函数可以重写为：
+
+\begin{equation}
+C_{\text{3pt}}(z, P_z, t, t_i, t_0) = \langle (O_g(z, t_i) - \langle O_g(z, t_i) \rangle)(C^N_{\text{2pt}}(P_z, t, t_0) - \langle C^N_{\text{2pt}}(P_z, t, t_0) \rangle) \rangle,
+\label{eq:3pt_disconnected}
+\end{equation}
+
+其中$\langle\cdots\rangle$表示系综平均。在基础表示下，由公式(\ref{eq:twist2})中矩阵元定义的胶子流可以写为：
+
+\begin{equation}
+\begin{aligned}
+O^{(0)}_g(z, t_i) &= \left[ F^{0i}(z, t_i) W[z,0] F_{0i}(0, t_i) W[0,z] + 2F^{12}(z, t_i) W[z,0] F_{12}(0, t_i) W[0,z] \right]_{\text{Mink}} \\
+&= \left[ -F^{0i}(z, t_i) W[z,0] F_{0i}(0, t_i) W[0,z] + 2F^{12}(z, t_i) W[z,0] F_{12}(0, t_i) W[0,z] \right]_{\text{Eucl}}。
+\end{aligned}
+\label{eq:Og0}
+\end{equation}
+
+$F^{0i}(z, t_i) W[z,0] F_{i0}(0, t_i) W[0,z]$项中的``$-$''号来源于公式(\ref{eq:Minkowski_Euclidean})中Minkowski量和Euclidean量之间的关系。此外，为研究$M_{ti;it}$的贡献，我们还在Euclidean空间中选择了另一个算符：
+
+\begin{equation}
+O^{(1)}_g(z, t_i) = F^{0i}(z, t_i) W[z,0] F_{0i}(0, t_i) W[0,z]。
+\label{eq:Og1}
+\end{equation}
+
+两点函数为：
+
+\begin{equation}
+C^N_{\text{2pt}}(P_z, t, t_0) = P_{\alpha\beta} \sum_{\vec{x},\vec{y}} e^{-iP_z z} \langle 0| N_\alpha(\vec{x}, t) \bar{N}_\beta(\vec{y}, t_0) |0\rangle,
+\label{eq:2pt_projection}
+\end{equation}
+
+其中投影算符$P = (1 \pm \gamma_0)/2$。
+
+本工作使用的规范组态由CLQCD合作组生成，采用$N_f = 2+1$ Wilson Clover夸克作用量。关于系综的详细信息列于表\ref{tab:ensembles}中。我们考虑了使用十步超立方涂抹（HYP5）的组态，并与使用Wilson flow、flow时间$\tau = 1.4$的结果进行了比较。
+
+\begin{table}[H]
+\centering
+\caption{本工作使用的系综参数。}
+\label{tab:ensembles}
+\begin{tabular}{cccccc}
+\toprule
+ID & $a$ (fm) & $\beta$ & $m_\pi$ & $L^3 \times N_t$ & $N_{\text{conf}}$ \\
+\midrule
+C11P29S & 0.105 & 6.20 & 290 & $24^3 \times 72$ & 317 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+蒸馏夸克涂抹方法被用于计算夸克传播子。对于更高的动量，在蒸馏本征矢上添加一个相位以保持平移不变性，这对于投影到确定动量的态上至关重要\cite{Egerer2021}。带相位的蒸馏本征矢和动量涂抹相位因子选择为：
+
+\begin{equation}
+\tilde{v}^k_x(\vec{z}, t) = e^{i\vec{\zeta}\cdot\vec{z}} v^k_x(\vec{z}, t), \qquad \vec{\zeta} = 2 \times \frac{2\pi}{L} \hat{z},
+\label{eq:phased_distillation}
+\end{equation}
+
+这给出了最高可达$P = 6 \times \frac{2\pi}{aL}$的boost所需的动量涂抹。
+
+图2和图3（见原文）展示了使用公式(\ref{eq:Og0})和(\ref{eq:Og1})中定义的不同胶子流算符以及$P_z = (0,0,2)$时，三点函数与两点函数的比值。图2和图3中的组态施加了HYP5涂抹。而图4和图5中施加了flow时间$\tau = 1.4$的Wilson3涂抹。
+
+\subsection{胶子螺旋度算符}
+
+在基础表示下，胶子螺旋度矩阵元可以写为：
+
+\begin{equation}
+\tilde{m}_{\mu\alpha;\lambda\beta}(z,p) = \langle ps| F_{\mu\alpha}(z) W[z,0] \tilde{F}_{\lambda\beta}(0) W[0,z] |ps\rangle,
+\label{eq:helicity_matrix}
+\end{equation}
+
+其中$z_\mu = \{0, 0, 0, z_3\}$是胶子场之间的间隔。矩阵元的$z$-奇组合\cite{Egerer2022}定义为：
+
+\begin{equation}
+\tilde{M}_{\mu\alpha;\lambda\beta}(z,p) = \tilde{m}_{\mu\alpha;\lambda\beta}(z,p) - \tilde{m}_{\mu\alpha;\lambda\beta}(-z,p)。
+\label{eq:z_odd}
+\end{equation}
+
+通常的光锥极化胶子分布$\Delta g$从矩阵元$g^{\alpha\beta} \tilde{M}_{+\alpha;\beta+}(z,p)$中得到，它可以简化为$g^{ij} \tilde{M}_{+i;j+}(z,p) = \tilde{M}_{+i;+i}(z,p)$，因为$g^{++} = g^{--} = 0$，$F^{++} = 0$。矩阵元
+
+\begin{equation}
+\tilde{M}_{+i;+i} = \tilde{M}_{0i;0i} + \tilde{M}_{3i;3i} + \tilde{M}_{0i;3i} + \tilde{M}_{3i;0i}。
+\label{eq:M_plus}
+\end{equation}
+
+极化胶子PDF可以通过Ioffe-时间分布来确定\cite{Egerer2022}：
+
+\begin{equation}
+\Delta G = \int_0^\infty d\nu\, \tilde{I}_p(\nu) = \int_0^1 dx\, \Delta g(x), \qquad -i\tilde{I}_p(\nu) \equiv \tilde{M}_{(ps)}^{(+)}(\nu) - \nu \tilde{M}_{(pp)}(\nu),
+\label{eq:DeltaG_Ioffe}
+\end{equation}
+
+其中Ioffe时间$\nu = p_3 z_3$。矩阵元$\tilde{M}_{0i;0i}$和$\tilde{M}_{ij;ij}$的组合可以用不变量振幅表示为：
+
+\begin{equation}
+\begin{aligned}
+\tilde{M}_{0i;0i}(z,p) + \tilde{M}_{ij;ij}(z,p) &= -2p_3 p_0 \tilde{M}_{(ps)}^{(+)}(\nu, z^2) + 2p_3^0 z \tilde{M}_{(pp)}(\nu, z^2) \\
+&= -2p_3 p_0 \left[ \tilde{M}_{(ps)}^{(+)}(\nu, z^2) - \nu \tilde{M}_{(pp)}(\nu, z^2) + \frac{m^2}{p_3^2} \nu \tilde{M}_{(pp)}(\nu, z^2) \right]。
+\end{aligned}
+\label{eq:helicity_decomp}
+\end{equation}
+
+这个组合在大$p_3$时正比于公式(\ref{eq:DeltaG_Ioffe})中所需的振幅$\tilde{M}_{(ps)}^{(+)}(\nu) - \nu \tilde{M}_{(pp)}(\nu)$。
+
+为提取胶子螺旋度分布，我们计算组合$\tilde{M}_{0i;0i}(z,p) + \tilde{M}_{ij;ij}(z,p)$。胶子流算符为：
+
+\begin{equation}
+\begin{aligned}
+O^{(0)}_g(z, t_i) &= \Big\{ \{F^{0i}(z,t_i)W[z,0]\tilde{F}_{0i}(0,t_i)W[0,z] + F^{ij}(z,t_i)W[z,0]\tilde{F}_{ij}(0,t_i)W[0,z]\} \\
+&\qquad - \{ (z \leftrightarrow -z) \} \Big\}_{\text{Mink}} \\
+&= -\Big\{ \{F^{01}(z,t_i)W[z,0]F^{23}(0,t_i)W[0,z] - F^{02}(z,t_i)W[z,0]F^{13}(0,t_i)W[0,z] \\
+&\qquad + 2F^{12}(z,t_i)W[z,0]F^{03}(0,t_i)W[0,z]\} - \{ (z \leftrightarrow -z) \} \Big\}_{\text{Eucl}},
+\end{aligned}
+\label{eq:helicity_operator}
+\end{equation}
+
+其中$\tilde{F}^{\mu\nu} = \frac{1}{2}\epsilon^{\mu\nu\rho\sigma}F_{\rho\sigma}$，$\epsilon^{0123} = 1$。与非极化情形类似，我们在Euclidean空间中定义了另一个胶子流算符：
+
+\begin{equation}
+\begin{aligned}
+O^{(1)}_g(z, t_i) &= \{F^{0i}(z,t_i)W[z,0]\tilde{F}_{0i}(0,t_i)W[0,z]\} - \{ (z \leftrightarrow -z) \} \\
+&= \{F^{01}(z,t_i)W[z,0]F^{23}(0,t_i)W[0,z] + F^{02}(z,t_i)W[z,0]F^{13}(0,t_i)W[0,z]\} - \{ (z \leftrightarrow -z) \}。
+\end{aligned}
+\label{eq:helicity_operator2}
+\end{equation}
+
+两点函数为：
+
+\begin{equation}
+C^N_{\text{2pt}}(P_z, t, t_0) = P_{\alpha\beta} \sum_{\vec{x},\vec{y}} e^{-iP_z z} \langle 0| N_\alpha(\vec{x}, t) \bar{N}_\beta(\vec{y}, t_0) |0\rangle,
+\label{eq:2pt_helicity}
+\end{equation}
+
+对于非极化两点函数，投影算符$P = (1 \pm \gamma_0)/2$；对于螺旋度情形，Euclidean空间中的投影算符为$P = i\gamma_3\gamma_5(1 \pm \gamma_0)/2$。
+
+图6和图7（见原文）展示了使用公式(\ref{eq:helicity_operator})和(\ref{eq:helicity_operator2})中定义的不同胶子流算符以及$P_z = (0,0,2)$时，三点函数与两点函数的比值。图6和图7中的组态施加了HYP5涂抹。而图8和图9中施加了flow时间$\tau = 1.4$的Wilson3涂抹。
+
+\section{数值结果讨论}
+
+\subsection{非极化胶子关联函数}
+
+在图2--5（见原文）中，我们展示了使用不同胶子流算符和不同涂抹方案（HYP5和Wilson3）时，非极化三点函数与两点函数比值的结果。这些图涵盖了$P_z = (0,0,2)$、$z = 2$到$z = 7$以及不同的源-汇间隔$t_{\text{sep}}$。
+
+从这些结果中我们可以观察到：
+
+\begin{enumerate}
+    \item 对于较小的$z$值，不同$t_{\text{sep}}$的比值表现出较好的一致性，这表明基态饱和程度较高。
+    \item 随着$z$的增大，统计噪声显著增加，但中心值仍然显示了清晰的信号。
+    \item HYP5涂抹和Wilson3涂抹给出了定性一致的结果，但HYP5涂抹在某些情况下表现出更好的统计精度。
+    \item 两种胶子流算符$O^{(0)}_g$和$O^{(1)}_g$的结果存在差异，这反映了不同振幅组合的贡献。
+\end{enumerate}
+
+\subsection{螺旋度胶子关联函数}
+
+图6--9（见原文）展示了螺旋度胶子三点函数与两点函数比值的结果。与非极化情形相比，螺旋度信号通常更弱，统计涨落更大。这主要是因为螺旋度分布涉及更复杂的算符结构，且信号本身在数值上较小。尽管如此，对于中等$z$值和较大的$t_{\text{sep}}$，我们仍然可以观察到清晰的信号。
+
+值得注意的一点是，螺旋度关联函数的$z$-奇组合消除了某些系统误差，这有助于提取物理的螺旋度分布。
+
+\subsection{计算方法总结}
+
+本工作涉及的主要计算步骤和关键技术包括：
+
+\begin{enumerate}
+    \item \textbf{蒸馏方法：}使用Laplace算符的最低$N_{\text{ev}} = 100$个本征模进行夸克场涂抹，有效抑制了紫外涨落并放大了物理的长波信号。
+
+    \item \textbf{动量涂抹：}通过在蒸馏本征矢上添加依赖于动量的相位因子，实现了对高动量核子态的投影。
+
+    \item \textbf{规范场张量的格点离散化：}采用clover项构造场强张量$F_{\mu\nu}$，通过平均四种可能的plaquette构型来减小统计涨落。
+
+    \item \textbf{非连通图的处理：}胶子流与核子之间没有夸克线连接，三点关联函数通过计算非连通插入图来获得，这要求对胶子流和核子两点函数分别进行真空减除。
+
+    \item \textbf{非微扰重整化：}胶子算符包含线性发散、对数紫外发散以及对数红外发散，需要通过适当的重整化方案（如混合方案或自重整化方案）来处理。
+
+    \item \textbf{微扰匹配：}从格点上的准PDF到物理的光锥PDF需要通过LaMET匹配关系，在微扰QCD框架下进行计算。
+\end{enumerate}
+
+\section{总结与展望}
+
+本笔记系统地总结了格点QCD中胶子部分子分布函数计算的理论框架和数值方法。主要内容包括：
+
+\begin{itemize}
+    \item 从Jaffe-Manohar自旋求和规则出发，介绍了胶子螺旋度分布$\Delta g(x)$的物理意义和定义。
+    \item 详细阐述了蒸馏方法的基本原理、数学构造及其在核子关联函数计算中的应用。
+    \item 系统介绍了格点上规范场张量的定义和计算方法，包括clover项和Wilson圈的构造。
+    \item 分别讨论了非极化和螺旋度胶子PDF的矩阵元分解、算符构造以及Minkowski空间与Euclidean空间之间的转换关系。
+    \item 展示了初步的数值结果，包括不同涂抹方案和不同算符选择下的三点/两点关联函数比值。
+\end{itemize}
+
+这些技术和方法为从格点QCD第一性原理计算胶子PDF提供了坚实的基础。未来工作中，进一步的改进方向包括：（1）提高统计精度以压制大动量下的噪声；（2）系统研究连续极限外推和无穷大动量外推；（3）纳入更轻的$\pi$介子质量以控制手征外推；（4）发展更精确的重整化和匹配方案。
+
+\begin{thebibliography}{99}
+
+\bibitem{Jaffe1990} R.~L.~Jaffe and A.~Manohar, Nucl.\ Phys.\ B \textbf{337}, 509 (1990).
+
+\bibitem{Peardon2009} M.~Peardon, J.~Bulava, J.~Foley, C.~Morningstar, J.~Dudek, R.~G.~Edwards, B.~Joo, H.-W.~Lin, D.~G.~Richards, and K.~J.~Juge (Hadron Spectrum), Phys.\ Rev.\ D \textbf{80}, 054506 (2009), arXiv:0905.2160.
+
+\bibitem{Allton1993} C.~R.~Allton \textit{et al.} (UKQCD), Phys.\ Rev.\ D \textbf{47}, 5128 (1993), arXiv:hep-lat/9303009.
+
+\bibitem{Balitsky2020} I.~Balitsky, W.~Morris, and A.~Radyushkin, Phys.\ Lett.\ B \textbf{808}, 135621 (2020), arXiv:1910.13963.
+
+\bibitem{Egerer2021} C.~Egerer, R.~G.~Edwards, K.~Orginos, and D.~G.~Richards, Phys.\ Rev.\ D \textbf{103}, 034502 (2021), arXiv:2009.10691.
+
+\bibitem{Egerer2022} C.~Egerer \textit{et al.} (HadStruc Collaboration), Phys.\ Rev.\ D \textbf{106}, 094511 (2022), \url{https://link.aps.org/doi/10.1103/PhysRevD.106.094511}.
+
+\bibitem{Egerer2022b} C.~Egerer \textit{et al.} (HadStruc), Phys.\ Rev.\ D \textbf{106}, 094511 (2022), arXiv:2207.08733.
+
+\end{thebibliography}
+
+\end{document}

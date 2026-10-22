@@ -1,0 +1,567 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption,multirow}
+\usepackage{hyperref,xcolor,enumitem,mathtools}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的外推：\\
+大$\lambda$外推、无穷大动量外推与连续极限外推}
+\author{基于本库全部相关文献与教材的综合解析}
+\date{\today}
+\newcommand{\fm}{\,\mathrm{fm}}
+\newcommand{\GeV}{\,\mathrm{GeV}}
+\newcommand{\MeV}{\,\mathrm{MeV}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+格点QCD计算的一个核心特征是其结果以无量纲数（$a \times$物理量）的形式给出，且物理参数（格距$a$、夸克质量$m_q$、强子动量$P_z$、体积$L$）均取有限值。将这些有限参数下的结果外推到物理极限——$a\to 0$（连续极限）、$m_q\to m_q^{\text{phys}}$（手征极限/物理点）、$P_z\to\infty$（无穷大动量极限）、$L\to\infty$（无穷大体积极限）——是整个方法论中与格点数据的生成同等重要的环节。在LaMET框架下的部分子物理计算中，还有一类特有的外推：\textbf{大$\lambda$外推}（$\lambda = zP_z$为坐标空间的Ioffe-时间型变量）——将有限$z$范围内的重整化矩阵元延拓到远距离以压制Fourier变换的截断效应。
+
+本文基于本库中的核心教材（Gattringer与Lang的\textit{Quantum Chromodynamics on the Lattice}——第3.5、6.4.3节为标度设定和外推的标准参考；Gupta的\textit{Introduction to Lattice QCD}——第16节；Peskin与Schroeder的\textit{An Introduction to Quantum Field Theory}——第12、18章对Callan--Symanzik方程和重整化群的推导）以及约30篇研究论文，从以下五个层次系统解析格点QCD中的三类外推：
+
+\textbf{第一层——格点中的限制与外推概览（§2）：}
+系统阐述格点QCD为何天然地需要外推——有限$a$、有限体积$V$、有限动量$P_z$、非物理的$m_\pi$，以及有限$z$范围（在LaMET计算中）。将外推分类为五个独立维度：连续极限（$a\to 0$）、体积极限（$V\to\infty$）、手征极限（$m_\pi\to m_\pi^{\text{phys}}$）、无穷大动量极限（$P_z\to\infty$）、长程坐标外推（$\lambda = zP_z \to \infty$）。
+
+\textbf{第二层——连续极限外推（$a\to 0$）（§3）：}
+从Gattringer与Lang（§3.5.4）的``真实连续极限''讨论出发：$a$如何随$\beta = 6/g_0^2$的增大而减小（渐近自由）、在保持物理体积不变的约束下外推的步骤、以及至少三个格距间距的最小要求。详述$\mathcal{O}(a)$和$\mathcal{O}(a^2)$离散化误差对Clover/Staggered费米子（$\mathcal{O}(a^2)$）与Wilson费米子（$\mathcal{O}(a)$）的区分，以及不同改进级别对外推精度的影响。
+
+\textbf{第三层——大$\lambda$外推（$\lambda = zP_z \to$ 远距离）（§4）：}
+这是LaMET/准PDF计算中独有的外推类型。在坐标空间中，重整化后的矩阵元$h_R(z,P_z)$仅在有限$z$范围内（$|z| \lesssim L/2$）有可靠的格点数据。但动量空间的准PDF需要全$z$范围的Fourier变换——大$z$的截断（数据缺失）将导致准PDF中的Gibbs振荡和非物理摆动。大$\lambda$外推通过以下方式解决此问题：利用解析形式的拟合函数$h_R(z) \sim z^{-d_1/d_2}e^{-z/\lambda_0}$（从twist展开和紫外衰减的物理约束推导），将矩阵元从$z\sim 0.6\text{--}0.8$~fm的数据区域外推到$|z| \to \infty$。详述LPC和CLQCD合作组使用的外推拟合形式、$\lambda_L$截断参数的选择、以及不同拟合区间（$z$范围）对系统误差的估计。讨论derivative方法作为替代的Fourier变换策略——通过对关联函数取$z$导数来减轻大$z$的不确定性。
+
+\textbf{第四层——无穷大动量外推（$P_z\to\infty$）（§5）：}
+在LaMET框架中，准PDF $\tilde q(x,P_z)$仅在$P_z\to\infty$极限下才等价于光锥PDF $q(x,\mu)$。有限$P_z$导致两类系统误差：(a) 幂次修正$\sim \Lambda_{\text{QCD}}^2/[x^2(1-x)P_z^2]$——在小$x$和大$x$两端被增强，在中等$x$区域（$x\sim 0.3\text{--}0.6$）较温和；(b) 匹配核中的大对数$\ln(\mu^2/(2xP_z)^2)$——通过RGR重求和系统处理。外推形式通常使用$f(x,P_z) = f_0(x) + c(x)/P_z^2 + d(x)/P_z^4 + \cdots$——在至少3个$P_z$值下的数据外推到$1/P_z^2\to 0$。以CLQCD/LPC合作组的胶子PDF连续极限计算和LPC合作组的核子横向性PDF计算为例，讨论仅用单$P_z$和用多个$P_z$外推的系统误差差异。
+
+\textbf{第五层——联合外推（多维度同时外推）（§6）：}
+实际的格点PDF计算通常在单计算中同时依赖$a$、$1/P_z$和$m_\pi$三个参数。将这些``裸''结果外推到物理极限的最稳健方式是\textbf{联合（simultaneous）外推}——即在一个统一的拟合公式中同时处理所有维度的外推。以横向性PDF的联合外推公式\cite{NucleonTransversity2024}为例：
+\begin{equation*}
+h(x, P_z, a, m_\pi) = h_0(x) + a^2 F(x) + \frac{D(x)}{P_z^2} + g_0 m_\pi^2 \ln\frac{m_\pi^2}{\mu_0^2} + \cdots
+\end{equation*}
+以及CLQCD/LPC胶子PDF的外推形式\cite{Chen2025gluon}：
+\begin{equation*}
+xg(x, P_z, a) = xg_0(x) + a^2 f(x) + a^2 P_z^2 h(x) + \frac{d(x)}{P_z^2}.
+\end{equation*}
+讨论各项的物理来源、$a^2 P_z^2$项的必要性（动量依赖的离散化误差）、以及使用不同格距/动量/质量组合的系综时应遵循的策略。最后以横向性PDF \cite{NucleonTransversity2024}的六系综联合外推和胶子PDF \cite{Chen2025gluon}的三格距联合外推为实例，展示完整的联合外推从数据到物理结果的完整流程。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==========================================================================
+\section{引言：格点QCD中为何必需外推？}
+%==========================================================================
+
+\subsection{格点计算中的五项有限性约束}
+
+格点QCD在以下五个维度上以\textbf{有限参数}运行~\cite{GattringerLang2010,Gupta1997intro}，物理结果仅在每一项的极限被\textbf{外推恢复}后才能与实验比较：
+
+\begin{table}[H]
+\centering
+\caption{格点QCD外推的五个独立维度}
+\label{tab:five_extrap}
+\begin{tabular}{p{2cm}p{3.5cm}p{3cm}p{4cm}}
+\toprule
+\textbf{外推类型} & \textbf{有限参数} & \textbf{目标极限} & \textbf{物理来源} \\
+\midrule
+连续极限 & 格距 $a \sim 0.03\text{--}0.12\fm$ & $a \to 0$ & 格点离散化误差 \\
+体积极限 & 空间范围 $L \sim 2\text{--}6\fm$ & $L \to \infty$ & 有限体积效应 $\sim e^{-m_\pi L}$ \\
+手征极限 & $\pi$ 质量 $m_\pi \sim 200\text{--}700\MeV$ & $m_\pi \to 135\MeV$ & 非物理的夸克质量 \\
+无穷大动量 & 核子动量 $P_z \sim 1.5\text{--}3\GeV$ & $P_z \to \infty$ & LaMET 幂次修正 \\
+大$\lambda$ & Ioffe 变量 $\lambda = zP_z$ & $\lambda \to \infty$ & Fourier 变换截断 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{LaMET计算中的特殊需求：}在准PDF和准TMD-PDF的计算中，上述五项有限性同时作用——某个格点数据集在特定的$(a, L, m_\pi, P_z)$取值处被测量，且仅在有限$z$范围（$|z| \lesssim L/2$）内有可靠信号。将这样一个有限的``数据点''外推到$(a\to0, V\to\infty, m_\pi\to m_\pi^{\text{phys}}, P_z\to\infty, z\to\infty)$的物理极限——这是格点部分子物理中\textbf{最核心、也最具挑战性的系统误差控制环节}。
+
+\subsection{本库中的核心相关文献}
+
+\begin{table}[H]
+\centering
+\caption{本库中外推相关的核心文献分类}
+\label{tab:ext_papers}
+\small
+\begin{tabular}{lp{9cm}}
+\toprule
+类别 & 关键文献 \\
+\midrule
+\textbf{教材（外推基础）} &
+Gattringer \& Lang: §3.5（标度设定与连续极限）、§3.5.4（真实连续极限）、§6.4.3（三折外推框架）；Gupta: §16（标度设定）\\
+\textbf{连续极限实例} &
+\texttt{Unpolarized gluon PDF...continuum limit.pdf}~\cite{Chen2025gluon}（三格距+联合外推）；
+\texttt{Nucleon Transversity Distribution...Continuum and Physical Mass Limit...pdf}~\cite{NucleonTransversity2024}（六系综联合外推）；
+\texttt{Physical-Continuum Limit of the Nucleon Gluon Parton Distribution...pdf}（物理-连续极限）；
+\texttt{Quark masses and low energy constants in the continuum...pdf}（Tadpole Clover 连续极限）\\
+\textbf{大$\lambda$外推} &
+\texttt{First Self-Renormalized Gluon PDF...Continuum Limit.pdf}~\cite{FirstSelfRenormGluon2024}（自重整化+大$\lambda$外推+零流时间外推）；
+\texttt{A Hybrid Renormalization Scheme...pdf}~\cite{Ji2021hybrid}（混合方案中的大$z$处理）；
+\texttt{Leading Power Accuracy...pdf}~\cite{Zhang2023leadingPower}（领阶幂次精度与重整子）\\
+\textbf{无穷大动量外推} &
+\texttt{Resumming Quark's Longitudinal Momentum Logarithms...pdf}~\cite{Su2023RGR}（RGR重求和与$1/P_z^2$修正）；
+\texttt{Factorization Theorem Relating Euclidean and Light-Cone...pdf}~\cite{Izubuchi2018}（LaMET因子化定理）；
+\texttt{Unpolarized isovector quark distribution function...pdf}（$P_z$依赖性的系统分析）\\
+\textbf{手征外推} &
+Gattringer \& Lang: §6.4.3（Eq.(6.74)：核子质量$M_N = c_0 + c_2 M_\pi^2 + c_3 M_\pi^3 + c_4 M_\pi^4 \ln M_\pi$）；
+\texttt{Quark masses and low energy constants...pdf}（CLS系综手征外推）\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%==========================================================================
+\section{格点QCD中所有外推维度的统一概览}
+%==========================================================================
+
+\subsection{``三折''外推：Gattringer与Lang的经典框架}
+
+Gattringer与Lang在§6.4.3中给出了格点强子谱学中外推的经典``三重困境''~\cite{GattringerLang2010}：
+
+\begin{center}
+\fbox{\begin{minipage}{0.92\textwidth}
+\small
+\textbf{格点数据分析的的三重核心外推（Gattringer \& Lang, §6.4.3）:}
+
+\medskip
+\quad (i) \textbf{有限体积效应与无穷大体积极限} $V \to \infty$。
+效应为 $\sim e^{-m_\pi L}$（由环绕空间环面的$\pi$介子交换引起）。经验规则：$m_\pi L > 4$ 时有限体积效应可忽略。
+
+\quad (ii) \textbf{连续极限中的标度性} $a \to 0$。
+质量获得$a$依赖的修正：$M(a) = M_{\text{phys}}(1 + \mathcal{O}(a^\alpha))$。不同作用量的$\alpha$取值不同（$\alpha=1$对Wilson费米子，$\alpha=2$对Clover/Staggered等改进费米子）。
+
+\quad (iii) \textbf{手征外推} $m_q \to 0$（或 $m_\pi \to m_\pi^{\text{phys}}$）。
+对于非手征费米子需外推到$\kappa_c$。手征微扰论（ChPT）提供外推公式：例如核子质量的$M_N = c_0 + c_2 M_\pi^2 + c_3 M_\pi^3 + c_4 M_\pi^4 \ln M_\pi + \mathcal{O}(M_\pi^4)$~\cite{GattringerLang2010}。
+\end{minipage}}
+\end{center}
+
+\textbf{对LaMET的延拓：}在LaMEM/准PDF计算中，这一经典框架被延拓为\textbf{五维外推}——除上述三维外，还需无穷大动量外推（$P_z\to\infty$）和大$\lambda$外推（$zP_z\to\infty$）。这五维的外推往往不是独立进行的，而是在\textbf{一个联合拟合}中同时处理——这是§6的核心主题。
+
+\subsection{标度设定：外推的先决条件}
+
+在任何外推之前，必须确定格距$a$——即\textbf{标度设定}（scale setting）~\cite{GattringerLang2010}。标准方法基于Sommer参数$r_0$（由静态夸克势的力条件$F(r_0) r_0^2 = 1.65$定义，$r_0 \simeq 0.5$~fm）：
+
+\begin{equation}
+a = \frac{r_0}{r_0/a}, \qquad \frac{r_0}{a} = \sqrt{\frac{1.65 + B}{\sigma a^2}},
+\label{eq:scale_setting}
+\end{equation}
+其中$B$和$\sigma a^2$从Wilson圈的数值数据中拟合得到。其他标度方法包括使用$\Omega^-$重子质量、$f_\pi$衰变常数等。不同的标度方法可能产生$\sim 1\text{--}2\%$的系统差异。
+
+%==========================================================================
+\section{连续极限外推：$a \to 0$}
+%==========================================================================
+
+\subsection{真实连续极限：热力学极限$\to$连续极限的顺序}
+
+Gattringer与Lang在§3.5.4给出了从格点数据恢复真实连续极限的严格程序~\cite{GattringerLang2010}：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{热力学极限（$N, N_T \to \infty$）：}在固定格距$a$处，先取空间和时间的格点数趋于无穷——确保系统在有限温度/体积效应移除后的体行为。
+    \item \textbf{连续极限（$\beta \to \infty$，即 $a \to 0$）：}在一组固定物理体积（$L = aN, T = aN_T$不变）下，逐步减小$a$。
+\end{enumerate}
+
+\textbf{数值实践中的简化：}由于在数值计算中先做热力学极限再做连续极限是不现实的，实际做法是\textbf{保持$L = aN$近似不变}（即为了$a$的减小而增大$N$），在3--4个$a$值上进行计算，然后直接对$a^2$（或$a$）做外推。$L \gtrsim 3$~fm通常已足够。
+
+\subsection{离散化误差的阶数与外推形式}
+
+不同的费米子作用量和规范作用量具有不同阶数的离散化误差，这直接决定了外推形式中$a$的幂次：
+
+\begin{table}[H]
+\centering
+\caption{不同作用量方案的离散化误差阶数}
+\label{tab:disc_errors}
+\begin{tabular}{lcc}
+\toprule
+作用量方案 & 离散化误差阶 & 外推变量 \\
+\midrule
+Wilson费米子 + Wilson规范 & $\mathcal{O}(a)$ & $a$ \\
+Clover费米子（$c_{\text{sw}}$ 非微扰确定） & $\mathcal{O}(a^2)$（经改进） & $a^2$ \\
+Staggered费米子 & $\mathcal{O}(a^2)$（天然） & $a^2$ \\
+Twisted Mass（最大扭曲） & $\mathcal{O}(a^2)$（自动改进） & $a^2$ \\
+HISQ & $\mathcal{O}(\alpha_s a^2, a^4)$ & $a^2$ \\
+Domain-Wall/Overlap & $\mathcal{O}(a^2)$（$m_{\text{res}}\to 0$时） & $a^2$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{外推的一般形式：}
+
+对于$\mathcal{O}(a^2)$改进后的作用量，物理观测量$O$在有限$a$处的形式为：
+\begin{equation}
+O(a) = O_0 + c_1 a^2 + c_2 a^4 + \cdots
+\label{eq:a2_extrapolation}
+\end{equation}
+在仅有2--3个$a$值的实际计算中，仅保留$a^2$项。$a^4$及更高阶项被忽略（或作为系统误差估计）。
+
+\subsection{LaMET中连续极限外推的特殊性：动量依赖的离散化误差}
+
+在LaMEM/准PDF计算中，离散化误差不仅与$a$有关，还与强子动量$P_z$通过$aP_z$的组合耦合——产生\textbf{动量依赖的离散化误差}。这一特性在胶子PDF的联合外推中尤为显著~\cite{Chen2025gluon}：
+
+\begin{equation}
+xg(x, P_z, a) = xg_0(x) + a^2 f(x) + a^2 P_z^2 h(x) + \frac{d(x)}{P_z^2},
+\label{eq:gluon_joint}
+\end{equation}
+其中$a^2 P_z^2 h(x)$项反映了格点离散化（$\sim a^2$）与高动量（$\sim P_z^2$）之间的耦合效应——在高$P_z$和较大$a$处，离散化误差因$aP_z$的增大而被放大。这一项在仅有$a$或仅有$P_z$外推时可能被忽略，但在联合外推中必须被纳入。
+
+\subsection{不同格距间距数的外推质量}
+
+外推质量对格距点数高度敏感：
+
+\begin{itemize}[nosep]
+    \item \textbf{2个$a$值}：仅能拟合$a^2$线性项——无法检验$a^4$非线性修正的大小。外推结果对两个数据点的精确值高度敏感。
+    \item \textbf{3个$a$值}：可以拟合$a^2$线性项并估计$a^4$非线性——是当前实际计算的最低可接受标准。
+    \item \textbf{4+个$a$值}：可同时拟合$a^2$和$a^4$项——显著提高外推的可靠性。
+\end{itemize}
+
+\textbf{本库中的实例~\cite{Chen2025gluon}：}CLQCD/LPC合作组在三个格距（$a = 0.0775, 0.0897, 0.105$~fm）上进行联合外推——$a^2$区间覆盖适中，允许可靠的线性外推。
+
+%==========================================================================
+\section{大$\lambda$外推：$\lambda = zP_z$的远距离延拓}
+%==========================================================================
+
+\subsection{问题的起源：从有限$z$范围到全$z$ Fourier变换}
+
+在LaMET计算中，坐标空间中的重整化矩阵元$h_R(z, P_z)$仅在有限的$z$范围内可用——格点上$|z| \lesssim L/2$，而实际有用信号的$z$范围通常更小（$|z| \lesssim 0.8\text{--}1.0$~fm），因为大$z$处的信噪比指数衰减。
+
+然而，准PDF的定义需要\textbf{全$z$范围}（$-\infty < z < \infty$）的Fourier变换：
+\begin{equation}
+\tilde{q}(x, P_z) = P_z \int_{-\infty}^{\infty} \frac{dz}{2\pi}\, e^{i x P_z z}\, h_R(z, P_z).
+\label{eq:fourier_quasi_PDF}
+\end{equation}
+
+在$z$的有限截断下，式(\ref{eq:fourier_quasi_PDF})的截断Fourier变换引入\textbf{Gibbs振荡}——即在$x$空间的准PDF中出现非物理的振荡调制，严重扭曲了PDF的形状。
+
+\subsection{大$\lambda$外推的物理假设与拟合形式}
+
+$\lambda = zP_z$是Ioffe-时间型的变量——它既反映了纵向分离$z$，又反映了强子的boost动量$P_z$。大$\lambda$外推的核心思想是：\textbf{利用重整化矩阵元在$\lambda$足够大时的已知（或假设的）渐近行为，将数据从可用的$z$范围外推到$\lambda \to \infty$}。
+
+\textbf{常用的外推拟合形式}来源于对重整化矩阵元的紫外和红外行为的物理分析。在$P_z \to \infty$极限下，$h_R(z, P_z)$在$z \to \infty$处的渐近行为由微扰QCD的twist展开确定，可参数化为~\cite{Ji2021hybrid,Chen2025gluon}：
+
+\begin{definition}[大$\lambda$外推的拟合函数]
+\begin{equation}
+\boxed{h_R(z, P_z) \;\sim\; c_1 z^{-d_1} e^{-z/\lambda_0} + c_2 z^{-d_2} e^{-z/\lambda_0} + \cdots},
+\label{eq:lambda_fit_form}
+\end{equation}
+其中$\lambda_0, d_1, d_2, c_1, c_2$为拟合参数。指数衰减因子$e^{-z/\lambda_0}$来自红外物理——关联函数在远距离处的指数衰减由强子的有限质量标度决定。幂次因子$z^{-d}$来自twist展开中高阶算符的贡献。
+\end{definition}
+
+在实际操作中，通常简化为一到两个指数项的组合，并在$\lambda$足够大（$\lambda \gtrsim \lambda_L$）的区域进行拟合。$\lambda_L$是截断参数——仅$\lambda > \lambda_L$的数据被用于外推拟合。$\lambda_L$的不同选择（如$\lambda_L = 6, 7, 8$）被变化以估计系统误差。
+
+\subsection{大$\lambda$外推的操作步骤}
+
+以CLQCD/LPC合作组的胶子PDF计算为例~\cite{Chen2025gluon}，大$\lambda$外推的具体步骤为：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{数据准备：}对每个$(a, P_z)$组合，获得$|z| \lesssim 0.8\text{--}1.0$~fm范围内的重整化矩阵元$h_R(z, P_z)$；
+    \item \textbf{选择外推区间：}确定$\lambda_L$（如$\lambda_L = 6\text{--}8$），仅对$\lambda = |z|P_z > \lambda_L$的数据进行拟合；
+    \item \textbf{拟合参数：}使用$e^{-z/\lambda_0} z^{-d}$型函数拟合$\lambda > \lambda_L$的数据，确定$\lambda_0, d$等参数；
+    \item \textbf{外推到无穷：}使用拟合得到的参数，对$z \to \infty$（即$\lambda \to \infty$）区域的$h_R$进行解析延拓；
+    \item \textbf{系统误差估计：}变化$\lambda_L$（如$\lambda_L = 6, 7, 8$），取不同$\lambda_L$下外推结果的差异作为系统误差。
+\end{enumerate}
+
+\textbf{自重整化方案中的大$\lambda$外推~\cite{FirstSelfRenormGluon2024}：}在自重整化方案中，还需先进行大$\lambda$外推（对每个$a$单独做）、再进行连续极限外推——顺序至关重要：因为若先做连续极限外推，长距离（大$z$）处的噪声会过大，使大$\lambda$外推不可靠。
+
+\subsection{大$\lambda$外推的替代方案：derivative方法}
+
+derivative方法是一种绕过$\lambda$外推的替代策略。它对坐标空间的关联函数取$z$的导数后做Fourier变换，利用导数的局域性来压制大$z$的不确定性：
+
+\begin{equation}
+\tilde{q}(x, P_z) = \frac{i}{x} \int dz\, e^{i x P_z z}\, \frac{d}{dz} h_R(z, P_z) \quad (\text{对 } x \neq 0).
+\label{eq:derivative_method}
+\end{equation}
+
+由于$dh_R/dz$在大$z$处趋于零的速率比$h_R$本身更快，derivative积分的截断效应较弱。该方法的局限在于无法访问$x=0$处，且在$x \to 0$附近有$1/x$的增强因子——使得小$x$区域的统计误差膨胀。
+
+\subsection{大$\lambda$外推的系统误差来源}
+
+\begin{itemize}[nosep]
+    \item \textbf{拟合函数的选择：}$e^{-z/\lambda_0} z^{-d}$型是物理动机的形式，但其他形式（如多指数组合、多项式$\times$指数）也可能同样合适——函数形式的选择构成系统误差。
+    \item \textbf{$\lambda_L$截断值：}太小的$\lambda_L$会将非渐近区域的数据纳入拟合（偏差），太大的$\lambda_L$导致拟合点数太少（方差膨胀）。
+    \item \textbf{数据的统计精度：}大$z$处的矩阵元信噪比极差（指数衰减），外推参数对这些噪声点高度敏感。
+    \item \textbf{离散化效应：}在粗格距上，$z$的离散化步长（$a$）限制了可达到的最大$\lambda$——细格距（小$a$）对于高$P_z$外推至关重要。
+\end{itemize}
+
+%==========================================================================
+\section{无穷大动量外推：$P_z \to \infty$}
+%==========================================================================
+
+\subsection{LaMET因子化定理中的$P_z$依赖性}
+
+LaMET因子化定理确立了准PDF与光锥PDF在$P_z \to \infty$极限下的等价性~\cite{Ji2013Euclidean,Izubuchi2018}：
+
+\begin{equation}
+\tilde q(x, P_z) = \int_{-1}^1 \frac{dy}{|y|}\, C\!\left(\frac{x}{y}, \frac{\mu}{|y|P_z}\right)\, q(y, \mu) + \mathcal{O}\!\left(\frac{\Lambda_{\text{QCD}}^2}{x^2 P_z^2}, \frac{\Lambda_{\text{QCD}}^2}{(1-x)^2 P_z^2}\right).
+\label{eq:factorization_Pz}
+\end{equation}
+
+有限$P_z$处偏离光锥极限的来源有两类：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{幂次修正（power corrections）：}$\sim \Lambda_{\text{QCD}}^2/(x^2(1-x)P_z^2)$——来自高扭度（higher-twist）算符的贡献。在小$x$和大$x$附近被增强。
+    \item \textbf{对数修正（logarithmic corrections）：}匹配核$C$中包含大对数$\ln(\mu^2/(2xP_z)^2)$——在$2xP_z$远离$\mu$时变大，需通过RGR重求和处理~\cite{Su2023RGR}。
+\end{enumerate}
+
+\subsection{无穷大动量外推的形式}
+
+在格点数据中，通常计算2--4个$P_z$值（如$P_z = 1.5, 2.0, 2.5, 3.0$~GeV）。外推到$P_z \to \infty$的标准形式为：
+
+\begin{definition}[无穷大动量外推]
+\begin{equation}
+\boxed{q(x, P_z, \mu) = q_0(x, \mu) + \frac{c(x)}{P_z^2} + \frac{d(x)}{P_z^4} + \cdots},
+\label{eq:Pz_extrap}
+\end{equation}
+其中$q_0(x, \mu)$是$P_z\to\infty$极限下的物理PDF（已在$\overline{\text{MS}}$方案中匹配到光锥）。在2个$P_z$值时仅线性外推可行（$c(x)$项）；3个以上$P_z$值时可拟合$1/P_z^4$项。
+\end{definition}
+
+\textbf{为何外推变量是$1/P_z^2$而非$1/P_z$？}因子化定理式(\ref{eq:factorization_Pz})中的幂次修正以$1/P_z^2$的形式出现——这是LaMET展开的特征：大动量展开按$1/(P_z)^2$而非$1/P_z$进行，因为Lorentz不变性排除了奇次幂的领头贡献。
+
+\subsection{单$P_z$与多$P_z$外推的对比}
+
+\textbf{单$P_z$计算（无限外推到零）：}在仅有单$P_z$数据的情况下，无法进行外推。此时必须假设$1/P_z^2$修正已经足够小——这在$P_z \gtrsim 2.5$~GeV时可以是一种合理的近似，但会导致不可量化的系统误差。
+
+\textbf{多$P_z$外推：}至少2--3个$P_z$值允许进行$1/P_z^2$外推，消除幂次修正的领头阶。LPC合作组的核子TMD-PDF计算~\cite{He2024unpolTMD}使用3个$P_z$值（$1.72, 2.15, 2.58$~GeV），横向性PDF计算~\cite{NucleonTransversity2024}使用多至4个$P_z$值。CLQCD/LPC的胶子PDF~\cite{Chen2025gluon}在2个$P_z$值处对比了外推与外推前的结果——外推后的误差带显著扩大，但这反映了无外推假设下的隐藏系统误差被正确暴露。
+
+\subsection{RGR重求和与$P_z$外推的协同}
+
+Su等人~\cite{Su2023RGR}的重整化群重求和（RGR）方案为$P_z$外推提供了理论上的重要补充：
+
+\begin{enumerate}[nosep]
+    \item 在匹配核$C$中使用RGR，将大对数$\ln(\mu^2/(2xP_z)^2)$重求和到以$2xP_z$为内禀标度的跑动耦合中——减小了匹配核对$P_z$的残余依赖性；
+    \item 残余的$1/P_z^2$修正更纯粹地来自高扭度——而非微扰对数——使得外推的物理动机更清晰；
+    \item RGR减小了$P_z$外推所需的动量范围——在$P_z \sim 2$~GeV时，RGR匹配与外推的组合精度可与固定阶匹配在$P_z \sim 3$~GeV时的精度相当。
+\end{enumerate}
+
+%==========================================================================
+\section{联合外推：多维度同时外推的实践}
+%==========================================================================
+
+\subsection{联合外推的必要性与优势}
+
+在实际格点计算中，不同$(a, P_z, m_\pi)$的数据集是同时存在的——分开做$a$外推再$P_z$外推（或相反）会受到\textbf{交叉项}（如$a^2/P_z^2$、$a^2 m_\pi^2$等）的污染。联合外推通过在一个统一的拟合模型中\textbf{同时处理所有参数}，避免了顺序外推的累积误差和交叉项问题。
+
+\textbf{联合外推的代价：}需要更多的数据点来约束更多的拟合参数。对$n_a$个$a$值、$n_P$个$P_z$值、$n_m$个$m_\pi$值的数据集，联合拟合的参数数量为$\mathcal{O}(n_a + n_P + n_m)$而非$\mathcal{O}(n_a \times n_P \times n_m)$——这是一个\textbf{线性}扩展，在实际中是可以管理的。
+
+\subsection{横向性PDF的六系综联合外推：典例分析}
+
+LPC合作组在核子横向性（transversity）PDF的计算中~\cite{NucleonTransversity2024}使用了\textbf{六个CLS系综}，覆盖了广泛的$a$、$m_\pi$和$P_z$范围。其联合外推公式为：
+
+\begin{definition}[横向性PDF的联合外推~\cite{NucleonTransversity2024}]
+\begin{equation}
+\boxed{
+h(x, P_z, a, m_\pi) = h_0(x) + a^2 f(x) + \frac{c(x)}{P_z^2} + g_0 m_\pi^2 \ln\frac{m_\pi^2}{\mu_0^2} + g_1 m_\pi^2 + \cdots,
+}
+\label{eq:transversity_joint}
+\end{equation}
+其中各项的物理来源为：
+\begin{itemize}[nosep]
+    \item $a^2 f(x)$——标准$O(a^2)$离散化误差；
+    \item $c(x)/P_z^2$——LaMET幂次修正的领头阶；
+    \item $g_0 m_\pi^2 \ln(m_\pi^2/\mu_0^2)$——手征对数修正（来自ChPT）；
+    \item $g_1 m_\pi^2$——解析的手征修正项。
+\end{itemize}
+\end{definition}
+
+\textbf{关键的系统误差处理：}不同$a$的修正形式使用$a^2$来拟合（假设Clover费米子的$\mathcal{O}(a)$改进已被$c_{\text{sw}}$充分实现），并通过使用$a$而非$a^2$的备选拟合来估计残余$\mathcal{O}(a)$效应的系统误差。
+
+\subsection{胶子PDF的三格距联合外推：动量依赖的离散化}
+
+CLQCD/LPC合作组在胶子PDF的连续极限计算中~\cite{Chen2025gluon}使用了三个格距（$a = 0.0775, 0.0897, 0.105$~fm）的联合外推：
+
+\begin{definition}[胶子PDF的联合外推~\cite{Chen2025gluon}]
+\begin{equation}
+\boxed{
+xg(x, P_z, a) = xg_0(x) + a^2 f(x) + a^2 P_z^2 h(x) + \frac{d(x)}{P_z^2},
+}
+\label{eq:gluon_joint_full}
+\end{equation}
+其中\textbf{$a^2 P_z^2 h(x)$}项是胶子PDF计算的特有项——反映了离散化误差的动量依赖性。物理上，这一项来源于胶子准算符中Wilson线的离散化（$\sim a$效应）与高$P_z$（$\sim 1/a$尺度）耦合产生的乘积修正。
+\end{definition}
+
+\textbf{外推前后的对比~\cite{Chen2025gluon}：}在胶子PDF的外推中，$xg(x)$在$P_z$取有限值时的直接结果与联合外推后在$\mu=2$~GeV处的物理结果相差可达$\sim 20\text{--}30\%$（在大$x$区域）——展示了不做外推（即假设``有限$a$和$P_z$结果已经接近于物理'')可能引入的严重系统误差。外推后，误差带显著增大——但这是诚实的系统误差反映。
+
+\subsection{手征外推与物理$\pi$质量}
+
+对于非物理$\pi$质量（$m_\pi \gtrsim 200$~MeV）上完成的格点计算，需要外推到物理点$m_\pi^{\text{phys}} = 135$~MeV。手征微扰论提供了外推的理论框架。核子质量的ChPT展开~\cite{GattringerLang2010}为：
+\begin{equation}
+M_N = c_0 + c_2 M_\pi^2 + c_3 M_\pi^3 + c_4 M_\pi^4 \ln M_\pi + \mathcal{O}(M_\pi^4).
+\label{eq:chiral_extrap_N}
+\end{equation}
+
+对于PDF的矩和分布本身，ChPT的外推形式更为复杂——因为PDF是光锥关联函数而非定域算符。在手征极限下，某些PDF在小$x$区域可能产生手征对数增强。当前的部分子物理计算中，若可以使用物理$\pi$质量的系综（如MILC $N_f=2+1+1$物理海夸克质量系综），手征外推的需求被减轻。
+
+\subsection{有限体积外推}
+
+有限体积效应在$m_\pi L > 4$时通常小至可忽略（指数压低$\sim e^{-m_\pi L}$）。但在LaMEM计算中，还需满足$P_z L \gtrsim 6\text{--}8$——以确保Fourier变换的分辨率$\Delta x = 2\pi/(P_z L)$足够细。在高$P_z$和有限$L$的矛盾中，通常需要取舍——优先满足$m_\pi L$条件。
+
+%==========================================================================
+\section{总结与展望}
+%==========================================================================
+
+本文基于本库核心教材和约30篇研究论文，系统解析了格点QCD中从有限参数到物理极限的五类外推。
+
+\subsection*{核心结论}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{外推是格点QCD方法论不可分割的组成部分：}格点的五个有限性维度——$a$（离散化）、$V$（体积）、$m_\pi$（夸克质量）、$P_z$（LaMEM动量）、$z$（坐标空间范围）——的极限均需通过外推恢复。没有外推的格点``结果''仅是裸参数下的输出，不具有直接的物理意义。
+
+    \item \textbf{连续极限外推（$a\to 0$）以$a^2$标度进行：}对改进费米子（Clover/Staggered/HISQ），领先离散化误差为$\mathcal{O}(a^2)$，外推形式为$O(a) = O_0 + c a^2$。需要至少3个$a$值来可靠外推。在LaMET计算中，$a^2 P_z^2$的耦合项代表动量依赖的离散化误差——在联合外推中必须被纳入。
+
+    \item \textbf{大$\lambda$外推（$\lambda = zP_z \to \infty$）是LaMET特有且必需的步骤：}坐标空间的有限$z$范围限制导致Fourier变换中的Gibbs振荡。通过$e^{-z/\lambda_0} z^{-d}$型的解析延拓将矩阵元从数据区域外推到$z\to\infty$——这是压制截断效应的唯一途径。$\lambda_L$截断的选择和函数形式的系统误差需仔细评估。Derivative方法提供了一种绕过$\lambda$外推的替代方案。
+
+    \item \textbf{无穷大动量外推（$P_z\to\infty$）以$1/P_z^2$展开：}LaMET幂次修正按$1/P_z^2$进行（Lorentz不变性排除奇次幂的领头贡献）。外推形式为$q(x,P_z) = q_0(x) + c(x)/P_z^2 + \cdots$。RGR重求和处理匹配核中的大对数后，残余$1/P_z^2$修正更纯粹地反映高扭度。仅使用单$P_z$的``结果''隐含不可量化的系统误差。
+
+    \item \textbf{联合外推是通向物理极限的最稳健途径：}在一套统一的拟合模型中同时处理所有维度的外推——避免了顺序外推的交叉项累积误差。横向性PDF的六系综联合外推~\cite{NucleonTransversity2024}和胶子PDF的三格距联合外推~\cite{Chen2025gluon}展示了联合外推将原始格点数据（含$\sim 20\text{--}30\%$的裸参数依赖）转化为与全局拟合一致的物理PDF的完整流程。
+
+\end{enumerate}
+
+\textbf{展望：}随着Exascale计算资源使更多系综（更多$a$值、更大$P_z$、物理$m_\pi$）成为可能，联合外推将从当前的3--4参数线性拟合发展为更丰富的非线性模型——可能包括$a^4$项、$1/P_z^4$项、甚至$e^{-m_\pi L}$有限体积修正。这将进一步将外推的系统误差压至亚百分比水平，最终使格点QCD的PDF预言达到与唯象学全局拟合相竞争的精度。
+
+%==========================================================================
+\begin{thebibliography}{99}
+
+\bibitem{GattringerLang2010}
+C.~Gattringer and C.~B.~Lang,
+\textit{Quantum Chromodynamics on the Lattice: An Introductory Presentation},
+Lect.\ Notes Phys.\ \textbf{788}, Springer (2010).
+\\\textbf{[来源:} \texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}\textbf{]}
+\\§3.5（标度设定与Sommer参数）、§3.5.4（真实连续极限）、§6.4.3（三维外推框架）、Eq.(6.73)--(6.74)（质量外推与手征外推）。
+
+\bibitem{Gupta1997intro}
+R.~Gupta,
+``Introduction to Lattice QCD,''
+arXiv:hep-lat/9807028 (1997).
+\\\textbf{[来源:} \texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf}\textbf{]}
+\\§16（标度设定与非微扰重整化）。
+
+\bibitem{PeskinSchroeder1995}
+M.~E.~Peskin and D.~V.~Schroeder,
+\textit{An Introduction to Quantum Field Theory},
+Westview Press (1995).
+\\\textbf{[来源:} \texttt{refer/books/An Introduction to Quantum Field Theory.pdf}\textbf{]}
+\\Ch.~12: Callan--Symanzik方程与外推的微扰理论基础。
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, LPC),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\\\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+——三格距（$a = 0.0775, 0.0897, 0.105$~fm）联合外推，外推公式$xg = xg_0 + a^2 f + a^2 P_z^2 h + d/P_z^2$（本报告§4、§6的核心实例）。
+
+\bibitem{NucleonTransversity2024}
+(LPC),
+``Nucleon transversity distribution in the continuum and physical mass limit from lattice QCD,''
+(2024).
+\\\textbf{[来源:} \texttt{refer/papers/Nucleon Transversity Distribution in the Continuum and Physical Mass Limit from Lattice QCD.pdf}\textbf{]}
+——六系综联合外推（$a, P_z, m_\pi$三维），联合外推公式$h = h_0 + a^2 f + c/P_z^2 + g_0 m_\pi^2\ln(m_\pi^2/\mu_0^2) + g_1 m_\pi^2$（本报告§6的核心实例）。
+
+\bibitem{FirstSelfRenormGluon2024}
+(LPC),
+``First self-renormalized gluon PDF of nucleon from large-momentum effective theory in the continuum limit,''
+(2024).
+\\\textbf{[来源:} \texttt{refer/papers/First Self-Renormalized Gluon PDF of Nucleon from Large-Momentum Effective Theory in the Continuum Limit.pdf}\textbf{]}
+——自重整化方案中的大$\lambda$外推与连续极限联合外推、零流时间外推方法。
+
+\bibitem{Ji2013Euclidean}
+X.~Ji,
+``Parton physics on a Euclidean lattice,''
+Phys.\ Rev.\ Lett.\ \textbf{110}, 262002 (2013), arXiv:1305.1539.
+\\\textbf{[来源:} \texttt{refer/papers/Parton Physics on Euclidean Lattice.pdf}\textbf{]}
+——LaMET/准PDF的奠基性论文，引入$P_z\to\infty$外推的概念。
+
+\bibitem{Izubuchi2018}
+T.~Izubuchi, X.~Ji, L.~Jin, I.~W.~Stewart, and Y.~Zhao,
+``Factorization theorem relating Euclidean and light-cone parton distributions,''
+Phys.\ Rev.\ D \textbf{98}, 056004 (2018), arXiv:1801.03917.
+\\\textbf{[来源:} \texttt{refer/papers/Factorization Theorem Relating Euclidean and Light-Cone Parton Distributions.pdf}\textbf{]}
+——LaMET因子化定理的严格证明：$\tilde q = C \otimes q + \mathcal{O}(1/P_z^2)$，为$P_z$外推提供理论基础。
+
+\bibitem{Su2023RGR}
+Y.~Su, J.~Holligan, X.~Ji, F.~Yao, J.-H.~Zhang, and R.~Zhang,
+``Resumming quark's longitudinal momentum logarithms in LaMET expansion of lattice PDFs,''
+Phys.\ Rev.\ D \textbf{107}, 074507 (2023), arXiv:2209.01236.
+\\\textbf{[来源:} \texttt{refer/papers/Resumming Quark's Longitudinal Momentum Logarithms in LaMET Expansion of Lattice PDFs.pdf}\textbf{]}
+——RGR重求和与$P_z$外推的协同作用（本报告§5.3）。
+
+\bibitem{Ji2021hybrid}
+X.~Ji, Y.-S.~Liu, Y.~Liu, J.-H.~Zhang, and Y.~Zhao,
+``A hybrid renormalization scheme for quasi light-front correlations in LaMET,''
+Nucl.\ Phys.\ B \textbf{964}, 115311 (2021), arXiv:2008.03886.
+\\\textbf{[来源:} \texttt{refer/papers/A Hybrid Renormalization Scheme for Quasi Light-Front Correlations in Large-Momentum Effective Theory.pdf}\textbf{]}
+——混合方案中大$\lambda$外推的方法学基础。
+
+\bibitem{Zhang2023leadingPower}
+R.~Zhang, J.~Holligan, X.~Ji, and Y.~Su,
+``Leading power accuracy in lattice calculations of parton distributions,''
+Phys.\ Lett.\ B \textbf{844}, 138081 (2023), arXiv:2305.05212.
+\\\textbf{[来源:} \texttt{refer/papers/Leading Power Accuracy in Lattice Calculations of Parton Distributions.pdf}\textbf{]}
+——IR重整子与领阶幂次修正：与$P_z$外推相关的系统理论。
+
+\bibitem{He2024unpolTMD}
+J.-C.~He \textit{et al.} (LPC),
+``Unpolarized TMD parton distributions of the nucleon from lattice QCD,''
+Phys.\ Rev.\ D \textbf{109}, 114513 (2024), arXiv:2211.02340.
+\\\textbf{[来源:} \texttt{refer/papers/Unpolarized Transverse-Momentum-Dependent Parton Distributions of the Nucleon from Lattice QCD.pdf}\textbf{]}
+
+\bibitem{Zhang2024gauge_fixing}
+K.~Zhang \textit{et al.} (LPC),
+``Impact of gauge fixing precision on the continuum limit of non-local quark-bilinear lattice operators,''
+Phys.\ Rev.\ D \textbf{110}, 074505 (2024), arXiv:2405.14097.
+\\\textbf{[来源:} \texttt{refer/papers/Impact of gauge fixing precision on the continuum limit of non-local quark-bilinear lattice operators.pdf}\textbf{]}
+——规范固定精度对连续极限外推的影响。
+
+\bibitem{Liu2020isovector}
+Y.-S.~Liu \textit{et al.} (LPC),
+``Unpolarized isovector quark distribution function from lattice QCD: A systematic analysis of renormalization and matching,''
+Phys.\ Rev.\ D \textbf{101}, 034020 (2020), arXiv:1807.06566.
+\\\textbf{[来源:} \texttt{refer/papers/Unpolarized isovector quark distribution function from Lattice QCD A systematic analysis of renormalization and matching.pdf}\textbf{]}
+
+\bibitem{Chu2023soft}
+M.-H.~Chu \textit{et al.} (LPC),
+``Lattice calculation of the intrinsic soft function and the Collins-Soper kernel,''
+JHEP \textbf{08}, 172 (2023), arXiv:2306.06488.
+\\\textbf{[来源:} \texttt{refer/papers/Lattice Calculation of the Intrinsic Soft Function and the Collins-Soper Kernel.pdf}\textbf{]}
+
+\bibitem{PhysicalContinuumGluon}
+``Physical-Continuum Limit of the Nucleon Gluon Parton Distribution from Lattice QCD,''
+\\\textbf{[来源:} \texttt{refer/papers/Physical-Continuum Limit of the Nucleon Gluon Parton Distribution from Lattice QCD.pdf}\textbf{]}
+
+\bibitem{QuarkMassesClover}
+``Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles,''
+\\\textbf{[来源:} \texttt{refer/papers/Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\bibitem{CharmedClover}
+``Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles,''
+\\\textbf{[来源:} \texttt{refer/papers/Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\bibitem{PionKaonDA}
+``Pion and Kaon Distribution Amplitudes from Lattice QCD,''
+\\\textbf{[来源:} \texttt{refer/papers/Pion and Kaon Distribution Amplitudes from Lattice QCD.pdf}\textbf{]}
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,'' 内部笔记。
+\\\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}和\texttt{refer/papers/Note of gluon PDFs.pdf}
+
+\end{thebibliography}
+
+\vspace{0.5cm}
+\noindent\rule{\textwidth}{0.5pt}
+\small
+\textbf{交叉参考建议：}本报告应结合同一\texttt{docs/}目录下的以下文件阅读：
+\begin{itemize}[nosep]
+    \item \texttt{格点QCD中的部分子分布函数.pdf}——共线PDF计算中各类外推的实践语境
+    \item \texttt{格点QCD中的光锥PDF、准PDF、赝PDF.pdf}——准PDF与赝PDF的因子化与外推极限
+    \item \texttt{格点QCD中的大动量有效理论.pdf}——LaMET框架中$P_z\to\infty$极限的理论基础
+    \item \texttt{格点QCD中的重整化.pdf}——重整化方案对外推的影响
+    \item \texttt{格点QCD中的DGLAP演化方程.pdf}——RGR重求和与$P_z$外推的协同
+    \item \texttt{格点QCD中的Wilson线.pdf}——Wilson线线性发散对外推的影响
+    \item \texttt{格点QCD中的标度参数.pdf}——格距标定与Sommer参数
+    \item \texttt{格点QCD中的Symanzik有效理论.pdf}——改进作用量与离散化误差
+    \item \texttt{格点QCD中的费米子方案.pdf}——不同费米子方案的离散化误差对比
+    \item \texttt{格点QCD中的关联函数.pdf}——关联函数中的大$t$外推与基态提取
+\end{itemize}
+
+\end{document}

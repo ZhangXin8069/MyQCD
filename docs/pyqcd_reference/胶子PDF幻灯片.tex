@@ -1,0 +1,357 @@
+% ============================================================
+% 计算质子中的胶子PDF — 理论基础与工作流 (10页)
+% ============================================================
+\documentclass[10pt,aspectratio=169]{beamer}
+\usepackage{ctex}
+\setCJKmainfont{AR PL SungtiL GB}[BoldFont=Droid Sans Fallback]
+\setCJKsansfont{Droid Sans Fallback}
+\setCJKmonofont{AR PL KaitiM GB}
+
+\usetheme{default}
+\usefonttheme{serif}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+\setbeamercolor{title}{fg=black}
+\setbeamercolor{frametitle}{fg=black}
+\setbeamercolor{structure}{fg=black}
+
+\usepackage{amsmath,amssymb}
+\usepackage{physics}
+\usepackage{braket}
+
+% Shortcuts
+\newcommand{\msbar}{\overline{\mathrm{MS}}}
+\newcommand{\lqcd}{\Lambda_{\mathrm{QCD}}}
+\newcommand{\alphas}{\alpha_s}
+\newcommand{\LaMET}{\mathrm{LaMET}}
+\newcommand{\GeV}{\,\mathrm{GeV}}
+\newcommand{\gevtwo}{\,\mathrm{GeV}^2}
+\newcommand{\MeV}{\,\mathrm{MeV}}
+\newcommand{\fm}{\,\mathrm{fm}}
+
+\begin{document}
+
+% ============================================================
+% Slide 1: QCD因子化定理
+% ============================================================
+\begin{frame}{QCD因子化定理 —— 理论基石}
+  \textbf{因子化定理 (Collins--Soper--Sterman, 1989)} 是 QCD 中连接微扰与非微扰物理的核心框架。
+
+  对于高能强子-强子散射 $A + B \to C + X$，在大横动量转移 $Q^2 \gg \lqcd^2$ 下：
+  {\small
+  \begin{equation*}
+    \sigma_{AB \to C} = \sum_{a,b=q,\bar{q},g}\;
+    \int_0^1 dx_a \int_0^1 dx_b\;
+    f_{a/A}(x_a, \mu_F^2)\,
+    f_{b/B}(x_b, \mu_F^2)\,
+    \hat{\sigma}_{ab \to C}\!\left(x_a P_A, x_b P_B, \alpha_s(\mu_R^2), \tfrac{Q^2}{\mu_F^2}\right)
+  \end{equation*}}
+
+  \textbf{各分量含义：}
+  \begin{itemize}
+    \item $f_{a/A}(x_a, \mu_F^2)$ —— PDF：在强子 $A$ 中找到动量分数 $x_a$ 的部分子 $a$ 的概率密度，\textbf{非微扰}且普适。
+    \item $\hat{\sigma}_{ab \to C}$ —— 硬散射截面：以 $\alpha_s(\mu_R)$ 展开的微扰级数，已知到 NNLO。
+    \item $\mu_F$ —— 因子化标度：分离硬（$k_\perp > \mu_F$）与软（$k_\perp < \mu_F$）QCD 辐射。
+    \item $\mu_R$ —— 重整化标度。证明基于 SCET 中 Wilson 线 OPE 的因子化性质。
+  \end{itemize}
+\end{frame}
+
+% ============================================================
+% Slide 2: 胶子PDF的光锥算符定义
+% ============================================================
+\begin{frame}{胶子PDF的算符定义 —— 光锥形式}
+
+  光锥坐标：$v^\pm = (v^0 \pm v^3)/\sqrt{2}$，类光矢量 $n^\mu = (1,0,0,-1)/\sqrt{2}$。
+
+  胶子PDF的\textbf{规范不变}算符定义：
+  \begin{equation}
+    \boxed{
+      g(x, \mu^2) = \frac{1}{2\pi x P^+}
+      \int_{-\infty}^{\infty} \frac{d\xi^{-}}{2\pi}\,
+      e^{-i x P^+ \xi^{-}}
+      \big\langle P \big|
+      F_a^{+\mu}(\xi^{-} n)\;
+      \mathcal{W}[\xi^{-} n, 0]\;
+      F_{\mu}^{a\,+}(0)
+      \big| P \big\rangle
+    }
+  \end{equation}
+
+  \begin{itemize}
+    \item 场强张量：$F_a^{\mu\nu} = \partial^\mu A_a^\nu - \partial^\nu A_a^\mu + g f_{abc} A_b^\mu A_c^\nu$
+    \item Wilson 线：$\mathcal{W}[\xi^{-}, 0] = \mathcal{P}\exp[-ig \int_0^{\xi^{-}} d\lambda\, n\cdot A(\lambda n)]$
+    \item 类光间隔：$\xi^\mu = (0, \xi^{-}, \mathbf{0}_\perp)$，$\xi^2 = 0$。$\mu$ 为 $\msbar$ 重整化标度。
+  \end{itemize}
+
+  \textbf{物理诠释}：光锥规范 $A^+ = 0$ 下 $\mathcal{W} = 1$，$g(x,\mu^2)$ 为在核子中找到一个携带纵动量分数 $x$ 的胶子的概率密度。
+  动量求和规则：$\int_0^1 dx\,x\big[\sum_q (q+\bar{q})(x) + g(x)\big] = 1$。
+\end{frame}
+
+% ============================================================
+% Slide 3: Wilson线与胶子PDF分类
+% ============================================================
+\begin{frame}{Wilson线、规范不变性与胶子PDF的分类}
+
+  Wilson 线：$\mathcal{W}_{\mathcal{C}} = \mathcal{P}\exp[-ig \int_{\mathcal{C}} dx^\mu A_\mu^a(x) t^a]$，
+  使 $F^{+\mu}(\xi^{-}) \mathcal{W} F_{\mu}^{\;+}(0)$ 为规范不变的\textbf{双定域算符}。
+
+  \textbf{胶子PDF的三种领头扭度分布：}
+  \begin{center}
+  \begin{tabular}{c|c|c}
+    \hline
+    \textbf{分布类型} & \textbf{算符结构} & \textbf{物理意义} \\
+    \hline
+    非极化 $g(x,\mu^2)$ &
+    $F^{+\mu}\mathcal{W} F_{\mu}^{\;+}$ &
+    胶子纵向动量分布 \\
+    \hline
+    螺旋度 $\Delta g(x,\mu^2)$ &
+    $\tilde{F}^{+\mu}\mathcal{W} F_{\mu}^{\;+}$
+    （$\tilde{F}^{\mu\nu} = \frac{1}{2}\varepsilon^{\mu\nu\alpha\beta}F_{\alpha\beta}$） &
+    胶子自旋贡献 \\
+    \hline
+    线偏振度 $h_{1}^{\perp g}(x,\vec{k}_\perp^2,\mu^2)$ &
+    $\mathbf{S}_{\mu\nu}\!\big[F^{+\mu}\mathcal{W}F^{+\nu}\big]$\quad%
+    {\tiny（$\mathbf{S}$：对称化且减除迹）} &
+    横动量张量结构（TMD） \\
+    \hline
+  \end{tabular}
+  \end{center}
+
+  本报告聚焦于\textbf{非极化胶子PDF} $g(x,\mu^2)$。螺旋度 $\Delta g$ 涉及对偶场强，用于研究质子自旋危机。
+  线偏振度 $h_{1}^{\perp g}$（TMD，依赖 $\vec{k}_\perp^2$）提供核子内胶子横动量分布的张量结构信息。
+\end{frame}
+
+% ============================================================
+% Slide 4: DGLAP演化方程
+% ============================================================
+\begin{frame}{DGLAP演化方程 —— 理论细节}
+
+  \textbf{DGLAP 方程} (Dokshitzer-Gribov-Lipatov-Altarelli-Parisi)：
+  \begin{equation}
+    \boxed{
+      \mu^2 \frac{\partial}{\partial \mu^2}
+      \begin{pmatrix} q_i(x,\mu^2) \\ g(x,\mu^2) \end{pmatrix}
+      = \frac{\alpha_s(\mu^2)}{2\pi}
+      \sum_{j} \int_x^1 \frac{dz}{z}
+      \begin{pmatrix}
+        P_{q_i q_j}(\frac{x}{z}) & P_{q_i g}(\frac{x}{z}) \\[4pt]
+        P_{g q_j}(\frac{x}{z})  & P_{g g}(\frac{x}{z})
+      \end{pmatrix}
+      \begin{pmatrix} q_j(z,\mu^2) \\ g(z,\mu^2) \end{pmatrix}
+    }
+  \end{equation}
+
+  劈裂函数微扰展开：$P_{ab}(z) = P_{ab}^{(0)}(z) + \frac{\alpha_s}{2\pi} P_{ab}^{(1)}(z)
+  + (\frac{\alpha_s}{2\pi})^2 P_{ab}^{(2)}(z) + \mathcal{O}(\alpha_s^3)$，已知到 \textbf{NNLO} (Moch-Vermaseren-Vogt, 2004)。
+
+  \textbf{领头阶 (LO) 劈裂函数：}
+  {\small
+  \begin{align*}
+    P_{qq}^{(0)}(z) &= C_F \Big[ \frac{1+z^2}{(1-z)_+} + \frac{3}{2}\delta(1-z) \Big],\quad
+    P_{gq}^{(0)}(z) = C_F\, \frac{1+(1-z)^2}{z} \\
+    P_{gg}^{(0)}(z) &= 2C_A \Big[ \frac{z}{(1-z)_+} + \frac{1-z}{z} + z(1-z) \Big]
+                       + \frac{11C_A - 4n_f T_R}{6}\,\delta(1-z) \\
+    P_{qg}^{(0)}(z) &= T_R\,[z^2 + (1-z)^2]
+  \end{align*}}
+  其中 $C_A=3$，$C_F=4/3$，$T_R=1/2$，$n_f$ 为活跃夸克味数。``$+$''分布：
+  $\int_0^1 dz\,[f(z)]_+ g(z) \equiv \int_0^1 dz\,f(z)[g(z)-g(1)]$。\vspace{-10pt}
+\end{frame}
+
+% ============================================================
+% Slide 5: 格点QCD基础
+% ============================================================
+\begin{frame}{格点QCD基础 —— 从作用量到数值模拟}
+
+  \textbf{格点QCD (Wilson, 1974)}：QCD 定义在四维 Euclidean 格子上（格距 $a$），提供非微扰计算框架。
+
+  \textbf{Euclidean 作用量：} Wick 旋转 $t \to -i\tau$：
+  \begin{equation*}
+    S_E = \beta \sum_x \sum_{\mu<\nu} \bigl(1 - \tfrac{1}{3}\mathrm{Re}\,\mathrm{Tr}\,U_{\mu\nu}(x)\bigr)
+         + \sum_x \bar{\psi}(x)(\not{D}_W + m)\psi(x)
+  \end{equation*}
+  $\beta = 6/g^2$，$U_{\mu\nu}(x)$ 为 plaquette，$\not{D}_W$ 为 Wilson-Dirac 算符。$a \to 0$ 时恢复连续 QCD。
+
+  \textbf{路径积分与 Monte Carlo：}
+  $\langle O \rangle = \frac{1}{Z} \int \mathcal{D}U\, \mathcal{D}\bar{\psi}\mathcal{D}\psi\; O\, e^{-S_E}$。
+  Hybrid Monte Carlo (HMC) 算法进行重要性抽样，生成规范场组态系综 $\{U^{(n)}\}$。
+
+  \textbf{核子两点关联函数}（零动量投影）：
+  \begin{equation*}
+    C_{2\mathrm{pt}}(t) = \sum_{\mathbf{x}} \big\langle N(\mathbf{x}, t) \bar{N}(\mathbf{0}, 0) \big\rangle
+    \xrightarrow{t \gg 0} Z_N e^{-m_N t}
+  \end{equation*}
+  从中提取核子质量 $m_N$ 和重叠因子 $Z_N = |\langle 0|N|P\rangle|^2/(2m_N)$。
+
+  \textbf{关键系统学：} 格距外推 $a \to 0$、体积外推 $V \to \infty$、手征外推 $m_\pi \to m_\pi^{\mathrm{phys}}$。\vspace{-4pt}
+\end{frame}
+
+% ============================================================
+% Slide 6: Euclidean到光锥 —— 困难与策略
+% ============================================================
+\begin{frame}{从Euclidean格点到光锥PDF —— 根本困难与两条路径}
+
+  \textbf{核心矛盾：} PDF 定义于 Minkowski 类光间隔，格点QCD在 Euclidean 空间计算。
+
+  \begin{center}
+  \begin{tabular}{c|c}
+    \hline
+    \textbf{Minkowski PDF定义} & \textbf{Euclidean 格点QCD} \\
+    \hline
+    类光间隔 $\xi^2 = 0$（沿光锥） & 类空间隔 $z^2 > 0$（等时 $t=0$）\\
+    实时动力学 & 虚时 Monte Carlo 模拟 \\
+    紫外发散在 $\msbar$ 减除 & 线性/对数发散需非微扰处理 \\
+    \hline
+  \end{tabular}
+  \end{center}
+
+  \vspace{4pt}
+  \textbf{两类解决策略（均严格，$\msbar$ 方案下等价）：}
+
+  \begin{enumerate}
+    \item \textbf{大动量有效理论 ($\LaMET$) / 准PDF (Ji, 2013)}
+    对空间分离的等时关联函数做 Fourier 变换得准PDF $\tilde{g}(x, P_z)$，取 $P_z \gg \lqcd$，
+    通过匹配系数 $C_{gg}$ 在 $\msbar$ 方案下联系 $\tilde{g}$ 与光锥 $g$。
+
+    \item \textbf{短程因子化 / 赝PDF (Radyushkin, 2017)}
+    直接处理 Ioffe-time 分布 $\mathcal{M}(\nu, z^2)$（$\nu = P_z z$），利用 OPE 在 $z \to 0$ 极限下与光锥 PDF 因子化关联。
+  \end{enumerate}
+
+  差异在于极限取法：LaMET 取 $P_z \to \infty$（大动量），赝PDF 取 $z \to 0$（短程）。匹配系数互为 Fourier 变换对。
+\end{frame}
+
+% ============================================================
+% Slide 7: 工作流 I-1 —— 准PDF格点计算
+% ============================================================
+\begin{frame}{工作流 I-1 —— 准PDF的格点计算（矩阵元提取）}
+
+  \textbf{Step 1：构造胶子准算符}
+
+  格点上沿 $z$ 方向定义：
+  \begin{equation*}
+    O_g(z) \equiv F_a^{3\mu}(z)\,
+    \mathcal{W}[z,0]\,
+    F_{\mu}^{a\,3}(0),\quad
+    \mathcal{W}[z,0] = \prod_{n=0}^{z/a-1} U_3(\hat{\mathbf{3}} + na\hat{\mathbf{3}})
+  \end{equation*}
+  其中 $U_3$ 为格点规范链变量，$F_{\mu\nu}$ 由 clover 算符（$\mathcal{O}(a)$ 改进）构造。
+
+  \textbf{Step 2：计算核子三点关联函数}
+
+  boost 动量 $\mathbf{P} = (0,0,P_z)$ 的核子态中：
+  \begin{equation*}
+    C_{3\mathrm{pt}}(\mathbf{P}; t_{\mathrm{sep}}, \tau) =
+    \sum_{\mathbf{x},\mathbf{y}} e^{-i\mathbf{P}\cdot\mathbf{x}}\;
+    \big\langle N(\mathbf{x}, t_{\mathrm{sep}})\;
+    O_g(\tau; \mathbf{y})\;
+    \bar{N}(\mathbf{0}, 0) \big\rangle_G
+  \end{equation*}
+  $\langle \cdots \rangle_G$ 为规范场组态平均，$t_{\mathrm{sep}}$ 为源-汇分离时间。
+
+  \textbf{Step 3：提取基态矩阵元}
+
+  对大 $t_{\mathrm{sep}}$：
+  \begin{equation*}
+    R(\mathbf{P}; t_{\mathrm{sep}}, \tau) \xrightarrow{t_{\mathrm{sep}} \gg 0}
+    h_g(z, P_z) = \frac{\langle P| O_g(z) |P \rangle}{2P_z}
+  \end{equation*}
+  采用多态拟合处理激发态污染。\vspace{-8pt}
+\end{frame}
+
+% ============================================================
+% Slide 8: 工作流 I-2 —— Fourier变换、重整化与匹配
+% ============================================================
+\begin{frame}{工作流 I-2 —— Fourier变换、重整化与匹配}
+
+  \textbf{Step 4：Fourier 变换得准PDF}
+  \begin{equation*}
+    \tilde{g}(x, P_z) = \int_{-\infty}^{\infty} \frac{dz}{2\pi}\,
+    e^{i x P_z z}\; h_g(z, P_z)
+  \end{equation*}
+  实际格点 $|z| \lesssim L/2$ 有限，常用 derivative 方法或 Bayesian 重建抑制截断效应。
+
+  \textbf{Step 5：非微扰重整化}
+
+  空间分离算符具有线性发散 $\sim e^{-\delta m|z|/a}$（Wilson线自能）和对数发散（端点尖点发散）。
+  方案：RI/MOM（Landau规范下抵消子减除）、比值方案 $h_g^{\mathrm{ren}}(z,P_z) = h_g(z,P_z)/h_g(z,0)$、
+  混合方案（短程 $\msbar$，长程比值）。
+
+  \textbf{Step 6：匹配到光锥PDF（$\LaMET$ 因子化公式）}
+  \begin{equation*}
+    \boxed{
+      g(x, \mu) = \int_{x}^{1} \frac{dy}{|y|}\;
+      C_{gg}\!\left(\frac{x}{y}, \frac{\mu}{P_z}\right)\;
+      \tilde{g}_R(y, P_z)
+      + \mathcal{O}\!\left(\frac{\lqcd^2}{x^2(1-x)P_z^2}\right)
+    }
+  \end{equation*}
+  $C_{gg}(\xi) = \delta(1-\xi) + \frac{\alpha_s}{2\pi} C_{gg}^{(1)}(\xi) + \mathcal{O}(\alpha_s^2)$，已知到 NLO
+  (Wang-Zhao 2018; Zhang et al.\ 2019)。\vspace{-8pt}
+\end{frame}
+
+% ============================================================
+% Slide 9: 工作流 II —— 赝PDF方法
+% ============================================================
+\begin{frame}{工作流 II —— 赝PDF方法完整流程}
+
+  \textbf{Step 1：计算 Ioffe-time 分布 (ITD)}
+
+  用相同格点矩阵元，以 $\nu = P_z z$（Ioffe 时间）为变量：$\mathcal{M}_g(\nu, z^2) = h_g(z, P_z)|_{\nu = P_z z}$。
+  固定 $z$ 扫描不同 $P_z$，得二元函数 $\mathcal{M}_g(\nu, z^2)$。
+
+  \textbf{Step 2：重整化与约化ITD}
+
+  双比值消去主导紫外发散：
+  $\displaystyle\mathfrak{M}_g(\nu, z^2) \equiv
+  \frac{\mathcal{M}_g(\nu, z^2)}{\mathcal{M}_g(0, z^2)}
+  \cdot \frac{\mathcal{M}_g(0, 0)}{\mathcal{M}_g(\nu, 0)}$。
+
+  \textbf{Step 3：短程因子化匹配}（$|z| \ll 1/\lqcd \sim 0.2\fm$）
+  \begin{equation*}
+    \mathfrak{M}_g(\nu, z^2) = \int_0^1 dx\;
+    K(x\nu, z^2\mu^2)\; g(x, \mu^2) + \mathcal{O}(z^2\lqcd^2)
+  \end{equation*}
+  $K = K_{\mathrm{LO}} + \frac{\alpha_s}{2\pi}K_{\mathrm{NLO}} + \cdots$，微扰可算。
+
+  \textbf{Step 4：提取PDF。} 选定 $z$ 值拟合 ITD，反演积分方程得 $g(x,\mu^2)$。
+  常用神经网络 (NNPDF 范式) 或参数化模型拟合 $x$ 依赖。
+
+  \textbf{与 LaMET 等价：}
+  $\tilde{g}(x, P_z) = \int \frac{d\nu}{2\pi} e^{ix\nu} \mathfrak{M}_g(\nu, [\nu/P_z]^2)$，
+  同 $\msbar$ 方案下 $C_{gg}$ 与 $K$ 互为 Fourier 变换对。\vspace{-4pt}
+\end{frame}
+
+% ============================================================
+% Slide 10: 挑战、进展与参考文献
+% ============================================================
+\begin{frame}{数值挑战、近期进展与参考文献}
+
+  \textbf{当前四大数值挑战：}
+  \begin{enumerate}
+    \item \textbf{信噪比}：$\mathrm{SNR} \sim e^{-(m_N - \frac{3}{2}m_\pi)t}$ 指数衰减，大动量下加剧，需 $\gtrsim 10^4$ 组态。
+    \item \textbf{激发态污染}：boost 核子态中激发态-基态质量间隔缩小，需 $t_{\mathrm{sep}} \gtrsim 1.0\fm$。
+    \item \textbf{格距效应}：需同时满足 $a \ll z \ll 1/\lqcd$ 且 $aP_z \ll 1$，$a \sim 0.04$--$0.06\fm$。
+    \item \textbf{有限体积}：要求 $P_z L \gtrsim 6$--$8$。
+  \end{enumerate}
+
+  \textbf{近期重要进展：}
+  \begin{itemize}
+    \item LP$^3$ (2018--2021)：首次格点胶子螺旋度 PDF $\Delta g(x)$，clover-on-clover 算符。
+    \item MSULat (2021--2024)：非极化胶子准PDF，$a \approx 0.09\fm$，$m_\pi \approx 310\MeV$。
+    \item HadStruc (2023)：蒸馏方法改进连通图信号。
+    \item $\chi$QCD (2024)：混合方案重整化在胶子准PDF中的应用。
+  \end{itemize}
+
+  {\footnotesize
+  \textbf{主要参考文献}\\
+  \hspace{1em}[1] Collins, Soper, Sterman, \textit{Adv. Ser. Direct. High Energy Phys.} \textbf{5}, 1 (1989).
+  \hfill [2] X. Ji, \textit{Phys. Rev. Lett.} \textbf{110}, 262002 (2013).\\
+  \hspace{1em}[3] A. Radyushkin, \textit{Phys. Rev. D} \textbf{96}, 034025 (2017).
+  \hfill [4] Y.-S. Liu et al.\ (LP$^3$), \textit{Phys. Rev. Lett.} \textbf{125}, 232003 (2020).\\
+  \hspace{1em}[5] Z. Fan et al.\ (MSULat), \textit{Phys. Rev. D} \textbf{104}, 074507 (2021).
+  \hfill [6] W. Wang, S. Zhao, \textit{Phys. Rev. D} \textbf{97}, 074027 (2018).\\
+  \hspace{1em}[7] R. Zhang, H.-W. Lin, B. Yoon, \textit{Phys. Rev. D} \textbf{104}, 034511 (2021).
+  \hfill [8] Moch, Vermaseren, Vogt, \textit{Nucl. Phys. B} \textbf{688}, 101 (2004).}
+\end{frame}
+
+\end{document}

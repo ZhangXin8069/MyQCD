@@ -1,0 +1,353 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption,multirow}
+\usepackage{hyperref,xcolor,enumitem,mathtools}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的强子谱学：\\
+从内插算符到淬火谱的完整解析}
+\author{基于本库全部相关文献与教材的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+强子谱学（hadron spectroscopy）是格点QCD最早、最成功、也最基础的应用领域——从Wilson在1974年提出格点规范理论之初，``计算强子质量谱''就被确立为格点QCD的核心目标。经过近半个世纪的发展，格点强子谱学已从淬火近似下的定性成功演进为full QCD中与实验值在百分之几精度内一致的定量精确科学。谱学计算中发展起来的全部技术——内插算符的构造、夸克传播子的计算、关联函数的拟合、有效质量与变分分析、激发态提取——构成了格点QCD所有其它应用（形状因子、衰变常数、PDF、TMD-PDF等）的\textbf{方法论基石}。
+
+本文基于本库中的核心教材（Gattringer与Lang的\textit{Quantum Chromodynamics on the Lattice}——第6章和第11章；Gupta的\textit{Introduction to Lattice QCD}——第17章；Peskin与Schroeder的\textit{An Introduction to Quantum Field Theory}——Part III）以及约15篇研究论文，从以下五个层次系统解析格点QCD中的强子谱学：
+
+\textbf{第一层——强子内插算符的构造与分类（§2）：}
+阐述格点上具有确定量子数（$J^{PC}$、味、同位旋）的强子内插算符的系统构造方法。以$\pi$介子和核子为原型，展示离散对称性（宇称、电荷共轭、时间反演）如何约束内插算符的Dirac结构。列举介子和重子的标准内插算符表（Gattringer \& Lang 表6.1）。
+
+\textbf{第二层——关联函数与谱分解（§3）：}
+从欧几里得时间关联函数的谱表示出发：$C(n_t) = \langle O(n_t) O^\dagger(0) \rangle = \sum_k A_k e^{-n_t E_k}$，阐述基态质量提取的基本原理——大$n_t$下基态主导，$E_0$从指数衰减率中确定。讨论零动量投影、周期性边界条件导致的$\cosh$/$\sinh$对称性、以及半整数时间片的有效质量定义。
+
+\textbf{第三层——有效质量与关联$\chi^2$拟合（§4）：}
+详述有效质量$m_{\text{eff}}(n_t) = \ln[C(n_t)/C(n_t+1)]$的构造与平台判据。阐述激发态污染的诊断——从有效质量平台的出现时机判断拟合范围$[n_{\min}, n_{\max}]$。给出关联$\chi^2$拟合的完整定义：$\chi^2 = \sum_{t,t'}[C(t)-f(t)]\operatorname{Cov}^{-1}(t,t')[C(t')-f(t')]$，及协方差矩阵估计的奇异性与正则化策略。
+
+\textbf{第四层——激发态能谱的提取方法（§5）：}
+系统阐述格点QCD中提取激发态的三类方法：
+(i) \textbf{Bayesian先验偏置拟合}——通过罚函数$\varphi(\mathbf{E}, \mathbf{c})$稳定化多指数拟合，在``偏见''与``数据''之间寻找平衡；
+(ii) \textbf{最大熵方法（MEM）}——将关联函数$C(n_t)$视为谱密度$\rho(E)$的Laplace变换，通过最大熵原理从有限$n_t$数据中反演连续谱（$C(n_t) = \int dE\,\rho(E)e^{-n_t E}$, $\varphi[\rho] = \int dE\,\rho(E)\ln\rho(E)$）；
+(iii) \textbf{变分方法（广义本征值问题）}——构建$N\times N$的内插算符交叉关联矩阵$C_{ij}(n_t)$，通过求解广义本征值方程$C(n_t)v = \lambda(n_t)C(n_0)v$分离出近似独立的能级——这是当前格点QCD中激发态谱学的\textbf{标准工具}。
+
+\textbf{第五层——淬火强子谱与full QCD的比较（§6）：}
+以CP-PACS合作组的淬火轻强子谱（Gattringer \& Lang 图6.5）为里程碑实例，展示格点QCD从淬火到full QCD的跃迁。讨论淬火谱与full QCD谱在基态强子质量上的5--10\%系统偏差、淬火手征对数的额外奇异性、以及例外组态对轻$\pi$质量模拟的限制。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{引言：强子谱学——格点QCD的基石}
+
+\subsection{为什么要计算强子谱？}
+
+强子质量是QCD最基本的非微扰预言。格点QCD在强子谱学中的成功——正确重现了从$\pi$介子（135~MeV）到$\Omega^-$（1672~MeV）的整个轻强子谱——是对QCD作为强相互作用理论的\textbf{最有力的验证}之一~\cite{GattringerLang2010}：
+\begin{quote}
+``Reproducing all their masses correctly is already a powerful test for the correctness of QCD. Over the last 20 years lattice QCD calculations of the mass spectrum have improved continually and, for ground state baryons, have reached impressive agreement with experimental data.''~\cite{GattringerLang2010}
+\end{quote}
+
+\subsection{强子谱学的方法论辐射}
+
+强子谱学中发展的每一项技术——从内插算符的选择、夸克传播子的计算、到关联函数的拟合和激发态的提取——都构成了所有更复杂格点计算（形状因子、PDF、TMD-PDF、GPD、衰变常数等）的\textbf{不可替代的方法论基础}。理解强子谱学，就是理解格点QCD的``工作语言''。
+
+\subsection{本库中的核心文献}
+
+\begin{table}[H]
+\centering
+\caption{本库中强子谱学相关的核心文献}
+\label{tab:spec_papers}
+\small
+\begin{tabular}{lp{9cm}}
+\toprule
+文献 & 核心贡献 \\
+\midrule
+\texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}~\cite{GattringerLang2010} & \textbf{Ch.6: 从头到尾的强子谱学}——内插算符（§6.1.1-§6.1.3）、关联函数（§6.1.4-§6.1.5）、淬火近似（§6.1.6）、夸克源与传播子（§6.2）、有效质量（§6.3.1）、关联拟合（§6.3.2）、激发态（§6.3.3: Bayes,MEM,Variational）、标度设定与谱学结果（§6.4）\\
+\texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf}~\cite{Gupta1997intro} & Ch.17: 介子和重子关联函数的缩并展开与谱学计算的实践指南 \\
+\texttt{refer/papers/Gauge-Invariant Smearing and Matrix Correlators using Wilson Fermions at beta=6.2.pdf} & Wilson费米子上的规范不变量涂抹与矩阵关联函数——赝标量衰变常数与谱学矩阵元提取的早期经典 \\
+\texttt{refer/papers/A novel quark-field creation operator construction...pdf} & \textbf{蒸馏（Distillation）方法}的原始提出——Laplacian低模本征向量投影对激发态谱学的革命性影响 \\
+\texttt{refer/papers/Charmed meson masses and decay constants...pdf}~\cite{CharmedClover} & Tadpole改进Clover系综上粲强子的质量与衰变常数——full QCD中重味谱学的现代精度 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%==========================================================================
+\section{强子内插算符的构造与分类}
+%==========================================================================
+
+\subsection{从夸克场到强子态：内插算符的角色}
+
+在格点QCD中，强子不是直接模拟的——只能通过\textbf{内插算符}（interpolator）来``产生''和``湮灭''它们~\cite{GattringerLang2010}。内插算符$\mathcal{O}$是夸克和胶子场的规范不变的色单态乘积——当作用于QCD真空时，$\mathcal{O}^\dagger|0\rangle$产生一个具有特定量子数（$J^{PC}$、味、同位旋）的态。Gattringer与Lang强调：
+\begin{quote}
+``For hadron spectroscopy one studies interpolators constructed out of quarks and gluons. These are by construction gauge-invariant color singlets.''~\cite{GattringerLang2010}
+\end{quote}
+
+内插算符不是唯一的——无限多种不同的算符可以与同一个物理态耦合。选择的优化准则是与感兴趣的态的\textbf{重叠}（$|\langle 0|\mathcal{O}|H\rangle|$）尽可能大，以在$n_t$足够早的时间处（即在噪声淹没信号之前）达到基态主导。
+
+\subsection{介子内插算符}
+
+最简单的介子内插算符是\textbf{定域夸克双线型}~\cite{GattringerLang2010}：
+\begin{equation}
+\mathcal{O}_M(n) = \bar\psi(n) \Gamma \psi(n),
+\label{eq:meson_local}
+\end{equation}
+其中$\Gamma$是Dirac矩阵，选择决定介子的$J^{PC}$量子数（Gattringer \& Lang 表6.1）。以$\pi^+$介子为例：
+\begin{equation}
+\mathcal{O}_{\pi^+}(n) = \bar d(n)_{\alpha}^a \gamma_{5\,\alpha\beta} u(n)_{\beta}^a,
+\label{eq:pion_interpolator}
+\end{equation}
+其中$a$是颜色指标（求和到色单态），$\alpha,\beta$为Dirac指标。内插算符在宇称和电荷共轭下的变换性质（Eqs.\,(6.3)-(6.4)~\cite{GattringerLang2010}）验证了$\mathcal{O}_{\pi^+}$确实具有$J^{PC}=0^{-+}$。同位旋三重态（$\pi^\pm, \pi^0$）和单态（$\eta$）的内插算符通过不同味的组合区分。
+
+\textbf{扩展内插算符：}包含一个规范链接的非定域算符（如$\bar\psi(n) U_\mu(n) \psi(n+\hat\mu)$）可以改善与空间扩展的强子态的耦合。
+
+\subsection{重子内插算符}
+
+最简单的核子内插算符（Gattringer \& Lang, Eq.\,(6.14)~\cite{GattringerLang2010}）：
+\begin{equation}
+\mathcal{O}_N(n) = \epsilon^{abc} u(n)^a \big( u(n)^{b\,T} C\gamma_5 d(n)^c \big),
+\label{eq:nucleon_interpolator}
+\end{equation}
+其中$C$是电荷共轭矩阵，$T$表示转置。颜色指标$a,b,c$通过$\epsilon^{abc}$完全反对称化——保证色单态。``diquark''结构$u^T C\gamma_5 d$组合了两个夸克为自旋$J=0$、同位旋$I=0$的标量双夸克。
+
+\textbf{宇称投影：}对于核子，宇称本征态通过投影子$P_\pm = (1 \pm \gamma_4)/2$分离~\cite{GattringerLang2010}：
+\begin{equation}
+\mathcal{O}_{N\pm}(n) = \epsilon^{abc} P_\pm u(n)^a \big(u(n)^{b\,T} C\gamma_5 d(n)^c\big),
+\label{eq:nucleon_parity}
+\end{equation}
+$\mathcal{O}_{N+}$描述正宇称核子$N(940)$，$\mathcal{O}_{N-}$耦合到负宇称核子$N^*(1535)$。
+
+\textbf{其他重子：}通过替换味内容获得$\Sigma$, $\Xi$, $\Lambda$, $\Omega$等奇异重子的内插算符。对于自旋$J=3/2$的重子（如$\Delta(1232)$, $\Omega^-$），使用双夸克结构$\Gamma_A = 1, \Gamma_B = C\gamma_j$以产生自旋$J=1$的双夸克。
+
+%==========================================================================
+\section{关联函数与谱分解}
+%==========================================================================
+
+\subsection{欧几里得两点关联函数}
+
+内插算符$\mathcal{O}$的欧几里得两点函数具有谱表示~\cite{GattringerLang2010}：
+\begin{equation}
+C(n_t) \equiv \langle \mathcal{O}(n_t) \mathcal{O}^\dagger(0) \rangle = \sum_k |\langle 0|\mathcal{O}|k\rangle|^2 e^{-E_k n_t},
+\label{eq:spectral_decomp}
+\end{equation}
+其中求和遍历所有与$\mathcal{O}^\dagger|0\rangle$有非零重叠的Hamiltonian本征态$|k\rangle$（已投影到零空间动量），$E_k$是相应的能量。
+
+\textbf{基态质量提取：}在大$n_t$极限下，最低能量本征态$E_0$主导：
+\begin{equation}
+C(n_t) \;\xrightarrow{n_t \gg 0}\; A_0 e^{-E_0 n_t} \left[1 + \mathcal{O}(e^{-\Delta E\, n_t})\right],
+\label{eq:ground_state_dominance}
+\end{equation}
+其中$\Delta E = E_1 - E_0$是基态-第一激发态的能隙。
+
+\subsection{零动量投影与周期性边界条件}
+
+物理的强子质量需在零空间动量下定义。对空间格点求和实现投影：
+\begin{equation}
+C(n_t) = \sum_{\mathbf{n}} \langle \mathcal{O}(\mathbf{n}, n_t) \mathcal{O}^\dagger(\mathbf{0}, 0) \rangle.
+\label{eq:zero_mom_projection}
+\end{equation}
+
+在有限时间范围$N_T$下，周期性边界条件导致关联函数的对称性~\cite{GattringerLang2010}：对于介子，向前传播（$n_t$方向）和向后传播（$N_T - n_t$方向）的贡献以相同或相反的符号叠加（取决于内插算符的具体结构）——形成$\cosh$或$\sinh$形式（Eq.\,(6.55)~\cite{GattringerLang2010}）：
+\begin{equation}
+C(n_t) \sim A_0 e^{-N_T E_0/2} \cosh\big[(N_T/2 - n_t)E_0\big] \quad\text{或}\quad A_0 e^{-N_T E_0/2} \sinh\big[(N_T/2 - n_t)E_0\big].
+\label{eq:cosh_sinh}
+\end{equation}
+
+\subsection{色散关系}
+
+对于具有非零空间动量的强子态，能量$E(\mathbf{p})$与质量$m_H$之间的联系由\textbf{相对论性色散关系}给出~\cite{GattringerLang2010}：
+\begin{equation}
+E(\mathbf{p}) = \sqrt{m_H^2 + \mathbf{p}^2} \quad (\text{连续}), \qquad
+\cosh E(\mathbf{p}) - \cosh m_H = \sum_{j=1}^3 (1 - \cos p_j) \quad (\text{格点}).
+\label{eq:dispersion}
+\end{equation}
+在LaMET计算中，色散关系的验证（如$E^2(P_z) = m_N^2 + P_z^2$）是核子boost数据可靠性的\textbf{首要检验}。
+
+%==========================================================================
+\section{有效质量与关联$\chi^2$拟合}
+%==========================================================================
+
+\subsection{有效质量的定义与平台判据}
+
+从相邻时间片的关联函数比值中定义\textbf{有效质量}~\cite{GattringerLang2010}：
+\begin{equation}
+\boxed{m_{\text{eff}}(n_t + \tfrac{1}{2}) \equiv \ln\frac{C(n_t)}{C(n_t+1)}}.
+\label{eq:eff_mass}
+\end{equation}
+在基态主导区域（$n_t$足够大），$C(n_t) \approx A_0 e^{-E_0 n_t}$，因此\textbf{$m_{\text{eff}}$趋于常数$E_0$——形成平台}。平台的出现标志着激发态污染已消退，可以开始基态拟合。Gattringer与Lang图6.3展示了$\pi$介子有效质量在不同裸夸克质量下的平台行为——平台在$n_t \in [4, 28]$内显著稳定~\cite{GattringerLang2010}。
+
+\textbf{含周期性的有效质量：}当需要考虑时间方向的周期性时，使用$\cosh$形式：
+\begin{equation}
+\frac{C(n_t)}{C(n_t+1)} = \frac{\cosh[m_{\text{eff}}(n_t - N_T/2)]}{\cosh[m_{\text{eff}}(n_t + 1 - N_T/2)]},
+\label{eq:eff_mass_periodic}
+\end{equation}
+并从中数值求解$m_{\text{eff}}$。
+
+\subsection{关联$\chi^2$拟合}
+
+有效质量平台提供拟合范围的初判，但\textbf{最终的基态参数必须通过关联$\chi^2$拟合确定}~\cite{GattringerLang2010}。在拟合窗口$[n_{\min}, n_{\max}]$内，假设函数$f(n_t)$（通常为$A_0 e^{-E_0 n_t}$或$A_0\cosh[(n_t - N_T/2)E_0]$）的参数$\{A_0, E_0\}$通过最小化关联$\chi^2$确定：
+
+\begin{equation}
+\boxed{\chi^2 = \sum_{n_t, n_t' = n_{\min}}^{n_{\max}} \big[C(n_t) - f(n_t)\big]\,\operatorname{Cov}^{-1}(n_t, n_t')\,\big[C(n_t') - f(n_t')\big]},
+\label{eq:correlated_chisq}
+\end{equation}
+其中协方差矩阵$\operatorname{Cov}(n_t, n_t')$从$N$个组态上的$C(n_t)$测量值中估计。拟合质量的判据——$\chi^2/$d.o.f.\ $\in [0.5, 1.5]$——表明拟合模型与数据统计相容。
+
+\textbf{拟合范围的确定：}变化$n_{\min}$（更早的起始时间包含更多数据但更多激发态污染）和$n_{\max}$（更晚的终止时间噪声更大），要求$\chi^2/$d.o.f.\ 的变化不超过$\mathcal{O}(1)$，并结合视觉检验。Bootstrap/Jackknife重采样提供拟合参数误差的稳健估计~\cite{GattringerLang2010}。
+
+%==========================================================================
+\section{激发态能谱的提取方法}
+%==========================================================================
+
+\subsection{Bayesian先验偏置拟合}
+
+直接拟合多指数和$f(n_t) = \sum_{k=1}^K c_k e^{-E_k n_t}$面临严重的数值不稳定性——由于指数函数的强烈共线性。Bayesian方法通过引入\textbf{罚函数}（stabilizer）来正则化~\cite{GattringerLang2010}：
+\begin{equation}
+F = \chi^2 + \lambda \varphi, \qquad \varphi = \sum_{k=1}^K \big[a_k (E_k - \bar E_k)^2 + b_k (c_k - \bar c_k)^2\big],
+\label{eq:bayesian_stabilizer}
+\end{equation}
+其中$\bar E_k$和$\bar c_k$是先验期望值（``偏见''/prejudices），$a_k, b_k$是权重，$\lambda$控制偏见与数据的相对权重。这一方法可以从加噪指数和中稳定分离2--3个能级。
+
+\subsection{最大熵方法（MEM）}
+
+最大熵方法将关联函数视为\textbf{连续谱密度}$\rho(E)$的Laplace变换~\cite{GattringerLang2010}：
+\begin{equation}
+C(n_t) = \int_0^\infty dE\, \rho(E)\, e^{-n_t E}.
+\label{eq:laplace_spectral}
+\end{equation}
+稳定化泛函由Shannon熵定义：$\varphi[\rho] = \int dE\, \rho(E)\ln\rho(E)$。$\rho(E)$中的孤立峰对应于本征能量$E_k$。方法要求$\rho(E) \ge 0$且对$C(n_t)$的统计精度高度敏感——适用于高精度数据但受限于中等统计量下的模棱两可性。
+
+\subsection{变分方法——广义本征值问题}
+
+变分方法是当前格点谱学中提取激发态的\textbf{标准工具}~\cite{GattringerLang2010}。对于$N$个基内插算符$\{\mathcal{O}_i\}$（通过不同Dirac结构、不同涂抹半径、或不同夸克源来构造），构建\textbf{交叉关联矩阵}：
+\begin{equation}
+C_{ij}(n_t) = \langle \mathcal{O}_i(n_t) \mathcal{O}_j^\dagger(0) \rangle = \sum_k \langle 0|\mathcal{O}_i|k\rangle \langle k|\mathcal{O}_j^\dagger|0\rangle e^{-E_k n_t}.
+\label{eq:corr_matrix}
+\end{equation}
+
+\begin{definition}[广义本征值方程~\cite{GattringerLang2010}]
+\begin{equation}
+\boxed{C(n_t) v^{(k)} = \lambda^{(k)}(n_t) C(n_0) v^{(k)}},
+\label{eq:GEVP}
+\end{equation}
+其中$n_0 < n_t$是参考时间片。本征值的行为模拟了单指数：$\lambda^{(k)}(n_t) \propto e^{-E_k n_t}[1 + \mathcal{O}(e^{-\Delta E_k n_t})]$——每个本征值对应于一个（近似）独立的能级$E_k$。
+\end{definition}
+
+\textbf{方法的实际优势：}（i）增大$N$（使用更多基算符）提高高激发态的分辨能力；（ii）广义本征值公式通过$C(n_0)$的正则化有效压制了高激发态的残余耦合——在更小的$n_t$处即达到渐近行为；（iii）本征向量提供各物理态与基算符之间的重叠信息——用于``指纹识别''激发态~\cite{GattringerLang2010}。
+
+\textbf{变分方法的数值实现：}通过Cholesky分解$C(n_0) = Q Q^\dagger$将广义本征值问题转化为标准本征值问题：$Q^{-1}C(n_t) Q^{\dagger\,-1} u = \lambda u$——这比直接求解$C(n_0)^{-1}C(n_t)$更数值稳定。
+
+\subsection{蒸馏（Distillation）——激发态谱学的革命性工具}
+
+Peardon等人提出的蒸馏方法~\cite{Distillation2009}在Laplacian算符的低模本征向量空间中投影夸克场——在每个时间片上对夸克传播子进行降维。蒸馏使得变分方法的\textbf{基算符数量可以从几个扩展到数十个}，极大地增强了高激发态的分辨能力。蒸馏方法已在高激发态谱学（包括混合态和胶球态）、散射计算和强子矩阵元中获得了广泛应用。本库中的\texttt{A novel quark-field creation operator construction for hadronic physics in lattice QCD.pdf}是该方法的原始文献。
+
+%==========================================================================
+\section{淬火强子谱：格点QCD的第一个伟大成就}
+%==========================================================================
+
+\subsection{CP-PACS的淬火轻强子谱}
+
+淬火近似（省略费米子行列式，$\det[D]=1$）下的强子谱构成了格点QCD的第一个重大成功。Gattringer与Lang的图6.5~\cite{GattringerLang2010}展示了CP-PACS合作组的标志性成果——在$a$小至0.05~fm的格距上，使用淬火Wilson费米子计算了从$\pi$到$\Omega$的整个轻强子谱：
+
+\begin{quote}
+``The mass values have been obtained after extrapolation to infinite volume, vanishing lattice spacing and the chiral limit. ...Although the calculation was done in the quenched approximation, a good agreement with experimental data is found for a large range of hadrons.''~\cite{GattringerLang2010}
+\end{quote}
+
+\textbf{淬火谱的关键特征：}基态强子质量与实验值的一致性在5--10\%水平内（对大部分介子和重子），但在以下方面展示了淬火缺陷：轻介子道的额外奇异性（淬火手征对数）、$m_\pi$不能降至物理值以下（例外组态限制）、以及共振态的缺失（淬火禁止强衰变）。
+
+\subsection{从淬火到full QCD：现代强子谱学}
+
+现代full QCD谱学已在以下方面取得了决定性进展：
+\begin{itemize}[nosep]
+    \item 物理$\pi$质量下的质子和$\Delta$质量预测——误差$<1\%$；
+    \item 粲和底强子谱的full QCD计算——本库中的粲介子计算~\cite{CharmedClover}在$N_f=2+1$味系综上将$D$和$D_s$质量精度提升至MeV级别；
+    \item 通过L\"uscher方法和变分分析的共振态谱学（如$\rho\to\pi\pi$）。
+\end{itemize}
+
+%==========================================================================
+\begin{thebibliography}{99}
+
+\bibitem{GattringerLang2010}
+C.~Gattringer and C.~B.~Lang,
+\textit{Quantum Chromodynamics on the Lattice: An Introductory Presentation},
+Lect.\ Notes Phys.\ \textbf{788}, Springer (2010).
+\\\textbf{[来源:} \texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}\textbf{]}
+\\\textbf{Ch.6: Hadron Spectroscopy——本报告的主要来源。}
+§6.1（内插算符的构造、介子和重子算符、关联函数、淬火近似）；
+§6.2（夸克源、传播子计算、涂抹技术）；
+§6.3（有效质量、关联$\chi^2$拟合、Bayesian激发态拟合、最大熵方法、变分广义本征值方法）；
+§6.4（标度设定、手征外推、淬火轻强子谱结果）。
+
+\bibitem{Gupta1997intro}
+R.~Gupta,
+``Introduction to Lattice QCD,''
+arXiv:hep-lat/9807028 (1997).
+\\\textbf{[来源:} \texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf}\textbf{]}
+\\Ch.17: 介子和重子的内插算符构造、两点关联函数的缩并展开。
+
+\bibitem{PeskinSchroeder1995}
+M.~E.~Peskin and D.~V.~Schroeder,
+\textit{An Introduction to Quantum Field Theory}, Westview Press (1995).
+\\\textbf{[来源:} \texttt{refer/books/An Introduction to Quantum Field Theory.pdf}\textbf{]}。
+
+\bibitem{CharmedClover}
+(CLQCD),
+``Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles,''
+\\\textbf{[来源:} \texttt{refer/papers/Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+——$N_f=2+1$味full QCD中粲介子质量和衰变常数的连续极限计算——现代重味谱学的精度典范。
+
+\bibitem{Distillation2009}
+M.~Peardon \textit{et al.} (Hadron Spectrum),
+``A novel quark-field creation operator construction for hadronic physics in lattice QCD,''
+Phys.\ Rev.\ D \textbf{80}, 054506 (2009), arXiv:0905.2160.
+\\\textbf{[来源:} \texttt{refer/papers/A novel quark-field creation operator construction for hadronic physics in lattice QCD.pdf}\textbf{]}
+——蒸馏方法的原始提出：Laplacian低模本征向量投影，对激发态谱学的革命性影响。
+
+\bibitem{GaugeSmearing}
+``Gauge-Invariant Smearing and Matrix Correlators using Wilson Fermions at beta=6.2,''
+\\\textbf{[来源:} \texttt{refer/papers/Gauge-Invariant Smearing and Matrix Correlators using Wilson Fermions at beta=6.2.pdf}\textbf{]}
+——Wilson费米子上的规范不变量涂抹与谱学矩阵元提取。
+
+\bibitem{KinematicallyEnhanced}
+``Kinematically-enhanced interpolating operators for boosted hadrons,''
+\\\textbf{[来源:} \texttt{refer/papers/Kinematically-enhanced interpolating operators for boosted hadrons.pdf}\textbf{]}
+——boost态内插算符优化对色散关系检验和LaMET计算的应用。
+
+\bibitem{DistillationHM}
+``Distillation at High-Momentum,''
+\\\textbf{[来源:} \texttt{refer/papers/Distillation at High-Momentum.pdf}\textbf{]}
+——蒸馏在高动量强子态中的拓展应用。
+
+\bibitem{QuarkMassesClover}
+``Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles,''
+\\\textbf{[来源:} \texttt{refer/papers/Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}。
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,'' 内部笔记。
+\\\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}和\texttt{refer/papers/Note of gluon PDFs.pdf}
+
+\end{thebibliography}
+
+\vspace{0.5cm}
+\noindent\rule{\textwidth}{0.5pt}
+\small
+\textbf{交叉参考建议：}本报告应结合同一\texttt{docs/}目录下的以下文件阅读：
+\begin{itemize}[nosep]
+    \item \texttt{格点QCD中的关联函数.pdf}——两点/三点函数与指数拟合的统计细节
+    \item \texttt{格点QCD中的连通图与非连通图.pdf}——Wick缩并与关联函数的图表示
+    \item \texttt{格点QCD中的衰变道.pdf}——衰变常数与L\"uscher共振态方法
+    \item \texttt{格点QCD中的重夸克有效理论.pdf}——重味强子的系统有效理论
+    \item \texttt{格点QCD中的费米子方案.pdf}——不同费米子方案对谱学精度的影响
+    \item \texttt{格点QCD中的重整化.pdf}——内插算符的重整化
+    \item \texttt{格点QCD蒸馏方法解析.pdf}——蒸馏方法的详细原理
+    \item \texttt{格点QCD中的重采样方法.pdf}——Bootstrap/Jackknife对拟合误差的估计
+\end{itemize}
+
+\end{document}

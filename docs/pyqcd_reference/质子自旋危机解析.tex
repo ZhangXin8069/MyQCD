@@ -1,0 +1,564 @@
+\documentclass[12pt,a4paper]{ctexart}
+
+% === 页面设置 ===
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+
+% === 数学和物理 ===
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{slashed}
+
+% === 图形和表格 ===
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% === 引用 ===
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+% === 其他 ===
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{multirow}
+\usepackage{tikz}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+}
+
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{remark}{注记}[section]
+\newtheorem{theorem}{定理}[section]
+
+% === 标题信息 ===
+\title{\heiti 质子自旋危机：历史、理论与格点QCD的解答}
+\author{基于本库文献的综合解析}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+1987年，欧洲$\mu$子合作组（EMC）发现夸克自旋对质子自旋的贡献出人意料地小，由此引发了持续至今的``质子自旋危机''。本文系统梳理了这一问题的起源、理论框架和最新研究进展。我们从Jaffe-Manohar经典论文出发，详细阐述了质子自旋的两种主要分解方案（Jaffe-Manohar分解和季向东分解），分析了胶子螺旋度$\Delta G$和轨道角动量的贡献。结合近年来格点QCD在大动量有效理论（LaMET）框架下对夸克螺旋度分布、胶子螺旋度分布和非极化胶子PDF的计算成果，系统讨论了理论计算如何逐步揭示质子自旋的完整图像。最后展望了RHIC、EIC等实验以及更精确格点计算对最终解决这一问题的前景。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{引言：什么是质子自旋危机？}
+% ============================================================
+
+质子是宇宙中可见物质的基本构成单元之一。自旋$1/2$是质子的固有量子性质，然而这个看似简单的量子数究竟如何从其内部组分——夸克和胶子——的角动量组合而来，至今仍是一个深刻而未完全解决的问题。
+
+1987年，欧洲$\mu$子合作组（European Muon Collaboration, EMC）发表了关于极化深度非弹性散射（polarized DIS）中质子自旋相关结构函数$g_1(x,Q^2)$的测量结果\cite{EMC}。这一实验发现，夸克自旋对质子总自旋的贡献出奇地小——仅为约$12\% \pm 17\%$，与朴素夸克模型所预言的夸克贡献接近100\%形成了鲜明对比。这一令人震惊的结果被广泛称为\textbf{``质子自旋危机''}（Proton Spin Crisis）。
+
+\begin{quote}
+\small
+``A recent measurement by the European Muon Collaboration (EMC) indicates that only a small percentage of the proton's spin is carried by the spin angular momentum of the quarks.''
+\begin{flushright}
+—— Jaffe \& Manohar, Nucl.\ Phys.\ B337, 509 (1990) \cite{JaffeManohar1990}
+\end{flushright}
+\end{quote}
+
+三十余年后的今天，经过大量实验和理论的努力，我们对这一问题的理解大大深化了。现代全局分析表明，夸克自旋贡献约占质子自旋的30\%\cite{DSSV14,NNPDFpol11,JAM17}，其余部分来自胶子螺旋度和夸克/胶子的轨道角动量。格点QCD作为第一性原理的非微扰方法，正在为解决这一问题提供越来越精确的理论输入\cite{Egerer2022,LP3helicity,Lin2025gluon}。
+
+\section{历史背景：从夸克模型到EMC实验}
+
+\subsection{朴素夸克模型的期望}
+
+在朴素夸克模型（Na\"ive Quark Model, NQM）的图像中，质子由三个组分夸克（$uud$）组成，它们处于$S$波的轨道基态（$L=0$）。在这种情况下，人们自然会期望质子的总自旋完全由这三个夸克的自旋贡献。根据SU(6)波函数，在最简单的图像中，两个$u$夸克的自旋平行于质子自旋，一个$d$夸克的自旋反平行，净夸克自旋为$1/2$，因此``朴素''地看，$\Delta\Sigma = 1$。
+
+\subsection{Ellis-Jaffe求和规则}
+
+然而，Jaffe和Manohar在其经典论文\cite{JaffeManohar1990}中指出，``$1$''并非一个合理的期望值。基于SU(3)味对称性和超子$\beta$衰变数据，Ellis和Jaffe早在1974年就给出了更为合理的估计\cite{EllisJaffe}：
+
+\begin{equation}
+\Delta\Sigma \equiv \Delta u + \Delta d + \Delta s = 3F - D \approx 0.60 \pm 0.12,
+\label{eq:EllisJaffe}
+\end{equation}
+
+其中$F$和$D$是从超子$\beta$衰变中提取的轴矢流SU(3)矩阵元。这意味着\textbf{即使在EMC实验之前，已知的强子物理数据也已经暗示夸克自旋只贡献了质子自旋的约60\%}。
+
+Jaffe和Manohar强调：
+\begin{quote}
+``The lesson of this section is a simple one: unity is not a `naive' expectation for $\Delta\Sigma$, it is an unreasonable one.''
+\end{quote}
+
+剩余的约40\%可以自然地归属为夸克的轨道角动量，这在相对论性夸克模型（如MIT袋模型）中是一个自然的效应——由于夸克被束缚在有限的空间区域内，Dirac方程的下分量（$p$波）必然存在，从而产生轨道角动量\cite{JaffeManohar1990}。
+
+\subsection{EMC实验：自旋危机的引爆}
+
+1987年EMC的测量\cite{EMC}给出的结果是：
+
+\begin{equation}
+\Delta\Sigma(Q^2 = 10.7\ \text{GeV}^2) = 0.060 \pm 0.047 \pm 0.069,
+\label{eq:EMC_result}
+\end{equation}
+
+这不仅远小于朴素夸克模型的期望值$1$，甚至显著小于Ellis-Jaffe的``合理''估计值$0.60$。这一结果表明，\textbf{夸克自旋对质子自旋的贡献几乎为零}，意味着必须存在其他重要的非夸克自旋贡献机制。
+
+这一结果后来被更精确的现代全局分析所修正。DSSV14\cite{DSSV14}、NNPDFpol1.1\cite{NNPDFpol11}和JAM17\cite{JAM17}等分析表明，在当前实验精度下，夸克自旋贡献$\Delta\Sigma$约为0.25--0.35，即约占质子总自旋的25\%--35\%。
+
+\section{质子自旋的分解：理论框架}
+
+\subsection{Jaffe-Manohar分解}
+
+Jaffe和Manohar在1990年的经典论文\cite{JaffeManohar1990}中，系统研究了QCD中与Lorentz变换相关的守恒流，给出了质子自旋的规范不变分解：
+
+\begin{equation}
+J = \frac{1}{2}\Delta\Sigma + L_q + L_G + \Delta G,
+\label{eq:JM_decomposition}
+\end{equation}
+
+其中：
+\begin{itemize}
+    \item $\frac{1}{2}\Delta\Sigma = \frac{1}{2}\int dx \left[\Delta u(x) + \Delta d(x) + \Delta s(x) + \cdots \right]$：夸克自旋对质子自旋的贡献；
+    \item $L_q$：夸克轨道角动量贡献；
+    \item $L_G$：胶子轨道角动量贡献；
+    \item $\Delta G = \int dx\, \Delta g(x)$：胶子螺旋度（自旋）贡献，其中$\Delta g(x)$是胶子螺旋度分布函数。
+\end{itemize}
+
+\textbf{Jaffe-Manohar分解的重要特性：}该分解是在\textbf{无限大动量系}（infinite momentum frame, IMF）或等价地在\textbf{光锥规范}$A^+ = 0$下定义的。在这种框架下，胶子自旋$\Delta G$可以通过光锥关联函数来定义：
+
+\begin{equation}
+\Delta G = \int dx\, \frac{i}{2xP^+} \int \frac{d\xi^-}{2\pi} e^{-ixP^+\xi^-} \langle PS| F^{+\alpha}_a(\xi^-) W^{ab}(\xi^-, 0) \tilde{F}^+_{\alpha,b}(0) |PS\rangle,
+\label{eq:DeltaG_definition}
+\end{equation}
+
+其中$\xi^\pm = (\xi^0 \pm \xi^3)/\sqrt{2}$是光前坐标，$W^{ab}(\xi^-,0)$是伴随表示中的光锥Wilson线（规范链），$F^{\mu\nu}$是规范场张量，$\tilde{F}^{\mu\nu} = \frac{1}{2}\epsilon^{\mu\nu\rho\sigma}F_{\rho\sigma}$是其对偶张量。规范链的引入确保了该算符的规范不变性。
+
+Jaffe和Manohar的一个重要贡献是澄清了一个关键问题：\textbf{反常（胶子）U(1)$_A$流$K_\mu$通常不能被等同于胶子自旋}。他们指出：
+
+\begin{quote}
+``We examine the conserved currents associated with Lorentz transformations in QCD, derive sum rules and show that the anomalous (gluonic) U(1)$_A$ current, $K_\mu$, is not in general to be identified with the gluon spin.''
+\end{quote}
+
+这一结论至关重要，因为它区分了真正的胶子自旋贡献和由于U(1)$_A$反常引起的表观效应。
+
+\subsection{季向东（Ji）分解}
+
+由于Jaffe-Manohar分解依赖于光锥规范和无限大动量系的选择，其局域性不够理想。季向东在1997年提出了另一种规范不变且不依赖参考系的分解方案\cite{Ji1997}：
+
+\begin{equation}
+J = J_q + J_g,
+\label{eq:Ji_decomposition}
+\end{equation}
+
+其中：
+\begin{itemize}
+    \item $J_q$：夸克总角动量，可以进一步分解为夸克自旋和夸克轨道角动量；
+    \item $J_g$：胶子总角动量（无法进一步在规范不变的前提下分离为胶子自旋和胶子轨道角动量）。
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=1.2]
+    % Title
+    \node[font=\bfseries] at (0,4.5) {质子自旋的两种分解方案};
+
+    % Jaffe-Manohar
+    \node[font=\bfseries] at (-3.5,3.8) {Jaffe-Manohar分解};
+    \draw[thick] (-3.5,3.5) -- (-3.5,0.5);
+    \node at (-3.5,3.0) {$\frac{1}{2}\Delta\Sigma$ (夸克自旋)};
+    \node at (-6.5,2.5) {$\sim 0.15$ (30\%)};
+    \node at (-3.5,2.0) {$L_q$ (夸克轨道角动量)};
+    \node at (-3.5,1.5) {$\Delta G$ (胶子螺旋度)};
+    \node at (-3.5,1.0) {$L_G$ (胶子轨道角动量)};
+
+    % Ji
+    \node[font=\bfseries] at (3.5,3.8) {Ji分解};
+    \draw[thick] (3.5,3.5) -- (3.5,0.5);
+    \node at (3.5,3.0) {$J_q$ (夸克总角动量)};
+    \node at (3.5,2.5) {$\frac{1}{2}\Delta\Sigma_q + L_q$};
+    \node at (3.5,2.0) {$J_g$ (胶子总角动量)};
+    \node at (3.5,1.5) {$\Delta G + L_G$};
+
+    % Divider
+    \draw[dashed] (-1.5,0) -- (1.5,0);
+    \node at (0,-0.3) {规范依赖/参考系依赖 vs.\ 规范不变/参考系独立};
+\end{tikzpicture}
+\caption{质子自旋的两种主要分解方案示意}
+\label{fig:decompositions}
+\end{figure}
+
+两种分解方案各有优劣。Jaffe-Manohar分解可以分离出胶子自旋和胶子轨道角动量，但依赖于光锥规范的选择，在格点上不易直接计算。Ji分解是规范不变的，可以在格点上直接计算，但$J_g$无法进一步分离。两种方案中夸克自旋贡献$\frac{1}{2}\Delta\Sigma$是一致的。
+
+\subsection{胶子螺旋度$\Delta G$的实验探测}
+
+实验上，$\Delta G$可以通过以下途径进行探测：
+
+\begin{enumerate}
+    \item \textbf{极化深度非弹性散射中的双喷注产生：}Carlitz、Collins和Mueller指出\cite{CarlitzCollinsMueller}，$g_1$结构函数的$Q^2$演化对胶子螺旋度$\Delta g(x)$敏感，通过测量光子-胶子融合过程中产生的双喷注事件可以直接探测$\Delta g$。
+
+    \item \textbf{RHIC上的极化质子-质子碰撞：}相对论重离子对撞机（RHIC）上的STAR和PHENIX实验通过测量$\pi^0$和喷注的产生截面，对$\Delta g(x)$在$0.05 \lesssim x \lesssim 0.2$区域提供了重要约束\cite{DSSV14}。2009年的数据分析首次给出了胶子螺旋度非零的证据。
+
+    \item \textbf{COMPASS、HERMES和JLab实验：}这些固定靶实验通过半单举深度非弹性散射（SIDIS）中的高横动量强子对产生来约束$\Delta g(x)$。
+\end{enumerate}
+
+然而，在最新的全局分析中\cite{JAM24}，当放松对夸克和胶子螺旋度PDF的正定性约束后，现有实验数据\textbf{并不要求}胶子极化必须为正。这凸显了未来更高精度实验（如电子-离子对撞机EIC）的重要性。
+
+\section{格点QCD对质子自旋危机的计算贡献}
+
+格点QCD为从第一性原理计算质子的各种自旋分量提供了非微扰途径。近年来，在大动量有效理论（LaMET）和赝PDF方法的推动下，这一领域取得了显著进展。
+
+\subsection{夸克螺旋度分布的格点计算}
+
+LP$^3$合作组在2018年发表了物理$\pi$介子质量下质子同位旋矢量夸克螺旋度分布的格点QCD计算\cite{LP3helicity}。这是该领域的里程碑式工作。
+
+计算在LaMET框架下进行，核心步骤如下：
+
+\begin{enumerate}
+    \item 在格点上计算准PDF：
+    \begin{equation}
+    \Delta\tilde{q}(x, P_z, a) = \int_{-\infty}^{\infty} \frac{P_z dz}{2\pi} e^{ixP_z z} \frac{1}{2P_0} \langle PS| \hat{\mathcal{O}}(z,a) |PS\rangle,
+    \end{equation}
+    其中非局域Euclidean算符为$\hat{\mathcal{O}}(z,a) = \bar{\psi}_q(z)\gamma_z\gamma_5 U(z,0)\psi_q(0)$。
+
+    \item 在RI/MOM方案下进行非微扰重整化。
+
+    \item 通过微扰匹配关系将准PDF转换为$\overline{\text{MS}}$方案下的物理PDF。
+\end{enumerate}
+
+LP$^3$的结果（见原文图4）显示，在质子动量$P_z = 3.0$~GeV下提取的同位旋矢量夸克螺旋度分布与大$x$区域的实验数据在$1\sigma$范围内一致。特别值得注意的是，格点计算结果支持$\Delta\bar{u}(x) > \Delta\bar{d}(x)$，与实验数据一致。
+
+\subsection{胶子螺旋度$\Delta G$的格点计算}
+
+对$\Delta G$的直接格点计算面临特殊的困难，因为Jaffe-Manohar分解中的胶子螺旋度定义依赖于光锥框架和光锥规范。
+
+HadStruc合作组在2022年发表了首次利用赝PDF方法对核子中极化胶子Ioffe-时间分布的探索性格点QCD计算\cite{Egerer2022}。他们采用高统计量的$32^3 \times 64$格点系综（$\pi$介子质量358~MeV，格点间距0.094~fm），建立了赝分布方法用于解决质子自旋难题的可行性。
+
+关键的矩阵元定义为：
+
+\begin{equation}
+\tilde{m}_{\mu\alpha;\lambda\beta}(z,p,s) = \langle p,s| G_{\mu\alpha}(z) W[z,0] \tilde{G}_{\lambda\beta}(0) |p,s\rangle,
+\label{eq:helicity_matrix}
+\end{equation}
+
+其中$z_\mu = \{0,0,0,z_3\}$是胶子场之间的间隔。极化胶子的Ioffe-时间分布（ITD）由不变振幅的特定组合确定：
+
+\begin{equation}
+-i\tilde{I}_p(\nu) \equiv \tilde{M}_{(ps)}^{(+)}(\nu) - \nu \tilde{M}_{(pp)}(\nu),
+\end{equation}
+
+其中$\nu = p_3 z_3$是Ioffe时间。
+
+该工作的一个重要发现是：\textbf{在现有统计精度内，格点确定的极化胶子Ioffe-时间分布与最先进的全局分析预期之间具有良好的比较}。在Ioffe-时间$\nu \lesssim 9$的范围内，他们获得了胶子自旋对质子自旋贡献非零的暗示。
+
+此外，Yang等人\cite{Yang2017}采用季向东于2013年提出的方法\cite{Ji2013gluon}——指出等时局域算符$\vec{E} \times \vec{A}_{\text{phys}}$的矩阵元与光锥胶子螺旋度分布中的非局域算符结果一致——进行了格点计算，得到$\Delta G = 0.251(47)(16)$。但需要注意，这一结果的微扰匹配系数较大，可能存在系统误差。
+
+\subsection{非极化胶子PDF和核子自旋的全貌}
+
+虽然非极化胶子PDF $g(x)$不直接进入自旋求和规则，但它对于全面理解胶子在核子内部的动力学至关重要。CLQCD/LPC合作组的最新工作\cite{Chen2025gluon,Chen2025first,Good2025}在LaMET框架下利用多格点间距的组态进行了$g(x)$的计算。
+
+该工作的一个重要特点是同时进行了\textbf{连续极限外推}和\textbf{无穷大动量极限外推}：
+
+\begin{equation}
+xg(x, P_z, a) = xg_0(x) + a^2 f(x) + a^2 P_z^2 h(x) + \frac{d(x)}{P_z^2},
+\label{eq:extrap}
+\end{equation}
+
+其中$a^2 f(x)$项代表离散化误差，$a^2 P_z^2 h(x)$项表示依赖于动量的离散化误差，$d(x)/P_z^2$项对应领头的高阶twist修正。这种系统性的外推对于获得与全局拟合一致的物理结果至关重要。
+
+在蒸馏（distillation）方法的帮助下，格点计算的信噪比得到了显著改善\cite{Peardon2009,NoteGluonPDFs}：
+
+\begin{itemize}
+    \item \textbf{蒸馏的基本原理：}通过求解三维规范协变Laplace算符的本征值问题，截取最低$N_{\text{ev}}$个本征模来构建涂抹算符$\Box_{xy}(t) = \sum_{k=1}^{N_{\text{ev}}} v^{(k)}_x(t) v^{(k)\dagger}_y(t)$。这种谱滤波方法抑制短距离涨落，放大了物理上相关的长波分量。
+
+    \item \textbf{Perambulator的重用：}蒸馏方法的关键技术优势在于，计算量密集的perambulator $\tau^{(p,\bar{p})}_{\alpha,\beta} = V^{(p)\dagger} M^{-1} V^{(\bar{p})}$仅依赖于规范场组态，与插值算符的选择无关，因此可以一次计算、多次复用\cite{NoteGluonPDFs}。
+\end{itemize}
+
+\section{当前状态与未决问题}
+
+\subsection{当前已知的各分量估计值}
+
+根据实验数据和格点QCD计算，质子自旋各分量的当前状态可总结如下（所有数值仍有较大的不确定性）：
+
+\begin{table}[H]
+\centering
+\caption{质子自旋各分量的当前估计值汇总}
+\label{tab:spin_budget}
+\begin{tabular}{lcc}
+\toprule
+分量 & 符号 & 估计范围 \\
+\midrule
+夸克自旋 & $\frac{1}{2}\Delta\Sigma$ & 0.15--0.20 \\
+夸克轨道角动量 & $L_q$ & 0.05--0.15 \\
+胶子螺旋度 & $\Delta G$ & 0.15--0.30 \\
+胶子轨道角动量 & $L_G$ & 0.00--0.15 \\
+\midrule
+总计 & $J = 1/2$ & 0.5 (准确) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+需要强调的是，当前各分量的数值仍然具有较大的不确定性，不同实验和理论方法给出的结果存在一定差异。
+
+\subsection{关键未决问题}
+
+\begin{enumerate}
+    \item \textbf{胶子螺旋度$\Delta G$的确切符号和大小：}虽然RHIC数据倾向于正的$\Delta G$\cite{DSSV14}，但部分全局分析在放松正定性约束后并不一定要求$\Delta G > 0$\cite{JAM24}。EIC实验将对此提供决定性约束。
+
+    \item \textbf{小$x$区域的胶子极化：}$\Delta g(x)$在$x < 0.05$区域的行为至关重要，因为这一区域对$\Delta G$的积分贡献可能很大\cite{Egerer2022}。
+
+    \item \textbf{轨道角动量的实验测量：}$L_q$和$L_G$的直接实验测量极具挑战性，深度虚Compton散射（DVCS）和深度虚介子产生（DVMP）过程通过广义部分子分布（GPDs）可以约束$J_q$，但轨道角动量的分离仍需理论输入\cite{Ji1997}。
+
+    \item \textbf{格点计算的系统误差控制：}当前格点QCD对螺旋度分布的计算主要受限于：（a）有限格点间距效应；（b）$\pi$介子质量外推；（c）大动量下的信噪比衰减；（d）微扰匹配中的高阶修正\cite{Chen2025gluon,LP3helicity}。
+
+    \item \textbf{非连通图的精确计算：}味单态组合（如$\Delta\Sigma$和$\Delta G$）涉及非连通图贡献，其信噪比远差于同位旋矢量组合\cite{NoteGluonPDFs}。
+\end{enumerate}
+
+\section{未来展望}
+
+\subsection{实验方面}
+
+\begin{itemize}
+    \item \textbf{电子-离子对撞机（EIC）：}计划在布鲁克海文国家实验室建造的EIC将以前所未有的精度测量极化质子和轻核的深度非弹性散射，覆盖从大$x$到极低$x$的广泛运动学区域，有望为$\Delta\Sigma$和$\Delta G$的精确确定提供决定性数据\cite{EIC}。
+
+    \item \textbf{RHIC自旋项目的持续运行：}RHIC在更高能量和亮度下的极化质子-质子碰撞将继续约束中等$x$区域的$\Delta g(x)$\cite{DSSV14}。
+\end{itemize}
+
+\subsection{格点计算方面}
+
+\begin{itemize}
+    \item \textbf{改进的涂抹技术：}动量涂抹（momentum smearing）和蒸馏（distillation）等技术可以显著改善大动量核子态的信噪比\cite{NoteGluonPDFs,Egerer2021}。
+
+    \item \textbf{更细的格点间距和物理$\pi$介子质量：}当前部分计算仍在较重$\pi$介子质量（如300--358~MeV）下进行。在物理$\pi$介子质量和更细格点间距下的计算，结合连续极限外推，将提供更可靠的预言\cite{Chen2025gluon}。
+
+    \item \textbf{改进的重整化和匹配：}重整化群重求和（RGR）和领头重正子重求和（LRR）等技术可以改善微扰匹配的收敛性，扩展LaMET的有效范围\cite{Zhang2023RGR,Su2023LRR}。
+
+    \item \textbf{全味组态上的计算：}$2+1+1$味（含粲夸克）动力学费米子组态上的计算正在成为新的标准\cite{CLQCD2024,CLQCD2025}，这将减少系统误差。
+\end{itemize}
+
+\section{总结}
+
+``质子自旋危机''从1987年EMC实验的冲击性结果开始，已经演变为一个推动我们深入理解QCD强子结构的核心科学问题。经过三十余年的理论和实验努力，我们已经获得了以下关键认知：
+
+\begin{enumerate}
+    \item 夸克自旋$\frac{1}{2}\Delta\Sigma$对质子自旋的贡献确实小于朴素夸克模型的预期，约占$25$--$35\%$，这与``合理''的Ellis-Jaffe估计（$60\%$）相比仍然偏小。
+
+    \item 胶子螺旋度$\Delta G$和夸克/胶子的轨道角动量是质子自旋不可或缺的组成部分。来自RHIC的数据和格点QCD的计算都倾向于$\Delta G$非零且为正。
+
+    \item Jaffe-Manohar分解和季向东分解为质子自旋的定量分析提供了互补的理论框架。前者可以分离胶子自旋和轨道角动量但依赖于光锥规范；后者是规范不变的但在规范不变的框架下无法进一步分离$J_g$。
+
+    \item 格点QCD在大动量有效理论（LaMET）和赝PDF方法的推动下，已经从第一性原理成功计算了夸克螺旋度分布和胶子螺旋度Ioffe-时间分布，取得了与实验数据一致的结果。
+
+    \item 未来EIC实验和更高精度的格点QCD计算将有望最终``解决''质子自旋危机，为核子内部自旋结构的完整定量描述提供决定性依据。
+\end{enumerate}
+
+\begin{quote}
+\small
+``An outstanding question in particle and nuclear physics is how the spin of the proton arises from its constituents, quarks and gluons, and their interactions that are governed by quantum chromodynamics (QCD), the fundamental theory of strong interactions.''
+\begin{flushright}
+—— Egerer et al.\ (HadStruc Collaboration), Phys.\ Rev.\ D 106, 094511 (2022) \cite{Egerer2022}
+\end{flushright}
+\end{quote}
+
+% ============================================================
+% 参考文献
+% ============================================================
+
+\begin{thebibliography}{99}
+
+% === 核心历史文献 ===
+
+\bibitem{EMC}
+J.~Ashman \textit{et al.} (European Muon Collaboration),
+``A measurement of the spin asymmetry and determination of the structure function $g_1$ in deep inelastic muon--proton scattering,''
+Phys.\ Lett.\ B \textbf{206}, 364 (1988).
+
+\bibitem{JaffeManohar1990}
+R.~L.~Jaffe and A.~Manohar,
+``The $g_1$ problem: Deep inelastic electron scattering and the spin of the proton,''
+Nucl.\ Phys.\ B \textbf{337}, 509--546 (1990).
+\quad\textbf{[来源:} \texttt{refer/papers/The g1 problem: Deep inelastic electron scattering and the spin of the proton.pdf}\textbf{]}
+
+\bibitem{EllisJaffe}
+J.~Ellis and R.~L.~Jaffe,
+``A sum rule for deep inelastic electroproduction from polarized protons,''
+Phys.\ Rev.\ D \textbf{9}, 1444 (1974).
+
+\bibitem{CarlitzCollinsMueller}
+R.~D.~Carlitz, J.~C.~Collins, and A.~H.~Mueller,
+``The role of the axial anomaly in measuring spin-dependent parton distributions,''
+Phys.\ Lett.\ B \textbf{214}, 229 (1988).
+
+% === 自旋分解 ===
+
+\bibitem{Ji1997}
+X.~Ji,
+``Gauge-invariant decomposition of nucleon spin,''
+Phys.\ Rev.\ Lett.\ \textbf{78}, 610 (1997), arXiv:hep-ph/9603249.
+
+\bibitem{Ji2013gluon}
+X.~Ji, J.-H.~Zhang, and Y.~Zhao,
+``More on large-momentum effective theory approach to parton physics,''
+Nucl.\ Phys.\ B \textbf{924}, 366 (2017), arXiv:1706.07416.
+\quad\textbf{[来源:} \texttt{refer/papers/More On Large-Momentum Effective Theory Approach to Parton Physics.pdf}\textbf{]}
+
+% === 全局分析 ===
+
+\bibitem{DSSV14}
+D.~de Florian, R.~Sassot, M.~Stratmann, and W.~Vogelsang,
+``Evidence for polarization of gluons in the proton,''
+Phys.\ Rev.\ Lett.\ \textbf{113}, 012001 (2014), arXiv:1404.4293.
+
+\bibitem{NNPDFpol11}
+E.~R.~Nocera, R.~D.~Ball, S.~Forte, G.~Ridolfi, and J.~Rojo (NNPDF),
+``A first unbiased global determination of polarized PDFs and their uncertainties,''
+Nucl.\ Phys.\ B \textbf{887}, 276 (2014), arXiv:1406.5539.
+
+\bibitem{JAM17}
+J.~J.~Ethier, N.~Sato, and W.~Melnitchouk,
+``First simultaneous extraction of spin-dependent parton distributions and fragmentation functions from a global QCD analysis,''
+Phys.\ Rev.\ Lett.\ \textbf{119}, 132001 (2017), arXiv:1705.05889.
+
+\bibitem{JAM24}
+T.~Anderson, W.~Melnitchouk, and N.~Sato,
+``New global analysis of spin-dependent parton distribution functions,''
+(2024), arXiv:2501.00665.
+\quad\textbf{[来源:} \texttt{refer/papers/New CTEQ global analysis of quantum chromodynamics with high-precision data from the LHC.pdf}\textbf{]}
+
+% === 格点计算 - 夸克螺旋度 ===
+
+\bibitem{LP3helicity}
+H.-W.~Lin, J.-W.~Chen, X.~Ji, L.~Jin, R.~Li, Y.-S.~Liu, Y.-B.~Yang, J.-H.~Zhang, and Y.~Zhao (LP$^3$ Collaboration),
+``Proton isovector helicity distribution on the lattice at physical pion mass,''
+Phys.\ Rev.\ Lett.\ \textbf{121}, 242003 (2018), arXiv:1807.07431.
+\quad\textbf{[来源:} \texttt{refer/papers/Proton Isovector Helicity Distribution on the Lattice at Physical Pion Mass.pdf}\textbf{]}
+
+% === 格点计算 - 胶子螺旋度 ===
+
+\bibitem{Egerer2022}
+C.~Egerer \textit{et al.} (HadStruc Collaboration),
+``Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics,''
+Phys.\ Rev.\ D \textbf{106}, 094511 (2022), arXiv:2207.08733.
+\quad\textbf{[来源:} \texttt{refer/papers/Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics.pdf}\textbf{]}
+
+\bibitem{Yang2017}
+Y.-B.~Yang, R.~S.~Sufian, A.~Alexandru, T.~Draper, M.~J.~Glatzmaier, K.-F.~Liu, and Y.~Zhao,
+``Glue spin and helicity in the proton from lattice QCD,''
+Phys.\ Rev.\ Lett.\ \textbf{118}, 102001 (2017), arXiv:1609.05937.
+
+% === 格点计算 - 非极化胶子PDF ===
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\quad\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{Chen2025first}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``First self-renormalized gluon PDF of nucleon from large-momentum effective theory in the continuum limit,''
+Phys.\ Rev.\ D \textbf{111}, 074506 (2025), arXiv:2408.12819.
+\quad\textbf{[来源:} \texttt{refer/papers/First Self-Renormalized Gluon PDF of Nucleon from Large-Momentum Effective Theory in the Continuum Limit.pdf}\textbf{]}
+
+\bibitem{Good2025}
+W.~Good, F.~Yao, and H.-W.~Lin,
+``First nucleon gluon PDF from large momentum effective theory,''
+(2025), arXiv:2505.13321.
+\quad\textbf{[来源:} \texttt{refer/papers/First Nucleon Gluon PDF from Large Momentum Effective Theory.pdf}\textbf{]}
+
+\bibitem{Lin2025gluon}
+W.~Good, K.~Hasan, and H.-W.~Lin,
+``Gluon parton distribution of the nucleon from $2+1+1$-flavor lattice QCD in the physical-continuum limit,''
+J.\ Phys.\ G \textbf{52}, 035105 (2025), arXiv:2409.02750.
+\quad\textbf{[来源:} \texttt{refer/papers/Gluon Parton Distribution of the Nucleon from 2+1+1-Flavor Lattice QCD in the Physical-Continuum Limit.pdf}\textbf{]}
+
+% === 方法论文献 ===
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,''
+内部笔记。
+\quad\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}
+
+\bibitem{Peardon2009}
+M.~Peardon \textit{et al.} (Hadron Spectrum),
+``A novel quark-field creation operator construction for hadronic physics in lattice QCD,''
+Phys.\ Rev.\ D \textbf{80}, 054506 (2009), arXiv:0905.2160.
+\quad\textbf{[来源:} \texttt{refer/papers/A novel quark-field creation operator construction for hadronic physics in lattice QCD.pdf}\textbf{]}
+
+\bibitem{Egerer2021}
+C.~Egerer, R.~G.~Edwards, K.~Orginos, and D.~G.~Richards,
+``Distillation at high-momentum,''
+Phys.\ Rev.\ D \textbf{103}, 034502 (2021), arXiv:2009.10691.
+\quad\textbf{[来源:} \texttt{refer/papers/Distillation at High-Momentum.pdf}\textbf{]}
+
+\bibitem{Balitsky2020}
+I.~Balitsky, W.~Morris, and A.~Radyushkin,
+``Short-distance structure of unpolarized gluon pseudodistributions,''
+Phys.\ Lett.\ B \textbf{808}, 135621 (2020), arXiv:1910.13963.
+\quad\textbf{[来源:} \texttt{refer/papers/Short-Distance Structure of Unpolarized Gluon Pseudodistributions.pdf}\textbf{]}
+
+\bibitem{Zhang2019}
+J.-H.~Zhang, X.~Ji, A.~Sch\"afer, W.~Wang, and S.~Zhao,
+``Accessing gluon parton distributions in large momentum effective theory,''
+Phys.\ Rev.\ Lett.\ \textbf{122}, 142001 (2019), arXiv:1808.10824.
+\quad\textbf{[来源:} \texttt{refer/papers/Accessing gluon parton distributions in large momentum effective theory.pdf}\textbf{]}
+
+\bibitem{Ji2021hybrid}
+X.~Ji, Y.~Liu, A.~Sch\"afer, W.~Wang, Y.-B.~Yang, J.-H.~Zhang, and Y.~Zhao,
+``A hybrid renormalization scheme for quasi light-front correlations in large-momentum effective theory,''
+Nucl.\ Phys.\ B \textbf{964}, 115311 (2021), arXiv:2008.03886.
+\quad\textbf{[来源:} \texttt{refer/papers/A Hybrid Renormalization Scheme for Quasi Light-Front Correlations in Large-Momentum Effective Theory.pdf}\textbf{]}
+
+\bibitem{LaMETreview}
+X.~Ji,
+``Parton physics on a Euclidean lattice,''
+Phys.\ Rev.\ Lett.\ \textbf{110}, 262002 (2013), arXiv:1305.1539.
+\quad\textbf{[来源:} \texttt{refer/papers/Parton Physics on Euclidean Lattice.pdf}\textbf{]}
+
+\bibitem{LaMETreview2}
+X.~Ji,
+``Parton physics from large-momentum effective field theory,''
+Sci.\ China Phys.\ Mech.\ Astron.\ \textbf{57}, 1407 (2014), arXiv:1404.6680.
+\quad\textbf{[来源:} \texttt{refer/papers/Parton Physics from Large-Momentum Effective Field Theory.pdf}\textbf{]}
+
+% === 格点组态 ===
+
+\bibitem{CLQCD2024}
+Z.-C.~Hu \textit{et al.} (CLQCD),
+``Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{109}, 054507 (2024), arXiv:2310.00814.
+\quad\textbf{[来源:} \texttt{refer/papers/Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\bibitem{CLQCD2025}
+H.-Y.~Du \textit{et al.} (CLQCD),
+``Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{111}, 054504 (2025), arXiv:2408.03548.
+\quad\textbf{[来源:} \texttt{refer/papers/Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+% === 改进方法 ===
+
+\bibitem{Zhang2023RGR}
+R.~Zhang, J.~Holligan, X.~Ji, and Y.~Su,
+``Resumming quark's longitudinal momentum logarithms in LaMET expansion of lattice PDFs,''
+Phys.\ Lett.\ B \textbf{844}, 138081 (2023), arXiv:2305.05212.
+
+\bibitem{Su2023LRR}
+Y.~Su, J.~Holligan, X.~Ji, F.~Yao, J.-H.~Zhang, and R.~Zhang,
+``Power corrections and renormalons in parton quasi-distributions,''
+Nucl.\ Phys.\ B \textbf{991}, 116201 (2023), arXiv:2209.01236.
+
+% === 未来实验 ===
+
+\bibitem{EIC}
+A.~Accardi \textit{et al.},
+``Electron-Ion Collider: The next QCD frontier,''
+Eur.\ Phys.\ J.\ A \textbf{52}, 268 (2016), arXiv:1212.1701.
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,732 @@
+% ============================================================
+% donghx / PyQCD 4150 复现与对照报告
+% 编译：XeLaTeX 两遍；16:9；不把缺失的外部产物写成通过
+% ============================================================
+\documentclass[UTF8,aspectratio=169,11pt]{ctexbeamer}
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\definecolor{primary}{HTML}{17365D}
+\definecolor{accent}{HTML}{1F77B4}
+\definecolor{evidence}{HTML}{1E8449}
+\definecolor{warning}{HTML}{C55A11}
+\definecolor{muted}{HTML}{5B6573}
+\definecolor{panel}{HTML}{F4F7FA}
+\definecolor{good}{HTML}{EAF5EE}
+\definecolor{warnbg}{HTML}{FFF4E8}
+
+\setbeamersize{text margin left=0.55cm,text margin right=0.55cm}
+\setlength{\emergencystretch}{2em}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{normal text}{fg=black!86,bg=white}
+\setbeamercolor{structure}{fg=primary}
+\setbeamercolor{frametitle}{fg=primary,bg=white}
+\setbeamercolor{block title}{fg=primary,bg=panel}
+\setbeamercolor{block body}{fg=black!86,bg=panel}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamerfont{normal text}{size=\small}
+\setbeamertemplate{frametitle}{\vskip0.12cm\insertframetitle\par\vskip0.08cm}
+\setbeamertemplate{footline}{%
+  \hbox{\begin{beamercolorbox}[wd=\paperwidth,ht=2.3ex,dp=0.9ex,
+    leftskip=0.55cm,rightskip=0.55cm]{author in head/foot}%
+    \scriptsize\color{muted}PyQCD / donghx\hfill
+    4150 复现与对照\hfill\insertframenumber/\inserttotalframenumber
+  \end{beamercolorbox}}}
+
+\newcommand{\source}[1]{\vspace{0.05em}\par{\raggedright\scriptsize\color{muted}来源：#1\par}}
+\newcommand{\codepath}[1]{\nolinkurl{#1}}
+\newcommand{\verified}{\textcolor{evidence}{确证}}
+\newcommand{\inferred}{\textcolor{accent}{推断}}
+\newcommand{\unverified}{\textcolor{warning}{未验证}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}p{0.20\textwidth}}
+\newcolumntype{M}{>{\raggedright\arraybackslash}p{0.28\textwidth}}
+
+\tikzset{
+  flow/.style={draw=accent,fill=accent!8,rounded corners=2pt,align=center,
+    minimum height=0.78cm,text width=2.15cm,font=\small},
+  state/.style={draw=primary,fill=primary!7,rounded corners=2pt,align=center,
+    minimum height=0.72cm,text width=2.55cm,font=\small},
+  arrow/.style={-{Latex[length=2mm]},draw=primary,semithick},
+  labelstyle/.style={font=\scriptsize,inner sep=1.5pt,fill=white,text=muted}
+}
+
+\lstset{
+  basicstyle=\ttfamily\scriptsize,backgroundcolor=\color{panel},frame=single,
+  breaklines=true,breakatwhitespace=false,keepspaces=true,columns=flexible,
+  numbers=left,numberstyle=\tiny\color{muted},keywordstyle=\color{primary}\bfseries,
+  commentstyle=\color{evidence!70!black},stringstyle=\color{accent}
+}
+
+\title[4150 donghx 复现]{donghx 格点 QCD 算法的 PyQCD 复现}
+\subtitle{组态 4150：eigvec / VdV / VVV / 2pt（含 momsmear0、极化与 effmass 聚合）/ HYP-OPE 的真实对照与下游边界}
+\author[Codex]{Codex / PyQCD}
+\institute{格点 QCD：蒸馏、质子相关函数与胶子算符}
+\date{2026 年 8 月 30 日}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+  \vfill
+  \begin{center}
+    \small 工作目录：\codepath{/root/PyQCD}\quad
+    参考：\codepath{/root/PyQCD/refer/donghx}\quad
+    单测组态：\texttt{4150}
+  \end{center}
+\end{frame}
+
+\begin{frame}[t]{结论先行：低层、HYP-OPE 与 2pt 输出级均有证据，完整链仍有边界}
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.30\textwidth}
+      \begin{block}{低层对象}
+        \centering\Large\textcolor{evidence}{7/7}\par\normalsize
+        eigvec、phase、VdV、VVV、Clover、dual、OPE；\newline
+        4D10 HYP 三方向 9/9；2pt nopol 投影 58/58
+      \end{block}
+    \footnotesize 低层相对差为 $0$ 或 $1.4\times10^{-15}$ 量级；\newline
+    HYP-OPE 最大相对差 $3.31\times10^{-15}$。
+    \end{column}
+    \begin{column}{0.30\textwidth}
+      \begin{block}{费米子 2pt}
+        \centering\Large\textcolor{evidence}{2\text{pt}+58}\par\normalsize
+        $Cg5g4$ 与 $Cg5$；7 个 4150 成品根目录；极化输出 74/116 标准通过
+      \end{block}
+      \footnotesize 标准 peram 主对照取 $t_{\rm source}=0$、$\Delta t=2\ldots36$。
+    \end{column}
+    \begin{column}{0.30\textwidth}
+      \begin{block}{证据边界}
+        \centering\Large\textcolor{warning}{未验证}\par\normalsize
+        独立 smeared peram、逐时间 VVV、3pt、ratio、barematrix
+      \end{block}
+      \small 参考路径缺失或几何/输入不能一一配对，未以空数组代替结果。
+    \end{column}
+  \end{columns}
+  \vfill
+  \colorbox{good}{\parbox{0.94\linewidth}{\centering
+    \verified\ 生产侧的 donghx 两项质子缩并已补入 \codepath{pyqcd/contraction/_donghx.py}；
+    \inferred\ 复现结论限于当前可读输入和明确时间对。}}
+  \vspace{-0.18em}
+  \source{结果索引：\codepath{logs/donghx_4150_20260829/summary.md}}
+\end{frame}
+
+\begin{frame}[t]{任务与输入：同一组态驱动参考公式和 PyQCD 生产实现}
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{0.98}
+  \begin{tabularx}{0.96\textwidth}{@{}L Y M Y@{}}
+    \toprule
+    对象 & 4150 输入事实 & 参考结果/状态 & 验收方式\\
+    \midrule
+    Clover 规范场 & raw，573439152 B & Operator.py 可读 & 两时间片全张量\\
+    eigvec & 72 个时间片，约 4.78 GB & Calc\_VVV.py 同式读取 & f8 交错复数、形状\\
+    light peram & 288 个文件，约 13.27 GB & 用户给定路径存在 & $4\times4\times100\times100$\\
+    HYP 3D(1/3/5)、4D(10) & 各 7 个 LIME record & 4D10 已重算；3D 已运行 & 记录读取、OPE 形状与幺正性\\
+    2pt Result & 总目录 322 个文件；本轮 7 根、232 个数组、58 组 & 4150 可配对 & 时间对与输出级投影\\
+    TMD OPE Result & x/y/z 共 58 个文件；有横向位移 & 与直线 OPE 分开 & 不混合比较\\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.12em}
+  \begin{block}{判据}
+    形状、轴序、dtype 和不变量先行；参考成品不存在即记为 \unverified，不把“能运行”升级为“一致”。
+  \end{block}
+  \source{盘点：\codepath{cmp1/v202608291424/manifest.json}；输入：\codepath{cmp1/manifest_4150.py}}
+\end{frame}
+
+\begin{frame}[t]{算法总览：蒸馏费米子链与胶子 OPE 链在 2pt/3pt 处汇合}
+  \centering
+  \begin{tikzpicture}[node distance=0.34cm and 0.20cm]
+    \node[flow] (gauge) {规范场\ $U_\mu(x)$};
+    \node[flow,right=of gauge] (clover) {Clover\ $F,\widetilde F$};
+    \node[flow,right=of clover] (ope) {Wilson 线\ OPE $O(z)$};
+    \node[flow,below=0.62cm of gauge] (eig) {低模\ $\phi_n(x)$};
+    \node[flow,right=of eig] (vertex) {相位\ VdV / VVV};
+    \node[flow,right=of vertex] (peram) {peram\ $\tau$};
+    \node[flow,right=of peram] (c2) {Wick\ $C_2$};
+    \node[flow,right=of c2] (analysis) {3pt / ratio\ / PDF};
+    \draw[arrow] (gauge) -- (clover);
+    \draw[arrow] (clover) -- (ope);
+    \draw[arrow] (eig) -- (vertex);
+    \draw[arrow] (vertex) -- (peram);
+    \draw[arrow] (peram) -- (c2);
+    \draw[arrow] (c2) -- (analysis);
+    \draw[arrow] (ope) |- (analysis);
+  \end{tikzpicture}
+  \vfill
+  \begin{tabularx}{0.92\textwidth}{@{}lY@{}}
+    \toprule
+    物理分支 & 输入、状态、输出\\
+    \midrule
+    蒸馏质子 & $\phi_n$ 低模基 $\to$ 动量投影顶点 $\to$ perambulator $\to$ 颜色 epsilon 两项缩并 $\to C_2$。\\
+    胶子算符 & 原始 link $\to$ Clover 场强/对偶场强 $\to$ 直线 Wilson 线 $\to O(z)$；横向 staple 属于另一个几何。\\
+    下游统计 & $C_3/C_2$、真空扣除、拟合和 bare matrix 需要可配对的 3pt/样本输入，本轮不越过缺口。\\
+    \bottomrule
+  \end{tabularx}
+  \source{参考流程：\codepath{refer/donghx/Calc_VVV.py:45--136}、\codepath{refer/donghx/Operator.py:164--184,339--368}；PyQCD 接口：\codepath{pyqcd/vertex/_vertex.py}、\codepath{pyqcd/operator/_gluon_ope.py}}
+\end{frame}
+
+\begin{frame}[t]{eigvec、相位与 VdV/VVV：颜色结构决定可比较的轴序}
+  \footnotesize
+  \begin{align*}
+    \phi_n(x)&=r_{n}(x)+i\,s_{n}(x),
+    &e_p(x)&=\exp\!\left[-\frac{2\pi i}{N_x}(p_z z+p_y y+p_x x)\right],\\
+    V_{mn}(p)&=\sum_{x,a}\phi_m^{a*}(x)e_p(x)\phi_n^a(x),
+    &V_{mnl}(p)&=\sum_x e_p(x)\,\epsilon_{abc}\phi_m^a(x)\phi_n^b(x)\phi_l^c(x).
+  \end{align*}
+  \begin{tabularx}{0.96\textwidth}{@{}L Y@{}}
+    \toprule
+    状态/动作 & 实现与检查\\
+    \midrule
+    二进制读取 & f8 交错的实虚部先 reshape 为 $(N_{\rm ev},N_x,N_x,N_x,3,2)$，再组成 complex；不把时间轴混入低模轴。\\
+    动量投影 & VdV 的 phase 复制到颜色轴；VVV 使用标量 phase 和三色 epsilon，保持 $(m,n,l)$ 的六置换符号。\\
+    极端检查 & $p=0$ 时 phase 恒为 1；重复低模时 VVV 的完全反对称性使重复指标分量消失。\\
+    \bottomrule
+  \end{tabularx}
+  \vfill
+  \begin{block}{本轮证据}
+    真实 4150：eigvec $(8,13824,3)$、phase $(13824,)$、VdV $(1,4,4)$、VVV $(4,4,4)$；
+    相对差为 $0,0,1.31\times10^{-15},4.75\times10^{-16}$。
+  \end{block}
+  \source{参考：\codepath{Calc_VVV.py:28--136}；实现：\codepath{tools/_io.py}、\codepath{vertex/_vertex.py}；结果：\codepath{lowlevel/results.json}}
+\end{frame}
+
+\begin{frame}[t]{Clover 与对偶场强（1/2）：先固定局域张量的归一化}
+  \footnotesize
+  \begin{align*}
+    F_{\mu\nu}(x)&=-\frac{i}{8}\bigl(C_{\mu\nu}(x)-C_{\mu\nu}^{\dagger}(x)\bigr),
+    &\widetilde F_{\mu\nu}(x)&=\frac12\epsilon_{\mu\nu\rho\sigma}F_{\rho\sigma}(x).
+  \end{align*}
+  \begin{tabularx}{0.96\textwidth}{@{}L Y@{}}
+    \toprule
+    步骤 & 物理/工程约束\\
+    \midrule
+    Clover & 四个方向的正反 plaquette 组成反厄米场强；颜色矩阵最后两轴保持 $(3,3)$。\\
+    对偶 & epsilon 收缩只使用明确的 $(\mu,\nu,\rho,\sigma)$ 约定；本轮比较包含参考固定轴序候选。\\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.12em}
+  \begin{block}{真实比较}
+    两个时间片的 Clover / dual 相对差分别为 $2.45\times10^{-16}$、$1.89\times10^{-16}$。
+  \end{block}
+  \source{参考：\codepath{Operator.py:150--184}；实现：\codepath{operator/_gluon_ope.py:63--133}；结果：\codepath{lowlevel/results.json}}
+\end{frame}
+
+\begin{frame}[t]{直线 Wilson 线 OPE（对偶通道）：几何与正负 $z$ 分支必须独立}
+  \footnotesize
+  \begin{align*}
+    M_{\mu\nu;\rho\sigma}(z)&=\sum_{\boldsymbol x}\operatorname{Tr}\!\left[
+      F_{\mu\nu}(x+z\hat z)W_{0\to z}^{\dagger}\widetilde F_{\rho\sigma}(x)W_{0\to z}\right],\\
+    O(z)&=M_{tx;tx}(z)+M_{ty;ty}(z)-2M_{xy;xy}(z).
+  \end{align*}
+  \begin{tabularx}{0.96\textwidth}{@{}L Y@{}}
+    \toprule
+    步骤 & 物理/工程约束\\
+    \midrule
+    $+z$ Wilson 线 & 逐步左乘 $U^\dagger$，插入第二场强，再右乘 $U$；输出按时间片求空间和。\\
+    $-z$ 变体 & 使用独立的反向 link 链；方向不能用取绝对值或取实部来修正。\\
+    几何边界 & 本轮是直线 $z$，返回 $(\Delta z,N_t)$；参考 TMD 的横向 $\Delta x/\Delta y$ staple 另属一类算符。\\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.12em}
+  \begin{block}{真实比较}
+    $z=0,1$、两个时间片的直线 OPE 相对差为 $1.36\times10^{-15}$；该数值不代表横向 staple 已验证。
+  \end{block}
+  \source{参考：\codepath{Operator.py:339--399}；实现：\codepath{operator/_gluon_ope.py:135--221}；结果：\codepath{lowlevel/results.json}}
+\end{frame}
+
+\begin{frame}[t]{HYP 规范场与非极化直线 OPE：4D10 三方向 9/9 对照}
+  \footnotesize
+  对用户提供的 HYP payload，先读取
+  \codepath{msg02.rec04.ildg-binary-data} 为
+  $U\in\mathbb C^{72\times24^3\times4\times3\times3}$，再计算
+  \begin{align*}
+    M^{(F)}_{\mu\nu;\mu\nu}(z)&=\sum_{\boldsymbol x}\operatorname{Tr}\!\left[
+      F_{\mu\nu}(x+z\hat d)W^\dagger(0\!\to\!z)F_{\mu\nu}(x)W(0\!\to\!z)\right].
+  \end{align*}
+  这里第二场强是 $F$ 而不是 $\widetilde F$；表中逐项比较参考的
+  \codepath{ops_mu_nu} Lorentz 通道。参考 TMD 成品取 $\Delta_\perp=0$ 截面，
+  因此只证明直线几何的非极化通道；最终 $O^{(F)}$ 投影需在下游另行组合。
+  \vspace{0.10em}
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.02}
+  \begin{tabular}{@{}l r l r r l@{}}
+    \toprule
+    方向 & 通道数 & 输出形状 & 最大相对 L2 & 最大 $|\Delta|$ & 状态\\
+    \midrule
+    $x$ & 3 & $(72,9)$ & $3.30\times10^{-15}$ & $5.69\times10^{-13}$ & \verified\\
+    $y$ & 3 & $(72,9)$ & $3.31\times10^{-15}$ & $5.69\times10^{-13}$ & \verified\\
+    $z$ & 3 & $(72,12)$ & $7.50\times10^{-17}$ & $5.69\times10^{-14}$ & \verified\\
+    \bottomrule
+  \end{tabular}
+  \vspace{0.08em}
+  \begin{block}{HYP 输入门}
+    规范场形状为 $(72,24,24,24,4,3,3)$、dtype 为 c128，最大 $|UU^\dagger-I|$ 为
+    $1.11\times10^{-15}$；9 个通道全部通过，runner 退出码为 0。
+    3D(1/3/5) 各运行 3 个 z 向通道，但没有同 smear 参考，均诚实记为 \unverified。
+  \end{block}
+  \source{实现：\codepath{cmp1/run_4150_hyp_ope.py:121--189}；reader：\codepath{operator/_gluon_ope.py:317--391}；结果：\codepath{cmp1/v20260829_hyp_ope_xyz/results.json}、\codepath{logs/donghx_4150_20260829/summary.md}}
+\end{frame}
+
+\begin{frame}[t]{质子 2pt：peram 轴序与两项颜色 epsilon 缩并被显式复现}
+  \footnotesize
+  对固定 $(t_s,t_0)$，令 $\tau_{d_s d_0;\,e_s e_0}$ 为 $(4,4,N_{\rm ev},N_{\rm ev})$ peram，
+  $I_1,I_2$ 为插值矩阵，并定义
+  \[
+    A_{g j b e}=\sum_{h k}(I_1)_{g h}\,\tau_{h k;b e}\,(I_2)_{j k}.
+  \]
+  donghx 的质子矩阵为
+  \[
+    C_{il}=\epsilon_{abc}\,\tau_{g j;a d}\,A_{g j;b e}\,
+      \tau_{i l;c f}\,V^{*}_{def}
+    -\epsilon_{abc}\,\tau_{g l;a f}\,A_{g j;b e}\,
+      \tau_{i j;c d}\,V^{*}_{def}.
+  \]
+  \begin{tabularx}{0.96\textwidth}{@{}L Y@{}}
+    \toprule
+    参考动作 & PyQCD 复现\\
+    \midrule
+    读取 & 四个 source-Dirac 文件合并，再 reshape/transponse 为 $(t_{\rm sink},d_{\rm sink},d_{\rm source},e_s,e_0)$。\\
+    插值 & 支持 $Cg5$、$Cg5g3$、$Cg5g4$ 与三个 offdiag 变体；主对照为 $Cg5g4$。\\
+    缩并 & 生产接口 \codepath{contract_donghx_2pt_pair} 保留上述两项，不复用位置不同的通用 Wick gamma 约定。\\
+    轴检验 & peram 必须为 $(4,4,N_{\rm ev},N_{\rm ev})$，两个 VVV 必须为 $(N_{\rm ev})^3$；不匹配立即报错。\\
+    \bottomrule
+  \end{tabularx}
+  \source{参考缩并：\codepath{refer/donghx/2pt_proton_cupy_mom0_Liu_Cg5gmu_L24x72_new_cpu.py:346--381}；PyQCD：\codepath{pyqcd/contraction/_donghx.py:85--151}}
+\end{frame}
+
+\begin{frame}[t]{投影与反周期边界：时间半平面的符号不能在统计后补救}
+  \footnotesize
+  \begin{align*}
+    P_+&=\frac12(\gamma_0+\gamma_4), & P_-&=\frac12(\gamma_0-\gamma_4),\\
+    C_+(t_s,t_0)&=\operatorname{tr}[P_+C(t_s,t_0)],
+    &C_-(t_s,t_0)&=\operatorname{tr}[P_-C(t_s,t_0)].
+  \end{align*}
+  \renewcommand{\arraystretch}{1.00}
+  \begin{tabularx}{0.96\textwidth}{@{}L Y@{}}
+    \toprule
+    时间关系 & 反周期边界处理\\
+    \midrule
+    $t_s<t_0$ & $P_+$ 通道乘 $-1$（反向传播跨越时间边界）。\\
+    $t_s>t_0$ & $P_-$ 通道乘 $-1$；本轮 $t_0=0$，选定 $t_s=2\ldots36$。\\
+    未计算的时间对 & 保持零；只抽取相同 $(t_s,t_0)$，不比较稀疏数组与完整矩阵。\\
+    物理检查 & $p=0$、投影和边界符号均受控测试；不以 $|C|$ 或 $\operatorname{Re}C$ 掩盖错误。\\
+    \bottomrule
+  \end{tabularx}
+  \colorbox{warnbg}{\parbox{0.94\linewidth}{\centering
+    参考保存完整 $(72,72,4,4)$；本轮只算 $t_0=0$ 的 35 对，故不等于全 source 时间完成。}}
+  \source{参考：\codepath{2pt_proton...new_cpu.py:418--465}；实现：\codepath{contraction/_baroperator.py:332--365}}
+\end{frame}
+
+\begin{frame}[t]{低层真实结果：七个对象在同一 4150 规范场上闭合}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.10}
+  \begin{tabularx}{0.96\textwidth}{@{}L Y r r r l@{}}
+    \toprule
+    对象 & 结果形状 & 参考秒 & PyQCD 秒 & 相对差 & 状态\\
+    \midrule
+    eigvec & $(8,13824,3)$ & 0.0765 & 0.1068 & $0$ & \verified\\
+    phase & $(13824)$ & 0.0980 & 1.0491 & $0$ & \verified\\
+    VdV & $(1,4,4)$ & 0.1536 & 0.0029 & $1.31\times10^{-15}$ & \verified\\
+    VVV & $(4,4,4)$ & 0.1075 & 0.0141 & $4.75\times10^{-16}$ & \verified\\
+    Clover & $(4,4,2,24,24,24,3,3)$ & 1.9927 & 1.0342 & $2.45\times10^{-16}$ & \verified\\
+    dual & $(4,4,2,24,24,24,3,3)$ & 0.0681 & 1.0365 & $1.89\times10^{-16}$ & \verified\\
+    OPE & $(2,2)$ & 0.0973 & 0.2419 & $1.36\times10^{-15}$ & \verified\\
+    \bottomrule
+  \end{tabularx}
+  \vfill
+  \begin{block}{解读}
+    低层差异均低于各自 $10^{-9}$--$10^{-14}$ 容差；时间是 CPU 单次函数计时，不能直接当作跨后端性能结论。
+    OPE 这里对照的是同一规范场上的参考公式重写，外部 TMD staple 成品另行标记。
+  \end{block}
+  \source{\codepath{pyqcd/testing/comparisons/artifacts/v202608291500_lowlevel/results.json}；命令：\texttt{python -m pyqcd.testing.comparisons.donghx.run\_4150\_lowlevel --conf 4150 --outdir ...}}
+\end{frame}
+
+\begin{frame}[t]{2pt 真实结果：Cg5g4 与 Cg5 都与可配对的 4150 成品一致}
+  \footnotesize
+  \setlength{\tabcolsep}{2.5pt}
+  \renewcommand{\arraystretch}{1.02}
+  \begin{tabularx}{0.96\textwidth}{@{}Y Y r r Y@{}}
+    \toprule
+    通道/动量 & 计算范围 & contract 相对差 & nopol 相对差 & 最大 $|\Delta|$；参考 dtype\\
+    \midrule
+    $Cg5g4$, $P=0$ & 35 对；$t_0=0$ & $3.50\times10^{-15}$ & $1.27\times10^{-15}$ & $4.25\times10^{-17}$；c128\\
+    $Cg5$, $P=0$ & 35 对；$t_0=0$ & $2.29\times10^{-15}$ & $1.53\times10^{-15}$ & $8.33\times10^{-17}$；c128\\
+    $Cg5g4$, $P_z=1$ & $\Delta t=2$ & $2.53\times10^{-15}$ & $8.56\times10^{-16}$ & $1.73\times10^{-17}$；c128\\
+    $Cg5g4$, $P_z=2$ & $\Delta t=2$ & $2.31\times10^{-15}$ & $8.26\times10^{-16}$ & $1.30\times10^{-17}$；c128\\
+    $Cg5g4$, $P_z=5$ & $\Delta t=2$ & $1.66\times10^{-15}$ & $1.42\times10^{-16}$ & $2.63\times10^{-20}$；c128\\
+    $Cg5g4$, $P_x=1$ & $\Delta t=2$ & $2.64\times10^{-6}$ & $1.42\times10^{-6}$ & $2.32\times10^{-8}$；c64，$\mathrm{tol}=10^{-5}$\\
+    $Cg5g4$, $P_y=1$ & $\Delta t=2$ & $2.59\times10^{-6}$ & $5.94\times10^{-7}$ & $1.90\times10^{-8}$；c64，$\mathrm{tol}=10^{-5}$\\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.10em}
+  \begin{block}{关键状态}
+    contract/nopol 均为 \verified；逐时间 VVV 参考缺失，故 runner 整体按最严重项记为 \unverified。
+  \end{block}
+  \source{主结果：\codepath{cmp1/v202608300145_cg5g4/results.json}；Cg5：\codepath{cmp1/v202608300146_cg5/results.json}；索引：\codepath{logs/donghx_4150_20260829/summary.md}}
+\end{frame}
+
+\begin{frame}[t]{2pt 方向矩阵：两种算符各 16 个无 momentum smear 配置均通过}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.08}
+  \begin{tabularx}{0.96\textwidth}{@{}L Y r Y Y@{}}
+    \toprule
+    变体 & 覆盖的 $P=(P_z,P_y,P_x)$ & 配置数 & 输出形状与对象通过数 & 参考精度；最大相对差\\
+    \midrule
+    $Cg5g4$ & $P_z=0\ldots5$；$P_y=1\ldots5$；$P_x=1\ldots5$ & 16 &
+      $contract:(72,72,4,4)$、$nopol:(72,72)$；各 16/16 &
+      c128 12、c64 4；$2.64\times10^{-6}$ / $1.54\times10^{-6}$\\
+    $Cg5$ & 同上 & 16 &
+      $contract:(72,72,4,4)$、$nopol:(72,72)$；各 16/16 &
+      c128 16；$3.08\times10^{-15}$ / $1.72\times10^{-15}$\\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.12em}
+  \begin{block}{解释与边界}
+    $Cg5g4$ 的 $P=0$ 额外计算 $\Delta t=2\ldots36$ 共 35 对，其余配置取
+    $\Delta t=2$；$Cg5$ 的 16 个配置均取一个时间对。c64 参考使用
+    $\mathrm{tol}=10^{-5}$，因此所有 32 个配置的 contract/nopol 均在对应容差内。
+    由于逐时间 VVV 成品仍缺失，每个 runner 的整体状态仍为 \unverified。
+  \end{block}
+  \source{汇总：\codepath{logs/donghx_4150_20260829/summary.md}；逐配置结果：\codepath{pyqcd/testing/comparisons/artifacts/v20260829*fermion*/results.json}}
+\end{frame}
+
+\begin{frame}[t]{2pt 输出级库存：7 个根目录、58 个动量组、58/58 投影通过}
+  \scriptsize
+  \setlength{\tabcolsep}{2.5pt}
+  \renewcommand{\arraystretch}{1.00}
+  \begin{tabular}{@{}l l l r r r l@{}}
+    \toprule
+    根目录 & 相位 & 动量覆盖 & 文件数 & 动量组 & 投影通过 & 最大 rel L2\\
+    \midrule
+    \codepath{momsmear-2x} & $-2\hat x$ & $P_x=-2\ldots-6$ & 25 & 5 & 5/5 & $5.20\times10^{-8}$\\
+    \codepath{momsmear-2y} & $-2\hat y$ & $P_y=-2\ldots-6$ & 25 & 5 & 5/5 & $5.28\times10^{-8}$\\
+    \codepath{momsmear-2z} & $-2\hat z$ & $P_z=-2\ldots-6$ & 25 & 5 & 5/5 & $5.85\times10^{-8}$\\
+    \codepath{momsmear2x} & $+2\hat x$ & $P_x=2\ldots6$ & 25 & 5 & 5/5 & $4.63\times10^{-8}$\\
+    \codepath{momsmear2z} & $+2\hat z$ & $P_z=0,2\ldots6$ & 27 & 6 & 6/6 & $5.01\times10^{-8}$\\
+    \codepath{momsmear0_Cg5} & $0$；隐式 & $P_z=0\ldots5$；$P_y/P_x=1\ldots5$ & 47 & 16 & 16/16 & $0$\\
+    \codepath{momsmear0_Cg5g4} & $0$ & $P_z=0\ldots5$；$P_y/P_x=1\ldots5$ & 58 & 16 & 16/16 & $8.29\times10^{-7}$\\
+    \bottomrule
+  \end{tabular}
+  \vspace{0.10em}
+  \begin{block}{库存与投影判据}
+    七个根目录合计 232 个已解析数组、58 个动量组；每组均有
+    \codepath{contract} $(72,72,4,4)$ 与 \codepath{nopol\_ss} $(72,72)$。
+    按 $P_+=\frac12(\gamma_0+\gamma_4)$ 和 $t_s<t_0$ 反周期负号检查后，58/58 通过；
+    全体最大相对 L2 为 $8.29\times10^{-7}$，最大绝对差为 $1.98\times10^{-9}$，
+    complex64 容差为 $5\times10^{-6}$。
+  \end{block}
+  \colorbox{warnbg}{\parbox{0.94\linewidth}{\centering
+    \codepath{momsmear0} 只表示参考输出配置；独立 smeared peram 与逐时间 VVV 仍为 \unverified。}}
+  \source{检查器：\codepath{cmp1/inspect_4150_momsmear.py:99--202,331--374}；结果：\codepath{cmp1/v20260830123306_4150_2pt_polar/results.json}}
+\end{frame}
+
+\begin{frame}[t]{effmass 聚合 2pt：4150 是第 2 个样本，25 个动量行逐数组闭合}
+  \footnotesize
+  聚合序列为 $4050+50k$，因此 $4150\Rightarrow k=2$。检查器逐行定位样本：
+  raw 项直接比较 $(t_{\rm sink},t_{\rm source})$ 矩阵；\codepath{twoptall} 项先按
+  $(t_{\rm sink}-t_{\rm source})\bmod72$ 汇总，再与参考矩阵比较。
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.00}
+  \begin{tabular}{@{}l l r r r l@{}}
+    \toprule
+    聚合资产 & 形状 & 动量行 & 最大相对差 & 4150 索引（命中/行数） & 状态\\
+    \midrule
+    raw $+2z$ & $(5,879,72,72)$ & 5 & $0$ & $2\;(5/5)$ & \verified\\
+    raw $-2z$ & $(5,879,72,72)$ & 5 & $0$ & $2\;(5/5)$ & \verified\\
+    raw momsmear0 $Cg5g4$ & $(4,878,72,72)$ & 4 & $0$ & $2\;(4/4)$ & \verified\\
+    \codepath{twoptall} $+2z$ & $(5,879,72)$ & 5 & $2.58\times10^{-16}$ & $2\;(5/5)$ & \verified\\
+    \codepath{twoptall} momsmear0 & $(4,878,72)$ & 4 & $7.12\times10^{-18}$ & $2\;(4/4)$ & \verified\\
+    \codepath{twoptall} $P_z=0$, $Cg5$ & $(1,879,72)$ & 1 & $3.94\times10^{-17}$ & $2\;(1/1)$ & \verified\\
+    \codepath{twoptall} $P_z=0$, $Cg5g4$ & $(1,876,72)$ & 1 & $1.87\times10^{-17}$ & $2\;(1/1)$ & \verified\\
+    \bottomrule
+  \end{tabular}
+  \vspace{0.06em}
+  \begin{block}{判定与边界}
+    7/7 个聚合资产、25/25 个动量行通过；raw 矩阵逐位相等，\codepath{twoptall}
+    最大相对差 $2.58\times10^{-16}$。complex64 的汇总先升宽到 complex128。
+    这闭合了聚合样本与 4150 成品的对应关系，不证明独立 smeared peram、逐时间
+    VVV 或 3pt/ratio/barematrix 输入链已可见。
+  \end{block}
+  \source{检查器：\codepath{cmp1/inspect_4150_effmass.py}；结果：\codepath{cmp1/v202608301600_4150_effmass_aggregate/results.json}；受控测试：\codepath{cmp1/verify_4150_effmass.py}}
+\end{frame}
+
+\begin{frame}[t]{非零 momentum-smear：5 个根目录、26 个动量组、nopol 投影 26/26}
+  \scriptsize
+  momentum smear 先在低模上乘固定方向的相位 $s_q$，再以输出动量 $P$ 构造三低模顶点：
+  \begin{align*}
+    s_q(\boldsymbol x)&=\exp\!\left[-\frac{2\pi i}{N_x}\,q\!\cdot\!\boldsymbol x\right],
+    &\phi_n^{(q)}(\boldsymbol x)&=s_q(\boldsymbol x)\phi_n(\boldsymbol x),\\
+    V^{(P)}_{mnl}(t)&=\sum_{\boldsymbol x}e_P(\boldsymbol x)\,
+      \epsilon_{abc}\phi_m^{(q),a}\phi_n^{(q),b}\phi_l^{(q),c}.
+  \end{align*}
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.02}
+  \begin{tabular}{@{}l l l r r l@{}}
+    \toprule
+    根目录 & 相位 $q$ & 输出动量覆盖 & 文件数 & 动量组 & 投影\\
+    \midrule
+    \codepath{momsmear-2x} & $-2\hat x$ & $P_x=-2\ldots-6$ & 25 & 5 & 5/5\\
+    \codepath{momsmear-2y} & $-2\hat y$ & $P_y=-2\ldots-6$ & 25 & 5 & 5/5\\
+    \codepath{momsmear-2z} & $-2\hat z$ & $P_z=-2\ldots-6$ & 25 & 5 & 5/5\\
+    \codepath{momsmear2x} & $+2\hat x$ & $P_x=2\ldots6$ & 25 & 5 & 5/5\\
+    \codepath{momsmear2z} & $+2\hat z$ & $P_z=0,2\ldots6$ & 27 & 6 & 6/6\\
+    \bottomrule
+  \end{tabular}
+  \vspace{0.10em}
+  \begin{block}{非零涂抹输出级判据}
+    非零 momentum-smear 五个根目录合计 127 个文件、26 个动量组，26/26 通过；
+    最大相对 L2 为 $5.86\times10^{-8}$，最大绝对差为 $7.57\times10^{-10}$，
+    complex64 容差为 $5\times10^{-6}$。这里只核验参考成品的 contract--投影关系；
+    独立 smeared peram 驱动的 raw VVV/peram 对照仍为 \unverified。
+  \end{block}
+  \source{数据与检查：\codepath{cmp1/v20260830123306_4150_2pt_polar/summary.md}；参考算法见附录映射表}
+\end{frame}
+
+\begin{frame}[t]{极化输出级对照：标准 $li$、旧 $il$ 变体与一个异常槽位}
+  \scriptsize
+  对每个方向 $d=1,2,3$，参考代码先构造
+  $\mathcal P_d=P_+(i\gamma_d\gamma_5)$，其中
+  $P_+=\frac12(\gamma_0+\gamma_4)$；标准输出级收缩为
+  \[
+    C^{\rm pol}_{yx}=\begin{cases}
+      \displaystyle\sum_{i,l}(\mathcal P_d)_{li}C_{yxil},&y\ge x,\\
+      \displaystyle-\sum_{i,l}(\mathcal P_d)_{li}C_{yxil},&y<x.
+    \end{cases}
+    \qquad\Longleftrightarrow\qquad
+    \texttt{einsum("li,yxil->yx", projector, contract)}.
+  \]
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.00}
+  \begin{tabularx}{0.96\textwidth}{@{}L r Y@{}}
+    \toprule
+    标准 $li$ 状态 & 数量 & 解释\\
+    \midrule
+    \verified & 74 & 116 个实际存在的极化数组中，标准投影相符。\\
+    \unverified & 58 & 极化文件缺失；不能当作失败或通过。\\
+    标准差异、旧 $il$ 通过 & 41 & 与 \codepath{L24x72_diffpol.py:121--129} 的转置轴变体相符，仅作诊断。\\
+    标准/旧 $il$ 均差异 & 1 & \codepath{momsmear2x}，$P=(P_z,P_y,P_x)=(0,0,6)$，$Cg5g4/pol15$。\\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.08em}
+  \begin{block}{异常与判定语义}
+    异常槽位成品范数约 $3.30\times10^{-9}$，两种轴序的最大绝对差约
+    $1.25\times10^{-4}$；相对 L2 约 $1.51\times10^5$ 受近零分母支配。
+    对应 `contract` $\to$ `nopol` 仍通过。标准通过数不把旧 $il$ 命中或缺失数组计入。
+  \end{block}
+  \source{参考：\codepath{refer/donghx/2pt_diffpol/L24x72_diffpol.py:54--78,121--129}；结果：\codepath{cmp1/v20260830123306_4150_2pt_polar/results.json}；摘要：\codepath{cmp1/v20260830123306_4150_2pt_polar/summary.md}}
+\end{frame}
+
+\begin{frame}[t]{smear 与动量边界：本轮能闭合的范围和不能越过的输入缺口}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.00}
+  \begin{tabularx}{0.96\textwidth}{@{}L Y Y@{}}
+    \toprule
+    分支 & 当前事实 & 判定\\
+    \midrule
+    无 momentum smear & 标准 light peram + eigvec；$Cg5/Cg5g4$ 各 16 个动量配置的 contract/nopol 均通过。 & \verified\\
+    无 momentum smear 的方向/大小 & 覆盖 $P_z=0\ldots5$、$P_y=1\ldots5$、$P_x=1\ldots5$；$Cg5g4$ 的 $P=0$ 另有 35 对。 & \verified\\
+    momentum smear $\pm2x/\pm2y/\pm2z$ & 5 根、26 组；nopol 26/26；标准 $li$ 49/75，diff 26、缺 3；独立 peram/VVV 缺失。 & 输出级 \verified；输入链 \unverified\\
+    gauge smear：4D10 & record $\to$ PyQCD link $\to$ Clover/OPE 已运行；$x/y/z$ 共 9 通道逐项通过。 & \verified\\
+    gauge smear：3D(1/3/5) & 各运行 $z$ 向 3 通道；同 smear 参考成品缺失，不能给数值一致结论。 & \unverified\\
+    \bottomrule
+  \end{tabularx}
+  \vspace{-1.35em}
+  \begin{block}{物理含义}
+    smearing 改变输入链：momentum 同时改变 phase/peram；gauge 必须在同一 HYP link 上重算 Clover/OPE。
+  \end{block}
+  \source{参考：\codepath{2pt_proton...mom2_xdir_dcu.py:57--180}；索引：\codepath{logs/donghx_4150_20260829/summary.md}}
+\end{frame}
+
+\begin{frame}[t]{3pt、ratio、barematrix：接口可审阅，但缺少可配对的 4150 样本}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.00}
+  \begin{tabularx}{0.96\textwidth}{@{}L Y Y@{}}
+    \toprule
+    层级 & PyQCD 入口/物理定义 & 本轮状态\\
+    \midrule
+    3pt & 顺序源/插入时间的三点缩并，再与 2pt 做真空扣除或 ratio。 & \unverified：用户给定目录未见可配对 4150 raw 3pt。\\
+    ratio & \codepath{analysis/_analyse.py:361} 的 $C_3/C_2$，以及 \codepath{analysis/_ratio2pt.py:387} 的逐 $z$ 拟合。 & 接口可审阅；无同几何 4150 原始 3pt 样本。\\
+    barematrix & \codepath{analysis/_bare_matrix.py:132} 按方向组织 ratio 和拟合。 & \unverified：无可配对方向样本。\\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.12em}
+  \colorbox{warnbg}{\parbox{0.94\linewidth}{\centering
+    最短闭环是“可配对 3pt/peram + 参考 ratio/barematrix 输出”；否则几何/样本混合，新增数值不可比。}}
+  \source{实现：\codepath{analysis/_analyse.py}、\codepath{analysis/_ratio2pt.py}、\codepath{analysis/_bare_matrix.py}；缺口：\codepath{cmp1/v202608291424/manifest.json}}
+\end{frame}
+
+\begin{frame}[t]{TMD 几何边界：直线 OPE 通过不等于横向 staple 闭环}
+  \footnotesize
+  \begin{tabularx}{0.96\textwidth}{@{}L Y Y@{}}
+    \toprule
+    层级 & 本轮可追溯事实 & 判定\\
+    \midrule
+    直线低层（对偶） & $O(z)$ 的 Clover、对偶场强、Wilson 线和两个 $z$ 点已对照；相对差 $1.36\times10^{-15}$。 & \verified\\
+    4D10 非极化直线截面 & x/y/z 共 9 通道与参考成品的 $\Delta_\perp=0$ 截面通过；最大相对差 $3.31\times10^{-15}$。 & \verified\\
+    参考 TMD 几何 & 成品还含非零横向 $\Delta x/\Delta y$ staple；本轮只取零横向截面，非零 $b_\perp$ 仍未验证。 & \unverified\\
+    完整 TMD-PDF & 还需 $b_\perp$、soft/rapidity 减除、匹配及 $a/P_z/m_\pi/L$ 多尺度外推。 & \unverified\\
+    \bottomrule
+  \end{tabularx}
+  \begin{block}{物理判断}
+    只把同一 gauge、同一几何、同一样本的结果放入 ratio；本轮证据停在直线 OPE 低层，不宣称完整 TMD-PDF。
+  \end{block}
+  \source{结果索引：\codepath{logs/donghx_4150_20260829/summary.md}}
+\end{frame}
+
+\begin{frame}[t]{本轮 debug 与优化：差异来自输入/命名/证据等级，而非数值算法漂移}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.00}
+  \begin{tabularx}{0.96\textwidth}{@{}L Y Y@{}}
+    \toprule
+    发现 & 处理 & 证据\\
+    \midrule
+    VVV 缓存 & 校验 shape/dtype 后复用 $(N_t,N_{\rm ev}^3)$ 的 c128 缓存；文件名包含 smear 相位。 & runner 12/12；日志有 reuse。\\
+    Cg5/隐式命名 & 无后缀文件保留 \codepath{variant=implicit}，不从目录名猜测算符。 & 两种 $P=0$ 35 对通过。\\
+    参考 VVV 缺失 & 不伪造比较；记录为 ref 缺失并整体降级。 & 状态正确为 \unverified。\\
+    复数精度 & c128 逐位；Px/Py 为 c64，采用 $10^{-5}$ 容差。 & 单时间对均在容差内。\\
+    \bottomrule
+  \end{tabularx}
+  \begin{block}{保持的物理不变量}
+    不随意取实部或绝对值；VVV 保持六置换；peram/VVV 轴不隐式转置。
+  \end{block}
+  \source{实现：\codepath{cmp1/run_4150_fermion.py:98--180}、\codepath{cmp1/cases_4150_fermion.py:46--71}；测试：\codepath{cmp1/verify_4150_fermion_runner.py}}
+\end{frame}
+
+\begin{frame}[t]{验收证据：断言门与真实对象均留痕（1/2）}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.00}
+  \begin{tabularx}{0.96\textwidth}{@{}L Y l@{}}
+    \toprule
+    层级 & 命令/产物 & 结果\\
+    \midrule
+    资产 & \codepath{verify_manifest_4150.py} & PASS 4/4\\
+    低层受控契约 & \codepath{verify_4150_lowlevel.py} & PASS 3/3\\
+    2pt 受控契约 & \codepath{verify_4150_fermion.py} & PASS 3/3\\
+    runner 契约 & \codepath{verify_4150_fermion_runner.py} & PASS 12/12\\
+    低层真实 & \codepath{v202608291500_lowlevel/results.json} & 7 pass\\
+    HYP-OPE 真实 & \codepath{v20260829_hyp_ope_xyz/results.json} & 9 pass；3D 无配对参考\\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.10em}
+  \begin{block}{主回归}
+    \texttt{python -m pyqcd.testing}：中心回归入口。
+    本报告已完成两遍 XeLaTeX、三类零诊断和 27/27 页渲染检查。
+  \end{block}
+  \source{证据索引：\codepath{logs/donghx_4150_20260829/summary.md}；产物：\codepath{pyqcd/testing/comparisons/}}
+\end{frame}
+
+\begin{frame}[t]{验收证据：2pt 对照与新库存门（2/2）}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.00}
+  \begin{tabularx}{0.96\textwidth}{@{}L Y l@{}}
+    \toprule
+    层级 & 命令/产物 & 结果\\
+    \midrule
+    2pt 真实 & \codepath{v202608300145_cg5g4}；\codepath{v202608300146_cg5} & 各 2 pass + 1 unverified\\
+    2pt 输出级库存 & \codepath{v20260830123306_4150_2pt_polar/results.json} & nopol 58/58；极化 $74/116$ pass、42 diff、58 缺失\\
+    2pt 断言门 & \codepath{verify_4150_momsmear.py} & PASS 7/7\\
+    effmass 聚合样本门 & \codepath{verify_4150_effmass.py}；\codepath{inspect_4150_effmass.py} & PASS 3/3；7/7 资产、25 行\\
+    cmp1 总门 & \codepath{verify_cmp1.py} & 51/52；白名单 1；硬失败 0\\
+    \bottomrule
+  \end{tabularx}
+  \vspace{-0.65em}
+  \begin{block}{状态语义}
+    两次 $P=0$ 实跑的 contract/nopol 在机器精度通过；逐时间 VVV 因参考缺失为
+    \unverified。库存检查识别出 41 个旧 $il$ 转置命中和 1 个两轴序均不符的近零极化槽位；
+    独立 momentum-smeared peram 输入链仍未验证。
+  \end{block}
+  \source{命令：\codepath{verify_4150_momsmear.py} exit 0；库存 JSON/摘要：\codepath{cmp1/v20260830123306_4150_2pt_polar/}；检查器 exit 2 为预期差异。}
+\end{frame}
+
+\appendix
+
+\begin{frame}[t]{附录：参考代码到 PyQCD 的逐层映射（1/2）}
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.00}
+  \begin{tabularx}{0.96\textwidth}{@{}L Y Y@{}}
+    \toprule
+    参考对象 & donghx 关键位置 & PyQCD 对应位置\\
+    \midrule
+    eigvec/phase & \codepath{Calc_VVV.py:28--59} & \codepath{tools/_io.py:32--64}；\codepath{vertex/_vertex.py:28--106}\\
+    VdV/VVV & \codepath{Calc_VVV.py:62--136} & \codepath{vertex/_vertex.py:113--207}\\
+    Clover/dual & \codepath{Operator.py:150--184} & \codepath{operator/_gluon_ope.py:63--133}\\
+    HYP/LIME reader & ILDG \codepath{msg02.rec04.ildg-binary-data} & \codepath{operator/_gluon_ope.py:317--391}\\
+    peram 轴序 & \codepath{2pt_proton...new_cpu.py:193--224} & \codepath{tools/_io.py:115--223}\\
+    2pt 缩并 & \codepath{2pt_proton...new_cpu.py:346--381} & \codepath{contraction/_donghx.py:85--151}\\
+    投影/边界 & \codepath{2pt_proton...new_cpu.py:418--465} & \codepath{contraction/_baroperator.py:332--365}\\
+    momentum-smear 输出投影 & \codepath{2pt_gpu_new/2pt_proton...mom2...dcu.py:338--440} & \codepath{cmp1/inspect_4150_momsmear.py:99--202,331--374}\\
+    极化投影/轴序诊断 & \codepath{2pt_diffpol/L24x72_diffpol.py:54--78,121--129} & \codepath{cmp1/inspect_4150_momsmear.py:104--202}\\
+    \bottomrule
+  \end{tabularx}
+  \source{参考：\codepath{refer/donghx}；实现：\codepath{pyqcd/}；本表列出本轮直接使用的入口}
+\end{frame}
+
+\begin{frame}[t]{附录：参考代码到 PyQCD 的逐层映射（2/2）}
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.00}
+  \begin{tabularx}{0.96\textwidth}{@{}L Y Y@{}}
+    \toprule
+    参考对象 & donghx 关键位置 & PyQCD 对应位置\\
+    \midrule
+    直线 OPE & \codepath{Operator.py:339--399} & \codepath{operator/_gluon_ope.py:135--221}\\
+    下游统计 & 参考脚本/结果缺少可配对样本 & \codepath{analysis/_analyse.py:361,744}；\codepath{analysis/_bare_matrix.py:132}\\
+    TMD 几何 & 结果含横向 staple，不能与直线 $z$ 混合 & \codepath{renorm/_tmd.py} 等待同几何输入\\
+    本轮证据 & 低层 results.json；2pt results.json & 状态字段区分 \verified、\unverified\\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.12em}
+  \begin{block}{追溯规则}
+    先固定参考代码入口、输入几何和 dtype，再解释相对差；缺失成品只保留接口/资产事实，不填补数值。
+  \end{block}
+  \source{结果索引：\codepath{logs/donghx_4150_20260829/summary.md}；完整代码在 \codepath{refer/donghx} 与 \codepath{pyqcd/}}
+\end{frame}
+
+\begin{frame}[t]{附录：下一步的可验收闭环（1/2）：先补齐 2pt 输入与 VVV 成品}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.00}
+  \begin{tabularx}{0.96\textwidth}{@{}L Y Y Y@{}}
+    \toprule
+    任务 & 前置输入 & 产物/判据 & 当前阻塞\\
+    \midrule
+    2pt 动量涂抹输入链 & 独立 momentum-smeared peram；HYP link & 已有输出级 7 根目录/58 组投影 JSON（其中非零 smear 为 5 根/26 组）；补齐后再做 raw VVV/peram 对照 & 独立 smeared peram 未给出\\
+    VVV 成品闭环 & 参考 \codepath{VVV.t*.Px*Py*Pz*} 或等价文件 & 逐时间 VVV 相对差；状态不再 unverified & 结果目录未见该文件\\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.12em}
+  \begin{block}{交付判据}
+    新输入到位后复用 manifest/runner；每层保存中间数组、最终数组、dtype、形状、耗时和容差。
+  \end{block}
+  \source{计划：\codepath{docs/superpowers/plans/2026-08-29-donghx-4150-reproduction.md}；边界：\codepath{logs/donghx_4150_20260829/summary.md}}
+\end{frame}
+
+\begin{frame}[t]{附录：下一步的可验收闭环（2/2）：再扩展 3pt、HYP 与完整 TMD}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.00}
+  \begin{tabularx}{0.96\textwidth}{@{}L Y Y Y@{}}
+    \toprule
+    任务 & 前置输入 & 产物/判据 & 当前阻塞\\
+    \midrule
+    3pt/ratio & 顺序源、插入时间、OPE 样本 & raw $C_3/C_2$、真空扣除、拟合表、barematrix & 外部目录无法配对\\
+    HYP/OPE & record 可读的 link 适配 & 4D10 三方向 9/9；3D(1/3/5) 各有真实 z 向运行元数据 & 3D 同 smear 参考成品缺失\\
+    TMD & $z,b_\perp,\tau$、soft/rapidity/matching、多尺度数据 & 软因子、匹配、连续极限闭环 & 进阶项，当前不宣称完成\\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.12em}
+  \begin{block}{物理边界}
+    只有同一 link 几何、同一样本和同一归一化链闭合后，才进入最终 PDF/拟合结论。
+  \end{block}
+  \source{当前边界：\codepath{logs/donghx_4150_20260829/summary.md}；下游入口：\codepath{pyqcd/analysis/}、\codepath{pyqcd/renorm/}}
+\end{frame}
+
+\end{document}

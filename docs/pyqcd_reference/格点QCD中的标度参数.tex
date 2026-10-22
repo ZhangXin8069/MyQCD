@@ -1,0 +1,456 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption}
+\usepackage{hyperref,xcolor,enumitem}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的标度参数：\\
+从格点间距确定到连续极限的精度控制}
+\author{基于本库文献的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+格点间距$a$是格点QCD中最基本的参数——它既是UV截断的倒数$1/a$，又将无量纲的格点计算结果转换为物理单位的预言。标度设置（scale setting）——即精确确定每个系综的格点间距$a$的物理值——是连接格点数据与连续物理的核心环节，其精度直接影响所有观测量（强子质量、衰变常数、PDFs、$\alpha_s$等）的最终不确定度。本文系统梳理了格点QCD中标度参数的完整知识体系：从Sommer参数$r_0$和$r_1$的静态势方法，到现代的Wilson流/梯度流标度$w_0$和$t_0$的严格定义与优势；从CLQCD合作组的体系——使用$\hat{\beta} = 10/(g^2 u^4_0)$作为tadpole改进后的规范耦合、以$w_0 = 0.1736(9)$~fm建立绝对标度、通过TITLS+TITLC作用量在多格点间距上进行自洽计算；到$\Lambda_{\text{QCD}}$作为QCD固有标度在跑动耦合$\alpha_s(1/a, \Lambda_{\text{QCD}}) = 2\pi/[b_0\ln(1/(a\Lambda_{\text{QCD}}))]$和自重整化方案中的核心角色；再到连续极限外推中的离散化误差控制——$O(a)$、$O(a^2)$和$O(a^4)$项的分类及其在联合外推$X = X_0 + d_1\Delta m^2_\pi + d_2\Delta m^2_{\eta_s} + d_3 a^2 + d_4 a^4$中的系统处理。最后展示了从格点单位到物理单位转换对最终预言不确定度贡献的定量估计。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{引言：格点间距——连接格点与连续世界的桥梁}
+
+格点QCD将连续时空离散化为间距为$a$的格点。在这个离散化的理论中，所有计算出的量都是\textbf{无量纲的格点单位}：质量以$a^{-1}$为单位，长度以$a$为单位。要获得可与实验比较的物理预言，必须将格点单位转换为物理单位（如MeV、fm）——即\textbf{精确确定每个系综的格点间距$a$}。
+
+这一过程被称为\textbf{标度设置}（scale setting），是格点QCD误差预算中最重要的系统不确定性来源之一。CLQCD合作组在粲介子质量和衰变常数的连续极限计算中\cite{CLQCD2024charm}明确指出：``This error of $w_0$ will enter the final result as system uncertainty''——标度参数$w_0$本身的不确定度\textbf{直接传播到所有物理预言中}。
+
+标度设置的核心挑战在于：格点上没有天然的``尺子''。必须借助某个\textbf{具有已知物理值的观测量}——如强子质量、衰变常数、或纯规范量（如Wilson流能密度）——来反推格点间距。不同方案的选择可能会引入\textbf{方案依赖性}，不同的方案之间可能存在$\sim 1$--$2\%$量级的系统偏差。
+
+\section{标度设置的物理基础}
+
+\subsection{从裸耦合到位移标度}
+
+格点QCD的输入参数是裸规范耦合常数$g$（或$\beta = 2N_c/g^2$）和裸夸克质量。在一定值$\beta$下进行模拟时，对应的格点间距$a$由QCD的维度传递（dimensional transmutation）决定：
+
+\begin{equation}
+a = \frac{1}{\Lambda_{\text{QCD}}} f(g),
+\label{eq:dim_transmutation}
+\end{equation}
+
+其中函数$f(g)$在弱耦合极限下由微扰重整化群给出：
+
+\begin{equation}
+a\Lambda_{\text{QCD}} = \left(\frac{b_0 g^2}{16\pi^2}\right)^{-b_1/(2b_0^2)} e^{-8\pi^2/(b_0 g^2)} \times [1 + \mathcal{O}(g^2)]。
+\label{eq:asymptotic_scaling}
+\end{equation}
+
+然而，在实际的格点间距下（$a \sim 0.05\text{--}0.15$~fm，$g \sim 1$），微扰渐近标度律的修正很大。因此，\textbf{非微扰的标度设置是必需的}。
+
+\subsection{CLQCD的Tadpole改进耦合常数}
+
+CLQCD合作组\cite{CLQCD2025quark_mass,CLQCD2024charm}使用\textbf{tadpole改进}后的有效规范耦合：
+
+\begin{definition}[Tadpole改进的规范耦合]
+\begin{equation}
+\boxed{\hat{\beta} = \frac{10}{g^2 u^4_0}},
+\label{eq:tadpole_beta}
+\end{equation}
+其中$u_0 = \langle \frac{1}{3}\operatorname{Re}\operatorname{Tr} P_{\mu\nu} \rangle^{1/4}$是平均plaquette的四次根。因子$u^4_0$吸收了对所有规范连接变量进行重标度$U_\mu \to U_\mu/u_0$带来的效应，重求了微扰展开中tadpole图的贡献，显著改善了微扰级数的收敛性。
+\end{definition}
+
+在CLQCD的命名法中，系综符号直接编码了$\hat{\beta}$值和$\pi$介子质量：
+\begin{itemize}
+    \item \textbf{C}系综：$\hat{\beta} = 6.20$，$a \approx 0.105$~fm
+    \item \textbf{E}系综：$\hat{\beta} = 6.308$，$a \approx 0.090$~fm
+    \item \textbf{F}系综：$\hat{\beta} = 6.41$，$a \approx 0.0775$~fm
+    \item \textbf{G}系综：$\hat{\beta} = 6.498$，$a \approx 0.069$~fm
+    \item \textbf{H}系综：$\hat{\beta} = 6.72$，$a \approx 0.052$~fm
+\end{itemize}
+
+\section{标度设置的方法论}
+
+\subsection{Sommer参数 $r_0$ 和 $r_1$}
+
+历史上最广泛使用的标度设置方法基于\textbf{静态夸克-反夸克势}（static potential）\cite{CLQCD2024charm}。Sommer参数$r_0$定义为：
+
+\begin{definition}[Sommer参数 $r_0$]
+\begin{equation}
+\boxed{r^2_0 \frac{dV(r)}{dr}\bigg|_{r=r_0} = 1.65},
+\label{eq:Sommer_r0}
+\end{equation}
+其中$V(r)$是静态势。$r_0$的物理值通过现象学模型估计为$r_0 \approx 0.5$~fm。$r_1$类似地定义为$r^2 dV/dr|_{r=r_1} = 1.0$。
+\end{definition}
+
+\textbf{方法优势：}${r_0}$和$r_1$是\textbf{纯规范量}——它们不依赖于夸克质量，因此其格点值在给定的$\beta$下是一个常数，仅由规范作用量决定。这简化了标度设置中夸克质量效应的处理。
+
+\textbf{方法劣势：}
+\begin{itemize}
+    \item 静态势在大距离处的统计噪声限制了精度；
+    \item $r_0$的物理值（在fm中）的确定需要现象学输入，引入了$\sim 1$--$2\%$的模型不确定性；
+    \item 在动态费米子组态上，需要计算Wilson圈，计算成本较高。
+\end{itemize}
+
+\subsection{现代方案：Wilson流/梯度流标度 $w_0$ 和 $t_0$}
+
+\textbf{梯度流}（gradient flow，也称Wilson flow）\cite{NieMiera2025,Chen2025gluon,NoteGluonPDFs}是近年来最广泛采用的标度设置工具。规范场按照扩散方程演化：
+
+\begin{definition}[梯度流方程]
+\begin{equation}
+\boxed{\frac{dB_\mu(x, \tau)}{d\tau} = -g^2 \frac{\delta S_W[B]}{\delta B_\mu(x, \tau)}}, \qquad B_\mu(x, 0) = A_\mu(x),
+\label{eq:gradient_flow}
+\end{equation}
+其中$\tau$是流时间（具有质量量纲$[\tau] = -2$），$S_W$是Wilson规范作用量。随着$\tau$增加，规范场在物理尺度$\sqrt{8\tau}$上被不断平滑。
+\end{definition}
+
+\textbf{$w_0$的BMW定义}\cite{CLQCD2024charm,CLQCD2025quark_mass}：
+
+\begin{definition}[$w_0$ 标度]
+\begin{equation}
+\boxed{\tau^2 \langle E(\tau) \rangle \big|_{\tau = w^2_0} = 0.3},
+\label{eq:w0_definition}
+\end{equation}
+其中$E(\tau) = \frac{1}{4}G^a_{\mu\nu}G^a_{\mu\nu}$是流时间$\tau$处的规范场能密度。CLQCD合作组使用FLAG平均值$w_0 = 0.1736(9)$~fm\cite{CLQCD2024charm,CLQCD2025quark_mass}。
+\end{definition}
+
+\textbf{$t_0$的类似定义}在一些系综中也被使用\cite{Egerer2022,Egerer2021a}：
+
+\begin{equation}
+\boxed{\tau^2 \langle E(\tau) \rangle \big|_{\tau = t_0} = 0.3}。
+\label{eq:t0_definition}
+\end{equation}
+
+\textbf{梯度流标度的优势}：
+
+\begin{enumerate}
+    \item \textbf{极高的统计精度：}$E(\tau)$是规范不变量，且由于流的平滑效应，统计噪声极小；
+    \item \textbf{连续的流时间依赖：}可以精确地插值确定满足$w_0$条件的$\tau$值，无需离散化外推；
+    \item \textbf{严格的重整化性质：}梯度流是连续理论中的严格操作，关联函数在固定物理$\tau$下具有有限的连续极限；
+    \item \textbf{不依赖现象学模型：}$w_0$和$t_0$是在格点上直接计算的非微扰观测量。
+\end{enumerate}
+
+\textbf{主要限制：}夸克质量依赖性——在未物理质量的格点组态上，$E(\tau)$会受到夸克圈效应的影响。CLQCD合作组的策略是通过联合拟合系统地减去这一效应。
+
+\subsection{强子质量标度}
+
+最``自然''的标度设置方法是使用\textbf{已知物理质量的强子}来反推格点间距：
+
+\begin{equation}
+a^{-1} = \frac{m^{\text{phys}}_H}{m^{\text{latt}}_H} [\text{MeV}]。
+\label{eq:hadron_mass_scale}
+\end{equation}
+
+常用的标度强子包括：
+\begin{itemize}
+    \item \textbf{$\Omega^-$重子质量}：重味含量高，对轻夸克质量不敏感，是早期标度设置的优选；
+    \item \textbf{$\pi$和$K$介子质量}：最直接的轻强子标度，但需要手征外推至物理点；
+    \item \textbf{粲偶素和底偶素质量}：在CLQCD的重夸克物理计算中自然使用。
+\end{itemize}
+
+\textbf{方法优劣：}强子质量在物理上是确定的，不需要额外现象学输入。但其弱势在于：（a）物理强子质量包含电磁修正（QED效应），需要单独减除；（b）在未物理夸克质量的系综上需要进行手征外推，增加了系统误差。
+
+\section{CLQCD系综的标度设置实践}
+
+\subsection{TITLS+TITLC作用量与自洽tadpole改进}
+
+CLQCD合作组的系综\cite{CLQCD2025quark_mass,CLQCD2024charm}基于以下作用量组合：
+
+\begin{itemize}
+    \item \textbf{规范作用量（TITLS）：}Tadpole改进树级Symanzik规范作用量——在标准Wilson plaquette作用量的基础上，添加$1\times2$矩形Wilson圈项以消除树级$O(a^2)$离散化误差。tadpole改进通过$U_\mu \to U_\mu/u_0$的重标度来改善微扰展开的收敛性。
+    \item \textbf{费米子作用量（TITLC）：}Tadpole改进树级Clover费米子作用量——在Wilson费米子的基础上添加\textbf{Sheikholeslami-Wohlert项}（Clover项乘以$c_{\text{SW}} \sigma_{\mu\nu}F_{\mu\nu}$），消除$O(a)$的离散化误差。Clover系数$c_{\text{SW}}$取tadpole改进的树级值。在连续极限$a \to 0$下，$c_{\text{SW}} \to 1$，$m_0 a \to 0$。
+\end{itemize}
+
+\textbf{自洽性}：两种作用量都应用了tadpole改进，且处理的tadpole因子$u_0$是从同一组态的平均plaquette中自洽确定的——确保了规范部分和费米子部分之间的理论一致性。
+
+\subsection{标度参数$w_0$的确定}
+
+CLQCD合作组使用BMW合作组建立的方法\cite{CLQCD2024charm}确定$w_0$：
+
+\begin{enumerate}
+    \item 在多个流时间$\tau$上计算梯度流能密度$E(\tau)$；
+    \item 构造组合量$\tau^2\langle E(\tau)\rangle$；
+    \item 内插确定满足$\tau^2\langle E(\tau)\rangle = 0.3$的$\tau$值，该值即为$w^2_0$；
+    \item 将格点$w_0/a$与FLAG平均值$w_0 = 0.1736(9)$~fm比较，得到格点间距$a$。
+\end{enumerate}
+
+\textbf{结果精度}（以CLQCD的三系综为例\cite{CLQCD2025quark_mass}）：
+
+\begin{table}[H]
+\centering
+\caption{CLQCD系综的格点间距\cite{CLQCD2025quark_mass,CLQCD2024charm}}
+\label{tab:clqcd_spacings}
+\begin{tabular}{cccc}
+\toprule
+系综系列 & $\hat{\beta}$ & $a$ (fm) & $a^{-1}$ (GeV) \\
+\midrule
+C系综 & 6.20  & 0.10530(18) & 1.87 \\
+E系综 & 6.308 & 0.08973(20)(53) & 2.20 \\
+F系综 & 6.41  & 0.07746(18) & 2.55 \\
+G系综 & 6.498 & 0.06887(12)(41) & 2.86 \\
+H系综 & 6.72  & 0.05187(26) & 3.80 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{误差结构：}每个格点间距$a$有两个误差源——第一个来自$w_0$在格点上的统计误差，第二个（在$w_0$的物理值中）是所有系综共享的\textbf{系统误差}。在粲物理的连续极限外推中，这一共享系统误差通过涨落$w_0$来实现\cite{CLQCD2024charm}。
+
+\subsection{从多个格点间距到连续极限}
+
+标度设置的最终目的是实现\textbf{连续极限外推}（$a \to 0$）。CLQCD合作组使用联合外推公式\cite{CLQCD2024charm}：
+
+\begin{equation}
+\boxed{X(m_\pi, m_{\eta_s}, a) = X(m^{\text{phys}}_\pi, m^{\text{phys}}_{\eta_s}, 0) + d^X_1\Delta m^2_\pi + d^X_2\Delta m^2_{\eta_s} + d^X_3 a^2 + d^X_4 a^4},
+\label{eq:joint_extrap}
+\end{equation}
+
+其中$\Delta m^2_\pi = m^2_\pi - (m^{\text{phys}}_\pi)^2$，$\Delta m^2_{\eta_s} = m^2_{\eta_s} - (m^{\text{phys}}_{\eta_s})^2$。
+
+\textbf{关键的物理含义：}
+
+\begin{itemize}
+    \item \textbf{$a^2$项：}$d^X_3 a^2$代表主导的$O(a^2)$离散化误差——这是TITLS+TITLC作用量组合预期的主要标度违反行为（Symanzik改进消除了$O(a)$项，Clover费米子也消除了$O(a)$项）；
+
+    \item \textbf{$a^4$项：}$d^X_4 a^4$对于某些观测量（特别是$\overline{\text{MS}}$方案下的粲夸克质量）是\textbf{必需的}\cite{CLQCD2024charm}，因为$O(m^4_c a^4)$效应在$a \sim 0.1$~fm处不可忽略（$m_c a \approx 0.65$，$(m_c a)^4 \approx 0.18$）；
+
+    \item \textbf{交叉项省略：}交叉项$a^2 m^2_\pi$的省略是基于：在当前的精度水平下，这些项在统计上不显著。通过比较加性模型（Eq.\ref{eq:joint_extrap}）和乘性模型给出的结果来估计这一省略的系统误差。
+\end{itemize}
+
+CLQCD合作组的实践表明\cite{CLQCD2024charm}：对于粲介子质量和$S$波衰变常数，在重夸克改进后，$a^2$项本身已经非常小（离散化误差仅为几个百分点），$a^4$项对大多数观测量不显著。
+
+\section{在格点上运行的耦合常数：$\alpha_s(1/a)$}
+
+\subsection{自重整化方案中的$\alpha_s$}
+
+LPC合作组的自重整化方案\cite{Huo2021self}提供了一个关于格点上$\alpha_s$使用的优秀范例。在线性发散$\delta\bar{m}$的单圈计算中：
+
+\begin{equation}
+\delta\bar{m} = \frac{2\pi}{3a}(\alpha_s + \mathcal{O}(\alpha^2_s))。
+\label{eq:delta_m_one_loop}
+\end{equation}
+
+$\alpha_s$的自然能标选择为$1/a$\cite{Huo2021self}：
+
+\begin{definition}[格点上的跑动耦合]
+\begin{equation}
+\boxed{\alpha_s(1/a, \Lambda_{\text{QCD}}) = \frac{2\pi}{b_0 \ln[1/(a\Lambda_{\text{QCD}})]}},
+\label{eq:alpha_s_lattice}
+\end{equation}
+其中$b_0 = 11 - \frac{2}{3}n_f$是QCD $\beta$函数的领头系数（$n_f = 3$对应于三味动力学夸克），$\Lambda_{\text{QCD}}$是非微扰QCD标度。
+\end{definition}
+
+\textbf{能标选择的任意性：}``不同能标的选择相当于包含了高阶修正''\cite{Huo2021self}。具体来说，$\alpha_s(c/a)$与$\alpha_s(1/a)$之间的差异是$\mathcal{O}(\alpha^2_s)$的效应——在包含高阶$\beta$函数系数的完整表达中会被吸收。一阶表达（Eq.\ref{eq:alpha_s_lattice}）中的$\Lambda_{\text{QCD}}$依赖于格点作用量。
+
+\subsection{$\Lambda_{\text{QCD}}$的非微扰提取}
+
+在LPC自重整化方案中\cite{Huo2021self}，$\Lambda_{\text{QCD}}$是一个\textbf{自由拟合参数}——通过对多格点间距的零动量矩阵元数据进行全局拟合来确定。对于CLQCD/LPC的夸克情形\cite{Huo2021self}：
+
+\begin{equation}
+\Lambda_{\text{QCD}} \sim 0.3\text{--}0.4\ \text{GeV}。
+\label{eq:Lambda_fit}
+\end{equation}
+
+对于胶子情形\cite{Chen2025gluon}，拟合得到$\Lambda_{\text{QCD}} = 0.59(0.15)$~GeV（HYP5涂抹后），与夸克情形的差异反映了胶子算符中不同的线性发散结构（$C_A/C_F$因子）。
+
+MSULat组在梯度流自重整化中的拟合值\cite{NieMiera2025}为$\Lambda_{\text{QCD}} = 0.286(85)$~GeV。不同的$\Lambda_{\text{QCD}}$值反映了不同涂抹方案和算符类型的效应。
+
+\subsection{标度依赖与微扰收敛性}
+
+在实际计算中，$\mu$的选择（重整化标度）对NLO匹配核的数值有显著影响。Chen等人\cite{Chen2025gluon}在胶子PDF计算中取$\mu = 2$~GeV，对应的$\alpha_s(\mu) = 0.296$；在估计系统误差时，将$\mu$变为4~GeV（$\alpha_s = 0.23$），取两者中心值之差作为匹配标度不确定度。在$\pi$介子夸克PDF的RGR+LRR计算中\cite{Zhang2023RGR}，仅NLO匹配的标度不确定性（$\mu$在1--4~GeV间变动）可超过30\%，而LRR重求和将其压制到$\sim 5\%$水平。
+
+\section{标度参数的误差传播与系统效应}
+
+\subsection{$w_0$不确定度的传播}
+
+CLQCD合作组的粲物理计算中\cite{CLQCD2024charm}，FLAG平均值$w_0 = 0.1736(9)$~fm带有$\sim 0.5\%$的相对不确定度。这个看似微小的不确定度直接传播到了所有以fm为单位的物理预言中：
+
+\begin{itemize}
+    \item \textbf{质量和衰变常数：}误差$\Delta a/a$直接贡献$\Delta m/m \sim \Delta a/a \sim 0.5\%$；
+    \item \textbf{粲夸克质量：}$m_c(m_c)$的总误差中，$w_0$贡献了约$0.7\%$的相对误差（$1.2933(72)(95)$~GeV中的第二个误差）；
+    \item \textbf{CKM矩阵元：}$|V_{cd}|$和$|V_{cs}|$的格点误差也包含了$w_0$不确定度的传播。
+\end{itemize}
+
+目前$w_0$的$\sim 0.5\%$精度对于大多数观测量是一个较小的误差源（通常量子统计误差和其他系统误差）。但随着格点QCD精度的持续提升（``百分级精度''），对标度设置的精度要求将相应提高——可能需要$\sim 0.1\%$量级的精度。
+
+\subsection{离散化误差的分类}
+
+从标度设置的视角，格点上的离散化误差可以按$a$的幂次分类：
+
+\begin{table}[H]
+\centering
+\caption{格点离散化误差的幂次分类}
+\label{tab:disc_errors}
+\begin{tabular}{lcccl}
+\toprule
+类型 & 幂次 & 物理来源 & TITLS+TITLC中？ & 处理方式 \\
+\midrule
+$O(a)$ & $a$ & 费米子作用量 & \textbf{被Clover项消除} & $c_{\text{SW}}$系数 \\
+$O(a^2)$ & $a^2$ & 规范+费米子 & 存在 & $a^2$外推 \\
+$O(a^2 m^2_Q)$ & $a^2 m^2_c$ & 重夸克传播子 & 存在 & 重夸克场重定义 \\
+$O(a^4)$ & $a^4$ & 高阶修正 & 对某些量存在 & $a^4$辅助项 \\
+$O(a\alpha_s)$ & $a\alpha_s$ & 辐射修正 & 很小 & 显式检验 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Clover系数的作用：}``we have skipped the axial current improvement since the improvement coefficient itself strongly depends on the lattice spacing $a$ and bring the improvement term to be consistent with an $O(a^2)$ correction''\cite{CLQCD2025quark_mass}。这反映了$O(a)$改进中的一个微妙之处：改进系数本身的$a$依赖性可以将名义上的$O(a)$修正升级为$O(a^2)$。
+
+\subsection{RI/MOM与SMOM方案标度的不一致性}
+
+CLQCD合作组的夸克质量计算\cite{CLQCD2025quark_mass}提供了一个关于\textbf{中间重整化方案依赖性}的深刻案例研究。在$a \sim 0.1$~fm处，通过RI/MOM和SMOM方案重正化的标量流可以相差$\sim 30\%$。即使在连续极限外推后，两种方案给出的标量矩阵元$g_{S,\pi}$仍相差$\sim 7.6(2.3)\%$。
+
+这意味着\textbf{中间重整化方案的选择会影响连续极限外推的精度}。CLQCD合作组的策略是：
+\begin{enumerate}
+    \item 选择离散化误差较小的方案（RI/MOM）作为中心值；
+    \item 取两种方案的差异作为系统不确定度。
+\end{enumerate}
+
+这凸显了\textbf{与标度设置相关的重整化方案依赖性}——它是连续极限外推中残余离散化误差的一种有效估计。
+
+\section{应用全景：标度参数在各类格点计算中的角色}
+
+\subsection{胶子PDF的连续极限外推}
+
+在CLQCD/LPC的非极化胶子PDF连续极限计算中\cite{Chen2025gluon}，外推公式：
+
+\begin{equation}
+xg(x, P^z, a) = xg_0(x) + a^2 f(x) + a^2 (P^z)^2 h(x) + \frac{d(x)}{(P^z)^2},
+\end{equation}
+
+依赖于三个格点间距（$a = 0.105, 0.0897, 0.0775$~fm）的精确定值来约束$a^2$和$a^2(P^z)^2$项。格点间距的误差通过外推传播到最终PDF的不确定度中。
+
+\subsection{MSULat组的梯度流标度}
+
+MSULat组\cite{NieMiera2025}使用MILC合作组的HISQ系综，其格点间距也是通过$w_0$（或$r_1$）来确定的：$a = \{0.1510(20), 0.1207(11), 0.0888(8)\}$~fm。在梯度流自重整化中，流时间取$\tau_W = 3a^2$，意味着在较粗的格点上流平滑了更大的物理尺度——这种$a$-依赖的流时间选择本身就是一种标度设置决策。
+
+\subsection{HadStruc合作组的系综标度}
+
+HadStruc合作组的胶子螺旋度计算\cite{Egerer2022}使用$32^3 \times 64$的Clover系综，其格点间距$a = 0.094(1)$~fm也是通过梯度流$w_0$参数确定的。同时，Laplace算符中的规范场经过10次stout涂抹预平滑——涂抹参数$(\rho_{ij}=0.08, \rho_{\mu4}=0)$本身也是以$a$为单位的有效``平滑尺度''控制。
+
+\subsection{不同系综上的跨检查}
+
+LPC自重整化合作组\cite{Huo2021self}在\textbf{四种不同的格点作用量}上进行了跨检查：MILC系综（HISQ费米子+Symanzik规范作用量，$a \in [0.03, 0.12]$~fm）、RBC系综（domain-wall费米子+Iwasaki规范作用量，$a \in [0.06, 0.11]$~fm）、以及clover和overlap价夸克。所有系综的格点间距都通过各自的标度设置程序确定。这种多系综的跨检查验证了重整化因子的\textbf{普适性}——进一步确认了标度设置的可靠性和一致性。
+
+\section{总结与展望}
+
+标度参数的确定是格点QCD中连接无量纲格点计算与物理单位预言的核心环节。本文的核心结论如下：
+
+\begin{enumerate}
+    \item \textbf{梯度流标度（$w_0$, $t_0$）已成为现代标准：}相比传统的Sommer参数$r_0$，梯度流标度具有极高的统计精度、严格的连续极限行为和不需要现象学模型的优势。CLQCD合作组采用$w_0 = 0.1736(9)$~fm（FLAG平均值）作为绝对标度\cite{CLQCD2024charm,CLQCD2025quark_mass}。
+
+    \item \textbf{Tadpole改进的耦合常数$\hat{\beta}$提供了自洽的理论框架：}$\hat{\beta} = 10/(g^2 u^4_0)$通过吸收tadpole图的重求，使得微扰展开在$a \sim 0.1$~fm处已经具有良好的收敛性。
+
+    \item \textbf{连续极限外推中的$a$幂次分类系统：}$O(a)$被Clover项消除，$O(a^2)$主导规范误差，$O(a^4)$对重夸克观测量不可忽略，$O(a\alpha_s)$在大多数情况下可以忽略。联合外推$X = X_0 + \sum d_i\Delta_i + \sum c_j a^{2j}$是系统地吸收这些效应的标准工具\cite{CLQCD2024charm}。
+
+    \item \textbf{标度参数误差直接传播：}$w_0$的$\sim 0.5\%$不确定度贡献了所有物理观测量中一个不可约的系统误差底线。实现``百分级精度''的格点QCD预言需要将标度设置的精度推进到$\sim 0.1\%$量级。
+
+    \item \textbf{重整化方案的不一致性可作为残余离散化误差的探针：}CLQCD合作组利用RI/MOM vs SMOM方案在连续极限下的不一致性（$\sim 7\%$）作为系统误差估计\cite{CLQCD2025quark_mass}——这是一种巧妙而诚实的处理方案依赖性的策略。
+\end{enumerate}
+
+\textbf{未来改进方向：}更精细格点间距系综上的$w_0$精确测定、梯度流的NNLO微扰匹配以改善连续极限行为、对标度设置中QED和强同位旋破缺效应的系统包含、以及利用格点QCD自身对标度参数进行第一性原理确定（而非依赖现象学$w_0$值）。
+
+\begin{thebibliography}{99}
+
+\bibitem{CLQCD2024charm}
+H.-Y.~Du \textit{et al.} (CLQCD),
+``Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{109}, 054507 (2024), arXiv:2310.00814.
+\quad\textbf{[来源:} \texttt{refer/papers/Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\bibitem{CLQCD2025quark_mass}
+H.-Y.~Du \textit{et al.} (CLQCD),
+``Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{111}, 054504 (2025), arXiv:2408.03548.
+\quad\textbf{[来源:} \texttt{refer/papers/Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\quad\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{Chen2025first}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``First self-renormalized gluon PDF of nucleon from large-momentum effective theory in the continuum limit,''
+Phys.\ Rev.\ D \textbf{111}, 074506 (2025), arXiv:2408.12819.
+\quad\textbf{[来源:} \texttt{refer/papers/First Self-Renormalized Gluon PDF of Nucleon from Large-Momentum Effective Theory in the Continuum Limit.pdf}\textbf{]}
+
+\bibitem{NieMiera2025}
+A.~NieMiera, W.~Good, H.-W.~Lin, and F.~Yao,
+``First self-renormalized gluon PDF of nucleon from large-momentum effective theory in the continuum limit,''
+(2025), arXiv:2510.17758.
+\quad\textbf{[来源:} \texttt{refer/papers/First Self-Renormalized Gluon PDF of Nucleon from Large-Momentum Effective Theory in the Continuum Limit.pdf}\textbf{]}
+
+\bibitem{Huo2021self}
+Y.-K.~Huo \textit{et al.} (Lattice Parton Collaboration (LPC)),
+``Self-renormalization of quasi-light-front correlators on the lattice,''
+Nucl.\ Phys.\ B \textbf{969}, 115443 (2021), arXiv:2103.02965.
+\quad\textbf{[来源:} \texttt{refer/papers/Self-Renormalization of Quasi-Light-Front Correlators on the Lattice.pdf}\textbf{]}
+
+\bibitem{Zhang2023RGR}
+R.~Zhang, J.~Holligan, X.~Ji, and Y.~Su,
+``Leading power accuracy in lattice calculations of parton distributions,''
+Phys.\ Lett.\ B \textbf{844}, 138081 (2023), arXiv:2305.05212.
+\quad\textbf{[来源:} \texttt{refer/papers/Leading Power Accuracy in Lattice Calculations of Parton Distributions.pdf}\textbf{]}
+
+\bibitem{Egerer2021a}
+C.~Egerer, R.~G.~Edwards, K.~Orginos, and D.~G.~Richards,
+``Distillation at high-momentum,''
+Phys.\ Rev.\ D \textbf{103}, 034502 (2021), arXiv:2009.10691.
+\quad\textbf{[来源:} \texttt{refer/papers/Distillation at High-Momentum.pdf}\textbf{]}
+
+\bibitem{Egerer2022}
+C.~Egerer \textit{et al.} (HadStruc),
+``Towards the determination of the gluon helicity distribution in the nucleon from lattice QCD,''
+Phys.\ Rev.\ D \textbf{106}, 094511 (2022), arXiv:2207.08733.
+\quad\textbf{[来源:} \texttt{refer/papers/Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics.pdf}\textbf{]}
+
+\bibitem{Fan2018gluon}
+Z.-Y.~Fan, Y.-B.~Yang, A.~Anthony, H.-W.~Lin, and K.-F.~Liu,
+``Gluon quasi-PDF from lattice QCD,''
+Phys.\ Rev.\ Lett.\ \textbf{121}, 242001 (2018), arXiv:1808.02077.
+\quad\textbf{[来源:} \texttt{refer/papers/Gluon Quasi-PDF From Lattice QCD.pdf}\textbf{]}
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,'' 内部笔记。
+\quad\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}
+
+\bibitem{Han2025heavy}
+X.-Y.~Han \textit{et al.} (LPC),
+``Calculation of heavy meson light-cone distribution amplitudes from lattice QCD,''
+(2025), arXiv:2410.18654.
+\quad\textbf{[来源:} \texttt{refer/papers/Calculation of heavy meson light-cone distribution amplitudes from lattice QCD.pdf}\textbf{]}
+
+\bibitem{Lin2025gluon}
+W.~Good, K.~Hasan, and H.-W.~Lin,
+``Gluon parton distribution of the nucleon from $2+1+1$-flavor lattice QCD in the physical-continuum limit,''
+J.\ Phys.\ G \textbf{52}, 035105 (2025), arXiv:2409.02750.
+\quad\textbf{[来源:} \texttt{refer/papers/Gluon Parton Distribution of the Nucleon from 2+1+1-Flavor Lattice QCD in the Physical-Continuum Limit.pdf}\textbf{]}
+
+\bibitem{Good2025a}
+W.~Good, F.~Yao, and H.-W.~Lin,
+``First nucleon gluon PDF from large momentum effective theory,''
+(2025), arXiv:2505.13321.
+\quad\textbf{[来源:} \texttt{refer/papers/First Nucleon Gluon PDF from Large Momentum Effective Theory.pdf}\textbf{]}
+
+% Lattice spacing tables from these papers
+\bibitem{LP3helicity}
+H.-W.~Lin \textit{et al.} (LP$^3$),
+``Proton isovector helicity distribution on the lattice at physical pion mass,''
+Phys.\ Rev.\ Lett.\ \textbf{121}, 242003 (2018), arXiv:1807.07431.
+\quad\textbf{[来源:} \texttt{refer/papers/Proton Isovector Helicity Distribution on the Lattice at Physical Pion Mass.pdf}\textbf{]}
+
+\bibitem{Izubuchi2018}
+T.~Izubuchi, X.~Ji, L.~Jin, I.~W.~Stewart, and Y.~Zhao,
+``Factorization theorem relating Euclidean and light-cone parton distributions,''
+Phys.\ Rev.\ D \textbf{98}, 056004 (2018), arXiv:1801.03917.
+\quad\textbf{[来源:} \texttt{refer/papers/Factorization Theorem Relating Euclidean and Light-Cone Parton Distributions.pdf}\textbf{]}
+
+\end{thebibliography}
+
+\end{document}

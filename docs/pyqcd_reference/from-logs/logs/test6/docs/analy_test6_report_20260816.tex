@@ -1,0 +1,412 @@
+% ============================================================
+% analy 报告 — 规范模板 v2（xelatex + ctex）
+% 用途: test6 任务汇报补充分析（pyqcd 独立复现 04_proton_energy）
+% 编译: xelatex 两遍；交付前 Overfull 计数必须为 0
+% ============================================================
+\documentclass[UTF8]{ctexart}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath}              % 公式编号 \label/\eqref 交叉引用
+\usepackage{microtype}            % 微排版，缓解长词/URL 溢出
+\usepackage{listings}             % 代码直引 \lstinputlisting
+\usepackage{xcolor}
+\usepackage{booktabs}             % 表格粗线规范
+\usepackage{longtable}            % 长表自动跨页
+\usepackage{xltabular}            % 跨页+自动换行合体
+\usepackage{tabularx}             % X 列自动换行
+\usepackage{hyperref}             % 书签/链接
+\usepackage{fancyhdr}             % 页眉页脚
+\usepackage[most]{tcolorbox}      % breakable 彩色框
+\usepackage{titlesec}             % 章节标题着色
+\usepackage{graphicx}
+\graphicspath{{/root/PyQCD/data/from-logs/logs/test6/1_result/}}
+
+% ===== 色板（语义化）=====
+\definecolor{accent}{HTML}{1F4E79}
+\definecolor{evidence}{HTML}{1E8449}
+\definecolor{reference}{HTML}{8C6D1F}
+\definecolor{conclusion}{HTML}{8B1A1A}
+\definecolor{codebg}{HTML}{F4F6F7}
+\definecolor{struct}{HTML}{3B3B98}
+\definecolor{relation}{HTML}{0E7C7B}
+\definecolor{idea}{HTML}{B03A2E}
+\definecolor{warn}{HTML}{D35400}
+\definecolor{hl}{HTML}{FDF6E3}
+
+% ===== 全局防溢出设置 =====
+\setlength{\emergencystretch}{3em}
+\hypersetup{colorlinks=true,linkcolor=accent,urlcolor=relation}
+
+% ===== 层次分明的标题 =====
+\titleformat{\section}{\Large\bfseries\color{accent}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\color{struct}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{struct!70!black}}{\thesubsubsection}{1em}{}
+
+% ===== 彩色标识框 =====
+\newtcolorbox{conclbox}{breakable,colback=conclusion!6,colframe=conclusion,title=结论}
+\newtcolorbox{refbox}{breakable,colback=reference!6,colframe=reference,title=参考背景}
+\newtcolorbox{ideabox}{breakable,colback=idea!6,colframe=idea,title=项目思路}
+\newtcolorbox{warnbox}{breakable,colback=warn!6,colframe=warn,title=局限与风险}
+\newtcolorbox{keybox}{breakable,colback=hl,colframe=accent,title=要点}
+
+% ===== 代码样式 =====
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  language=python,
+  firstnumber=auto,
+  keywordstyle=\color{accent}\bfseries,
+  commentstyle=\color{evidence!70!black},
+  stringstyle=\color{struct},
+  breaklines=true,
+  breakatwhitespace=false,
+  postbreak=\mbox{\textcolor{accent}{$\hookrightarrow$}\space},
+  keepspaces=true,
+  columns=flexible,
+  numbers=left,numberstyle=\tiny\color{struct!60!black},
+}
+
+\title{test6 任务汇报补充分析：pyqcd 独立复现 04\_proton\_energy（879 组态三方向）}
+\author{opencode auto-analy}
+\date{2026-08-16}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+本报告补全上次任务（tag: test6）结尾缺失的任务汇报：用本库 \texttt{pyqcd} 独立复现
+\texttt{\nolinkurl{refer/huangcl/04_proton_energy/code_proton_energy.py}} 的完整分析链——输入
+879 组态三方向 2pt 关联函数切片，经平移不变相对时间、ti 平均、jackknife 重采样得到
+corr2（879$\times$20），平台拟合提取 E0，产出 7 张图与拟合报告；与 refer 实跑真值
+（\texttt{.ref\_run/}）逐位一致（最大 $|\Delta|=0$），12 项物理断言全部 PASS。
+覆盖范围：data/from-logs/logs/test6 目录 21 个文件 + pyqcd/analysis 被调用模块（\texttt{\_disconnected.py}
+\texttt{\_fitter.py} \texttt{\_plots.py}）。三视角：主体结构（入口/核心/验证/数据/日志）、
+各部分关系（run-local.sh $\rightarrow$ main.py $\rightarrow$ pyqcd 模块链）、项目思路
+（独立复现、不 import refer、复用 pyqcd 统计与绘图基元、数值逐位比对）。
+\end{abstract}
+
+\tableofcontents
+
+% ================= 1 仓库概览 =================
+\section{仓库概览}
+\subsection{目录结构}
+data/from-logs/logs/test6 为独立复现套件目录，实测文件清单如下（数据来源: \texttt{find . -type f}）：
+\begin{lstlisting}[language=bash]
+./1_result/L24x72/Pz6/        # 复现产物: corr2_x/y/z/ave.npy + 7 图
+                              #           + 1_fit_data.npz + 2_fit_report.txt
+                              #           + verify_report.txt
+./.ref_run/1_result/L24x72/Pz6/   # refer 脚本原样实跑真值 (corr2 + 2 图)
+./main.py                     # 全链驱动 (compute + fit + plot, 500 行)
+./repro_04_proton_energy.py   # 早期驱动版 (仅 corr2 + 2 图, 170 行)
+./verify_04_repro.py          # 数值比对脚本 (92 行)
+./run-local.sh                # 自动化运行器 (4 步, 76 行)
+./run-local-20260816-053443.log  # 最近一次运行日志
+./AGENTS.md                   # 项目约定 (仓库根)
+EOF
+\end{lstlisting}
+
+\subsection{规模统计与 git 信息}
+\begin{table}[htbp]\centering
+\begin{tabular}{ll}
+\toprule
+指标 & 实测值 \\
+\midrule
+test6 目录文件数 & 21（含日志与缓存） \\
+复现产物文件数 & 14（1\_result/L24x72/Pz6/） \\
+参考真值文件数 & 6（.ref\_run/） \\
+pyqcd.analysis 模块 & 15 个 py 文件，共 3613 行 \\
+git 分支 / HEAD & main / 9e985e8 \\
+git tag & test6（当前） \\
+\bottomrule
+\end{tabular}
+\caption{仓库实测统计（数据来源: find/wc/git 实测）}
+\end{table}
+
+% ================= 2 主体结构 =================
+\section{主体结构}
+test6 套件按职责分五层：入口层（运行器与驱动）、核心层（复现逻辑）、验证层（比对与断言）、
+数据层（产物与真值）、日志层（运行记录）。
+\begin{table}[htbp]\centering
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textcolor{struct}{层次} & 目录/文件 & \textcolor{struct}{职责} \\
+\midrule
+入口层 & \texttt{\nolinkurl{run-local.sh}} & 4 步编排：环境自检 $\rightarrow$ 全链 $\rightarrow$ 数值比对 $\rightarrow$ 物理断言 \\
+核心层 & \texttt{\nolinkurl{main.py}} & 全链驱动：corr2 计算 + 平台拟合 + 7 图 + 报告 \\
+核心层 & \texttt{\nolinkurl{repro_04_proton_energy.py}} & 早期驱动版（仅 corr2 + 2 图） \\
+验证层 & \texttt{\nolinkurl{verify_04_repro.py}} & 复现产物 vs refer 实跑真值逐点比对 \\
+数据层 & \texttt{\nolinkurl{1_result/}}、\texttt{\nolinkurl{.ref_run/}} & 复现产物与参考真值 \\
+日志层 & \texttt{\nolinkurl{run-local-*.log}} & 运行全过程输出 \\
+\bottomrule
+\end{tabularx}
+\caption{主体结构分层（数据来源: 全库索引实测）}
+\end{table}
+
+% ================= 3 各部分关系 =================
+\section{各部分关系}
+\subsection{依赖主链}
+\begin{keybox}
+\textbf{依赖主链:} \textcolor{relation}{run-local.sh $\rightarrow$ main.py $\rightarrow$ pyqcd.analysis
+（\texttt{\nolinkurl{_disconnected.py:23-51}} 统计基元 sem/resample/cov\_mat；
+\texttt{\nolinkurl{_fitter.py:124,161}} 报告基元；\texttt{\nolinkurl{_plots.py:55,119,291}} 绘图基元）
+$\rightarrow$ 产物 1\_result/ $\rightarrow$ verify\_04\_repro.py 比对 .ref\_run/}
+\end{keybox}
+
+\subsection{比对关系}
+\begin{keybox}
+\textbf{数值比对链:} \textcolor{relation}{refer/huangcl/04\_proton\_energy/code\_proton\_energy.py
+原样实跑 $\rightarrow$ .ref\_run/1\_result/L24x72/Pz6/（真值）$\leftrightarrow$
+main.py 复现产物 1\_result/L24x72/Pz6/；verify\_04\_repro.py 逐 dt 点判据
+$|\Delta| \le 3\times\text{SEM}$}
+\end{keybox}
+
+\subsection{代码-对象映射}
+\begin{table}[htbp]\centering
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+代码符号 & 对象概念 & 物理/业务含义 \\
+\midrule
+\texttt{\nolinkurl{raw_path()}} & 2pt 切片文件 & 单组态、单方向的平移不变两点关联切片 $(Nt,Nt)$ \\
+\texttt{\nolinkurl{np.roll}} & 平移不变相对时间 & $C(t_{sink},t_{src}) \to C((t_{sink}-t_{src})\bmod Nt)$ \\
+\texttt{\nolinkurl{resample(jack=True)}} & jackknife 重采样 & delete-one 重采样生成统计样本（879 个） \\
+\texttt{\nolinkurl{energy_model}} & 双指数模型 & $C(t)=c_0 e^{-E_0 t}(1+c_1 e^{-dE\,t})$ 平台拟合 \\
+\texttt{\nolinkurl{lsqfit}} & 非线性最小二乘 & 逐样本拟合，svdcut=1e-6 \\
+\texttt{\nolinkurl{sem}} & 标准误 & jackknife 标准误 $\text{SEM}=\sigma\sqrt{n-1}$ \\
+\bottomrule
+\end{tabularx}
+\caption{对象映射（代码符号 | 对象概念 | 物理/业务含义）}
+\end{table}
+
+% ================= 4 项目思路 =================
+\section{项目思路}
+\subsection{设计意图}
+\begin{ideabox}
+test6 的定位是\textbf{独立复现}：不 import 也不照抄 refer/ 任何脚本，输入参数与数据路径
+逐项一致，统计与绘图基元全部复用 pyqcd 既有模块（\texttt{\nolinkurl{_disconnected.py:23-51}}、
+\texttt{\nolinkurl{_plots.py:55}}），通过"逐位一致"验证 pyqcd 实现与 refer 基线的等价性——
+这是格点数据分析代码可信度的最严格判据（数值完全一致而非仅统计一致）。
+\end{ideabox}
+\subsection{演进脉络}
+从 git 历史与文件时间可见两版驱动演进：早期 \texttt{\nolinkurl{repro_04_proton_energy.py}}
+（仅 corr2 + 2 图，05-23 前）$\rightarrow$ 全链 \texttt{\nolinkurl{main.py}}（新增平台拟合、
+5 张扩展图：GeV 拟合色带/2x2 分方向/原始 corr2/相关系数矩阵/直方图，05-31 修改），
+验证从"统计一致"强化为"逐位一致"（\texttt{\nolinkurl{verify_04_repro.py:50-64}}）。
+\subsection{典型工作流}
+一次完整任务：\texttt{\nolinkurl{run-local.sh}}（4 步）$\rightarrow$ Step 1 全链
+（corr2 1.38s + fit 21.43s + plot 3.7s，峰值内存 0.153 GB）$\rightarrow$ Step 2 逐位比对
+$\rightarrow$ Step 3 物理断言（12 项）$\rightarrow$ Step 4 产物清单。
+
+% ================= 5 主题分析 =================
+\section{主题分析：上次任务到底做了什么}
+\subsection{任务定义与输入}
+任务：用 pyqcd 独立复现 \texttt{\nolinkurl{refer/huangcl/04_proton_energy/code_proton_energy.py}}
+（质子有效能量提取，动量 $P=(0,0,6)$，L24x72 格点）。
+
+\textbf{输入}（\texttt{\nolinkurl{main.py:99-121}} 参数块）：
+\begin{table}[htbp]\centering
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+输入项 & 值 \\
+\midrule
+数据源 & \texttt{\nolinkurl{/public/group/lqcd/donghx/2pt_Result}} \\
+组态集 & \texttt{beta6.20\_mu-0.2770\_ms-0.2400\_L24x72} \\
+组态数 & 879（4050..48000 步长 50，剔除 12300） \\
+格点 & $24^3\times72$，格距 $a=0.1053$ fm \\
+动量 & $P=(0,0,6)$（x/y/z 方向动量置换） \\
+每组态输入文件 & twopt\_slice\_pp\_..\_eginphase2\_Cg5g4\_nopol\_ss\_conf..npy（$(72,72)$ 复数） \\
+三方向目录 & momsmear2x / momsmear2y / momsmear2z \\
+\bottomrule
+\end{tabularx}
+\caption{任务输入（数据来源: \texttt{\nolinkurl{main.py:99-121}} 实测）}
+\end{table}
+
+\subsection{处理链：输入 $\rightarrow$ 输出}
+\begin{enumerate}
+\item \textbf{compute}（\texttt{\nolinkurl{main.py:145-176}}）：逐组态读 2pt 切片 $\rightarrow$
+  平移不变相对时间（np.roll）$\rightarrow$ ti 平均 $\rightarrow$ jackknife 重采样
+  （\texttt{\nolinkurl{_disconnected.py:31-38}}）$\rightarrow$ corr2（879$\times$20）；
+  x/y/z 三方向 + 平均，输出 \texttt{\nolinkurl{corr2\_x/y/z/ave.npy}}。
+\item \textbf{fit}（\texttt{\nolinkurl{main.py:200-232}}）：双指数平台拟合
+  \begin{equation}\label{eq:model}
+    C(t) = c_0 e^{-E_0 t}\left(1 + c_1 e^{-dE\,t}\right),\qquad t\in[3,7],
+  \end{equation}
+  逐样本 lsqfit（svdcut=1e-6），输出 \texttt{\nolinkurl{1_fit_data.npz}}（c0/c1/E0/dE/chi2 每样本）+
+  \texttt{\nolinkurl{2_fit_report.txt}}。
+\item \textbf{plot}（\texttt{\nolinkurl{main.py:295-428}}）：7 张图（见下节）。
+\end{enumerate}
+
+\subsection{输出：数据与图表展示}
+\textbf{拟合结果}（数据来源: \texttt{\nolinkurl{2_fit_report.txt}} 实测）：
+\begin{table}[htbp]\centering
+\begin{tabular}{lccccl}
+\toprule
+方向 & E0 (a$^{-1}$) & E0 (GeV) & c0 & chi2/dof & 条件数 \\
+\midrule
+x & 1.649(8) & 3.084(15) & 0.033(3) & 0.27 & 6.3e+07 \\
+y & 1.677(17) & 3.138(32) & 0.002(1) & 1.8 & 1.3e+08 \\
+z & 1.637(6) & 3.063(11) & 0.083(4) & 1.7 & 6.3e+03 \\
+ave & 1.640(5) & 3.069(9) & 0.039(2) & 2.4 & 1.4e+07 \\
+\bottomrule
+\end{tabular}
+\caption{E0 平台拟合结果（数据来源: \texttt{\nolinkurl{2_fit_report.txt}} 实测）}
+\end{table}
+
+\textbf{有效质量平台} meff$(t)=\log|C(t)/C(t+1)|$（数据来源: corr2 npy 实测，aE 单位）：
+\begin{table}[htbp]\centering
+\begin{tabular}{lccccc}
+\toprule
+方向 & t=3 & t=4 & t=5 & t=6 & t=7 \\
+\midrule
+x & 1.7484 & 1.7076 & 1.6826 & 1.6649 & 1.6444 \\
+y & 1.7487 & 1.7086 & 1.6920 & 1.6526 & 1.6971 \\
+z & 1.7484 & 1.7080 & 1.6814 & 1.6591 & 1.6367 \\
+ave & 1.7484 & 1.7079 & 1.6819 & 1.6606 & 1.6396 \\
+\bottomrule
+\end{tabular}
+\caption{meff 平台 t=3..7（aE，数据来源: corr2 npy 实测）}
+\end{table}
+
+\textbf{7 张图}（数据来源: 1\_result/L24x72/Pz6/*.png 实测产物）：
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=0.85\textwidth]{../1_result/L24x72/Pz6/eff_mass.png}
+\caption{图 1：eff mass（aE），x/y/z/ave 四组误差棒对比（原版图）}
+\end{figure}
+\begin{figure}[htbp]\centering
+\includegraphics[width=0.85\textwidth]{../1_result/L24x72/Pz6/sem_comparison.png}
+\caption{图 2：SEM(aE) 散点对比 t=0..14（原版图）}
+\end{figure}
+\begin{figure}[htbp]\centering
+\includegraphics[width=0.85\textwidth]{../1_result/L24x72/Pz6/eff_mass_GeV.png}
+\caption{图 3：ave 有效质量（GeV）+ E0 拟合色带，E0=3.069(9) GeV，chi2/dof=2.4}
+\end{figure}
+\begin{figure}[htbp]\centering
+\includegraphics[width=0.85\textwidth]{../1_result/L24x72/Pz6/eff_mass_fit_dirs.png}
+\caption{图 4：x/y/z/ave 分方向有效质量（GeV）+ 各自 E0 拟合色带（2x2）}
+\end{figure}
+\begin{figure}[htbp]\centering
+\includegraphics[width=0.85\textwidth]{../1_result/L24x72/Pz6/corr2_raw.png}
+\caption{图 5：log$|$C(t)$|$ vs t（4 组对比，指数衰减直线段即平台区）}
+\end{figure}
+\begin{figure}[htbp]\centering
+\includegraphics[width=0.85\textwidth]{../1_result/L24x72/Pz6/meff_corr.png}
+\caption{图 6：三方向 meff 相关系数矩阵 @ t=5（x-z 相关 0.103，其余 $\sim$0，cond=33.8）}
+\end{figure}
+\begin{figure}[htbp]\centering
+\includegraphics[width=0.85\textwidth]{../1_result/L24x72/Pz6/meff_hist.png}
+\caption{图 7：各方向 meff 直方图 @ t=5（mean$\pm$sem 标注）}
+\end{figure}
+
+\subsection{验证结果}
+\textbf{逐位比对}（\texttt{\nolinkurl{verify_04_repro.py}} vs \texttt{\nolinkurl{.ref_run/}}）：
+corr2\_x/y/z/ave 四数组形状、dtype 一致，最大 $|\Delta|=0.000000e+00$，
+最大相对 $|\Delta|=0$，NaN 模式一致——\textcolor{struct}{确证}逐位一致（PASS）。
+
+\textbf{物理断言}（run-local.sh Step 3）12 项全部 PASS：
+corr2 shape=(879,20) 实数；7 张 PNG 非空；2\_fit\_report.txt 存在；
+E0(GeV) 与色散预期 3.14 GeV 偏差 $<0.35$ GeV；三方向+ave E0 互差 $<0.1$ a$^{-1}$；
+meff 平台(t=3..7) 落在 [1.3, 1.8]。
+
+% ================= 6 关键代码片段 =================
+\section{关键代码片段}
+\begin{lstlisting}[firstline=145,lastline=176]
+def compute_corr2(sampa: SampleParams, data_root: str, dir: str,
+                  jack: bool, verbose=True) -> np.ndarray:
+    """单方向 2pt -> 相对时间 -> ti 平均 -> jackknife -> (Nsample, dt_max)。"""
+    if verbose:
+        print(f"==================== compute_corr2 ({dir}) start ====================")
+
+    _corr = np.zeros((sampa.Nconf, sampa.Nt, sampa.Nt), dtype=complex)
+    for i, conf_id in enumerate(sampa.conf_ids):
+        _corr[i] = np.load(raw_path(sampa, data_root, conf_id, dir))
+        if verbose and (i + 1) % 100 == 0:
+            print(f"  loaded {i + 1}/{sampa.Nconf}")
+    if verbose:
+        print("load finish")
+        print("2pt shape:", _corr.shape)
+
+    _corr2_rel = np.zeros((sampa.Nconf, sampa.Nt, sampa.dt_max),
+                          dtype=complex)
+    for ti in range(sampa.Nt):
+        corr2_shift = np.roll(_corr[:, :, ti], shift=-ti, axis=1)
+        _corr2_rel[:, ti, :] = corr2_shift[:, :sampa.dt_max]
+
+    _corr2_ave = _corr2_rel.mean(1)
+    corr2 = resample(_corr2_ave, jack, sampa.Nsample).real
+\end{lstlisting}
+
+\begin{lstlisting}[firstline=200,lastline=224]
+def do_fit(corr2: np.ndarray, fitpa: FitParams, sampa: SampleParams,
+           jack: bool, verbose=True) -> dict:
+    """逐样本 lsqfit 平台拟合 -> {c0, c1, E0, dE, chi2} 数组。"""
+    import gvar as gv
+    import lsqfit
+
+    n_sample = corr2.shape[0]
+    x_coor = list(range(fitpa.dt_start, fitpa.dt_end + 1))
+    Ndata = len(x_coor)
+    names = list(fitpa.p0.keys())
+
+    sub_sample = np.zeros((n_sample, Ndata))
+    for i, dt in enumerate(x_coor):
+        sub_sample[:, i] = corr2[:, dt]
+    cov, cond = cov_mat(sub_sample, jack)
+
+    result = {name: np.zeros(n_sample) for name in names}
+    result["chi2"] = np.zeros(n_sample)
+    for _id in range(n_sample):
+        y_coor = gv.gvar(sub_sample[_id], cov)
+        _fit = lsqfit.nonlinear_fit(data=(x_coor, y_coor), p0=fitpa.p0,
+                                    fcn=energy_model, svdcut=1e-6)
+\end{lstlisting}
+
+% ================= 7 参考源清单 =================
+\section{参考源清单}
+\begin{xltabular}{\textwidth}{XlX}
+\toprule
+\textcolor{evidence}{参考源} & 类型 & 内容/作用 \\
+\midrule
+\endhead
+\texttt{\nolinkurl{main.py:99-121}} & 仓库 & 输入参数块（组态集/动量/格点/dt\_max） \\
+\texttt{\nolinkurl{main.py:145-176}} & 仓库 & corr2 计算链（读切片/相对时间/重采样） \\
+\texttt{\nolinkurl{main.py:193-197}} & 仓库 & 双指数拟合模型 C(t)=c0 e$^{-E0 t}$(1+c1 e$^{-dE t}$) \\
+\texttt{\nolinkurl{main.py:200-232}} & 仓库 & 逐样本 lsqfit 平台拟合（svdcut=1e-6） \\
+\texttt{\nolinkurl{main.py:295-428}} & 仓库 & 7 图绘制（eff mass/SEM/GeV 色带/分方向/原始/相关/直方） \\
+\texttt{\nolinkurl{repro_04_proton_energy.py:72-89}} & 仓库 & 早期驱动版 load\_dir\_corr2 \\
+\texttt{\nolinkurl{verify_04_repro.py:39-88}} & 仓库 & 逐位比对判据 $|\Delta|\le3\times$SEM + NaN 模式 \\
+\texttt{\nolinkurl{run-local.sh:28-76}} & 仓库 & 4 步编排（环境/全链/比对/断言） \\
+\texttt{\nolinkurl{pyqcd/analysis/_disconnected.py:23-51}} & 仓库 & sem/resample/cov\_mat 统计基元 \\
+\texttt{\nolinkurl{pyqcd/analysis/_fitter.py:124,161}} & 仓库 & make\_summary\_table / fit\_report\_lines \\
+\texttt{\nolinkurl{pyqcd/analysis/_plots.py:55,119,291}} & 仓库 & plot\_errbar / plot\_scatter / 峰值内存 \\
+\texttt{\nolinkurl{refer/huangcl/04_proton_energy/code_proton_energy.py:157-204}} & 参考 & refer 原版 corr2 计算（对照基准） \\
+\texttt{\nolinkurl{2_fit_report.txt:1-39}} & 仓库 & E0/c0/chi2 拟合报告（数据源） \\
+\bottomrule
+\end{xltabular}
+
+% ================= 8 结论与局限 =================
+\section{结论与局限}
+\begin{conclbox}
+\textbf{任务结论：}上次任务（test6）完整复现 refer 04\_proton\_energy 全链：输入 879 组态
+三方向 2pt 切片（$24^3\times72$，Pz6），经平移不变相对时间 + ti 平均 + jackknife 重采样得到
+corr2（879$\times$20），双指数平台拟合提取 E0（ave = 1.640(5) a$^{-1}$ = 3.069(9) GeV），
+产出 7 图 + 拟合报告；与 refer 实跑真值\textbf{逐位一致}（最大 $|\Delta|=0$），12 项物理断言
+全部 PASS。E0(GeV) 与色散预期 3.14 GeV 吻合（偏差 $<0.35$ GeV），三方向+ave 互差
+$<0.1$ a$^{-1}$（方向对称性良好）。
+\end{conclbox}
+\begin{refbox}
+参考基线 refer/huangcl/04\_proton\_energy/code\_proton\_energy.py（\texttt{\nolinkurl{:157-204}}
+corr2 计算、\texttt{\nolinkurl{:22,140}} jack 参数）为复现行为的唯一权威来源；复现输出
+与 .ref\_run/ 真值逐位一致，说明 pyqcd 统计基元（jackknife 语义、SEM 公式）与 refer 完全等价。
+\end{refbox}
+\begin{warnbox}
+\begin{itemize}
+\item y 方向条件数最大（1.3e+08）、chi2/dof=1.8 且 E0 误差最大（17%）——y 方向信号最弱
+  （c0=0.002），拟合不确定度相对偏大（\textcolor{warn}{推断}，证据: \texttt{\nolinkurl{2_fit_report.txt:15-17}}）。
+\item corr2 前两列（dt=0,1）为 0、meff 两端为 NaN/inf——由边界卷绕与零值相除所致，平台拟合
+  窗 t=[3,7] 已避开，不影响结论（\textcolor{warn}{未验证}超出平台区数值）。
+\item 上次会话汇报文本缺失，本报告以运行日志（\texttt{\nolinkurl{run-local-20260816-053443.log}}）
+  与产物文件为唯一证据重建，耗时/内存数据来自该日志（数据来源: 日志实测）。
+\end{itemize}
+\end{warnbox}
+
+\end{document}

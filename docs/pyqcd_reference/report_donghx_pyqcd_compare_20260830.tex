@@ -1,0 +1,361 @@
+% ============================================================
+% dhx / PyQCD 4150 对照结果摘要
+% 编译：XeLaTeX 两遍；仅纳入本次已实际运行且通过的条目
+% ============================================================
+\documentclass[UTF8,aspectratio=169,11pt]{ctexbeamer}
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\definecolor{primary}{HTML}{17365D}
+\definecolor{accent}{HTML}{1F77B4}
+\definecolor{evidence}{HTML}{1E8449}
+\definecolor{muted}{HTML}{5B6573}
+\definecolor{panel}{HTML}{F4F7FA}
+\definecolor{good}{HTML}{EAF5EE}
+
+\setbeamersize{text margin left=0.55cm,text margin right=0.55cm}
+\setlength{\emergencystretch}{2em}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{normal text}{fg=black!86,bg=white}
+\setbeamercolor{structure}{fg=primary}
+\setbeamercolor{frametitle}{fg=primary,bg=white}
+\setbeamercolor{block title}{fg=primary,bg=panel}
+\setbeamercolor{block body}{fg=black!86,bg=panel}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamerfont{normal text}{size=\small}
+\setbeamertemplate{frametitle}{\vskip0.12cm\insertframetitle\par\vskip0.08cm}
+\setbeamertemplate{footline}{%
+  \hbox{\begin{beamercolorbox}[wd=\paperwidth,ht=2.3ex,dp=0.9ex,
+    leftskip=0.55cm,rightskip=0.55cm]{author in head/foot}%
+    \scriptsize\color{muted}PyQCD / dhx\hfill
+    4150 对照摘要\hfill\insertframenumber/\inserttotalframenumber
+  \end{beamercolorbox}}}
+
+\newcommand{\source}[1]{\vspace{0.05em}\par{\raggedright\scriptsize\color{muted}来源：#1\par}}
+\newcommand{\codepath}[1]{\nolinkurl{#1}}
+\newcommand{\verified}{\textcolor{evidence}{通过}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{L}{>{\raggedright\arraybackslash}p{0.18\textwidth}}
+\newcolumntype{M}{>{\raggedright\arraybackslash}p{0.27\textwidth}}
+
+\title[dhx/PyQCD 4150 对照]{dhx/PyQCD 4150 对照结果摘要}
+\subtitle{低层对象、4D10 HYP--OPE、质子 2pt 与 effmass 聚合}
+\author[PyQCD]{PyQCD 数值链}
+\institute{格点 QCD：蒸馏顶点、质子关联函数与胶子算符}
+\date{2026 年 8 月 30 日}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+  \vfill
+  \begin{center}
+    \small
+    参考代码：\codepath{/root/PyQCD/refer/donghx}\quad
+    工作目录：\codepath{/root/PyQCD}\quad
+    组态：\texttt{4150}
+  \end{center}
+\end{frame}
+
+\begin{frame}[t]{结论先行：本报告列出的五类已测条目均通过}
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabularx}{0.96\textwidth}{@{}P{0.27\textwidth} c P{0.16\textwidth} Y@{}}
+    \toprule
+    对照对象 & 通过数 & 最大相对 $L_2$ 误差 & 由结果文件直接支持的判断 \\
+    \midrule
+    低层 eigvec/phase/VdV/VVV/Clover/dual/OPE & $7/7$ & $1.36\times10^{-15}$ &
+      低模、动量投影、场强和直线 OPE 的数组形状与数值一致。 \\
+    4D10 HYP--OPE & $9/9$ 通道 & $3.30\times10^{-15}$ &
+      $x/y/z$ 三方向横向位移为零的直线截面一致。 \\
+    质子 2pt 直接比较 & $4/4$ 输出 & $3.50\times10^{-15}$ &
+      $Cg5g4$、$Cg5$ 在 35 个选定时间对上与参考成品一致。 \\
+    2pt 成品正宇称投影 & $58/58$ 组 & $8.29\times10^{-7}$ &
+      $P_+$ 投影与反周期边界符号得到的 $nopol\_ss$ 一致。 \\
+    effmass 聚合索引/时间汇总 & $7/7$ 资产、25 行 & $2.58\times10^{-16}$ &
+      组态 4150 在聚合数组中的索引均为 $k=2$。 \\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.16em}
+  \colorbox{good}{\parbox{0.94\linewidth}{\centering
+    \verified\ 误差定义、数据路径、函数入口和输入参数均在后续页面给出；表中只保留已实际运行且通过的条目。}}
+  \source{结果索引：\codepath{logs/donghx_4150_20260829/summary.md}；各项 JSON 证据见后续结果页。}
+\end{frame}
+
+\begin{frame}[t]{统一比较量与物理对象：从空间投影到关联函数}
+  \footnotesize
+  \begin{tabularx}{0.96\textwidth}{@{}L Y@{}}
+    \toprule
+    对象 & 定义与物理意义 \\
+    \midrule
+    动量相位与顶点 &
+      $e_p(\vec x)=\exp[-2\pi i(p_z z+p_y y+p_x x)/N_x]$；
+      $V_{mn}=\sum_{\vec x}e_p\,\phi_m^*\phi_n$ 为低模基的动量投影，
+      $V_{mnl}=\sum_{\vec x}e_p\,\epsilon_{abc}\phi_m^a\phi_n^b\phi_l^c$
+      将三个夸克组合为颜色 singlet。 \\
+    Clover 与对偶 &
+      $F_{\mu\nu}=-\frac{i}{8}\sum_{\rm Clover}(P_{\mu\nu}-P_{\mu\nu}^{\dagger})$，
+      $\widetilde F_{\mu\nu}=\frac12\epsilon_{\mu\nu\rho\sigma}F_{\rho\sigma}$；
+      前者是局域胶子场强，后者是 Euclidean 对偶张量。 \\
+    非局部胶子 OPE &
+      $O^{FF}_{\mu\nu}(z)=\sum_{\vec x}{\rm tr}\!
+      [F_{\mu\nu}(x+z\hat d)W^\dagger F_{\mu\nu}(x)W]$；
+      Wilson 线保证两端场强的规范协变性，$z$ 是空间位移。 \\
+    质子两点函数 &
+      $C_2(\vec p;t_s,t_0)=\langle O_p(\vec p,t_s)\bar O_p(\vec p,t_0)\rangle$，
+      $P_\pm=\frac12(\gamma_0\pm\gamma_4)$；$P_+$ 提取正宇称通道，
+      奇数夸克态的反周期边界要求保留时间方向符号。 \\
+    聚合与相对误差 &
+      $C_2(\Delta t)=\sum_{(t_s-t_0)\bmod N_t=\Delta t}C_2(t_s,t_0)$；
+      $\displaystyle\varepsilon_{\rm rel}=\frac{\|A_{\rm PyQCD}-A_{\rm dhx}\|_2}
+      {\max(\|A_{\rm dhx}\|_2,10^{-300})}$。 \\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.12em}
+  \begin{block}{比较口径}
+    数值比较保留复数数组；$\varepsilon_{\rm rel}$ 是数组级相对 $L_2$ 误差，
+    不是单个元素的逐点最大相对误差。
+  \end{block}
+  \source{约定：\codepath{skills/pyqcd-conventions/SKILL.md}；实现：\codepath{pyqcd/vertex/_vertex.py}、\codepath{pyqcd/operator/_gluon_ope.py}。}
+\end{frame}
+
+\begin{frame}[t]{低层 7 项：PyQCD 接口与 dhx 参考数组逐项一致}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.05}
+  \begin{tabularx}{0.96\textwidth}{@{}l Y l l@{}}
+    \toprule
+    对象 & PyQCD 函数与输入参数 & 输出形状 & $\varepsilon_{\rm rel}$ \\
+    \midrule
+    EIG & \codepath{readin_eigvecs(path,Nx=24)}，取前 $Nev1=8$ & $(8,13824,3)$ & $0$ \\
+    PHASE & \codepath{phase_exp_3pt(24,[0,0,1])}，$P_z=1$ & $(13824,)$ & $0$ \\
+    VdV & \codepath{phase_exp_2pt(24,[0,0,1])};\newline
+      \codepath{Mom_VdV_sink_t(phase,eig)}，$Nev=4$ & $(1,4,4)$ & $1.31\times10^{-15}$ \\
+    VVV & \codepath{phase_exp_3pt(24,[0,0,1])};\newline
+      \codepath{Mom_VVV_sink_t(phase,eig)[0]}，$Nev=4$ & $(4,4,4)$ & $4.75\times10^{-16}$ \\
+    Clover & \codepath{read_gauge_lime(path,2,24)}；遍历 $(\mu,\nu)$ 的\newline
+      \codepath{plaquette_clover(gauge,mu,nu)} & $(4,4,2,24,24,24,3,3)$ & $2.45\times10^{-16}$ \\
+    dual & \codepath{compute_dual_field_strength(F_dict,mu,nu)}，$\epsilon$ 收缩 & $(4,4,2,24,24,24,3,3)$ & $1.89\times10^{-16}$ \\
+    OPE & \codepath{gluon_ope_operator_z0(gauge,3,0,2,2,2,24,}\newline
+      \codepath{mu2=3,nu2=0,direction=1)} & $(2,2)$ & $1.36\times10^{-15}$ \\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.12em}
+  \begin{block}{实际输入路径}
+    eigvec：\codepath{/public/group/lqcd/eigensystem/beta6.20_mu-0.2770_ms-0.2400_L24x72/4150/eigvecs_t000_4150}；\newline
+    规范场入口：\codepath{/public/group/lqcd/configurations/CLOVER/beta6.20_mu-0.2770_ms-0.2400_L24x72/beta6.20_mu-0.2770_ms-0.2400_L24x72_cfg_4150.lime}。
+  \end{block}
+  \source{参考重写与参数：\codepath{pyqcd/testing/comparisons/donghx/cases_4150_lowlevel.py:34--278}；结果：\codepath{pyqcd/testing/comparisons/artifacts/v202608291500_lowlevel/results.json}。}
+\end{frame}
+
+\begin{frame}[t]{4D10 HYP--OPE（1/2）：三方向 9 个直线截面均通过}
+  \small
+  \begin{align*}
+    O^{FF}_{\mu\nu}(z)&=\sum_{\vec x}{\rm tr}\!
+      [F_{\mu\nu}(x+z\hat d)W^\dagger(x+z\hat d\!\to\!x)
+       F_{\mu\nu}(x)W(x\!\to\!x+z\hat d)],\\
+    &\quad \text{对应 PyQCD 的参数 }\texttt{second\_insert=F}\text{，参考成品取横向位移 }\Delta_\perp=0.
+  \end{align*}
+  \begin{tabularx}{0.96\textwidth}{@{}P{0.12\textwidth} P{0.23\textwidth} P{0.09\textwidth} P{0.12\textwidth} P{0.18\textwidth} Y@{}}
+    \toprule
+    Wilson 方向 & $(\mu,\nu)$ 通道 & $\Delta z$ & 形状 & 最大 $\varepsilon_{\rm rel}$ & 最大绝对差 \\
+    \midrule
+    $x$ & $(1,2),(3,1),(3,2)$ & $9$ & $(72,9)$ & $3.293\times10^{-15}$ & $5.68\times10^{-13}$ \\
+    $y$ & $(2,0),(3,0),(3,2)$ & $9$ & $(72,9)$ & $3.304\times10^{-15}$ & $5.68\times10^{-13}$ \\
+    $z$ & $(0,1),(3,0),(3,1)$ & $12$ & $(72,12)$ & $7.495\times10^{-17}$ & $5.68\times10^{-14}$ \\
+    \bottomrule
+  \end{tabularx}
+  \par\vspace{0.08em}
+  {\scriptsize
+  \textbf{物理判断：} $\Delta_\perp=0$ 时 9 个已测通道均与 dhx 成品一致；规范场最大幺正性偏差为 $1.11\times10^{-15}$。\par}
+  \source{结果：\codepath{pyqcd/testing/comparisons/artifacts/v20260829_hyp_ope_xyz/results.json}；通道定义见 \codepath{pyqcd/testing/comparisons/donghx/run_4150_hyp_ope.py}。}
+\end{frame}
+
+\begin{frame}[t]{4D10 HYP--OPE（2/2）：入口、参数与原始数据路径可复现}
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabularx}{0.96\textwidth}{@{}P{0.22\textwidth}Y@{}}
+    \toprule
+    项目 & PyQCD 入口与输入参数 \\
+    \midrule
+    规范场读入 & \codepath{read_gauge_lime(HYP_RECORDS["4d10"],Nt=72,Nx=24)} \\
+    OPE 调用 & \codepath{gluon_ope_operator_z0(gauge,mu,nu,z_dir,delta_z,72,24,second_insert="F")}；三方向逐通道计算，$\Delta_\perp=0$ \\
+    参考通道 & $x:(1,2),(3,1),(3,2)$；$y:(2,0),(3,0),(3,2)$；$z:(0,1),(3,0),(3,1)$ \\
+    \bottomrule
+  \end{tabularx}
+  \vspace{-0.45em}
+  \begin{block}{输入数据路径（续行属于同一路径）}
+    \scriptsize
+    HYP：\codepath{/public/group/lqcd/donghx/Hpysmear_beta6.20_mu-0.2770_ms-0.2400_L24x72/hpy_4D_10times_new/}\newline
+    \hspace*{2.7em}\codepath{beta6.20_mu-0.2770_ms-0.2400_L24x72_cfg_4150.lime.contents/msg02.rec04.ildg-binary-data}\\
+    dhx OPE 根：\codepath{/public/group/lqcd/donghx/Ope_Gluon/TMD_Ope_Gluon/Result/beta6.20_mu-0.2770_ms-0.2400_L24x72}
+  \end{block}
+  \source{入口与通道映射：\codepath{pyqcd/testing/comparisons/donghx/run_4150_hyp_ope.py:22--180}；结果：\codepath{pyqcd/testing/comparisons/artifacts/v20260829_hyp_ope_xyz/results.json}。}
+\end{frame}
+
+\begin{frame}[t]{质子 2pt 直接比较（1/2）：两种插值在 35 个时间对上同链计算}
+  \footnotesize
+  \setlength{\abovedisplayskip}{0.25em}
+  \setlength{\belowdisplayskip}{0.25em}
+  \renewcommand{\arraystretch}{0.92}
+  \begin{align*}
+    C_2(\vec p;t_s,t_0)&=\langle O_p(\vec p,t_s)\,\bar O_p(\vec p,t_0)\rangle,\\
+    C_2^{+}(t_s,t_0)&=s_{++}(t_s,t_0)\sum_{l,i}P^+_{li}C_{il}(t_s,t_0),
+    \quad P^+=\tfrac12(\gamma_0+\gamma_4),\\
+    s_{++}(t_s,t_0)&=\begin{cases}-1,&t_s<t_0,\\+1,&t_s\ge t_0.\end{cases}
+  \end{align*}
+  \begin{tabularx}{0.96\textwidth}{@{}P{0.13\textwidth} P{0.16\textwidth} P{0.19\textwidth} Y@{}}
+    \toprule
+    变体 & $N_x,N_t,N_{ev}$ & $P_{zyx}$、涂抹 & 时间参数 \\
+    \midrule
+    $Cg5g4$ & $24,72,100$ & $(0,0,0)$，$0$ & $t_0=0$，$\Delta t=2\ldots36$（35 对） \\
+    $Cg5$ & $24,72,100$ & $(0,0,0)$，$0$ & 同上 \\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.16em}
+  \begin{tabularx}{0.96\textwidth}{@{}P{0.22\textwidth}Y@{}}
+    \toprule
+    处理阶段 & PyQCD 函数与输入参数 \\
+    \midrule
+    低模与动量 & \codepath{readin_eigvecs(path,Nx=24)}；\codepath{Mom_VVV_sink_t(...)}，$Nev=4$ \\
+    peram 输入 & \codepath{readin_peram_time_slice(...,t0=0,Nt=72,Nev=100)} \\
+    缩并与投影 & \codepath{contract_donghx_2pt_pair(...,variant=Cg5g4/Cg5)}；\codepath{parity_and_boundary(...,Nt=72)} \\
+    \bottomrule
+  \end{tabularx}
+  \vspace{-0.65em}
+  \source{代码证据：\texttt{cases\_4150\_fermion.py}、\texttt{run\_4150\_fermion.py}（均在 \codepath{pyqcd/testing/comparisons/donghx}）。}
+\end{frame}
+
+\begin{frame}[t]{质子 2pt 直接比较（2/2）：contract 与投影成品均与 dhx 一致}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}P{0.25\textwidth} P{0.26\textwidth} Y P{0.17\textwidth}@{}}
+    \toprule
+    输出对象 & 形状/dtype & dhx 参考目录（相对共同根） & $\varepsilon_{\rm rel}$ \\
+    \midrule
+    $Cg5g4$ contract & $(72,72,4,4)$/complex128 & \codepath{momsmear0_Cg5g4/4150} & $3.50\times10^{-15}$ \\
+    $Cg5g4$ nopol\_pp & $(72,72)$/complex128 & \codepath{momsmear0_Cg5g4/4150} & $1.27\times10^{-15}$ \\
+    $Cg5$ contract & $(72,72,4,4)$/complex128 & \codepath{momsmear0_Cg5/4150} & $2.29\times10^{-15}$ \\
+    $Cg5$ nopol\_pp & $(72,72)$/complex128 & \codepath{momsmear0_Cg5/4150} & $1.53\times10^{-15}$ \\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.10em}
+  \begin{block}{实际数据路径}
+    \scriptsize
+    eigvec：\codepath{/public/group/lqcd/eigensystem/beta6.20_mu-0.2770_ms-0.2400_L24x72/4150}\\
+    peram：\codepath{/public/group/lqcd/perambulators/beta6.20_mu-0.2770_ms-0.2400_L24x72/light/4150}\\
+    dhx 参考根：\codepath{/public/group/lqcd/donghx/2pt_Result/beta6.20_mu-0.2770_ms-0.2400_L24x72}
+  \end{block}
+  \source{结果与完整路径：见末页“证据索引”的费米子 runner 条目。}
+\end{frame}
+
+\begin{frame}[t]{2pt 成品输出级检查：58 个 $nopol\_ss$ 投影关系均通过}
+  \footnotesize
+  \begin{align*}
+    \widehat nopol_{ss}(t_s,t_0)&=s_{++}(t_s,t_0)
+      \sum_{l,i}P^+_{li}\,contract_{il}(t_s,t_0),\\
+    \varepsilon_{\rm rel}^{\rm proj}&=
+      \frac{\|\widehat nopol_{ss}-nopol_{ss}^{\rm dhx}\|_2}
+      {\max(\|nopol_{ss}^{\rm dhx}\|_2,10^{-300})}.
+  \end{align*}
+  \begin{tabularx}{0.96\textwidth}{@{}Y P{0.13\textwidth} P{0.10\textwidth} P{0.10\textwidth} P{0.14\textwidth}@{}}
+    \toprule
+    dhx 参考根目录（相对于共同根） & 相位/方向 & 文件数 & 动量组 & nopol 通过 \\
+    \midrule
+    \codepath{momsmear-2x/4150} & $-2\hat x$ & $25$ & $5$ & $5/5$ \\
+    \codepath{momsmear-2y/4150} & $-2\hat y$ & $25$ & $5$ & $5/5$ \\
+    \codepath{momsmear-2z/4150} & $-2\hat z$ & $25$ & $5$ & $5/5$ \\
+    \codepath{momsmear2x/4150} & $+2\hat x$ & $25$ & $5$ & $5/5$ \\
+    \codepath{momsmear2z/4150} & $+2\hat z$ & $27$ & $6$ & $6/6$ \\
+    \codepath{momsmear0_Cg5/4150} & $0$，$Cg5$ & $47$ & $16$ & $16/16$ \\
+    \codepath{momsmear0_Cg5g4/4150} & $0$，$Cg5g4$ & $58$ & $16$ & $16/16$ \\
+    \bottomrule
+  \end{tabularx}
+  \par\vspace{0.12em}
+  {\scriptsize
+  \textbf{PyQCD 检查：}\codepath{compare_contract_nopol(contract,nopol)}；
+  $P^+=\frac12(\gamma_0+\gamma_4)$，$N_t=72$，complex64 容差 $5\times10^{-6}$；
+  $58/58$ 通过，最大 $\varepsilon_{\rm rel}=8.291\times10^{-7}$，最大绝对差 $1.98\times10^{-9}$。\par}
+  \source{数据根沿用上一页 dhx 2pt 共同根；实现：\codepath{pyqcd/testing/comparisons/donghx/inspect_4150_momsmear.py}；结果路径见末页证据索引。}
+\end{frame}
+
+\begin{frame}[t]{effmass 聚合检查（1/2）：7 个资产的 4150 行均定位到索引 $k=2$}
+  \footnotesize
+  \begin{align*}
+    c_k&=4050+50k\quad\Longrightarrow\quad c_2=4150,\\
+    C_{\rm time}(\Delta t)&=\sum_{(t_s-t_0)\bmod72=\Delta t}C_2(t_s,t_0).
+  \end{align*}
+  \begin{tabularx}{0.96\textwidth}{@{}Y l r r@{}}
+    \toprule
+    聚合资产 & 聚合形状 & 动量行数 & 最大 $\varepsilon_{\rm rel}$ \\
+    \midrule
+    raw $+2z$ momentum-smear & $(5,879,72,72)$ & $5$ & $0$ \\
+    raw $-2z$ momentum-smear & $(5,879,72,72)$ & $5$ & $0$ \\
+    raw momentum-smear0 $Cg5g4$ & $(4,878,72,72)$ & $4$ & $0$ \\
+    $twoptall$ $+2z$ & $(5,879,72)$ & $5$ & $2.582\times10^{-16}$ \\
+    $twoptall$ momentum-smear0 $Cg5g4$ & $(4,878,72)$ & $4$ & $7.118\times10^{-18}$ \\
+    $twoptall$ $P_z=0$, $Cg5$ & $(1,879,72)$ & $1$ & $3.935\times10^{-17}$ \\
+    $twoptall$ $P_z=0$, $Cg5g4$ & $(1,876,72)$ & $1$ & $1.866\times10^{-17}$ \\
+    \bottomrule
+  \end{tabularx}
+  \par\vspace{0.12em}
+  {\scriptsize
+  \textbf{物理用途：}时间平移汇总得到 $C_2(\Delta t)$，是有效质量/色散分析的输入；本页仅验证组态行与汇总数组的对应关系。\par}
+  \source{结果：\codepath{pyqcd/testing/comparisons/artifacts/v202608301600_4150_effmass_aggregate/results.json}。}
+\end{frame}
+
+\begin{frame}[t]{effmass 聚合检查（2/2）：入口参数与 dhx 聚合根}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}P{0.22\textwidth}Y@{}}
+    \toprule
+    项目 & PyQCD 函数与输入参数 \\
+    \midrule
+    聚合入口 & \codepath{inspect_all(base=DEFAULT_BASE)} \\
+    矩阵比较 & \codepath{compare_matrix_stack}；逐组态数组形状与 dhx 聚合结果比较 \\
+    时间比较 & \codepath{compare_time_stack}；按 $(t_s-t_0)\bmod N_t$ 汇总，$N_t=72$ \\
+    精度处理 & complex64 输入先升宽为 complex128；组态编号 $c_k=4050+50k$，故 $4150\Rightarrow k=2$ \\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.20em}
+  \begin{block}{数据路径}
+    \scriptsize
+    dhx 聚合根：\codepath{/public/group/lqcd/donghx/2pt_Result/beta6.20_mu-0.2770_ms-0.2400_L24x72/effmass}\\
+    4150 参照资产：\codepath{momsmear2z/4150}、\codepath{momsmear-2z/4150}、\codepath{momsmear0_Cg5/4150}、\codepath{momsmear0_Cg5g4/4150}
+  \end{block}
+  \begin{block}{物理边界}
+    \scriptsize
+    该项验证的是 $C_2(\Delta t)$ 的组态行与时间平移汇总索引；不把数组一致性扩写为未测的质量拟合结论。
+  \end{block}
+  \source{实现：\codepath{pyqcd/testing/comparisons/donghx/inspect_4150_effmass.py}；结果索引见上一页与末页证据表。}
+\end{frame}
+
+\begin{frame}[t]{证据索引：报告中的每个数值都可回到本地 JSON 与复核命令}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabularx}{0.96\textwidth}{@{}P{0.24\textwidth} P{0.31\textwidth} Y@{}}
+    \toprule
+    复核项 & 本次命令输出 & 本地结果文件 \\
+    \midrule
+   低层结构/受控契约 & \texttt{verify\_4150\_lowlevel: PASS 3/3} & \codepath{pyqcd/testing/comparisons/artifacts/v202608291500_lowlevel/results.json} \\
+    HYP--OPE runner 契约 & \texttt{verify\_4150\_hyp\_ope\_runner: PASS 3/3} & \codepath{pyqcd/testing/comparisons/artifacts/v20260829_hyp_ope_xyz/results.json} \\
+    费米子 runner 契约 & \texttt{verify\_4150\_fermion\_runner: PASS 12/12} & \codepath{pyqcd/testing/comparisons/artifacts/v202608300145_cg5g4/results.json}、\codepath{pyqcd/testing/comparisons/artifacts/v202608300146_cg5/results.json} \\
+    2pt 输出检查契约 & \texttt{verify\_4150\_momsmear: PASS 7/7} & \codepath{pyqcd/testing/comparisons/artifacts/v20260830123306_4150_2pt_polar/results.json} \\
+    effmass 检查契约 & \texttt{verify\_4150\_effmass: PASS 3/3} & \codepath{pyqcd/testing/comparisons/artifacts/v202608301600_4150_effmass_aggregate/results.json} \\
+    资产盘点 & \texttt{verify\_manifest\_4150: PASS 4/4} & \codepath{logs/donghx_4150_20260829/summary.md} \\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.18em}
+  \begin{block}{最终判断}
+    在本次真实读取的组态 4150 输入和上述明确参数范围内，PyQCD 与 dhx 的已测数组级对照均达到各自容差；
+    相对误差主要为双精度浮点求和顺序量级，输出级 complex64 检查的最大误差为 $8.29\times10^{-7}$。
+  \end{block}
+  \source{验证命令均在 2026-08-30 于 \codepath{/root/PyQCD} 执行；本报告按要求只呈现已测试且通过的条目。}
+\end{frame}
+
+\end{document}

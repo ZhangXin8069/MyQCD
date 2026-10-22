@@ -1,0 +1,507 @@
+% ============================================================
+% PyQCD 4150 功能对照测试报告
+% 编译：xelatex 两遍；交付前检查溢出、页数与全页渲染
+% ============================================================
+\documentclass[UTF8,aspectratio=169,11pt]{ctexbeamer}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,shapes.geometric}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{hyperref}
+
+\definecolor{primary}{HTML}{17365D}
+\definecolor{accent}{HTML}{1F77B4}
+\definecolor{evidence}{HTML}{1E8449}
+\definecolor{warning}{HTML}{C55A11}
+\definecolor{muted}{HTML}{5B6573}
+\definecolor{panel}{HTML}{F4F7FA}
+\definecolor{good}{HTML}{EAF5EE}
+\definecolor{warnbg}{HTML}{FFF4E8}
+
+\setbeamersize{text margin left=0.55cm,text margin right=0.55cm}
+\setlength{\emergencystretch}{2em}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{normal text}{fg=black!86,bg=white}
+\setbeamercolor{structure}{fg=primary}
+\setbeamercolor{frametitle}{fg=primary,bg=white}
+\setbeamercolor{block title}{fg=primary,bg=panel}
+\setbeamercolor{block body}{fg=black!86,bg=panel}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamerfont{normal text}{size=\normalsize}
+\setbeamertemplate{frametitle}{\vskip0.12cm\insertframetitle\par\vskip0.08cm}
+\setbeamertemplate{footline}{%
+  \hbox{\begin{beamercolorbox}[wd=\paperwidth,ht=2.3ex,dp=0.9ex,
+    leftskip=0.55cm,rightskip=0.55cm]{author in head/foot}%
+    \scriptsize\color{muted}PyQCD cmp1\hfill
+    4150 功能对照\hfill\insertframenumber/\inserttotalframenumber
+  \end{beamercolorbox}}}
+
+\newcommand{\source}[1]{\vspace{0.05em}\par{\raggedright\scriptsize\color{muted}来源：#1\par}}
+\newcommand{\verified}{\textcolor{evidence}{确证}}
+\newcommand{\inferred}{\textcolor{accent}{推断}}
+\newcommand{\unverified}{\textcolor{warning}{未验证}}
+\newcommand{\pass}{\textcolor{evidence}{通过}}
+\newcommand{\diffmark}{\textcolor{warning}{登记差异}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}p{0.22\linewidth}}
+\tikzset{
+  flow/.style={draw=accent,fill=accent!8,rounded corners=2pt,align=center,
+    minimum height=0.78cm,text width=2.18cm,font=\small},
+  decision/.style={draw=warning,fill=warning!10,rounded corners=2pt,align=center,
+    minimum height=0.78cm,text width=2.25cm,font=\small},
+  arrow/.style={-{Latex[length=2mm]},draw=primary,semithick}
+}
+
+\lstset{
+  basicstyle=\ttfamily\scriptsize,backgroundcolor=\color{panel},frame=single,
+  breaklines=true,breakatwhitespace=false,keepspaces=true,columns=flexible,
+  numbers=left,numberstyle=\tiny\color{muted},keywordstyle=\color{primary}\bfseries,
+  commentstyle=\color{evidence!70!black},stringstyle=\color{accent}
+}
+
+\title[PyQCD 4150 功能对照]{PyQCD 4150 功能对照测试}
+\subtitle{\small refer/sush/lqcddb 与 refer/donghx：真实输入、差异判定与验收闭环}
+\author[Codex]{Codex / PyQCD}
+\institute{格点 QCD：梯度流重整化核子胶子 TMD-PDF}
+\date{2026 年 8 月 28 日}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+  \vfill
+  \begin{center}
+    \small 单测组态：\texttt{4150}；工作目录：\texttt{/root/PyQCD}
+  \end{center}
+\end{frame}
+
+\begin{frame}[t]{结论先行：对照门无硬失败，唯一差异已闭合}
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.30\textwidth}
+      \begin{block}{验收结果}
+        \centering
+        {\Large\textcolor{evidence}{51/52}}\\[-0.1em]
+        直接数值通过\\
+        \textcolor{evidence}{0 个硬失败}
+      \end{block}
+      \small 断言门：\texttt{verify\_cmp1} 退出码 0。
+    \end{column}
+    \begin{column}{0.30\textwidth}
+      \begin{block}{物理判定}
+        \centering
+        \textcolor{evidence}{PyQCD 保留复数}\par
+        \textcolor{evidence}{GEVP 残差 $\sim10^{-15}$}
+      \end{block}
+      \small L20 参考代码在 Hermitian 化后额外执行 \,\texttt{.real}，丢失复关联信息。
+    \end{column}
+    \begin{column}{0.30\textwidth}
+      \begin{block}{真实数据}
+        \centering
+        \textcolor{evidence}{4150 已读入}\par
+        gauge / eigenvector / peram / HYP
+      \end{block}
+      \small 结果目录中缺少的外部 2pt/OPE 产物保留为未验证。
+    \end{column}
+  \end{columns}
+  \vfill
+  \begin{center}
+    \colorbox{good}{\parbox{0.90\linewidth}{\centering
+      当前无需修改 PyQCD 的 GEVP 生产实现；严格逐位兼容与物理正确性应作为两个明确契约。}}
+  \end{center}
+  \source{实测：\texttt{pyqcd/testing/comparisons/artifacts/v202608281517/results.json}；\texttt{verify.py} 退出码 0}
+\end{frame}
+
+\begin{frame}[t]{任务边界：以 4150 原始输入驱动可复现对照}
+  \footnotesize
+  \setlength{\tabcolsep}{2pt}
+  \renewcommand{\arraystretch}{0.92}
+  \begin{tabularx}{0.96\textwidth}{@{}L Y l Y@{}}
+    \toprule
+    对象 & 当前使用的输入/契约 & 状态 & 证据\\
+    \midrule
+    规范场 & CLOVER 组态 \texttt{cfg\_4150.lime}，$573439152$ bytes & \verified & D03/D04/S10\\
+    本征矢量 & \texttt{eigensystem/.../4150}，真实二进制读取 & \verified & L15/L26--L29\\
+    轻夸克 perambulator & \texttt{peram/.../light/4150}，Nev1=8 & \verified & L08/S07\\
+    HYP 场 & hpy 3D(1/3/5) 与 4D(10) 的 ILDG binary & \verified & 4096 sites 抽样幺正性\\
+    参考实现 & \texttt{refer/sush/lqcddb} + \texttt{refer/donghx} 桥接 & \verified & 52 cases\\
+    外部历史结果 & 2pt/OPE/Eigvec/Contraction 等用户路径 & \unverified & 多个 4150 目录当前不存在\\
+    \bottomrule
+  \end{tabularx}
+  \begin{block}{通过标准}
+    逐功能真实运行；数组形状、dtype、数值和性能留痕；差异必须由不变量或源码证据解释。
+    参考数据默认优先，但不能用参考输出替代对原方程的残差检查。
+  \end{block}
+  \source{范围依据：\texttt{logs/v20260819.txt}--\texttt{logs/v20260824.txt} 与本轮用户给定路径；原始路径完整清单见附录}
+\end{frame}
+
+\begin{frame}[t]{验收闭环：输入、对照、物理不变量与归档彼此独立}
+  \centering
+  \begin{tikzpicture}[node distance=0.30cm and 0.20cm]
+    \node[flow] (raw) {4150 原始场\\本征模\\peram\\HYP};
+    \node[flow,right=of raw] (bridge) {参考桥接\\lqcddb\\donghx};
+    \node[flow,right=of bridge] (run) {52 项真实运行\\输出与耗时};
+    \node[decision,right=of run] (check) {逐位或\\不变量通过？};
+    \node[flow,right=of check] (archive) {JSON/报告\\与标签};
+    \draw[arrow] (raw) -- (bridge);
+    \draw[arrow] (bridge) -- (run);
+    \draw[arrow] (run) -- (check);
+    \draw[arrow] (check) -- node[above=2pt,fill=white,font=\scriptsize]{是/已登记} (archive);
+    \draw[arrow] (check.south) |- ++(0,-0.85) -| node[below=2pt,fill=white,font=\scriptsize]{否：单假设 debug} (run.south);
+  \end{tikzpicture}
+  \vfill
+  \begin{tabularx}{0.92\textwidth}{@{}l Y@{}}
+    \toprule
+    检查层 & 本轮证据\\
+    \midrule
+    数值层 & 44 项差异为严格零；其余通过项为常数、浮点或随机统计的可解释小量。\\
+    物理层 & Clover、对偶、GEVP 残差、SU(3) 幺正性和 HYP 时间方向行为分别检查。\\
+    工程层 & \texttt{cmp1} 产物版本化；主回归 41/41；外部缺失目录不伪造。\\
+    \bottomrule
+  \end{tabularx}
+  \source{流程：\texttt{pyqcd/testing/comparisons/main.py}、\texttt{common/harness.py}、\texttt{verify.py}}
+\end{frame}
+
+\begin{frame}[t]{L20 差异来源：参考实现把复 GEVP 投影成了实 GEVP}
+  \footnotesize
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.47\textwidth}
+      \begin{block}{共同定义}
+        \begin{align*}
+          C_H(t)&=\frac{C(t)+C(t)^\dagger}{2},\\
+          C_H(t)v_n&=\lambda_n(t,t_0)C_H(t_0)v_n.
+        \end{align*}
+        这是复 Hermitian 相关矩阵的广义本征值问题；$v_n$ 可以有非零虚部。
+      \end{block}
+      \begin{block}{实际路径}
+        \textcolor{warning}{ref:} $C_{\rm eff}=\operatorname{Re} C_H$\\
+        \textcolor{evidence}{PyQCD:} $C_{\rm eff}=C_H$
+      \end{block}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \setlength{\tabcolsep}{2pt}
+      \renewcommand{\arraystretch}{0.90}
+      \begin{tabularx}{\linewidth}{@{}lY@{}}
+        \toprule
+        量 & 本轮实测\\
+        \midrule
+        $\max|\operatorname{Im} C|$ & $7.71$（随机正定输入）\\
+        ref--PyQCD 相对差 & $1.7821$\\
+        纯实投影相对差 & $0$\\
+        PyQCD 对复矩阵残差 & $1.02\times10^{-15}$\\
+        ref 对复矩阵残差 & $\mathcal O(10^{-1})$\\
+        ref 对实投影残差 & $1.17\times10^{-15}$\\
+        \bottomrule
+      \end{tabularx}
+      \colorbox{warnbg}{\parbox{0.96\linewidth}{\small
+        逐位差异来自参考侧的 \texttt{.real} 投影；PyQCD 保留复数行为。}}
+    \end{column}
+  \end{columns}
+  \source{参考：\texttt{refer/sush/lqcddb/src/lqcddb/analyse/analyse.py:846--850}；PyQCD：\texttt{pyqcd/analysis/\_analyse.py:633--646}}
+\end{frame}
+
+\begin{frame}[t]{L20 独立判定：复数解析谱支持 PyQCD 的默认行为}
+  \footnotesize
+  \setlength{\tabcolsep}{2pt}
+  \renewcommand{\arraystretch}{0.90}
+  \begin{tabularx}{0.96\textwidth}{@{}
+    >{\raggedright\arraybackslash}p{0.20\textwidth}
+    >{\raggedright\arraybackslash}p{0.27\textwidth}
+    >{\raggedright\arraybackslash}p{0.12\textwidth}
+    >{\raggedright\arraybackslash}p{0.12\textwidth}
+    Y@{}}
+    \toprule
+    输入 & 指标 & PyQCD & ref & 解释\\
+    \midrule
+    随机复正定 $C(t)$ & 原复 GEVP 残差 & $1.02\times10^{-15}$ & $1.17\times10^{-1}$ & PyQCD 解原复问题\\
+    随机复正定 $C(t)$ & $V^\dagger C_0V$ 非对角量 & $4.25\times10^{-16}$ & $4.44\times10^{-16}$ & 各自问题内正交\\
+    纯实投影 $\operatorname{Re}C(t)$ & 输出相对差 & $0$ & $0$ & 实数契约逐位一致\\
+    复插值基解析谱 & 本征值最大误差 & $6.66\times10^{-16}$ & $8.89\times10^{-2}$ & $C=Ue^{-Et}U^\dagger$\\
+    复插值基解析谱 & 原复 GEVP 残差 & $4.71\times10^{-16}$ & $1.18\times10^{-1}$ & 独立方程验证\\
+    \bottomrule
+  \end{tabularx}
+  \begin{block}{判定}
+    \verified\ PyQCD 满足复 Hermitian GEVP；\diffmark\ L20 作为参考语义差异进入白名单。
+  \end{block}
+  \source{独立复数/实数 GEVP 残差脚本；实现回归：\texttt{pyqcd/testing/\_\_init\_\_.py:28--43}}
+\end{frame}
+
+\begin{frame}[t]{全套对照：lqcddb、donghx 与补充功能均完成真实运行}
+  \footnotesize
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.54\textwidth}
+      \setlength{\tabcolsep}{2pt}
+      \renewcommand{\arraystretch}{0.90}
+      \begin{tabularx}{\linewidth}{@{}
+        >{\raggedright\arraybackslash}p{0.15\linewidth}
+        >{\raggedright\arraybackslash}p{0.13\linewidth}
+        >{\raggedright\arraybackslash}p{0.15\linewidth}
+        >{\raggedright\arraybackslash}p{0.16\linewidth}
+        Y@{}}
+        \toprule
+        组 & 用例数 & 直接通过 & 登记差异 & 运行内容\\
+        \midrule
+        lqcddb & 30 & 29 & 1（L20） & 统计/GEVP/切片/peram/本征矢量\\
+        donghx & 8 & 8 & 0 & gamma、ASCII、DG、VVV\\
+        suppl & 14 & 14 & 0 & 投影/动量/stout/插值/成本\\
+        \midrule
+        合计 & 52 & 51 & 1 & 44 项严格零差异\\
+        \bottomrule
+      \end{tabularx}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \begin{block}{断言门}
+        \centering
+        \large\textcolor{evidence}{hard\_fails = 0}
+        \par\vspace{0.02cm}
+        \texttt{verify\_cmp1.py}：\texttt{pass=51/52}\par
+        \texttt{whitelist\_ok=1}
+      \end{block}
+      \begin{block}{告警而非失败}
+        零动量 $p\cdot\sigma$ 的双方除零告警，以及无种子 Bootstrap 的统计性比较，均未改变状态。
+      \end{block}
+    \end{column}
+  \end{columns}
+  \begin{center}
+    \colorbox{good}{\parbox{0.90\linewidth}{\centering
+      参考实现差异仍在原始 JSON 中可见；白名单只改变验收分类，不改变测量值。}}
+  \end{center}
+  \source{结果：\texttt{cmp1/v202608281517/summary.md}；\texttt{verify\_cmp1.py} 门控}
+\end{frame}
+
+\begin{frame}[t]{真实 4150 物理链：规范场、谱基与算符层均可运行}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}lYrlY@{}}
+    \toprule
+    用例 & 物理对象 & rel\_diff & 结果 & 说明\\
+    \midrule
+    L08 & seq\_peram（Nev1=8） & $0$ & \pass & 真实 light perambulator\\
+    L15 & eigvector 二进制读取 & $0$ & \pass & 真实 $24^3$ 空间本征模\\
+    D03 & Clover $F_{\mu\nu}$ 全叠 & $2.51\times10^{-16}$ & \pass & 真实 gauge，2 时间片\\
+    D04 & 对偶 $\widetilde F_{\mu\nu}$ & $1.90\times10^{-16}$ & \pass & 固定轴序关系锁定\\
+    D05 & $\Delta G$ 双场强 $\pm z$ & $0$ & \pass & 平面/全和形状契约\\
+    L29 & VdV/VVV + 相位 & $3.75\times10^{-15}$ & \pass & Nev=32，全格点\\
+    S10 & stout 物理判据 & -- & \pass & 作用量方向：PyQCD 平滑\\
+    \bottomrule
+  \end{tabularx}
+  \vfill
+  \begin{block}{张量契约}
+    规范场按 $(N_t,N_z,N_y,N_x,4,3,3)$ 存储；$mu=0,1,2,3$ 对应空间 $x,y,z$ 与时间。
+    真实场抽样的链接幺正性偏差为 $1.33\times10^{-15}$，未发生轴序或 dtype 静默转换。
+  \end{block}
+  \source{结果：\texttt{v202608281517/results.json}；约定：\texttt{pyqcd/skills/pyqcd-conventions/SKILL.md}；实现：\texttt{pyqcd/operator/\_gluon\_ope.py}、\texttt{pyqcd/vertex/\_vertex.py}}
+\end{frame}
+
+\begin{frame}[t]{HYP 4150 原始场守卫：幺正性通过，3D/4D 时间方向可区分}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}lrrrY@{}}
+    \toprule
+    数据 & 抽样 sites & $\max\|UU^\dagger-I\|$ & 与原场时间链接最大差 & 判定\\
+    \midrule
+    hpy\_3D\_1 & 4096 & $8.88\times10^{-16}$ & $0$ & 3D 时间链保持\\
+    hpy\_3D\_3 & 4096 & $1.11\times10^{-15}$ & $0$ & 3D 时间链保持\\
+    hpy\_3D\_5 & 4096 & $8.88\times10^{-16}$ & $0$ & 3D 时间链保持\\
+    hpy\_4D\_10 & 4096 & $8.88\times10^{-16}$ & $1.374$ & 4D 时间链已涂抹\\
+    原始 gauge\_4150 & 全场观测量 & $1.33\times10^{-15}$ & -- & $\langle E_{\rm clover}\rangle=0.149777386$\\
+    \bottomrule
+  \end{tabularx}
+  \vfill
+  \begin{block}{范围说明}
+    这是对用户给定 HYP ILDG 数据的格式、SU(3) 和方向语义守卫，不宣称已经逐链接复现外部 HYP 生成器。
+    PyQCD 自身 HYP 算法由合成 $6^4$ 场的 SU(3)/作用量测试覆盖。
+  \end{block}
+  \source{数据：用户给定 \texttt{.../Hpysmear.../cfg\_4150.lime.contents/msg02.rec04.ildg-binary-data}；实现/回归：\texttt{pyqcd/smear/\_hyp.py}、\texttt{pyqcd/testing/\_\_init\_\_.py:186--196}}
+\end{frame}
+
+\begin{frame}[t]{修复与补充的工程成果：对照不是一次性快照}
+  \footnotesize
+  \setlength{\tabcolsep}{2pt}
+  \renewcommand{\arraystretch}{0.90}
+  \begin{tabularx}{0.96\textwidth}{@{}
+    >{\raggedright\arraybackslash}p{0.16\textwidth}
+    >{\raggedright\arraybackslash}p{0.43\textwidth}
+    >{\raggedright\arraybackslash}p{0.13\textwidth}
+    Y@{}}
+    \toprule
+    层 & 已覆盖的功能 & 状态 & 证据\\
+    \midrule
+    lattice/tools & gamma、sigma、Levi-Civita、动量壳、ASCII、文件守卫 & \pass & L01--L05/L12--L14\\
+    contraction & Wick、等价图、seq\_peram、边界与 disconnected PDF & \pass & L06--L08/L18--L19/L22\\
+    analysis & Jackknife、meff、GEVP、分组、PFF/PDF 窗 & \pass & L09--L11/L20--L23\\
+    vertex & 本征模压缩、噪声、VdV/VVV、相位 & \pass & L26--L29/D08\\
+    operator & Clover、对偶、$\Delta G$、OPE Lorentz/FF & \pass & D03--D07/S09\\
+    smear/physics & stout、动量涂抹相位、插值器、成本模型 & \pass & S10--S14\\
+    GEVP 契约 & 复数保留回归 + 参考差异白名单 & \diffmark & L20、本报告第 5--6 页\\
+    \bottomrule
+  \end{tabularx}
+  \begin{block}{原则}
+    生产代码保留物理正确的复数 GEVP；对照 harness 单独保留参考侧行为和差异值。
+  \end{block}
+  \source{映射：\texttt{pyqcd/testing/comparisons/README.md}；门控：\texttt{pyqcd/testing/comparisons/verify.py:12--18}}
+\end{frame}
+
+\begin{frame}[t]{性能证据：小函数加速明显，重路径需按后端单独优化}
+  \small
+  \begin{tabularx}{0.96\textwidth}{@{}lrrrY@{}}
+    \toprule
+    用例 & ref (s) & PyQCD (s) & ref/PyQCD & 解释\\
+    \midrule
+    L19 loop\_tsrc & 0.2876 & 0.0254 & $11.32\times$ & numpy 直接索引避开高维 slicer\\
+    L29 VdV/VVV & 1.4252 & 1.3405 & $1.06\times$ & 全格点张量收缩，接近\\
+    D03 Clover & 1.5661 & 1.2874 & $1.22\times$ & 真实 gauge，PyQCD 较快\\
+    S11 phase & 0.0344 & 0.0004 & $87.69\times$ & 解析相位向量化\\
+    L08 seq\_peram & 0.7730 & 1.4486 & $0.53\times$ & PyQCD 仍有优化空间\\
+    D08 VVV & 0 & 2.9667 & -- & ref 包装器为结构性空运行，不能作速度结论\\
+    \bottomrule
+  \end{tabularx}
+  \vfill
+  \begin{block}{优化结论}
+    本轮没有为了追求单项耗时而改动物理路径；优先级是保持数据布局和复数语义，再对 seq\_peram 的临时数组/后端搬运做独立 profiling。
+  \end{block}
+  \source{实测耗时：\texttt{v202608281517/results.json}；性能比较仅限同一用例、同一进程环境}
+\end{frame}
+
+\begin{frame}[t]{覆盖边界：缺失的外部结果不被误报为 PyQCD 通过}
+  \small
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{当前存在并已能访问}
+        \begin{itemize}
+          \item 原始 CLOVER gauge、eigenvector、light peram；
+          \item 4 个 hpy 4150 ILDG contents 目录；
+          \item 外部 2pt 代码树：CPU、momsmear、DCU、GPU、diffpol；
+          \item 仓库内 \texttt{refer/donghx} 与 \texttt{refer/sush/lqcddb}。
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{当前缺失，因而未验证}
+        \begin{itemize}
+          \item \texttt{2pt\_Result} 的 4150 成品；
+          \item \texttt{Eigvec\_code/result}、\texttt{Contraction}；
+          \item TMD OPE 三方向 4150 结果与 \texttt{Disc\_Ratio}；
+          \item \texttt{Peram\_result} 与 Cluster Decomposition 结果。
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+  \vfill
+  \colorbox{warnbg}{\parbox{0.92\linewidth}{\small
+    说明：外部目录“存在”不等于存在组态 4150 的可比成品；例如已存在的 2pt CPU 树中抽到的是 4050 等组态，不能替代本轮 4150。}}
+  \source{现场守卫：本轮对用户给定路径逐项执行 \texttt{test -e}；缺失项保留在任务报告的限制清单}
+\end{frame}
+
+\begin{frame}[t]{验收命令与产物：每条结论都可从当前工作区重跑}
+  \footnotesize
+  \setlength{\tabcolsep}{2pt}
+  \renewcommand{\arraystretch}{0.90}
+  \begin{tabularx}{0.96\textwidth}{@{}
+    >{\raggedright\arraybackslash}p{0.16\textwidth}
+    >{\raggedright\arraybackslash}p{0.58\textwidth}
+    Y@{}}
+    \toprule
+    目的 & 命令 & 当前结果\\
+    \midrule
+    L20 聚焦对照 & \texttt{python cmp1/main.py --group lqcddb --only L20} & diff 已登记\\
+    cmp1 断言门 & \texttt{python cmp1/verify\_cmp1.py .../results.json} & exit 0\\
+    全套主回归 & \texttt{python -m pyqcd.testing} & 中心回归全部登记\\
+    对照结果 & \texttt{cmp1/v202608281517/} & results.json + summary.md\\
+    映射与差异 & \texttt{cmp1/MAPPING.md} & L20 已登记\\
+    计划 & \texttt{plans/cmp1-4150.md} & 本轮范围与验收\\
+    \bottomrule
+  \end{tabularx}
+  \begin{block}{状态定义}
+    实现存在 $\rightarrow$ 对照测试通过 $\rightarrow$ 物理不变量通过 $\rightarrow$ 真实数据闭环。
+    本轮已达到前三层；受外部成品目录限制的下游历史结果仍是 \unverified。
+  \end{block}
+  \source{工作区：\texttt{/root/PyQCD}；所有数字来自本轮命令输出或版本化结果文件}
+\end{frame}
+
+\begin{frame}[t]{下一步：补齐外部成品后再做端到端数值闭环}
+  \footnotesize
+  \setlength{\tabcolsep}{2pt}
+  \renewcommand{\arraystretch}{0.90}
+  \begin{tabularx}{0.96\textwidth}{@{}
+    >{\raggedright\arraybackslash}p{0.17\textwidth}
+    >{\raggedright\arraybackslash}p{0.23\textwidth}
+    Y
+    >{\raggedright\arraybackslash}p{0.12\textwidth}@{}}
+    \toprule
+    任务 & 前置条件 & 可验收产物/判据 & 状态\\
+    \midrule
+    外部结果 & 获得 4150 的 2pt/OPE/Contraction 成品 & 逐文件 shape/dtype/数值一致；缺失项补测 & 阻塞\\
+    seq\_peram 性能 & 不改输出契约 & 同 Nev/布局的耗时、峰值内存与 rel $<10^{-12}$ & 待做\\
+    GEVP 兼容模式（可选） & 确需复现旧 ref 行为 & 显式 \texttt{preserve\_complex=False}；默认仍为 True & 不建议默认\\
+    多组态 TMD 链 & 4150 结果与更多组态 & ratio/$c_0$/匹配/连续极限统计闭环 & 未启动\\
+    \bottomrule
+  \end{tabularx}
+  \begin{center}
+    \colorbox{good}{\parbox{0.90\linewidth}{\centering
+      当前决策：保留 PyQCD 复数 GEVP 默认语义；下一阶段补齐数据权限。}}
+  \end{center}
+  \source{依据：L20 独立残差、用户给定外部路径现状与 \texttt{MAPPING.md} backlog}
+\end{frame}
+
+\appendix
+
+\begin{frame}[t]{附录：源码—证据映射与 L20 关键代码}
+  \begin{columns}[T,totalwidth=\textwidth]
+    \begin{column}{0.48\textwidth}
+      \scriptsize
+      \setlength{\tabcolsep}{2pt}
+      \renewcommand{\arraystretch}{0.90}
+      \begin{tabularx}{\linewidth}{@{}lY@{}}
+        \toprule
+        证据 & 文件/行号（缩写）\\
+        \midrule
+        参考 GEVP & \texttt{analyse.py:807--875}\\
+        PyQCD GEVP & \texttt{\_analyse.py:599--646}\\
+        L20 case & \texttt{cases\_lqcddb2.py:136--156}\\
+        断言门 & \texttt{verify\_cmp1.py:12--18}\\
+        映射登记 & \texttt{MAPPING.md:35--48}\\
+        复数回归 & \texttt{testing/\_\_init\_\_.py:28--43}\\
+        \bottomrule
+      \end{tabularx}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \lstinputlisting[firstline=633,lastline=646,aboveskip=0pt,belowskip=0pt]{../pyqcd/analysis/_analyse.py}
+    \end{column}
+  \end{columns}
+  \source{代码为源文件直引；报告正文中的指标来自本轮 4150 运行，不以手抄代码替代实现证据}
+\end{frame}
+
+\begin{frame}[t]{附录：用户给定数据路径与访问状态}
+  \scriptsize
+  \setlength{\tabcolsep}{2pt}
+  \renewcommand{\arraystretch}{0.90}
+  \begin{tabularx}{0.97\textwidth}{@{}
+    >{\raggedright\arraybackslash}p{0.17\textwidth}
+    >{\raggedright\arraybackslash}p{0.12\textwidth}
+    Y
+    >{\raggedright\arraybackslash}p{0.14\textwidth}@{}}
+    \toprule
+    类别 & 组态 & 路径缩写 & 状态\\
+    \midrule
+    raw gauge & 4150 & \texttt{CLOVER/.../cfg\_4150.lime} & present\\
+    eigenvectors & 4150 & \texttt{eigensystem/.../4150} & present\\
+    perambulators & 4150 & \texttt{perambulators/.../light/4150} & present\\
+    HYP 3D & 1/3/5 times & \texttt{Hpysmear/.../hpy\_3D\_*times/...} & present\\
+    HYP 4D & 10 times & \texttt{Hpysmear/.../hpy\_4D\_10times\_new/...} & present\\
+    donghx 2pt trees & multiple & \texttt{donghx/2pt\_*} & present, not 4150\\
+    OPE results & 4150 & \texttt{donghx/Ope\_Gluon/.../4150} & missing\\
+    historical products & 4150 & \texttt{2pt\_Result/.../Cluster\_Decomposition} & missing\\
+    \bottomrule
+  \end{tabularx}
+  \begin{block}{解释}
+    \texttt{present} 仅表示路径存在且可读；本轮对照值只使用实际读入并完成形状/数值检查的对象。
+  \end{block}
+  \source{现场检查日期：2026-08-28；完整名称以用户本轮请求和工作区命令输出为准}
+\end{frame}
+
+\end{document}

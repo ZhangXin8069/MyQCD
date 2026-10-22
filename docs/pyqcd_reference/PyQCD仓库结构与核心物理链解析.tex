@@ -1,0 +1,166 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx,float,booktabs,array,caption,multirow}
+\usepackage{hyperref,xcolor,enumitem,mathtools}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\setmonofont{DejaVu Sans Mono}
+
+\title{\heiti PyQCD 仓库结构与核心物理链解析}
+\author{基于 /root/PyQCD 全库只读分析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+本文档对 PyQCD（由 lattice-pdf 迁移）仓库进行系统解析：目录全景、核心物理目标
+（梯度流重整化方案的核子胶子 TMD-PDF）、pyqcd 包的模块架构及其与参考代码的
+对应关系。所有结论附精确路径。
+\end{abstract}
+
+\section{仓库全景}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.43\textwidth}>{\raggedright\arraybackslash}p{0.51\textwidth}}
+\toprule
+路径 & 内容 \\
+\midrule
+--- & --- \\
+\texttt{pyqcd/} & 主包：lattice/tools/vertex/contraction/operator/analysis/renorm/pipeline/testing \\
+\path{pyqcd/testing/regression/}\newline
+\path{baselines/legacy_pipeline/} & 冻结蒸馏基线 \\
+\texttt{pyqcd/testing/} & 契约、回归、示例与历史快照统一入口 \\
+\texttt{refer/papers/} & 47 篇中文 LaTeX 笔记（xelatex 编译，文件名统一中文） \\
+\texttt{refer/} & 只读参考代码（zengch/donghx/huangcl/sush/zhangxin）+ 101 篇文献 \\
+\texttt{logs/stab0/} & stab0 归档（stab2\_1 已改名 stab0 并重编译） \\
+\bottomrule
+\end{tabular}
+\end{table}
+\section{核心物理目标}
+
+计算使用\textbf{梯度流重整化方案}的核子中的胶子 TMD-PDF。计算链：
+
+\begin{enumerate}
+  \item 裸矩阵元：蒸馏 2pt（质子/$\pi$）+ 胶子 OPE 算符
+        （Clover 场强 $F_{\mu\nu}$、对偶 $\tilde F$、staple Wilson 线）；
+  \item 梯度流涂抹：Wilson flow（Luescher 2010）RK3 积分，$\tau = 3a^2$
+        （Monahan--Orginos 2017 / NieMiera 2025）；
+  \item 重整化：自重整化 $Z_R$ 参数化与全局拟合（arXiv:2510.17758 Eq.3--8）；
+  \item 混合方案：短距比值 + 长距 $Z_R$，$\lambda$ 外推，傅里叶变换→准 PDF；
+  \item NLO 匹配：胶子单圈匹配核 $g_0\ldots g_3$；
+  \item 连续极限：$a/P_z/m_\pi/L$ 联合外推。
+\end{enumerate}
+
+\section{pyqcd 包架构}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.17\textwidth}>{\raggedright\arraybackslash}p{0.47\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}}
+\toprule
+子包 & 功能 & 来源 \\
+\midrule
+--- & --- & --- \\
+\texttt{lattice/} & 常数、DR 基 $\gamma$/$\sigma$ 矩阵 & lib/constants,gamma,sigma \\
+\texttt{tools/} & 后端切换（numpy/cupy）、缓存 einsum、数据读取 & lib/backend,base,io\_readers \\
+\texttt{vertex/} & VdV/VVV 顶点、相位因子 & lib/vertex \\
+\texttt{contraction/} & 自动 Wick、重子算符、动态收缩 & lib/autowick,baroperator,dynamic \\
+\texttt{operator/} & Clover $F_{\mu\nu}$、对偶 $\tilde F$、OPE、.lime 读取、staple 扩展 & compute\_ope.py + 新写 \\
+\texttt{analysis/} & Jackknife/Bootstrap/meff/ratio\_3pt & lib/analyse \\
+\texttt{renorm/} & 自重整化/混合方案/NLO 匹配/外推/梯度流/TMD 提取 & refer/zengch 逻辑 + 理论文档新写 \\
+\texttt{pipeline/} & 集中配置 + 9 步（+tmd）管线 & config.py/run\_pipeline.py \\
+\bottomrule
+\end{tabular}
+\end{table}
+\section{梯度流数值验证}
+
+在 $4^4$ 随机 SU(3) 组态上验证：Wilson flow 作用量密度单调递减，
+链接幺正性偏差 $< 10^{-6}$；OPE 与 TMD staple 算符均可运行并给出实数结果
+（\texttt{python -m pyqcd.testing} 全绿）。
+
+\section{一致性验证（vs output\_20260802\_120104）}
+
+验证脚本 \path{pyqcd/testing/regression/consistency.py} 五组对照全部通过：
+
+\begin{itemize}
+  \item A. 函数级：$\gamma$ 矩阵、相位因子、VdV 顶点、Jackknife、meff、
+        plaquette\_clover（12 项，max$|$diff$|$ = 0）；
+  \item B. meff 复算：proton/pion 在 P0/P2 的 E0 与 analysis\_summary.json
+        完全一致（相对差 = 0，含误差加权平台窗与 fallback 逻辑）；
+  \item C. OPE 组合：$O = -O_{30} - O_{31} + 2O_{01}$ 与 ope\_combined 逐位一致；
+  \item D. 连通 3pt 比值 $R(\tau)$：4 通道与参考 npy 完全一致；
+  \item E. 不相连 ratio（code\_1 拟合）：ratio 与 c0/c1/dE/chi2 全部 0 差异。
+\end{itemize}
+
+\section{一致性验证扩展与新增功能（第 3 轮）}
+
+\begin{itemize}
+  \item 扩展对照（verify\_consistency.py F 组，全部 0 差异）：VVV 重子顶点、
+        Wick 收缩（质子 2pt）、顺序传播子 seq\_peram、完整 OPE 算符三分量；
+  \item 优化：staple\_6 向量化（整场 roll 预计算复用，1.5--1.8$\times$ 加速，
+        数学逐位一致）；梯度流 RK3 收敛 $O(\varepsilon^3)$ 验证；
+  \item 新增：\path{pyqcd/analysis/_dispersion.py} 色散关系拟合
+        $E(P_z) = \sqrt{m^2 + k_2 P_z^2 + k_3 P_z^4 a^2}$（合成数据精确恢复）。
+\end{itemize}
+
+\section{第 4 轮：物理验证与 HYP 涂抹}
+
+\begin{itemize}
+  \item 尺度设定与流时间行为：$t^2\langle E(t)\rangle$ 单调递增（物理正确），
+        $t_0$ 反插值（修复插值方向 bug）；
+  \item 新增 \texttt{pyqcd/smear/\_hyp.py}：完整 HYP 涂抹（Hasenbusch 2001
+        三级 $(\mu,\nu)$ 对结构，$\alpha_1{=}0.75, \alpha_2{=}0.6, \alpha_3{=}0.3$）；
+        SU(3) 保持 $10^{-16}$，作用量平滑化验证通过；
+  \item debug 修复：numpy 批量 eigh 特征向量相位不一致 → SVD 极分解；
+        V3 数组形状多加方向维；scale\_setting\_t0 插值方向。
+\end{itemize}
+
+\section{第 5--6 轮：提取链完整化与跨后端验证}
+
+\begin{itemize}
+  \item 新增 \texttt{pyqcd/analysis/\_ratio\_fit.py}：c0 裸矩阵元提取
+        （R 模型逐样本拟合，合成数据精确恢复 c0/deltaE）；
+  \item GPU 验证：cupy 后端梯度流/TMD 全通，CPU/GPU 结果一致（$1.1\times10^{-15}$）；
+  \item HYP vs Wilson flow 定性一致（理论文档结论验证）：O(z) 相关系数 0.965；
+  \item 端到端合成验证：含已知质量 $M=1.12$ GeV 的 cosh 2pt →
+        meff 恢复 $1.1199$ GeV（偏差 0.01\%）；
+  \item 梯度流 $\tau\to 0$ 连续极限检验通过；scale setting 反插值修复。
+\end{itemize}
+
+\section{新增功能（本轮）}
+
+\begin{itemize}
+  \item \path{pyqcd/analysis/_disconnected.py}：不相连胶子 ratio + 逐 z 相关拟合
+        （code\_1.py 算法自包含移植，lsqfit 实现）；
+  \item \texttt{pyqcd/analysis/\_correlators.py}：meff/3pt 比值分析编排 API；
+  \item \texttt{pyqcd/renorm/\_tmdextract.py}：准 TMD-PDF 傅里叶变换、
+        混合方案 TMD 匹配、CS 核提取（LPC 2020 比值法）、SFTX 1 圈匹配系数
+        （Suzuki 2013 / Mereghetti 2022）；
+  \item 梯度流 RK3 步长收敛性验证：$\varepsilon$: 0.02$\rightarrow$0.01 差
+        $1.4\times10^{-6}$（$O(\varepsilon^3)$），SU(3) 偏差 $<10^{-13}$。
+\end{itemize}
+
+\section{第 7--8 轮：性能评估与核心链整合}
+
+\begin{itemize}
+  \item GPU 性能：$\tau = 3a^2$ 方案仅需 $\sim 4$ 步 flow，
+        24$^3\times72$ 组态约 36 s（complex64），满足生产需求；
+  \item 匹配求和规则：NLO 匹配守恒（$O(\alpha_s)$ 修正 2.8\%）；
+  \item 核心目标链整合验证：梯度流($\tau{=}3a^2$) $\to$ TMD staple 算符
+        $\to$ 混合方案拼接 $\to$ Z\_R 参数化——短距比值自归一（hR[0]=1.0000）；
+  \item 测试套件 16 项全绿；一致性验证 36 项全 PASS。
+\end{itemize}
+
+\section{结论}
+
+PyQCD 已完成 lattice-pdf 迁移规范化：路径统一指向 /root/PyQCD、docs 文件名中文化
+并全部重编译、成功实例规范化为 pyqcd 包、参考代码（zengch 重整化链）按逻辑移植
+为自包含实现，并依据 refer/papers/gluon\_tmd\_gradient\_flow\_continuum.tex
+自行构造了梯度流与 TMD staple 算符代码，形成完整的梯度流重整化胶子 TMD-PDF 计算链。
+pyqcd 与成功实例（docker-v20260805 输出）的全部可复算环节逐位一致。
+
+\end{document}

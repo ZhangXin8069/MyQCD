@@ -1,0 +1,741 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption,multirow}
+\usepackage{hyperref,xcolor,enumitem,mathtools}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的重整化：\\
+从连续场论到非定域算符的系统性理论}
+\author{基于本库全部相关文献与教材的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+重整化是量子场论的核心概念——它将量子涨落产生的无穷大吸收到有限个可观测参数的重定义中，使理论具有预言能力。在格点QCD中，重整化获得了更为丰富的内涵：格点自身作为紫外正规化（截断$\sim\pi/a$），使得所有的``裸''量都是有限的；但连续极限$a\to 0$的恢复需要将这些裸量与连续重整化方案（如$\overline{\text{MS}}$）中的物理参数系统地联系起来。当格点算符包含Wilson线等非定域结构时——如准PDF和准TMD-PDF算符——重整化面临着超越传统定域量子场论的\textbf{全新挑战}：Wilson线自能产生的线性发散$e^{-\delta\bar m L/a}$在微扰论中表现为质量重整化，在非微扰层面具有内禀的$\mathcal{O}(\Lambda_{\text{QCD}})$模糊性（IR重整子），而传统的离壳减除方案（如RI/MOM）对此完全失效。
+
+本文基于本库中的三本核心教材（Peskin与Schroeder的\textit{An Introduction to Quantum Field Theory}——第10--12章和第18章提供了从连续场论重整化到OPE重整化的完整推导；Gattringer与Lang的\textit{Quantum Chromodynamics on the Lattice}——第3.5节和第11章详述了格点重整化群、跑动耦合和Rome--Southampton非微扰重整化方法；Gupta的\textit{Introduction to Lattice QCD}——第16节给出了格点-连续方案匹配的实践指南）以及约50篇相关研究论文，从以下七个层次系统解析格点QCD中的重整化体系：
+
+\textbf{第一层——连续QFT重整化的基本范式（§2）：}从$\phi^4$理论的Wilsonian重整化群和Callan--Symanzik方程出发，阐述重整化的三条核心原理：正规化、抵消项与重整化条件。延伸到QCD的渐近自由与跑动耦合$\alpha_s(Q^2)$。
+
+\textbf{第二层——格点作为正规化与重整化的一般框架（§3）：}格点截断$a$作为UV正规化、裸参数与重整化参数的对应、Wilson的重整化群方法与``重整化轨迹''（renormalized trajectory）概念。格点微扰论的可行性、收敛问题及其补救——Tadpole改进（$U_\mu\to U_\mu/u_0$）。$\beta$函数与$\Lambda_{\text{QCD}}$的格点确定。
+
+\textbf{第三层——非微扰重整化方法（§4）：}系统阐述Rome--Southampton（RI/MOM）方法的完整实现流程——从Landau规范下离壳夸克Green函数到动量空间中的重整化条件$Z_\Gamma \langle p|O_\Gamma|p\rangle|_{p^2=\mu^2} = 1$。包含RI/MOM与RI$'$/MOM方案的区别、quark场重整化常数$Z_q$的确定、RI$\to\overline{\text{MS}}$转换因子的三圈结果。同时简述Schr\"odinger泛函方法作为替代，特别是其在手征极限下的优势。
+
+\textbf{第四层——Wilson线算符的重整化挑战（§5）：}这是格点部分子物理中最核心的重整化问题。系统分析三类发散：线性发散$e^{-\delta\bar m L/a}$（Wilson线自能）、对数发散（顶点修正）、以及TMD特有的pinch-pole奇点$e^{-V(b_\perp)L}$与cusp发散。阐述\textbf{四种对策}：
+\begin{enumerate}[nosep]
+  \item \textbf{质量抵消项（auxiliary $z$-field）}——Chen等人证明线性发散等价于重夸克有效理论中的质量重整化，可通过$\delta m$到所有阶消除；
+  \item \textbf{Wilson圈减除}——Zhang等人的矩形Wilson圈平方根方案$\sqrt{Z_E}$，在五种格距上经系统验证可同时消除三类发散；
+  \item \textbf{自重整化}——Huo等人的纯非微扰比值法$M(z)/M(z_0)^{z/z_0}$；
+  \item \textbf{混合方案}——Ji等人的短距离ratio+长距离显式重整化组合。
+\end{enumerate}
+并以RI/MOM对Wilson线算符的失效作为反例，揭示其失败根源——胶子-规范链接顶点的非微扰线性发散在离壳减除中未被消除。
+
+\textbf{第五层——准PDF与准TMD-PDF算符的完整重整化链（§6）：}详述从格点裸矩阵元到$\overline{\text{MS}}$光锥PDF的完整重整化流程。涵盖夸克准PDF和胶子准PDF的算符乘法重整化性（Li--Ma--Qiu的严格证明）、混合方案在实际计算中的实现（$z_s$参数的选择、连续性条件、$Z_R$因子的计算）、以及准TMD-PDF的短距离比率方案（SDR）的构造与微扰$\overline{\text{MS}}$矩阵元的匹配。
+
+\textbf{第六层——重整子、幂次修正与领阶精度（§7）：}IR重整子的基本理论（`t Hooft、Beneke）在准PDF算符中的应用。Braun等人的重正子分析——揭示准PDF与赝PDF中幂次修正函数形式的根本差异。Zhang等人的领阶幂次精度方案——通过主值（PV）Borel重求和统一处理匹配系数中的IR重整子和重整化中的$m_0$参数，在$\pi$介子PDF实例中将匹配精度在$x=0.2\sim0.5$区域提高3--5倍。
+
+\textbf{第七层——格点-连续方案匹配与唯象学连接（§8）：}RI/MOM$\to\overline{\text{MS}}$的微扰转换（三圈Landau规范结果）、DGLAP演化在格点PDF与实验数据之间的桥梁作用、以及非微扰重整化常数的系统误差评估。
+
+全篇以``连续场论重整化$\to$格点正规化$\to$非微扰重整化方法$\to$Wilson线的特殊挑战$\to$部分子算符的完整重整化链$\to$高精度匹配与唯象学连接''为逻辑主线，将分散在本库50余篇文献中的重整化知识编织成一个统一的、从基础理论到前沿应用的全景式理论框架。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==========================================================================
+\section{引言：重整化——从无穷大到物理预言}
+%==========================================================================
+
+\subsection{重整化在量子场论中的核心地位}
+
+重整化是量子场论中最深刻的概念之一。在微扰论中，高阶Feynman图产生的圈积分在紫外区域发散——在四维时空中，这些发散表现为对数发散或幂次发散。重整化的核心思想是将这些无穷大\textbf{吸收}到拉氏量中有限个``裸''参数（质量、耦合常数、场归一化）的重定义中~\cite{PeskinSchroeder1995}。
+
+Peskin与Schroeder给出了重整化的三个核心步骤~\cite{PeskinSchroeder1995}：
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{正规化（Regularization）：}引入一个正规化参数（如动量截断$\Lambda$、维数正规化$d=4-2\epsilon$、或格点间距$a$），使所有圈积分在正规化后有限；
+    \item \textbf{抵消项（Counterterms）：}在拉氏量中引入与发散具有相同算符形式的``抵消项''，其系数（``裸''参数与``重整化''参数之差）被调节到恰好消除UV发散；
+    \item \textbf{重整化条件（Renormalization Conditions）：}通过一组物理条件（如在某个标度处固定Green函数的值）来定义重整化参数的具体含义。
+\end{enumerate}
+
+可重整化的理论——如QED和QCD——仅需\textbf{有限个}抵消项来吸收所有阶的UV发散。非可重整化的理论则需要无穷多个抵消项，因此失去了预言能力。
+
+\subsection{格点重整化的独特之处}
+
+格点QCD提供了一种独特的重整化视角~\cite{GattringerLang2010,Gupta1997intro}：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{格点自身就是正规化方案：}有限格距$a$提供了自然的UV截断$\sim \pi/a$——在格点上，\textbf{所有裸量都是有限的}。重整化的任务不是消除无穷大，而是将格点上的有限裸量与连续重整化方案中的物理参数系统地联系起来。
+
+    \item \textbf{非微扰重整化的可能：}与连续微扰论中重整化常数$Z_i$只能通过微扰展开计算不同，格点QCD允许\textbf{非微扰地}确定这些常数——通过格点上的数值模拟直接测量矩阵元，并在某个``微扰窗口''（$\Lambda_{\text{QCD}}^2 \ll \mu^2 \ll 1/a^2$）中与连续微扰论匹配~\cite{GattringerLang2010}。
+
+    \item \textbf{非定域算符的新挑战：}现代格点部分子物理（准PDF、准TMD-PDF）使用的算符包含\textbf{Wilson线}——非定域的规范链接结构。这些算符中的线性发散$e^{-\delta\bar m L/a}$、pinch-pole奇点和cusp发散在传统的定域QFT重整化框架中没有对应物，需要发展全新的重整化策略~\cite{Zhang2022renormTMD,Huo2021self,Chen2018WLrenorm}。
+\end{enumerate}
+
+\subsection{本库中重整化相关文献的概览}
+
+本库包含三本核心教材和约50篇研究论文，覆盖了从连续场论重整化到格点非微扰重整化再到非定域算符特殊处理的完整知识体系。按照主题分类，主要包括：
+
+\begin{table}[H]
+\centering
+\caption{本库中重整化相关文献的主题分类}
+\label{tab:ren_papers}
+\small
+\begin{tabular}{lp{8cm}}
+\toprule
+主题 & 关键文献（文件路径缩写） \\
+\midrule
+\textbf{连续QFT重整化} &
+Peskin \& Schroeder QFT (Ch.10--12, 18)；Gattringer \& Lang (Ch.3.5, 11)；Gupta笔记 (Ch.16) \\
+\textbf{非微扰重整化方法} &
+Gattringer \& Lang (Ch.11.2: Rome--Southampton); Gupta (Ch.16) \\
+\textbf{准PDF重整化} &
+\texttt{Self-Renormalization...pdf}~\cite{Huo2021self}；
+\texttt{A Hybrid Renormalization Scheme...pdf}~\cite{Ji2021hybrid}；
+\texttt{Improved quasi parton distribution through Wilson line renormalization.pdf}~\cite{Chen2018WLrenorm}；
+\texttt{A complete non-perturbative renormalization prescription for quasi-PDFs.pdf} \\
+\textbf{TMD重整化} &
+\texttt{Renormalization of transverse-momentum-dependent parton distribution on the lattice.pdf}~\cite{Zhang2022renormTMD} \\
+\textbf{乘法重整化性} &
+\texttt{Multiplicative renormalizability of quasi-parton operators.pdf}~\cite{Li2019multiplicative} \\
+\textbf{重整子/幂次修正} &
+\texttt{Power corrections and renormalons in parton quasi-distributions.pdf}~\cite{Braun2019power}；
+\texttt{Leading Power Accuracy...pdf}~\cite{Zhang2023leadingPower} \\
+\textbf{LaMET匹配} &
+\texttt{Resumming Quark's Longitudinal Momentum Logarithms...pdf}~\cite{Su2023RGR}；
+\texttt{Factorization Theorem Relating Euclidean and Light-Cone...pdf}~\cite{Izubuchi2018} \\
+\textbf{Tadpole改进} &
+Gupta笔记 (Ch.12.2)；Gattringer \& Lang (Ch.9) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%==========================================================================
+\section{连续QFT重整化的基本范式}
+%==========================================================================
+
+\subsection{Wilsonian重整化群与有效场论}
+
+Wilson的革命性视角将重整化从一个``消除无穷大''的技术性手续提升为理解量子场论\textbf{标度依赖性}的物理框架~\cite{PeskinSchroeder1995}。其核心思想是：
+
+\begin{enumerate}[leftmargin=*]
+    \item 量子场论在任意有限截断$\Lambda$下定义——物理在标度$E \ll \Lambda$处不依赖截断的具体取值；
+    \item 当截断从$\Lambda$降低到$\Lambda/2$时，通过\textbf{积分掉}（integrating out）高动量模式，得到具有\textbf{相同低能物理}但\textbf{不同耦合常数}的有效理论；
+    \item 耦合常数随标度的这一变化由\textbf{重整化群方程}描述——耦合常数空间中的``流''定义了从紫外不动点到红外的\textbf{重整化轨迹}（renormalized trajectory, RT）。
+\end{enumerate}
+
+在Wilson的实空间重整化群中~\cite{GattringerLang2010}，格点系统通过{\bf blocking变换}被连续粗粒化：将相邻格点上的场变量组合为``块变量''，产生在更大格距上的有效作用量。迭代这一过程定义了作用量在\textbf{理论空间}中的RG流。
+
+\subsection{Callan--Symanzik方程与跑动耦合}
+
+在连续微扰论框架中，标度依赖性由Callan--Symanzik方程~\cite{PeskinSchroeder1995}编码：
+\begin{equation}
+\left[ M\frac{\partial}{\partial M} + \beta(g)\frac{\partial}{\partial g} + n\gamma(g) \right] G^{(n)}(p_i; M, g) = 0,
+\label{eq:Callan_Symanzik}
+\end{equation}
+其中$\beta(g) \equiv M\,\partial g/\partial M$控制耦合常数随标度的跑动，$\gamma(g)$是场（或算符）的反常维数。对于QCD，$\beta$函数的前两阶系数是方案无关的：
+\begin{equation}
+\beta(\alpha_s) = -2\alpha_s\left[ \beta_0\frac{\alpha_s}{4\pi} + \beta_1\left(\frac{\alpha_s}{4\pi}\right)^2 + \cdots \right], \quad
+\beta_0 = 11 - \frac{2}{3}n_f, \quad \beta_1 = 102 - \frac{38}{3}n_f.
+\label{eq:beta_QCD}
+\end{equation}
+
+由于$\beta_0 > 0$（只要$n_f \le 16$），QCD是\textbf{渐近自由}的：$\alpha_s(Q^2) \to 0$当$Q^2 \to \infty$。跑动耦合在领头阶下的解为：
+\begin{equation}
+\alpha_s(Q^2) = \frac{4\pi}{\beta_0 \ln(Q^2/\Lambda_{\text{QCD}}^2)}.
+\label{eq:running_alpha_LO}
+\end{equation}
+
+\subsection{$\overline{\text{MS}}$方案与维数正规化}
+
+连续QCD中最广泛使用的重整化方案是\textbf{修正的最小减除}（$\overline{\text{MS}}$）方案~\cite{PeskinSchroeder1995}。在维数正规化$d=4-2\epsilon$下，圈积分的UV发散表现为$1/\epsilon$极点：$\overline{\text{MS}}$方案减去这些极点以及相伴的常数项$\ln 4\pi - \gamma_E$。$\overline{\text{MS}}$方案的优势在于其\textbf{质量无关性}——重整化常数$Z_i$不依赖于夸克质量，大大简化了重整化群分析。
+
+%==========================================================================
+\section{格点作为正规化与重整化的一般框架}
+%==========================================================================
+
+\subsection{格点截断与连续极限}
+
+在格点QCD中，有限格距$a$提供了自然的UV截断：格点Brillouin区的边界在$\pi/a$处，所有动量积分被截断。因此，\textbf{格点上所有裸量都是有限的}——没有真正的无穷大需要消除。重整化的任务转变为~\cite{GattringerLang2010,Gupta1997intro}：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{确定格距$a$（标度设定）：}通过匹配一个格点上计算的物理观测量（如Sommer参数$r_0 \simeq 0.5$~fm或强子质量）与其已知的物理值；
+    \item \textbf{确定裸参数与重整化参数的关系：}例如，格点上``裸''夸克质量$m_0(a)$与$\overline{\text{MS}}$方案中重整化质量$m^{\overline{\text{MS}}}(\mu)$之间的关系；
+    \item \textbf{连续极限外推：}在固定物理条件下，取$a \to 0$（即$\beta \to \infty$），验证所有物理观测量对$a$的依赖性消失。
+\end{enumerate}
+
+\textbf{标度设定的标准方法}基于静态夸克势的Sommer参数~\cite{GattringerLang2010}：
+\begin{equation}
+F(r_0) r_0^2 = 1.65, \qquad r_0 \simeq 0.5\text{~fm}, \qquad a = \frac{r_0}{r_0/a}.
+\label{eq:sommer_scale}
+\end{equation}
+
+\subsection{格点微扰论及其收敛问题}
+
+原则上，格点上的重整化常数$Z_i$可以通过\textbf{格点微扰论}计算——将规范链接展开为$U_\mu = \exp(iagA_\mu)$并对$g$做微扰展开。然而，格点微扰论的收敛性通常很差，原因在于：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Tadpole图的大贡献：}格点Feynman规则中，规范链接的展开产生大量的``蝌蚪图''（tadpole diagrams），它们对$U_\mu$的期望值产生显著的压低效应——$\langle U_\mu \rangle \approx u_0 \mathbf{1}$，$u_0 \sim 0.6\text{--}0.8$~\cite{Gupta1997intro,LepageMackenzie1993}；
+    \item \textbf{大系数：}即使在一圈水平，格点微扰展开的系数通常比连续$\overline{\text{MS}}$方案中的系数大数倍。
+\end{enumerate}
+
+\subsection{Tadpole改进（平均场改进）}
+
+Lepage与Mackenzie提出的\textbf{Tadpole改进}方案~\cite{LepageMackenzie1993,Gupta1997intro}通过重标定规范链接来吸收tadpole图的主要贡献：
+\begin{equation}
+U_\mu(n) \to \frac{U_\mu(n)}{u_0}, \qquad u_0 = \left\langle \frac{1}{3}\operatorname{tr} U_{\mu\nu} \right\rangle^{1/4},
+\label{eq:tadpole_improvement}
+\end{equation}
+其中$u_0$非微扰地从plaquette期望值中测量。Tadpole改进后，微扰展开的有效展开参数从$g_0$变为$\tilde g_0 = g_0/u_0$，系数大幅减小，微扰级数的收敛显著加速。
+
+对于Clover费米子作用，Tadpole改进后的树图Sheikholeslami--Wohlert系数从$c_{\text{sw}}=1$变为$c_{\text{sw}} = u_0^{-3}$；对于Wilson费米子，临界hopping参数从$\kappa_c = 1/8$变为$\kappa_c = 1/(8u_0)$。
+
+\subsection{格点重整化群与$\Lambda$参数}
+
+从格点上确定的跑动耦合出发，可以通过积分重整化群方程提取QCD的$\Lambda$参数。格点正规化有自身的$\Lambda$参数$\Lambda_L$，其与$\overline{\text{MS}}$方案的$\Lambda_{\overline{\text{MS}}}$之间的关系可以通过一圈微扰匹配精确确定~\cite{GattringerLang2010}。不同格点作用量（Wilson、Iwasaki、Symanzik改进等）的$\Lambda_L/\Lambda_{\overline{\text{MS}}}$比值各不相同——这些都是纯微扰可计算的。
+
+%==========================================================================
+\section{非微扰重整化方法}
+%==========================================================================
+
+\subsection{Rome--Southampton（RI/MOM）方法}
+
+Martinelli等人提出的Rome--Southampton方法~\cite{Martinelli1995RI}（也称RI/MOM方案）是格点QCD中应用最广泛的非微扰重整化方案。其核心思想是在Landau规范下，利用离壳夸克态的Green函数来定义重整化条件~\cite{GattringerLang2010}。
+
+\begin{definition}[RI/MOM重整化条件]
+对于夸克双线型算符$O_\Gamma = \bar u \Gamma d$，在动量空间中的重整化条件为：
+\begin{equation}
+Z_\Gamma \, \frac{1}{12} \operatorname{tr}\!\left[ \langle p | O_\Gamma | p \rangle \, \langle p | O_\Gamma | p \rangle_0^{-1} \right]_{p^2 = \mu^2} = 1,
+\label{eq:RI_MOM_condition}
+\end{equation}
+其中$\langle p|O_\Gamma|p\rangle_0$是自由场（树图）矩阵元，迹取遍Dirac和颜色指标。
+\end{definition}
+
+\textbf{RI/MOM方法的核心步骤~\cite{GattringerLang2010}：}
+\begin{enumerate}[leftmargin=*]
+    \item 在Landau规范下，为每个规范组态计算动量空间中的夸克传播子$S(p)$；
+    \item 构造\textbf{截肢Green函数}$\Lambda_\Gamma(p) = S^{-1}(p) G_\Gamma(p) S^{-1}(p)$，其中$G_\Gamma(p)$是通过在夸克线之间插入$O_\Gamma$得到的三点函数；
+    \item 在满足$\Lambda_{\text{QCD}}^2 \ll \mu^2 \ll 1/a^2$的``微扰窗口''中应用重整化条件(\ref{eq:RI_MOM_condition})；
+    \item 通过RI/MOM$\to\overline{\text{MS}}$的微扰转换因子将结果转化为$\overline{\text{MS}}$方案中的重整化常数。
+\end{enumerate}
+
+\textbf{RI与RI$'$方案的区别}主要在夸克场重整化常数$Z_q$的定义上。在RI$'$方案中~\cite{GattringerLang2010}：
+\begin{equation}
+Z_q' = \frac{1}{12} \operatorname{tr}\!\left[ S^{-1}(p) \frac{R(p) - i\gamma_\nu v_\nu(p)}{R(p)^2 + \sum_\nu v_\nu(p)^2} \right]_{p^2=\mu^2},
+\label{eq:RIprime_Zq}
+\end{equation}
+其中$R(p)$和$v_\nu(p)$是自由Dirac算符在动量空间中的标量和矢量部分。
+
+\textbf{RI/MOM$\to\overline{\text{MS}}$转换因子}已计算到三圈精度（在Landau规范下）~\cite{Chetyrkin2000,Gracey2003}。典型的转换关系为：
+\begin{equation}
+Z_\Gamma^{\overline{\text{MS}}}(\mu) = R_\Gamma(\mu) \, Z_\Gamma^{\text{RI}}(\mu),
+\label{eq:RI_to_MS}
+\end{equation}
+其中$R_\Gamma(\mu)$的微扰展开在$\mu \sim 2$~GeV处已知到$10^{-3}$精度。
+
+\textbf{RI/MOM方法的局限与挑战：}
+\begin{itemize}
+    \item \textbf{Gribov拷贝问题：}Landau规范固定在格点上存在Gribov模糊性——多个局部极小值满足规范固定条件。数值经验表明这一效应在当前的统计精度内不显著~\cite{GattringerLang2010}；
+    \item \textbf{对包含Wilson线的算符无效：}如第5节详述，RI/MOM无法消除准PDF和准TMD-PDF算符中的线性发散；
+    \item \textbf{手征极限外推：}对于非手征费米子（Wilson/Clover），需要在非零夸克质量下计算，再外推到手征极限——这在外推误差上不如Schr\"odinger泛函方法。
+\end{itemize}
+
+\subsection{Schr\"odinger泛函方法}
+
+Schr\"odinger泛函（SF）方法~\cite{Luscher1996SF}是另一种重要的非微扰重整化方案，由ALPHA合作组发展。其核心是在有限体积内通过Dirichlet边界条件引入一个外加的标度$L$，从而在不引入任何微扰假设的情况下非微扰地确定跑动耦合和重整化常数。
+
+\textbf{SF方法的优势：}
+\begin{itemize}
+    \item 可以在\textbf{手征极限}（$m_q=0$）下直接定义重整化条件——对非手征费米子是独特的优势；
+    \item 通过\textbf{有限体积标度}（finite-size scaling）技术，可以在单组格距上覆盖多个数量级的标度范围——RG演化可以在格点上被数值地追踪；
+    \item 已被用于Clover系数$c_{\text{sw}}$的非微扰确定~\cite{Luscher1996SF}。
+\end{itemize}
+
+\textbf{本库中的相关使用：}ALPHA合作组的$c_{\text{sw}}$非微扰确定被LPC合作组在PDF计算中广泛引用和使用。
+
+%==========================================================================
+\section{Wilson线算符的重整化挑战}
+%==========================================================================
+
+\subsection{线性发散的物理起源与普适结构}
+
+包含Wilson线$U(z,0) = \mathcal{P}\exp[-ig\int_0^z dz' A_z(z')]$的非定域算符——如准PDF算符$\bar\psi(z)\Gamma U(z,0)\psi(0)$——在格点正规化下产生\textbf{线性发散}~\cite{Huo2021self,Chen2018WLrenorm}：
+
+\begin{definition}[Wilson线的线性发散]
+一条长度为$L = z/a$（以格距为单位）的Wilson线，其裸期望值（或含Wilson线的算符的矩阵元）在格点正规化下具有以下普适结构：
+\begin{equation}
+\boxed{\langle U(z,0) \rangle_{\text{bare}} \sim e^{-\delta\bar{m} |z|/a} \times (\text{对数发散因子}) \times (\text{物理贡献})},
+\label{eq:linear_divergence}
+\end{equation}
+其中$\delta\bar{m} \propto g_0^2$是\textbf{线性发散系数}（又称``残余质量参数''）——具有质量量纲，在$a\to 0$时发散为$\sim 1/a$。对数发散因子来自顶点修正中的标准UV发散。
+\end{definition}
+
+\textbf{物理本质：}在微扰论中，线性发散来源于Wilson线自能的蝌蚪式Feynman图。在坐标空间中，这些图产生的贡献与Wilson线长度$z$成正比。在辅助动力学``$z$场''形式中~\cite{Chen2018WLrenorm}，Wilson线等价于一个无动能项的静态色源的传播子——线性发散对应于这一``重夸克''的质量重整化$\delta m$，这是重夸克有效理论（HQET）中的标准结构。
+
+\subsection{线性发散对格点部分子物理的致命影响}
+
+对于准PDF矩阵元$h(z, P_z) = \langle P_z | \bar\psi(z)\gamma^t U(z,0)\psi(0) | P_z \rangle$，线性发散的影响尤为严重：
+\begin{itemize}[nosep]
+    \item 裸矩阵元随$|z|$增大呈指数衰减$e^{-\delta\bar m |z|/a}$——即使物理PDF在$z$空间的对应物（Ioffe-time分布）并没有这样的衰减；
+    \item 在连续极限$a\to 0$下，固定物理$z$处的衰减速率$e^{-\delta\bar m z/a}$发散——裸矩阵元不具备良好定义的连续极限；
+    \item RI/MOM方案对此完全失效（见下文）——Wilson线顶点处的非微扰线性发散在离壳减除中未被消除。
+\end{itemize}
+
+\subsection{四种应对策略的系统比较}
+
+\subsubsection{策略I：质量抵消项（Auxiliary $z$-Field形式）}
+
+Chen、Ji和Zhang~\cite{Chen2018WLrenorm}证明：在辅助$z$场形式中，Wilson线$U(z,0)$等价于连接$Z(0)$和$\bar Z(z)$两个辅助非动力学场的传播子。线性发散对应于$Z$场的质量重整化，可以通过一个\textbf{质量抵消项}$\delta m$在拉氏量层面消除：
+
+\begin{equation}
+U(z,0) \sim \langle 0| Z(z) \bar Z(0) |0 \rangle, \qquad
+\mathcal{L}_{\text{ct}} = \delta m \, \bar Z Z.
+\label{eq:zfield_counterterm}
+\end{equation}
+
+\begin{theorem}[线性发散的乘法可消除性~\cite{Chen2018WLrenorm}]
+对于任何包含开Wilson线的夸克双线型算符，其线性发散来自Wilson线自能子图。质量抵消项$\delta m$可以在\textbf{所有微扰阶}消除这些线性发散，因为线性发散系数$\delta\bar m$具有普适性——不依赖于具体的Dirac结构$\Gamma$或外部强子态。
+\end{theorem}
+
+\textbf{优点：}理论上严格，HQET中的已知结果可直接借用。
+\textbf{局限：}$\delta m$需要从某个物理矩阵元中非微扰地确定，在数值上精度受限。
+
+\subsubsection{策略II：Wilson圈减除（TMD专用）}
+
+Zhang等人~\cite{Zhang2022renormTMD}为TMD-PDF算符开发了Wilson圈减除重整化方案——经过五种格距（$a=0.032\text{--}0.121$~fm）的系统验证：
+
+\begin{definition}[Wilson圈减除的准TMD-PDF]
+\begin{equation}
+\boxed{h_{\chi,\Gamma}(b_\perp, z, P_z; 1/a) \equiv \lim_{L\to\infty} \frac{\tilde{h}_{\chi,\Gamma}(b_\perp, z, L, P_z; 1/a)}{\sqrt{Z_E(2L+z, b_\perp; 1/a)}}},
+\label{eq:wilson_loop_subtraction}
+\end{equation}
+其中$Z_E(2L+z, b_\perp)$是矩形Wilson圈的真空期望值。
+\end{definition}
+
+\textbf{减除机制——三类发散的同时消除：}
+\begin{enumerate}[nosep]
+    \item \textbf{线性发散：}$Z_E$中的Wilson线总长亦为$2L+z$，其线性发散因子为$e^{-\delta\bar m(2L+z)/a}$。开方后恰好消除分子的线性发散$e^{-\delta\bar m(2L+z)/a}$；
+    \item \textbf{Pinch-pole奇点（$e^{-V(b_\perp)L}$）：}staple中两条平行$z$方向Wilson线之间的胶子交换产生重夸克势型的指数衰减。矩形Wilson圈$Z_E$中的两对平行边具有相同的奇异性——开方抵消；
+    \item \textbf{Cusp发散：}staple的三个转角和矩形圈四个转角处的尖角发散在比值中消除。
+\end{enumerate}
+
+\textbf{五格距验证的关键结果~\cite{Zhang2022renormTMD}：}
+\begin{itemize}[nosep]
+    \item 减除后的矩阵元在$L \gtrsim 0.36$~fm后达到平台（$L$不依赖性）——确认pinch-pole消除；
+    \item 在$a \to 0$连续极限下稳定收敛——确认线性发散消除；
+    \item Clover和Overlap费米子结果一致——确认了重整化的作用量普适性。
+\end{itemize}
+
+减除后残余的对数发散通过\textbf{短距离比率方案}（SDR）处理~\cite{Zhang2022renormTMD}：
+\begin{equation}
+Z_O(1/a, \mu) = \lim_{L\to\infty} \frac{\tilde{h}(z_0, b_{\perp,0}, L, P_z=0; 1/a)}{\sqrt{Z_E(2L+z_0, b_{\perp,0}; 1/a)} \; \tilde{h}^{\overline{\text{MS}}}(z_0, b_{\perp,0}, \mu)}.
+\label{eq:SDR_factor}
+\end{equation}
+
+\subsubsection{策略III：自重整化（Self-Renormalization）}
+
+Huo等人~\cite{Huo2021self}提出了纯非微扰的自重整化方法——利用同一矩阵元在不同$z$处的比值消除线性发散：
+
+\begin{definition}[自重整化~\cite{Huo2021self}]
+\begin{equation}
+\boxed{h_R(z, P_z) = \frac{h_B(z, P_z)}{[h_B(z_0, P_z=0)]^{z/z_0}}},
+\label{eq:self_renorm}
+\end{equation}
+其中$z_0$是一个固定的短距离参考点。由于线性发散因子$e^{-\delta\bar m |z|/a}$在比值中按指数$z/z_0$被约化为$e^{-\delta\bar m (z - z\cdot z_0/z_0)/a} = 1$，所有与$z$成正比的发散\textbf{自动消除}。
+\end{definition}
+
+\textbf{自重整化的核心优势：}
+\begin{itemize}[nosep]
+    \item 纯非微扰——不需Wilson圈测量，不需微扰匹配；
+    \item 不引入外部的重整化标度$\mu$依赖——重整化的唯一输入是格点数据本身；
+    \item 可同时消除线性发散和重整子（renormalon）模糊；
+    \item 对Clover和Overlap费米子、HYP涂抹前后的数据均有效~\cite{Huo2021self}。
+\end{itemize}
+
+\textbf{方法验证：}在多个系综和两种费米子（Clover+Overlap）上，自重整化后的矩阵元在不同格距上一致——确认了消除线性发散的普适性~\cite{Huo2021self}。
+
+\subsubsection{策略IV：混合方案（Hybrid Scheme）}
+
+Ji等人~\cite{Ji2021hybrid}提出了混合重整化方案，将$z$轴划分为两个区域：
+
+\begin{definition}[混合方案~\cite{Ji2021hybrid}]
+\begin{equation}
+\tilde h_R(z, P_z) = \begin{cases}
+\displaystyle\frac{\tilde h_B(z, P_z)}{\tilde h_B(z, 0)}, & z \le z_s \quad (\text{ratio方案})\\[10pt]
+\displaystyle\frac{\tilde h_B(z, P_z)}{Z_R(z, a, \mu)}\, \frac{1}{\tilde h_{\overline{\text{MS}}}(z_s, 0, \mu)}, & z > z_s \quad (\text{显式重整化}),
+\end{cases}
+\label{eq:hybrid_scheme}
+\end{equation}
+其中$z_s$满足$a \ll z_s \ll \Lambda_{\text{QCD}}^{-1}$，$Z_R(z, a, \mu)$是包含质量抵消项和方案转换因子的完整重整化因子。
+\end{definition}
+
+\textbf{混合方案的设计原理：}
+\begin{itemize}[nosep]
+    \item \textbf{$z \le z_s$（微扰短距离区）：}ratio方案除以$P_z=0$的矩阵元，消除了离散化效应的主体，并在$z=0$处自动给出正确的归一化；
+    \item \textbf{$z > z_s$（物理长距离区）：}显式重整化因子$Z_R$消除线性发散和对数发散，并通过$\tilde h_{\overline{\text{MS}}}(z_s, 0, \mu)$保持与短距离区在$z=z_s$处的\textbf{连续性}——确保重整化后的矩阵元在整个$z$范围内是一个连续函数。
+\end{itemize}
+
+\subsection{RI/MOM方案对Wilson线算符的失败}
+
+RI/MOM方案是格点QCD中最标准的非微扰重整化方法，但它对包含Wilson线的非定域算符\textbf{完全失效}。这一发现已在多篇论文中被独立验证~\cite{Zhang2022renormTMD,Huo2021self}：
+
+\begin{quote}
+``The lattice spacing dependence becomes stronger with either larger $z$ or smaller $a$, implying that there are residual linear divergences in $h^{\text{MOM}}_{\pi,\gamma^t}$. In other words, the RI/MOM renormalization does not cancel all the linear divergences.''~\cite{Zhang2022renormTMD}
+\end{quote}
+
+\textbf{失败的根本原因：}RI/MOM方案在离壳夸克态中，通过减除微扰标度$\mu$处的Green函数来定义重整化常数。然而，胶子-规范链接（Wilson线）顶点处的线性发散是\textbf{非微扰本质}的——它来源于Wilson线在QCD真空中传播时与长波规范场涨落的相互作用。离壳减除方案中的$p^2 = \mu^2$条件无法捕获这些非微扰线性发散。
+
+\textbf{交叉验证：}Overlap费米子（保持精确手征对称性）上的结果与Clover费米子一致——证实了失败源于Wilson线顶点的普遍性质，而非特定费米子作用量的artifacts。RI/MOM对Wilson线算符的失败是一个重要的教训——它确立了\textbf{基于减除的方案（ratio、Wilson圈、自重整化）}是处理非定域算符线性发散的\textbf{唯一可行路径}。
+
+%==========================================================================
+\section{准PDF与准TMD-PDF算符的完整重整化链}
+%==========================================================================
+
+\subsection{乘法重整化性：准部分子算符的严格基础}
+
+在重整化方案的多样性背后，有一个统一的理论原则——准部分子算符（包括准PDF和准TMD-PDF）的\textbf{乘法重整化性}。
+
+\begin{theorem}[准部分子算符的乘法重整化性~\cite{Li2019multiplicative}]
+Li、Ma和Qiu严格证明：所有leading-twist的准部分子算符（夸克和胶子的准PDF、准GPD和准DA算符）均是乘法可重整化的。
+\begin{equation}
+\mathcal{O}_R(z, \mu) = Z(z, a, \mu) \, \mathcal{O}_B(z, a),
+\label{eq:multiplicative_renorm}
+\end{equation}
+重整化常数$Z$不依赖于外部强子态。这一性质保证了用不同的外部态（$\pi$介子或核子）确定的$Z$是普适的。
+\end{theorem}
+
+\textbf{推论：}一旦确定了通用的重整化因子$Z(z, a, \mu)$（例如，通过$P_z=0$的$\pi$介子矩阵元），它可以被应用到任何$P_z>0$的矩阵元上——这正是混合方案和ratio方案的核心假设，也是其合法性的理论基础。
+
+\subsection{夸克准PDF的完整重整化链}
+
+以同位旋矢量非极化夸克PDF为例，完整的重整化$\to$匹配流程包括：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{裸矩阵元：}
+    \begin{equation}
+    \tilde h_B(z, P_z, a^{-1}) = \langle P_z | \bar\psi(z)\gamma^t U(z,0)\psi(0) | P_z \rangle.
+    \end{equation}
+
+    \item \textbf{混合方案重整化：}
+    \begin{equation}
+    \tilde h_R(z, P_z) = \begin{cases}
+    \tilde h_B(z, P_z)/\tilde h_B(z, 0), & z \le z_s,\\
+    \tilde h_B(z, P_z)/[Z_R(z, a, \mu) \tilde h_{\overline{\text{MS}}}(z_s, 0, \mu)], & z > z_s.
+    \end{cases}
+    \end{equation}
+
+    \item \textbf{大$\lambda = zP_z$外推：}对$|z| \gtrsim \lambda_{\max}/P_z$的数据进行解析延拓。
+
+    \item \textbf{Fourier变换$\to$准PDF：}
+    \begin{equation}
+    \tilde q(x, P_z) = P_z \int \frac{dz}{2\pi} e^{ixP_z z} \tilde h_R(z, P_z).
+    \end{equation}
+
+    \item \textbf{NNLO+RGR匹配$\to\overline{\text{MS}}$光锥PDF：}
+    \begin{equation}
+    q(x, \mu) = \int \frac{dy}{|y|} C^{-1}\!\left(\frac{x}{y}, \frac{\mu}{|x|P_z}\right)_{\text{RGR}} \tilde q(y, P_z).
+    \end{equation}
+\end{enumerate}
+
+\subsection{胶子准PDF的算符混合与重整化}
+
+胶子准PDF算符的乘法重整化性更为微妙。在基础表示中，胶子准PDF算符的Dirac结构之间存在混合。Fan等人~\cite{Fan2018gluonQuasi}发现，通过特定组合可以构造乘法重整化的胶子算符。Chen等人~\cite{Chen2025gluon}在连续极限计算中采用了组合$M_{tx;tx} + M_{ty;ty} - 2M_{xy;xy}$。
+
+\textbf{关键事实：}UV重整化阶段不发生味单态混合——夸克算符和胶子算符是独立乘法重整化的~\cite{Li2019multiplicative}。但在微扰匹配到光锥PDF的阶段，夸克和胶子通过硬匹配核发生$2\times 2$混合~\cite{Yao2023connecting}。这一性质确保了两个步骤可以独立进行：先各自做非微扰重整化，再通过微扰匹配处理味单态混合。
+
+\subsection{准TMD-PDF的专用重整化链}
+
+TMD-PDF的重整化链包含三个阶段的减除~\cite{Zhang2022renormTMD}：
+\begin{enumerate}[nosep]
+    \item \textbf{Wilson圈减除}——消除线性发散+pinch-pole奇点+cusp发散；
+    \item \textbf{短距离比率方案}——消除残余对数发散，匹配到$\overline{\text{MS}}$；
+    \item \textbf{内禀软函数减除}——$f(x, b_\perp, \mu, \zeta) \propto \tilde f(x, b_\perp, \zeta_z, \mu)/\sqrt{S_I(b_\perp, \mu)}$。
+\end{enumerate}
+
+%==========================================================================
+\section{重整子、幂次修正与领阶精度}
+%==========================================================================
+
+\subsection{IR重整子的基本理论}
+
+微扰QCD中的微扰级数$\sum_n c_n \alpha_s^n$是\textbf{阶乘发散}的渐近级数——系数$c_n$在大$n$处以$n!$速率增长。这一行为的物理根源是\textbf{红外重整子}（infrared renormalons, IRR）~\cite{Beneke1999renormalon}：在Feynman图的Borel变换中，IR区域在Borel平面正实轴上产生极点（$u = n/\beta_0, n = 1, 2, \dots$），导致微扰级数的Borel可和性被破坏。
+
+\begin{definition}[IR重整子与幂次修正]
+IR重整子的位置$u = n/\beta_0$决定了与之关联的\textbf{幂次修正}的大小为$\mathcal{O}((\Lambda_{\text{QCD}}^2/Q^2)^n)$。领头重整子（$n=1$）对应于$\mathcal{O}(\Lambda_{\text{QCD}}/Q)$的twist-3修正。
+\end{definition}
+
+\subsection{准PDF算符中的重整子结构}
+
+Braun、Vladimirov和Zhang~\cite{Braun2019power}首次系统分析了准PDF算符中的重整子结构。对于准PDF，Wilson线的自能产生与``夸克极点质量''完全相同的重整子级数——这一定量对应关系使得HQET中极点质量的重整子知识可以直接借用到准PDF。
+
+\textbf{关键发现~\cite{Braun2019power}：}
+\begin{itemize}[nosep]
+    \item 准PDF（动量空间匹配）的幂次修正为$\sim 1/[x^2(1-x)]$——在小$x$和大$x$两端被增强；
+    \item 赝PDF（坐标空间匹配）的幂次修正为$\sim (1-x)$——在大$x$处被压低。
+\end{itemize}
+
+\subsection{领阶幂次精度：Zhang等人的LRR方案}
+
+Zhang、Holligan、Ji和Su~\cite{Zhang2023leadingPower}提出了达到\textbf{twist-3领阶幂次精度}的系统方案——将重整化中的$m_0$参数和微扰匹配系数中的IR重整子统一处理。
+
+\begin{definition}[领阶重整子重求和（LRR）~\cite{Zhang2023leadingPower}]
+\begin{enumerate}[nosep]
+    \item 在坐标空间中，通过Borel变换+主值（PV）处方法将微扰Wilson系数$C_k(\alpha_s)$中的领头IR重整子重求和：
+    \begin{equation}
+    C^{\text{LRR}}(\alpha_s) = C_{k}^{\text{fixed-order}}(\alpha_s) + \left[ C_{k}^{\text{PV}}(\alpha_s) - \sum_i \alpha_s^{i+1} r_i \right],
+    \end{equation}
+    其中$C_{k}^{\text{PV}}$是Borel积分的PV值，$r_i$是低阶展开系数（被减去以避免重复计数）。
+
+    \item 重求和后的系数$C^{\text{LRR}}$在微扰区域$z < 0.3$~fm展示更好的收敛性，NNLO效应被LRR主导；
+
+    \item 通过$P_z=0$的格点矩阵元在同一方案中拟合$m_0(\tau)$——$m_0$作为$z$的线性斜率被提取，且在$z \sim 0.12$~fm处展示了良好的平台行为。
+
+    \item 动量空间匹配中，LRR修正由坐标空间$z$-线性项的Fourier变换给出，涉及$\delta'(x-y)$分布——需引入指数衰减正规化$\exp(-\epsilon_m|z|)$。
+\end{enumerate}
+\end{definition}
+
+\textbf{在$\pi$介子PDF上的效果：}使用LRR方案，$P_z=1.9$~GeV的$\pi$介子PDF在$x=0.2\sim0.5$区域的匹配误差被降低了\textbf{3--5倍}——从$>30\%$降至$\sim 10\%$~\cite{Zhang2023leadingPower}。这是格点PDF计算向高精度迈进的关键一步。
+
+%==========================================================================
+\section{格点-连续方案匹配与唯象学连接}
+%==========================================================================
+
+\subsection{RI/MOM$\to\overline{\text{MS}}$的微扰转换}
+
+非微扰重整化通常在RI/MOM（或其变体RI$'$/MOM）方案中完成，而物理预言需要在$\overline{\text{MS}}$方案中给出。两者之间的转换通过连续微扰论完成~\cite{GattringerLang2010}。对于夸克双线型算符$O_\Gamma$：
+\begin{equation}
+Z_\Gamma^{\overline{\text{MS}}}(\mu) = R_\Gamma(\mu) \, Z_\Gamma^{\text{RI}}(\mu),
+\label{eq:RI_to_MS_conversion}
+\end{equation}
+其中转换因子$R_\Gamma$在Landau规范下已知到三圈精度。在实际计算中：
+\begin{enumerate}[nosep]
+    \item 在格点上非微扰确定$Z_\Gamma^{\text{RI}}(\mu)$；
+    \item 利用三圈结果计算$R_\Gamma(\mu)$；
+    \item 通过重整化群演化从标度$\mu$演化到参考标度$\mu_{\text{ref}} = 2$~GeV。
+\end{enumerate}
+
+\textbf{转换的系统误差：}来自（i）三圈结果与全阶结果之间的残余微扰不确定性；（ii）在$\mu$标度处格点离散化效应（$\mathcal{O}(a^2\mu^2)$）是否被充分压低。典型地，$\mu \sim 2$~GeV处的$\mathcal{O}(\alpha_s^3)$残余为$\sim 1\text{--}2\%$。
+
+\subsection{DGLAP演化在格点-实验连接中的桥梁作用}
+
+非微扰重整化后的格点PDF通常定义在某个较低的标度$\mu_0 \sim 2$~GeV。为了与高能实验数据（如LHC的$W/Z$产生、喷注数据等，标度可达$m_Z \approx 91$~GeV）比较，需要将格点PDF通过DGLAP演化到实验标度。这一演化步骤依赖于劈裂函数$P_{i\leftarrow j}(z)$的微扰知识（已知到NNLO），其理论误差在$Q^2 \gtrsim 2$~GeV$^2$时$\lesssim 1\%$~\cite{NNPDF2021}。
+
+\subsection{RGR重求和与DGLAP对数的自洽性}
+
+Su等人~\cite{Su2023RGR}阐明的RGR重求和方案揭示了重整化与演化之间的深层自洽性：准PDF的内禀标度$Q_{\text{eff}} = 2xP_z$通过DGLAP演化到达参考标度的过程，与LaMET匹配核的重整化群改进\textbf{由同一个DGLAP核$P[w,\alpha_s]$驱动}。这一精确对应确保了重整化和因子化是在同一个理论框架内自洽地进行的。
+
+%==========================================================================
+\section{总结与展望}
+%==========================================================================
+
+基于本库约50篇文献的综合分析，本文系统解析了格点QCD中重整化的完整理论体系。
+
+\subsection*{从连续场论到格点非定域算符：七层次的重整化全景}
+
+\begin{enumerate}[leftmargin=*]
+
+    \item \textbf{连续场论的重整化范式（§2）：}正规化$\to$抵消项$\to$重整化条件的三步法构成了所有重整化方案的理论基础。QCD的渐近自由和跑动耦合使微扰论在高能标下精确可控。
+
+    \item \textbf{格点作为正规化的双重角色（§3）：}格点既是UV正规化（有限$a$处所有量有限），又是非微扰计算框架。格点微扰论受tadpole图的困扰——Tadpole改进（$U_\mu \to U_\mu/u_0$）以几乎零成本显著加速收敛。
+
+    \item \textbf{非微扰重整化是格点QCD的独特力量（§4）：}RI/MOM（Rome--Southampton）方案在离壳夸克态的微扰窗口中定义重整化条件——这是定域夸克双线型算符的标准方法。Schr\"odinger泛函方法在手征极限和RG跨标度演化方面具有独特优势。
+
+    \item \textbf{Wilson线的线性发散是现代格点部分子物理的核心重整化挑战（§5）：}$e^{-\delta\bar m L/a}$线性发散不仅破坏了裸矩阵元的连续极限，更在根本上限制了可以使用的重整化方案。四种互补的策略——质量抵消项（Chen et al.）、Wilson圈减除（Zhang et al.）、自重整化（Huo et al.）、混合方案（Ji et al.）——均已成功地在不同场景中被应用和验证。
+
+    \item \textbf{RI/MOM对Wilson线算符的失败（§5.5）}是一个重要的教训——胶子-规范链接顶点处的非微扰线性发散无法通过离壳减除消除，确立了基于减除的方案是处理非定域算符重整化的唯一可行路径。
+
+    \item \textbf{乘法重整化性（§6.1）}为准部分子算符的所有重整化方案提供了统一的理论基础。准PDF和准TMD-PDF的完整重整化链——从裸矩阵元，经非微扰重整化（混合方案/Wilson圈减除/自重整化），到NNLO+RGR微扰匹配——已在LPC、CLQCD和BNL/ANL合作组的多项计算中被实践验证。
+
+    \item \textbf{IR重整子与领阶幂次精度（§7）}定义了当前格点PDF计算的精度前沿。Zhang等人的LRR方案通过统一处理重整化中的$m_0$参数和匹配系数中的IR重整子，在$\pi$介子PDF上将匹配误差降低了3--5倍——这是迈向``百分之一精度''的必要步骤。
+
+\end{enumerate}
+
+\textbf{展望：}随着Exascale计算的发展，非微扰重整化将面临新的精度要求——格距标定误差、重整化常数的连续极限外推、以及$\overline{\text{MS}}$方案中高阶微扰转换的系统误差都需要被压至亚百分比水平。Tadpole改进、RG改进和重整子重求和这三条理论线索的进一步融合将是通向高精度格点QCD预言的关键。
+
+%==========================================================================
+\begin{thebibliography}{99}
+
+% === 教材 ===
+\bibitem{PeskinSchroeder1995}
+M.~E.~Peskin and D.~V.~Schroeder, \textit{An Introduction to Quantum Field Theory}, Westview Press (1995).
+\\\textbf{[来源:} \texttt{refer/books/An Introduction to Quantum Field Theory.pdf}\textbf{]}
+\\Ch.10--12: 重整化与Callan--Symanzik方程；Ch.18: OPE与反常维数。
+
+\bibitem{GattringerLang2010}
+C.~Gattringer and C.~B.~Lang, \textit{Quantum Chromodynamics on the Lattice}, Lect.\ Notes Phys.\ \textbf{788}, Springer (2010).
+\\\textbf{[来源:} \texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}\textbf{]}
+\\Ch.~3.5: 重整化群、跑动耦合、$\beta$函数与Sommer标度；Ch.~11.2: Rome--Southampton非微扰重整化方法。
+
+\bibitem{Gupta1997intro}
+R.~Gupta, ``Introduction to Lattice QCD,'' arXiv:hep-lat/9807028 (1997).
+\\\textbf{[来源:} \texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf}\textbf{]}
+\\Ch.12: Tadpole改进；Ch.13: 改进作用量与重整化群；Ch.16: 格点-连续方案匹配。
+
+% === 非微扰重整化方法 ===
+\bibitem{Martinelli1995RI}
+G.~Martinelli, C.~Pittori, C.~T.~Sachrajda, M.~Testa, and A.~Vladikas,
+``A general method for non-perturbative renormalization of lattice operators,''
+Nucl.\ Phys.\ B \textbf{445}, 81 (1995), arXiv:hep-lat/9411010.
+——Rome--Southampton（RI/MOM）方法的原始论文。
+
+\bibitem{Luscher1996SF}
+M.~L\"uscher, R.~Sommer, P.~Weisz, and U.~Wolff,
+``A precise determination of the running coupling in the SU(3) Yang-Mills theory,''
+Nucl.\ Phys.\ B \textbf{489}, 33 (1997), arXiv:hep-lat/9609035.
+——Schr\"odinger泛函方法与非微扰跑动耦合。
+
+\bibitem{Chetyrkin2000}
+K.~G.~Chetyrkin and A.~R\'etey,
+``Renormalization and running of quark mass and field in the RI$'$ and $\overline{\text{MS}}$ schemes at three loops,''
+Nucl.\ Phys.\ B \textbf{583}, 3 (2000), arXiv:hep-ph/9910332.
+——RI$'$/MOM$\to\overline{\text{MS}}$三圈转换因子。
+
+\bibitem{Gracey2003}
+J.~A.~Gracey,
+``Three loop anomalous dimension of non-singlet quark currents in the RI$'$ scheme,''
+Nucl.\ Phys.\ B \textbf{662}, 247 (2003), arXiv:hep-ph/0304113.
+——三圈反常维数的RI$'$方案结果。
+
+\bibitem{LepageMackenzie1993}
+G.~P.~Lepage and P.~B.~Mackenzie,
+``On the viability of lattice perturbation theory,''
+Phys.\ Rev.\ D \textbf{48}, 2250 (1993), arXiv:hep-lat/9209022.
+——Tadpole（平均场）改进的原始论文。
+
+% === Wilson线重整化 ===
+\bibitem{Huo2021self}
+Y.-K.~Huo \textit{et al.} (LPC),
+``Self-renormalization of quasi-light-front correlators on the lattice,''
+Nucl.\ Phys.\ B \textbf{969}, 115443 (2021), arXiv:2103.02965.
+\\\textbf{[来源:} \texttt{refer/papers/Self-Renormalization of Quasi-Light-Front Correlators on the Lattice.pdf}\textbf{]}
+——自重整化方法，Clover和Overlap费米子上线性发散的普适性验证。
+
+\bibitem{Chen2018WLrenorm}
+J.-W.~Chen, X.~Ji, and J.-H.~Zhang,
+``Improved quasi parton distribution through Wilson line renormalization,''
+Nucl.\ Phys.\ B \textbf{915}, 1 (2017), arXiv:1609.08102.
+\\\textbf{[来源:} \texttt{refer/papers/Improved quasi parton distribution through Wilson line renormalization.pdf}\textbf{]}
+——辅助$z$场形式：线性发散=质量重整化$\delta m$的全阶证明。
+
+\bibitem{Zhang2022renormTMD}
+K.~Zhang \textit{et al.} (LPC),
+``Renormalization of transverse-momentum-dependent parton distribution on the lattice,''
+Phys.\ Rev.\ D \textbf{106}, 094510 (2022), arXiv:2205.13402.
+\\\textbf{[来源:} \texttt{refer/papers/Renormalization of transverse-momentum-dependent parton distribution on the lattice.pdf}\textbf{]}
+——Wilson圈减除的五格距系统验证，RI/MOM失败证明，SDR方案。
+
+\bibitem{Ji2021hybrid}
+X.~Ji, Y.-S.~Liu, Y.~Liu, J.-H.~Zhang, and Y.~Zhao,
+``A hybrid renormalization scheme for quasi light-front correlations in LaMET,''
+Nucl.\ Phys.\ B \textbf{964}, 115311 (2021), arXiv:2008.03886.
+\\\textbf{[来源:} \texttt{refer/papers/A Hybrid Renormalization Scheme for Quasi Light-Front Correlations in Large-Momentum Effective Theory.pdf}\textbf{]}
+——混合方案：短距离ratio+长距离显式重整化。
+
+\bibitem{Li2019multiplicative}
+Z.-Y.~Li, Y.-Q.~Ma, and J.-W.~Qiu,
+``Multiplicative renormalizability of quasi-parton operators,''
+Phys.\ Rev.\ Lett.\ \textbf{122}, 062002 (2019), arXiv:1809.01836.
+\\\textbf{[来源:} \texttt{refer/papers/Multiplicative renormalizability of quasi-parton operators.pdf}\textbf{]}
+——所有leading-twist准部分子算符乘法重整化性的严格证明。
+
+% === 重整子与幂次修正 ===
+\bibitem{Braun2019power}
+V.~M.~Braun, A.~Vladimirov, and J.-H.~Zhang,
+``Power corrections and renormalons in parton quasi-distributions,''
+Phys.\ Rev.\ D \textbf{99}, 014013 (2019), arXiv:1810.00048.
+\\\textbf{[来源:} \texttt{refer/papers/Power corrections and renormalons in parton quasi-distributions.pdf}\textbf{]}
+——准PDF和赝PDF中幂次修正函数形式的差异分析。
+
+\bibitem{Zhang2023leadingPower}
+R.~Zhang, J.~Holligan, X.~Ji, and Y.~Su,
+``Leading power accuracy in lattice calculations of parton distributions,''
+Phys.\ Lett.\ B \textbf{844}, 138081 (2023), arXiv:2305.05212.
+\\\textbf{[来源:} \texttt{refer/papers/Leading Power Accuracy in Lattice Calculations of Parton Distributions.pdf}\textbf{]}
+——LRR方案：统一处理$m_0$参数和IR重整子，匹配精度提高3--5倍。
+
+\bibitem{Beneke1999renormalon}
+M.~Beneke,
+``Renormalons,''
+Phys.\ Rept.\ \textbf{317}, 1 (1999), arXiv:hep-ph/9807443.
+——IR重整子理论的经典综述。
+
+% === LaMET匹配 ===
+\bibitem{Su2023RGR}
+Y.~Su, J.~Holligan, X.~Ji, F.~Yao, J.-H.~Zhang, and R.~Zhang,
+``Resumming quark's longitudinal momentum logarithms in LaMET expansion of lattice PDFs,''
+Phys.\ Rev.\ D \textbf{107}, 074507 (2023), arXiv:2209.01236.
+\\\textbf{[来源:} \texttt{refer/papers/Resumming Quark's Longitudinal Momentum Logarithms in LaMET Expansion of Lattice PDFs.pdf}\textbf{]}
+
+\bibitem{Izubuchi2018}
+T.~Izubuchi, X.~Ji, L.~Jin, I.~W.~Stewart, and Y.~Zhao,
+``Factorization theorem relating Euclidean and light-cone parton distributions,''
+Phys.\ Rev.\ D \textbf{98}, 056004 (2018), arXiv:1801.03917.
+\\\textbf{[来源:} \texttt{refer/papers/Factorization Theorem Relating Euclidean and Light-Cone Parton Distributions.pdf}\textbf{]}
+
+\bibitem{Yao2023connecting}
+F.~Yao, Y.~Ji, and J.-H.~Zhang,
+``Connecting Euclidean to light-cone correlations...''
+JHEP \textbf{11}, 021 (2023), arXiv:2212.14415.
+\\\textbf{[来源:} \texttt{refer/papers/Connecting Euclidean to light-cone correlations From flavor nonsinglet in forward kinematics to flavor singlet in non-forward kinematics.pdf}\textbf{]}
+
+% === 具体计算 ===
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, LPC),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\\\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{Fan2018gluonQuasi}
+Z.-Y.~Fan, Y.-B.~Yang, A.~Anthony, H.-W.~Lin, and K.-F.~Liu,
+``Gluon quasi-PDF from lattice QCD,''
+Phys.\ Rev.\ Lett.\ \textbf{121}, 242001 (2018), arXiv:1808.02077.
+\\\textbf{[来源:} \texttt{refer/papers/Gluon Quasi-PDF From Lattice QCD.pdf}\textbf{]}
+
+\bibitem{He2024unpolTMD}
+J.-C.~He \textit{et al.} (LPC),
+``Unpolarized TMD parton distributions of the nucleon from lattice QCD,''
+Phys.\ Rev.\ D \textbf{109}, 114513 (2024), arXiv:2211.02340.
+\\\textbf{[来源:} \texttt{refer/papers/Unpolarized Transverse-Momentum-Dependent Parton Distributions of the Nucleon from Lattice QCD.pdf}\textbf{]}
+
+\bibitem{Zhang2024gauge_fixing}
+K.~Zhang \textit{et al.} (LPC),
+``Impact of gauge fixing precision on the continuum limit of non-local quark-bilinear lattice operators,''
+Phys.\ Rev.\ D \textbf{110}, 074505 (2024), arXiv:2405.14097.
+\\\textbf{[来源:} \texttt{refer/papers/Impact of gauge fixing precision on the continuum limit of non-local quark-bilinear lattice operators.pdf}\textbf{]}
+
+\bibitem{NNPDF2021}
+R.~D.~Ball \textit{et al.} (NNPDF),
+``The path to proton structure at 1\% accuracy,''
+Eur.\ Phys.\ J.\ C \textbf{82}, 428 (2022), arXiv:2109.02653.
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,'' 内部笔记。\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}
+
+\end{thebibliography}
+
+\vspace{0.5cm}
+\noindent\rule{\textwidth}{0.5pt}
+\small
+\textbf{交叉参考建议：}本报告应结合同一\texttt{docs/}目录下的以下文件阅读：
+\begin{itemize}[nosep]
+    \item \texttt{格点QCD中的部分子分布函数.pdf}——共线PDF计算的完整语境
+    \item \texttt{格点QCD中的Wilson线.pdf}——Wilson线的线性发散与重整化
+    \item \texttt{格点QCD中的光锥PDF、准PDF、赝PDF.pdf}——三种PDF定义的匹配
+    \item \texttt{格点QCD中的TMD\_PDF.pdf}——TMD中的Wilson圈减除与SDR方案
+    \item \texttt{格点QCD中的DGLAP演化方程.pdf}——演化与RGR重求和
+    \item \texttt{格点QCD中的大动量有效理论.pdf}——LaMET框架
+    \item \texttt{格点QCD中的OPE算符.pdf}——OPE与反常维数
+    \item \texttt{格点QCD中的费米子方案.pdf}——费米子方案对重整化的影响
+    \item \texttt{格点QCD中的标度参数.pdf}——格距标定与跑动耦合
+    \item \texttt{格点QCD中的Symanzik有效理论.pdf}——Tadpole/Symanzik改进
+\end{itemize}
+
+\end{document}

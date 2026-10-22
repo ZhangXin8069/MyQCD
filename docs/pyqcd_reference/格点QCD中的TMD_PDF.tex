@@ -1,0 +1,937 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption,multirow}
+\usepackage{hyperref,xcolor,enumitem,mathtools}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的TMD-PDF：\\
+横向动量依赖部分子分布函数的第一性原理计算}
+\author{基于本库全部相关文献的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+横向动量依赖部分子分布函数（TMD-PDFs）将标准的一维共线PDF推广到三维，同时描述部分子在纵向动量份额$x$和横向动量$\vec{k}_\perp$上的联合分布。TMD-PDFs是理解强子三维结构的核心可观测量，也是描述Drell-Yan过程、半单举深度非弹性散射（SIDIS）等具有小横向动量观测量的QCD因子化的关键输入。然而，TMD-PDFs的定义涉及两个相反光锥方向上的软胶子辐射，其欧几里得格点计算面临三重独特挑战：
+（1）staple型Wilson线的线性发散、cusp发散和pinch-pole奇点需要超越RI/MOM的新型重整化策略；
+（2）Collins-Soper演化核$K(b_\perp,\mu)$描述了TMD分布在快度标度变化下的演化，其非微扰大$b_\perp$行为是格点QCD不可替代的输入；
+（3）内禀软函数$S_I(b_\perp)$编码与快度无关的非微扰软胶子贡献，需要通过大动量转移的赝标量介子形状因子的因子化来提取。
+
+本文基于本库中与TMD相关的全部PDF文献（共约13篇），系统梳理了LaMET框架下TMD-PDF格点计算的完整理论体系和数值实现。内容涵盖：
+准TMD-PDF和准TMD波函数的定义与staple型Wilson线的构造；
+Wilson圈减除重整化方案在五种格点间距上的系统验证及其与RI/MOM方案的对比；
+内禀软函数通过赝标量介子形状因子的提取——包括树图和NLO匹配、Fierz重排抑制高扭度污染、归一化方案；
+Collins-Soper核通过准TMD波函数/准TMD-PDF动量依赖性的比值提取——涵盖MILC和CLS两个系综的交叉验证；
+从准TMD-PDF到光锥TMD-PDF的因子化匹配——包括NNLO硬核、重整化群重求和（RGR）、$\zeta_z=(2xP^z)^2$标度的快度演化；
+最后以LPC合作组的三个里程碑计算为例——核子非极化TMD-PDF~\cite{He2024unpolTMD}、Boer-Mulders函数~\cite{Ma2025BoerMulders}、以及$\pi$介子TMD波函数~\cite{Chu2023TMDWF}——展示完整的格点TMD计算链，并讨论八种leading-twist TMD-PDF的系统计算前景及其与EIC实验的协同。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==========================================================================
+\section{引言：从一维PDF到三维TMD层析}
+%==========================================================================
+
+\subsection{共线PDF的局限与TMD的必要性}
+
+标准的共线部分子分布函数（PDF）$q(x,\mu)$仅依赖于纵向动量份额$x$和因子化标度$\mu$，将强子结构描述为``一维''对象。然而在非单举过程中——当实验测量的末态强子具有可观测的横向动量$q_\perp$时——强子内部夸克和胶子的\textbf{横向动量}$\vec{k}_\perp$变得物理上可区分。关键实验包括：
+\begin{itemize}
+    \item \textbf{半单举深度非弹性散射（SIDIS）：}$e + N \to e' + h + X$，其中末态强子$h$的横向动量$P_{h\perp}$提供了对初态夸克$\vec{k}_\perp$的灵敏度；
+    \item \textbf{Drell-Yan过程：}$h_A + h_B \to \gamma^*/Z/W + X \to \ell^+\ell^- + X$，轻子对的横向动量$q_\perp$直接探测对撞强子中部分子的横向动量分布；
+    \item \textbf{半单举$e^+e^-$湮灭：}$e^+e^- \to h_A + h_B + X$，两个末态强子的相对横向动量敏感于碎裂过程中的TMD分布。
+\end{itemize}
+
+\textbf{TMD因子化定理}~\cite{Collins2011foundations}将上述过程的截面分解为TMD-PDF（或TMD碎裂函数）与硬散射截面的卷积，在$q_\perp \ll Q$区域（其中$Q$是硬标度）提供了系统可改进的理论框架。
+
+\subsection{TMD-PDF的定义与分类}
+
+\begin{definition}[TMD-PDF的物理含义]
+TMD-PDF $f(x, \vec{k}_\perp, \mu, \zeta)$描述在强子中找到携带纵向动量份额$x$、横向动量$\vec{k}_\perp$的部分子的\textbf{联合概率密度}。其中$\mu$是重整化标度（来自UV正规化），$\zeta$是\textbf{快度标度}（rapidity scale，来自快度发散的正规化）。在b-空间（$\vec{k}_\perp$的Fourier共轭变量$\vec{b}_\perp$）中，TMD-PDF记为$f(x, b_\perp, \mu, \zeta)$，其中$b_\perp \equiv |\vec{b}_\perp|$。
+\end{definition}
+
+在leading-twist精度下，核子共有\textbf{八种独立的夸克TMD-PDF}，按核子极化（U=非极化，L=纵向极化，T=横向极化）和夸克极化分类~\cite{Ma2025BoerMulders,Meissner2007TMD}：
+
+\begin{table}[H]
+\centering
+\caption{八种leading-twist夸克TMD-PDF的分类与物理诠释}
+\label{tab:TMD_classification}
+\begin{tabular}{lcccp{5cm}}
+\toprule
+TMD-PDF & 核子 & 夸克 & T & 物理诠释 \\
+\midrule
+$f_1$（非极化）          & U & U & 偶 & 非极化夸克的数密度 \\
+$g_{1L}$（螺旋度）       & L & L & 偶 & 纵向极化夸克的螺旋度分布 \\
+$g_{1T}$（worm-gear T）  & T & L & 偶 & 横向极化核子中的纵向极化夸克分布 \\
+$h_1$（横向性/transversity）& T & T & 偶 & 横向极化夸克的横向极化分布 \\
+$h_{1L}^\perp$（worm-gear L）& L & T & 偶 & 纵向极化核子中的横向极化夸克分布 \\
+$h_{1T}^\perp$（pretzelosity）& T & T & 偶 & 横向极化核子中的横向极化夸克分布（四极形变） \\
+$f_{1T}^\perp$（Sivers）  & T & U & \textbf{奇} & 横向极化核子中的非极化夸克方位角不对称分布 \\
+$h_1^\perp$（Boer-Mulders）& U & T & \textbf{奇} & 非极化核子中的横向极化夸克方位角不对称分布 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+其中na\"ive T-odd函数（Sivers $f_{1T}^\perp$和Boer-Mulders $h_1^\perp$）的时间反演奇数性来源于TMD算符定义中\textbf{规范链接（Wilson线）的方向依赖性}。在两强子散射（Drell-Yan）和SIDIS中，初态与末态相互作用的差异导致规范链接方向相反，这使得Sivers和Boer-Mulders函数在两种过程中\textbf{符号反转}——这是非Abel规范理论（QCD）区别于Abel理论（QED）的独特预言，已被实验初步验证~\cite{Collins2011foundations}。
+
+\subsection{格点QCD计算TMD-PDF的核心困难}
+
+TMD-PDF的格点计算面临\textbf{三重独特困难}，它们都源于TMD-PDF的光锥定义与欧几里得格点的本质冲突：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{光锥关联函数无法直接在欧几里得格点上模拟：}TMD-PDF的标准定义为沿光锥方向$n_\pm = (1, \vec{0}_\perp, \pm 1)/\sqrt{2}$的夸克-反夸克关联函数，包含$\psi(\xi^-)\cdots\psi(0)$类型的算符。在欧几里得时空中，$t \to -i\tau$，光锥方向退化为零矢量。
+
+    \item \textbf{快度发散需要新的正规化方案：}TMD算符涉及两个相反光锥方向（$n_+$和$n_-$）上的Wilson线，它们之间的软胶子交换在快度积分中产生新的发散——快度发散（rapidity divergence）。与UV发散不同，快度发散不能通过标准的维数正规化$\epsilon = (4-d)/2$来正规化。
+
+    \item \textbf{Wilson线的线性发散和pinch-pole奇点：}格点上有限长度的staple型Wilson线产生格距相关的线性发散$e^{-\delta\bar{m} L/a}$和pinch-pole奇点$e^{-V(b_\perp)L}$。传统的RI/MOM方案对这些发散的处理被证明是不充分的~\cite{Zhang2022renormTMD}。
+\end{enumerate}
+
+\textbf{LaMET（大动量有效理论）}~\cite{Ji2013Euclidean,Ji2014LaMET}为前两个困难提供了系统性解决方案：通过引入在\textbf{空间方向}上分离的等时关联函数（准TMD-PDF），利用大动量$P^z$下的Lorentz boost将类空关联``逼近''类光关联。准TMD-PDF和光锥TMD-PDF之间的差异由微扰可计算的\textbf{硬匹配核}描述，幂次修正以$1/(P^z)^2$和$\Lambda_{\text{QCD}}^2/\zeta_z$的形式被压低。
+
+对于第三个困难，LPC合作组开发了\textbf{Wilson圈减除+短距离比率方案}的组合重整化策略~\cite{Zhang2022renormTMD}，详见第2节。
+
+\subsection{本库中的TMD相关文献概览}
+
+本库（\texttt{/root/PyQCD/docs/}）包含以下与TMD-PDF直接相关的核心文献：
+
+\begin{table}[H]
+\centering
+\caption{本库中TMD-PDF相关的核心文献一览}
+\label{tab:TMD_papers}
+\small
+\begin{tabular}{lp{5cm}l}
+\toprule
+文献 & 文件名 & 核心贡献 \\
+\midrule
+\cite{Zhang2022renormTMD} & Renormalization of TMD parton distribution on the lattice &
+5种$a$上Wilson圈减除的系统验证，RI/MOM失败证明 \\
+
+\cite{LPC2020soft} & Lattice-QCD Calculations of TMD Soft Function Through LaMET &
+内禀软函数和CS核的首次格点计算，形状因子因子化方案 \\
+
+\cite{Chu2022CSkernel} & Nonperturbative Determination of CS Kernel from Quasi TMDWFs &
+NLO匹配下CS核的准TMD波函数提取，算符混合和标度依赖性分析 \\
+
+\cite{Chu2023soft} & Lattice Calculation of the Intrinsic Soft Function and the CS Kernel &
+NLO内禀软函数计算，CS核的MILC/CLS交叉验证，TMDWF/TMDPDF方案对比 \\
+
+\cite{Chu2023TMDWF} & TMD Wave Functions of Pion from Lattice QCD &
+$\pi$介子TMD波函数的首次格点计算，MILC和CLS双系综对比 \\
+
+\cite{He2024unpolTMD} & Unpolarized TMD Parton Distributions of the Nucleon from Lattice QCD &
+核子非极化TMD-PDF的首次第一性原理计算，NNLO+RGR匹配 \\
+
+\cite{Ma2025BoerMulders} & Quark Transverse Spin-Momentum Correlation: The Boer-Mulders Function &
+核子和$\pi$介子Boer-Mulders函数的首次格点计算 \\
+
+\cite{Ji2013Euclidean} & Parton physics on a Euclidean lattice &
+LaMET的奠基性论文，提出准TMD-PDF的定义 \\
+
+\cite{Izubuchi2018} & Factorization theorem relating Euclidean and light-cone parton distributions &
+准TMD-PDF$\to$光锥TMD-PDF因子化定理的严格证明 \\
+
+\cite{Ji2014LaMET} & Parton physics from large-momentum effective field theory &
+LaMET框架的系统阐述 \\
+
+\cite{Huo2021self} & Self-renormalization of quasi-light-front correlators on the lattice &
+准光锥关联函数的自重整化方案 \\
+
+\cite{Zhang2024gauge_fixing} & Impact of gauge fixing precision on the continuum limit &
+规范固定精度对staple型Wilson线连续极限的系统影响 \\
+
+\cite{Egerer2022} & Towards the determination of the gluon helicity distribution &
+胶子螺旋度TMD的初步格点计算（HadStruc合作组）\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+此外，\texttt{docs/}目录中的\verb|格点QCD中的大动量有效理论.pdf|、\verb|格点QCD中的光锥PDF与quasi_PDF.pdf|、\verb|格点QCD中的OPE算符.pdf|等文件提供了必要的背景知识，建议交叉参考。
+
+%==========================================================================
+\section{TMD-PDF的格点表述与重整化}
+%==========================================================================
+
+\subsection{准TMD-PDF算符：staple型Wilson线的构造}
+
+TMD-PDF的格点计算核心在于定义恰当的\textbf{等时准TMD-PDF算符}。与准PDF（共线PDF的LaMET对应物）中的直Wilson线不同，准TMD-PDF算符需要同时描述纵向和横向的规范平移，因此必须采用\textbf{staple型（订书钉形）Wilson线}~\cite{He2024unpolTMD,Zhang2022renormTMD,Ji2013Euclidean}。
+
+\begin{definition}[Staple型Wilson线的完整构造~\cite{Zhang2022renormTMD}]
+在欧几里得时空中，连接夸克场$\bar\psi(\vec{b}_\perp, 0)$和$\psi(z\hat{n}_z)$的staple型规范链接$W_{\sqsubset}$由三段逐次连接的规范协变平行传输组成：
+\begin{equation}
+\begin{aligned}
+W_{\sqsubset}(b_\perp, L, z) &\equiv U_z^\dagger\big((z+L)\hat{n}_z + \vec{b}_\perp, \vec{b}_\perp\big) \\
+&\quad \times U_\perp\big((z+L)\hat{n}_z + \vec{b}_\perp, (z+L)\hat{n}_z\big) \\
+&\quad \times U_z\big((z+L)\hat{n}_z, z\hat{n}_z\big),
+\end{aligned}
+\label{eq:staple_Wilson_full}
+\end{equation}
+其中各段的显式形式为：
+\begin{align}
+U_z(\xi_1^z \hat{n}_z + \vec{\xi}_\perp, \xi_2^z \hat{n}_z + \vec{\xi}_\perp) &= \mathcal{P}\exp\left[-ig\int_{\xi_1^z}^{\xi_2^z} d\lambda\, \hat{n}_z \cdot A(\lambda\hat{n}_z + \vec{\xi}_\perp)\right], \label{eq:Uz} \\
+U_\perp(\xi^z \hat{n}_z + \vec{\xi}_\perp^1, \xi^z \hat{n}_z + \vec{\xi}_\perp^2) &= \mathcal{P}\exp\left[-ig\int_{\vec{\xi}_\perp^1}^{\vec{\xi}_\perp^2} d\lambda\, \hat{n}_\perp \cdot A(\xi^z\hat{n}_z + \lambda\hat{n}_\perp)\right]. \label{eq:Uperp}
+\end{align}
+$\mathcal{P}$表示路径编序（path-ordering），$L$是staple沿纵向延伸的``臂长''——在连续极限中$L\to\infty$以模拟光锥方向上的无穷长Wilson线。
+\end{definition}
+
+准TMD-PDF在坐标-动量混合空间（$z, b_\perp$空间）中的\textbf{裸矩阵元}定义为~\cite{Zhang2022renormTMD}：
+\begin{equation}
+\tilde{h}_{\chi,\Gamma}(b_\perp, z, L, P^z; 1/a) \equiv \langle \chi(P^z) | \bar{\psi}(\vec{0}_\perp, 0) \Gamma W_{\sqsubset}(b_\perp, L, z) \psi(\vec{b}_\perp, z) | \chi(P^z) \rangle,
+\label{eq:bare_matrix}
+\end{equation}
+其中$|\chi(P^z)\rangle$是具有动量$P^\mu = (E, \vec{0}_\perp, P^z)$的强子态（$\chi = \pi, N$等），$\Gamma$是Dirac矩阵投影子。对于非极化TMD-PDF，取$\Gamma = \gamma^t$（在$P^z \to \infty$极限下投影到$\gamma^+$）；对于Boer-Mulders函数，取$\Gamma = i\sigma^{yt}\gamma_5$；对于螺旋度分布，取$\Gamma = \gamma^z\gamma_5$。
+
+坐标空间和动量空间之间的关联通过Fourier变换建立：
+\begin{equation}
+\tilde{f}_\Gamma(x, b_\perp, P^z, \mu) \equiv \lim_{a\to 0} \lim_{L\to\infty} \int \frac{dz}{2\pi} e^{-iz(xP^z)} \frac{\tilde{h}_{\chi,\Gamma}(b_\perp, z, L, P^z; 1/a)}{\sqrt{Z_E(2L+z, b_\perp; 1/a)} Z_O(1/a, \mu, \Gamma)}.
+\label{eq:fourier_TMD}
+\end{equation}
+
+\subsection{准TMD-PDF裸矩阵元中的发散结构}
+
+准TMD-PDF裸矩阵元包含\textbf{四类独立的UV发散}~\cite{Zhang2022renormTMD}，每一类对应Wilson线结构的不同部分：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{线性发散（$e^{-\delta\bar{m}(2L+z)/a}$）：}Wilson线自能修正产生与Wilson线总长度$(2L+z)$成正比、与格距$a$成反比的线性发散。$\delta\bar{m}$是``残余质量''参数，在格点微扰论中与cusp处的规范场涨落相关。这类发散是格点正规化所特有的，在维数正规化中不出现。
+
+    \item \textbf{Cusp发散：}在staple的三个转角处（$z$处夸克-Wilson线顶点、$z+L$处$z\to\perp$转角、$z+L$处$\perp\to z$转角），规范场在尖角处的奇异性产生额外的对数发散。Cusp发散是规范理论中Wilson圈的普遍特征，在微扰论中由cusp反常维数$\Gamma_{\text{cusp}}(\alpha_s)$描述。
+
+    \item \textbf{Pinch-pole奇点（$e^{-V(b_\perp)L}$）：}staple中两条沿$z$方向、横向分离为$b_\perp$的平行Wilson线之间，通过胶子交换产生有效势$V(b_\perp)$。在$L\to\infty$极限下，这种``重夸克势''型相互作用导致矩阵元呈指数衰减——这是TMD算符特有的奇异性，在准PDF算符（单条直Wilson线）中不存在。从物理角度看，$V(b_\perp) \propto \alpha_s/b_\perp$在微扰区域的行为类似于QCD弦张力的短距离极限。
+
+    \item \textbf{对数发散：}来自Wilson线端点处夸克-Wilson线顶点修正，以及在cusp处剩余的软发散。这些对数发散在维数正规化中表现为$1/\epsilon$极点，在格点正规化中表现为$\ln a$项。
+\end{enumerate}
+
+\subsection{Wilson圈减除：消除线性发散、pinch-pole奇点和cusp发散}
+
+LPC合作组的核心创新之一是提出用\textbf{矩形Wilson圈的平方根}作为减除因子~\cite{Zhang2022renormTMD,He2024unpolTMD}，同时消除前三类发散。
+
+\begin{definition}[Wilson圈减除的准TMD-PDF]
+\begin{equation}
+\boxed{h_{\chi,\Gamma}(b_\perp, z, P^z; 1/a) \equiv \lim_{L \to \infty} \frac{\tilde{h}_{\chi,\Gamma}(b_\perp, z, L, P^z; 1/a)}{\sqrt{Z_E(2L+z, b_\perp; 1/a)}}},
+\label{eq:subtracted_TMD}
+\end{equation}
+其中矩形Wilson圈$Z_E$的定义为：
+\begin{equation}
+\begin{aligned}
+Z_E(r, b_\perp; 1/a) &\equiv \frac{1}{N_c} \operatorname{Tr} \langle 0| U_\perp^\dagger(-\vec{L}+\vec{b}_\perp; -b_\perp) U_z^\dagger(\vec{L}+\vec{z}+\vec{b}_\perp; -2L-z) \\
+&\qquad \times U_\perp(\vec{L}+\vec{z}; b_\perp) U_z(-\vec{L}; 2L+z) |0\rangle.
+\end{aligned}
+\label{eq:wilson_loop_full}
+\end{equation}
+\end{definition}
+
+\textbf{减除的物理机制：}
+\begin{itemize}
+    \item Wilson圈$Z_E$包含的Wilson线总长度同样为$2L+z \pm \mathcal{O}(b_\perp)$，因此其线性发散形式为$e^{-\delta\bar{m}(2L+z)/a}$——取平方根恰好消除准TMD-PDF中的线性发散因子；
+    \item Wilson圈的四条边形成闭合回路，其cusp结构与准TMD-PDF的staple中的cusp结构类似——开方后cusp发散的残留在对数精度下可忽略；
+    \item Pinch-pole奇点在$Z_E$中同样存在（矩形圈中两条平行的长边），平方根减除恰好抵消$e^{-V(b_\perp)L}$因子。
+\end{itemize}
+
+\textbf{五格点间距的系统验证~\cite{Zhang2022renormTMD}：}
+
+Zhang等人在\textbf{五种格点间距}（$a = 0.032, 0.043, 0.060, 0.086, 0.121$~fm，分别对应$\beta = 6.3, 6.1, 5.9, 5.7, 5.5$的Clover费米子组态）上对$\pi$介子态的准TMD-PDF矩阵元进行了系统计算，关键发现包括：
+\begin{enumerate}
+    \item 减除后的矩阵元$h_{\pi,\gamma^t}$在$L \gtrsim 0.36$~fm（即格点上$L \gtrsim 4a$到$8a$，取决于$a$）后达到稳定的\textbf{平台值}——在五个格点间距上一致地验证了pinch-pole奇点的消除；
+    \item 在$a \to 0$连续极限下，固定物理$z$和$b_\perp$处的减除矩阵元展示了\textbf{稳定收敛}——验证了线性发散的完全消除；
+    \item 同时使用了Clover费米子（破缺手征对称性）和Overlap费米子（保持手征对称性），两种作用量的减除结果在连续极限下一致——确认了重整化方案的\textbf{作用量普适性}。
+\end{enumerate}
+
+\subsection{RI/MOM方案的失败：经验教训}
+
+Zhang等人~\cite{Zhang2022renormTMD}同时检验了RI/MOM重整化方案对准TMD-PDF算符的适用性，结论是明确的否定：
+
+\begin{quote}
+``The lattice spacing dependence becomes stronger with either larger $z$ or smaller $a$, implying that there are residual linear divergences in $h^{\text{MOM}}_{\pi,\gamma^t}$. In other words, the RI/MOM renormalization does not cancel all the linear divergences.''~\cite{Zhang2022renormTMD}
+\end{quote}
+
+\textbf{定量表现：}RI/MOM重整化后的矩阵元在不同的格点间距上展示了\textbf{系统性不一致}——$z$越大（或$a$越小），格距依赖性越强。这意味着在连续极限$a\to 0$下，RI/MOM重整化的矩阵元不收敛。
+
+\textbf{根本原因：}与准PDF情形中的发现一致~\cite{Huo2021self}，在破坏手征对称性的格点截断方案下，胶子-规范链接顶点的线性发散在RI/MOM减除中的抵消是不完全的。Overlap费米子上的交叉验证证实：即使在保持手征对称性的作用量上，RI/MOM仍展现相同的残余线性发散——这说明失败源于Wilson线顶点的\textbf{非微扰线性发散}本性，而非特定费米子作用量的artifacts。
+
+\textbf{对TMD计算的启示：}这一失败直接表明——\textbf{基于减除的方案（如Wilson圈减除）是准TMD算符重整化的唯一可行路径}。这与准PDF情形形成对比：在准PDF中，混合方案（hybrid scheme）——短距离处使用RI/MOM，长距离处使用ratio方案——已被证明是有效的~\cite{Huo2021self}。
+
+\subsection{短距离比率方案：对数发散的重整化}
+
+在Wilson圈减除消除线性发散、pinch-pole奇点和cusp发散之后，仍剩余\textbf{对数发散}（来自夸克-Wilson线顶点的反常维数）。这些通过\textbf{短距离比率方案}（Short-Distance Ratio, SDR）来处理~\cite{He2024unpolTMD,Zhang2022renormTMD}：
+
+\begin{definition}[SDR方案的构造]
+将减除后的准TMD-PDF在零动量（$P^z=0$）和微扰短距离（$z_0, b_{\perp,0} \ll \Lambda_{\text{QCD}}^{-1}$）处的值作为重整化因子：
+\begin{equation}
+Z_O(1/a, \mu, \Gamma) \equiv \lim_{L\to\infty} \frac{\tilde{h}_{\chi,\Gamma}(b_{\perp,0}, z_0, L, P^z=0; 1/a)}{\sqrt{Z_E(2L+z_0, b_{\perp,0}; 1/a)} \, \tilde{h}^{\overline{\text{MS}}}_\Gamma(z_0, b_{\perp,0}, \mu)}.
+\label{eq:SDR_factor}
+\end{equation}
+\end{definition}
+
+分子的格点矩阵元包含了与$1/a$相关的所有残余对数发散；分母的$\tilde{h}^{\overline{\text{MS}}}_\Gamma$是在$\overline{\text{MS}}$方案中计算的\textbf{在壳夸克矩阵元}。该方案的物理依据是：在微扰短距离处，格点矩阵元与$\overline{\text{MS}}$矩阵元的差异仅为微扰可计算的有限重整化。
+
+\textbf{在壳夸克矩阵元的单圈$\overline{\text{MS}}$结果~\cite{Zhang2022renormTMD}：}
+\begin{equation}
+\tilde{h}^{\overline{\text{MS}}}_\Gamma(z, b_\perp, \mu) = 1 + \frac{\alpha_s(\mu) C_F}{2\pi}\left[ \frac{1}{2} + \frac{3}{2}\ln\frac{\mu^2(b_\perp^2 + z^2) e^{\gamma_E}}{4} - 2\frac{z}{b_\perp}\arctan\frac{z}{b_\perp} \right] + \mathcal{O}(\alpha_s^2).
+\label{eq:MS_matrix}
+\end{equation}
+
+\textbf{SDR方案的优点：}
+\begin{itemize}
+    \item 仅使用物理在壳矩阵元（$\pi$介子或核子态），不引入离壳外动量——避免了RI/MOM方案中离壳混合的问题；
+    \item 借助微扰计算将格点正规化匹配到$\overline{\text{MS}}$方案，使后续的因子化匹配可直接使用$\overline{\text{MS}}$中的硬核；
+    \item 短距离$z_0, b_{\perp,0}$的选择存在优化空间——足够小以保证微扰论有效，又足够大以避开格距的离散化效应。
+\end{itemize}
+
+\textbf{对非手征费米子作用量的补充说明：}对于非手征格点费米子（如Clover费米子），算符$\Gamma = \gamma^t$与$\Gamma = \gamma^t\gamma^3$之间可能存在由于手征对称性破缺引起的混合。然而，LPC合作组的数值经验表明这种混合的影响在统计精度范围内\textbf{可忽略}~\cite{Zhang2022renormTMD}。
+
+\subsection{准TMD-PDF的完整重整化计算链}
+
+总结以上步骤，完整的准TMD-PDF重整化计算链为：
+
+\begin{equation}
+\boxed{h^{\text{SDR}}_{\chi,\Gamma}(b_\perp, z, P^z; \mu) \equiv \frac{1}{\tilde{h}^{\overline{\text{MS}}}_\Gamma(z_0, b_{\perp,0}, \mu)} \cdot \lim_{L\to\infty} \frac{\tilde{h}_{\chi,\Gamma}(b_\perp, z, L, P^z; 1/a) / \sqrt{Z_E(2L+z, b_\perp; 1/a)}}{\tilde{h}_{\chi,\Gamma}(b_{\perp,0}, z_0, L, P^z=0; 1/a) / \sqrt{Z_E(2L+z_0, b_{\perp,0}; 1/a)}}}.
+\label{eq:full_renorm_chain}
+\end{equation}
+
+\textbf{极限的数值处理：}在实际计算中，$L\to\infty$极限通过以下步骤实现：
+\begin{enumerate}
+    \item 在若干有限的$L$值上计算减除后的比率；
+    \item 寻找$L \gtrsim L_{\text{plat}}$（$\sim 0.36$~fm）范围内比率趋于常数的平台；
+    \item 对平台区域进行常数拟合，取拟合值作为$L\to\infty$外推结果；
+    \item 拟合的系统误差通过变化平台区域的起止点来估计。
+\end{enumerate}
+
+%==========================================================================
+\section{软函数：TMD因子化的非微扰核心}
+%==========================================================================
+
+\subsection{TMD软函数的物理起源与结构}
+
+在共线因子化中，来自两个强子方向的共线胶子辐射是独立因子化的（每个强子的共线辐射归入各自的PDF）。在TMD因子化中，当观测量的横向动量$q_\perp$被限制在$\Lambda_{\text{QCD}}$量级时，来自两个相反光锥方向的\textbf{软胶子辐射不能独立因子化}——它们通过$q_\perp$守恒相互关联。这种残余的软胶子关联由\textbf{TMD软函数}$S(b_\perp, \mu, Y+Y')$——也叫CS（Collins-Soper）软因子——来编码。
+
+\begin{definition}[TMD软函数的两部分结构~\cite{LPC2020soft,Chu2023soft}]
+在b-空间（$|\vec{b}_\perp| = b_\perp$）中，TMD软函数因子化为两个物理上独立的组成部分：
+\begin{equation}
+\boxed{S(b_\perp, \mu, Y+Y') = S_I(b_\perp, \mu) \times e^{-(Y+Y')K(b_\perp,\mu)}},
+\label{eq:soft_structure}
+\end{equation}
+或者等价地写为：
+\begin{equation}
+S(b_\perp, \mu, \zeta_1, \zeta_2) = \sqrt{S_I(b_\perp, \mu)} \times \left(\frac{\zeta_1\zeta_2}{b_\perp^{-4}}\right)^{K(b_\perp,\mu)/4}.
+\label{eq:soft_structure_zeta}
+\end{equation}
+其中$Y, Y'$分别是两条Wilson线的快度截断，$\zeta_{1,2} \propto e^{2Y_{1,2}}$是关联的快度标度。
+
+两个组成部分的物理含义截然不同：
+\begin{itemize}
+    \item \textbf{内禀软函数$S_I(b_\perp,\mu)$：}与快度\textbf{无关}的部分，仅依赖于横向分离$b_\perp$和重整化标度$\mu$。在物理上，$S_I$来源于两个相反方向Wilson线之间交换的、快度积分已完成的``总''软胶子效应。$S_I(b_\perp)$在$b_\perp \to 0$时的行为可通过微扰QCD计算，但在$b_\perp \gtrsim 0.3$~fm时具有本质的非微扰特性。
+
+    \item \textbf{Collins-Soper演化核$K(b_\perp,\mu)$：}描述TMD分布在快度标度$\zeta$变化下的\textbf{演化}。满足Collins-Soper方程~\cite{Collins2011foundations}：
+    \begin{equation}
+    2\zeta \frac{d}{d\zeta} \ln f(x, b_\perp, \mu, \zeta) = K(b_\perp, \mu),
+    \label{eq:CS_equation}
+    \end{equation}
+    以及重整化群方程（RGE）：
+    \begin{equation}
+    \mu^2 \frac{d}{d\mu^2} K(b_\perp, \mu) = -\Gamma_{\text{cusp}}(\alpha_s(\mu)),
+    \label{eq:K_RGE}
+    \end{equation}
+    其中$\Gamma_{\text{cusp}}$是cusp反常维数，目前在微扰QCD中已知到四圈精度。
+\end{itemize}
+\end{definition}
+
+\textbf{为什么软函数是格点QCD的独特贡献？}在唯象学TMD拟合中，$S_I$和$K$通常通过以下方式参数化：在$b_\perp \ll \Lambda_{\text{QCD}}^{-1}$区域使用微扰计算，在$b_\perp \gtrsim \Lambda_{\text{QCD}}^{-1}$区域引入唯象模型参数（如$b_*$处方~\cite{Collins2011foundations}中的$g_K$参数）。格点QCD可以\textbf{从第一性原理}计算全$b_\perp$范围内的软函数，消除唯象学拟合中最大的模型依赖性。
+
+\subsection{内禀软函数的格点计算：赝标量介子形状因子的因子化}
+
+LPC合作组提出了一种巧妙的方法来提取内禀软函数~\cite{LPC2020soft,Chu2023soft}：利用\textbf{大动量转移的赝标量介子形状因子}的因子化。
+
+\subsubsection{形状因子的定义与因子化定理}
+
+考虑一个$\pi$介子在$t = t_{\text{sink}}$处被双定域四夸克算符湮灭、在$t=0$处被产生，其中两个夸克双线型算符之间具有横向分离$\vec{b}_\perp$：
+\begin{equation}
+F(b_\perp, P^z) \equiv \langle \pi(-\vec{P}) | \big(q_1\Gamma q_1\big)(\vec{b}_\perp) \big(q_2\Gamma q_2\big)(0) | \pi(\vec{P}) \rangle_c.
+\label{eq:form_factor_def}
+\end{equation}
+下标$c$表示``连通插入''（connected insertion）——与图1的拓扑结构对应。
+
+\textbf{因子化定理~\cite{LPC2020soft}：}在$P^z \gg \Lambda_{\text{QCD}}$极限下，形状因子可以因子化为：
+\begin{equation}
+\boxed{F(b_\perp, P^z) = S_I(b_\perp) \int_0^1 dx dx'\, H(x, x', P^z) \Phi^\dagger(x', b_\perp, -P^z) \Phi(x, b_\perp, P^z) + \mathcal{O}\!\left(\frac{1}{(P^z)^2}\right)},
+\label{eq:FF_factorization_main}
+\end{equation}
+其中$\Phi(x, b_\perp, P^z)$是准TMD波函数，$H$是硬散射核。
+
+\textbf{因子化的物理图像：}
+\begin{itemize}
+    \item 两个夸克双线型算符之间的硬胶子交换（动量$\sim P^z$）被吸收到硬核$H$中——微扰可计算；
+    \item 每个$\pi$介子内部的共线夸克-反夸克动力学（动量$\sim \Lambda_{\text{QCD}}$）被准TMD波函数$\Phi$捕获；
+    \item 两个$\pi$介子方向之间的软胶子交换（动量$\sim \Lambda_{\text{QCD}}$）被$S_I$因子化——这是软函数在此处出现的物理根源。
+\end{itemize}
+
+\subsubsection{领头阶简化：从形状因子直接提取$S_I$}
+
+在领头阶（LO），硬核退化为常数：$H = 1/(2N_c) + \mathcal{O}(\alpha_s)$。利用强相互作用下的宇称对称性$\Phi(x, b_\perp, P^z) = \Phi(x, b_\perp, -P^z)$（对赝标量介子），因子化公式简化为：
+
+\begin{equation}
+\boxed{S_I(b_\perp) = 2N_c \frac{F(b_\perp, P^z)}{|\phi(0, b_\perp, P^z)|^2} + \mathcal{O}(\alpha_s, 1/(P^z)^2)},
+\label{eq:SI_LO_extraction}
+\end{equation}
+其中$\phi(0, b_\perp, P^z) \equiv \int_0^1 dx\, \Phi(x, b_\perp, P^z)$是准TMD波函数的\textbf{Fourier零点}（即波函数的归一化常数）。
+
+\textbf{提取过程的步骤：}
+\begin{enumerate}
+    \item 在格点上计算四夸克形状因子$F(b_\perp, P^z)$：需要计算四夸克关联函数的连通收缩；
+    \item 在格点上计算准TMD波函数$\Phi(x, b_\perp, P^z)$（通过介子-真空矩阵元），并对其$x$积分获得$\phi(0, b_\perp, P^z)$；
+    \item 带入式(\ref{eq:SI_LO_extraction})计算$S_I(b_\perp)$；
+    \item 通过在不同$P^z$下$S_I$的独立性来检验因子化和$1/(P^z)^2$幂次修正的收敛性。
+\end{enumerate}
+
+\subsubsection{NLO改进与Fierz重排}
+
+Chu等人在\cite{Chu2023soft}中将上述提取推广到了\textbf{单圈（NLO）精度}，并引入了两个重要改进：
+
+\textbf{(a) 归一化方案：}在原始方案~\cite{LPC2020soft}中，准TMD波函数$\Phi(x, b_\perp, P^z)$的归一化未明确固定。Chu等人通过介子轻子衰变常数$f_\pi$引入了恰当的归一化条件：
+\begin{equation}
+\Phi^{\text{norm}}(x, b_\perp, P^z) = \frac{\Phi^{\text{bare}}(x, b_\perp, P^z)}{f_\pi},
+\end{equation}
+确保波函数的归一化与实验测量的$f_\pi$一致。
+
+\textbf{(b) Fierz重排抑制高扭度污染~\cite{Chu2023soft}：}形状因子$F(b_\perp, P^z)$涉及两个夸克双线型算符。通过Fierz重排，可以选择使高扭度（higher-twist）污染最小的Dirac结构组合。具体而言，对于赝标量介子，选择$\Gamma = \gamma_5$的夸克双线型并通过Fierz变换重排为矢量流$\times$矢量流的形式，可以显著压低来自夸克-反夸克相对轨道角动量的高扭度效应。
+
+\textbf{LPC合作组的数值结果~\cite{LPC2020soft,Chu2023soft}：}
+\begin{itemize}
+    \item 在CLS A654系综（$a = 0.098$~fm，$m_\pi^{\text{val}} = 547$~MeV，864个组态）上使用$P^z = \{1.05, 1.58, 2.11\}$~GeV，提取的$|S_I(b_\perp)|$在$b_\perp = 0.1\text{--}0.7$~fm内展示了\textbf{对$P^z$的独立性}，验证了因子化定理和$1/(P^z)^2$修正的小量性；
+    \item 在MILC系综（$a = 0.12$~fm）上重复了这一计算，两个系综上的$S_I(b_\perp)$在误差范围内一致——验证了\textbf{系综无关性}；
+    \item 与单圈微扰理论（$\mu \in [1/\sqrt{2}, \sqrt{2}] \times 1/b_\perp$）的比较显示格点结果在趋势上与微扰一致，且\textbf{格点的非微扰精度覆盖了微扰标度不确定性}——在大$b_\perp$区域格点结果明确地偏离微扰外推。
+\end{itemize}
+
+\subsection{Collins-Soper核的格点提取}
+
+\subsubsection{从准TMD波函数的动量依赖性提取CS核}
+
+CS核$K(b_\perp, \mu)$可以通过比较准TMD波函数（或准TMD-PDF）在\textbf{不同强子动量}下的行为来提取~\cite{LPC2020soft,Chu2022CSkernel,Chu2023soft}。核心理念是：准TMD波函数的动量依赖性由CS核的演化控制。
+
+\begin{definition}[CS核的格点提取公式~\cite{Chu2022CSkernel}]
+\begin{equation}
+\boxed{K(b_\perp, \mu) = \frac{1}{\ln(P^z_1/P^z_2)} \ln\!\left| \frac{\phi(0, b_\perp, P^z_1)}{\phi(0, b_\perp, P^z_2)} \right| + \mathcal{O}(\alpha_s, 1/(P^z)^2)},
+\label{eq:CS_from_ratio}
+\end{equation}
+其中$\phi(0, b_\perp, P^z) = \int dx\, \Phi(x, b_\perp, P^z)$。
+\end{definition}
+
+\textbf{推导概要：}从TMD因子化定理出发，准TMD波函数的$P^z$依赖性由因子$\exp[\frac{1}{2}\ln(\zeta_z)K(b_\perp, \mu)]$主导，而$\zeta_z \propto (P^z)^2$。取两个不同$P^z$下的比值，对数$\ln(P^z_1/P^z_2)$前的系数即为$K(b_\perp, \mu)$。
+
+\textbf{在NLO精度下，}公式(\ref{eq:CS_from_ratio})需要计入硬核$H_\pm$中单圈修正的$P^z$依赖性。Chu等人~\cite{Chu2022CSkernel}给出的NLO改进公式为：
+\begin{equation}
+K(b_\perp, \mu) = \frac{1}{\ln(P^z_1/P^z_2)} \left[ \ln\!\left| \frac{\phi(0, b_\perp, P^z_1)}{\phi(0, b_\perp, P^z_2)} \right| + \ln\!\left| \frac{H(p_1, \mu)}{H(p_2, \mu)} \right| \right].
+\label{eq:CS_NLO}
+\end{equation}
+
+\subsubsection{Chu等人~\cite{Chu2022CSkernel}的NLO匹配计算}
+
+Chu等人~\cite{Chu2022CSkernel}在MILC系综（$a = 0.12$~fm，$m_\pi^{\text{val}} = 670$~MeV）上使用三个强子动量$P^z = 2\pi/n_s \times \{8, 10, 12\} = \{1.72, 2.15, 2.58\}$~GeV（对应boost因子$\gamma = 2.57, 3.21, 3.85$），从准TMD波函数中提取了CS核。关键分析包括：
+
+\begin{itemize}
+    \item \textbf{动量比的选择：}使用$P^z_1/P^z_2 = 10/8$和$12/8$两组独立的动量比提取CS核，两者的一致性检验了$1/(P^z)^2$幂次修正的控制；
+    \item \textbf{算符混合的系统分析：}对于非手征Clover费米子，$\Gamma = \gamma^t\gamma_5$（赝标量投影）与$\Gamma = \gamma^z\gamma_5$之间可能存在混合。Chu等人通过比较两种投影算符的结果量化了这一系统误差；
+    \item \textbf{标度依赖性：}通过变化$\mu$的值（$1/b_\perp$的$\sqrt{2}$到$1/\sqrt{2}$倍）估计了高阶微扰修正的不确定性；
+    \item \textbf{与淬火格点和唯象提取的对比：}在$b_\perp \lesssim 0.4$~fm处与3圈微扰结果（$\alpha_s(1/b_\perp)$）一致；在$b_\perp \gtrsim 0.4$~fm处展示了\textbf{非微扰压低}，与唯象学拟合的趋势定性一致。
+\end{itemize}
+
+\subsubsection{Chu等人~\cite{Chu2023soft}的多系综交叉验证}
+
+Chu等人~\cite{Chu2023soft}在CLS系综（$a = 0.098$~fm，与\cite{Chu2022CSkernel}使用的MILC系综不同）上重复了这一计算，并系统比较了\textbf{两种提取方案}：
+
+\begin{enumerate}
+    \item \textbf{准TMD波函数方案（TMDWF法）：}如式(\ref{eq:CS_from_ratio})，使用$\pi$介子准TMD波函数的动量比提取CS核——优点是仅需两点函数（介子-真空矩阵元），计算成本低，且可以在相对较小的动量下达到光锥极限；
+    \item \textbf{准TMD-PDF方案（TMDPDF法）：}使用核子准TMD-PDF在相同$x$不同$P^z$下的比值——优点是可以直接验证CS核的普适性（应不依赖于提取它的强子态），但需要三点函数（核子矩阵元），计算成本高且信噪比较差。
+\end{enumerate}
+
+\textbf{关键结论：}两种方案提取的CS核在统计误差范围内\textbf{一致}——这为CS核的普适性（不依赖于提取的强子态和具体算符）提供了重要的非微扰验证，也与微扰QCD中``CS核是普适的''的预期一致。
+
+\subsection{软函数与QCD真空：Wilson圈的物理}
+
+值得指出的是，内禀软函数$S_I$和CS核$K$的提取都与\textbf{QCD真空中的Wilson圈}密切相关。矩形Wilson圈$Z_E(r, b_\perp)$的真空期望值编码了QCD真空中的规范场涨落信息，在纯规范理论中与\textbf{静态夸克-反夸克势}直接相关：
+\begin{equation}
+V(r) = -\lim_{T\to\infty} \frac{1}{T} \ln Z_E(r, T).
+\end{equation}
+在TMD软函数的语境中，真空Wilson圈同时为线性和pinch-pole发散提供了非微扰减除——从这一视角看，TMD软函数可以理解为\textbf{由QCD真空规范场涨落所``吸收''的Wilson线发散}的一种编码方式。
+
+%==========================================================================
+\section{从准TMD-PDF到光锥TMD-PDF的因子化匹配}
+%==========================================================================
+
+\subsection{完整的因子化定理}
+
+在完成准TMD-PDF的重整化（第2节）和软函数的提取（第3节）之后，重正化的准TMD-PDF通过\textbf{因子化定理}与光锥TMD-PDF联系起来：
+
+\begin{theorem}[TMD因子化定理~\cite{Izubuchi2018,He2024unpolTMD,Ji2014LaMET}]
+在LaMET框架下，重整化后的准TMD-PDF $\tilde{f}(x, b_\perp, \zeta_z, \mu)$与光锥TMD-PDF $f(x, b_\perp, \mu, \zeta)$之间的关系为：
+\begin{equation}
+\boxed{\frac{\tilde{f}(x, b_\perp, \zeta_z, \mu)}{\sqrt{S_I(b_\perp, \mu)}} = H\!\left(\frac{\zeta_z}{\mu^2}\right) \exp\!\left[ \frac{1}{2} \ln\!\left(\frac{\zeta_z}{\zeta}\right) K(b_\perp, \mu) \right] f(x, b_\perp, \mu, \zeta) + \mathcal{O}\!\left(\frac{\Lambda^2_{\text{QCD}}}{\zeta_z}, \frac{M^2}{(P^z)^2}, \frac{1}{b_\perp^2 \zeta_z}\right)},
+\label{eq:full_factorization}
+\end{equation}
+其中各项的物理含义：
+\begin{itemize}
+    \item $\zeta_z \equiv (2xP^z)^2$——准TMD-PDF的快度标度，由强子动量$P^z$和动量份额$x$决定；
+    \item $\zeta$——光锥TMD-PDF的\textbf{参考快度标度}，可任意选择（物理预言不依赖于$\zeta$的选择）；
+    \item $H(\zeta_z/\mu^2)$——\textbf{硬匹配核}（matching kernel），将准TMD-PDF中的类空关联转换为光锥TMD-PDF中的类光关联，微扰可计算；
+    \item $\exp[\frac{1}{2}\ln(\zeta_z/\zeta)K(b_\perp,\mu)]$——\textbf{CS演化因子}，将准TMD-PDF从其固有快度标度$\zeta_z$演化到参考快度$\zeta$。
+\end{itemize}
+\end{theorem}
+
+\textbf{因子化定理的物理逻辑链：}
+\begin{enumerate}
+    \item \textbf{UV重整化（$\mu$依赖性）：}准TMD-PDF和光锥TMD-PDF共享相同的UV发散结构——对数发散通过SDR方案消除后，匹配到$\overline{\text{MS}}$；
+    \item \textbf{软函数减除（$S_I$）：}除以$\sqrt{S_I}$消除了与快度无关的残余软胶子贡献；
+    \item \textbf{CS演化（$K$）：}从$\zeta_z \propto (P^z)^2$演化到参考快度$\zeta$——这是TMD因子化区别于共线因子化的核心特征；
+    \item \textbf{硬匹配（$H$）：}将类空动量$P^z$处的准分布匹配到类光极限$P^z \to \infty$处的光锥分布——微扰计算中按$\alpha_s$展开。
+\end{enumerate}
+
+\subsection{硬匹配核的微扰展开}
+
+\subsubsection{NLO硬核（单圈精度）}
+
+对于非极化核子TMD-PDF，单圈（NLO）硬匹配核为~\cite{Chu2023soft}：
+\begin{equation}
+H^{(1)}\!\left(\frac{\zeta_z}{\mu^2}\right) = \frac{\alpha_s(\mu) C_F}{2\pi}\left[ -2 + \frac{\pi^2}{12} + \ln\frac{\zeta_z}{\mu^2} - \frac{1}{2}\ln^2\frac{\zeta_z}{\mu^2} \right].
+\label{eq:hard_kernel_NLO_full}
+\end{equation}
+
+对于准TMD波函数（$\pi$介子），NLO硬核为~\cite{Chu2022CSkernel,Chu2023TMDWF}：
+\begin{equation}
+\begin{aligned}
+H^{(1)}_\pm(x, \zeta_z, \mu) &= \frac{\alpha_s C_F}{4\pi}\left[ -\frac{5\pi^2}{6} - 4 + l_\pm + \bar{l}_\pm - \frac{1}{2}(l_\pm^2 + \bar{l}_\pm^2) \right], \\
+l_\pm &\equiv \ln\frac{-x^2\zeta_z \pm i\epsilon}{\mu^2}, \quad \bar{l}_\pm \equiv \ln\frac{-\bar{x}^2\zeta_z \pm i\epsilon}{\mu^2}.
+\end{aligned}
+\label{eq:hard_kernel_wavefunction}
+\end{equation}
+
+\textbf{$i\epsilon$处方的物理含义：}$\pm i\epsilon$的符号取决于Wilson线在光锥上的方向——$+i\epsilon$对应末态相互作用，$-i\epsilon$对应初态相互作用。这是TMD因子化中\textbf{Wilson线方向依赖性}在微扰核中的直接体现，与Sivers不对称性的符号反转密切相关。
+
+\subsubsection{NNLO硬核}
+
+He等人~\cite{He2024unpolTMD}在核子TMD-PDF的首次计算中采用了\textbf{NNLO（两圈）硬匹配核}。NNLO核的计算涉及双圈Feynman图的技术处理，在此不展开其显式形式，但需指出几个关键特征：
+\begin{itemize}
+    \item NNLO核包含$C_F^2, C_F C_A, C_F n_f T_F$等颜色结构的贡献——胶子自相互作用（$C_A$项）和海夸克效应（$n_f T_F$项）首次在NNLO出现；
+    \item 对于$\zeta_z/\mu^2 \sim \mathcal{O}(1)$的参数区域，NNLO修正相对于NLO的大小约为$(\alpha_s/2\pi)^2 \sim 10^{-3}$——在大$x$区域是可控的；
+    \item 在$\zeta_z/\mu^2 \gg 1$或$\ll 1$时，对数增强$\ln^n(\zeta_z/\mu^2)$使固定阶微扰论失效——需要RGR重求和（见下文）。
+\end{itemize}
+
+\subsection{重整化群重求和（RGR）}
+
+\subsubsection{RGR的必要性}
+
+当$x$很小（$x \to 0$）或动量$P^z$很大时，$\zeta_z = (2xP^z)^2$与$\mu^2$之间可以存在大的对数$\ln(\zeta_z/\mu^2)$。例如，在固定的$\mu = 2$~GeV和$P^z = 2.5$~GeV下：
+\begin{equation}
+\ln\frac{\zeta_z}{\mu^2} = \ln\frac{(2 \times 0.1 \times 2.5\,\text{GeV})^2}{(2\,\text{GeV})^2} \approx \ln 0.0625 \approx -2.77,
+\end{equation}
+对于$x=0.1$，对数并不大。但当$x=0.01$时，$\ln(\zeta_z/\mu^2) \approx \ln 0.000625 \approx -7.38$——大对数使得固定阶$\alpha_s^n \ln^{2n}(\zeta_z/\mu^2)$项对微扰级数的收敛构成威胁。
+
+\textbf{RGR通过求解CS演化方程来重求和这些大对数~\cite{He2024unpolTMD}：}将硬核从``自然''标度$\mu_0 = 2xP^z$（此时$\ln(\zeta_z/\mu_0^2) = 0$，大对数消失）演化到参考标度$\mu_{\text{ref}} = 2$~GeV。
+
+\subsubsection{RGR的实现步骤}
+
+\begin{enumerate}
+    \item 在标度$\mu_0 = 2xP^z$处计算硬核$H(\zeta_z/\mu_0^2)$——此时对数$\ln(\zeta_z/\mu_0^2) = 0$自动消除，微扰展开的收敛性最优；
+    \item 利用RGE将$H$从$\mu_0$演化到$\mu$：
+    \begin{equation}
+    H\!\left(\frac{\zeta_z}{\mu^2}\right) = H\!\left(\frac{\zeta_z}{\mu_0^2}\right) \exp\!\left[ \int_{\mu_0^2}^{\mu^2} \frac{d\bar{\mu}^2}{\bar{\mu}^2} \gamma_H(\alpha_s(\bar{\mu})) \right],
+    \end{equation}
+    其中$\gamma_H$是硬核的反常维数；
+    \item 跑动耦合$\alpha_s(\bar{\mu})$在演化区间上通过精确的$\beta$函数（到四圈或五圈）求解。
+\end{enumerate}
+
+\subsubsection{小$x$区域的根本限制}
+
+当$x \to 0$时，$\mu_0 = 2xP^z \to 0$。在有限$P^z$下，存在一个临界$x_{\min} \sim \Lambda_{\text{QCD}}/(2P^z)$，在此以下$\mu_0$进入非微扰区域，$\alpha_s(\mu_0)$遭遇Landau极点。这\textbf{根本性地限制}了有限动量格点计算中对小$x$区域的提取精度~\cite{He2024unpolTMD}。克服这一限制需要更大$P^z$或在非微扰框架（如格点QCD+OPE混合方案）中处理低标度演化。
+
+\subsection{准TMD波函数的匹配：与准TMD-PDF的对比}
+
+对于准TMD波函数$\tilde\Psi_\pm(x, b_\perp, \zeta_z, \mu)$，因子化定理具有类似的形式~\cite{Chu2022CSkernel,Chu2023TMDWF}：
+\begin{equation}
+\frac{\tilde\Psi_\pm(x, b_\perp, \zeta_z, \mu)}{\sqrt{S_I(b_\perp, \mu)}} = H_\pm(x, \zeta_z, \mu) \exp\!\left[ \frac{1}{2} \ln\!\left(\frac{\mp\zeta_z + i\epsilon}{\zeta}\right) K(b_\perp, \mu) \right] \Psi_\pm(x, b_\perp, \mu, \zeta) + \cdots.
+\label{eq:TMDWF_factorization}
+\end{equation}
+
+\textbf{TMDWF匹配与TMDPDF匹配的关键区别：}
+\begin{enumerate}
+    \item 硬核$H_\pm$依赖于$x$而不仅仅是$\zeta_z/\mu^2$（见式(\ref{eq:hard_kernel_wavefunction})）——因为波函数的匹配涉及两个夸克动量$xp^z$和$\bar{x}p^z$而非单一动量份额；
+    \item CS演化的快度标度参数涉及$\mp\zeta_z + i\epsilon$中的$i\epsilon$符号——这对T-odd分布尤为重要（Boer-Mulders和Sivers函数分别通过$H_+$和$H_-$的虚部差获取非零值）；
+    \item TMDWF在物理上可以直接用于计算遍举过程的因子化预言（如$B$介子衰变），而TMDPDF用于单举/半单举过程。
+\end{enumerate}
+
+%==========================================================================
+\section{格点TMD-PDF计算的数值全景}
+%==========================================================================
+
+\subsection{里程碑I：核子非极化TMD-PDF的首次第一性原理计算~\cite{He2024unpolTMD}}
+
+He等人（LPC合作组）~\cite{He2024unpolTMD}完成了核子非极化同位旋矢量TMD-PDF的首次格点QCD计算——这标志着TMD-PDF从``分量/矩的计算''到\textbf{``全分布的第一性原理计算''}的范式转变。
+
+\subsubsection{格点设置与计算参数}
+
+\begin{table}[H]
+\centering
+\caption{He等人~\cite{He2024unpolTMD}核子非极化TMD-PDF计算的格点参数}
+\label{tab:He2024_parameters}
+\begin{tabular}{ll}
+\toprule
+参数 & 取值 \\
+\midrule
+系综 & MILC $N_f = 2+1+1$ HISQ \\
+格距 & $a = 0.12$~fm（$\beta = 6.0$） \\
+体积 & $48^3 \times 64$（$L \approx 5.8$~fm） \\
+海夸克质量 & 物理值（$m_\pi^{\text{sea}} \approx 135$~MeV） \\
+价夸克 & Clover费米子 \\
+价$\pi$质量 & $m_\pi^{\text{val}} = \{220, 310\}$~MeV \\
+核子动量 & $P^z = 1.72, 2.15, 2.58$~GeV \\
+统计 & 1000组态，每态$16$（$m_\pi=220$MeV）或$4$（$m_\pi=310$MeV）个时间片源 \\
+规范链接涂抹 & HYP smearing \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{数值分析的三个关键步骤}
+
+\textbf{(a) 色散关系验证：}
+
+核子能量$E(P^z)$是否满足连续色散关系$E^2 = M^2 + (P^z)^2$是格点数据的最基本一致性检验。He等人验证了在$P^z \le 2.58$~GeV范围内，格点能量与连续色散关系的偏差在$1\%$以内——确认了$P^z$的物理取值有效，格距效应和有限体积效应对强子能量的影响在控制之中。
+
+\textbf{(b) 激发态污染的控制——双态拟合：}
+
+对于三点函数（核子-算符-核子关联函数），主要系统误差来源于\textbf{激发态污染}——即中间态的核子激发态（如N(1440)）和$\pi N$连续谱对基态矩阵元的污染。He等人通过以下策略控制激发态：
+
+\begin{itemize}
+    \item 使用\textbf{双态拟合}（two-state fit）联合拟合两点函数和三点函数的$t_{\text{sep}}$依赖性：
+    \begin{equation}
+    C_{3\text{pt}}(t_{\text{sep}}, t) = A_0 e^{-E_0 t_{\text{sep}}} \left[1 + A_1 e^{-\Delta E t_{\text{sep}}} + \cdots\right],
+    \end{equation}
+    其中$\Delta E \equiv E_1 - E_0 \sim 500$~MeV是基态-第一激发态的质量间隙；
+    \item 双态拟合的$\chi^2/$d.o.f.分布在$0.5\text{--}1.2$之间，Q值$>0.05$——表明拟合模型与数据在统计上相容；
+    \item 比较双态拟合与单态拟合（仅使用$t_{\text{sep}} \ge t_{\text{sep}}^{\min}$的数据）的结果，估计残余激发态污染作为系统误差。
+\end{itemize}
+
+\textbf{(c) 大$z$外推：}
+
+在坐标空间的准TMD-PDF矩阵元中，大纵向分离$z$区域的数据信噪比随$z$指数衰减（由于Wilson线的线性发散被减除后残留的指数衰减）。He等人采用\textbf{大$\lambda$外推}策略：对$|z| \gtrsim \lambda_{\max}$的数据使用解析延拓（基于减除后矩阵元的已知渐近行为），将有效$z$范围外推到$|z| \lesssim 1.2$~fm——这对应于$x \gtrsim 0.1$的动量空间分辨率。
+
+\subsubsection{主要结果}
+
+\begin{enumerate}
+    \item \textbf{非极化TMD-PDF的$b_\perp$依赖性：}在固定$x$和$P^z$下，TMD-PDF $f_1(x, b_\perp)$展示了随$b_\perp$增大而\textbf{衰减}的行为——这是横向动量分布的Fourier变换的预期特征（$b_\perp$越大，敏感于越小$k_\perp$的分布，而TMD分布在$k_\perp \to 0$处应是有限的）；
+    \item \textbf{与唯象拟合的比较：}在共同的$\mu$和$\zeta$标度下，格点TMD-PDF在可用$x$范围内与唯象学拟合（如SV19、ART23等）在\textbf{定性趋势}上一致，但在定量上存在差异——这些差异可能来自格点的有限$P^z$、非物理$\pi$质量、以及唯象拟合本身的模型依赖性；
+    \item \textbf{$\pi$质量依赖性：}$m_\pi^{\text{val}} = 220$~MeV和310 MeV的结果在误差范围内一致——暗示在这个$\pi$质量范围内，TMD-PDF的$\pi$质量依赖性较弱。
+\end{enumerate}
+
+\subsection{里程碑II：Boer-Mulders函数的首次格点计算~\cite{Ma2025BoerMulders}}
+
+Ma等人（LPC合作组）~\cite{Ma2025BoerMulders}进行了核子和$\pi$介子Boer-Mulders函数$h_1^\perp$的首次格点计算。Boer-Mulders函数描述\textbf{非极化核子中夸克横向极化与横向动量之间的关联}，是na\"ive T-odd的。
+
+\subsubsection{准Boer-Mulders算符}
+
+\begin{equation}
+\hat{O}_{\sqsubset}^{\text{BM}}(z, L, b_\perp) \equiv \bar{\psi}(\vec{b}_\perp) \, i\sigma^{yt}\gamma_5 \, W_{\sqsubset}(z, L, b_\perp) \, \psi(z\hat{n}_z).
+\label{eq:BM_operator}
+\end{equation}
+Dirac结构$i\sigma^{yt}\gamma_5$的选择是\textbf{手征奇数}（chiral-odd）的，这是Boer-Mulders函数的基本性质——在手征极限下（$m_q \to 0$），手征对称性要求TMD-PDF要么是手征偶数的（如$f_1, g_1$），要么必须与另一手征奇数的量配对出现。$h_1^\perp$的手征奇数性意味着它在单举DIS中不可观测——必须与另一个手征奇数的碎裂函数（如Collins函数$H_1^\perp$）卷积才能在SIDIS中产生可观测的方位角不对称性。
+
+\subsubsection{计算参数与主要结果}
+
+\begin{itemize}
+    \item \textbf{格点设置：}CLS系综，$a = 0.098$~fm，$m_\pi = 338$~MeV，$P^z$ up to $2.11$~GeV；
+    \item \textbf{Boer-Mulders衰减行为：}$h_1^\perp(x, b_\perp)$在$b_\perp$空间展示了\textbf{比非极化$f_1$更显著的衰减}——核子的衰减比$\pi$介子更快，反映了核子和$\pi$介子内部夸克横向动量分布的宽度差异（核子$\langle k_\perp^2 \rangle_N > \langle k_\perp^2 \rangle_\pi$导致$b_\perp$空间更快的衰减）；
+    \item \textbf{NNLO+RGR匹配：}与\cite{He2024unpolTMD}相同地采用NNLO硬核和RGR重求和；
+    \item \textbf{核子vs.$\pi$介子对比：}这是首次在同一计算框架下直接比较不同强子的TMD结构，为理解QCD束缚态的横向动力学提供了独特的理论约束。
+\end{itemize}
+
+\subsection{里程碑III：$\pi$介子TMD波函数的首次格点计算~\cite{Chu2023TMDWF}}
+
+Chu等人~\cite{Chu2023TMDWF}完成了$\pi$介子TMD波函数的首次第一性原理计算。与TMD-PDF不同，TMD波函数是\textbf{概率幅}（而非概率密度），在遍举QCD过程中扮演着与TMD-PDF互补的角色。
+
+\subsubsection{计算策略}
+
+$\pi$介子TMD波函数的提取使用两个独立的格点系综进行交叉验证：
+\begin{itemize}
+    \item MILC系综：$a = 0.121$~fm，$m_\pi^{\text{val}} = 670$~MeV，$P^z = \{1.72, 2.15, 2.58\}$~GeV；
+    \item CLS系综：$a = 0.098$~fm，$m_\pi^{\text{val}} = 547$~MeV，$P^z = \{1.05, 1.58, 2.11\}$~GeV。
+\end{itemize}
+
+\textbf{关键步骤：}
+\begin{enumerate}
+    \item 首先使用第3节的方法在各自系综上提取软函数（$S_I$和$K$）——这一步骤验证了软函数的系综无关性；
+    \item 计算$\pi$介子-真空准TMD波函数矩阵元（式(\ref{eq:bare_matrix})中取$|\chi\rangle = |\pi(P^z)\rangle$和$\Gamma = \gamma^t\gamma_5$）；
+    \item 通过因子化定理（式(\ref{eq:TMDWF_factorization})）匹配到光锥TMD波函数；
+    \item 在两个系综上比较最终结果——一致性验证了格距效应和$\pi$质量依赖性的控制。
+\end{enumerate}
+
+\subsubsection{与唯象模型的比较}
+
+将格点TMD波函数与唯象学中常用的Gaussian模型$\Psi(x, k_\perp) \propto \exp[-k_\perp^2/(2\sigma^2)]$进行比较，可以定量提取Gaussian宽度参数$\sigma$。初步结果表明，格点TMD波函数的宽度与唯象模型大致一致，但展示了$x$依赖的非Gaussian特征——这在高精度遍举过程的因子化预言中可能具有重要意义。
+
+\subsection{多格点间距的连续极限外推：当前状态与路线图}
+
+\textbf{当前已完成的工作：}
+\begin{itemize}
+    \item Wilson圈减除重整化已在五种格点间距上验证~\cite{Zhang2022renormTMD}；
+    \item CS核已在两个不同系综上独立计算并展示了系综无关性~\cite{Chu2023soft}；
+    \item 非极化TMD-PDF~\cite{He2024unpolTMD}、Boer-Mulders函数~\cite{Ma2025BoerMulders}和$\pi$介子TMD波函数~\cite{Chu2023TMDWF}的计算均使用单系综。
+\end{itemize}
+
+\textbf{连续极限外推的路线图：}
+\begin{enumerate}
+    \item \textbf{三格点间距的最小要求：}在每个格点间距上重复完整的计算链（裸矩阵元$\to$Wilson圈减除$\to$SDR重整化$\to$软函数提取$\to$因子化匹配），以$a^2$标度进行连续极限外推——这是当前共线PDF计算已达到的精度标准；
+    \item \textbf{物理$\pi$质量：}通过手征外推$m_\pi^2 \to m_\pi^{\text{phys},2}$——对于TMD可观测量，手征对数的行为需要独立分析（可能与共线PDF的情形不同）；
+    \item \textbf{有限体积效应：}在TMD计算中，$b_\perp \lesssim L/4$的约束（避免强子绕回绕方向的污染）限制了可用的最大$b_\perp$——需要$L \gtrsim 6$~fm的体积。
+\end{enumerate}
+
+%==========================================================================
+\section{从TMD-PDF到TMD物理的全景}
+%==========================================================================
+
+\subsection{TMD-PDF在实验可观测量中的应用}
+
+格点QCD确定的TMD-PDF可以直接输入以下实验过程的唯象学分析：
+
+\subsubsection{SIDIS方位角不对称性}
+
+SIDIS截面在方位角$\phi_h$（轻子平面与强子平面之间的夹角）上的调制结构由TMD-PDF和TMD碎裂函数的卷积决定。主要的方位角不对称性包括~\cite{Ma2025BoerMulders}：
+
+\begin{itemize}
+    \item \textbf{$\cos 2\phi_h$调制（Boer-Mulders效应）：}$h_1^\perp \otimes H_1^\perp$（Boer-Mulders函数$\times$ Collins碎裂函数）的卷积——实验上已在COMPASS和HERMES上观测到非零的$\cos 2\phi_h$不对称性，但对$h_1^\perp$本身的提取仍受限于碎裂函数的知识；
+    \item \textbf{$\sin(\phi_h - \phi_S)$调制（Sivers效应）：}$f_{1T}^\perp \otimes D_1$（Sivers函数$\times$非极化碎裂函数）——Sivers不对称性是实验上约束最好的T-odd观测量；
+    \item \textbf{$\sin(\phi_h + \phi_S)$调制（Collins效应）：}$h_1 \otimes H_1^\perp$（横向性分布$\times$ Collins碎裂函数）——对手征奇数分布函数和碎裂函数的联合约束。
+\end{itemize}
+
+\subsubsection{Drell-Yan过程的方位角不对称性}
+
+在Drell-Yan过程中，通过测量轻子对的方位角分布，可以提取以下TMD关联：
+\begin{itemize}
+    \item \textbf{$\cos 2\phi$不对称性：}$h_1^\perp \otimes \bar{h}_1^\perp$的卷积——探测两个强子中Boer-Mulders函数的乘积，在$pp$和$p\bar{p}$对撞中具有不同的理论行为（由于强子类型的差异）；
+    \item \textbf{Sivers符号反转的检验：}非Abel规范理论预言$f_{1T}^\perp|_{\text{DY}} = -f_{1T}^\perp|_{\text{SIDIS}}$——这是QCD区别于Abel规范理论的\textbf{关键预言}。格点QCD可以通过独立计算SIDIS和DY规范链接配置下的Sivers函数，从第一性原理验证这一符号反转。
+\end{itemize}
+
+\subsubsection{TMD因子化的普适性检验}
+
+TMD因子化的一个核心预言是\textbf{TMD分布的普适性}（universality）——同一TMD-PDF（如$f_1(x, k_\perp)$）应同时描述SIDIS、Drell-Yan和$e^+e^-$湮灭中的数据，仅有的差别是T-odd函数中规范链接方向的符号。格点QCD可以通过独立模拟不同过程对应的staple Wilson线配置（$+z$方向的$L$ vs.\ $-z$方向的$L$），为这一普适性提供第一性原理的检验。
+
+\subsection{八种TMD-PDF的系统计算现状与前景}
+
+\begin{table}[H]
+\centering
+\caption{八种leading-twist夸克TMD-PDF的格点计算现状}
+\label{tab:TMD_status}
+\begin{tabular}{lcp{4cm}p{5cm}}
+\toprule
+TMD-PDF & 计算状态 & 已完成的计算 & 主要技术挑战 \\
+\midrule
+$f_1$ & \textbf{已完成}~\cite{He2024unpolTMD} & 核子，单系综，NNLO & 连续极限外推 \\
+$h_1^\perp$ & \textbf{已完成}~\cite{Ma2025BoerMulders} & 核子+$\pi$，单系综，NNLO & 信噪比较$f_1$差 \\
+$g_{1L}$ & 进行中 & — & 需要极化核子态 \\
+$g_{1T}$ & 未完成 & — & 横向极化核子态+螺旋度投影 \\
+$h_1$ & 未完成 & — & 手征奇数算符的混合 \\
+$h_{1L}^\perp$ & 未完成 & — & 极化核子态+手征奇数 \\
+$h_{1T}^\perp$ & 未完成 & — & 高扭度污染大 \\
+$f_{1T}^\perp$ & \textbf{探路阶段}~\cite{Ma2025BoerMulders} & — & 横向极化核子态，信噪比极低 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{未来的计算路线图：}
+\begin{enumerate}
+    \item \textbf{近期（1-2年）：}完成$f_1$和$h_1^\perp$的连续极限+物理$\pi$质量+有限体积外推，达到与当前共线PDF计算相当的精度；
+    \item \textbf{中期（2-4年）：}完成螺旋度和worm-gear函数（$g_{1L}, g_{1T}, h_{1L}^\perp$）的首次计算——需要极化核子态，这在格点技术上是成熟的但在TMD语境中尚未实现；
+    \item \textbf{长期（4-7年）：}系统完成全部八种TMD-PDF的计算，提供可以与EIC数据联合作整体拟合的格点输入。
+\end{enumerate}
+
+\subsection{胶子TMD-PDF：下一前沿}
+
+胶子TMD-PDF的格点计算在理论上更为复杂——胶子TMD算符涉及\textbf{伴随表示（adjoint representation）中的staple Wilson线}，而目前所有已完成的TMD计算都是在基础表示（fundamental representation，即夸克）中进行的。胶子TMD具有极高的物理意义：在小$x$区域，胶子TMD主导了Drell-Yan和 Higgs产生过程的横向动量分布。
+
+HadStruc合作组~\cite{Egerer2022}已经开始了胶子螺旋度TMD的初步格点计算——虽然距离完整的胶子TMD-PDF还有距离，但这一方向已被确立为TMD格点计算的下一前沿。
+
+\subsection{与EIC（电子-离子对撞机）实验的协同}
+
+EIC将以前所未有的精度（$\sim 1\%$级别的系统误差）测量SIDIS中的方位角不对称性，覆盖广泛的$x$和$Q^2$范围。格点QCD对TMD-PDF的理论输入将在EIC物理计划中扮演\textbf{三重角色}：
+\begin{enumerate}
+    \item \textbf{理论先验（prior）：}在EIC数据可用之前，格点TMD-PDF提供了关于某些TMD（特别是实验上约束极弱的T-odd函数）的唯一第一性原理信息；
+    \item \textbf{联合拟合（joint fit）：}将格点TMD-PDF作为额外的``数据点''纳入唯象学整体拟合，可以有效打破仅由实验数据拟合中的参数简并；
+    \item \textbf{理论基准（benchmark）：}在EIC精确测量的运动学区域，直接比较格点预言与实验提取，由此检验格点QCD对TMD物理的系统精度——这种``理论-实验闭环''将为格点QCD的TMD计算建立可信度。
+\end{enumerate}
+
+%==========================================================================
+\section{总结与展望}
+%==========================================================================
+
+横向动量依赖部分子分布函数（TMD-PDFs）将强子的一维共线结构推广到包含横向动量依赖性的三维层析图像。格点QCD在LaMET框架下为TMD-PDFs的第一性原理计算提供了系统性的理论框架和数值工具。基于本库全部相关文献的综合解析，本文的核心结论如下：
+
+\begin{enumerate}[leftmargin=*]
+
+    \item \textbf{准TMD-PDF算符的重整化——Wilson圈减除的普适性验证：}
+    Wilson圈减除（消除线性发散+pinch-pole奇点+cusp发散）结合短距离比率方案（消除对数发散）构成了一个在\textbf{五种格点间距}上经过系统验证的稳健重整化框架~\cite{Zhang2022renormTMD}。RI/MOM方案对TMD算符的失效（在Clover和Overlap费米子上均被证实）明确了基于减除的方案是唯一可行的路径。减除后的矩阵元在$L \gtrsim 0.36$~fm处展示的普适平台行为，以及$a \to 0$连续极限下的收敛，为TMD-PDF的连续极限计算提供了坚实的重整化基础。
+
+    \item \textbf{软函数的两部分均已成功在格点上被计算：}
+    内禀软函数$S_I(b_\perp)$（通过大动量转移赝标量介子形状因子与准TMD波函数零点的比值提取~\cite{LPC2020soft,Chu2023soft}）和Collins-Soper核$K(b_\perp,\mu)$（通过准TMD波函数/准TMD-PDF在不同动量下的比值提取~\cite{Chu2022CSkernel}，并在MILC和CLS两个系综上交叉验证）均已成功地从格点QCD中被提取。CS核在非微扰大$b_\perp$区域的压低行为是格点QCD不可替代的独特贡献——微扰论在此区域失效，唯象学拟合依赖模型假设，只有格点QCD提供了第一性原理的约束。
+
+    \item \textbf{首次核子TMD-PDF计算达到了NNLO+RGR精度：}
+    LPC合作组完成了非极化同位旋矢量TMD-PDF~\cite{He2024unpolTMD}和Boer-Mulders函数~\cite{Ma2025BoerMulders}的首次第一性原理计算——包括NNLO硬匹配核和RGR重求和。这些先驱性计算建立了从裸格点矩阵元到物理TMD-PDF的完整计算链：格点模拟 $\to$ Wilson圈减除 $\to$ SDR重整化 $\to$ 软函数提取 $\to$ 大$\lambda$外推 $\to$ Fourier变换 $\to$ NNLO+RGR匹配。$\pi$介子TMD波函数~\cite{Chu2023TMDWF}的首次计算为TMD物理打开了遍举过程的新窗口。
+
+    \item \textbf{八种leading-twist TMD-PDFs的系统计算路线已明确：}
+    当前仅完成了两种（$f_1$和$h_1^\perp$）的首次计算，Sivers函数$f_{1T}^\perp$处于探路阶段。未来的计算路线被清晰界定：多格点间距的连续极限外推（最少三个格点间距，以$a^2$标度外推）+ 手征外推到物理$\pi$质量 + 极化核子态的引入（对螺旋度和worm-gear函数）+ 伴随表示Wilson线（对胶子TMD）。
+
+    \item \textbf{格点TMD-PDF与EIC实验的协同开启了``理论-实验闭环''的可能性：}
+    EIC将以前所未有的精度测量SIDIS方位角不对称性，格点QCD的TMD-PDF输入将为TMD的唯象学提取提供不可替代的非微扰约束——这一协同有望在未来十年内从根本上提升我们对强子三维结构的第一性原理理解。
+
+    \item \textbf{与共线PDF的互补性——从3D到1D的过渡：}
+    TMD-PDF与共线PDF通过$\int d^2 k_\perp$积分相联系：$f(x, \mu) = \int d^2 k_\perp f(x, k_\perp, \mu, \zeta)$。格点QCD可以同时计算两者——理解从三维TMD到一维PDF的积分过渡~\cite{He2024unpolTMD}为检验TMD因子化和共线因子化的一致性提供了独特的理论交叉检验。
+
+\end{enumerate}
+
+\textbf{开放问题与未来方向：}
+\begin{itemize}
+    \item 小$x$区域的TMD计算如何克服Landau极点限制？可能的路径包括OPE混合方案、软-共线有效理论（SCET）匹配、或利用更大$P^z$的格点计算（需要更大体积）。
+    \item 高扭度（higher-twist）修正的定量控制——对T-odd分布尤为重要，因为na\"ive T-odd性质在高扭度层面没有保护。
+    \item 胶子TMD-PDF的格点计算在技术上是否遵循与夸克TMD相同的重整化方案？初步研究表明Wilson圈减除的基本思想可以推广到伴随表示，但具体实现仍需验证。
+\end{itemize}
+
+%==========================================================================
+% 参考文献
+%==========================================================================
+\begin{thebibliography}{99}
+
+\bibitem{He2024unpolTMD}
+J.-C.~He \textit{et al.} (Lattice Parton Collaboration (LPC)),
+``Unpolarized transverse-momentum-dependent parton distributions of the nucleon from lattice QCD,''
+Phys.\ Rev.\ D \textbf{109}, 114513 (2024), arXiv:2211.02340.
+\\\textbf{[来源:} \texttt{refer/papers/Unpolarized Transverse-Momentum-Dependent Parton Distributions of the Nucleon from Lattice QCD.pdf}\textbf{]}
+——核子非极化TMD-PDF的首次格点计算，NNLO+RGR匹配，双态拟合与色散关系验证。本报告的第2、4、5.1节主要基于此文献。
+
+\bibitem{Ma2025BoerMulders}
+L.~Ma \textit{et al.} (LPC),
+``Quark transverse spin-momentum correlation of the nucleon from lattice QCD: The Boer-Mulders function,''
+(2025), arXiv:2502.11807.
+\\\textbf{[来源:} \texttt{refer/papers/Quark Transverse Spin-Momentum Correlation of the Nucleon from Lattice QCD The Boer-Mulders Function.pdf}\textbf{]}
+——Boer-Mulders函数在核子和$\pi$介子中的首次格点计算，NNLO+RGR匹配，核子与$\pi$介子对比。本报告的第5.2、6.1节主要基于此文献。
+
+\bibitem{Zhang2022renormTMD}
+K.~Zhang \textit{et al.} (LPC),
+``Renormalization of transverse-momentum-dependent parton distribution on the lattice,''
+Phys.\ Rev.\ D \textbf{106}, 094510 (2022), arXiv:2205.13402.
+\\\textbf{[来源:} \texttt{refer/papers/Renormalization of transverse-momentum-dependent parton distribution on the lattice.pdf}\textbf{]}
+——五种格点间距上Wilson圈减除重整化的系统验证，RI/MOM方案失效的证明。本报告的第2.2--2.4节主要基于此文献。
+
+\bibitem{LPC2020soft}
+Q.-A.~Zhang \textit{et al.} (LPC),
+``Lattice-QCD calculations of TMD soft function through large-momentum effective theory,''
+Phys.\ Rev.\ Lett.\ \textbf{125}, 192001 (2020), arXiv:2005.14572.
+\\\textbf{[来源:} \texttt{refer/papers/Lattice-QCD Calculations of TMD Soft Function Through Large-Momentum Effective Theory.pdf}\textbf{]}
+——内禀软函数和CS核的首次格点计算，形状因子因子化方案（LO精度）。本报告的第3.2节主要基于此文献。
+
+\bibitem{Chu2022CSkernel}
+M.-H.~Chu \textit{et al.} (LPC),
+``Nonperturbative determination of Collins-Soper kernel from quasi transverse-momentum dependent wave functions,''
+Phys.\ Rev.\ D \textbf{106}, 034509 (2022), arXiv:2204.00200.
+\\\textbf{[来源:} \texttt{refer/papers/Nonperturbative Determination of Collins-Soper Kernel from Quasi Transverse-Momentum Dependent Wave Functions.pdf}\textbf{]}
+——NLO匹配精度下CS核的准TMD波函数提取，算符混合和标度依赖性的系统分析。本报告的第3.3节主要基于此文献。
+
+\bibitem{Chu2023soft}
+M.-H.~Chu \textit{et al.} (LPC),
+``Lattice calculation of the intrinsic soft function and the Collins-Soper kernel,''
+JHEP \textbf{08}, 172 (2023), arXiv:2306.06488.
+\\\textbf{[来源:} \texttt{refer/papers/Lattice Calculation of the Intrinsic Soft Function and the Collins-Soper Kernel.pdf}\textbf{]}
+——NLO内禀软函数计算，Fierz重排抑制高扭度，CS核的MILC/CLS交叉验证，TMDWF/TMDPDF方案对比。本报告的第3.2.3、3.3.3节主要基于此文献。
+
+\bibitem{Chu2023TMDWF}
+M.-H.~Chu \textit{et al.} (LPC),
+``Transverse-momentum-dependent wave functions of pion from lattice QCD,''
+Phys.\ Rev.\ D \textbf{108}, 094513 (2023), arXiv:2302.09961.
+\\\textbf{[来源:} \texttt{refer/papers/Transverse-Momentum-Dependent Wave Functions of Pion from Lattice QCD.pdf}\textbf{]}
+——$\pi$介子TMD波函数的首次格点计算，MILC和CLS双系综对比，与唯象模型的比较。本报告的第4.4、5.3节主要基于此文献。
+
+\bibitem{Ji2013Euclidean}
+X.~Ji,
+``Parton physics on a Euclidean lattice,''
+Phys.\ Rev.\ Lett.\ \textbf{110}, 262002 (2013), arXiv:1305.1539.
+\\\textbf{[来源:} \texttt{refer/papers/Parton Physics on Euclidean Lattice.pdf}\textbf{]}
+——LaMET的奠基性论文，首次提出准TMD-PDF和准TMD波函数的定义，建立了通过大动量等时关联函数访问光锥物理的框架。本报告的引言和第2.1节引用此文献。
+
+\bibitem{Izubuchi2018}
+T.~Izubuchi, X.~Ji, L.~Jin, I.~W.~Stewart, and Y.~Zhao,
+``Factorization theorem relating Euclidean and light-cone parton distributions,''
+Phys.\ Rev.\ D \textbf{98}, 056004 (2018), arXiv:1801.03917.
+\\\textbf{[来源:} \texttt{refer/papers/Factorization Theorem Relating Euclidean and Light-Cone Parton Distributions.pdf}\textbf{]}
+——准TMD-PDF与光锥TMD-PDF之间的因子化定理的严格证明，确立了软函数和CS核在LaMET因子化中的角色。本报告的第4.1节引用此文献。
+
+\bibitem{Ji2014LaMET}
+X.~Ji,
+``Parton physics from large-momentum effective field theory,''
+Sci.\ China Phys.\ Mech.\ Astron.\ \textbf{57}, 1407 (2014), arXiv:1404.6680.
+\\\textbf{[来源:} \texttt{refer/papers/Parton Physics from Large-Momentum Effective Field Theory.pdf}\textbf{]}
+——LaMET框架的系统阐述，包括准PDF和准TMD-PDF的完整理论体系、幂次修正的计数、以及匹配计算的微扰策略。
+
+\bibitem{Huo2021self}
+Y.-K.~Huo \textit{et al.} (LPC),
+``Self-renormalization of quasi-light-front correlators on the lattice,''
+Nucl.\ Phys.\ B \textbf{969}, 115443 (2021), arXiv:2103.02965.
+\\\textbf{[来源:} \texttt{refer/papers/Self-Renormalization of Quasi-Light-Front Correlators on the Lattice.pdf}\textbf{]}
+——准光锥关联函数的自重整化方案，RI/MOM方案对直Wilson线准PDF算符的线性发散处理失败的证明。本报告的第2.3节引用此文献作为类比。
+
+\bibitem{Zhang2024gauge_fixing}
+K.~Zhang \textit{et al.} (LPC),
+``Impact of gauge fixing precision on the continuum limit of non-local quark-bilinear lattice operators,''
+Phys.\ Rev.\ D \textbf{110}, 074505 (2024), arXiv:2405.14097.
+\\\textbf{[来源:} \texttt{refer/papers/Impact of gauge fixing precision on the continuum limit of non-local quark-bilinear lattice operators.pdf}\textbf{]}
+——规范固定精度对staple型Wilson线的连续极限行为的系统影响，为TMD-PDF计算中的规范固定提供了定量指南。本报告的第2.5节间接引用。
+
+\bibitem{Egerer2022}
+C.~Egerer \textit{et al.} (HadStruc),
+``Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics,''
+Phys.\ Rev.\ D \textbf{106}, 094511 (2022), arXiv:2207.08733.
+\\\textbf{[来源:} \texttt{refer/papers/Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics.pdf}\textbf{]}
+——胶子螺旋度分布的初步格点计算（HadStruc合作组），代表了胶子TMD-PDF方向的早期探索。本报告的第6.3节引用此文献。
+
+\bibitem{Collins2011foundations}
+J.~Collins,
+\textit{Foundations of Perturbative QCD},
+Cambridge University Press (2011).
+——TMD因子化定理的教科书级阐述，包括CS方程、TMD演化和T-odd分布的符号反转。本报告的引言和第6.1节引用。
+
+\bibitem{Meissner2007TMD}
+S.~Meissner, A.~Metz, and K.~Goeke,
+``Relations between generalized and transverse momentum dependent parton distributions,''
+Phys.\ Rev.\ D \textbf{76}, 034002 (2007), arXiv:hep-ph/0703176.
+——八种leading-twist TMD-PDF的经典分类及其与GPD的关系。本报告的表1引用。
+
+% 本库中其他与TMD间接相关的文献
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, LPC),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\\\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+——非极化胶子共线PDF的连续极限格点计算（虽然主题是共线PDF，但其方法学对胶子TMD-PDF有参考价值）。
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,'' 内部笔记。
+\\\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}和\texttt{refer/papers/Note of gluon PDFs.pdf}
+——胶子PDF的理论推导笔记，为胶子TMD-PDF的理论框架提供背景。
+
+\end{thebibliography}
+
+\vspace{1cm}
+\noindent\rule{\textwidth}{0.5pt}
+\small
+\textbf{交叉参考建议：}本报告应结合同一\texttt{docs/}目录下的以下文件阅读，以获得完整的格点QCD部分子物理知识体系：
+\begin{itemize}
+    \item \texttt{格点QCD中的大动量有效理论.pdf}——LaMET框架的详细介绍
+    \item \texttt{格点QCD中的光锥PDF与quasi\_PDF.pdf}——共线PDF的LaMET计算（TMD-PDF的一维极限对应物）
+    \item \texttt{格点QCD中的OPE算符.pdf}——算符乘积展开与部分子物理
+    \item \texttt{格点QCD中的胶子算符.pdf}——胶子算符的格点构造
+    \item \texttt{格点QCD中的部分子分布函数.pdf}——共线PDF格点计算的总览
+    \item \texttt{格点QCD中的紫外发散.pdf}（如存在）——格点QCD中各类UV发散的介绍
+    \item \texttt{格点QCD中的关联函数.pdf}——格点关联函数的计算技术
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,937 @@
+% ============================================================
+% analy 报告 — 格点 QCD 中的 GPD
+% 编译: XeLaTeX 两遍，交付前 Overfull/Float too large/Missing character 均为 0
+% ============================================================
+\documentclass[UTF8]{ctexart}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{microtype}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{xltabular}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage[most]{tcolorbox}
+\usepackage{titlesec}
+
+\setmonofont{DejaVu Sans Mono}[Scale=MatchLowercase]
+
+\definecolor{accent}{HTML}{1F4E79}
+\definecolor{evidence}{HTML}{1E8449}
+\definecolor{reference}{HTML}{8C6D1F}
+\definecolor{conclusion}{HTML}{8B1A1A}
+\definecolor{codebg}{HTML}{F4F6F7}
+\definecolor{struct}{HTML}{3B3B98}
+\definecolor{relation}{HTML}{0E7C7B}
+\definecolor{idea}{HTML}{B03A2E}
+\definecolor{warn}{HTML}{D35400}
+\definecolor{hl}{HTML}{FDF6E3}
+
+\setlength{\emergencystretch}{3em}
+\hypersetup{colorlinks=true,linkcolor=accent,urlcolor=relation}
+\titleformat{\section}{\Large\bfseries\color{accent}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\color{struct}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{struct!70!black}}{\thesubsubsection}{1em}{}
+
+\newtcolorbox{conclbox}{breakable,colback=conclusion!6,colframe=conclusion,title=结论}
+\newtcolorbox{refbox}{breakable,colback=reference!6,colframe=reference,title=参考背景}
+\newtcolorbox{ideabox}{breakable,colback=idea!6,colframe=idea,title=项目思路}
+\newtcolorbox{warnbox}{breakable,colback=warn!6,colframe=warn,title=局限与风险}
+\newtcolorbox{keybox}{breakable,colback=hl,colframe=accent,title=要点}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  language=Python,
+  firstnumber=auto,
+  keywordstyle=\color{accent}\bfseries,
+  commentstyle=\color{evidence!70!black},
+  stringstyle=\color{struct},
+  breaklines=true,
+  breakatwhitespace=false,
+  postbreak=\mbox{\textcolor{accent}{$\hookrightarrow$}\space},
+  keepspaces=true,
+  columns=flexible,
+  numbers=left,
+  numberstyle=\tiny\color{struct!60!black},
+  upquote=true,
+}
+
+\newcommand{\verified}{\textcolor{struct}{确证}}
+\newcommand{\inferred}{\textcolor{relation}{推断}}
+\newcommand{\unverified}{\textcolor{warn}{未验证}}
+\newcommand{\MSbar}{\overline{\mathrm{MS}}}
+\newcommand{\GPD}{\mathrm{GPD}}
+\newcommand{\dd}{\mathrm{d}}
+\renewcommand{\path}[1]{\textsf{\detokenize{#1}}}
+
+\title{格点 QCD 中的广义部分子分布（GPD）\\
+\large 本库文档、参考实现与生产代码的综合解析}
+\author{opencode analy}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+本文面向“格点 QCD 中的 GPD”这一主题，对 \path{/root/PyQCD} 中的相关 TeX 文档、
+参考论文、参考代码、\texttt{pyqcd} 生产代码与测试进行交叉审计。核心结论是：
+\textbf{本库已经具备完整的 GPD 理论入口、若干可复用的非局域算符和三点函数基元，
+但尚未实现 GPD 专用的生产链}。现有材料可确证光锥 GPD 的
+$x,\xi,t$ 依赖、准 GPD 的 Euclidean 矩阵元、胶子 GPD 的双场强算符、leading-twist
+准算符的乘法重整化，以及非前行 NLO 匹配核的理论存在；但夸克非局域算符、独立初末态
+动量、真正的前向/非前向区分、GPD 洛伦兹分解、GPD 匹配程序和真实数据验证均缺失。
+\texttt{refer/zengch/C\_pt\_load\_GPD.py} 只处理外部生成的断开型三点数据，
+不是端到端 GPD 实现。本文给出层次结构、依赖关系、物理推导、代码对象映射、缺口、
+最小实现蓝图和可直接执行的验收矩阵。
+\end{abstract}
+
+\tableofcontents
+
+\section{任务与范围}
+
+\subsection{任务定义}
+
+任务定义为：\textbf{参考本库全部相关文档与代码，解析格点 QCD 中 GPD 的定义、格点可计算量、
+重整化与匹配链，并核实现有实现状态}。本文不是把 GPD 误写成已完成的物理结果，而是区分
+\verified、\inferred、\unverified 三种状态，若未找到直接依据则明确写出。
+
+\subsection{证据分级}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textcolor{struct}{级别} & \textcolor{struct}{判据} \\
+\midrule
+\verified & 仓库文档、论文正文或源码直接写出，并已核对路径和行号。 \\
+\inferred & 由已确证的定义、接口或数据轴语义推出，但仍需专项数值测试。 \\
+\unverified & 本库没有对应源码、数据、测试或完整公式；不能从相近的 PDF/TMD 测试外推。 \\
+\bottomrule
+\end{tabularx}
+\caption{本文使用的证据分级（数据来源：本仓库只读审计）}
+\end{table}
+
+\subsection{覆盖范围}
+
+本次审计采用“全库索引 + 主题精读”的方式。全库文件先按目录、类型、引用链和 Git 历史
+建立索引，再对命中 GPD、non-forward、off-forward、Wilson line、三点函数、匹配核、
+重整化和角动量的材料精读。主要覆盖如下。
+
+\begin{xltabular}{\textwidth}{p{4.8cm}X}
+\toprule
+\textcolor{struct}{范围} & \textcolor{struct}{处理结果} \\
+\midrule
+\endhead
+\path{docs/*.tex} & 65 篇直接 TeX 笔记；GPD 关键词命中约 18 篇，其中准 GPD、胶子 GPD、
+重整化和匹配章节精读。 \cite{D1,D2,D3,D4,D5,D6,D7} \\
+\path{pyqcd/**/*.py} & 182 个 Python 源文件；逐层检查 operator、contraction、vertex、
+analysis、renorm、pipeline、testing。生产代码中未检索到 GPD/non-forward 专用符号。 \\
+\path{refer/papers} & 99 篇 PDF；对 Yao--Ji--Zhang 非前行匹配论文和其他前向 PDF/TMD
+论文做文本检索。 \cite{P1} \\
+\path{refer/zengch}、\path{refer/huangcl} & 精读两个字节相同的 GPD 数据加载脚本及绘图筛选
+辅助代码。 \cite{R1,R2} \\
+\path{refer/git-rep/lamet-agent} & 检查 GPD manifest、规划器、Fourier 后处理和胶子限制；
+其支持范围不等于 PyQCD 生产能力。 \cite{X1,X2,X3} \\
+\path{refer/books} & 精读格点 QCD 教材第 11 章矩阵元、形状因子和部分子分布部分；教材对
+GPD 仅作概念性说明。 \cite{B1} \\
+\bottomrule
+\caption{主题覆盖范围（数据来源：仓库文件索引与只读检索）}
+\end{xltabular}
+
+未覆盖或不能验证的内容包括：仓库外集群输入模块、缺失的 GPD 原始数据、外部
+\texttt{tool.py} 的重采样细节，以及任何未在本仓库保存的 GPD 数值结果。
+
+\subsection{仓库与版本}
+
+审计时仓库位于 \path{/root/PyQCD}，当前版本为
+\texttt{dev16-1-g300afe5}，HEAD 为
+\texttt{300afe53b05320059e12179\allowbreak cc94d3f780ff1aff9}。Git 历史检索没有发现新增 GPD
+生产代码的提交；唯一与 GPD 主题直接相关的近期历史动作，是在
+\texttt{12c4544} 中扩充理论解析文档
+\path{docs/理论解析与工作流-v20260911.tex}。该文档把 GPD/角动量扩展列为
+\texttt{O10}，状态为“未启动；算符框架已预留”。 \cite{D7}
+
+\section{主体结构}
+
+本主题涉及的不是单一模块，而是“理论定义—算符—关联函数—统计—重整化—匹配—极限”
+的多层结构。现有仓库可按职责分为以下层次。
+
+\begin{xltabular}{\textwidth}{p{2.4cm}p{4.0cm}X}
+\toprule
+\textcolor{struct}{层次} & 主要路径 & \textcolor{struct}{职责与本主题关系} \\
+\midrule
+\endhead
+理论文档层 & \path{docs/*.tex} & 定义 GPD、准 GPD、三点函数、Wilson 线、
+重整化与匹配。 \\
+论文参考层 & \path{refer/papers/*.pdf} & 提供非前行匹配核、局部算符展开和
+PDF/DA 极限的原始理论来源。 \\
+参考数据层 & 参考 GPD 脚本 & 读取外部 2pt/OPE 数据，构造断开型
+\texttt{delta} 矩阵和四点比值，不生成算符或三维收缩。 \\
+算符层 & \path{pyqcd/operator/} & 有胶子 Clover、Wilson 线与
+$\pm z$ 方向 OPE；没有通用夸克双局域算符模块。 \\
+顶点层 & \path{pyqcd/vertex/} & 有动量相位、VdV、VVV 和带单段空间 Wilson 线的
+\texttt{VdV\_sink\_t\_link}；是 GPD 顶点的重要前驱。 \\
+收缩层 & \path{pyqcd/contraction/} & 有自动 Wick、动态计划、局部流三个月点和
+$\gamma_5$ 时间反向 perambulator；尚不能表达链内非局域夸克插入。 \\
+分析层 & \path{pyqcd/analysis/} & \texttt{ratio\_3pt} 已允许初态和末态两点函数分开，
+是复用价值最高的 GPD 前驱之一。 \\
+管线层 & \path{pyqcd/pipeline/} & 现有三个月点管线把源、流和汇绑定到同一动量，
+输出是前向局部流三点函数。 \\
+重整化层 & \path{pyqcd/renorm/} & 有前向准 PDF 的匹配、混合重整化、TMD 提取；
+没有 GPD 专属 $C_{qq},C_{qg},C_{gq},C_{gg}$ 卷积接口。 \\
+测试层 & \path{pyqcd/testing/} & 有 PJN 三个月点独立 oracle、投影测试、
+staple 几何测试；没有 GPD/non-forward 测试。 \\
+\bottomrule
+\caption{主题主体结构（数据来源：源码与文档索引实测）}
+\end{xltabular}
+
+\section{各部分关系}
+
+理想的 GPD 物理链是
+
+\begin{center}
+\small
+\textcolor{relation}{光锥定义} $\to$ \textcolor{relation}{准 GPD 算符}
+$\to$ \textcolor{relation}{核子三点函数} $\to$ \textcolor{relation}{Wick 缩并}
+$\to$ \textcolor{relation}{2pt/3pt 比值} $\to$ \textcolor{relation}{重整化}
+$\to$ \textcolor{relation}{非前行匹配} $\to$ \textcolor{relation}{GPD}
+$\to$ \textcolor{relation}{连续极限与系统误差}.
+\end{center}
+
+实际仓库只闭合了其中一段：胶子非局域算符和通用三点收缩有可复用实现；
+\texttt{ratio\_3pt} 有初末两点接口；但缺少把非局域插入、独立初末动量和 GPD 分解
+连成一条链的管线。参考脚本则独立于 \texttt{pyqcd}，只负责外部数据的后处理。
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXl}
+\toprule
+\textcolor{relation}{链路环节} & \textcolor{relation}{现状} & 状态 \\
+\midrule
+GPD 理论定义 & 光锥 GPD、准 GPD、$x,\xi,t$ 变量已有文档；非前行匹配有论文来源 &
+\verified \\
+夸克双局域算符 & 仅有带单段空间链的 VdV 顶点；没有通用 $\bar q\Gamma Wq$ 生产接口 &
+\unverified \\
+胶子双局域算符 & Clover、双场强、直线链和 staple 已实现并测试 &
+\verified \\
+任意初末动量 & 相位函数支持任意动量，但三个月点管线使用同一动量 &
+\inferred \\
+非前向收缩 & 低层注册表和 Wick 引擎可扩展；没有 GPD 契约与测试 &
+\unverified \\
+比值提取 & \texttt{ratio\_3pt} 支持不同初末 2pt；没有 GPD 专项调用 &
+\inferred \\
+重整化 & leading-twist 准算符乘法重整化有理论依据；GPD 常数与数据未接线 &
+\inferred \\
+非前行匹配 & Yao--Ji--Zhang 论文给出完整 NLO 结果；PyQCD 仅实现前向核 &
+\unverified \\
+真实数据验证 & 未发现 GPD 数据集、逐位对照或物理平台 &
+\unverified \\
+\bottomrule
+\end{tabularx}
+\caption{GPD 链路关系与实际状态（数据来源：文档、源码、论文与 Git 审计）}
+\end{table}
+
+\begin{keybox}
+\textbf{依赖主链：}
+\textcolor{relation}{GPD 定义 $\to$ 双局域算符 $\to$ 三点函数 $\to$ Wick 收缩
+$\to$ 比值 $\to$ 重整化 $\to$ 非前行匹配 $\to$ GPD}.
+现有 PyQCD 在“双局域胶子算符”和“通用 Wick/比值基元”处有基础，
+但在夸克非局域算符、独立动量转移、GPD 分解与非前行匹配处断开。
+\end{keybox}
+
+\section{项目思路}
+
+\subsection{设计意图}
+
+本库生产代码优先服务“梯度流重整化核子胶子 TMD-PDF”这一核心目标。
+成熟的 \texttt{operator/}、\texttt{renorm/} 和 \texttt{pipeline/} 接口围绕
+胶子算符、前向 PDF、TMD 和同动量蒸馏三点函数展开。理论文档将 GPD 与角动量扩展
+列为 \texttt{O10}，说明设计者已经知道同一算符族可以推广到非前行运动学，但没有把它
+放进当前生产范围。 \cite{D7}
+
+\subsection{为什么现有结构有利于扩展}
+
+蒸馏 perambulator 与算符选择解耦，VdV/VVV 顶点和 Wick 计划可以复用；若在顶点层加入
+一个“带端点动量和 Wilson 链的双局域顶点”，上半游的 Wick 收缩不需要从零重写。
+\texttt{VdV\_sink\_t\_link} 已经计算
+$\phi_m^\dagger(x)U(x\to x+\Delta x)\phi_n(x+\Delta x)$，这正是 GPD 当前插入的几何前驱。
+\cite{C2}
+
+\subsection{为什么扩展仍不是小改}
+
+GPD 需要同时改变四件事：算符端点、初末强子动量、投影/洛伦兹分解和匹配核。
+只把现有管线中的局部 $\gamma_\mu$ 流替换为带位移的 VdV，会得到“非局域插入”的
+几何对象，但不会自动得到 GPD：源、汇的动量仍可能相同，Wick 计划也没有记录
+$\Delta$ 与 $\xi$，缺失的 $H/E$ 分解会使数据无法被解释为唯一 GPD。因此必须在接口层
+新增显式契约，而不能把现有 PJN 结果改名为 GPD。
+
+\subsection{典型目标工作流}
+
+\begin{table}[htbp]
+\centering
+\caption{Workflow：GPD 最小闭环的正确推导与实现顺序}
+\small
+\begin{tabular}{@{}l@{}}
+$\text{Input: } U,\; S_q,\; |N(P_i)\rangle,\; |N(P_f)\rangle,\;z,\Gamma,\mu$ \\
+$\text{Fix: } P=(P_i+P_f)/2,\;\Delta=P_f-P_i,\;t=\Delta^2,\;
+\xi=-\Delta^+/(2P^+)$ \\
+$\text{for each } z,\Gamma \text{ and spin projection:}$ \\
+\quad $\text{build } \mathcal O_\Gamma(z;y)
+=\bar q(y-z/2)\Gamma W(y-z/2,y+z/2)q(y+z/2)$ \\
+\quad $\text{contract } C_3^{fi}(t_f,\tau;z)
+=\langle N(P_f,t_f)\mathcal O_\Gamma(z,\tau)\bar N(P_i,0)\rangle$ \\
+\quad $\text{form } R(\tau)=C_3^{fi}/\sqrt{C_2^iC_2^f}
+\times\text{kinematic factor}$ \\
+\quad $\text{fit } R(\tau)\text{ in the plateau to obtain a bare matrix element}$ \\
+\quad $\text{renormalize multiplicatively and match for fixed }(\xi,t)$ \\
+$\text{end for}$ \\
+$\text{Output: } H(x,\xi,t),E(x,\xi,t),\widetilde H,\widetilde E
+\text{ and systematics}$
+\end{tabular}
+\end{table}
+
+\begin{ideabox}
+现有仓库的 GPD 思路应当理解为“共享 perambulator、算符和统计基元，
+新增非前行运动学与匹配层”，而不是重写整个蒸馏管线。
+\end{ideabox}
+
+\section{主题分析：物理工作框架}
+
+本节按物理/理论工作的 B 框架展开，同时在每个物理步骤后给出代码对象和实现状态。
+
+\subsection{B1. 目的与前期准备}
+
+GPD 的目标是把 PDF 的纵向一维图像推广到同时包含纵向动量分数、纵向偏度和动量转移的
+强子内部结构。它连接了深度虚 Compton 散射、形状因子和角动量分解，是格点 QCD 中
+与实验和 QCD 因子化直接相连的非微扰对象。本库文档已明确把 GPD 描述为
+非前行、三维层析和角动量研究的基础。 \cite{D3,D4}
+
+前期准备不是选择拟合模型，而是先固定端点定义、物质表示、$\Gamma$ 结构、
+动量符号、Wilson 链路径和 Euclidean/Minkowski 转换。若这些约定未锁定，
+后续的 $x$、$\xi$、实部/虚部和正负 $z$ 方向会产生不可追踪的符号错误。
+
+\subsection{B2. 输入定义}
+
+设初态和末态核子动量为 $P_i,P_f$，定义
+
+\begin{equation}
+P=\frac{P_i+P_f}{2},\qquad
+\Delta=P_f-P_i,\qquad
+t=\Delta^2,\qquad
+\xi=\frac{P_i^+-P_f^+}{P_i^++P_f^+}.
+\label{eq:kinematics}
+\end{equation}
+
+其中 $P_i^+$ 与 $P_f^+$ 是光锥加号分量。Yao--Ji--Zhang 的准 GPD 论文使用
+$P=(P_1+P_2)/2$、$\Delta=P_1-P_2$ 和同一偏度定义。 \cite{P1}
+
+同一篇论文把非局域夸克算符写成
+
+\begin{equation}
+\mathcal O_q(z_1,z_2)
+=\bar\psi(z_1)\Gamma[z_1,z_2]\psi(z_2),
+\qquad
+[z_1,z_2]=P\exp\!\left(ig\int_0^1\dd t\,z_{12}\cdot A(z_2+tz_{12})\right).
+\label{eq:qbilocal}
+\end{equation}
+
+轻锥极限下，非前行核子矩阵元定义 GPD。对自旋 $1/2$ 强子和向量通道，
+一个常用约定是
+
+\begin{equation}
+\begin{aligned}
+&\frac{1}{2P^+}
+\langle P_f,S_f|\bar q(-z^-/2)\gamma^+
+W(-z^-/2,z^-/2)q(z^-/2)|P_i,S_i\rangle \\
+&=\bar u(P_f,S_f)
+\left[
+\gamma^+H^q(x,\xi,t)
++\frac{i\sigma^{+\mu}\Delta_\mu}{2M}E^q(x,\xi,t)
+\right]u(P_i,S_i).
+\end{aligned}
+\label{eq:quark-decomp}
+\end{equation}
+
+轴矢通道对应 $\widetilde H,\widetilde E$，横向通道对应
+$H_T,E_T,\widetilde H_T,\widetilde E_T$。本文在此固定“上式为本文约定”，
+若与其他文献的 $E$ 或 $\widetilde E$ 符号不同，必须整体换算而不能局部改号。
+
+\subsection{B3. 输出应该是什么}
+
+格点计算的最终输出不是单一的“GPD 曲线”，而应至少包含：
+
+\begin{itemize}
+\item 夸克和胶子、味结构和手征偶/奇通道；
+\item $x,\xi,t,\mu$ 依赖，以及 PDF、形状因子、局部算符矩等极限；
+\item 每个 $z$、$\Gamma$、二维动量转移与自旋投影的裸三点矩阵元；
+\item $2\mathrm{pt}$ 归一化、统计误差和协方差；
+\item 重整化因子、匹配阶数和截断；
+\item 有限格距、有限体积、大动量、激发态和拟合窗口的系统误差。
+\end{itemize}
+
+缺少其中任一项时，只能称为“某个投影的准矩阵元”，不能称为“已提取 GPD”。
+
+\subsection{B4. 整体推理框架}
+
+GPD 的格点推理链可以概括为：
+
+\begin{enumerate}
+\item 从光锥定义和核子矩阵元确定不可约 Lorentz 结构；
+\item 用 Euclidean 空间分离和空间 Wilson 线构造准 GPD 算符；
+\item 在非前行核子态之间计算三点函数；
+\item 用 Wick 定理和传播子/perambulator 收缩；
+\item 通过 $2\mathrm{pt}/3\mathrm{pt}$ 比值消去重叠和指数因子；
+\item 对 Wilson 线算符做非微扰重整化；
+\item 通过非前行匹配核恢复到光锥 GPD；
+\item 对 $a,m_\pi,L,P_z,t,\xi$ 做联合系统误差控制。
+\end{enumerate}
+
+本库文档已给出该主线中的光锥推广、准 GPD 矩阵元、GPD 的双重 Fourier 匹配和
+准算符乘法重整化，但生产代码没有完成第 2--7 步的 GPD 专用接线。 \cite{D1,D2,D6,D7,P1}
+
+\subsection{B5. 推导关键细节}
+
+\subsubsection{B5.1 运动学、支撑区和极限}
+
+夸克 GPD 的 $x$ 支撑为 $[-1,1]$。$|x|>|\xi|$ 的区域称为 DGLAP 区，在
+$\xi=0$ 时退化为寻常 PDF；$|x|<|\xi|$ 的区域称为 ERBL 区，是夸克--反夸克
+振幅，不可简单解释为 PDF 的反夸克尾巴。胶子 GPD 有对应的胶子通道和味单态混合。
+本库现有材料对 DGLAP/ERBL 没有给出完整公式，属于 \unverified；参考论文的
+非前行框架和 PDF/DA 特殊极限给出了理论源头。 \cite{P1}
+
+常见极限包括
+
+\begin{equation}
+\begin{aligned}
+H^q(x,0,0)&=q(x),&
+H^q(-x,0,0)&=-\bar q(x),\\
+\widetilde H^q(x,0,0)&=\Delta q(x),&
+H_T^q(x,0,0)&=\delta q(x).
+\end{aligned}
+\label{eq:limits}
+\end{equation}
+
+矢量形状因子和轴矢形状因子对应于 GPD 对 $x$ 的积分：
+
+\begin{equation}
+\int_{-1}^{1}\dd x\,H^q(x,\xi,t)=F_1^q(t),\qquad
+\int_{-1}^{1}\dd x\,E^q(x,\xi,t)=F_2^q(t),
+\label{eq:ff-limits}
+\end{equation}
+
+其中 $\xi$ 依赖性在完整 twist-2 GPD 中由多项式性/矩关系控制。GPD 的低阶矩和局部算符
+矩阵元的联系在教材 OPE 讨论中已有概念性证据，但本库没有直接给出 Ji sum rule 的
+实现公式。 \cite{B1,D7}
+
+\subsubsection{B5.2 多项式性与 Ji 角动量分解}
+
+标准 twist-2 GPD 的 Mellin 矩是 $\xi$ 的多项式，广义形状因子是这些矩的系数。
+在该框架下，核子总角动量可写为夸克和胶子贡献之和：
+
+\begin{equation}
+J=\sum_qJ_q+J_g,\qquad
+J_q=\frac12\left[A^q_{20}(0)+B^q_{20}(0)\right]
+=\frac12\int_{-1}^{1}\dd x\,x\left[H^q(x,\xi,0)+E^q(x,\xi,0)\right].
+\label{eq:ji-sum}
+\end{equation}
+
+这是本文用于解释 GPD 与自旋分解关系的标准公式；本库只明确写到 DVCS/DVMP 可通过
+GPD 约束 $J_q$，没有核验式~\eqref{eq:ji-sum} 的逐项实现。 \cite{D13}
+
+\subsubsection{B5.3 Euclidean 三点函数与 Wick 收缩}
+
+在格点上，插入位置为 $y$、非局域分离为 $z$ 的三点函数可写为
+
+\begin{equation}
+\begin{aligned}
+C_3(t_f,\tau;z,P_f,P_i)
+&=\sum_{\vec x,\vec y}
+e^{-i\vec P_f\cdot\vec x}
+e^{i(\vec P_f-\vec P_i)\cdot\vec y}
+\Big\langle
+\mathcal N(\vec x,t_f)\,
+\mathcal O_\Gamma(z,\vec y,\tau)\,
+\bar{\mathcal N}(0,0)
+\Big\rangle .
+\end{aligned}
+\label{eq:lattice-3pt}
+\end{equation}
+
+对核子而言，把夸克场缩并后，每一项都是传播子、$\Gamma$、Wilson 链和核子颜色/自旋
+张量的迹。介子形状因子的标准收缩和重子三点函数的复杂拓扑已经在本库文档和
+\texttt{dynamic\_contraction} 中给出。 \cite{D10,C3,C4,C5}
+
+在蒸馏语言中，perambulator 描述一条夸克线的传播，VdV/VVV 描述所在时间片的空间和颜色
+顶点。GPD 需要在当前插入处把 VdV 的两个端点通过 Wilson 线连接，并把源和汇绑定到
+不同的动量标签。现有 \texttt{VdV\_sink\_t\_link} 只实现了几何基元；它没有把
+$\Gamma$、端点自旋、初末动量和 GPD 投影注册进一个完整计划。 \cite{C2}
+
+\subsubsection{B5.4 非前行准 GPD 与匹配}
+
+Yao--Ji--Zhang 论文明确从空间非局域算符定义准 GPD：
+
+\begin{equation}
+H^{q,g}(z_i,P_i,\mu)
+=\langle P_1S_1|\mathcal O^{q,g}(z_1,z_2)|P_2S_2\rangle,
+\label{eq:quasigpd}
+\end{equation}
+
+并对非前行夸克和胶子给出坐标/动量空间的 NLO 匹配矩阵。其一般形式是
+\begin{equation}
+\begin{pmatrix}O_q\\O_g\end{pmatrix}
+=
+\begin{pmatrix}
+C_{qq}&C_{qg}\\
+C_{gq}&C_{gg}
+\end{pmatrix}
+\otimes
+\begin{pmatrix}O_q^{\rm l.t.}\\O_g^{\rm l.t.}\end{pmatrix}
++\text{higher twist}.
+\label{eq:matching-matrix}
+\end{equation}
+
+味非单态时只有 $C_{qq}$ 非零；PDF 和 DA 是 $\xi$、$t$ 或外部态的特殊极限。
+论文还给出双重 Fourier/Ioffe-time 变换
+
+\begin{equation}
+\mathcal P(\tau,\xi,\mu^2z_{12}^2)
+=\mathcal N\int\frac{\dd\zeta_1}{2\pi}\int\frac{\dd\zeta_2}{2\pi}
+e^{i(\xi+\tau)\zeta_1+i(\xi-\tau)\zeta_2}
+\mathcal H(\zeta_i,\mu^2z_{12}^2).
+\label{eq:gpd-double-ft}
+\end{equation}
+
+这与本库 GPD 文档中的单一 $z$ Fourier 表达式相比，强调了非前行运动学下端点/动量
+变量的完整结构。若把式~\eqref{eq:gpd-double-ft} 简化成单一 $z$ 变换，必须明确
+对称端点约定和归一化，否则会丢失 $\xi$ 相关信息。 \cite{D2,P1}
+
+\subsubsection{B5.5 重整化与味混合}
+
+本库文档引用 Li--Ma--Qiu 的结论，认为所有 leading-twist 准部分子算符
+（夸克和胶子的准 PDF、准 GPD、准 DA）均可乘法重整化：
+
+\begin{equation}
+\mathcal O_R(z,\mu)=Z(z,a,\mu)\mathcal O_B(z,a).
+\label{eq:multiplicative}
+\end{equation}
+
+这一性质不依赖于外部强子态，是 ratio/hybrid 方案可复用的理论基础。另一方面，
+味单态 GPD 在匹配阶段通过 $C_{qg},C_{gq}$ 与胶子 GPD 混合；这种混合不是简单的
+UV 乘法重整化，而是红外安全的匹配卷积。 \cite{D5,D6,P1}
+
+\subsubsection{B5.6 角动量、自旋与符号自检}
+
+GPD 的 $E$ 项与核子反常磁矩和轨道角动量有关，$\widetilde H$ 与轴矢荷有关。
+任何格点实现都应先验证三个不变量：
+\begin{enumerate}
+\item $\xi=0,t=0$ 时，准 GPD 与既有前向准 PDF 在相同 $z$ 和 $\Gamma$ 下逐点一致；
+\item $\Delta=0$ 时，非前行三点函数退化为同动量三点函数；
+\item $z=0$ 且取局域极限时，算符族的矩阵元应可由形状因子和广义形状因子解释。
+\end{enumerate}
+
+本库目前只对同动量 PJN 三点函数做过独立 Wick oracle，不能将这一证据外推到 GPD。
+\cite{C13}
+
+\subsection{B6. 正确执行步骤}
+
+若从现有仓库实现一个最小 GPD 支线，建议按以下顺序执行：
+
+\begin{enumerate}
+\item 在文档中固定 $P_i,P_f,P,\Delta,\xi,t$ 和 Fourier 相位符号；
+\item 新增 quark bilocal operator，显式接受端点中心、分离、链方向和 $\Gamma$；
+\item 在 vertex 层提供 bivalent VdV 或等价 perambulator 接口；
+\item 在 contraction 层注册独立初态/末态动量标签；
+\item 复用 \texttt{ratio\_3pt}，但把输入轴明确标为
+$p_i,p_f,z,\tau,t_{\rm sep}$；
+\item 先做合成数据的零偏度、零动量转移、局域极限和规范协变测试；
+\item 再接入非前行 NLO 匹配，并以 $\xi=0$ 的前向核和 PDF/DA 极限回归；
+\item 最后才接入真实组态、激发态拟合、连续极限和物理解释。
+\end{enumerate}
+
+\subsection{B7. 实际执行情况}
+
+本次分析实际执行了以下只读调查与验证：
+
+\begin{itemize}
+\item 全库文本检索 GPD、generalized parton、non-forward、off-forward、skewness；
+\item 核对 \path{pyqcd} 生产代码与测试的符号、入口、数组轴和调用关系；
+\item 逐行审计两个 GPD 参考脚本及绘图筛选代码；
+\item 核对 Yao--Ji--Zhang 论文的定义、匹配矩阵和双重 Fourier 变换；
+\item 运行 \texttt{python -m pyqcd.testing} 以记录现有回归门状态；实测结果为
+\texttt{106 passed, 0 skipped, 0 failed}；
+\item 对 PJN 三个月点、staple 几何、TMD 组合和投影基元做定向验证。
+\end{itemize}
+
+本次没有 GPD 原始数据，因此没有执行真实 GPD 数值计算，也没有把任何外部脚本当作
+已可运行的仓库内程序。参考脚本的输入路径与配置模块不在仓库，运行会立即依赖缺失的
+集群环境。 \cite{R1}
+
+\subsection{B8. 实际输出情况}
+
+文档层的输出是 GPD 定义、准 GPD、胶子 GPD、匹配和乘法重整化的可追溯证据；
+代码层的输出是“已有基元、缺口和状态”的可追溯清单。参考脚本的实际数据输出是
+
+\begin{itemize}
+\item \path{result/delta_matrix/GPD/<name>_two.npy}；
+\item \path{result/delta_matrix/GPD/<name>_three.npy}；
+\item \path{result/Ratio_data/GPD/<name>.npz}，其中
+\texttt{data} 的五列为 \texttt{[z,t\_sep,ti\_sep,mean,std]}。
+\end{itemize}
+
+这些输出是断开型 GPD 数据后处理产物，不含 GPD 拟合、匹配或物理外推。脚本还把
+二点/三点数组直接取实部，丢弃虚部；这会破坏复数相位通道，且没有在脚本内检查。 \cite{R1}
+
+\subsection{B9. 结果分析：已确证与关键风险}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textcolor{warn}{风险} & 证据与后果 \\
+\midrule
+把局部三点函数误称为 GPD & 生产管线对源、流、汇使用同一动量索引；
+非前行 $\Delta$ 没有进入缓存键或输出 schema。 \cite{C7} \\
+把单段 VdV 当成完整夸克 GPD & \texttt{VdV\_sink\_t\_link} 只给出
+$\phi_m^\dagger U\phi_n$ 的几何量，没有通用 $\Gamma$、端点自旋和洛伦兹分解。 \cite{C2} \\
+把胶子 OPE 当成核子胶子 GPD & 现有 OPE 是规范场双局域算符或其空间/时间求和；
+生产 TMD 链使用 $C_3=C_2\times\mathrm{OPE}$ 的因子化表达式，不是完整非前行核子矩阵元。 \cite{C9,C10} \\
+把 \texttt{seq\_peram} 当成顺序源求解 & 它只做
+$\gamma_5\tau^\dagger\gamma_5$ 的时间反向，不重新解 Dirac 方程。 \cite{C6} \\
+把前向匹配核外推到 GPD & \texttt{\_matching.py} 的 $g_0$--$g_3$ 和
+\texttt{hR\_PDF} 是前向准 PDF 核；GPD 需要非前行 $\xi$、双变量的卷积结构。 \cite{C11,P1} \\
+参考脚本静默错配组态 & 2pt 和 OPE 文件分别 glob/sort，缺少跨文件组态 ID 一一对应断言；
+\texttt{test\_len} 仅检查第一个路径并只打印差异。 \cite{R1} \\
+非有限/负乘积污染统计 & 比值内部使用绝对值再开方，未检查负乘积；零点也没有保护。 \cite{R1} \\
+\bottomrule
+\end{tabularx}
+\caption{GPD 相关结论的主要风险（数据来源：源码逐行审计）}
+\end{table}
+
+\subsection{B10. 综合分析：代码对象与物理对象映射}
+
+\begin{xltabular}{\textwidth}{p{3.8cm}Xp{2.4cm}}
+\toprule
+\textcolor{struct}{物理对象} & 代码入口与含义 & 状态 \\
+\midrule
+\endhead
+动量相位 & \texttt{phase\_exp\_2pt}、\texttt{phase\_exp\_3pt}：
+$e^{-ip\cdot x}$ 的格点离散相位 & 已实现 \\
+Wilson 线 & \texttt{staple\_wilson\_line}、\texttt{gluon\_ope\_operator\_z0}：
+规范链及其路径乘积 & 已实现并测试 \\
+夸克双局域顶点 & \texttt{VdV\_sink\_t\_link}：
+$\phi_m^\dagger U\phi_n$ 的几何前驱 & 实现存在，GPD 未闭合 \\
+胶子双场强 & Clover、dual、$M^{\mu\lambda;\nu\rho}$：
+非局域胶子 OPE/TMD 算符 & 已实现并测试 \\
+局部三点函数 & \texttt{wick\_contraction} + \texttt{dynamic\_contraction}：
+源、流、汇的 Wick 拓扑 & 已实现，PJN 有独立 oracle \\
+时间反向 & \texttt{seq\_peram}：$\gamma_5$ Hermiticity & 已实现，非顺序源 \\
+比值 & \texttt{ratio\_3pt}：初末 2pt 分离的三点比值 & 实现存在，可复用 \\
+前向匹配 & \texttt{hR\_PDF}、\texttt{C\_gluon\_ratio} & 前向 PDF 已实现 \\
+非前行匹配 & 无生产入口；论文公式在参考层 & 未实现 \\
+\bottomrule
+\caption{物理对象与代码对象映射（数据来源：源码入口与测试）}
+\end{xltabular}
+
+\subsection{B11. 结尾总结}
+
+\begin{conclbox}
+本库的 GPD 状态应表述为“理论已建立、几何/收缩基元可复用、专用生产链未启动”。
+最重要的正向资产是任意动量相位、非局域胶子算符、VdV/VVV、自动 Wick、PJN 三点
+oracle 和可分初末态的 \texttt{ratio\_3pt}。最重要的缺口是夸克双局域算符、
+独立 $P_i/P_f$ 的三点管线、GPD 洛伦兹分解和非前行匹配。
+\end{conclbox}
+
+\subsection{B12. 结尾评价}
+
+优点是可扩展的分层结构和较好的几何测试基础；缺点是文档曾用单一 $z$ 变换示意
+非前行 GPD，容易掩盖双 Ioffe 变量和端点约定问题，且现有生产测试不能替代 GPD
+测试。参考脚本能说明历史上的断开型数据路径，但其硬编码和统计风险不应直接移植。
+
+\subsection{B13. 补充说明}
+
+\begin{warnbox}
+本文没有把标准 GPD 的多项式性、Ji sum rule、胶子 GPD 的完整 Lorentz 分解和
+非前行匹配核逐项数值实现。上述公式来自本库引用的论文/标准理论背景；
+本库自身没有对应生产代码或真实数据验证，因此均已按 \unverified 或 \inferred 标注。
+\end{warnbox}
+
+\subsection{B14. 参考源}
+
+本节的路径与论文标识在报告末的“参考源清单”中集中列出。每条物理结论应回到
+\cite{D1,D2,D3,D4,D5,D6,D7,D8,D9,D10,D11,D12,D13,P1,B1,R1,R2,X1,X2,X3}
+中的至少一条。
+
+\subsection{B15. 附录与附件}
+
+本文附件为第四节的直接源码片段、末节的参考源清单，以及本次任务运行的
+\texttt{python -m pyqcd.testing} 输出摘要。附件不引入未在仓库出现的数值结果。
+
+\section{代码片段与接口证据}
+
+\subsection{非局域 VdV 的几何前驱}
+
+下面直接引用 \path{pyqcd/vertex/_vertex.py}。可以看到它确实包含空间 Wilson 链、
+位移索引和任意动量相位，但它只返回顶点张量，没有 GPD 的 Dirac 结构或物理分解。
+
+\lstinputlisting[firstline=241,lastline=275]{/root/PyQCD/pyqcd/vertex/_vertex.py}
+
+\subsection{现有三个月点管线的同动量约束}
+
+下面直接引用 \path{pyqcd/pipeline/_steps.py}。源、流、汇都使用同一个
+\texttt{mi} 动量索引，因此不能从这段代码直接得到 $P_i\ne P_f$ 的 GPD。
+
+\lstinputlisting[firstline=1207,lastline=1217]{/root/PyQCD/pyqcd/pipeline/_steps.py}
+
+\subsection{可复用的三点/两点比值}
+
+\path{pyqcd/analysis/_analyse.py} 的接口允许初态和末态两点函数分开传入。这是
+GPD 分析层最有价值的复用点，但需要外部提供正确的非前行 $C_3$ 与两组 $C_2$。
+
+\lstinputlisting[firstline=361,lastline=369]{/root/PyQCD/pyqcd/analysis/_analyse.py}
+
+\subsection{胶子双场强算符}
+
+\path{pyqcd/operator/_gluon_ope.py} 已实现直线 Wilson 线、$\pm z$ 方向、
+双场强和空间求和的规范场算符。它是胶子 GPD 的候选核心，但尚未接入非前行核子态。
+
+\lstinputlisting[firstline=617,lastline=648]{/root/PyQCD/pyqcd/operator/_gluon_ope.py}
+
+\subsection{参考 GPD 数据后处理}
+
+下面直接引用 \path{refer/zengch/C_pt_load_GPD.py} 的断开型数据构造段。
+该段的关键事实是“对组态均值做中心化后再乘 2pt”，这属于外部观测量的后处理，
+不是 GPD 算符或非前行收缩生成器。
+
+\lstinputlisting[firstline=226,lastline=250]{/root/PyQCD/refer/zengch/C_pt_load_GPD.py}
+
+\section{实现蓝图与验收标准}
+
+\subsection{最小接口建议}
+
+\begin{xltabular}{\textwidth}{p{4.1cm}Xp{4.2cm}}
+\toprule
+\textcolor{idea}{建议接口} & \textcolor{idea}{最小契约} & 依赖 \\
+\midrule
+\endhead
+\texttt{quark\_bilocal\_operator} & 输入 gauge、中心位置、分离 $z$、方向、$\Gamma$、
+链方向和归一化；输出逐点或逐时间片矩阵元 & 现有 gauge/IO/路径 \\
+\texttt{VdV\_bilocal} & 在 VdV 中加入两端位移、链方向与端点动量标签；输出
+$\phi_m^\dagger(x)W(x,y)\phi_n(y)$ & \texttt{VdV\_sink\_t\_link} \\
+\texttt{GPDConfig} & 显式记录端点动量、动量转移、$z$、$\Gamma$、自旋和
+$t_{\rm sep}$；禁止用默认同动量 & pipeline config \\
+\texttt{compute\_gpd\_3pt} & 固定 $P_i,P_f$ 的源汇与插入，输出带 schema 的 HDF5 &
+dynamic\_contraction、perambulator \\
+\texttt{ratio\_3pt} & 复用现接口，输入 $C_3^{fi},C_2^{i},C_2^{f}$，显式输出
+$\tau$ 与 $t_{\rm sep}$ & analysis/\_analyse.py \\
+\texttt{match\_gpd\_nlo} & 至少支持味非单态 $C_{qq}$，输入 $x,\xi,t,P_z,\mu$；
+后续再扩展 $2\times2$ 单态混合 & renorm/matching \\
+\bottomrule
+\caption{GPD 最小实现接口（设计建议，不代表已实现）}
+\end{xltabular}
+
+\subsection{分阶段验收矩阵}
+
+\begin{xltabular}{\textwidth}{p{1.2cm}Xp{2.0cm}}
+\toprule
+\textcolor{struct}{阶段} & \textcolor{struct}{通过标准} & 证据类型 \\
+\midrule
+\endhead
+约定 & 文档固定 $P_i,P_f,P,\Delta,\xi,t$、Fermi 相位、Wilson 方向和 Euclidean 基 &
+公式与测试 \\
+算符 & $z=0$ 还原局域流；$U=I$ 时还原无链双线性；规范变换下不变 &
+手算/随机 SU(3) \\
+收缩 & 与点源手算 Wick 图逐项一致；四张 PJN 之外新增 GPD 图 oracle &
+最大误差与图枚举 \\
+比值 & 同动量、$\xi=0$ 时与旧 \texttt{ratio\_3pt} 数值逐位一致 &
+回归差值 \\
+极限 & $\Delta=0$ 回前向；$z=0$ 回形状因子；$\xi=0$ 回 PDF/准 PDF &
+解析或已有实现 \\
+重整化 & 在零动量和非零动量态上得到同一 $Z$；复相位不丢失 & 全协方差 \\
+匹配 & 非前行核在 $\xi=0$ 时回退前向核；匹配后 PDF/DA 极限通过 &
+核积分与 sum rule \\
+真实数据 & 至少一组 GPD 三点数据、完整组态 ID 对齐、统计误差和平台检验 &
+HDF5 schema + 日志 \\
+\bottomrule
+\caption{GPD 分阶段验收矩阵（数据来源：本报告设计标准）}
+\end{xltabular}
+
+\section{本次任务图表与实测输出详览}
+
+本次任务没有生成 GPD 数值图，因为仓库内没有 GPD 原始数据，且现有生产接口不能直接
+产生可用 GPD。为避免把不存在的数值图写成结论，本节只列实测文本证据：
+
+\begin{xltabular}{\textwidth}{p{0.8cm}p{2.4cm}X}
+\toprule
+编号 & 来源 & 详尽说明 \\
+\midrule
+\endhead
+T1 & 全库关键词检索 & 生产路径 \path{pyqcd/} 无 GPD、non-forward、off-forward、
+skewness 命中；GPD 命中集中在文档、参考论文和参考脚本。 \\
+T2 & Git 历史 & 当前版本 \texttt{dev16-1-g300afe5}；唯一近期 GPD 关联动作是理论文档
+\texttt{12c4544}，不是生产代码。 \\
+T3 & \texttt{python -m pyqcd.testing} & 本次实测
+\texttt{106 passed, 0 skipped, 0 failed}；通过只证明通用基元、前向 PDF/TMD、
+胶子几何和现有管线，不证明 GPD 链路。 \\
+T4 & 参考脚本静态审计 & 两份 \path{C_pt_load_GPD.py} 字节相同，SHA-256
+\texttt{f85b8a28...f56f0}；输入配置和输出根目录均在仓库外。 \\
+\bottomrule
+\caption{本次分析的实测文本证据清单（无 GPD 数值图，数据来源：本会话命令输出）}
+\end{xltabular}
+
+\begin{keybox}
+\textbf{测试输出的解释边界：}通过现有测试只能证明通用收缩、投影、HDF5、统计和
+前向几何契约可用；没有 GPD 测试通过这一项证据，因为测试树中不存在 GPD 专项测试。
+\end{keybox}
+
+\section{参考源清单}
+
+\begin{xltabular}{\textwidth}{p{1.1cm}p{1.2cm}X}
+\toprule
+\textcolor{evidence}{标识} & 类型 & 内容/作用 \\
+\midrule
+\endhead
+\cite{D1} & 文档 & \path{docs/格点QCD中的光锥与光前.tex:388-399}：GPD 定义和准 GPD 示意图。 \\
+\cite{D2} & 文档 & \path{docs/格点QCD中的维克收缩与傅里叶变换.tex:287-299}：GPD 双重 Fourier 结构。 \\
+\cite{D3} & 文档 & \path{docs/格点QCD中的部分子分布函数.tex:314-325}：GPD/TMD/DA/Wigner 关系。 \\
+\cite{D4} & 文档 & \path{docs/格点QCD中的常见名词短语与缩写.tex:229}：$H,E,\widetilde H,\widetilde E$ 和 $x,\xi,t$ 定义。 \\
+\cite{D5} & 文档 & \path{docs/格点QCD中的胶子算符.tex:37,47,338,490,492-494}：胶子 GPD 算符、匹配和重整化。 \\
+\cite{D6} & 文档 & \path{docs/格点QCD中的重整化.tex:404-415}：leading-twist 准部分子算符乘法重整化。 \\
+\cite{D7} & 文档 & \path{docs/理论解析与工作流-v20260911.tex:852-866,4660}：GPD/角动量扩展状态。 \\
+\cite{D8} & 文档 & \path{docs/格点QCD中的夸克算符.tex:95-106,197-241}：非局域夸克算符、Wilson 线、前向匹配。 \\
+\cite{D9} & 文档 & \path{docs/格点QCD中的3pt构造.tex:143-264}：Euclidean 三点函数与 Wick 收缩。 \\
+\cite{D10} & 文档 & \path{docs/格点QCD中的形状因子.tex:174-226}：三点函数、比值和顺序源。 \\
+\cite{D11} & 文档 & \path{docs/质子自旋危机解析.tex:282-319}：GPD 与角动量约束背景。 \\
+\cite{D12} & 文档 & \path{docs/格点QCD中的部分子分布函数.tex:407,532-534}：Ji/LaMET 与 Yao 文献条目。 \\
+\cite{D13} & 文档 & \path{docs/格点QCD中的TMD_PDF.tex:906}：GPD 与 leading-twist 分类背景。 \\
+\cite{P1} & 参考论文 & \path{refer/papers/Connecting Euclidean to light-cone correlations From flavor nonsinglet in forward kinematics to flavor singlet in non-forward kinematics.pdf}：§2.1--3.2，GPD 定义、双 Fourier、NLO 匹配矩阵。 \\
+\cite{B1} & 参考教材 & 教材第 11 章：前向 PDF、GPD 概念和局部算符 OPE；完整路径见文末软件文献。 \\
+\cite{R1} & 参考代码 & \path{refer/zengch/C_pt_load_GPD.py:2-20,84-153,155-316,356-442}：GPD 数据加载、delta 矩阵、比值和外部依赖。 \\
+\cite{R2} & 参考代码 & \path{refer/huangcl/99_ref_code/data_chose_for_draw.py:71-113}：GPD 绘图数据筛选。 \\
+\cite{C1} & 生产代码 & \path{pyqcd/vertex/_vertex.py:32-127}：任意动量相位。 \\
+\cite{C2} & 生产代码 & \path{pyqcd/vertex/_vertex.py:241-376}：带空间 Wilson 链的 VdV 几何前驱。 \\
+\cite{C3} & 生产代码 & \path{pyqcd/contraction/_baroperator.py:87-155,171-177,215-329}：Gamma 属性与夸克双线性 token。 \\
+\cite{C4} & 生产代码 & \path{pyqcd/contraction/_autowick.py:208-346}：通用 2pt/3pt/4pt Wick 缩并。 \\
+\cite{C5} & 生产代码 & \path{pyqcd/contraction/_dynamic.py:47-202,262-310,668-760}：注册表、动态计划和收缩。 \\
+\cite{C6} & 生产代码 & \path{pyqcd/contraction/_seqperam.py:20-59}：时间反向 perambulator。 \\
+\cite{C7} & 生产代码 & \path{pyqcd/pipeline/_steps.py:1134-1244}：前向局部流三个月点管线。 \\
+\cite{C8} & 生产代码 & \path{pyqcd/analysis/_analyse.py:361-520}：初末态分离的三个月点比值。 \\
+\cite{C9} & 生产代码 & \path{pyqcd/operator/_gluon_ope.py:617-710}：胶子直线 Wilson 线双场强算符。 \\
+\cite{C10} & 生产代码 & \path{pyqcd/renorm/_tmd.py:72-165}：staple Wilson 线和双场强矩阵元。 \\
+\cite{C11} & 生产代码 & \path{pyqcd/renorm/_matching.py:25-111}：前向准 PDF 的 $g_0$--$g_3$ 匹配。 \\
+\cite{C12} & 生产代码 & \path{pyqcd/tools/_io.py:116,188,347}：perambulator 与跨后端 HDF5 IO。 \\
+\cite{C13} & 测试 & \path{pyqcd/testing/__init__.py:2432-2436,2662-2669}：staple 契约与 PJN 三点独立 oracle。 \\
+\cite{X1} & 外部参考 & \path{refer/git-rep/lamet-agent/lamet_agent/manifest.py:83-96}：manifest 支持 GPD 目标。 \\
+\cite{X2} & 外部参考 & \path{refer/git-rep/lamet-agent/lamet_agent/planning/core.py:178-253}：GPD 非前行规划字段。 \\
+\cite{X3} & 外部参考 & \path{refer/git-rep/lamet-agent/lamet_agent/stages/fourier/reporting.py:618-628}：只处理投影准 GPD，不执行 $H/E$ 分解，ERBL 警告。 \\
+\bottomrule
+\caption{本报告的分层参考源（数据来源：路径与行号均已回查）}
+\end{xltabular}
+
+\section{结论与局限}
+
+\begin{conclbox}
+\textbf{核心结论：}格点 GPD 在本库中处于“理论已编码、通用基元可复用、
+专用生产链未实现”的状态。可复用资产包括任意动量相位、胶子非局域算符、
+Wilson 链、VdV/VVV、动态 Wick、PJN 三点 oracle 和可分初末态比值；
+关键缺口包括通用夸克双局域算符、独立 $P_i/P_f$ 管线、自旋/Lorentz 分解、
+非前行 NLO 匹配和真实数据验证。
+\end{conclbox}
+
+\begin{refbox}
+理论主线已经由本库文档和 Yao--Ji--Zhang 论文共同覆盖：光锥 GPD 由非前行矩阵元定义，
+准 GPD 通过 Euclidean 空间分离算子实现，leading-twist 准算符具备乘法重整化基础，
+非前行匹配在固定 $(\xi,t)$ 和短距因子化下连接准 GPD 与光锥 GPD。
+\end{refbox}
+
+\begin{warnbox}
+不得把以下结果写成 GPD 已验证：前向 PDF/TMD 匹配、同动量 PJN 三点函数、
+胶子 OPE 的 $C_3=C_2\times\mathrm{OPE}$、单段 VdV 顶点、或未运行的
+\texttt{C\_pt\_load\_GPD.py}。这些仅分别证明通用基元或外部数据脚本的静态存在。
+\end{warnbox}
+
+\begin{thebibliography}{99}
+\bibitem[D1]{D1}
+\path{docs/格点QCD中的光锥与光前.tex:388-399}，GPD 与准 GPD 定义。
+\bibitem[D2]{D2}
+\path{docs/格点QCD中的维克收缩与傅里叶变换.tex:287-299}，GPD 双重 Fourier 变换。
+\bibitem[D3]{D3}
+\path{docs/格点QCD中的部分子分布函数.tex:314-325}，GPD、TMD、DA 和 Wigner 分布。
+\bibitem[D4]{D4}
+\path{docs/格点QCD中的常见名词短语与缩写.tex:229}，GPD 变量和四种名称。
+\bibitem[D5]{D5}
+\path{docs/格点QCD中的胶子算符.tex:37,47,338,490,492-494}，胶子 GPD、NLO 匹配和重整化。
+\bibitem[D6]{D6}
+\path{docs/格点QCD中的重整化.tex:404-415}，leading-twist 准部分子算符乘法重整化。
+\bibitem[D7]{D7}
+\path{docs/理论解析与工作流-v20260911.tex:852-866,4660}，GPD/角动量扩展状态。
+\bibitem[D8]{D8}
+\path{docs/格点QCD中的夸克算符.tex:95-106,197-241}，非局域夸克算符、Wilson 线和前向匹配。
+\bibitem[D9]{D9}
+\path{docs/格点QCD中的3pt构造.tex:143-264}，Euclidean 三点函数与 Wick 收缩。
+\bibitem[D10]{D10}
+\path{docs/格点QCD中的形状因子.tex:174-226}，三点函数、比值与顺序源。
+\bibitem[D11]{D11}
+\path{docs/质子自旋危机解析.tex:282-319}，GPD 与角动量约束背景。
+\bibitem[D12]{D12}
+\path{docs/格点QCD中的部分子分布函数.tex:407,532-534}，Ji/LaMET 和 Yao 文献条目。
+\bibitem[D13]{D13}
+\path{docs/格点QCD中的TMD_PDF.tex:906}，leading-twist 分类与 GPD 背景。
+\bibitem[P1]{P1}
+F. Yao, Y. Ji, and J.-H. Zhang,
+\textit{Connecting Euclidean to light-cone correlations: from flavor nonsinglet in
+forward kinematics to flavor singlet in non-forward kinematics},
+JHEP 11 (2023) 021, arXiv:2212.14415；
+\path{refer/papers/Connecting Euclidean to light-cone correlations From flavor nonsinglet in forward kinematics to flavor singlet in non-forward kinematics.pdf}.
+\bibitem[B1]{B1}
+\path{refer/books/Quantum_Chromodynamics_on_the_Lattice_latex/chapters/chapter11.tex:1081-1097}，
+部分子分布、GPD 概念和局部算符 OPE。
+\bibitem[R1]{R1}
+\path{refer/zengch/C_pt_load_GPD.py:2-20,84-153,155-316,356-442}，
+GPD 数据加载、delta 矩阵、统计和比值。
+\bibitem[R2]{R2}
+\path{refer/huangcl/99_ref_code/data_chose_for_draw.py:71-113}，GPD 绘图数据筛选。
+\bibitem[C1]{C1}
+\path{pyqcd/vertex/_vertex.py:32-127}，任意动量相位。
+\bibitem[C2]{C2}
+\path{pyqcd/vertex/_vertex.py:241-376}，带空间 Wilson 链的 VdV 几何前驱。
+\bibitem[C3]{C3}
+\path{pyqcd/contraction/_baroperator.py:87-155,171-177,215-329}，Gamma 属性和夸克 token。
+\bibitem[C4]{C4}
+\path{pyqcd/contraction/_autowick.py:208-346}，通用 Wick 缩并。
+\bibitem[C5]{C5}
+\path{pyqcd/contraction/_dynamic.py:47-202,262-310,668-760}，注册表、计划和动态收缩。
+\bibitem[C6]{C6}
+\path{pyqcd/contraction/_seqperam.py:20-59}，时间反向 perambulator。
+\bibitem[C7]{C7}
+\path{pyqcd/pipeline/_steps.py:1134-1244}，前向局部流三个月点管线。
+\bibitem[C8]{C8}
+\path{pyqcd/analysis/_analyse.py:361-520}，初末态分离的三点比值。
+\bibitem[C9]{C9}
+\path{pyqcd/operator/_gluon_ope.py:617-710}，胶子直线 Wilson 线双场强算符。
+\bibitem[C10]{C10}
+\path{pyqcd/renorm/_tmd.py:72-165}，staple Wilson 线和双场强矩阵元。
+\bibitem[C11]{C11}
+\path{pyqcd/renorm/_matching.py:25-111}，前向准 PDF 的 $g_0$--$g_3$ 匹配。
+\bibitem[C12]{C12}
+\path{pyqcd/tools/_io.py:116,188,347}，perambulator 与跨后端 HDF5 IO。
+\bibitem[C13]{C13}
+\path{pyqcd/testing/__init__.py:2432-2436,2662-2669}，staple 契约和 PJN 三点独立 oracle。
+\bibitem[X1]{X1}
+\path{refer/git-rep/lamet-agent/lamet_agent/manifest.py:83-96}，GPD manifest 目标。
+\bibitem[X2]{X2}
+\path{refer/git-rep/lamet-agent/lamet_agent/planning/core.py:178-253}，非前行规划字段。
+\bibitem[X3]{X3}
+\path{refer/git-rep/lamet-agent/lamet_agent/stages/fourier/reporting.py:618-628}，
+投影准 GPD 的物理解释边界与 ERBL 警告。
+\end{thebibliography}
+
+\end{document}

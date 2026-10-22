@@ -1,0 +1,324 @@
+% ============================================================
+% analy 报告 — 规范模板 v2（xelatex + ctex）
+% 用途: PyQCD 仓库整体结构 + 梯度流重整化胶子 TMD-PDF 核心物理链
+% 编译: xelatex 两遍；交付前 Overfull / Float too large 计数必须为 0
+% ============================================================
+\documentclass[UTF8]{ctexart}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{microtype}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{xltabular}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage[most]{tcolorbox}
+\usepackage{titlesec}
+\usepackage{fontspec}
+\setmonofont{DejaVu Sans Mono}
+
+\definecolor{accent}{HTML}{1F4E79}
+\definecolor{evidence}{HTML}{1E8449}
+\definecolor{reference}{HTML}{8C6D1F}
+\definecolor{conclusion}{HTML}{8B1A1A}
+\definecolor{codebg}{HTML}{F4F6F7}
+\definecolor{struct}{HTML}{3B3B98}
+\definecolor{relation}{HTML}{0E7C7B}
+\definecolor{idea}{HTML}{B03A2E}
+\definecolor{warn}{HTML}{D35400}
+\definecolor{hl}{HTML}{FDF6E3}
+
+\setlength{\emergencystretch}{3em}
+\hypersetup{colorlinks=true,linkcolor=accent,urlcolor=relation}
+
+\titleformat{\section}{\Large\bfseries\color{accent}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\color{struct}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{struct!70!black}}{\thesubsubsection}{1em}{}
+
+\newtcolorbox{conclbox}{breakable,colback=conclusion!6,colframe=conclusion,title=结论}
+\newtcolorbox{refbox}{breakable,colback=reference!6,colframe=reference,title=参考背景}
+\newtcolorbox{ideabox}{breakable,colback=idea!6,colframe=idea,title=项目思路}
+\newtcolorbox{warnbox}{breakable,colback=warn!6,colframe=warn,title=局限与风险}
+\newtcolorbox{keybox}{breakable,colback=hl,colframe=accent,title=要点}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  language=python,
+  firstnumber=auto,
+  keywordstyle=\color{accent}\bfseries,
+  commentstyle=\color{evidence!70!black},
+  stringstyle=\color{struct},
+  breaklines=true,
+  breakatwhitespace=false,
+  postbreak=\mbox{\textcolor{accent}{$\hookrightarrow$}\space},
+  keepspaces=true,
+  columns=flexible,
+  numbers=left,numberstyle=\tiny\color{struct!60!black},
+}
+
+\title{PyQCD 仓库分析与梯度流重整化胶子 TMD-PDF 物理链}
+\author{opencode analy}
+\date{2026-08-18}
+
+\begin{document}
+\maketitle
+\sloppy
+
+\begin{abstract}
+本报告对主仓库 \texttt{/root/PyQCD}（PyQCD By ZhangXin，格点 QCD 研究仓库）做全库只读分析，
+解析其如何组织代码以完成核心目标——\textcolor{struct}{计算使用梯度流重整化方案的核子中的胶子 TMD-PDF}。
+分析范围覆盖主库自有代码（pyqcd 包 91 个 \texttt{.py}、examples、docs 53 篇 tex、logs 测试套件，
+总计排除 refer 后 252 个文件），refer 作为只读参考知识库引入但不深剖。核心结论：
+仓库以「蒸馏管线 + 胶子 OPE + 梯度流重整化 + 混合/Z\_R + NLO 匹配 + 连续极限外推」为主线，
+采用多后端（numpy/cupy/torch）+ h5 IO + MPI 并行的工程骨架；一致性验证
+\textcolor{evidence}{\nolinkurl{AGENTS.md:11}} 显示与 docker 基线 A–E 全 0 差异、全量 237/237 PASS。
+三视角：结构（入口/核心/工具/文档/参考分层）、关系（vertex→2pt→ope→3pt→4pt→analysis 数据依赖链）、
+思路（照抄成功实例 docker-v20260805 与 refer 逻辑、自包含实现、可回放复现）。
+\end{abstract}
+
+\tableofcontents
+
+% ================= 1 仓库概览 =================
+\section{仓库概览}
+\subsection{目录结构}
+仓库顶层以 \texttt{pyqcd/} 主包为核心，测试、回归和冻结基线统一位于
+\texttt{pyqcd/testing/}，
+\texttt{docs/} 存放中文 LaTeX 笔记与报告，\texttt{logs/} 为各功能测试套件，\texttt{refer/} 为只读参考库。
+\lstinputlisting[language=bash]{_tree_pyqcd.txt}
+
+\subsection{规模统计与 git 信息}
+\begin{table}[htbp]\centering
+\begin{tabular}{ll}
+\toprule
+指标 & 实测值 \\
+\midrule
+主库文件总数（排除 refer/\_\_pycache\_\_） & 252 \\
+Python 文件（排除 refer） & 91 \\
+Markdown 文件（排除 refer） & 71 \\
+LaTeX 文件（排除 refer） & 64 \\
+Shell 脚本（排除 refer） & 18 \\
+docs 内 tex 篇数 & 53 \\
+全库文件总数（含 refer） & 9467 \\
+当前分支 / HEAD & main / 9f74beb（2026-08-17） \\
+最新标签 & test8、stab4（版本序） \\
+\bottomrule
+\end{tabular}
+\caption{仓库实测统计（数据来源: find/wc/git 实测，2026-08-18）}
+\end{table}
+注：全库 9467 文件含 \texttt{refer/git-rep/*} 外来软件库（含 EasyDistillation、LQCD\_Master、PyQUDA、lamet-agent、quda），
+按约定仅作为参考知识库引入，不纳入主库主体分析（见第 3 节）。
+
+% ================= 2 主体结构 =================
+\section{主体结构}
+仓库采用「子包 + \texttt{\_} 前缀私有模块 + 显式 re-export」架构（\textcolor{struct}{确证}，
+\texttt{\detokenize{pyqcd/AGENTS.md}} 子包表）。各层职责如下。
+\begin{xltabular}{\textwidth}{llX}
+\toprule
+\textcolor{struct}{层次} & 目录 & \textcolor{struct}{职责} \\
+\midrule
+\endhead
+入口层 & \texttt{pyqcd/testing/} & 冻结蒸馏基线 + 回归/示例 + 蒸馏一致性套件 \\
+核心层 & \texttt{pyqcd/renorm/} & * 梯度流/\textsubscript{Z\_R}/混合/NLO 匹配/外推/TMD 提取（理论核心） \\
+核心层 & \texttt{pyqcd/operator/} & Clover 场强 F、对偶 F̃、胶子 OPE 算符、TMD staple 扩展 \\
+核心层 & \texttt{pyqcd/analysis/} & Jackknife/Bootstrap/meff/ratio/disconnected/色散拟合 \\
+核心层 & \texttt{pyqcd/pipeline/} & 9 步管线集中配置与调度（+tmd 步） \\
+核心层 & \texttt{pyqcd/vertex/} \texttt{contraction/} & VdV/VVV 顶点、自动 Wick、重子算符、seqperam \\
+工具层 & \texttt{pyqcd/tools/} & 后端切换 numpy/cupy/torch、缓存 einsum、切片、h5 IO \\
+工具层 & \texttt{pyqcd/parallel/} & MPI 并行规划与元任务调度 \\
+工具层 & \texttt{pyqcd/lattice/} \texttt{smear/} & 常数/$\gamma$/$\sigma$ 矩阵（DR 基）；HYP 涂抹（梯度流备选） \\
+测试层 & \texttt{pyqcd/testing/} & 集成测试函数（conftest 入口） \\
+文档层 & \texttt{docs/} & 52 篇中文 LaTeX 笔记 + analy/pure 报告 \\
+参考层 & \texttt{refer/} & 只读参考（zengch/donghx/huangcl/.../git-rep/*），逻辑照抄不 import \\
+产物层 & \texttt{logs/} \texttt{output/} \texttt{plots/} & 功能测试套件、运行数据、图表产物 \\
+\bottomrule
+\caption{主体结构分层（数据来源: 全库索引与 \texttt{pyqcd/AGENTS.md} 实测）}
+\end{xltabular}
+
+% ================= 3 各部分关系 =================
+\section{各部分关系}
+\subsection{数据依赖主链}
+物理计算链以蒸馏管线串联：规范场经 Wilson flow 涂抹后，构造胶子 TMD 算符 O，
+经自重整化/混合得到 hR，傅里叶变换后经 NLO 匹配得光锥 PDF，最后连续极限外推。
+\begin{keybox}
+\textbf{依赖主链:} \textcolor{relation}{gauge U → \nolinkurl{wilson_flow(_gradient_flow.py)} → \nolinkurl{gluon_tmd_operator(_tmd.py)} → self\_renormalized\_ratio / \nolinkurl{hR_lambda(_zr.py,_hybrid.py)} → \nolinkurl{hR_PDF(_matching.py)} → \nolinkurl{extrapolate(_extrapolate.py)}}。
+各环节参考源附证据色标注，下游模块只依赖上游输出数组，解耦清晰。
+\end{keybox}
+
+\subsection{工程支撑关系}
+多后端统一经 \texttt{pyqcd/tools} 的 \texttt{get\_backend()} 适配层访问；
+管线各 step（\nolinkurl{pyqcd/pipeline/_steps.py:275,418,546,665,758,841}）
+通过 \texttt{save\_array/\_load\_any}（h5 优先）读写中间产物，使 numpy/cupy/torch 三后端可替换且不污染算法代码。
+MPI 并行（\texttt{pyqcd/parallel}）仅调度 step×conf 元任务，分析作图层仅 rank 0 执行。
+
+% ================= 4 项目思路 =================
+\section{项目思路}
+\subsection{设计意图}
+仓库的根本动机是把「docker-v20260805 成功实例」的可复现物理结果，
+以自包含、可测试、多后端可移植的方式重写成 pyqcd 主包（\textcolor{idea}{推断}，
+由 \texttt{AGENTS.md}「照抄 docker 逻辑自包含」「不 import refer」反模式条目推出）。
+关键设计选择：(1) 张量布局统一 \texttt{(Nt,Nz,Ny,Nx,4,3,3)} 维序 t,z,y,x；
+(2) 禁止直接 import cupy，统一经后端适配层；(3) 中间产物一律 h5 读写，旧 \texttt{.npy/.npz} 回退。
+
+\subsection{演进脉络}
+git 历史显示近期以 tag \texttt{stab1}（全功能真实数据实战）→ \texttt{test7}（服务器 100 组态正式版）
+→ \texttt{stab4/test8} 推进；功能测试套件（test0*/stab1/test6）逐层沉淀，
+表明工程重心从「单点复现」走向「规模化并行实战」。torch 后端为后期新增（实测 CPU 梯度流 2.7–4.8x 加速）。
+
+\subsection{典型工作流}
+一次典型任务：\nolinkurl{python -m pyqcd.testing} 跑全量单测；
+或 \nolinkurl{bash pyqcd/testing/regression/distillation/run-local.sh} 复现蒸馏一致性；
+规模化则 \nolinkurl{python -m pyqcd.parallel --confs ...} 经 MPI 调度。
+\begin{ideabox}
+本仓库「先有成功实例与参考，再自包含重写并套测试保护网」的组织方式，
+使其既保物理结论可复现（A–E 全 0 差异），又具备多后端/并行扩展能力——
+这是它「长这样」的灵魂原因。
+\end{ideabox}
+
+% ================= 5 主题分析 =================
+\section{主题分析：梯度流重整化胶子 TMD-PDF 计算链}
+本节以「一项具体工作」的 15 步框架（A 代码工作框架）完整重现该计算链。
+判定：对象以代码/数值流程为主，故主体用 A 框架，物理元素并入相应步骤。
+
+\subsection{A1 目的与前期准备}
+为什么做：在格点上以梯度流重整化方案计算核子胶子 TMD-PDF——
+裸矩阵元（蒸馏 2pt + 胶子 OPE staple 算符）→ Wilson flow 涂抹 → 混合/Z\_R →
+$\lambda$ 外推 → 傅里叶 → NLO 匹配 → 连续极限外推（\textcolor{evidence}{\texttt{\detokenize{AGENTS.md:核心目标}}}）。
+前置：numpy/cupy/torch 后端、规范场 gauge 张量、蒸馏源/汇传播子。
+
+\subsection{A2 输入}
+数据/参数：规范场 U \texttt{(Nt,Nz,Ny,Nx,4,3,3)}；纵向位移 z、横向位移 $b_\perp$ 网格；
+流时间 $\tau$（物理约定 $\tau=3a^2$，NieMiera 2025）；匹配标度 $\mu=2$ GeV；截断 $\lambda_s=0.3$ fm（\textcolor{evidence}{\texttt{\detokenize{pyqcd/AGENTS.md:关键约定}}}）。
+
+\subsection{A3 输出（应是什么）}
+梯度流重整化的矩阵元 O(z,$b_\perp$) → 自重整化比值 R → hR(z) → 光锥 PDF x·g(x,$b_\perp$) →
+连续极限外推后的物理 TMD-PDF；并产出中间 h5 与图表、LaTeX 报告。
+
+\subsection{A4 整体框架}
+模块组织：\nolinkurl{renorm/\_gradient\_flow.py}（流）、\nolinkurl{operator/\_gluon\_ope.py}+
+\nolinkurl{renorm/\_tmd.py}（算符与矩阵元）、\nolinkurl{renorm/\_zr.py}、\nolinkurl{renorm/\_hybrid.py}（重整化）、
+\nolinkurl{renorm/\_matching.py}、\nolinkurl{renorm/\_tmdextract.py}（匹配）、\nolinkurl{renorm/\_extrapolate.py}（外推）。
+主流程由 \nolinkurl{pipeline/\_steps.py:run\_pipeline}（\textcolor{evidence}{\nolinkurl{pyqcd/pipeline/_steps.py:1418}}）调度 9 步。
+
+\subsection{A5 关键细节}
+关键算法：Wilson flow 用 RK3（Luescher 2010）；Clover F 四叶平均；TMD 算符 O 的可乘性组合
+$O = M^{tx;tx} + M^{ty;ty} - 2M^{xy;xy}$；匹配核 g\_0..g\_3 按 $\xi=x/y$ 分区；
+Z\_ij 矩阵结构为
+\begin{align}
+Z_{ij} &= \delta_{ij} + \frac{\alpha_s C_A}{2\pi}\,dx\,\frac{x}{|x|} \notag\\
+&\quad\times\left[\frac{g_{ij}}{y_j} - \delta_{ij}\,y_j\sum_k \frac{g_{ik}}{y_k^2}\right]\,.
+\end{align}
+易错点：色迹维度、roll 轴序、复数 dtype 一致性——由后端适配层统一保证。
+
+\subsection{A6 任务如何正确执行}
+步骤/命令：\textcolor{evidence}{\nolinkurl{python -m pyqcd.testing}}（单测链验证）；
+\textcolor{evidence}{\nolinkurl{python -m pyqcd.testing.regression.consistency}}（A–E 一致性）。
+
+\subsection{A7 实际执行情况}
+蒸馏管线一致性测试：
+\nolinkurl{bash pyqcd/testing/regression/distillation/run-local.sh} 复现基线全量 9 步；
+一致性验证 \nolinkurl{verify\_consistency.py} 对 A–E 五组对照全部 0 差异（\textcolor{evidence}{\nolinkurl{AGENTS.md:11}}）。
+
+\subsection{A8 实际输出情况}
+已验证结论：conf6250 中间数据逐位一致（rel=0.000e+00），全量 237/237 PASS
+（\textcolor{evidence}{\nolinkurl{AGENTS.md:70-78}}）；stab1 实战 10 组态、45 项断言、106 图 + 报告。
+
+\subsection{A9 结果分析}
+结合图表与日志：P0 meff 平台 $\approx$ 1.12 GeV（质子质量，已验证）、P2 $\approx$ 1.56 GeV（色散）、
+E0 与 meff 平台一致（\textcolor{evidence}{\nolinkurl{AGENTS.md:105-110}}）。
+torch 后端 CPU 梯度流 2.7–4.8x 加速、逐位一致 max|d|~1e-15（\textcolor{evidence}{\nolinkurl{AGENTS.md:64}}）。
+
+\subsection{A10 综合分析}
+与整体联系：该链正是第 2/3 节核心层的主轴；对象映射上，
+gauge 链接 $\leftrightarrow$ 规范场、M 矩阵 $\leftrightarrow$ 非定域胶子算符色迹、O 组合 $\leftrightarrow$ 横向极化投影的胶子 TMD 算符。
+深层原因：用梯度流做非微扰重整化，规避算符混合与混合方案的短/长距拼接。
+
+\subsection{A11 结尾总结}
+本链以可回放、可测试的模块化方式实现梯度流重整化胶子 TMD-PDF，
+且经一致性验证与规模化实战双重确认（\textcolor{struct}{确证}）。
+
+\subsection{A12 结尾评价}
+优点：后端解耦、h5 可移植、测试保护网强。可改进：cpp 后端仅占位；
+连续极限外推仅单系综维度，未做 a/Pz/$m_\pi$/L 联合外推的系统性误差量化（见局限）。
+
+\subsection{A13 补充说明}
+假设/局限：物理结论（pn 2pt=0、meff$\approx$1.12 GeV）属「已验证结论」不可改（\textcolor{evidence}{\texttt{\detokenize{AGENTS.md:138}}}）；
+单组态尺度设定 $t_0$ 依赖 lattice 常数。
+
+\subsection{A14 参考源}
+本步证据见第 7 节参考源清单（\texttt{\_gradient\_flow.py}/\_tmd.py/\_matching.py/AGENTS.md 等）。
+
+\subsection{A15 附录与附件}
+原始日志与运行脚本见 \texttt{data/from-logs/logs/test0/}、\texttt{data/from-logs/logs/stab1/}、\texttt{data/from-logs/logs/test6/}。
+
+% ================= 6 关键代码/文档片段 =================
+\section{关键代码/文档片段}
+\subsection{Wilson flow 单步（RK3）}
+\lstinputlisting[firstline=125,lastline=135]{/root/PyQCD/pyqcd/renorm/_gradient_flow.py}
+
+\subsection{胶子 TMD 算符 O 组合}
+\lstinputlisting[firstline=152,lastline=161]{/root/PyQCD/pyqcd/renorm/_tmd.py}
+
+\subsection{Clover 场强四叶构造（节选）}
+\lstinputlisting[firstline=63,lastline=100]{/root/PyQCD/pyqcd/operator/_gluon_ope.py}
+
+\subsection{NLO 匹配核 g\_0..g\_3（按 $\xi$ 分区）}
+\lstinputlisting[firstline=25,lastline=61]{/root/PyQCD/pyqcd/renorm/_matching.py}
+
+\subsection{匹配 Z\_ij 矩阵结构}
+\lstinputlisting[firstline=94,lastline=105]{/root/PyQCD/pyqcd/renorm/_matching.py}
+
+% ================= 7 参考源清单 =================
+\section{参考源清单}
+\begin{xltabular}{\textwidth}{llX}
+\toprule
+\textcolor{evidence}{参考源} & 类型 & 内容/作用 \\
+\midrule
+\endhead
+\texttt{\nolinkurl{AGENTS.md:10}} & 仓库 & 全量测试 conftest.py（18 项） \\
+\texttt{\nolinkurl{AGENTS.md:11}} & 仓库 & verify\_consistency.py（A–E 全 0 差异） \\
+\texttt{\nolinkurl{AGENTS.md:70-78}} & 仓库 & 蒸馏管线 9 步、237/237 PASS、rel=0 \\
+\texttt{\nolinkurl{AGENTS.md:105-110}} & 仓库 & stab1 物理断言 P0 meff$\approx$1.12、P2$\approx$1.56 \\
+\texttt{\nolinkurl{AGENTS.md:138}} & 仓库 & 反模式：不修改已验证物理结论 \\
+\texttt{\nolinkurl{pyqcd/AGENTS.md}} & 仓库 & 主包子包结构与来源表 \\
+\texttt{\nolinkurl{pyqcd/renorm/AGENTS.md}} & 仓库 & renorm 子包权威说明 \\
+\texttt{\nolinkurl{pyqcd/renorm/_gradient_flow.py:125-135}} & 仓库 & wilson\_flow\_step RK3 \\
+\texttt{\nolinkurl{pyqcd/renorm/_gradient_flow.py:163-173}} & 仓库 & flow\_action\_density E(t) \\
+\texttt{\nolinkurl{pyqcd/operator/_gluon_ope.py:63-115}} & 仓库 & plaquette\_clover 四叶平均 \\
+\texttt{\nolinkurl{pyqcd/renorm/_tmd.py:152-161}} & 仓库 & O = M\^{}tx;tx+M\^{}ty;ty-2M\^{}xy;xy \\
+\texttt{\nolinkurl{pyqcd/renorm/_tmd.py:203-213}} & 仓库 & self\_renormalized\_ratio \\
+\texttt{\nolinkurl{pyqcd/renorm/_zr.py:84-135}} & 仓库 & th\_ZR / fit\_ZR 自重整化 \\
+\texttt{\nolinkurl{pyqcd/renorm/_hybrid.py:59-119}} & 仓库 & hR\_lambda 混合方案外推 \\
+\texttt{\nolinkurl{pyqcd/renorm/_matching.py:25-61}} & 仓库 & g\_0..g\_3 匹配核 \\
+\texttt{\nolinkurl{pyqcd/renorm/_matching.py:94-105}} & 仓库 & hR\_PDF Z\_ij 反演 \\
+\texttt{\nolinkurl{pyqcd/renorm/_tmdextract.py:116}} & 仓库 & Z\_ij 数值结构说明 \\
+\texttt{\nolinkurl{pyqcd/tools/_torch_backend.py:222-254}} & 仓库 & torch.Tensor 补丁（transpose/astype/repeat） \\
+\texttt{\nolinkurl{pyqcd/pipeline/_steps.py:1418}} & 仓库 & run\_pipeline 9 步调度 \\
+\texttt{\nolinkurl{refer/}} & 参考 & 只读参考库（zengch/donghx/huangcl/git-rep/*），逻辑照抄不 import \\
+\bottomrule
+\end{xltabular}
+
+% ================= 8 结论与局限 =================
+\section{结论与局限}
+\begin{conclbox}
+结构：pyqcd 主包以 renorm/operator/analysis/pipeline 为核心层，tools/parallel 为工程支撑；
+关系：gauge→flow→算符→重整化→匹配→外推 的数据依赖链清晰解耦；
+思路：照抄成功实例 + 自包含重写 + 测试保护网，使物理可复现且可扩展；
+主题结论：梯度流重整化胶子 TMD-PDF 计算链完整实现并经一致性验证（237/237 PASS，A–E 0 差异）。
+\end{conclbox}
+\begin{refbox}
+refer/ 下 zengch/donghx/huangcl 等提供算法原型与物理文档，PyQUDA/LQCD\_Master 等提供上游实现参照；
+其 analy/pure 产物（20260817）已归档于各自 docs/，本主库报告与之互补、不重复。
+\end{refbox}
+\begin{warnbox}
+未覆盖项：(1) cpp/ 后端仅占位未实现，未评估；(2) refer/ 内部 4+ 个外来库仅作参考引入、未深剖；
+(3) 连续极限外推 \texttt{\_extrapolate.py} 仅给出拟合入口，未做 a/Pz/$m_\pi$/L 联合外推的系统性误差量化，
+标注 \textcolor{warn}{未验证}；(4) 部分 runtime 数值（峰值显存/耗时）来自 AGENTS.md 实测记录，未独立重测。
+\end{warnbox}
+
+\end{document}

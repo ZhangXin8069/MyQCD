@@ -1,0 +1,457 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{slashed}
+\usepackage{graphicx,float,booktabs,array,caption}
+\usepackage{hyperref,xcolor,enumitem}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的夸克算符：\\
+从Dirac结构到准PDF的非微扰重整化}
+\author{基于本库文献的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+夸克算符是格点QCD中连接规范场组态与强子物理观测量的核心理论对象。从简单的局域夸克双线性型（矢量流$\bar{\psi}\gamma^\mu\psi$、轴矢流$\bar{\psi}\gamma^\mu\gamma_5\psi$、标量$\bar{\psi}\psi$等）到LaMET框架中的非局域准PDF算符$\mathcal{O}_\Gamma(z) = \bar{\psi}(z)\Gamma U(z,0)\psi(0)$，夸克算符的Dirac结构选择、重整化性质和算符混合行为直接决定了最终物理预言的精度和可靠性。本文系统梳理了格点上夸克算符的完整理论体系：从五种基本Dirac双线性型的分类及其在连续和格点上的对称性出发，详述非局域夸克算符中$\Gamma = \gamma^t$与$\Gamma = \gamma^z$的根本区别——前者在$O(a^0)$层次上无算符混合，后者与twist-3标量算符$O_I$发生混合；深入讨论RI/MOM非微扰重整化方案的完整实施——包括截肢Green函数、投影算符选择（$Z_{\text{mp}}$ vs $Z_{/\mskip-1mu p}$）、标度依赖性；系统阐述辅助$z$-场形式对Wilson线线性发散的处理；给出夸克准PDF的NLO匹配核完整形式及其对$\Gamma$和投影方案的依赖性；最后展示夸克算符在非极化PDF、螺旋度PDF、横向性PDF、GPDs和DAs中的广泛应用全景。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{引言：夸克算符——强子结构的探针}
+
+在格点QCD中，所有关于强子内部夸克结构的信息都编码在\textbf{夸克算符的核子矩阵元}中。从最简单的局域矢量流$\bar{\psi}\gamma^\mu\psi$（其矩阵元给出强子的电磁形状因子）到LaMET框架中的非局域准PDF算符$\bar{\psi}(z)\Gamma U(z,0)\psi(0)$（其Fourier变换给出Bjorken-$x$依赖的PDF），夸克算符的选择——特别是其\textbf{Dirac结构}$\Gamma$、\textbf{味结构}和\textbf{重整化方案}——直接影响着格点计算的可行性和精度。
+
+夸克算符的设计必须同时满足多重物理约束\cite{Liu2019isovector,Alexandrou2017,Chen2016improved}：
+
+\begin{enumerate}
+    \item \textbf{规范不变性：}通过插入Wilson线$U(z,0) = \mathcal{P}\exp[-ig\int_0^z dz' A^z(z')]$保证非局域算符的规范不变性；
+    \item \textbf{正确的连续极限：}在$a \to 0$极限下，格点算符必须还原为连续QCD中的对应算符；
+    \item \textbf{可乘性重整化（或可控的混合）：}算符应在重整化下具有简单的乘法结构，或其混合模式已被理论和数值充分理解；
+    \item \textbf{好的信噪比：}算符在蒙特卡洛模拟中应产生可分辨的物理信号。
+\end{enumerate}
+
+\section{局域夸克双线性型的基本分类}
+
+\subsection{五种Dirac结构的连续分类}
+
+在连续QCD中，夸克双线性型$\bar{\psi}\Gamma\psi$按照其在Lorentz变换下的行为分为五个基本类型。在格点上，这一分类需要被适配到超立方对称群的不可约表示：
+
+\begin{table}[H]
+\centering
+\caption{夸克双线性型的Dirac结构分类}
+\label{tab:bilinear_classification}
+\begin{tabular}{lccccl}
+\toprule
+类型 & $\Gamma$ & Lorentz变换 & $C$ & $P$ & $T$ \\
+\midrule
+标量(S)   & $I$           & 标量     & $+$ & $+$ & $+$ \\
+赝标量(P) & $\gamma_5$    & 赝标量   & $+$ & $-$ & $+$ \\
+矢量(V)   & $\gamma_\mu$  & 矢量     & $-$ & $(+,-,-,-)$ & $(+,-,-,-)$ \\
+轴矢(A)   & $\gamma_\mu\gamma_5$ & 轴矢量 & $+$ & $(-,+,+,+)$ & $(-,+,+,+)$ \\
+张量(T)   & $\sigma_{\mu\nu}$ & 反对称张量 & $-$ & $\operatorname{sgn}(\mu\nu)$ & $\operatorname{sgn}(\mu\nu)$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+其中$C$、$P$、$T$分别表示电荷共轭、宇称和时间反演下的变换性质。
+
+\subsection{格点上Dirac矩阵的Euclidean适配}
+
+在Euclidean时空中，Dirac矩阵满足反对易关系$\{\gamma_\mu, \gamma_\nu\} = 2\delta_{\mu\nu}$（与Minkowski度规$g_{\mu\nu} = \operatorname{diag}(1,-1,-1,-1)$不同）。Minkowski与Euclidean矩阵之间的对应关系为\cite{Liu2019isovector}：
+
+\begin{equation}
+\gamma_4 = \gamma^0_M, \qquad \gamma_i = i\gamma^i_M \quad (i = 1,2,3)。
+\end{equation}
+
+这一转换对夸克算符的构造具有实际影响：例如，时间方向的$\gamma^t$（Euclidean $\gamma_4$）与空间方向的$\gamma^z$（Euclidean $\gamma_3$）在重整化下具有不同的行为（详见第\ref{sec:mixing}节）。
+
+\subsection{矢量流守恒与$Z_V$的非微扰确定}
+
+局域矢量流$\bar{\psi}\gamma^\mu\psi$满足\textbf{矢量流守恒}（CVC）条件。在格点上，这一守恒律被离散化部分破坏，但可以通过非微扰条件恢复。CLQCD合作组\cite{CLQCD2024charm}使用：
+
+\begin{equation}
+Z_V(H) \frac{\langle H|V_4|H\rangle}{\langle H|H\rangle} = 1,
+\label{eq:ZV_CVC}
+\end{equation}
+
+其中$H$可以是任意强子态。在连续极限下，$Z_V$应与$H$的选择无关——对这一性质在有限$a$处的偏离程度提供了离散化误差的定量估计。
+
+\textbf{重夸克改进的$Z_V$}\cite{CLQCD2024charm}：$Z^c_V \equiv Z_V(\eta_c)$专门用于粲夸克矢量流。其他重夸克双线性流$X$的正规化常数通过chiral-extrapolated比值给出：
+
+\begin{equation}
+Z^c_X \equiv Z^c_V \frac{Z_X}{Z_V}, \quad Z^c_Y \equiv \sqrt{Z_V Z^c_V} \cdot \frac{Z_Y}{Z_V} \ (\text{味改变流})。
+\label{eq:heavy_improved_Z}
+\end{equation}
+
+\section{非局域夸克算符与准PDF}
+
+\subsection{准PDF算符的基本构造}
+
+LaMET框架的核心是\textbf{非局域夸克算符}\cite{Ji2013Euclidean,Liu2019isovector,Chen2016improved}：
+
+\begin{definition}[准PDF夸克算符]
+\begin{equation}
+\boxed{\mathcal{O}_\Gamma(z) = \bar{\psi}(z) \Gamma U(z, 0) \psi(0)},
+\label{eq:quasi_quark_op}
+\end{equation}
+其中$\bar{\psi}(z)$和$\psi(0)$是空间分离$z$的夸克场，$\Gamma$是Dirac结构，$U(z,0) = \mathcal{P}\exp[-ig\int_0^z dz' A^z(z')]$是沿$z$方向的直Wilson线（基础表示）。
+\end{definition}
+
+该算符的核子矩阵元定义准PDF\cite{Liu2019isovector}：
+
+\begin{equation}
+\tilde{q}_\Gamma(x, P^z) \equiv \int_{-\infty}^{\infty} \frac{dz}{4\pi} e^{ixP^z z} \langle P| \mathcal{O}_\Gamma(z) |P\rangle。
+\label{eq:quasi_pdf_def}
+\end{equation}
+
+对于非极化情形，$\Gamma$的两个主要选择是$\gamma^z$和$\gamma^t$。对于螺旋度情形，$\Gamma = \gamma^z\gamma_5$（或$\gamma^t\gamma_5$，Euclidean $\gamma_3\gamma_5$）。对于横向性（transversity）情形，$\Gamma = \sigma^{z\mu}$（$\mu$为横向指标）。
+
+\subsection{$\Gamma = \gamma^z$ vs $\Gamma = \gamma^t$：算符混合的核心问题}
+\label{sec:mixing}
+
+\textbf{这是夸克准PDF算符选择中最关键的理论问题}\cite{Liu2019isovector,Alexandrou2017,Chen2016improved}。
+
+\begin{itemize}
+    \item \textbf{$\Gamma = \gamma^z$（传统选择）：}在早期的LaMET计算中被广泛使用。然而，其后被发现\textbf{在$O(a^0)$层次上与twist-3标量准PDF算符$O_I = \bar{\psi}U\psi$发生混合}\cite{Liu2019isovector}。这一混合不是由离散化引起的——它在连续极限$a \to 0$下仍然存在。因此，在RI/MOM非微扰重整化中必须处理这种混合，引入额外的系统误差。
+
+    \item \textbf{$\Gamma = \gamma^t$（无混合选择）：}LPC合作组\cite{Liu2019isovector}指出，$\Gamma = \gamma^t$算符\textbf{在$O(a^0)$层次上完全无混合}。这一结论的理论基础是：在连续QCD中，$\gamma^t$与$\gamma^z$属于不同的Lorentz表示，前者在非前行运动学下不与标量算符混合。因此，选择$\Gamma = \gamma^t$显著简化了非微扰重整化过程。
+\end{itemize}
+
+\textbf{LPC合作组的计算实践}\cite{Liu2019isovector}验证了这一优势：使用$\Gamma = \gamma^t$的准PDF算符在CLS系综（$a = 0.086$~fm, $M_\pi = 356$~MeV）上进行的计算，显示了良好的收敛性和与全局拟合的一致性。
+
+对于\textbf{螺旋度}情形，$\Gamma = \gamma^z\gamma_5$（沿Wilson线方向）是与twist-3轴矢算符混合的。类似地，选择$\Gamma = \gamma^t\gamma_5$可以避免这一问题\cite{Alexandrou2017}。
+
+\subsection{投影算符：$Z_{\text{mp}}$ vs $Z_{/\mskip-1mu p}$}
+
+在RI/MOM方案中，对重整化因子$Z$的确定涉及投影算符的选择\cite{Liu2019isovector}。LPC合作组系统地研究了两种投影：
+
+\begin{itemize}
+    \item \textbf{最小投影（$Z_{\text{mp}}$）：}选取$\gamma^t$和$\gamma^z$项的系数之和，对应于准PDF的物理组合；
+    \item \textbf{$\slashed{p}$投影（$Z_{/\mskip-1mu p}$）：}$P = \slashed{p}/(4p^t)$，对应于完整的Dirac结构。
+\end{itemize}
+
+\textbf{关键数值结果}\cite{Liu2019isovector}：在$p^R_z = 0$处，$\delta Z \equiv Z_{/\mskip-1mu p} - Z_{\text{mp}}$相对$Z_{\text{mp}}$的偏离小于5\%。这证明在领头阶，两种投影对重整化因子的给出是一致的。随着$p^R_z$的增加，差异增大，但不影响最终匹配后的物理PDF（因为匹配核中的对应差异在固定阶数下被吸收）。
+
+\section{夸克算符的重整化}
+
+\subsection{线性发散与辅助$z$-场形式}
+
+准PDF夸克算符中的Wilson线引入了\textbf{线性发散}（$\sim |z|/a$）。Chen、Ji和Zhang\cite{Chen2016improved}利用辅助$z$-场形式给出了其系统处理：
+
+\begin{definition}[辅助$z$-场]
+\begin{equation}
+Z(z) = L(z, \infty), \qquad [\partial_z - igA^z(z)] Z(z) = 0。
+\label{eq:Z_field}
+\end{equation}
+该场满足与无限重夸克完全类似的运动方程。Wilson线可以表示为$L(z,0) = Z(z)Z^\dagger(0)$。
+\end{definition}
+
+Wilson线的重整化类似于重夸克两点函数\cite{Chen2016improved}：
+
+\begin{equation}
+\boxed{L_{\text{ren}}(z, 0) = Z^{-1}_Z e^{-\delta m |z|} L(z, 0)}。
+\label{eq:Wilson_renorm}
+\end{equation}
+
+其中$\delta m$是线性发散的质量抵消项，$Z_Z$是对数发散的重整化常数。在线性发散被吸收后，准夸克分布\textbf{最多包含对数发散}——这就是``改进的准夸克分布''（improved quasi quark distribution）的核心含义\cite{Chen2016improved}。
+
+陈-Ji-Zhang\cite{Chen2016improved}在格点微扰论中证明：对应于单圈$g^2C_F/(4\pi^2)[(z/a)\tan^{-1}(z/a) - \frac{1}{2}\ln(1+z^2/a^2)]$的线性发散，质量抵消项$\delta m$的确定在领阶与格点作用量和规范选择无关。但高阶修正和$\Lambda_{\text{QCD}}$的规范依赖性需要通过非微扰方案（如RI/MOM或自重整化\cite{Huo2021self}）来确定。
+
+\subsection{RI/MOM非微扰重整化方案}
+
+Alexandrou等人\cite{Alexandrou2017}提出了准PDF的\textbf{完整RI/MOM非微扰重整化方案}。对于无混合的算符（螺旋度$\gamma^z\gamma_5$和横向性$\sigma^{z\mu}$），重整化条件为：
+
+\begin{equation}
+\boxed{Z^{-1}_q Z_{\mathcal{O}}(z) \frac{1}{12}\operatorname{Tr}\left[ V(p, z) \left(V^{\text{Born}}(p, z)\right)^{-1} \right] \Big|_{p^2 = \bar{\mu}^2_0} = 1},
+\label{eq:RI_MOM_condition}
+\end{equation}
+
+其中$V(p,z)$是\textbf{截肢顶点函数}（amputated vertex function），$V^{\text{Born}}(p,z) = i\gamma_3\gamma_5 e^{ipz}$（对螺旋度算符）是其树级值，$Z_q$是通过夸克传播子确定的夸克场重整化常数。
+
+\textbf{LPC合作组的关键贡献}\cite{Liu2019isovector}在于将RI/MOM方案系统地应用于$\Gamma = \gamma^t$的情形，提供了完整的NLO匹配核和详细的标度依赖性分析。重整化后的准PDF为：
+
+\begin{equation}
+\tilde{h}_R(z, P^z, p^R_z, \mu_R) = Z^{-1}(z, p^R_z, a^{-1}, \mu_R) \tilde{h}(z, P^z, a^{-1}) \big|_{a \to 0}。
+\label{eq:renorm_ME}
+\end{equation}
+
+\subsection{混合重整化方案中的夸克算符}
+
+Ji等人提出的\textbf{混合重整化方案}\cite{Ji2021hybrid}也可直接应用于夸克准PDF算符。在短距离（$|z| < z_s$），使用ratio重整化：
+
+\begin{equation}
+\tilde{h}^R_{\text{short}}(z, P^z) = \frac{\tilde{h}^n_B(z, P^z, 1/a)}{\tilde{h}^n_B(z, P^z = 0, 1/a)}。
+\end{equation}
+
+在长距离（$|z| > z_s$），使用自重整化因子$Z_R(z, 1/a)$。对于夸克情形，线性发散系数$k_{\text{quark}}$与胶子情形的$k_{\text{gluon}}$之间通过$k_{\text{gluon}}/k_{\text{quark}} \approx C_A/C_F = 9/4$相关联（领头阶）。
+
+\section{夸克准PDF的NLO匹配核}
+
+\subsection{匹配核的因子化结构}
+
+在RI/MOM方案中重整化后，准PDF通过因子化定理与$\overline{\text{MS}}$ PDF联系\cite{Liu2019isovector,Izubuchi2018}：
+
+\begin{equation}
+\tilde{q}(x, P^z, p^R_z, \mu_R) = \int_{-1}^{1} \frac{dy}{|y|} C\left(\frac{x}{y}, r, \frac{yP^z}{\mu}, \frac{yP^z}{p^R_z}\right) q(y, \mu) + \mathcal{O}\left(\frac{M^2}{P^2_z}, \frac{\Lambda^2_{\text{QCD}}}{P^2_z}\right)。
+\label{eq:matching}
+\end{equation}
+
+\textbf{关键参数：}$r = \mu^2_R/(p^R_z)^2$是RI/MOM标度与参考动量的比值。匹配核$C$对$r$、$P^z/\mu$和$P^z/p^R_z$的依赖在固定圈数的微扰论中残留——这构成了匹配系统误差的一个重要来源\cite{Liu2019isovector}。
+
+\subsection{最小投影下的NLO匹配核}
+
+LPC合作组\cite{Liu2019isovector}给出了$\Gamma = \gamma^t$、最小投影下的完整NLO匹配核：
+
+\begin{equation}
+C\left(x, r, \frac{p^z}{\mu}, \frac{p^z}{p^R_z}\right) = \delta(1-x) + \left[ f_{1,\text{mp}}\left(x, \frac{p^z}{\mu}\right) - \left|\frac{p^z}{p^R_z}\right| f_{2,\text{mp}}\left(1 + \frac{p^z}{p^R_z}(x-1), r\right) \right]_+ + \mathcal{O}(\alpha^2_s)。
+\label{eq:matching_coeff}
+\end{equation}
+
+其中裸匹配核$f_{1,\text{mp}}$具有分段形式\cite{Liu2019isovector}：
+
+\begin{equation}
+f_{1,\text{mp}}\left(x, \frac{p^z}{\mu}\right) = \frac{\alpha_s C_F}{2\pi} \times
+\begin{cases}
+\frac{1+x^2}{1-x} \ln\frac{x}{x-1} + 1, & x > 1 \\[6pt]
+\frac{1+x^2}{1-x} \ln\frac{4x(1-x)(p^z)^2}{\mu^2} - \frac{x(1+x)}{1-x}, & 0 < x < 1 \\[6pt]
+-\frac{1+x^2}{1-x} \ln\frac{x}{x-1} - 1, & x < 0。
+\end{cases}
+\label{eq:f1mp}
+\end{equation}
+
+\textbf{物理含义：}$x > 1$区域对应于夸克携带多于核子纵向动量的``非物理''贡献——这是准PDF的非局域性质导致的，在匹配过程中被系统地消除。$0 < x < 1$区域对应于物理的夸克PDF（$x > 0$）和反夸克PDF（$x < 0$映射到反夸克）。对数$\ln((p^z)^2/\mu^2)$是匹配核中DGLAP演化效应的体现。
+
+\textbf{抵消项}$f_{2,\text{mp}}$具有更复杂的函数形式\cite{Liu2019isovector}，依赖于$r$参数，并在$p^R_z \to 0$极限下使$f_{2,\text{mp}} \to 0$——这与物理直觉一致：零参考动量下的RI/MOM重整化等价于ratio方案。
+
+\subsection{$\slashed{p}$投影与最小投影的关系}
+
+Liu等人\cite{Liu2019isovector}证明，在$\slashed{p}$投影下，\textbf{裸匹配核与最小投影完全相同}：$f_{1,/\mskip-1mu p} = f_{1,\text{mp}}$。差异仅出现在抵消项$f_{2,/\mskip-1mu p} \neq f_{2,\text{mp}}$，且这一差异在$p^R_z = 0$处消失。因此，从匹配后的PDF的角度看，两种投影的剩余差异是$\mathcal{O}(\alpha^2_s)$效应。
+
+\subsection{$\Gamma = \gamma^z$情形中的混合处理}
+
+对于$\Gamma = \gamma^z$，Alexandrou等人\cite{Alexandrou2017}发展了一套去除与标量算符混合的系统方法。这涉及计算混合的RI/MOM重整化矩阵（$2\times2$矩阵，包含对角和非对角元素），并通过微扰反演将其转换为$\overline{\text{MS}}$方案下的纯PDF。由于混合处理的复杂性，LPC合作组建议\cite{Liu2019isovector}直接采用无混合的$\Gamma = \gamma^t$方案。
+
+\section{螺旋度与横向性夸克算符}
+
+\subsection{螺旋度算符}
+
+极化（螺旋度）夸克PDF由轴矢准PDF算符定义\cite{LP3helicity,Alexandrou2017}：
+
+\begin{equation}
+\Delta \tilde{q}(x, P^z) = \int_{-\infty}^{\infty} \frac{P^z dz}{2\pi} e^{ixP^z z} \frac{1}{2P^0} \langle PS| \bar{\psi}(z) \gamma^z \gamma_5 U(z,0) \psi(0) |PS\rangle。
+\label{eq:helicity_quasi}
+\end{equation}
+
+其中$S^\mu = (P^z, 0, 0, P^0)$是纵向极化矢量。LP$^3$合作组\cite{LP3helicity}在物理$\pi$介子质量下使用$\Gamma = \gamma^z\gamma_5$算符进行了同位旋矢量螺旋度PDF的计算，核子动量高达3.0~GeV，结果与NNPDF和JAM的全局分析在大$x$区域一致。
+
+\textbf{与$\Gamma = \gamma^t\gamma_5$的对比：}类似于非极化情形，$\Gamma = \gamma^t\gamma_5$在$O(a^0)$层次上无混合\cite{Liu2019isovector}。然而，Euclidean空间中$\gamma^t\gamma_5$与Minkowski光锥$\gamma^+\gamma_5$的对应关系与$\gamma^z\gamma_5$不同——在大$P^z$极限下两者趋于相同的物理PDF，但幂次修正可能不同。
+
+\subsection{横向性算符}
+
+横向性PDF由张量准PDF算符定义\cite{Alexandrou2017}：
+
+\begin{equation}
+\delta \tilde{q}(x, P^z) = \int_{-\infty}^{\infty} \frac{P^z dz}{2\pi} e^{ixP^z z} \frac{1}{2P^0} \langle PS_\perp| \bar{\psi}(z) \sigma^{z\mu} U(z,0) \psi(0) |PS_\perp\rangle。
+\label{eq:transversity_quasi}
+\end{equation}
+
+其中$S_\perp$是横向极化矢量，$\mu$是横向Lorentz指标。横向性PDF是最少被实验约束的leading-twist PDF之一，格点QCD的计算因此具有独特的价值\cite{Chu2024transversity}。
+
+\section{味结构与同位旋组合}
+
+\subsection{同位旋矢量组合的独特优势}
+
+夸克算符的\textbf{味结构}在决定计算可行性方面起关键作用。同位旋矢量组合（如$u-d$）具有独特的理论优势\cite{LP3helicity,Liu2019isovector}：
+
+\begin{enumerate}
+    \item \textbf{非连通图自动抵消：}在精确的$SU(2)$同位旋对称性下，非连通图（disconnected diagrams）在$u-d$组合中精确抵消——因为$\langle \bar{u}\Gamma u \rangle_{\text{disc}} = \langle \bar{d}\Gamma d \rangle_{\text{disc}}$。这意味着\textbf{不需要计算计算量巨大且信噪比极差的非连通图}。
+
+    \item \textbf{算符混合简化：}在$u-d$组合中，仅涉及同位旋矢量算符，混合模式远简单于味单态情形。
+
+    \item \textbf{物理兴趣：}$u-d$的PDF精确描述了质子中上夸克和下夸克分布的不对称性——这对理解质子的味结构至关重要。
+\end{enumerate}
+
+\subsection{味单态组合的挑战}
+
+味单态组合（$u+d+s+\ldots$）涉及\textbf{完整的非连通图贡献}，且在大动量下与胶子PDF通过$2\times2$匹配矩阵混合\cite{Yao2023,Zhang2019}。在LaMET框架中，味单态夸克PDF的格点计算比同位旋矢量情形困难得多——这也是为什么大多数高精度LaMET计算都聚焦于同位旋矢量组合。
+
+\section{夸克算符在重味物理中的推广}
+
+\subsection{重-轻夸克算符与HQET光锥分布振幅}
+
+在重介子物理中，夸克算符的自然推广是\textbf{重-轻夸克双线性型}（heavy-light quark bilinears）\cite{Han2025heavy}。HQET中的重介子光锥分布振幅（LCDA）定义为：
+
+\begin{equation}
+\phi_+(t, \mu) = \frac{1}{i f_H} \langle 0| \bar{q}_s(t n_+) \slashed{n}_+ \gamma_5 W_c(t n_+, 0) h_v(0) |H(v)\rangle,
+\label{eq:heavy_light_LCDA}
+\end{equation}
+
+其中$h_v$是HQET中的有效重夸克场，$q_s$是软轻夸克场，$W_c$是连接两者的有限距离Wilson线。该算符同时包含了\textbf{重夸克有效理论}（通过$h_v$）和\textbf{光锥非局域性}（通过$W_c$和$t n_+$分离），是HQET与LaMET在算符层面交汇的典范\cite{Han2025heavy}。
+
+\subsection{辅助重夸克场向伴随表示的推广}
+
+Zhang等人\cite{Zhang2019}将Chen-Ji-Zhang的辅助$z$-场方法\cite{Chen2016improved}从夸克的基本表示推广到胶子的\textbf{伴随表示}：
+
+\begin{equation}
+\mathcal{L} = \mathcal{L}_{\text{QCD}} + \bar{Q}(x)(in \cdot D - m)Q(x),
+\label{eq:adjoint_heavy_quark}
+\end{equation}
+
+其中$Q(x)$是伴随表示中的辅助重夸克场。这一推广使得夸克准PDF算符中的Wilson线重整化方法（乘性质量抵消项$\delta m$）可以自然地应用于胶子准PDF算符。
+
+\section{夸克算符在格点计算中的应用全景}
+
+\begin{table}[H]
+\centering
+\caption{夸克算符在格点QCD计算中的主要应用汇总}
+\label{tab:quark_op_applications}
+\begin{tabular}{lcccl}
+\toprule
+物理量 & $\Gamma$ & 味结构 & 算符类型 & 代表性工作 \\
+\midrule
+非极化夸克PDF & $\gamma^t$ 或 $\gamma^z$ & $u-d$ & 非局域 & \cite{Liu2019isovector} \\
+螺旋度夸克PDF & $\gamma^z\gamma_5$ & $u-d$ & 非局域 & \cite{LP3helicity} \\
+横向性PDF  & $\sigma^{z\mu}$ & $u-d$ & 非局域 & \cite{Chu2024transversity} \\
+夸克DA & $\gamma^z\gamma_5$ & 味特定 & 非局域（真空-强子） & — \\
+矢量流（FF） & $\gamma^\mu$ & 味特定 & 局域 & \cite{CLQCD2024charm} \\
+轴矢流（$g_A$） & $\gamma^\mu\gamma_5$ & $u-d$ & 局域 & — \\
+标量矩阵元 & $I$ & 味特定 & 局域 & \cite{CLQCD2025quark_mass} \\
+赝标量衰变常数 & $\gamma_5$ & 味特定 & 局域 & \cite{CLQCD2024charm} \\
+重-轻LCDA & $\slashed{n}_+\gamma_5$ & 重-轻 & 非局域（HQET）& \cite{Han2025heavy} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{总结与展望}
+
+夸克算符是格点QCD中连接规范场组态与强子物理观测量的核心理论对象。本文的核心结论如下：
+
+\begin{enumerate}
+    \item \textbf{Dirac结构的选择是首要决策：}$\Gamma = \gamma^t$（非极化）和$\Gamma = \gamma^t\gamma_5$（螺旋度）在$O(a^0)$层次上\textbf{无算符混合}，应被优先采用\cite{Liu2019isovector}。$\Gamma = \gamma^z$算符与标量算符的混合需要额外的非微扰处理，增加了系统误差\cite{Alexandrou2017}。
+
+    \item \textbf{Wilson线的线性发散是夸克算符重整化的核心障碍：}Chen-Ji-Zhang的辅助$z$-场形式\cite{Chen2016improved}和Alexandrou等人的RI/MOM非微扰方案\cite{Alexandrou2017}是消除这一发散的两条互补途径——前者提供了一般的理论框架，后者提供了具体的数值实施。
+
+    \item \textbf{同位旋矢量组合（$u-d$）具有天然优势：}非连通图自动抵消、算符混合简化、物理兴趣浓厚\cite{LP3helicity}。味单态组合的非连通图处理仍是格点夸克PDF计算中一个开放的挑战。
+
+    \item \textbf{匹配核的精度进步：}LPC合作组\cite{Liu2019isovector}给出了$\Gamma = \gamma^t$情形下完整的NLO匹配核——包括最小投影和$\slashed{p}$投影的精确表达。目前NNLO匹配核仅对同位旋矢量非极化夸克情形可用，螺旋度和横向性仍为NLO。
+
+    \item \textbf{夸克算符向重味物理的推广：}重-轻夸克算符在HQET光锥分布振幅计算中的应用\cite{Han2025heavy}展示了夸克算符从轻强子到重味物理的连续性。
+\end{enumerate}
+
+\begin{thebibliography}{99}
+
+\bibitem{Liu2019isovector}
+Y.-S.~Liu \textit{et al.} (Lattice Parton Collaboration (LPC)),
+``Unpolarized isovector quark distribution function from lattice QCD: A systematic analysis of renormalization and matching,''
+Phys.\ Rev.\ D \textbf{101}, 034020 (2020), arXiv:1807.06566.
+\quad\textbf{[来源:} \texttt{refer/papers/Unpolarized isovector quark distribution function from Lattice QCD A systematic analysis of renormalization and matching.pdf}\textbf{]}
+（含$\gamma^t$算符、RI/MOM方案、NLO匹配核的完整推导）
+
+\bibitem{Chen2016improved}
+J.-W.~Chen, X.~Ji, and J.-H.~Zhang,
+``Improved quasi parton distribution through Wilson line renormalization,''
+Nucl.\ Phys.\ B \textbf{915}, 1 (2017), arXiv:1609.08102.
+\quad\textbf{[来源:} \texttt{refer/papers/Improved quasi parton distribution through Wilson line renormalization.pdf}\textbf{]}
+（含辅助$z$-场形式、线性发散的质量抵消项）
+
+\bibitem{Alexandrou2017}
+C.~Alexandrou, K.~Cichy, M.~Constantinou, K.~Hadjiyiannakou, K.~Jansen, H.~Panagopoulos, and F.~Steffens,
+``A complete non-perturbative renormalization prescription for quasi-PDFs,''
+Nucl.\ Phys.\ B \textbf{923}, 394 (2017), arXiv:1706.00265.
+\quad\textbf{[来源:} \texttt{refer/papers/A complete non-perturbative renormalization prescription for quasi-PDFs.pdf}\textbf{]}
+（含RI/MOM方案的完整非微扰实施与混合处理）
+
+\bibitem{LP3helicity}
+H.-W.~Lin \textit{et al.} (LP$^3$ Collaboration),
+``Proton isovector helicity distribution on the lattice at physical pion mass,''
+Phys.\ Rev.\ Lett.\ \textbf{121}, 242003 (2018), arXiv:1807.07431.
+\quad\textbf{[来源:} \texttt{refer/papers/Proton Isovector Helicity Distribution on the Lattice at Physical Pion Mass.pdf}\textbf{]}
+
+\bibitem{Chu2024transversity}
+M.-H.~Chu \textit{et al.} (LPC),
+``Nucleon transversity distribution in the continuum and physical mass limit,''
+Phys.\ Rev.\ D \textbf{109}, L091503 (2024), arXiv:2302.09961.
+\quad\textbf{[来源:} \texttt{refer/papers/Nucleon Transversity Distribution in the Continuum and Physical Mass Limit from Lattice QCD.pdf}\textbf{]}
+
+\bibitem{Ji2013Euclidean}
+X.~Ji,
+``Parton physics on a Euclidean lattice,''
+Phys.\ Rev.\ Lett.\ \textbf{110}, 262002 (2013), arXiv:1305.1539.
+\quad\textbf{[来源:} \texttt{refer/papers/Parton Physics on Euclidean Lattice.pdf}\textbf{]}
+
+\bibitem{Izubuchi2018}
+T.~Izubuchi, X.~Ji, L.~Jin, I.~W.~Stewart, and Y.~Zhao,
+``Factorization theorem relating Euclidean and light-cone parton distributions,''
+Phys.\ Rev.\ D \textbf{98}, 056004 (2018), arXiv:1801.03917.
+\quad\textbf{[来源:} \texttt{refer/papers/Factorization Theorem Relating Euclidean and Light-Cone Parton Distributions.pdf}\textbf{]}
+
+\bibitem{Ji2021hybrid}
+X.~Ji, Y.~Liu, A.~Sch\"afer, W.~Wang, Y.-B.~Yang, J.-H.~Zhang, and Y.~Zhao,
+``A hybrid renormalization scheme for quasi light-front correlations in LaMET,''
+Nucl.\ Phys.\ B \textbf{964}, 115311 (2021), arXiv:2008.03886.
+\quad\textbf{[来源:} \texttt{refer/papers/A Hybrid Renormalization Scheme for Quasi Light-Front Correlations in Large-Momentum Effective Theory.pdf}\textbf{]}
+
+\bibitem{Huo2021self}
+Y.-K.~Huo \textit{et al.} (LPC),
+``Self-renormalization of quasi-light-front correlators on the lattice,''
+Nucl.\ Phys.\ B \textbf{969}, 115443 (2021), arXiv:2103.02965.
+\quad\textbf{[来源:} \texttt{refer/papers/Self-Renormalization of Quasi-Light-Front Correlators on the Lattice.pdf}\textbf{]}
+
+\bibitem{Zhang2019}
+J.-H.~Zhang, X.~Ji, A.~Sch\"afer, W.~Wang, and S.~Zhao,
+``Accessing gluon parton distributions in large momentum effective theory,''
+Phys.\ Rev.\ Lett.\ \textbf{122}, 142001 (2019), arXiv:1808.10824.
+\quad\textbf{[来源:} \texttt{refer/papers/Accessing gluon parton distributions in large momentum effective theory.pdf}\textbf{]}
+
+\bibitem{Yao2023}
+F.~Yao, Y.~Ji, and J.-H.~Zhang,
+``Connecting Euclidean to light-cone correlations,''
+JHEP \textbf{11}, 021 (2023), arXiv:2212.14415.
+\quad\textbf{[来源:} \texttt{refer/papers/Connecting Euclidean to light-cone correlations From flavor nonsinglet in forward kinematics to flavor singlet in non-forward kinematics.pdf}\textbf{]}
+
+\bibitem{Han2025heavy}
+X.-Y.~Han \textit{et al.} (LPC),
+``Calculation of heavy meson light-cone distribution amplitudes from lattice QCD,''
+(2025), arXiv:2410.18654.
+\quad\textbf{[来源:} \texttt{refer/papers/Calculation of heavy meson light-cone distribution amplitudes from lattice QCD.pdf}\textbf{]}
+
+\bibitem{CLQCD2024charm}
+H.-Y.~Du \textit{et al.} (CLQCD),
+``Charmed meson masses and decay constants in the continuum,''
+Phys.\ Rev.\ D \textbf{109}, 054507 (2024), arXiv:2310.00814.
+\quad\textbf{[来源:} \texttt{refer/papers/Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\bibitem{CLQCD2025quark_mass}
+H.-Y.~Du \textit{et al.} (CLQCD),
+``Quark masses and low energy constants in the continuum,''
+Phys.\ Rev.\ D \textbf{111}, 054504 (2025), arXiv:2408.03548.
+\quad\textbf{[来源:} \texttt{refer/papers/Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, LPC),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\quad\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,'' 内部笔记。
+\quad\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}
+
+\bibitem{Egerer2022}
+C.~Egerer \textit{et al.} (HadStruc),
+``Towards the determination of the gluon helicity distribution,''
+Phys.\ Rev.\ D \textbf{106}, 094511 (2022), arXiv:2207.08733.
+\quad\textbf{[来源:} \texttt{refer/papers/Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics.pdf}\textbf{]}
+
+\end{thebibliography}
+
+\end{document}

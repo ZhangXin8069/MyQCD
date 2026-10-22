@@ -1,0 +1,269 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption,multirow}
+\usepackage{hyperref,xcolor,enumitem,mathtools}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的传播子求解：\\
+Dirac算符求逆、夸克源与迭代算法}
+\author{基于本库全部相关文献与教材的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+夸克传播子的计算——即格点Dirac算符$D[U]$的求逆——是格点QCD中\emph{计算成本最高、对最终物理精度影响最大}的单一数值步骤。从一个给定的夸克源（point source、smeared source、sequential source或all-to-all stochastic source）出发求解$D \chi = \eta$，这一操作在每一个规范组态上被重复执行数十至数千次，其效率直接决定了整个格点QCD计算的可行极限。与连续Dirac算符不同，格点Dirac算符是一个\textbf{高度病态}（ill-conditioned）的稀疏矩阵——在物理夸克质量（$m_\pi \sim 135$~MeV）处条件数$\kappa(D) \sim \mathcal{O}(1/(a m_q)) = \mathcal{O}(10^3-10^6)$，且本征值几乎覆盖了复平面上的Ginsparg--Wilson圆——对迭代求解器构成严峻的收敛挑战。
+
+本文基于本库中的核心教材（Gattringer与Lang的\textit{Quantum Chromodynamics on the Lattice}——第5.3节和第6.2节为夸克传播子的hopping展开与计算方法的标准参考；Gupta的\textit{Introduction to Lattice QCD}——第17章）以及约15篇研究论文，从以下五个层次系统解析格点QCD中的传播子求解：
+
+\textbf{第一层——夸克传播子的基本定义与Hopping展开（§2）：}
+从夸克传播子作为Dirac算符之逆的基本定义$S_F = D^{-1}$出发，阐述hopping展开的物理图像：$D^{-1} = (\mathbf{1} - \kappa H)^{-1} = \sum_{j=0}^\infty \kappa^j H^j$——夸克传播子可解释为\textbf{规范链接的非回溯路径的加权求和}（fermion lines）。揭示$\gamma_5$-厄米性的实际计算优势：$\gamma_5 D \gamma_5 = D^\dagger$允许从同一组解出发获得反向传播子——减半所需的Dirac方程求解次数。
+
+\textbf{第二层——夸克源的分类与构造（§3）：}
+系统阐述格点QCD中使用的五类夸克源：\textbf{点源}（point source, $\delta$函数）、\textbf{涂抹源}（Gaussian/Jacobi/Wuppertal smeared source, 增强与基态的耦合）、\textbf{顺序源}（sequential source, 用于三点函数中传播子的``连续''计算）、\textbf{随机噪声源}（$Z_2/Z_4$ stochastic source, 用于all-to-all传播子和非连通图估计）、\textbf{动量源}（momentum source, $e^{i p z}$型的空间注入）。对每类源，给出构造方法、计算成本的标度律和适用的物理场景。
+
+\textbf{第三层——Krylov子空间迭代求解器（§4）：}
+详述共轭梯度（CG）方法在格点Dirac算符求逆中的应用——及其收敛性对条件数$\kappa$的依赖。介绍BiCGStab和GMRES等非对称Krylov方法在天真Staggered和Wilson-Clover费米子（若不满足$\gamma_5$-厄米性时的变体）上的应用。讨论\textbf{多质量CG求解器}（multi-shift CG/MSCG）——利用位移不变性从同一Krylov子空间同时求解多个不同夸克质量下的传播子——这是格点QCD中``一次求解、多质量输出''的关键加速技术。
+
+\textbf{第四层——预条件子与高级求解技术（§5）：}
+阐述四类预条件技术的原理与应用：\textbf{奇数-偶数预条件}（even-odd preconditioning, 将Dirac算符分解为偶数/奇数子格点上的$2\times2$块矩阵——在Wilson费米子上将条件数减半）；\textbf{代数多重网格}（Algebraic Multigrid, AMG, 通过粗化-平滑循环在不同尺度上消除误差分量——对格点Dirac算符的低模收敛加速有显著效果）；\textbf{本征模缩减}（eigenmode deflation, 显式计算并投射掉最慢收敛的低模——将这些``困难本征值''在CG开始前从算符中移除）；\textbf{域墙/Overlap预条件子}（Domain-Wall/Overlap fermions的五维和精确手征算符的专用预条件技术）。
+
+\textbf{第五层——蒸馏方法：传播子求解与强子谱学的融合（§6）：}
+以本库中的蒸馏方法原始文献~\cite{Distillation2009}为实例，详述Laplacian低模本征向量投影如何将全格点大小的传播子问题压缩到数十至数百维的子空间——在保持物理精度的同时大幅降低了计算和存储成本。讨论蒸馏在PDF/DA计算中的拓展应用。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==========================================================================
+\section{引言：传播子——格点QCD计算成本的瓶颈}
+%==========================================================================
+
+\subsection{传播子求解的计算主导性}
+
+在典型的格点QCD计算中，夸克传播子的计算占据了\textbf{总计算时间的70--90\%}。对每个规范组态，需要求解数十至数千次Dirac方程$D[U] \chi = \eta$（每个内插算符、每个夸克味、每个动量注入、每个随机源向量对应一次求解）。物理夸克质量处Dirac算符的条件数$\kappa \sim 1/(a m_q) \sim 10^3\text{--}10^6$使得Krylov子空间求解器需要数千至数万次矩阵-向量乘法才能收敛。Gattringer与Lang在第6.2.4节明确指出~\cite{GattringerLang2010}：
+\begin{quote}
+``Most calculations...use a variant of the conjugate gradient (CG) algorithm [9] to compute the quark propagator. The CG method is an iterative method. Its convergence time depends on the condition number of the matrix.''
+\end{quote}
+
+\subsection{Dirac算符求逆的数学定义}
+
+夸克传播子$S_F(x, y)^{ab}_{\alpha\beta}$定义为Dirac算符$D$的逆~\cite{GattringerLang2010}：
+\begin{equation}
+\sum_{y} D(x|y)_{\alpha\beta}^{ab} \, S_F(y|z)_{\beta\gamma}^{bc} = \delta_{xz} \delta_{\alpha\gamma} \delta_{ac},
+\label{eq:prop_inverse}
+\end{equation}
+其中$a,b,c$是颜色指标，$\alpha,\beta,\gamma$是Dirac指标。实际上，传播子通过对\textbf{源向量}$\eta$逐列求解$D \chi = \eta$来获得——每一列对应Dirac和颜色空间中某个特定分量的$\delta$函数。
+
+\subsection{本库中的核心文献}
+
+\begin{table}[H]
+\centering
+\caption{本库中传播子求解相关的核心文献}
+\label{tab:prop_papers}
+\small
+\begin{tabular}{lp{9cm}}
+\toprule
+文献 & 核心贡献 \\
+\midrule
+\texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}~\cite{GattringerLang2010} &
+§5.3: Hopping展开与夸克传播子的费米子线图像; §6.2.1-6.2.4: 夸克源、涂抹、CG求解器 \\
+\texttt{refer/papers/A novel quark-field creation operator...pdf}~\cite{Distillation2009} & \textbf{蒸馏方法}——Laplacian低模投影的核心技术 \\
+\texttt{refer/papers/Distillation at High-Momentum.pdf} & 高动量下蒸馏的拓展——对boost强子态传播子的应用 \\
+\texttt{refer/papers/Gauge-Invariant Smearing...pdf} & Wilson费米子上的规范不变量涂抹与传播子构造 \\
+\texttt{refer/papers/Self-Renormalization...pdf}~\cite{Huo2021self} & 自重整化——$P_z=0$传播子矩阵元在ratio方案中的应用 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%==========================================================================
+\section{夸克传播子的基本定义与Hopping展开}
+%==========================================================================
+
+\subsection{夸克传播子作为Dirac算符之逆}
+
+格点上夸克传播子$D^{-1}(n|m)^{\beta b}_{\alpha a}$描述了从源点$m$处颜色$a$、Dirac分量$\alpha$到汇点$n$处颜色$b$、Dirac分量$\beta$的传播。与连续Dirac传播子不同，格点上的传播子是\textbf{全矩阵}——即使Dirac算符$D$是稀疏的（仅有最近邻耦合），其逆矩阵$D^{-1}$是稠密的（$\mathcal{O}(10^{12})$个复元素）。
+
+\subsection{Hopping展开：夸克传播子的路径求和图像}
+
+Gattringer与Lang第5.3.1节给出了夸克传播子的hopping展开~\cite{GattringerLang2010}。对于Wilson Dirac算符$D = C(\mathbf{1} - \kappa H)$，其中$\kappa = 1/[2(am+4)]$为hopping参数，$H$收集所有最近邻项，传播子的展开为：
+\begin{equation}
+\boxed{D^{-1}(n|m) = (\mathbf{1} - \kappa H)^{-1}(n|m) = \sum_{j=0}^\infty \kappa^j H^j(n|m)}.
+\label{eq:hopping_expansion_prop}
+\end{equation}
+每一项$\kappa^j H^j(n|m)$对应从$m$到$n$的\textbf{一条长度为$j$的规范链接路径}，权重为$\kappa^j$。路径由颜色矩阵的乘积$U_{\mu_1}\cdots U_{\mu_j}$和Dirac因子$(1-\gamma_{\mu_1})\cdots(1-\gamma_{\mu_j})$组成。性质$(1-\gamma_\mu)(1+\gamma_\mu) = 0$排除了$180^\circ$转折的路径（``非回溯''）。\textbf{对大夸克质量（小$\kappa$），级数快速收敛——短路径主导}；对流夸克质量（物理$u,d$），$\kappa$接近$\kappa_c$，需要极长路径才能收敛——hopping展开本身在数值上不实用，但其\textbf{图解诠释}构成了理解禁闭和强子谱的直观框架。
+
+\subsection{$\gamma_5$-厄米性的计算利用}
+
+$\gamma_5 D \gamma_5 = D^\dagger$（$\gamma_5$-厄米性~\cite{GattringerLang2010}）使得反向传播子可从正向解直接获得：
+\begin{equation}
+D^{-1}(m|n) = \gamma_5 \big[D^{-1}(n|m)\big]^\dagger \gamma_5,
+\label{eq:gamma5_hermiticity}
+\end{equation}
+从而将所需Dirac方程求解次数\textbf{减半}——这是格点QCD计算中的一个基本``免费午餐''。
+
+%==========================================================================
+\section{夸克源的分类与构造}
+%==========================================================================
+
+\subsection{点源}
+
+点源是\textbf{最基础的夸克源}~\cite{GattringerLang2010}：$\eta^{(m_0,\alpha_0,a_0)}(n)_{\alpha}^a = \delta_{n,m_0}\delta_{\alpha,\alpha_0}\delta_{a,a_0}$——在单一格点$m_0$处、单一Dirac分量$\alpha_0$、单一颜色分量$a_0$处注入。每条传播子需要12次Dirac方程求解（4个Dirac分量 $\times$ 3个颜色分量）。点源的优势在于简单且局域性极好（$\delta$函数源），局限在于与物理强子态的基态重叠因子可能很小——需要较大的时间分离$n_t$才能达到基态主导。
+
+\subsection{涂抹源——增强基态耦合}
+
+通过将点源替换为具有空间扩展的\textbf{涂抹源}，可增强基态与内插算符的重叠~\cite{GattringerLang2010}。Gaussian型（Wuppertal）涂抹源通过反复应用空间Laplacian算符来扩展源：
+\begin{equation}
+S^{(n+1)} = (\mathbf{1} + \omega \nabla^2) S^{(n)}, \qquad S^{(0)} = \delta\text{-source}.
+\label{eq:gaussian_smearing}
+\end{equation}
+涂抹半径通过迭代次数和权重$\omega$调节。Jacobi涂抹类似，但使用Dirac算符本身的逆来平滑。涂抹源使得有效质量平台在更早的$n_t$处出现——节省了统计分析所需的$n_t$范围。
+
+\subsection{顺序源——三点函数的传播子链}
+
+在形状因子和PDF的三点函数计算中，需要从一个源点$0$传播到算符插入点$y$，再从$y$传播到汇点$x$。\textbf{顺序源方法}通过将第二条腿的传播子``收缩''为一个组合对象来绕过第二条腿的独立求逆~\cite{GattringerLang2010}：
+\begin{equation}
+\Sigma(y,0) = \sum_{\mathbf{x}; x_0=t} e^{-i\mathbf{p}\cdot\mathbf{x}} S(y,x) \gamma_5 S(x,0),
+\label{eq:sequential_source}
+\end{equation}
+通过求解带源$e^{-i\mathbf{p}\cdot z}\gamma_5 S(z,0)$（仅在时间片$z_0=t$上的$\delta$函数源）的辅助Dirac方程，$\Sigma$可从一个\textbf{额外}的Dirac求逆中获得——而非从头算起。
+
+\textbf{成本-精度权衡：}顺序源法避免了在算符插入点需传播子外又需从头求逆的成本，但代价是每个末态动量$\mathbf{p}$都需要一个新顺序源——扫描多个$Q^2$值时计算成本与动量点数为线性增长。
+
+\subsection{随机噪声源——All-to-All传播子}
+
+对于非连通图（闭合夸克环）和味单态矩阵元的计算，需要夸克从\textbf{任意点到任意点}的传播子（all-to-all propagator）。直接计算需要从\begin{math}|\Lambda|\end{math}个源点出发——计算成本不可承受。随机噪声估计将全迹替换为噪声平均~\cite{GattringerLang2010}：
+\begin{equation}
+\operatorname{tr}[\Gamma D^{-1}(n|n)] \approx \frac{1}{N_r} \sum_{r=1}^{N_r} \eta^{(r)\dagger}(n) \Gamma [D^{-1} \eta^{(r)}](n),
+\label{eq:stochastic_all_to_all}
+\end{equation}
+其中$\eta^{(r)}$是满足$\langle \eta_i^* \eta_j \rangle = \delta_{ij}$的随机向量。$Z_2$（取$\pm 1$）和$Z_4$（取$\pm 1, \pm i$）噪声因方差最小而被广泛使用。方差随$1/N_r$减小——需要在$N_r$（计算成本）和精度之间平衡。\textbf{低模精确+高模随机}的混合方案（Truncated Solver Method, TSM）通过分离Dirac算符的低模和高模分量来优化收敛。
+
+\subsection{动量源}
+
+在RI/MOM重整化和某些形状因子计算中，需要具有\textbf{确定动量注入}$\mathbf{p}$的夸克传播子。动量源定义为~\cite{GattringerLang2010}：
+\begin{equation}
+\eta^{(p)}(n) = e^{i\mathbf{p}\cdot\mathbf{n}} \eta^{(0)}(n),
+\label{eq:momentum_source}
+\end{equation}
+即点源乘以空间平面波因子。求解从$\eta^{(p)}$出发的$D\chi = \eta^{(p)}$即获得动量投影的传播子。
+
+%==========================================================================
+\section{Krylov子空间迭代求解器}
+%==========================================================================
+
+\subsection{共轭梯度法——正定系统的标准工具}
+
+对于满足$\gamma_5$-厄米性的Dirac算符，$D^\dagger D$是厄米且正定的——可通过共轭梯度（CG）法高效求解法方程$D^\dagger D\, \chi = D^\dagger \eta$。CG在第$k$步产生近似解$\chi^{(k)}$，其残差在$k$步后按$(\sqrt{\kappa}-1)/(\sqrt{\kappa}+1)$的比例衰减——条件数$\kappa$越小，收敛越快。对Wilson和Clover费米子，$D$本身也近似正规——CG也可直接应用于$D$（而非仅限于$D^\dagger D$），收敛速率类似。
+
+\textbf{收敛准则：}通常当残差的$L_2$范数降至$10^{-8}\text{--}10^{-12}$倍源范数时终止迭代（``精确''解）。对某些应用（如随机噪声估计），可以接受非精确解（``sloppy CG''）——以截断CG迭代次数换取统计多样性。
+
+\subsection{多质量CG求解器（Multi-Shift CG）}
+
+MSCG利用CG的Krylov子空间\textbf{对质量参数的位移不变性}——对同一Dirac算符$D + \sigma_i$（不同质量参数$\sigma_i$），所有解$\chi_i$共享同一Krylov子空间~\cite{GattringerLang2010}。在一次CG迭代中，可\textbf{同时}产生多个$\sigma_i$值的解向量——几乎无额外矩阵-向量乘法成本。这彻底改变了多质量夸克传播子的计算范式——从``每个质量独立求解''变为``一次求解，全质量输出''。
+
+\subsection{非对称Krylov方法}
+
+对于不满足$\gamma_5$-厄米性的情况（如带有化学势或$\theta$项的Dirac算符），$D$本身不对称——需使用非对称Krylov方法：BiCGStab（双共轭梯度稳定化，需要$D$和$D^\dagger$的矩阵-向量积）或GMRES（广义最小残差，对非正规矩阵保持最优近似性质但内存消耗大）。在标准QCD（零化学势、零$\theta$角）中，$\gamma_5$-厄米性使CG成为首选。
+
+\subsection{收敛慢化：物理夸克质量的挑战}
+
+CG迭代次数与条件数$\kappa \sim 1/(a m_q)$成比例。当$m_\pi \to 135$~MeV时，$\kappa \sim 10^5\text{--}10^6$对典型格距——CG需要$\mathcal{O}(10^4)$次矩阵-向量乘法才能收敛。这一定量定律直接将物理$\pi$质量下的传播子求解推至Exascale计算资源的极限。
+
+%==========================================================================
+\section{预条件子与高级求解技术}
+%==========================================================================
+
+\subsection{偶数-奇数预条件}
+
+将格点按$n_1+n_2+n_3+n_4$的奇偶性划分为交错子格点，Dirac算符可写为$2\times 2$块矩阵：
+\begin{equation}
+D = \begin{pmatrix} D_{ee} & D_{eo} \\ D_{oe} & D_{oo} \end{pmatrix}.
+\label{eq:even_odd_precond}
+\end{equation}
+对Wilson型费米子，$D_{ee}$和$D_{oo}$是对角的（包含质量和Wilson项的对角部分）。奇偶预条件后，有效算符变为$D_{ee} - D_{eo} D_{oo}^{-1} D_{oe}$——其条件数约为原始$D$的\textbf{一半}，因此CG所需的迭代次数大致减半。偶奇预条件子几乎零额外成本——是格点QCD中的标准预处理。
+
+\subsection{代数多重网格（AMG/Adaptive Multigrid）}
+
+CG收敛慢的根本原因是Dirac算符的\textbf{低本征模}——对应约$\Lambda_{\text{QCD}}$的物理尺度的本征向量，在细格距上呈平滑变化（``近零模''）。代数多重网格通过在\textbf{粗格点}上近似求解这些平滑模式来加速CG~\cite{GattringerLang2010}。粗格点算符通过对细格点算符的限制（restriction）和延长（prolongation）算子来构建。AMG利用了低模的``平滑性''——在粗格点上这些模式的表观``频度''增高，从而可被标准CG在粗格点层高效处理。对Wilson-Clover费米子，AMG可以将$10^4$步CG降至$\mathcal{O}(10^2)$步——加速比达50--100。
+
+\subsection{本征模缩减}
+
+若Dirac算符的$N_{\text{ev}}$个最小本征值和本征向量已被精确计算（通过Davidson或ARPACK算法），可从CG的初始残差中\textbf{显式投射}掉这些本征分量：
+\begin{equation}
+r_0^{\perp} = r_0 - \sum_{i=1}^{N_{\text{ev}}} \langle v_i | r_0 \rangle v_i.
+\label{eq:deflation}
+\end{equation}
+投影后的有效条件数由$\lambda_{N_{\text{ev}}+1}/\lambda_{\max}$控制——比原始条件数$\lambda_{\min}/\lambda_{\max}$小几个数量级。本征模缩减对\textbf{同一组态上的多次求解}（如多个随机源向量的all-to-all传播子）特别有效——本征模计算的一次性成本可被数百至数千次求解的加速所回报。
+
+\subsection{域墙/Overlap费米子的专用预条件}
+
+五维度墙费米子和Overlap费米子的Dirac算符具有特殊的结构——需要专门的预条件策略。对Domain-Wall费米子，五维度墙的``中心''区域可使用类似四维Wilson费米子的预条件方法。Overlap费米子需要\textbf{矩阵符号函数}$\operatorname{sign}(\gamma_5 D_W)$的近似——通常通过有理逼近或Chebyshev多项式序列实现，每步近似都需对内核算符求逆。
+
+%==========================================================================
+\section{蒸馏方法——低模投影框架}
+%==========================================================================
+
+\subsection{基本原理}
+
+Peardon等人提出的蒸馏方法~\cite{Distillation2009}在\textbf{每个时间片}上将夸克场投影到\textbf{空间Laplacian算符}$\nabla^2$的$N_{\text{vec}}$个最低本征模所张成的子空间：
+\begin{equation}
+\square(n,m) = \sum_{k=1}^{N_{\text{vec}}} v^{(k)}(n) \, v^{(k)}(m)^\dagger,
+\label{eq:distillation_projector}
+\end{equation}
+其中$v^{(k)}$是$\nabla^2$在时间片内的本征向量。蒸馏的传播子自动\textbf{不含高模噪音}（高模被投影滤除），且\textbf{显式因子化}了颜色和空间指标——夸克传播子的秩从全格点大小降至$N_{\text{vec}} \times N_{\text{spatial}}$。
+
+\textbf{计算优势：}蒸馏将全格点传播子的存储需求从$\mathcal{O}(|\Lambda|^2)$降至$\mathcal{O}(N_{\text{vec}} |\Lambda_{\text{spatial}}|)$——在$N_{\text{vec}} \sim 50-200$时存储降低$10^3\text{--}10^6$倍。这一压缩使得变分方法的\textbf{基算符数量可以从几个扩展到数十个}，极大地增强了高激发态的分辨能力。
+
+\textbf{在PDF计算中的拓展~\cite{Distillation2018HM}：}蒸馏方法已推广到高动量强子态——对LaMET计算中的boost核子传播子，蒸馏可在保持合理计算成本的同时显著改善信噪比。
+
+%==========================================================================
+\section{总结}
+%==========================================================================
+
+基于本库核心教材和约15篇研究论文，本文系统解析了格点QCD中夸克传播子求解的完整技术体系。从hopping展开的路径求和图像，到五类夸克源的构造，再到Krylov子空间迭代求解器和预条件技术的加速，最后以蒸馏方法的低模投影框架为传播子求解与强子谱学的深度融合——夸克传播子的计算定义了格点QCD计算的可能性边界。
+
+\begin{thebibliography}{99}
+\bibitem{GattringerLang2010}
+C.~Gattringer and C.~B.~Lang,
+\textit{Quantum Chromodynamics on the Lattice}, Springer (2010).
+\\\textbf{[来源:} \texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}\textbf{]}。
+§5.3（Hopping展开与费米子线）、§6.2（夸克源、涂抹、CG求解器）。
+
+\bibitem{Gupta1997intro}
+R.~Gupta, ``Introduction to Lattice QCD,'' arXiv:hep-lat/9807028 (1997).
+\\\textbf{[来源:} \texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf}\textbf{]}。
+
+\bibitem{Distillation2009}
+M.~Peardon \textit{et al.} (Hadron Spectrum),
+``A novel quark-field creation operator construction for hadronic physics in lattice QCD,''
+Phys.\ Rev.\ D \textbf{80}, 054506 (2009), arXiv:0905.2160.
+\\\textbf{[来源:} \texttt{refer/papers/A novel quark-field creation operator construction for hadronic physics in lattice QCD.pdf}\textbf{]}。
+
+\bibitem{Distillation2018HM}
+``Distillation at High-Momentum,''
+\\\textbf{[来源:} \texttt{refer/papers/Distillation at High-Momentum.pdf}\textbf{]}。
+
+\bibitem{Huo2021self}
+Y.-K.~Huo \textit{et al.} (LPC),
+``Self-renormalization of quasi-light-front correlators on the lattice,''
+Nucl.\ Phys.\ B \textbf{969}, 115443 (2021), arXiv:2103.02965.
+\\\textbf{[来源:} \texttt{refer/papers/Self-Renormalization of Quasi-Light-Front Correlators on the Lattice.pdf}\textbf{]}。
+
+\bibitem{GaugeSmearing}
+``Gauge-Invariant Smearing and Matrix Correlators using Wilson Fermions at beta=6.2,''
+\\\textbf{[来源:} \texttt{refer/papers/Gauge-Invariant Smearing and Matrix Correlators using Wilson Fermions at beta=6.2.pdf}\textbf{]}。
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,'' 内部笔记。
+\\\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}。
+\end{thebibliography}
+\end{document}

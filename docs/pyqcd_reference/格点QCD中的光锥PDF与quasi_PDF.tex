@@ -1,0 +1,413 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption}
+\usepackage{hyperref,xcolor,enumitem}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的光锥PDF与准PDF：\\
+定义、匹配与等价性}
+\author{基于本库文献的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+部分子分布函数（PDFs）的``光锥定义''和``准PDF定义''代表了同一种物理——强子内部夸克和胶子的动量分布——在两种不同运动学框架下的表述。光锥PDF $q(x,\mu)$由Minkowski时空中沿光锥方向分离的夸克场的关联函数定义，是Lorentz不变的且具有清晰的概率诠释，但无法在Euclidean格点上直接计算。准PDF $\tilde{q}(x,P^z)$由Euclidean时空中沿空间方向分离的夸克场的等时关联函数定义，可以在格点上直接计算，但依赖于外部强子动量$P^z$且不具有概率诠释。二者的桥梁是LaMET因子化定理：在大动量$P^z$极限下，准PDF趋近光锥PDF，两者的差异由微扰可计算的匹配核$C(x/y,\mu/(yP^z))$和高阶twist修正$\mathcal{O}(\Lambda^2_{\text{QCD}}/(P^z)^2)$来系统控制。本文聚焦于这两种PDF定义的\textbf{直接对比}：从Feynman部分子模型的无穷大动量系起源出发，对比光锥PDF和准PDF在定义域、Lorentz变换性质、紫外/红外发散结构和物理诠释上的核心差异；展示从准PDF到光锥PDF的完整匹配流程——包括因子化定理的严格形式、NLO匹配核的分段结构、以及夸克-胶子味单态混合的$2\times2$矩阵处理；最后以CLQCD/LPC合作组的胶子PDF连续极限计算为例，展示从格点准PDF到可与全局拟合比较的物理光锥PDF的完整转换链。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{两种PDF，同一个物理}
+
+部分子分布函数是描述强子内部夸克和胶子动量分布的基本物理量。在理论上，PDF可以有两种等价但又截然不同的表述方式：
+
+\begin{enumerate}
+    \item \textbf{光锥PDF（light-cone PDF, LC-PDF）}：由Feynman的部分子模型启源，在现代QCD因子化定理中由Minkowski时空中的光锥关联函数严格定义。它是Lorentz不变的，具有清晰的概率密度诠释，但\textbf{无法在Euclidean格点上直接计算}。
+
+    \item \textbf{准PDF（quasi-PDF）}：由Ji在2013年提出\cite{Ji2013Euclidean}，由Euclidean时空中空间方向的等时关联函数定义。它\textbf{可以在格点上直接计算}，但依赖于外部强子动量$P^z$且不具有纯粹的概率诠释。
+\end{enumerate}
+
+两者的关系是\cite{Ji2014LaMET}：
+\begin{quote}
+``The parton distribution Eq.(1) can be regarded for the nucleon in the rest frame but the probe is traveling at the speed of light, and hence the light-cone correlation; On the other hand, the distribution Eq.(7) is obtained from a static probe on a nucleon traveling at the speed of light.''
+\end{quote}
+
+\textbf{本文的核心论题是：}这两种PDF定义之间的精确对应关系、相互转换的数学机制、以及在格点计算实践中如何从计算的准PDF提取物理的光锥PDF。
+
+\section{光锥PDF：Feynman部分子模型的QCD实现}
+
+\subsection{Feynman的原始定义}
+
+Feynman在1969年提出了部分子模型的朴素图像\cite{Ji2014LaMET}：一个以接近光速运动的强子可以被视为一束互不相互作用的部分子（夸克和胶子），它们由动量密度$q(x)$和$g(x)$来表征，其中$x = k^z/P^z$是部分子携带的纵向动量份额。
+
+\subsection{QCD中的光锥PDF}
+
+在现代QCD因子化框架中，非极化夸克PDF由光锥关联算符的核子矩阵元严格定义\cite{Izubuchi2018}：
+
+\begin{definition}[夸克光锥PDF]
+\begin{equation}
+\boxed{q(x, \mu) = \int \frac{d\xi^-}{4\pi} e^{-ixP^+\xi^-} \langle P| \bar{\psi}(\xi^-) \gamma^+ \mathcal{U}(\xi^-, 0) \psi(0)(\mu) |P\rangle},
+\label{eq:LC_quark_pdf}
+\end{equation}
+其中$\xi^\pm = (t \pm z)/\sqrt{2}$是光锥坐标，$P^+ = (P^0 + P^z)/\sqrt{2}$，$\mathcal{U}(\xi^-,0) = \mathcal{P}\exp[-ig\int_0^{\xi^-} d\eta^- A^+(\eta^-)]$是光锥Wilson线。$\mu$是$\overline{\text{MS}}$重整化标度。
+\end{definition}
+
+\begin{definition}[胶子光锥PDF]\cite{Chen2025gluon}
+\begin{equation}
+\boxed{xg(x, \mu) = \int \frac{dz^-}{2\pi P^+} e^{-ixP^+z^-} \langle P| F^{a}_{+\mu}(z^-) \mathcal{U}^{ab}(z^-, 0) F^{b\mu}_{\phantom{b\mu}+}(0)(\mu) |P\rangle}。
+\label{eq:LC_gluon_pdf}
+\end{equation}
+\end{definition}
+
+\textbf{光锥PDF的核心性质：}
+
+\begin{enumerate}
+    \item \textbf{Lorentz不变性（boost不变性）：}光锥PDF $q(x,\mu)$不依赖于核子动量$P^z$——它在任何参考系中都具有相同的值\cite{Ji2014LaMET}。这是光锥定义的根本优势。
+
+    \item \textbf{概率诠释：}在$A^+ = 0$（光锥规范）下，$\mathcal{U} = 1$，$q(x,\mu)$可以严格解释为在核子中找到携带纵向动量份额$x$的夸克的\textbf{概率密度}（对$x>0$）或反夸克的概率密度（对$x<0$，$q(-x) = -\bar{q}(x)$）。
+
+    \item \textbf{定义域：}$x \in [-1, 1]$。$x>0$对应于夸克，$x<0$对应于反夸克。动量求和规则$\int_0^1 dx\, x[\sum_q q(x) + g(x)] = 1$在$\overline{\text{MS}}$方案下成立\cite{Fan2018gluon}。
+
+    \item \textbf{标度演化：}光锥PDF的标度依赖性由DGLAP方程控制：$\frac{d}{d\ln\mu^2} q(x,\mu) = \frac{\alpha_s(\mu)}{2\pi} \int_x^1 \frac{dy}{y} P_{qq}(x/y) q(y,\mu)$。
+\end{enumerate}
+
+\subsection{为何无法在格点上直接计算？}
+
+光锥PDF的致命缺陷——也是LaMET方法存在的根本理由——在于：定义式(\ref{eq:LC_quark_pdf})中的关联函数涉及沿\textbf{光锥方向}$\xi^- = (t-z)/\sqrt{2}$分离的场，不可避地包含\textbf{实时间$t$的依赖性}。格点QCD在Euclidean时空中表述（通过Wick旋转$t \to -i\tau$将实时间替换为虚时间），因而无法直接计算任何包含实时间依赖性的Minkowski关联函数\cite{Izubuchi2018}。
+
+\begin{quote}
+``Since the lattice theory is defined in a discretized Euclidean space with imaginary time, it is very difficult to calculate Minkowskian quantities with real-time dependence such as the PDF.''\cite{Izubuchi2018}
+\end{quote}
+
+\section{准PDF：格点可计算的Euclidean替代}
+
+\subsection{准夸克PDF的定义}
+
+季向东在2013年提出的准PDF\cite{Ji2013Euclidean}将光锥关联替换为\textbf{空间方向的等时关联}：
+
+\begin{definition}[准夸克PDF]
+\begin{equation}
+\boxed{\tilde{q}(x, P^z) = \int_{-\infty}^{\infty} \frac{dz}{4\pi} e^{ixP^z z} \langle P| \bar{\psi}(z) \Gamma U(z, 0) \psi(0) |P\rangle},
+\label{eq:quasi_quark_pdf}
+\end{equation}
+其中$\Gamma = \gamma^t$（无算符混合，推荐选择\cite{Liu2019isovector}）或$\Gamma = \gamma^z$，$U(z,0) = \mathcal{P}\exp[-ig\int_0^z dz' A^z(z')]$是沿$z$方向的\textbf{空间Wilson线}。
+\end{definition}
+
+\subsection{准胶子PDF的定义}
+
+\begin{definition}[准胶子PDF]\cite{Chen2025gluon,Zhang2019}
+\begin{equation}
+\boxed{\tilde{x}\tilde{g}(x, P^z) = \frac{1}{\mathcal{N}} \int \frac{dz}{2\pi P^z} e^{-ixzP^z} \tilde{h}^R(z, P^z)},
+\label{eq:quasi_gluon_pdf}
+\end{equation}
+其中$\tilde{h}^R(z, P^z) = \langle P|\mathcal{O}(z)|P\rangle_R$是重整化的胶子算符矩阵元，$\mathcal{O}(z) = M_{tx;tx} + M_{ty;ty} - 2M_{xy;xy}$是基础表示下可乘性重整化的组合\cite{Chen2025gluon}。
+\end{definition}
+
+\textbf{准PDF的核心性质：}
+
+\begin{enumerate}
+    \item \textbf{格点可计算性：}式(\ref{eq:quasi_quark_pdf})中的所有量——夸克场$\psi$、Wilson线$U$、Fourier变换——都可以在Euclidean格点上直接计算。
+
+    \item \textbf{外部动量依赖性：}准PDF $\tilde{q}(x, P^z)$依赖于外部核子动量$P^z$——这与光锥PDF的根本不同。在有限$P^z$下，$\tilde{q}(x, P^z) \neq q(x, \mu)$。
+
+    \item \textbf{扩展的定义域：}准PDF的定义域为$x \in (-\infty, \infty)$——不仅在$[-1,1]$内有支持，而且在$|x| > 1$区域也有非零值。$|x| > 1$的贡献对应于``非物理''的夸克携带多于核子总动量的组态——这是准PDF的非局域性质导致的，在$P^z \to \infty$极限下被幂次压低。
+
+    \item \textbf{非概率诠释：}即使在$A^z = 0$规范下，$\tilde{q}(x, P^z)$也不具有严格的概率密度诠释——因为空间方向的关联不能简单地等同于光锥方向的关联。
+\end{enumerate}
+
+\subsection{光锥PDF与准PDF的系统对比}
+
+\begin{table}[H]
+\centering
+\caption{光锥PDF与准PDF的定义属性对比}
+\label{tab:LC_vs_quasi}
+\begin{tabular}{lcc}
+\toprule
+属性 & 光锥PDF $q(x,\mu)$ & 准PDF $\tilde{q}(x,P^z)$ \\
+\midrule
+定义关联 & 光锥方向$\xi^- = (t-z)/\sqrt{2}$ & 空间方向$z$（等时） \\
+涉及的场 & Minkowski，实时间$t$ & Euclidean，虚时间$\tau$ \\
+Dirac结构 & $\gamma^+$ & $\gamma^t$或$\gamma^z$ \\
+Wilson线 & 光锥方向，$A^+$ & 空间方向，$A^z$ \\
+定义域 & $x \in [-1,1]$ & $x \in (-\infty,\infty)$ \\
+Lorentz boost & \textbf{不变} & \textbf{依赖}$P^z$ \\
+格点上直接计算 & 不可 & 可 \\
+概率诠释 & 是（$A^+=0$规范） & 否 \\
+紫外发散 & 对数（DR中$1/\epsilon$） & 对数+线性（$1/a$） \\
+重整化方案 & $\overline{\text{MS}}$ & RI/MOM或混合方案 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{桥梁：LaMET因子化定理}
+
+\subsection{基本结构}
+
+两种PDF之间不是毫无关联的——它们通过\textbf{LaMET因子化定理}建立了精确的数学联系\cite{Izubuchi2018}：
+
+\textbf{因子化定理}\cite{Izubuchi2018}：
+\begin{equation}
+\boxed{\tilde{q}(x, P^z) = \int_{-1}^{1} \frac{dy}{|y|} C\left(\frac{x}{y}, \frac{\mu}{yP^z}\right) q(y, \mu) + \mathcal{O}\left(\frac{\Lambda_{\text{QCD}}^2}{(xP^z)^2}, \frac{\Lambda_{\text{QCD}}^2}{((1-x)P^z)^2}, \frac{M^2}{(P^z)^2}\right)}。
+\label{eq:factorization_theorem}
+\end{equation}
+匹配核$C$具有微扰展开：$C(\xi, \mu/P^z) = \delta(1-\xi) + \frac{\alpha_s}{2\pi}C^{(1)}(\xi, \mu/P^z) + \mathcal{O}(\alpha_s^2)$。
+
+\textbf{该定理的物理诠释：}
+
+\begin{enumerate}
+    \item 准PDF（格点上可算）和光锥PDF（物理上需要的）具有\textbf{相同的红外结构}——它们编码了强子内部相同的非微扰物理；
+    \item 两者的差异完全来自\textbf{紫外区域}——即大动量（$\gtrsim P^z$）模式的贡献不同。这些差异由微扰可计算的匹配核$C$来编码；
+    \item 高阶twist修正（$\sim 1/(P^z)^2$）是可系统控制的——更大的$P^z$给出更小的修正。
+\end{enumerate}
+
+\subsection{NLO匹配核的详细结构}
+
+对于非极化夸克PDF（$\Gamma = \gamma^t$），NLO匹配核具有以下显式形式\cite{Liu2019isovector}：
+
+\begin{equation}
+C\left(\xi, \frac{\mu}{P^z}\right) = \delta(1-\xi) + \frac{\alpha_s C_F}{2\pi} \times
+\begin{cases}
+\frac{1+\xi^2}{1-\xi} \ln\frac{\xi}{\xi-1} + 1, & \xi > 1 \\[8pt]
+\frac{1+\xi^2}{1-\xi} \ln\frac{4\xi(1-\xi)(P^z)^2}{\mu^2} - \frac{\xi(1+\xi)}{1-\xi}, & 0 < \xi < 1 \\[8pt]
+-\frac{1+\xi^2}{1-\xi} \ln\frac{\xi}{\xi-1} - 1, & \xi < 0。
+\end{cases}
+\label{eq:NLO_matching}
+\end{equation}
+
+\textbf{三个区域的物理意义：}
+\begin{itemize}
+    \item \textbf{$\xi > 1$：}对应于夸克携带多于核子动量的贡献——在准PDF中存在但光锥PDF中没有。匹配核将这部分``非物理''贡献映射为零。
+    \item \textbf{$0 < \xi < 1$：}物理区域。准PDF中的夸克分布通过DGLAP型卷积被修正为光锥PDF。对数项$\ln((P^z)^2/\mu^2)$是连接两个不同标度处PDF的关键。
+    \item \textbf{$\xi < 0$：}对应反夸克区域。匹配核保证反夸克分布的正确处理。
+\end{itemize}
+
+\subsection{胶子PDF的$2\times2$味单态混合}
+
+对于胶子PDF，匹配涉及与夸克PDF的\textbf{味单态混合}\cite{Zhang2019,Yao2023}：
+
+\begin{equation}
+\begin{pmatrix} \tilde{g}(x, P^z) \\ \tilde{q}_S(x, P^z) \end{pmatrix} = \int_0^1 \frac{dy}{y}
+\begin{pmatrix} C_{gg}(x/y) & C_{gq}(x/y) \\ C_{qg}(x/y) & C_{qq}(x/y) \end{pmatrix}
+\begin{pmatrix} g(y, \mu) \\ q_S(y, \mu) \end{pmatrix} + \cdots。
+\label{eq:mixing_matrix}
+\end{equation}
+
+$C_{gq}$描述夸克PDF对胶子准PDF的贡献——这是胶子准PDF算符在外部夸克态中``看到''夸克分布的结果。$C_{qg}$描述相反的过程。Yao、Ji和Zhang\cite{Yao2023}给出了所有四个矩阵元素的完整NLO表达式。
+
+\textbf{关键的事实：}UV重整化阶段不发生混合（Li-Ma-Qiu\cite{Li2018multiplicative}的严格证明），但微扰匹配到光锥PDF的阶段通过硬匹配核发生混合\cite{Zhang2019}。
+
+\section{从准PDF到光锥PDF：完整的匹配流程}
+
+\subsection{Step 1：裸矩阵元计算}
+
+在格点上计算裸矩阵元$\tilde{h}^B(z, P^z, 1/a) = \langle P|\mathcal{O}(z)|P\rangle$。该步骤涉及蒸馏/动量涂抹夸克场、Clover $F_{\mu\nu}$的构造、Wilson线的HYP涂抹等技术支持\cite{Chen2025gluon,Peardon2009}。
+
+\textbf{裸矩阵元中的发散：}$\sim e^{-\delta m|z|/a}$的线性发散（Wilson线自能）+ $\sim \ln(1/a)$的对数发散。
+
+\subsection{Step 2：非微扰重整化}
+
+应用混合重整化方案\cite{Ji2021hybrid}消除UV发散：
+\begin{equation}
+\tilde{h}^R(z, P^z) = \frac{\tilde{h}^n_B(z, P^z)}{\tilde{h}^n_B(z, 0)} \theta(z_s - |z|) + \eta_s \frac{\tilde{h}^n_B(z, P^z)}{Z_R(z, 1/a)} \theta(|z| - z_s)。
+\end{equation}
+
+\subsection{Step 3：大$\lambda$外推与Fourier变换}
+
+大$\lambda = zP^z$区域的矩阵元通过$\tilde{h}^R(\lambda) = l_1 \lambda^{-a_1} e^{-\lambda/\lambda_0}$外推补全\cite{Chen2025gluon}，然后执行Fourier变换得到准PDF：
+
+\begin{equation}
+\tilde{x}\tilde{g}(x, P^z) = \frac{1}{\mathcal{N}} \int \frac{dz}{2\pi P^z} e^{-ixzP^z} \tilde{h}^R(z, P^z)。
+\end{equation}
+
+\subsection{Step 4：微扰匹配——从准PDF到光锥PDF}
+
+应用式(\ref{eq:factorization_theorem})中的匹配核，将准PDF从RI/MOM（或混合）方案转换为$\overline{\text{MS}}$方案下的光锥PDF。这一步将准PDF中的``非物理''成分（$|x|>1$的贡献）系统消除，并修正DGLAP演化效应。
+
+\subsection{Step 5：连续极限与无穷大动量外推}
+
+经过匹配的PDF仍然包含残余的$a^2$和$1/(P^z)^2$依赖性，通过联合外推消除\cite{Chen2025gluon}：
+
+\begin{equation}
+xg(x, P^z, a) = xg_0(x) + a^2 f(x) + a^2 (P^z)^2 h(x) + \frac{d(x)}{(P^z)^2}。
+\end{equation}
+
+$xg_0(x)$就是最终的可与全局拟合比较的物理光锥PDF。
+
+\section{Pragmatic对比：准PDF vs 赝PDF}
+
+\subsection{两种方案的区别}
+
+除了准PDF外，Radyushkin提出的\textbf{赝PDF}（pseudo-PDF）方案\cite{Radyushkin2018one_loop}提供了另一种从格点数据提取光锥PDF的方法：
+
+\begin{table}[H]
+\centering
+\caption{准PDF与赝PDF方案的方法论对比}
+\label{tab:quasi_vs_pseudo}
+\begin{tabular}{lcc}
+\toprule
+特性 & 准PDF（LaMET） & 赝PDF（pseudo-PDF） \\
+\midrule
+基本量 & $\tilde{q}(x, P^z)$，动量空间 & $\mathfrak{M}(\nu, z^2)$，坐标空间 \\
+Ioffe时间 & $\nu = zP^z$ & $\nu = -(p\cdot z)$（Lorentz不变） \\
+大标度极限 & $P^z \to \infty$ & $z \to 0$（短距离） \\
+因子化 & 动量卷积$\int dy/|y| C(x/y) q(y)$ & 坐标乘积$C(z^2\mu^2) I(\nu)$ \\
+匹配精度 & 在大$x$处更好（小$zP^z$） & 在全$x$范围均匀 \\
+幂次修正 & $\sim 1/[x^2(1-x)]$（端点增强）\cite{Braun2019power} & $\sim (1-x)$（大$x$压低）\cite{Braun2019power} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{两种方案都从同一个格点可观测量出发：}矩阵元$h(zP^z, z^2, a^{-1})$。Isubuchi等人\cite{Izubuchi2018}的OPE分析证明了两者的\textbf{等价性}——它们仅是同一因子化定理在不同空间（动量 vs 坐标）中的实现。
+
+\subsection{幂次修正的不同行为}
+
+Braun、Vladimirov和Zhang\cite{Braun2019power}的重正子分析揭示了两种方案中幂次修正的\textbf{函数形式具有本质差异}：
+
+\begin{itemize}
+    \item \textbf{准PDF（qPDF）：}功率修正$\sim 1/[x^2(1-x)]$——在小$x$和大$x$两处都被强烈增强。这意味着在有限的$P^z$下，端点区域的系统误差原则上比中点区域大得多\cite{Braun2019power}。
+
+    \item \textbf{赝PDF（pPDF）：}功率修正$\sim (1-x)$——在大$x$处被\textbf{压低}。这使得pPDF在提取大$x$区域的PDF方面具有独特优势\cite{Braun2019power}。
+\end{itemize}
+
+\textbf{这一差异的物理起源：}准PDF在构造中使用了空间方向的Fourier变换，将$z \to \infty$的截断（或外推）误差映射到了动量空间中的端点振荡。赝PDF通过在坐标空间（Ioffe-时间空间）中直接工作，避免了这一Fourier变换引入的端点增强效应。
+
+\section{从准PDF到光锥PDF的数值实例}
+
+\subsection{夸克PDF：同位旋矢量非极化情形}
+
+LPC合作组\cite{Liu2019isovector}在CLS系综（$a=0.086$fm, $M_\pi=356$MeV）上使用$\Gamma=\gamma^t$准PDF算符计算了同位旋矢量非极化夸克PDF。RI/MOM重整化后，NLO匹配得到的$\overline{\text{MS}}$ PDF为$xq(x)$。关键的数值结果包括：
+
+\begin{itemize}
+    \item 从准PDF（虚线）到物理PDF（实线）的匹配在$P^z=2.3$~GeV下显著改变了分布的形状——特别是在中等$x$区域，匹配``推动''了准PDF向物理PDF收敛；
+    \item RI/MOM标度（$\mu_R$, $p^R_z$）和投影算符（$Z_{\text{mp}}$ vs $Z_{/\mskip-1mu p}$）的依赖性在匹配后的物理PDF中被大幅减少——这是因子化定理正确性的重要验证。
+\end{itemize}
+
+\subsection{胶子PDF：连续极限的实证}
+
+CLQCD/LPC合作组\cite{Chen2025gluon}在三格点间距（$a=\{0.105,0.0897,0.0775\}$~fm）上进行了非极化胶子准PDF的计算。经过完整的匹配+外推流程后，得到的物理光锥胶子PDF $xg(x)/\langle x\rangle_g$ 与CT18 NNLO、NNPDF NNLO和JAM24全局拟合在误差范围内一致。
+
+\begin{quote}
+``After the extrapolation, the value of PDF is consistent with zero with slightly negative central value... We observe that the theoretical and experimental results in the large-$x$ region are both very close to zero, indicating the suppression of the gluon PDF at large $x$.''\cite{Chen2025gluon}
+\end{quote}
+
+\textbf{这一结果的含义：}在不同格点间距和不同动量下计算的准PDF——每个都包含各自的格点artifacts和$P^z$依赖性——在经过系统性的匹配和联合外推后，\textbf{收敛到同一个物理光锥PDF}。这是LaMET/准PDF方法的终极验证：\textbf{准PDF $\to$ 光锥PDF的转换是自洽的、可重复的和物理上有意义的}。
+
+\section{总结}
+
+光锥PDF和准PDF是现代格点部分子物理的``双生子''——一个是物理上需要的终极目标（但格点上不可直接到达），一个是技术上可计算的出发点（但本身不具有直接的物理意义）。两者通过LaMET因子化定理这一``数学桥梁''实现了精确的系统对应。
+
+\begin{enumerate}
+    \item \textbf{光锥PDF是目标：}Lorentz不变，具有概率诠释，定义域$[-1,1]$，由Minkowski光锥关联函数定义，无法在Euclidean格点上直接计算\cite{Ji2013Euclidean,Izubuchi2018}。
+
+    \item \textbf{准PDF是工具：}依赖于外部动量$P^z$，定义域$(-\infty,\infty)$，由Euclidean空间等时关联函数定义，可以在格点上直接计算\cite{Ji2013Euclidean,Liu2019isovector}。
+
+    \item \textbf{因子化定理是桥梁：}$\tilde{q}(x,P^z) = \int dy/|y|\, C(x/y,\mu/(yP^z))\, q(y,\mu) + \mathcal{O}(1/(P^z)^2)$，匹配核$C$在微扰QCD中可计算\cite{Izubuchi2018}。
+
+    \item \textbf{完整的转换链：}裸矩阵元$\to$重整化$\to$大$\lambda$外推$\to$Fourier变换（准PDF）$\to$微扰匹配（$\overline{\text{MS}}$ PDF）$\to$连续极限+无穷大动量外推（物理光锥PDF）\cite{Chen2025gluon}。
+
+    \item \textbf{准PDF和赝PDF是同一物理的两种``坐标选择''：}准PDF在动量空间中匹配（$P^z\to\infty$），赝PDF在坐标空间中匹配（$z\to 0$）。两者在OPE层面上是等价的\cite{Izubuchi2018,Radyushkin2018one_loop}。根据幂次修正的不同行为，赝PDF在大$x$区域具有系统优势\cite{Braun2019power}。
+
+    \item \textbf{数值验证：}从CLQCD/LPC的三格点间距准胶子PDF\cite{Chen2025gluon}到与全局拟合一致的光锥物理PDF，完整的转换链已在实践中被验证是自洽的、可收敛的和物理上有意义的。
+\end{enumerate}
+
+\begin{thebibliography}{99}
+
+\bibitem{Ji2013Euclidean}
+X.~Ji,
+``Parton physics on a Euclidean lattice,''
+Phys.\ Rev.\ Lett.\ \textbf{110}, 262002 (2013), arXiv:1305.1539.
+\quad\textbf{[来源:} \texttt{refer/papers/Parton Physics on Euclidean Lattice.pdf}\textbf{]}
+
+\bibitem{Ji2014LaMET}
+X.~Ji,
+``Parton physics from large-momentum effective field theory,''
+Sci.\ China Phys.\ Mech.\ Astron.\ \textbf{57}, 1407 (2014), arXiv:1404.6680.
+\quad\textbf{[来源:} \texttt{refer/papers/Parton Physics from Large-Momentum Effective Field Theory.pdf}\textbf{]}
+
+\bibitem{Izubuchi2018}
+T.~Izubuchi, X.~Ji, L.~Jin, I.~W.~Stewart, and Y.~Zhao,
+``Factorization theorem relating Euclidean and light-cone parton distributions,''
+Phys.\ Rev.\ D \textbf{98}, 056004 (2018), arXiv:1801.03917.
+\quad\textbf{[来源:} \texttt{refer/papers/Factorization Theorem Relating Euclidean and Light-Cone Parton Distributions.pdf}\textbf{]}
+
+\bibitem{Liu2019isovector}
+Y.-S.~Liu \textit{et al.} (LPC),
+``Unpolarized isovector quark distribution function from lattice QCD: A systematic analysis of renormalization and matching,''
+Phys.\ Rev.\ D \textbf{101}, 034020 (2020), arXiv:1807.06566.
+\quad\textbf{[来源:} \texttt{refer/papers/Unpolarized isovector quark distribution function from Lattice QCD A systematic analysis of renormalization and matching.pdf}\textbf{]}
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\quad\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{Zhang2019}
+J.-H.~Zhang, X.~Ji, A.~Sch\"afer, W.~Wang, and S.~Zhao,
+``Accessing gluon parton distributions in large momentum effective theory,''
+Phys.\ Rev.\ Lett.\ \textbf{122}, 142001 (2019), arXiv:1808.10824.
+\quad\textbf{[来源:} \texttt{refer/papers/Accessing gluon parton distributions in large momentum effective theory.pdf}\textbf{]}
+
+\bibitem{Braun2019power}
+V.~M.~Braun, A.~Vladimirov, and J.-H.~Zhang,
+``Power corrections and renormalons in parton quasi-distributions,''
+Phys.\ Rev.\ D \textbf{99}, 014013 (2019), arXiv:1810.00048.
+\quad\textbf{[来源:} \texttt{refer/papers/Power corrections and renormalons in parton quasi-distributions.pdf}\textbf{]}
+
+\bibitem{Radyushkin2018one_loop}
+A.~Radyushkin,
+``One-loop evolution of parton pseudo-distribution functions on the lattice,''
+Phys.\ Rev.\ D \textbf{98}, 014019 (2018), arXiv:1801.02427.
+\quad\textbf{[来源:} \texttt{refer/papers/One-loop evolution of parton pseudo-distribution functions on the lattice.pdf}\textbf{]}
+
+\bibitem{Yao2023}
+F.~Yao, Y.~Ji, and J.-H.~Zhang,
+``Connecting Euclidean to light-cone correlations,''
+JHEP \textbf{11}, 021 (2023), arXiv:2212.14415.
+\quad\textbf{[来源:} \texttt{refer/papers/Connecting Euclidean to light-cone correlations From flavor nonsinglet in forward kinematics to flavor singlet in non-forward kinematics.pdf}\textbf{]}
+
+\bibitem{Li2018multiplicative}
+Z.-Y.~Li, Y.-Q.~Ma, and J.-W.~Qiu,
+``Multiplicative renormalizability of quasi-parton operators,''
+Phys.\ Rev.\ Lett.\ \textbf{122}, 062002 (2019), arXiv:1809.01836.
+\quad\textbf{[来源:} \texttt{refer/papers/Multiplicative renormalizability of quasi-parton operators.pdf}\textbf{]}
+
+\bibitem{Chen2016improved}
+J.-W.~Chen, X.~Ji, and J.-H.~Zhang,
+``Improved quasi parton distribution through Wilson line renormalization,''
+Nucl.\ Phys.\ B \textbf{915}, 1 (2017), arXiv:1609.08102.
+\quad\textbf{[来源:} \texttt{refer/papers/Improved quasi parton distribution through Wilson line renormalization.pdf}\textbf{]}
+
+\bibitem{Ji2021hybrid}
+X.~Ji, Y.~Liu, A.~Sch\"afer, W.~Wang, Y.-B.~Yang, J.-H.~Zhang, and Y.~Zhao,
+``A hybrid renormalization scheme for quasi light-front correlations in LaMET,''
+Nucl.\ Phys.\ B \textbf{964}, 115311 (2021), arXiv:2008.03886.
+\quad\textbf{[来源:} \texttt{refer/papers/A Hybrid Renormalization Scheme for Quasi Light-Front Correlations in Large-Momentum Effective Theory.pdf}\textbf{]}
+
+\bibitem{Fan2018gluon}
+Z.-Y.~Fan, Y.-B.~Yang, A.~Anthony, H.-W.~Lin, and K.-F.~Liu,
+``Gluon quasi-PDF from lattice QCD,''
+Phys.\ Rev.\ Lett.\ \textbf{121}, 242001 (2018), arXiv:1808.02077.
+\quad\textbf{[来源:} \texttt{refer/papers/Gluon Quasi-PDF From Lattice QCD.pdf}\textbf{]}
+
+\bibitem{Peardon2009}
+M.~Peardon \textit{et al.} (Hadron Spectrum),
+``A novel quark-field creation operator construction for hadronic physics in lattice QCD,''
+Phys.\ Rev.\ D \textbf{80}, 054506 (2009), arXiv:0905.2160.
+\quad\textbf{[来源:} \texttt{refer/papers/A novel quark-field creation operator construction for hadronic physics in lattice QCD.pdf}\textbf{]}
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,'' 内部笔记。
+\quad\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}
+
+\end{thebibliography}
+
+\end{document}

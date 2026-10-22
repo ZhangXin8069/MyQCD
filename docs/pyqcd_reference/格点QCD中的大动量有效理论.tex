@@ -1,0 +1,498 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption}
+\usepackage{hyperref,xcolor,enumitem}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{remark}{注记}[section]
+\newtheorem{theorem}{定理}[section]
+
+\title{\heiti 格点QCD中的大动量有效理论（LaMET）：\\
+从Feynman的无穷大动量系到第一性原理部分子物理}
+\author{基于本库文献的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+大动量有效理论（Large-Momentum Effective Theory, LaMET）是由季向东于2013--2014年提出的革命性理论框架，它解决了格点QCD无法直接计算Minkowski光锥部分子物理这一困扰学界数十年的基本难题。LaMET的核心洞见在于：通过Lorentz boost，空间方向的等时关联函数在大强子动量极限下趋近光锥关联函数；二者的差异由微扰可计算的匹配核和幂次压低的$1/P^z$修正来系统控制。这一思想将格点QCD中计算的部分子``准观测量''与高能散射实验中提取的``光锥观测量''置于完全平行的地位——正如PDF从不同硬散射过程中提取，同一个光锥量也可以从不同的格点准算符中提取（普适性类）。本文系统阐述LaMET的完整理论体系：从Feynman的无穷大动量系（IMF）的历史渊源出发，详述LaMET作为有效场论的严格表述及其与重夸克有效理论（HQET）的精确类比；深入讨论准PDF和赝PDF两种互补方案的等价性证明；系统分析因子化定理的严格结构、匹配核的微扰计算和幂次修正的分类；全面总结LaMET在夸克PDF、胶子PDF、螺旋度分布、GPDs、TMDs、DAs等广泛部分子物理量中的应用全景；最后讨论RGR+LRR精度控制框架和未来在物理$\pi$质量下实现百分级精度的路径。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{引言：一个困扰数十年的基本难题}
+
+部分子分布函数（PDFs）是描述强子内部夸克和胶子动量分布的基本物理量，是连接QCD第一性原理与LHC对撞机实验唯象学的核心纽带。然而，PDFs的现代QCD定义涉及\textbf{Minkowski时空中的光锥关联函数}\cite{Izubuchi2018,Zhang2019}：
+
+\begin{equation}
+q(x, \mu) = \int \frac{d\xi^-}{4\pi} e^{-ixP^+\xi^-} \langle P| \bar{\psi}(\xi^-) \gamma^+ \mathcal{U}(\xi^-, 0) \psi(0)(\mu) |P\rangle,
+\end{equation}
+
+其中$\xi^\pm = (t \pm z)/\sqrt{2}$是光锥坐标。这一关联涉及沿$\xi^-$方向分离的场，不可避地包含实时间$t$的依赖性。
+
+格点QCD——从第一性原理非微扰求解QCD的最强大数值工具——是在\textbf{Euclidean时空中表述的}（通过Wick旋转$t \to -i\tau$将实时间替换为虚时间）。这意味着：
+
+\begin{quote}
+``Since the lattice theory is defined in a discretized Euclidean space with imaginary time, it is very difficult to calculate Minkowskian quantities with real-time dependence such as the PDF.''\cite{Izubuchi2018}
+\end{quote}
+
+这一困境在2013年之前构成了格点部分子物理的\textbf{根本性障碍}。传统方法只能通过计算局域算符的矩阵元来获取PDF的Mellin矩$\int dx\, x^{n-1}q(x)$，但由于离散化破坏$O(4)$对称性导致的算符混合，实际只能计算前两三个矩——远不足以重建完整的$x$依赖。
+
+光前量子化（light-front quantization）是另一种理论尝试，但同样面临根本性困难：其``时间''坐标是光前时间$\xi^+$（Minkowskian量），无法在Euclidean格点上通过Monte Carlo模拟求解。
+
+\textbf{2013年，季向东提出了LaMET的原始思想，彻底改变了这一局面。}
+
+\section{LaMET的物理图像与核心洞见}
+
+\subsection{Feynman的无穷大动量系}
+
+LaMET的物理根源可以追溯到Feynman在1969年提出的\textbf{部分子模型的原始定义}\cite{Ji2014LaMET}。在Feynman的图像中，一个以接近光速运动的强子可以被视为一束互不相互作用的部分子（夸克和胶子），它们由动量密度$q(x)$和$g(x)$来表征。部分子携带纵向动量份额$x = k^z/P^z$，在强子动量$P^z \to \infty$（无穷大动量系，IMF）下，这一图像变得精确。
+
+季向东\cite{Ji2014LaMET}将LaMET与Feynman的原始图像建立了直接联系：
+
+\begin{quote}
+``This approach essentially goes back to the original definition of the parton densities by Feynman, i.e., starting with the ordinary momentum distribution $n(\vec{k}, P^z)$ related to the space correlation function of the quark fields in a hadron. This quantity is calculable using ordinary lattice QCD.''
+\end{quote}
+
+\subsection{Lorentz Boost的核心角色}
+
+LaMET最核心的物理图像是\textbf{Lorentz boost}：考虑连接$(0,0,0,z)$与坐标原点的空间线段。当boost速度趋近光速时，这条类空线段被\textbf{倾斜到光锥方向}\cite{Ji2013Euclidean}。它不可能是严格的光锥（因为不变长度$z^2 > 0$保持不变），但这种微小的偏离仅引入在$P^z \to \infty$极限下消失的幂次修正。
+
+\begin{quote}
+``Intuitively, the parton distribution can be regarded for the nucleon in the rest frame but the probe is traveling at the speed of light, and hence the light-cone correlation; On the other hand, the distribution Eq.(7) is obtained from a static probe on a nucleon traveling at the speed of light.''\cite{Ji2013Euclidean}
+\end{quote}
+
+\textbf{这一洞见的深远意义在于}\cite{Ji2017More}：Lorentz boost是``动力学''的——它可以将场之间的动力学演化吸收到boosted强子波函数中，而非探针算符中。因此，所有剩余动力学都包含在boosted强子波函数中，而探针算符本身是\textbf{静态的}（等时的、Euclidean的）。这样，所有的部分子物理都可以从大动量强子态中的\textbf{等时关联函数}来获取，而后者正是格点Monte Carlo模拟可以计算的。
+
+\subsection{准PDF的构造}
+
+从上述物理图像出发，季向东\cite{Ji2013Euclidean}构造了\textbf{准PDF}（quasi-PDF）——一个可以在格点上直接计算的Euclidean量：
+
+\begin{definition}[准夸克PDF]\cite{Ji2013Euclidean}
+\begin{equation}
+\boxed{\tilde{q}(x, P^z) = \int \frac{dz}{4\pi} e^{izk^z} \langle P| \bar{\psi}(z) \gamma^z \exp\left[-ig\int_0^z dz' A^z(z')\right] \psi(0) |P\rangle},
+\label{eq:quasi_pdf}
+\end{equation}
+其中$x = k^z/P^z$。在大$P^z$极限下，准PDF趋近光锥PDF，两者的差异由幂次修正$\mathcal{O}(\Lambda_{\text{QCD}}^2/(P^z)^2, M^2/(P^z)^2)$控制。
+\end{definition}
+
+\textbf{构造的解析推导}\cite{Ji2013Euclidean}：从twist-2局域算符出发
+\begin{equation}
+\mathcal{O}^{\mu_1\ldots\mu_n} = \bar{\psi}\gamma^{(\mu_1}iD^{\mu_2}\ldots iD^{\mu_n)}\psi - \text{trace},
+\end{equation}
+取其所有Lorentz指标为$z$方向：$\mathcal{O}^{z\ldots z}$。在大$P^z$的核子态中：
+\begin{equation}
+\langle P| \bar{\psi}\gamma^z iD^z\ldots iD^z\psi |P\rangle = 2a_n(\mu^2)(P^z)^n \times \left[1 + \mathcal{O}\left(\frac{\Lambda_{\text{QCD}}^2}{(P^z)^2}\right)\right]。
+\end{equation}
+将这一结果逆推为非局域形式，即得到式(\ref{eq:quasi_pdf})。
+
+\section{LaMET作为有效场论的系统表述}
+
+\subsection{与HQET的精确类比}
+
+季向东在2014年的长篇论文\cite{Ji2014LaMET}中将LaMET系统表述为\textbf{大动量有效场论}，并与重夸克有效理论（HQET）建立了精确的形式类比：
+
+\begin{table}[H]
+\centering
+\caption{LaMET与HQET的系统类比\cite{Ji2014LaMET}}
+\label{tab:LaMET_vs_HQET}
+\begin{tabular}{lcc}
+\toprule
+& HQET & LaMET \\
+\midrule
+大标度        & 重夸克质量 $m_Q$ & 强子动量 $P^z$ \\
+有效理论极限  & $m_Q \to \infty$ & $P^z \to \infty$ \\
+小参量展开    & $1/m_Q$          & $1/P^z$ \\
+匹配因子      & $Z(m_Q/\Lambda, \Lambda/\mu)$ & $Z(P^z/\Lambda, \Lambda/\mu)$ \\
+有效理论观测量 & $o(\mu)$         & $f(\mu)$（光锥量） \\
+全理论观测量   & $O(m_Q/\Lambda)$ & $F(P^z/\Lambda)$（准观测量） \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+LaMET的基本展开公式\cite{Ji2014LaMET}：
+
+\begin{definition}[LaMET展开]
+\begin{equation}
+\boxed{F(P^z/\Lambda) = Z(P^z/\Lambda, \Lambda/\mu) \, f(\mu) + \mathcal{O}\left(\frac{1}{(P^z)^2}\right) + \ldots},
+\label{eq:LaMET_expansion}
+\end{equation}
+其中$F$是格点上可计算的准观测量，$f(\mu)$是光锥观测量（$P^z \to \infty$极限下的有效理论），$Z$是微扰可计算的匹配因子。
+\end{definition}
+
+\subsection{极限交换的非对易性}
+
+LaMET因子化结构的一个关键物理基础是\textbf{极限的非对易性}\cite{Ji2013Euclidean,Ji2014LaMET}：
+
+\begin{quote}
+``In a typical Feynman diagram, the order of regularization UV divergences vs.\ $P^z \to \infty$ does not commute with each other. While defining the parton distribution requires $P^z$ to be much larger than the cut-off scale, the lattice simulations only makes sense when the UV cut-off is much larger than the hadron momentum.''
+\end{quote}
+
+具体而言\cite{Ji2017More}：
+\begin{itemize}
+    \item 光锥PDF是在先取$P^z \to \infty$、后进行UV重整化的极限下定义的；
+    \item 格点准PDF是在先施加格点UV截断（$a$有限）、后在有限$P^z$下计算的。
+\end{itemize}
+两种极限顺序的差异导致了不同的UV行为，但\textbf{红外物理是相同的}——这正是有效场论成立的充要条件。匹配因子$Z$中包含了所有与两种极限顺序差异相关的UV物理。
+
+\subsection{解析延拓的角色}
+
+季向东等人\cite{Ji2017More}通过一个具体的单圈积分例子，精确展示了Euclidean计算如何通过\textbf{解析延拓}恢复正确的Minkowski共线发散。Euclidean积分的结果为：
+\begin{equation}
+I_E = \frac{1}{8\pi\sqrt{\rho_E - 1 - i\epsilon}} \left[ \arctan\frac{\rho_E + \rho_M - 2(1-x)}{2\sqrt{\rho_E-1-i\epsilon}(1-x)} + \cdots \right],
+\end{equation}
+通过替换$p^\tau \to -ip^0$，$\sqrt{\rho_E-1-i\epsilon} \to -i\sqrt{1+\rho_M}$进行解析延拓，恢复为Minkowski结果：
+\begin{equation}
+I'_E = -i I_M = \frac{1}{8\pi} \left[ \ln\frac{(p^z)^2}{m^2} + \ln\frac{4x}{1-x} \right]。
+\end{equation}
+
+\textbf{核心教训}\cite{Ji2017More}：不能直接将Minkowski外动量插入Euclidean积分——这会改变极点结构。正确的程序是：先用Euclidean外动量完成Euclidean积分，\textbf{然后}将结果解析延拓到Minkowski时空。
+
+\subsection{普适性类（Universality Class）}
+
+LaMET框架中的一个深刻概念是\textbf{普适性类}\cite{Ji2014LaMET,Ji2017More}：
+
+\begin{definition}[普适性类]
+对于任意一个光锥算符$\mathcal{O}(\xi^-_1, \xi^-_2, \ldots)$，可以构造无穷多个Euclidean准算符$\mathcal{O}_i(z_1, z_2, \ldots)$（$i$是标记），它们在$P^z \to \infty$极限下都趋近同一个光锥算符。所有这样的准算符构成了一个\textbf{普适性类}。
+\end{definition}
+
+普适性类的存在具有重大的\textbf{实践意义}：允许在计算中选择$1/P_z^2$修正最小的最优准算符。季向东等人给出的具体例子是总胶子极化$\Delta G$的计算\cite{Ji2013gluon}：通过巧妙地选择准算符，可以使有限$P^z$下的结果尽可能接近$P^z \to \infty$的极限。
+
+\section{因子化定理的严格证明}
+
+\subsection{Izubuchi等人的OPE证明}
+
+Izubuchi、季向东、Jin、Stewart和赵勇在2018年给出了LaMET因子化定理的\textbf{严格算符乘积展开（OPE）证明}\cite{Izubuchi2018}。
+
+准PDF与光锥PDF之间的因子化关系为：
+
+\begin{theorem}[LaMET因子化定理]\cite{Izubuchi2018}
+\begin{equation}
+\boxed{\tilde{q}(x, P^z) = \int_{-1}^{1} \frac{dy}{|y|} C\left(\frac{x}{y}, \frac{\mu}{yP^z}\right) q(y, \mu) + \mathcal{O}\left(\frac{\Lambda_{\text{QCD}}^2}{(xP^z)^2}, \frac{\Lambda_{\text{QCD}}^2}{((1-x)P^z)^2}\right)},
+\label{eq:factorization_theorem}
+\end{equation}
+其中匹配核$C$具有微扰展开：
+\begin{equation}
+C(\xi, \mu/P^z) = \delta(1-\xi) + \frac{\alpha_s}{2\pi} C^{(1)}(\xi, \mu/P^z) + \ldots。
+\end{equation}
+\end{theorem}
+
+\textbf{证明的关键步骤}\cite{Izubuchi2018}：
+
+\begin{enumerate}
+    \item 准PDF的算符乘积展开识别出twist-2贡献作为领头项；
+    \item 短距离系数函数（匹配核）吸收了两个理论之间不同的UV行为；
+    \item 红外共线发散在两边严格匹配，保证因子化的成立；
+    \item 幂次修正来自高维（twist-3及以上）算符的贡献。
+\end{enumerate}
+
+\textbf{一个重要结论}\cite{Izubuchi2018}：$\overline{\text{MS}}$方案中的匹配系数依赖于\textbf{大部分子动量}$yP^z$而非核子动量$P^z$——这一事实对于理解匹配核的普适性至关重要。
+
+\subsection{准PDF与赝PDF的等价性}
+
+Izubuchi等人\cite{Izubuchi2018}同时证明了\textbf{准PDF方法和赝PDF方法遵循等价的因子化公式}。Radyushkin提出的赝PDF方案将Euclidean矩阵元重新解释为Ioffe-时间分布$\mathcal{M}(\nu, z^2)$，其中$\nu = -(p\cdot z)$。从同一个格点矩阵元出发：
+
+\begin{equation}
+h(zP^z, z^2, \Lambda) = \langle p|\bar{\psi}(z)\Gamma L(z,0)\psi(0)|p\rangle,
+\end{equation}
+
+两种方案的差异仅在于因子化执行的``空间''：
+\begin{itemize}
+    \item \textbf{LaMET（准PDF）：}在动量空间中执行因子化（$P^z \to \infty$极限）；
+    \item \textbf{赝PDF：}在坐标空间中执行因子化（$z \to 0$短距离极限）。
+\end{itemize}
+
+然而，``to get finite Ioffe-time $\nu = zP^z$, one again has to let $P^z \to \infty$, the same as used in LaMET. Thus, the requirement to get a precision parton distribution is exactly the same in the two approaches.''\cite{Ji2017More}
+
+\section{胶子准PDF：辅助重夸克场方法的威力}
+
+\subsection{伴随重夸克拉氏量}
+
+Zhang等人\cite{Zhang2019}将辅助``重夸克''场方法推广到伴随表示，用于系统处理胶子准PDF算符的重整化。引入辅助伴随重夸克场$Q$：
+
+\begin{equation}
+\mathcal{L} = \mathcal{L}_{\text{QCD}} + \bar{Q}(x)(in\cdot D - m)Q(x),
+\label{eq:auxiliary_lagrangian}
+\end{equation}
+
+其中$D_\mu = \partial_\mu + igA_\mu$是伴随表示中的协变导数，$n^\mu = (0,0,0,1)$是空间方向矢量。
+
+Wilson线可以被替换为两个辅助重夸克场的乘积：
+\begin{equation}
+\mathcal{O}(z_2, z_1) = F^{z\mu}_a(z_2) Q_a(z_2) \bar{Q}_b(z_1) F^z_{b,\mu}(z_1) = J^{z\mu}_1(z_2) J^z_{1,\mu}(z_1)。
+\end{equation}
+
+\subsection{四个可乘性重整化的构建块}
+
+Zhang等人识别出四个独立可乘性重整化的构建块\cite{Zhang2019}：
+
+\begin{equation}
+\begin{aligned}
+\mathcal{O}^1_R &= Z^2_{11} e^{\delta m \Delta z} F^{ti} L F^{ti}, \\
+\mathcal{O}^2_R &= Z^2_{22} e^{\delta m \Delta z} F^{zi} L F^{zi}, \\
+\mathcal{O}^3_R &= Z_{11}Z_{22} e^{\delta m \Delta z} F^{ti} L F^{zi}, \\
+\mathcal{O}^4_R &= Z^2_{22} e^{\delta m \Delta z} F^{z\mu} L F^z_\mu。
+\end{aligned}
+\end{equation}
+
+\textbf{一个重要的反例}\cite{Zhang2019}：组合$\mathcal{O}^5_R = -\mathcal{O}^1_R - \mathcal{O}^2_R - \mathcal{O}^4_R$（在Fan等人的首次胶子准PDF模拟中被使用\cite{Fan2018gluon}）\textbf{不是可乘性重整化的}，因为$\mathcal{O}^1_R$与$\mathcal{O}^{2,4}_R$的重整化常数不同。
+
+\subsection{味单态混合}
+
+在微扰匹配阶段，胶子准PDF和夸克准PDF通过$2\times2$矩阵混合\cite{Zhang2019,Yao2023}：
+
+\begin{equation}
+\begin{pmatrix} \tilde{g} \\ \tilde{q}_i \end{pmatrix} = \int \frac{dy}{y}
+\begin{pmatrix} C_{gg} & C_{gq} \\ C_{qg} & C_{qq} \end{pmatrix}
+\begin{pmatrix} g \\ q_j \end{pmatrix}。
+\end{equation}
+
+\textbf{关键区分}\cite{Zhang2019}：UV重整化阶段不发生混合（Li-Ma-Qiu\cite{Li2018multiplicative}的严格证明），但微扰匹配到光锥PDF的阶段通过硬匹配核发生混合。
+
+\section{幂次修正与三级精度控制}
+
+\subsection{线性发散与Wilson线自能}
+
+准PDF算符中的Wilson线产生了$\sim |z|/a$的线性发散。Chen、Ji和Zhang\cite{Chen2016improved}利用辅助$z$-场形式给出了其系统处理。Wilson线的重整化为：
+\begin{equation}
+L_{\text{ren}}(z,0) = Z^{-1}_Z e^{-\delta m|z|} L(z,0), \qquad \delta m = \frac{2\pi}{3a}\alpha_s + \mathcal{O}(\alpha_s^2)。
+\end{equation}
+
+Huo等人（LPC合作组）\cite{Huo2021self}的自重整化方案在多格点间距上联合提取了线性发散参数和重正子模糊性。
+
+\subsection{重正子与领先幂次精度}
+
+微扰匹配核$C_k(\alpha_s) = \sum_n c_{kn}\alpha_s^n$是渐近级数——系数阶乘增长$c_{kn} \propto n!(\beta_0/2\pi)^n$。这意味着twist-2贡献本身具有$\mathcal{O}(\Lambda_{\text{QCD}}/P^z)$的内在模糊性\cite{Zhang2023RGR,Su2023LRR}。
+
+Zhang等人\cite{Zhang2023RGR}的RGR+LRR方案实现了twist-3（领先幂次）精度：
+\begin{equation}
+Z_R(z, a, \mu, \tau) = \exp[I_{\text{lat}}(a^{-1}) - I(\mu) - \delta m(a,\tau)z - m_0(\tau)z]。
+\end{equation}
+在$\pi$介子价夸克PDF数据（$P^z=1.9$~GeV）上，匹配精度在$x=0.2\text{--}0.5$区域提高了\textbf{3--5倍}。
+
+\subsection{联合外推}
+
+经过重整化和匹配的PDF仍包含残余的$a$和$P^z$依赖性，最终通过联合外推消除\cite{Chen2025gluon}：
+\begin{equation}
+xg(x, P^z, a) = xg_0(x) + a^2 f(x) + a^2 (P^z)^2 h(x) + \frac{d(x)}{(P^z)^2}。
+\end{equation}
+
+\section{LaMET的应用全景}
+
+\subsection{已实现的部分子物理量}
+
+LaMET框架的普适性使其可以应用于\textbf{几乎所有的光锥部分子物理量}\cite{Ji2013Euclidean,Ji2014LaMET}。下表总结了当前已实现的格点计算：
+
+\begin{table}[H]
+\centering
+\caption{LaMET框架下已实现的格点部分子物理计算全景}
+\label{tab:LaMET_applications}
+\begin{tabular}{lcccl}
+\toprule
+物理量 & 类型 & 格点状态 & 典型精度 & 代表性工作 \\
+\midrule
+非极化夸克PDF & qPDF/pPDF & 物理$m_\pi$多$a$ & $\sim10\%$ & \cite{Liu2019isovector,LP3helicity} \\
+非极化胶子PDF & qPDF/pPDF & 三$a$连续极限 & $\sim30\%$ & \cite{Chen2025gluon,NieMiera2025} \\
+螺旋度夸克PDF & qPDF & 物理$m_\pi$ & $\sim15\%$ & \cite{LP3helicity} \\
+螺旋度胶子PDF & pPDF & 单一$a$探路 & 定性 & \cite{Egerer2022} \\
+$\pi$介子DA & qPDF & 物理$m_\pi$多$a$ & $\sim10\%$ & — \\
+$K$介子DA & qPDF & 单一$a$ & $\sim20\%$ & — \\
+$\pi$介子胶子PDF & qPDF & 单一$a$ & 定性 & \cite{Fan2023pion} \\
+Collins-Soper核 & qTMD & 多$a$ & $\sim10\%$ & — \\
+核子横向性 & qPDF & 物理$m_\pi$连续极限 & $\sim15\%$ & \cite{Chu2024transversity} \\
+氘子PDF & qPDF & 单一$a$探路 & 定性 & \cite{Chu2024deuteron} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{与高能散射实验的类比}
+
+季向东\cite{Ji2014LaMET}深刻地指出LaMET与高能散射实验在方法论上的完全平行：
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+& 高能散射实验 & LaMET/格点QCD \\
+\midrule
+出发点        & 依赖于大$Q$的散射截面 & 依赖于大$P^z$的准观测量 \\
+标度分离      & 因子化定理               & LaMET因子化 \\
+联系          & 截面 $\leftrightarrow$ PDF & 准观测量 $\leftrightarrow$ 光锥量 \\
+匹配          & 硬散射截面（微扰）       & 匹配核$Z$（微扰） \\
+非微扰输入    & 实验数据                 & 格点``数据'' \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+正如同一个PDF可以从不同的硬散射过程（DIS、Drell-Yan、喷注产生）中提取，同一个光锥物理量也可以从不同的格点准算符（普适性类）中提取。``Thus, simply put, LaMET allows using lattice `data' to extract parton physics.''\cite{Ji2014LaMET}
+
+\subsection{光前波函数}
+
+LaMET框架最雄心勃勃的应用是\textbf{光前波函数本身}的计算\cite{Ji2014LaMET}。一旦获得了完整的光前波函数，就可以计算所有的部分子物理量。对于$\pi^+$介子的leading光前波函数：
+
+\begin{equation}
+\hat{F}_\pm(z, \xi_\perp) = \bar{d}(0) W^\dagger(\pm\infty, 0; 0) \gamma^z\gamma_5 W(\pm\infty, z; \xi_\perp) u(z, \xi_\perp),
+\end{equation}
+其中$W$是空间方向的Wilson线。$\pi^+$介子态在该算符与QCD真空之间的矩阵元在大$P^z$极限下还原为连续光前波函数。
+
+\section{总结与展望}
+
+LaMET从2013年季向东的原始提出\cite{Ji2013Euclidean}到2025年首次三格点间距胶子PDF连续极限计算\cite{Chen2025gluon}，在短短十二年里完成了从概念到精确定量物理的\textbf{全链条演进}。
+
+\textbf{LaMET理论体系的核心支柱：}
+
+\begin{enumerate}
+    \item \textbf{大动量展开：}空间等时关联 + Lorentz boost = 光锥关联 + $\mathcal{O}(1/(P^z)^2)$修正；
+    \item \textbf{有效场论类比：}$P^z$之于LaMET如同$m_Q$之于HQET——大标度极限下的系统可展开性；
+    \item \textbf{因子化定理：}准观测量 = 匹配核 $\otimes$ 光锥量 + 幂次修正，具有严格的OPE证明；
+    \item \textbf{普适性类：}无穷多个格点准算符趋于同一光锥量——优化选择成为可能；
+    \item \textbf{三级精度控制：}涂抹（Level 0）$\to$ 混合重整化（Level 1）$\to$ RGR+LRR（Level 2）。
+\end{enumerate}
+
+\textbf{未来关键方向：}物理$\pi$质量多格点间距计算、NNLO匹配核、胶子PDF的RGR+LRR推广、格点+全局拟合联合分析、EIC时代的协同。
+
+\begin{thebibliography}{99}
+
+\bibitem{Ji2013Euclidean}
+X.~Ji, ``Parton physics on a Euclidean lattice,''
+Phys.\ Rev.\ Lett.\ \textbf{110}, 262002 (2013), arXiv:1305.1539.
+\quad\textbf{[来源:} \texttt{refer/papers/Parton Physics on Euclidean Lattice.pdf}\textbf{]}
+
+\bibitem{Ji2014LaMET}
+X.~Ji, ``Parton physics from large-momentum effective field theory,''
+Sci.\ China Phys.\ Mech.\ Astron.\ \textbf{57}, 1407 (2014), arXiv:1404.6680.
+\quad\textbf{[来源:} \texttt{refer/papers/Parton Physics from Large-Momentum Effective Field Theory.pdf}\textbf{]}
+
+\bibitem{Ji2017More}
+X.~Ji, J.-H.~Zhang, and Y.~Zhao, ``More on large-momentum effective theory approach to parton physics,''
+Nucl.\ Phys.\ B \textbf{924}, 366 (2017), arXiv:1706.07416.
+\quad\textbf{[来源:} \texttt{refer/papers/More On Large-Momentum Effective Theory Approach to Parton Physics.pdf}\textbf{]}
+
+\bibitem{Ji2013gluon}
+X.~Ji, J.-H.~Zhang, and Y.~Zhao, ``More on LaMET: gluon polarization,''
+Phys.\ Rev.\ Lett.\ \textbf{111}, 112002 (2013), arXiv:1304.6708.
+
+\bibitem{Izubuchi2018}
+T.~Izubuchi, X.~Ji, L.~Jin, I.~W.~Stewart, and Y.~Zhao,
+``Factorization theorem relating Euclidean and light-cone parton distributions,''
+Phys.\ Rev.\ D \textbf{98}, 056004 (2018), arXiv:1801.03917.
+\quad\textbf{[来源:} \texttt{refer/papers/Factorization Theorem Relating Euclidean and Light-Cone Parton Distributions.pdf}\textbf{]}
+
+\bibitem{Zhang2019}
+J.-H.~Zhang, X.~Ji, A.~Sch\"afer, W.~Wang, and S.~Zhao,
+``Accessing gluon parton distributions in large momentum effective theory,''
+Phys.\ Rev.\ Lett.\ \textbf{122}, 142001 (2019), arXiv:1808.10824.
+\quad\textbf{[来源:} \texttt{refer/papers/Accessing gluon parton distributions in large momentum effective theory.pdf}\textbf{]}
+
+\bibitem{Li2018multiplicative}
+Z.-Y.~Li, Y.-Q.~Ma, and J.-W.~Qiu,
+``Multiplicative renormalizability of quasi-parton operators,''
+Phys.\ Rev.\ Lett.\ \textbf{122}, 062002 (2019), arXiv:1809.01836.
+\quad\textbf{[来源:} \texttt{refer/papers/Multiplicative renormalizability of quasi-parton operators.pdf}\textbf{]}
+
+\bibitem{Chen2016improved}
+J.-W.~Chen, X.~Ji, and J.-H.~Zhang,
+``Improved quasi parton distribution through Wilson line renormalization,''
+Nucl.\ Phys.\ B \textbf{915}, 1 (2017), arXiv:1609.08102.
+\quad\textbf{[来源:} \texttt{refer/papers/Improved quasi parton distribution through Wilson line renormalization.pdf}\textbf{]}
+
+\bibitem{Ji2021hybrid}
+X.~Ji, Y.~Liu, A.~Sch\"afer, W.~Wang, Y.-B.~Yang, J.-H.~Zhang, and Y.~Zhao,
+``A hybrid renormalization scheme for quasi light-front correlations in LaMET,''
+Nucl.\ Phys.\ B \textbf{964}, 115311 (2021), arXiv:2008.03886.
+\quad\textbf{[来源:} \texttt{refer/papers/A Hybrid Renormalization Scheme for Quasi Light-Front Correlations in Large-Momentum Effective Theory.pdf}\textbf{]}
+
+\bibitem{Huo2021self}
+Y.-K.~Huo \textit{et al.} (LPC),
+``Self-renormalization of quasi-light-front correlators on the lattice,''
+Nucl.\ Phys.\ B \textbf{969}, 115443 (2021), arXiv:2103.02965.
+\quad\textbf{[来源:} \texttt{refer/papers/Self-Renormalization of Quasi-Light-Front Correlators on the Lattice.pdf}\textbf{]}
+
+\bibitem{Zhang2023RGR}
+R.~Zhang, J.~Holligan, X.~Ji, and Y.~Su,
+``Leading power accuracy in lattice calculations of parton distributions,''
+Phys.\ Lett.\ B \textbf{844}, 138081 (2023), arXiv:2305.05212.
+\quad\textbf{[来源:} \texttt{refer/papers/Leading Power Accuracy in Lattice Calculations of Parton Distributions.pdf}\textbf{]}
+
+\bibitem{Su2023LRR}
+Y.~Su, J.~Holligan, X.~Ji, F.~Yao, J.-H.~Zhang, and R.~Zhang,
+``Power corrections and renormalons in parton quasi-distributions,''
+Nucl.\ Phys.\ B \textbf{991}, 116201 (2023), arXiv:2209.01236.
+\quad\textbf{[来源:} \texttt{refer/papers/Power corrections and renormalons in parton quasi-distributions.pdf}\textbf{]}
+
+\bibitem{Yao2023}
+F.~Yao, Y.~Ji, and J.-H.~Zhang,
+``Connecting Euclidean to light-cone correlations,''
+JHEP \textbf{11}, 021 (2023), arXiv:2212.14415.
+\quad\textbf{[来源:} \texttt{refer/papers/Connecting Euclidean to light-cone correlations From flavor nonsinglet in forward kinematics to flavor singlet in non-forward kinematics.pdf}\textbf{]}
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, LPC),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\quad\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{NieMiera2025}
+A.~NieMiera, W.~Good, H.-W.~Lin, and F.~Yao,
+``First self-renormalized gluon PDF in the continuum limit,''
+(2025), arXiv:2510.17758.
+\quad\textbf{[来源:} \texttt{refer/papers/First Self-Renormalized Gluon PDF of Nucleon from Large-Momentum Effective Theory in the Continuum Limit.pdf}\textbf{]}
+
+\bibitem{Fan2018gluon}
+Z.-Y.~Fan, Y.-B.~Yang, A.~Anthony, H.-W.~Lin, and K.-F.~Liu,
+``Gluon quasi-PDF from lattice QCD,''
+Phys.\ Rev.\ Lett.\ \textbf{121}, 242001 (2018), arXiv:1808.02077.
+\quad\textbf{[来源:} \texttt{refer/papers/Gluon Quasi-PDF From Lattice QCD.pdf}\textbf{]}
+
+\bibitem{Liu2019isovector}
+Y.-S.~Liu \textit{et al.} (LPC),
+``Unpolarized isovector quark distribution function from lattice QCD,''
+Phys.\ Rev.\ D \textbf{101}, 034020 (2020), arXiv:1807.06566.
+\quad\textbf{[来源:} \texttt{refer/papers/Unpolarized isovector quark distribution function from Lattice QCD A systematic analysis of renormalization and matching.pdf}\textbf{]}
+
+\bibitem{LP3helicity}
+H.-W.~Lin \textit{et al.} (LP$^3$),
+``Proton isovector helicity distribution on the lattice at physical pion mass,''
+Phys.\ Rev.\ Lett.\ \textbf{121}, 242003 (2018), arXiv:1807.07431.
+\quad\textbf{[来源:} \texttt{refer/papers/Proton Isovector Helicity Distribution on the Lattice at Physical Pion Mass.pdf}\textbf{]}
+
+\bibitem{Egerer2022}
+C.~Egerer \textit{et al.} (HadStruc),
+``Towards the determination of the gluon helicity distribution in the nucleon from lattice QCD,''
+Phys.\ Rev.\ D \textbf{106}, 094511 (2022), arXiv:2207.08733.
+\quad\textbf{[来源:} \texttt{refer/papers/Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics.pdf}\textbf{]}
+
+\bibitem{Fan2023pion}
+Z.~Fan and H.-W.~Lin,
+``Gluon parton distribution of the pion from lattice QCD,''
+Phys.\ Lett.\ B \textbf{823}, 136778 (2021), arXiv:2104.06372.
+\quad\textbf{[来源:} \texttt{refer/papers/Gluon Parton Distribution of the Pion from Lattice QCD.pdf}\textbf{]}
+
+\bibitem{Chu2024transversity}
+M.-H.~Chu \textit{et al.} (LPC),
+``Nucleon transversity distribution in the continuum and physical mass limit,''
+Phys.\ Rev.\ D \textbf{109}, L091503 (2024), arXiv:2302.09961.
+\quad\textbf{[来源:} \texttt{refer/papers/Nucleon Transversity Distribution in the Continuum and Physical Mass Limit from Lattice QCD.pdf}\textbf{]}
+
+\bibitem{Chu2024deuteron}
+M.-H.~Chu \textit{et al.} (LPC),
+``Parton distribution function of a deuteron-like dibaryon system from lattice QCD,''
+\quad\textbf{[来源:} \texttt{refer/papers/Parton Distribution Function of a Deuteron-like Dibaryon System from Lattice QCD.pdf}\textbf{]}
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,'' 内部笔记。
+\quad\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}
+
+\bibitem{CLQCD2025}
+H.-Y.~Du \textit{et al.} (CLQCD), ``Quark masses and low energy constants in the continuum,''
+Phys.\ Rev.\ D \textbf{111}, 054504 (2025).
+\quad\textbf{[来源:} \texttt{refer/papers/Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\end{thebibliography}
+
+\end{document}

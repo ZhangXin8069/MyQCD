@@ -1,0 +1,1029 @@
+% !TEX program = xelatex
+% PyQCD 与 donghx Gradient_Flow_GluonPDF 算法审计、修正与对照报告
+\documentclass[UTF8,a4paper,11pt]{ctexart}
+
+\usepackage[a4paper,margin=2.05cm,headheight=14pt]{geometry}
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage{booktabs,longtable,array,tabularx,multirow}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,shapes.geometric}
+\usepackage{url}
+\usepackage{hyperref}
+
+\definecolor{pyblue}{RGB}{36,91,163}
+\definecolor{qudared}{RGB}{190,65,55}
+\definecolor{stagegray}{RGB}{90,105,115}
+\definecolor{goodgreen}{RGB}{30,132,73}
+\definecolor{warnorange}{RGB}{197,90,17}
+\hypersetup{
+  colorlinks=true,linkcolor=pyblue,urlcolor=pyblue,citecolor=pyblue,
+  pdftitle={PyQCD 与 donghx 梯度流胶子 OPE 算法审计与修正}
+}
+\urlstyle{tt}
+\newcommand{\pathref}[1]{\path{#1}}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\codeurl}[1]{\nolinkurl{#1}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\C}{\mathbb C}
+\newcommand{\R}{\mathbb R}
+\newcommand{\SU}{\mathrm{SU}}
+\newcommand{\MSbar}{\overline{\mathrm{MS}}}
+\newcommand{\GF}{\mathrm{GF}}
+\newcommand{\odd}{\mathrm{o}}
+\newcommand{\even}{\mathrm{e}}
+\newcommand{\verified}{\textcolor{goodgreen}{\textbf{确证}}}
+\newcommand{\inferred}{\textcolor{pyblue}{\textbf{推导}}}
+\newcommand{\unverified}{\textcolor{warnorange}{\textbf{未验证}}}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.35em}
+\emergencystretch=3em
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{black!3},
+  frame=single,
+  breaklines=true,
+  breakatwhitespace=false,
+  keepspaces=true,
+  columns=flexible,
+  keywordstyle=\color{pyblue}\bfseries,
+  commentstyle=\color{goodgreen!70!black},
+  stringstyle=\color{pyblue}
+}
+
+\title{PyQCD 与 donghx 梯度流胶子 OPE/GluonPDF 链\\
+算法审计、物理解析、实现修正与对照测试}
+\author{PyQCD 代码—物理分析记录}
+\date{2026 年 9 月 9 日}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+本文审计并修正 \pathref{/root/PyQCD} 与
+\pathref{/root/PyQCD/refer/donghx/Gradient_Flow_GluonPDF} 中的梯度流胶子
+算法。工作重点是薄链接输入、四维 Wilson flow、四叶 Clover 场强、直线
+Wilson 线胶子 OPE、schema-v2 原始正负 $z$ 分支、核子两点函数驱动的
+disconnected $C_3/C_2$ 统计，以及一圈梯度流到
+$\MSbar$ 准算符的端点转换。报告首先给出参考实现的物理正确性与证据等级，
+再说明既有 PyQCD legacy/TMD 路径为何不能直接冒充该参考链，最后给出
+新增模块、严格验证器和独立契约测试。
+
+本轮的核心结果是：OPE 组件、Wilson 线几何、复数 helicity
+$\texttt{pol35}$ 协方差估计、共同 $\texttt{nopol}$ 分母以及
+delete-one jackknife 已在算法级复现；参考 ratio 估计器的
+$C_3$、$C_2$、ratio、jackknife 均值、偏差修正误差和有效掩码逐项达到
+$\max|{\rm diff}|=0$。仓库全量测试为 $106$ 项通过。由于当前工作树没有
+参考目录中的完整 $L32\times96$、$231$ 组态 OPE/2pt 生产产物，本文不把
+算法级复现夸大为真实 $231$ 组态逐元素生产复现；有限流 bare observable
+也不被称为已经完成的物理 gluon PDF。
+\end{abstract}
+
+\tableofcontents
+
+\section{范围、结论与证据等级}
+
+\subsection{任务对象与判断标准}
+
+本报告的工作对象是 PyQCD 中与 Gradient Flow/GluonPDF 直接相关的部分，
+对照对象是
+\pathref{/root/PyQCD/refer/donghx/Gradient_Flow_GluonPDF} 的全部算法说明、
+生产脚本、验证脚本和测试脚本。参考目录的核心文件包括：
+
+\begin{itemize}
+  \item \pathref{gradient-flow-gluon-ratio.md}：流、Clover、Wilson 线、
+        schema-v2 与 ratio 约定；
+  \item \pathref{calc_ratio_gradient_flow.py}：完整复数 disconnected
+        估计器及 delete-one jackknife；
+  \item \pathref{validate_output_v5.py} 与 \pathref{validate_ratio.py}：
+        产物形状、线性恒等式、有限性和掩码守卫；
+  \item \pathref{gluon_flow_to_quasi.py}：一圈 $\GF\to\MSbar$ 准算符端点
+        转换；
+  \item \pathref{helicity_operator_comparison.py} 与
+        \pathref{test_estimators.py}：helicity 物理选择和统计 oracle。
+\end{itemize}
+
+参考目录声称生产实现位于 \code{src/flowed_gluon_ope.cpp}，但该源码和完整
+生产二进制不在当前对照目录中。因此，关于 OPE 数值语义的直接依据是
+Markdown、Python 生产/验证代码和小数组代数测试；不存在的 C++ 源码不被
+虚构为已审阅证据。
+
+\begin{table}[htbp]
+\centering
+\caption{本报告的证据等级}
+\begin{tabularx}{\textwidth}{@{}p{0.20\textwidth}p{0.25\textwidth}X@{}}
+\toprule
+等级 & 含义 & 本轮实例 \\
+\midrule
+源码确证 &
+可由参考脚本、PyQCD 函数和测试代码直接定位 &
+流步长、Clover 归一、OPE 轴、ratio 公式、jackknife 展开 \\
+\midrule
+代数/物理推导 &
+由链路定义、规范变换和线性关系推出 &
+Wilson 线规范不变性、$z=0$ odd 为零、组合分量重构 \\
+\midrule
+独立数值 oracle &
+同一输入数组经参考算法与 PyQCD 算法分别计算 &
+ratio 六类数值以及有效掩码逐项 $\max|{\rm diff}|=0$ \\
+\midrule
+真实生产对照 &
+同一完整组态、同一 manifest、同一产物的逐元素比较 &
+当前缺少参考 $L32\times96$/231 组态产物，不能宣称已完成 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{结论先行}
+
+\begin{enumerate}
+  \item 参考链的受控终点是\textbf{有限流时间 bare disconnected
+        ratio}，而不是已经重整化、匹配并完成连续极限的 gluon PDF。
+  \item PyQCD 新增 schema-v2 层，保留旧的 legacy/TMD 默认语义；这样可以
+        同时复现参考约定和保护已经验证的 docker 管线。
+  \item OPE 的生产投影固定为 color-traceless Clover；legacy
+        untraced 投影仅作为有限格距诊断和兼容层保存。
+  \item helicity ratio 必须在协方差构造时保留完整复数
+        $\texttt{pol35}$，而且 numerator 使用 $\texttt{pol35}$、
+        denominator 使用共同的 $\texttt{nopol}$。最后才作
+        $\operatorname{Re}[-iR_H]=\operatorname{Im}R_H$ 投影。
+  \item 当前已完成的是算法、接口、验证和小数组 oracle 闭环；真实
+        $N_{\rm conf}=231$ 产物、统计外推和最终物理 PDF 仍需补充数据与
+        多尺度控制。
+\end{enumerate}
+
+\section{统一约定与数据边界}
+
+\subsection{格点、方向和量纲}
+
+规范链接数组采用
+\begin{equation}
+ U\;:\;(N_t,N_z,N_y,N_x,4,N_c,N_c),
+\qquad N_c=3,
+\label{eq:gauge-layout}
+\end{equation}
+其数组轴顺序是 $(t,z,y,x)$，而 Lorentz/link 方向标签是
+\[
+\mu=0:x,\qquad \mu=1:y,\qquad \mu=2:z,\qquad \mu=3:t.
+\]
+因此一个 Lorentz 方向 $\mu$ 对应数组空间轴 $3-\mu$。所有空间和使用
+周期边界；代码中的 \code{roll} 正是
+$f(x+\hat\mu)$ 或 $f(x-\hat\mu)$ 的离散实现。
+
+参考生产固定
+\begin{equation}
+ z_{\rm dir}=2,\qquad
+ \tau=\frac{t}{a^2},\qquad
+ \epsilon=0.01,\qquad
+ r_{\rm flow}/a=\sqrt{8\tau}.
+\label{eq:flow-units}
+\end{equation}
+$\tau$ 是无量纲流时间；只有在引入格距 $a$ 后才可换成物理流时间
+$t_{\rm phys}=\tau a^2$。如果 $a$ 以 fm 给出，则
+\begin{equation}
+ t_{\rm phys}[{\rm GeV}^{-2}]
+ =\tau\left(a[{\rm fm}]\times 5.067730716\right)^2.
+\label{eq:flow-convert}
+\end{equation}
+混用 $\tau$、$t$ 和 $t_{\rm phys}$ 会直接改变小流时间匹配系数，故新模块将
+它们分别写入 metadata。
+
+\subsection{参考 OPE schema-v2}
+
+单个组态的 OPE 数据轴为
+\begin{equation}
+(\texttt{field\_projection},\texttt{channel},\texttt{z\_orientation},
+\texttt{component},z,t)
+=(2,2,4,6,N_z,N_t).
+\label{eq:ope-shape}
+\end{equation}
+固定标签如下：
+
+\begin{table}[htbp]
+\centering
+\caption{schema-v2 的轴标签}
+\begin{tabularx}{\textwidth}{@{}p{0.25\textwidth}p{0.30\textwidth}X@{}}
+\toprule
+轴 & 标签 & 物理/数值意义 \\
+\midrule
+field projection &
+\texttt{legacy\_untraced}, \texttt{traceless} &
+有限格距未去迹诊断与生产用 $\SU(3)$ 无迹投影 \\
+\midrule
+channel &
+\texttt{unpolarized}, \texttt{helicity} &
+第二个场强分别使用 $F$ 或 $\widetilde F$ \\
+\midrule
+z orientation &
+\texttt{plus\_z\_raw}, \texttt{minus\_z\_raw},
+\texttt{even\_sum}, \texttt{odd\_difference} &
+保存原始方向，even/odd 不除以 $2$ \\
+\midrule
+component &
+\texttt{combined}, \texttt{Mtiti}, \texttt{Mijij},
+\texttt{ti}, \texttt{tj}, \texttt{ij\_single} &
+保存独立分量和组合分量，便于恒等式与 helicity 诊断 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+新产物状态明确记录为
+\code{flowed_bare_ope_observable}。它不隐含 $Z_R$、混合、Collins--Soper
+演化、软因子、LaMET matching 或连续极限。
+
+\subsection{工作树中的真实数据覆盖}
+
+当前默认数据目录 \pathref{/root/PyQCD/data} 的实际覆盖为：
+
+\begin{table}[htbp]
+\centering
+\caption{当前可访问数据与缺口}
+\begin{tabularx}{\textwidth}{@{}p{0.32\textwidth}p{0.23\textwidth}X@{}}
+\toprule
+路径 & 已有内容 & 对本任务的意义 \\
+\midrule
+\pathref{data/cmp1\_4150/} &
+组态 4150 的 VVV 数组 &
+可用于既有蒸馏低层对照，不能替代流化 OPE/2pt 生产数据 \\
+\midrule
+\pathref{data/cmp1\_cache/gauge\_4150.npy} &
+少量规范场缓存 &
+可做小规模 OPE/规范协变测试；不构成共同 231 组态 manifest \\
+\midrule
+参考 $L32\times96$ 生产根 &
+当前工作树中不存在 &
+不能做真实 OPE、C2、ratio 的逐文件或逐元素对照 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{参考算法的物理解析}
+
+\subsection{Wilson flow：耗散的规范场演化}
+
+连续梯度流方程为
+\begin{equation}
+ \partial_t B_\mu(t,x)=D_\nu G_{\nu\mu}(t,x),
+ \qquad B_\mu(0,x)=A_\mu(x).
+\label{eq:continuum-flow}
+\end{equation}
+它把四维规范场沿作用量下降方向平滑；在正的流时间，半径约为
+$\sqrt{8t}$ 的紫外涨落被压制。格点上用链接 $V_\mu(t,x)$ 表示流场，
+Wilson 作用量的六个 staple 给出
+\begin{equation}
+ \Omega_\mu(x)=\sum_{\nu\ne\mu}
+ \left[
+ U_\nu(x)U_\mu(x+\hat\nu)U_\nu^\dagger(x+\hat\mu)
+ U_\nu^\dagger(x-\hat\nu)U_\mu(x-\hat\nu)
+ U_\nu(x-\hat\nu+\hat\mu)
+ \right].
+\label{eq:staple}
+\end{equation}
+实际代码等价地把每一项按矩阵乘法写成正、负两个三段路径。
+
+流右端首先形成 $\Omega_\mu V_\mu^\dagger$，再取无迹反厄米部分：
+\begin{equation}
+ Z_\mu(V)=P_{\rm ah}\!\left[\Omega_\mu V_\mu^\dagger\right],
+\qquad
+ P_{\rm ah}(X)
+ =\frac{X-X^\dagger}{2}
+ -\frac{\tr(X-X^\dagger)}{2N_c}\mathbf 1.
+\label{eq:flow-generator}
+\end{equation}
+因此 $Z_\mu\in\mathfrak{su}(3)$。若指数精确计算，则
+$\exp(\epsilon Z_\mu)\in\SU(3)$；实现中的 \code{su3\_exp} 采用小步长四阶
+截断并做 determinant 归一，随后以幺正性和 determinant 误差作守卫。
+
+\subsubsection{三阶 Runge--Kutta}
+
+Lüscher 三阶更新写成
+\begin{align}
+ W_0&=V_t,\\
+ W_1&=\exp\left(\frac{\epsilon}{4}Z_0\right)W_0,\\
+ W_2&=\exp\left(\frac{8\epsilon}{9}Z_1
+              -\frac{17\epsilon}{36}Z_0\right)W_1,\\
+ V_{t+\epsilon}
+ &=\exp\left(\frac{3\epsilon}{4}Z_2
+              -\frac{8\epsilon}{9}Z_1
+              +\frac{17\epsilon}{36}Z_0\right)W_2.
+\label{eq:rk3}
+\end{align}
+当只给出 $\tau$ 和 $\epsilon$ 时，步数为
+\begin{equation}
+ N_{\rm step}=\left\lceil\frac{\tau}{\epsilon}\right\rceil,
+\qquad \delta t=\frac{\tau}{N_{\rm step}}.
+\label{eq:flow-steps}
+\end{equation}
+最后一步使用 $\delta t$ 而非盲目使用 $\epsilon$，故实际流时间恰好命中目标
+$\tau$。显式传入 $N_{\rm step}$ 时，metadata 同时保存用户步数和真实步长。
+
+物理上应监测 Wilson plaquette 作用量密度
+\begin{equation}
+ s_W(x)=\frac{1}{6}\sum_{\mu<\nu}
+ \left(1-\frac{\operatorname{ReTr}P_{\mu\nu}(x)}{N_c}\right),
+\label{eq:wilson-density}
+\end{equation}
+而不应把任意 Clover $G^2$ 离散量误当作严格逐点单调量。新 OPE metadata
+保存流前、流后的平均 plaquette、最大链接幺正性误差和最大
+$|\det U-1|$，验证器要求有限、流后 plaquette 不下降并满足有限阈值。
+
+\subsection{Clover 场强、无迹投影与对偶}
+
+四叶 Clover 的基本矩阵 $Q_{\mu\nu}(x)$ 是同一中心四个有向 plaquette
+的和，场强按参考约定为
+\begin{equation}
+ F_{\mu\nu}(x)
+ =-\frac{i}{8}\left[Q_{\mu\nu}(x)-Q_{\mu\nu}^\dagger(x)\right].
+\label{eq:clover}
+\end{equation}
+该对象是有限格距的 color 矩阵；由于四叶和与高阶格距项，未投影时可以含有
+单位阵分量。生产投影为
+\begin{equation}
+ F_{\mu\nu}^{\rm tl}
+ =F_{\mu\nu}
+ -\frac{\tr F_{\mu\nu}}{N_c}\mathbf 1,
+\qquad
+ F_{\nu\mu}=-F_{\mu\nu}.
+\label{eq:traceless}
+\end{equation}
+PyQCD 同时保存 \code{legacy\_untraced} 和 \code{traceless}，但只把后者
+作为 production selector；两者的差异是有限格距离散差异，不能在分析中静默
+混用。
+
+对偶场强由 Euclidean Levi--Civita 张量构造：
+\begin{equation}
+ \widetilde F_{\mu\nu}
+ =\frac{1}{2}\epsilon_{\mu\nu\rho\sigma}F_{\rho\sigma}.
+\label{eq:dual}
+\end{equation}
+代码只存六个 canonical Lorentz pair，反向请求通过反对称性取负；这避免了
+重复计算 Clover，并使 $F_{\mu\nu}$ 和 $\widetilde F_{\mu\nu}$ 的轴顺序明确。
+
+\subsection{直线 Wilson 线与规范不变性}
+
+沿 $z_{\rm dir}$ 的正方向双局域量为
+\begin{equation}
+ M_{\mu\lambda;\nu\rho}^{+}(z)
+ =\sum_{\boldsymbol x}
+ \Tr\left[
+ F_{\mu\lambda}(x+z\hat z)\,
+ W^\dagger(x+z,x)\,
+ F_{\nu\rho}(x)\,
+ W(x,x+z)
+ \right].
+\label{eq:bilocal-plus}
+\end{equation}
+负方向使用 $x-z\hat z$ 和从 $x-z$ 到 $x$ 的正向路径：
+\begin{equation}
+ M_{\mu\lambda;\nu\rho}^{-}(z)
+ =\sum_{\boldsymbol x}
+ \Tr\left[
+ F_{\mu\lambda}(x-z\hat z)\,
+ W(x-z,x)\,
+ F_{\nu\rho}(x)\,
+ W^\dagger(x,x-z)
+ \right].
+\label{eq:bilocal-minus}
+\end{equation}
+在 $z=0$ 两式退化为同一个局域矩阵乘积，这是
+\begin{equation}
+ M^+(0)=M^-(0),\qquad
+ M_{\rm odd}(0)=M^+(0)-M^-(0)=0
+\label{eq:z0-limit}
+\end{equation}
+的几何原因。
+
+规范变换下
+\begin{equation}
+ F(x)\mapsto G(x)F(x)G^\dagger(x),\qquad
+ W(x,x+z)\mapsto G(x)W(x,x+z)G^\dagger(x+z).
+\label{eq:gauge-transform}
+\end{equation}
+代入式 \eqref{eq:bilocal-plus} 后，端点的 $G$ 和 $G^\dagger$ 在 trace
+中相消，所以完整空间和是规范不变的。只在某个点比较矩阵元素、或把两端
+场强放在不同的链接几何上而没有 Wilson 线，都会破坏这个论证。
+
+\subsection{六个 OPE 组件与物理选择}
+
+令 Wilson 线沿 $z$，横向方向为 $i,j$，Euclidean 时间方向为 $t=3$。
+定义三个 primitive：
+\begin{align}
+ T_i&=M_{ti;ti},&
+ T_j&=M_{tj;tj},&
+ S_0&=M_{ij;ij}.
+\end{align}
+保存组件为
+\begin{align}
+ \texttt{ti}&=T_i,&
+ \texttt{tj}&=T_j,&
+ \texttt{ij\_single}&=S_0,\\
+ M_{titi}&=T_i+T_j,&
+ M_{ijij}&=2S_0.
+\label{eq:components}
+\end{align}
+因此 \code{Mtiti} 和 \code{Mijij} 是可由 primitive 逐点重构的独立诊断。
+
+无极化通道使用
+\begin{equation}
+ O_U=M_{titi}-M_{ijij}
+ =M_{tx;tx}+M_{ty;ty}-2M_{xy;xy}.
+\label{eq:unpol-combination}
+\end{equation}
+helicity 通道将第二端点替换为对偶场强，参考生产数组的
+\code{combined} 保存的是
+\begin{equation}
+ O_H^{\rm stored}=M_{titi}+M_{ijij}.
+\label{eq:hel-stored}
+\end{equation}
+在 helicity 算符比较中，真正的理论目标由原始方向的
+\begin{equation}
+ O_H^{\rm physical}
+ =\left(M_{titi}-M_{ijij}\right)_{\odd}
+\label{eq:hel-physical}
+\end{equation}
+显式 selector 得到；$O_H^{\rm stored}$ 保留作诊断。把保存约定的加号直接
+称为唯一物理 helicity 定义，会把诊断和目标混淆。
+
+方向投影不引入 $1/2$：
+\begin{equation}
+ O_{\even}=O_{+z}+O_{-z},\qquad
+ O_{\odd}=O_{+z}-O_{-z}.
+\label{eq:even-odd}
+\end{equation}
+因此验证器可以同时检查方向线性关系、$z=0$ odd 零值和六组件组合恒等式。
+
+\section{disconnected $C_3/C_2$ 统计}
+
+\subsection{输入轴与 numerator/denominator}
+
+新 ratio 入口
+\code{calculate_gradient_flow_ratios}（同时提供参考同名别名
+\code{calculate_ratios}）接收
+\begin{align}
+ O&:(N_{\rm conf},2,4,N_{\rm comp},N_z,N_t),\\
+ C_2&:(2,N_{\rm dir},N_{\rm conf},N_{\rm tsep},N_t,N_p).
+\label{eq:ratio-input}
+\end{align}
+channel $0$ 是 \code{nopol}，channel $1$ 是 \code{pol35}。对任意 channel
+$\chi$，C3 的 numerator 使用对应的投影：
+\begin{equation}
+ C_{3,\chi}
+ =\left\langle O_\chi C_{2,\chi}\right\rangle_{\rm conf,src}
+ -\left\langle O_\chi\right\rangle_{\rm conf,src}
+  \left\langle C_{2,\chi}\right\rangle_{\rm conf,src}.
+\label{eq:c3-cov}
+\end{equation}
+但 ratio 的共同分母固定为
+\begin{equation}
+ C_{2,\rm den}
+ =\left\langle C_{2,\rm nopol}\right\rangle_{\rm conf,src},
+\qquad
+ R_\chi=\frac{C_{3,\chi}}{C_{2,\rm den}}.
+\label{eq:common-denominator}
+\end{equation}
+这一区分是本轮修正的核心之一：helicity 的 pol35 只进入 numerator，
+不能再用 ensemble mean pol35 作为近零分母。
+
+插入时间 $\tau_{\rm ins}$ 通过周期源移位实现：
+\begin{equation}
+ O(t_{\rm src}+\tau_{\rm ins})
+ =\operatorname{take}\left[
+ O,\,(t_{\rm src}+\tau_{\rm ins})\bmod N_t
+\right].
+\label{eq:source-shift}
+\end{equation}
+只有 $0\leq\tau_{\rm ins}\leq t_{\rm sep}$ 的位置有效，输出共同轴上的
+其余位置全部填为 NaN，而不是静默填零。
+
+\subsection{复数 helicity 相位}
+
+若
+\begin{equation}
+ R_H=a+ib,
+\end{equation}
+Euclidean helicity 的最终投影为
+\begin{equation}
+ \operatorname{Re}[-iR_H]=b=\operatorname{Im}R_H.
+\label{eq:hel-phase}
+\end{equation}
+但是这个投影只能发生在配置协方差、真空扣除、ratio 和 jackknife 完成之后。
+若先把 $\texttt{pol35}$ 截成实部或虚部，则
+\[
+\langle O\,\operatorname{Im}C_2\rangle
+-\langle O\rangle\langle\operatorname{Im}C_2\rangle
+\]
+已经不是完整复数协方差，统计量改变且无法由最终取虚部补回。
+
+\subsection{delete-one jackknife 的代数展开}
+
+对一个固定 channel、方向、$z$、组件、separation、插入时间和动量，设
+$N=N_{\rm conf}$。定义每个组态的 source 平均量
+\begin{equation}
+ a_k=\langle O_kC_k\rangle_s,\qquad
+ o_k=\langle O_k\rangle_s,\qquad
+ c_k=\langle C_k\rangle_s,
+\end{equation}
+以及全样本平均
+\begin{equation}
+ A=\frac1N\sum_k a_k,\qquad
+ O=\frac1N\sum_k o_k,\qquad
+ C=\frac1N\sum_k c_k.
+\end{equation}
+删除第 $k$ 个组态后，
+\begin{equation}
+ C_{3,(-k)}
+ =\frac{NA-a_k}{N-1}
+ -\frac{(NO-o_k)(NC-c_k)}{(N-1)^2}.
+\label{eq:jk-c3}
+\end{equation}
+共同 nopol 分母同理：
+\begin{equation}
+ C_{2,(-k),\rm den}
+ =\frac{ND-d_k}{N-1},
+\qquad D=\frac1N\sum_k d_k.
+\label{eq:jk-c2}
+\end{equation}
+然后在每一个删除样本内重新做
+\begin{equation}
+ R_{(-k)}=\frac{C_{3,(-k)}}{C_{2,(-k),\rm den}}.
+\label{eq:jk-ratio}
+\end{equation}
+PyQCD 通过总和与 Einstein contraction 展开式计算式
+\eqref{eq:jk-c3}，避免显式形成最大的
+$(N,N_{\rm obs},N_t,N_p)$ 临时数组；代数上与逐个删除再直接计算完全等价。
+
+jackknife 均值、偏差修正和实/虚误差分别为
+\begin{align}
+ \overline R_{\rm JK}
+ &=\frac1N\sum_k R_{(-k)},\\
+ R_{\rm bc}
+ &=N R_{\rm central}-(N-1)\overline R_{\rm JK},\\
+ \sigma_{\rm Re}
+ &=\left[\frac{N-1}{N}\sum_k
+   \left(\operatorname{Re}R_{(-k)}
+        -\operatorname{Re}\overline R_{\rm JK}\right)^2\right]^{1/2},\\
+ \sigma_{\rm Im}
+ &=\left[\frac{N-1}{N}\sum_k
+   \left(\operatorname{Im}R_{(-k)}
+        -\operatorname{Im}\overline R_{\rm JK}\right)^2\right]^{1/2}.
+\label{eq:jk-errors}
+\end{align}
+误差不把复数幅值与实虚部混成一个未定义的标量。
+
+\section{一圈 $\GF\to\MSbar$ 准算符转换}
+
+\subsection{端点系数与线性质量项}
+
+参考 \pathref{gluon\_flow\_to\_quasi.py} 先把 $\tau$ 转为
+$t[{\rm GeV}^{-2}]$，然后使用
+\begin{align}
+ c_\parallel&=1,\\
+ c_\perp&=1+\frac{\alpha_s C_A}{4\pi}
+ \log\left(2\mu^2t\,e^{\gamma_E}\right),\\
+ \delta_m&=-\frac{\alpha_s C_A}{4\pi}
+ \sqrt{\frac{2\pi}{t}}.
+\label{eq:flow-quasi-coeff}
+\end{align}
+沿 Wilson 线长度 $z$ 的指数因子为
+\begin{equation}
+ L(z)=\exp[-\delta_m |z|],
+\qquad z[{\rm GeV}^{-1}]
+ =z/a\times a[{\rm fm}]\times5.067730716.
+\label{eq:line-factor}
+\end{equation}
+于是两个通道的转换因子为
+\begin{equation}
+ Z_U(z)=\frac{L(z)}{c_\perp^2},
+\qquad
+ Z_H(z)=\frac{L(z)}{c_\parallel c_\perp}.
+\label{eq:flow-quasi-factor}
+\end{equation}
+PyQCD 新增 \pathref{pyqcd/renorm/\_gradient\_flow\_quasi.py}，保留参考
+\code{coefficients}、\code{match\_one} 的同名兼容入口，并提供语义化别名：
+\begin{itemize}
+  \item \codeurl{gradient_flow_to_quasi_coefficients}；
+  \item \codeurl{match_gradient_flow_ope_to_quasi}。
+\end{itemize}
+
+\subsection{为什么必须重新构造 combined}
+
+端点因子已经作用于 \code{Mtiti} 和 \code{Mijij}。若输入数组中的
+\code{combined} 先被乘因子、再与匹配后的独立分量不一致地混用，则会留下
+不受控的组合误差。新实现先按 channel 乘 $Z_U/Z_H$ 和 $L(z)$，再按
+\begin{equation}
+ \texttt{combined}_U
+ =\texttt{Mtiti}_U-\texttt{Mijij}_U,\qquad
+ \texttt{combined}_H
+ =\texttt{Mtiti}_H+\texttt{Mijij}_H
+\label{eq:matched-reconstruct}
+\end{equation}
+重构。该层仍只是准算符转换；光锥 matching、软因子、快度演化和连续极限
+没有被这两个公式自动完成。
+
+\section{既有 PyQCD 的偏差与修正策略}
+
+\subsection{为什么不直接覆盖 legacy API}
+
+PyQCD 原有 \pathref{pyqcd/operator/\_gluon\_ope.py} 是 docker 成功实例的
+legacy 路径。它的 \code{plaquette\_clover} 和
+\code{gluon\_ope\_operator\_z0} 对历史 finite-$a$、未去迹 OPE 有明确约定；
+该路径已经被既有测试和成功实例使用。参考 schema-v2 则要求：
+
+\begin{itemize}
+  \item thin link 直接进入四维 Wilson flow；
+  \item 同时输出未去迹和 traceless 两种 field projection；
+  \item 保存 $\pm z$ 原始分支、even/odd 分支和六种组件；
+  \item production analysis 固定选择 traceless；
+  \item ratio 中 helicity 使用完整复数 pol35 numerator 和 nopol denominator。
+\end{itemize}
+
+如果直接改变 legacy 默认值，旧的 docker 一致性和既有 HYP/TMD 语义都会被
+无关地改变。因此本轮采用独立模块
+\pathref{pyqcd/operator/\_gradient\_flow\_gluon\_ope.py}，在 metadata 中
+明确 schema 和 status；旧入口保持原语义，两个层不互称。
+
+\subsection{问题—修正对照表}
+
+\begin{longtable}{@{}p{0.22\textwidth}p{0.31\textwidth}p{0.37\textwidth}@{}}
+\caption{工作对象与参考算法的关键偏差、修正和边界}\label{tab:fixes}\\
+\toprule
+既有风险/偏差 & 物理后果 & 本轮修正 \\
+\midrule
+\endfirsthead
+\toprule
+既有风险/偏差 & 物理后果 & 本轮修正 \\
+\midrule
+\endhead
+把 legacy finite-$a$ 未去迹 OPE 当成 production traceless OPE &
+有限格距单位阵分量污染，且无法与 reference schema 的 projection 轴对应 &
+新增双 projection schema；生产选择 \code{traceless}，legacy 仅诊断 \\
+\midrule
+只保存一个正向 $z$ 或只保存已组合结果 &
+无法检查 $z=0$ 极限、even/odd 方向关系和 helicity 选择敏感性 &
+保存 \code{plus\_z\_raw}/\code{minus\_z\_raw}、四方向标签和六组件 \\
+\midrule
+helicity 先取 pol35 实部/虚部再做 covariance &
+丢失复数配置相关性，所得量不是完整 disconnected 协方差 &
+ratio estimator 全程保留 \code{complex128}，末端才取
+$\operatorname{Re}[-iR_H]$ \\
+\midrule
+helicity ratio 用 pol35 ensemble mean 作分母 &
+分母接近零，ratio 数值病态且与参考 v2 约定不符 &
+channel numerator 分开取 nopol/pol35，两个 channel 共享 nopol 分母 \\
+\midrule
+删除组态后只重算 numerator 或只重算 C2 &
+vacuum subtraction 与分母的 jackknife 相关性被破坏 &
+按式 \eqref{eq:jk-c3}--\eqref{eq:jk-ratio} 在每个 resample 内同时重算 \\
+\midrule
+无效 insertion 用零填充 &
+padding 被误认为物理数据，均值/误差被系统性拉偏 &
+所有无效位置使用 NaN，并保存 \code{valid\_insertion\_mask} \\
+\midrule
+把现有 TMD staple/hybrid 路径当作 reference 直线 OPE &
+HYP、$\epsilon$、staple 长度、横向分离和重整化方案被混合 &
+新 schema-v2 只实现薄链接直线链；现有 TMD 默认路径保持隔离 \\
+\midrule
+一圈 GF-to-quasi 因子和现有 SFTX 系数同名混用 &
+流时间方案、端点因子和算符层次混淆 &
+新增独立 \code{\_gradient\_flow\_quasi.py}，只实现参考一圈端点转换 \\
+\bottomrule
+\end{longtable}
+
+\subsection{严格校验器的必要性}
+
+OPE 验证器
+\code{validate\_gradient\_flow\_gluon\_ope} 检查：
+
+\begin{itemize}
+  \item schema、status、dtype、轴顺序、标签和 shape；
+  \item 流前后 plaquette 有限、链接接近 $\SU(3)$ 且流方向正确；
+  \item $z=0$ 正负方向相等、even/odd 线性恒等式；
+  \item \code{Mtiti=ti+tj}、\code{Mijij=2*ij\_single} 以及两 channel
+        combined 重构。
+\end{itemize}
+
+ratio 验证器
+\code{validate\_gradient\_flow\_ratio\_results} 进一步检查：
+
+\begin{itemize}
+  \item 所有 central/jackknife/error 数组的轴和复数/实数 dtype；
+  \item \code{c2\_mean} 形状、有限性、非零性和两个 channel 的严格共享；
+  \item 有效 insertion 必须有限，无效 insertion 必须全为 NaN；
+  \item central ratio 必须等于 \code{c3\_mean}/\code{c2\_mean[nopol]}；
+  \item ratio 与 C3 的方向线性恒等式，以及 helicity odd 的 $z=0$ 零值。
+\end{itemize}
+
+\section{实现结构与调用链}
+
+\subsection{模块映射}
+
+\begin{table}[htbp]
+\centering
+\caption{最终 PyQCD 实现映射}
+\scriptsize
+\begin{tabularx}{\textwidth}{@{}p{0.35\textwidth}p{0.26\textwidth}X@{}}
+\toprule
+文件 & 入口 & 职责 \\
+\midrule
+\pathref{pyqcd/operator/\_gradient\_flow\_gluon\_ope.py} &
+\codeurl{gradient_flow_gluon_ope} &
+thin link $\to$ Wilson flow $\to$ schema-v2 OPE；保存/加载和严格验证 \\
+\midrule
+\pathref{pyqcd/operator/\_gradient\_flow\_gluon\_ope.py} &
+\codeurl{flowed_gluon_ope} &
+对已流化 gauge 计算 Clover、对偶、$\pm z$ Wilson 线和六组件 \\
+\midrule
+\pathref{pyqcd/analysis/\_gradient\_flow\_ratio.py} &
+\codeurl{calculate_gradient_flow_ratios} &
+全 channel/orientation/component 的 C3/C2 与 delete-one jackknife \\
+\midrule
+\pathref{pyqcd/analysis/\_gradient\_flow\_ratio.py} &
+\codeurl{physical_helicity_ratio} &
+保留复数 ratio，按需取 helicity orientation/component 的末端相位 \\
+\midrule
+\pathref{pyqcd/renorm/\_gradient\_flow\_quasi.py} &
+\codeurl{match_gradient_flow_ope_to_quasi} &
+参考一圈 $\GF\to\MSbar$ 准算符端点因子与组合重构 \\
+\midrule
+\pathref{pyqcd/pipeline/\_gradient\_flow\_gluon.py} &
+\codeurl{run_gradient_flow_gluon_ope} &
+ILDG \code{.lime}/\code{.lime.contents} 读取和单组态 artifact 驱动 \\
+\midrule
+\pathref{pyqcd/testing/tmd/gradient\_flow\_ope.py} &
+命令行入口 &
+将实际 reader、流、OPE 和配对 NPY/JSON 输出串联 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{端到端数据流}
+
+\begin{center}
+\begin{tikzpicture}[
+  node distance=0.33cm and 0.16cm,
+  box/.style={
+    draw=pyblue,fill=pyblue!7,rounded corners=2pt,
+    align=center,minimum height=0.82cm,text width=2.65cm,
+    font=\small
+  },
+  arrow/.style={-{Latex[length=2.2mm]},draw=pyblue,semithick}
+]
+\node[box] (u) {ILDG thin link\\$U_\mu(x)\in\SU(3)$};
+\node[box,right=of u] (flow) {4D Wilson flow\\RK3, $\tau,\epsilon$};
+\node[box,right=of flow] (ope) {Clover + dual\\$\pm z$ Wilson line};
+\node[box,right=of ope] (ratio) {C3/C2\\pol35/nopol + JK};
+\node[box,right=of ratio] (quasi) {$\GF\to\MSbar$\\准算符因子};
+\draw[arrow] (u) -- (flow);
+\draw[arrow] (flow) -- (ope);
+\draw[arrow] (ope) -- (ratio);
+\draw[arrow] (ratio) -- (quasi);
+\end{tikzpicture}
+\end{center}
+
+上述最后一步只是 reference 一圈端点转换。若目标是物理 gluon TMD-PDF，
+还需要在同一方案中处理矩阵元重整化、gluon--quark mixing、有限坐标重构、
+软因子/快度减法、LaMET 或 pseudo-PDF matching，以及 $a\to0$ 等极限。
+
+\section{对照测试与数值证据}
+
+\subsection{契约测试}
+
+新增
+\pathref{pyqcd/testing/\_gradient\_flow\_gluon\_contract.py} 覆盖九个独立
+测试方法：
+
+\begin{enumerate}
+  \item schema、轴标签、metadata 和零流时间；
+  \item traceless projection 与公共 Clover observable；
+  \item 完整空间和在随机局域规范变换下的不变性；
+  \item 六组件、方向和 helicity selector 恒等式；
+  \item $\epsilon=0.01$ 默认步长以及细步长收敛；
+  \item 一圈 GF-to-quasi 分量因子和 combined 重构；
+  \item full complex pol35 covariance 与 nopol 分母；
+  \item ratio 轴、mask、末端 helicity 相位；
+  \item NPY/JSON 原子 round-trip。
+\end{enumerate}
+
+\begin{table}[htbp]
+\centering
+\caption{本轮可复现的数值验证结果}
+\begin{tabularx}{\textwidth}{@{}p{0.31\textwidth}p{0.20\textwidth}X@{}}
+\toprule
+验证项 & 结果 & 解释 \\
+\midrule
+独立 OPE/ratio 契约 &
+$9/9$ &
+随机 $\SU(3)$ 小格点和合成 C2/OPE 全部通过 \\
+\midrule
+ratio 中心 $C_3$ &
+$\max|{\rm diff}|=0$ &
+PyQCD 与参考 \code{calc\_ratio\_gradient\_flow.py} 逐项一致 \\
+\midrule
+ratio 中心 $C_2$ &
+$\max|{\rm diff}|=0$ &
+共同 nopol 分母一致 \\
+\midrule
+central ratio &
+$\max|{\rm diff}|=0$ &
+完整复数除法和轴布局一致 \\
+\midrule
+jackknife 均值/偏差修正 &
+$\max|{\rm diff}|=0$ &
+删除每个组态后同时重算真空扣除和分母 \\
+\midrule
+jackknife 实部/虚部误差 &
+$\max|{\rm diff}|=0$ &
+误差按复数的实、虚分量分别统计 \\
+\midrule
+有效 insertion mask &
+完全一致 &
+有效区间 $0\leq\tau_{\rm ins}\leq t_{\rm sep}$，padding 为 NaN \\
+\midrule
+新 OPE 与 legacy 单组件 &
+约 $10^{-18}$ &
+同一流化 gauge 上的单组件数值重合；不是生产数据逐元素证据 \\
+\midrule
+随机局域规范变换全 OPE &
+约 $2.1\times10^{-16}$ &
+完整空间和的双局域 trace 规范不变 \\
+\midrule
+$\epsilon=0.01$ 对 $\epsilon=0.005$ &
+相对差约 $3.1\times10^{-6}$ &
+小格点有限步长误差量级符合三阶流积分预期 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{仓库级回归}
+
+执行命令：
+\begin{lstlisting}[language=bash]
+python -m pyqcd.testing._gradient_flow_gluon_contract
+python -m pyqcd.testing
+python -m compileall -q pyqcd
+git diff --check
+\end{lstlisting}
+
+结果为：
+\begin{center}
+\fbox{\parbox{0.84\textwidth}{
+\centering
+\texttt{9 个新契约方法通过}\\
+\texttt{106 passed, 0 skipped, 0 failed}\\
+\texttt{compileall 通过；git diff --check 通过}
+}}
+\end{center}
+
+全量回归覆盖既有 Wilson flow SU(3)/耗散、TMD 算符、HYP/Stout、torch/cupy
+适配、匹配核、$Z_R$、混合方案、外推、蒸馏管线、MPI 和持久化契约。因而新增
+模块没有改写旧路径默认行为。
+
+\subsection{测试证据的正确解读}
+
+上表的 ratio 零差异来自\textbf{同一合成/小数组输入}经两份 estimator 的
+直接对照，不是从当前工作树中恢复了参考的 $231$ 组态产物。OPE 的规范变换
+和 legacy 单组件测试证明几何与局域代数正确，但也不等价于真实 ensemble
+统计、流时间窗口、动量依赖和拟合平台已经验证。
+
+\section{物理正确性、局限与未闭合链}
+
+\subsection{已能作出的物理判断}
+
+\begin{itemize}
+  \item Wilson flow 是四维、规范协变的耗散演化；正流时间降低 Wilson
+        plaquette 作用量密度并保持链接接近 $\SU(3)$。
+  \item Clover 场强、对偶场强和直线 Wilson 线属于同一 flowed gauge，
+        双局域 trace 的规范变换在端点相消。
+  \item $O_U$ 的 $M_{titi}-M_{ijij}$ 和 helicity 原始组件的方向 odd
+        投影可由代码中的线性恒等式直接验收。
+  \item disconnected ratio 的 vacuum subtraction 和 pol35/nopol 分工
+        与参考 v2 一致，且完整复数统计没有被提前截断。
+\end{itemize}
+
+\subsection{不能从本轮结果推出的结论}
+
+\begin{itemize}
+  \item 不能把有限流 bare OPE 或 bare ratio 直接称为物理 gluon PDF；
+  \item 不能用单格距、少量 $\tau$ 点宣布小流时间窗口已经受控；
+  \item 不能由随机小格点的数值稳定性推出 $N_{\rm conf}=231$ 的统计误差、
+        helicity 信号或 momentum dependence；
+  \item 不能把已有 PyQCD 的 TMD staple、$Z_R$、hybrid、CS、SFTX 和 NLO
+        入口自动视为已经消费了 schema-v2 ratio；
+  \item 不能声称当前报告完成了 gluon--quark mixing、软函数/rapidity
+        subtraction、LaMET matching 或连续极限。
+\end{itemize}
+
+\subsection{下一阶段的最小闭环}
+
+要把算法级交付推进为真实物理生产，至少需要：
+
+\begin{enumerate}
+  \item 按参考共同 manifest 准备完整 $L32\times96$ thin-link 组态、C2
+        \code{nopol/pol35} 和流时间列表；
+  \item 对每个组态生成配对 NPY/JSON OPE artifact，并保存输入哈希、
+        flow 参数、projection、源版本和失败日志；
+  \item 在同一配置索引下运行 ratio，验证有效/无效 mask、共享分母和
+        jackknife；
+  \item 对 $\tau$、$z/a$、$P_z$、动量和 helicity 组合进行窗口敏感性，
+        不能用较大流时间的较小误差替代小流控制；
+  \item 明确选择 GF-to-quasi 一圈转换、$Z_R$/混合或其它同一方案的
+        renormalization，并将其与 ratio metadata 绑定；
+  \item 补齐软因子、快度演化、NLO kernel、有限坐标 Fourier 重构，以及
+        $a,P_z,m_\pi,L$ 的联合外推；
+  \item 只有在上述对象和质量门均通过后，才报告带系统误差的物理
+        $xg(x,b_\perp;\mu,\zeta)$。
+\end{enumerate}
+
+\section{最终结论}
+
+本轮完成了参考目录中最关键的 Gradient Flow/GluonPDF 算法层移植与修正：
+
+\begin{equation}
+\boxed{\begin{aligned}
+\text{thin link}
+&\longrightarrow\text{4D Wilson flow RK3}
+ \longrightarrow\text{Clover/dual + straight OPE}\\
+&\longrightarrow\text{complex disconnected ratio}
+\end{aligned}}
+\end{equation}
+
+同时，参考一圈 $\GF\to\MSbar$ 准算符端点转换已作为独立 renorm 模块加入，
+避免与既有 SFTX/TMD API 混淆。新增代码通过 $9$ 个专门契约方法和仓库
+$106$ 项全量回归；核心 estimator 与参考脚本逐项零差异。
+
+最重要的剩余边界是数据而非口头结论：当前工作树没有参考的完整
+$L32\times96$、$231$ 组态 OPE/2pt 生产产品，所以交付等级是
+\textbf{算法级完整、真实生产级待补数据}。在补齐共同 manifest、真实产物、
+重整化/混合/软因子/matching 和连续极限之前，最终对象应严格称为
+\textbf{有限流 bare disconnected gluon observable}，而不是已经完成的
+物理 gluon PDF。
+
+\appendix
+\section{最终文件与验证命令}
+
+\subsection{新增或修改文件}
+
+\begin{itemize}
+  \item \pathref{pyqcd/operator/\_gradient\_flow\_gluon\_ope.py}；
+  \item \pathref{pyqcd/analysis/\_gradient\_flow\_ratio.py}；
+  \item \pathref{pyqcd/renorm/\_gradient\_flow\_quasi.py}；
+  \item \pathref{pyqcd/pipeline/\_gradient\_flow\_gluon.py}；
+  \item \pathref{pyqcd/testing/tmd/gradient\_flow\_ope.py}；
+  \item \pathref{pyqcd/testing/\_gradient\_flow\_gluon\_contract.py}；
+  \item 相应的 \code{\_\_init\_\_.py} 导出和
+        \pathref{pyqcd/testing/conftest.py} 测试调度。
+\end{itemize}
+
+\subsection{推荐调用}
+
+\begin{lstlisting}[language=bash]
+# 单组态 thin-link ILDG -> schema-v2 OPE
+python -m pyqcd.testing.tmd.gradient_flow_ope \
+  --input /path/to/config.lime \
+  --conf-id 4150 \
+  --output /path/to/output/conf4150_tau0p500_eps0.010_zdir2 \
+  --nx 32 --ny 32 --nz 32 --nt 96 \
+  --tau 0.5 --epsilon 0.01 --z-count 25 --z-dir 2
+
+# 新链契约与仓库回归
+python -m pyqcd.testing._gradient_flow_gluon_contract
+python -m pyqcd.testing
+\end{lstlisting}
+
+\subsection{参考与工作对象的关键路径}
+
+\begin{longtable}{@{}p{0.42\textwidth}p{0.42\textwidth}@{}}
+\caption{可追溯路径索引}\\
+\toprule
+参考对象 & PyQCD 对应对象 \\
+\midrule
+\endfirsthead
+\toprule
+参考对象 & PyQCD 对应对象 \\
+\midrule
+\endhead
+\pathref{refer/donghx/Gradient\_Flow\_GluonPDF/gradient-flow-gluon-ratio.md} &
+\pathref{pyqcd/operator/\_gradient\_flow\_gluon\_ope.py} \\
+\midrule
+\pathref{refer/donghx/Gradient\_Flow\_GluonPDF/calc\_ratio\_gradient\_flow.py} &
+\pathref{pyqcd/analysis/\_gradient\_flow\_ratio.py} \\
+\midrule
+\pathref{refer/donghx/Gradient\_Flow\_GluonPDF/gluon\_flow\_to\_quasi.py} &
+\pathref{pyqcd/renorm/\_gradient\_flow\_quasi.py} \\
+\midrule
+\pathref{refer/donghx/Gradient\_Flow\_GluonPDF/validate\_output\_v5.py} &
+\codeurl{validate_gradient_flow_gluon_ope} \\
+\midrule
+\pathref{refer/donghx/Gradient\_Flow\_GluonPDF/validate\_ratio.py} &
+\codeurl{validate_gradient_flow_ratio_results} \\
+\bottomrule
+\end{longtable}
+
+\end{document}

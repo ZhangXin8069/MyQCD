@@ -1,0 +1,618 @@
+\documentclass[12pt,a4paper]{ctexart}
+
+% === 页面设置 ===
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{multirow}
+
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{remark}{注记}[section]
+\newtheorem{theorem}{定理}[section]
+
+\title{\heiti 格点QCD中的胶子算符：\\
+分类、构造、重整化与匹配}
+\author{基于本库文献的综合解析}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+胶子算符是格点QCD中计算胶子部分子分布函数（PDFs）、广义部分子分布（GPDs）、分布振幅（DAs）和横向动量依赖分布（TMDs）的核心对象。与夸克算符相比，胶子算符面临着三重额外的复杂性：（1）规范场张量$F_{\mu\nu}$具有两个Lorentz指标，导致最多36个独立算符；（2）不同Lorentz分量可能具有不同的紫外反常量纲，使得任意线性组合未必可乘性重整化；（3）在味单态扇区，胶子算符与夸克算符通过微扰匹配核发生混合。本文系统梳理了胶子算符的完整分类体系：从Balitsky-Morris-Radyushkin的不变振幅分解出发，详述非极化和极化胶子算符的36个分量中哪些是可乘性重整化的；介绍Zhang等人利用辅助伴随``重夸克''场方法对胶子准PDF算符重整化的系统分析；阐述Li、Ma和Qiu关于准胶子算符可乘性重整化到所有阶的严格证明；给出Yao、Ji和Zhang的统一匹配框架中味单态扇区的完整$2\times2$匹配矩阵$C_{qq}, C_{qg}, C_{gq}, C_{gg}$的NLO结果。最后展示胶子算符在实际格点计算中的构造——从基础表示下的$M_{\mu\lambda;\nu\rho}(z)$到非极化和极化胶子流$O^{(0)}_g$和$O^{(1)}_g$的Euclidean实现。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{引言：胶子算符的特殊复杂性}
+% ============================================================
+
+在格点QCD中，胶子物理的可观测量——非极化胶子PDF $g(x)$、极化胶子螺旋度分布$\Delta g(x)$、胶子广义部分子分布和胶子分布振幅——都由非局域的双胶子场强张量算符的核子矩阵元来定义。
+
+胶子算符的一般形式为\cite{Zhang2019,Li2018multiplicative}：
+
+\begin{equation}
+O^{\mu\nu\rho\sigma}_{bg}(\xi) = F^{\mu\nu}(\xi) \Phi^{(a)}(\xi, 0) F^{\rho\sigma}(0),
+\label{eq:general_gluon_op}
+\end{equation}
+
+其中$F^{\mu\nu}$是规范场强张量，$\Phi^{(a)}(\xi, 0)$是伴随表示中的路径有序规范链（Wilson线）。即使考虑到$F^{\mu\nu}$的反对称性，原则上存在$6 \times 6 = 36$个独立的分量\cite{Li2018multiplicative}。
+
+\textbf{胶子算符面临三重复杂性}\cite{Zhang2019,Li2018multiplicative,Wang2018}：
+
+\begin{enumerate}
+    \item \textbf{Lorentz结构复杂：}$F_{\mu\nu}$具有两个反对称的Lorentz指标，不同分量（如$F^{ti}$ vs $F^{zi}$）在重整化下的行为可能不同；
+    \item \textbf{可乘性重整化非平凡：}由于Wilson线中空间方向$n^\mu = (0,0,0,1)$打破了Lorentz对称性，并非所有算符的线性组合都可乘性重整化；
+    \item \textbf{味单态混合：}在微扰匹配阶段，胶子准PDF与夸克准PDF通过$2 \times 2$的匹配矩阵发生混合。
+\end{enumerate}
+
+\section{胶子算符的不变振幅分解}
+
+\subsection{非极化情形}
+
+Balitsky、Morris和Radyushkin\cite{Balitsky2020}对非极化双胶子关联函数的不变振幅进行了系统分类。核子自旋平均的矩阵元定义为：
+
+\begin{equation}
+M_{\mu\alpha;\lambda\beta}(z, p) \equiv \langle p| G_{\mu\alpha}(z) [z, 0] G_{\lambda\beta}(0) |p\rangle,
+\label{eq:M_def}
+\end{equation}
+
+其中$[z,0]$是伴随表示中的标准直线规范链。
+
+利用Lorentz不变性，$M_{\mu\alpha;\lambda\beta}$可以分解为六个不变振幅\cite{Balitsky2020}：
+
+\begin{equation}
+\begin{aligned}
+M_{\mu\alpha;\lambda\beta}(z, p) &=
+(g_{\mu\lambda}p_\alpha p_\beta - g_{\mu\beta}p_\alpha p_\lambda - g_{\alpha\lambda}p_\mu p_\beta + g_{\alpha\beta}p_\mu p_\lambda) M_{pp} \\
+&+ (g_{\mu\lambda}z_\alpha z_\beta - g_{\mu\beta}z_\alpha z_\lambda - g_{\alpha\lambda}z_\mu z_\beta + g_{\alpha\beta}z_\mu z_\lambda) M_{zz} \\
+&+ (g_{\mu\lambda}z_\alpha p_\beta - g_{\mu\beta}z_\alpha p_\lambda - g_{\alpha\lambda}z_\mu p_\beta + g_{\alpha\beta}z_\mu p_\lambda) M_{zp} \\
+&+ (g_{\mu\lambda}p_\alpha z_\beta - g_{\mu\beta}p_\alpha z_\lambda - g_{\alpha\lambda}p_\mu z_\beta + g_{\alpha\beta}p_\mu z_\lambda) M_{pz} \\
+&+ (p_\mu z_\alpha - p_\alpha z_\mu)(p_\lambda z_\beta - p_\beta z_\lambda) M_{ppzz} \\
+&+ (g_{\mu\lambda}g_{\alpha\beta} - g_{\mu\beta}g_{\alpha\lambda}) M_{gg}。
+\end{aligned}
+\label{eq:invariant_amplitudes}
+\end{equation}
+
+六个不变振幅$M_{pp}, M_{zz}, M_{zp}, M_{pz}, M_{ppzz}, M_{gg}$都是不变间隔$z^2$和Ioffe时间$\nu \equiv -(p \cdot z)$的函数。由于矩阵元在场交换$\{\mu\alpha\} \leftrightarrow \{\lambda\beta\}$和$z \to -z$下必须对称，$M_{pp}, M_{zz}, M_{gg}, M_{ppzz}$和$M_{pz} - M_{zp}$是$\nu$的偶函数，而$M_{pz} + M_{zp}$是$\nu$的奇函数\cite{Balitsky2020}。
+
+\textbf{非极化胶子PDF}由$M_{pp}$振幅决定。当$z$取光锥``$-$''方向$z = z^-$时\cite{Balitsky2020}：
+
+\begin{equation}
+g^{\alpha\beta} M_{+\alpha;\beta+}(z^-, p) = -2p^2_+ M_{pp}(\nu, 0),
+\label{eq:lightcone_Mpp}
+\end{equation}
+
+\begin{equation}
+-M_{pp}(\nu, 0) = \frac{1}{2} \int_{-1}^{1} dx\, e^{-ix\nu} x f_g(x)。
+\label{eq:Mpp_to_pdf}
+\end{equation}
+
+在格点上，我们只能计算空间方向的分离（$z$沿$z$轴，$\nu = zp^z$）。因此需要识别哪些矩阵元组合包含$M_{pp}$的贡献。
+
+\subsection{包含$M_{pp}$的算符组合}
+
+通过检查不变振幅分解，可以找出各种矩阵元分量中$M_{pp}$的系数\cite{Balitsky2020}：
+
+\begin{itemize}
+    \item $M_{0i;i0}$（$i=1,2$为横向）：包含$p^2_0 M_{pp}$项
+    \item $M_{3i;i3}$：包含$p^2_3 M_{pp}$加上$M_{zz}, M_{zp}, M_{pz}$的污染
+    \item $M_{ij;ji}$（$i,j$横向，$i \neq j$）：包含$2p^2_0 M_{pp}$项（但来自$M_{gg}$而非直接来自$M_{pp}$张量结构）
+    \item $M_{0i;i3} \pm M_{3i;i0}$：包含$p_0 p_3 M_{pp}$项
+\end{itemize}
+
+\textbf{关键组合}\cite{Balitsky2020,Chen2025gluon}：$M_{ti;it} + M_{ij;ji} = 2p^2_0 M_{pp}$。这两个矩阵元具有相同的单圈紫外反常量纲，使得组合在至少单圈层次上是可乘性重整化的。
+
+\subsection{极化（螺旋度）情形}
+
+对于极化胶子分布，需要引入对偶场强张量\cite{Balitsky2020,Egerer2022}：
+
+\begin{equation}
+\tilde{G}^{\lambda\beta} = \frac{1}{2}\epsilon^{\lambda\beta\rho\gamma} G_{\rho\gamma},
+\label{eq:dual_G}
+\end{equation}
+
+极化矩阵元为$\tilde{m}_{\mu\alpha;\lambda\beta}(z,p,s) = \langle p,s| G_{\mu\alpha}(z) W[z,0] \tilde{G}_{\lambda\beta}(0) |p,s\rangle$，其自旋相关部分由$z$-奇组合提取\cite{Egerer2022}：
+
+\begin{equation}
+\tilde{M}_{\mu\alpha;\lambda\beta}(z,p,s) = \tilde{m}_{\mu\alpha;\lambda\beta}(z,p,s) - \tilde{m}_{\mu\alpha;\lambda\beta}(-z,p,s)。
+\label{eq:z_odd_pol}
+\end{equation}
+
+极化情形中的不变振幅分为两组：第一组由核子极化矢量$s^\mu$携带Lorentz指标，第二组中$s^\mu$通过$s \cdot z$进入。极化胶子PDF由Ioffe-时间分布$\tilde{I}_p(\nu)$确定\cite{Egerer2022}：
+
+\begin{equation}
+-i\tilde{I}_p(\nu) \equiv \tilde{M}_{(ps)}^{(+)}(\nu) - \nu \tilde{M}_{(pp)}(\nu) = \frac{i}{2} \int_{-1}^{1} dx\, e^{-ix\nu} x \Delta g(x)。
+\label{eq:Ioffe_pol}
+\end{equation}
+
+通过计算组合$\tilde{M}_{0i;0i}(z,p) + \tilde{M}_{ij;ij}(z,p)$，在大$p_3$极限下可以提取$\tilde{M}_{(ps)}^{(+)}(\nu) - \nu \tilde{M}_{(pp)}(\nu)$。
+
+\section{可乘性重整化：36个算符的统一分类}
+
+\subsection{Li-Ma-Qiu的严格证明}
+
+Li、Ma和Qiu\cite{Li2018multiplicative}对准胶子算符的可乘性重整化性质给出了到所有阶的严格证明。他们的核心结果是：在规范不变的UV正规化方案（如维数正规化DR）下，所有36个纯准胶子算符的UV发散都\textbf{局域在时空中}，且可以\textbf{不互相混合地}被乘性重整化\cite{Li2018multiplicative}：
+
+\begin{theorem}[准胶子算符的乘性重整化]\cite{Li2018multiplicative}
+\begin{equation}
+O^{\mu\nu\rho\sigma}_g(\xi) = e^{-C_g|\xi_z|} Z^{-1}_{wg} Z^{-s/2}_{vg1} Z^{-(2-s)/2}_{vg2} O^{\mu\nu\rho\sigma}_{bg}(\xi),
+\label{eq:multiplicative_renorm}
+\end{equation}
+其中$s$是从$\{\mu,\nu,\rho,\sigma\}$中选择$z$分量的数目，$C_g$, $Z_{wg}$, $Z_{vg1}$, $Z_{vg2}$是重整化常数。
+\end{theorem}
+
+\textbf{关键发现}\cite{Li2018multiplicative}：
+
+\begin{enumerate}
+    \item \textbf{线性发散仅来自Wilson线自能：}使用DR时，胶子-规范链顶点（gluon-gauge-link vertex）的线性UV发散在一圈层次上相互抵消。这一抵消依赖于规范对称性——使用破坏规范对称性的截断正规化时将不会发生。
+    \item \textbf{广义Ward恒等式的角色：}非Abel规范理论中的广义Ward恒等式保证了胶子-规范链顶点和四胶子-规范链顶点的UV发散可以通过规范对称性关联起来，从而在重整化QCD拉氏量和规范链相关的发散后无需额外的重整化常数。
+    \item \textbf{唯一的例外：}算符$J^{\mu\nu}_3 = (-in^\mu A^\nu_a + in^\nu A^\mu_a)((in\cdot D - m)Q)^a/n^2$（比例于辅助场的运动方程）在物理矩阵元中消失，因此不贡献物理的胶子准PDF。
+\end{enumerate}
+
+\textbf{与夸克算符的类比：}准胶子算符的可乘性重整化性质本质上与准夸克算符相同\cite{Li2018multiplicative}——所有UV发散都局域在时空中（即可以被局域抵消项吸收），且算符之间不存在UV混合。这一结果为从格点QCD提取胶子PDF提供了坚实的理论基础。
+
+\subsection{Zhang-Ji-Sch\"afer-Wang-Zhao的辅助场方法}
+
+Zhang等人\cite{Zhang2019}（2019年PRL）引入了一个优雅的辅助``重夸克''场方法来系统分析胶子准PDF算符的重整化。
+
+\textbf{辅助伴随重夸克拉氏量}\cite{Zhang2019}：
+
+\begin{equation}
+\mathcal{L} = \mathcal{L}_{\text{QCD}} + \bar{Q}(x)(in \cdot D - m)Q(x),
+\label{eq:auxiliary_lagrangian}
+\end{equation}
+
+其中$D_\mu = \partial_\mu + igA_\mu$是伴随表示中的协变导数，$n^\mu = (0,0,0,1)$是空间方向矢量。利用辅助场，Wilson线可以被替换为两个辅助场的乘积\cite{Zhang2019}：
+
+\begin{equation}
+\mathcal{O}(z_2, z_1) = F^{z\mu}_a(z_2) Q_a(z_2) \bar{Q}_b(z_1) F^z_{b,\mu}(z_1) = J^{z\mu}_1(z_2) J^z_{1,\mu}(z_1)。
+\label{eq:auxiliary_factorization}
+\end{equation}
+
+\textbf{26个独立分量的简化分类}\cite{Zhang2019}：
+
+在DR和协变规范下，允许与$J^{\mu\nu}_1$混合的算符只有两个：
+
+\begin{equation}
+\begin{aligned}
+J^{\mu\nu}_2 &= n_\rho(F^{\mu\rho}_a n^\nu - F^{\nu\rho}_a n^\mu)Q_a/n^2 \quad \text{（规范不变）}, \\
+J^{\mu\nu}_3 &= (-in^\mu A^\nu_a + in^\nu A^\mu_a)((in \cdot D - m)Q)^a/n^2 \quad \text{（比例于EOM）}。
+\end{aligned}
+\label{eq:mixing_operators}
+\end{equation}
+
+重整化呈三角混合形式\cite{Zhang2019}：
+
+\begin{equation}
+\begin{pmatrix} J^{\mu\nu}_{1,R} \\ J^{\mu\nu}_{2,R} \\ J^{\mu\nu}_{3,R} \end{pmatrix} =
+\begin{pmatrix} Z_{11} & Z_{12} & Z_{13} \\ 0 & Z_{22} & Z_{23} \\ 0 & 0 & Z_{33} \end{pmatrix}
+\begin{pmatrix} J^{\mu\nu}_1 \\ J^{\mu\nu}_2 \\ J^{\mu\nu}_3 \end{pmatrix}。
+\label{eq:triangular_mixing}
+\end{equation}
+
+当$\nu = z$时，$J^{z\mu}_2$与$J^{z\mu}_1$退化，因此$Z_{11} + Z_{12} = Z_{22}$和$Z_{13} = Z_{23}$\cite{Zhang2019}。
+
+\textbf{四个可乘性重整化的构建块}\cite{Zhang2019}：
+
+\begin{enumerate}
+    \item $J^{ti}_{1,R}$（$i$横向）——重整化常数$Z_{11}$
+    \item $J^{zi}_{1,R}$——重整化常数$Z_{22}$
+    \item $J^{ti}_{1,R}$ 和 $J^{zi}_{1,R}$的乘积组合——$Z_{11}Z_{22}$
+    \item $J^{z\mu}_{1,R}$（$\mu$遍历所有Lorentz分量）——$Z_{22}$
+\end{enumerate}
+
+积分掉辅助重夸克场后\cite{Zhang2019}：
+
+\begin{equation}
+\begin{aligned}
+\mathcal{O}^1_R(z_2, z_1) &= Z^2_{11} e^{\delta m \Delta z} F^{ti}(z_2) L(z_2, z_1) F^{ti}(z_1), \\
+\mathcal{O}^2_R(z_2, z_1) &= Z^2_{22} e^{\delta m \Delta z} F^{zi}(z_2) L(z_2, z_1) F^{zi}(z_1), \\
+\mathcal{O}^3_R(z_2, z_1) &= Z_{11}Z_{22} e^{\delta m \Delta z} F^{ti}(z_2) L(z_2, z_1) F^{zi}(z_1), \\
+\mathcal{O}^4_R(z_2, z_1) &= Z^2_{22} e^{\delta m \Delta z} F^{z\mu}(z_2) L(z_2, z_1) F^z_\mu(z_1)。
+\end{aligned}
+\label{eq:four_building_blocks}
+\end{equation}
+
+\textbf{不可乘性重整化的反例}\cite{Zhang2019}：组合$\mathcal{O}^5_R = -\mathcal{O}^1_R - \mathcal{O}^2_R - \mathcal{O}^4_R$（减去迹项后）曾在Fan等人的首次胶子准PDF模拟中被使用\cite{Fan2018gluon}，但由于$\mathcal{O}^1_R$和$\mathcal{O}^{2,4}_R$的重整化不同，$\mathcal{O}^5_R$是不可乘性重整化的。
+
+\subsection{36个分量按$z$分量数的分类}
+
+Li、Ma和Qiu\cite{Li2018multiplicative}给出了36个独立准胶子算符的最终重整化分类。定义$s$为四个Lorentz指标$\{\mu,\nu,\rho,\sigma\}$中取$z$分量的个数（$s = 0,1,2$）：
+
+\begin{itemize}
+    \item \textbf{$s=0$（无$z$分量）：}如$F^{ti}F^{ti}$, $F^{ij}F^{ij}$等——仅需要$C_g$（线性发散）和$Z_{wg}$（规范链端点对数发散）的重整化；不需要$Z_{vg}$。
+    \item \textbf{$s=1$（一个$z$分量）：}如$F^{ti}F^{zi}$——额外需要$Z^{-1/2}_{vg1}$。
+    \item \textbf{$s=2$（两个$z$分量）：}如$F^{zi}F^{zi}$, $F^{z\mu}F^z_\mu$——需要$Z^{-1}_{vg2}$。
+\end{itemize}
+
+这一分类完全解释了为什么不同Lorentz结构需要不同的重整化常数，以及哪些组合可以形成可乘性重整化的准PDF算符。
+
+\section{从连续算符到格点实现}
+
+\subsection{基础表示下的格点构造}
+
+在格点上，胶子算符通常在基础表示下计算（利用恒等式$2\operatorname{Tr}[T^a U T^b U^\dagger] = U^{ab}$将伴随表示转换为计算上更方便的基础表示）\cite{Chen2025gluon,NoteGluonPDFs}：
+
+\begin{equation}
+M_{\mu\lambda;\nu\rho}(z) = \sum_{\vec{x}} \operatorname{Tr}[F_{\mu\lambda}(\vec{x} + z\hat{z}) U(\vec{x} + z\hat{z}, \vec{x}) F_{\nu\rho}(\vec{x}) U(\vec{x}, \vec{x} + z\hat{z})]。
+\label{eq:lattice_ME}
+\end{equation}
+
+其中$F_{\mu\nu}$由Clover项构造：$F_{\mu\nu} = -\frac{i}{8a^2}(Q_{\mu\nu} - Q_{\nu\mu})$，$U$是基础表示中的规范连接变量。
+
+\subsection{非极化胶子流算符}
+
+根据CLQCD/LPC合作组的实际计算\cite{Chen2025gluon}和内部笔记\cite{NoteGluonPDFs}，格点上使用的非极化胶子算符为：
+
+\begin{equation}
+O(z) = M_{tx;tx}(z) + M_{ty;ty}(z) - 2M_{xy;xy}(z)。
+\label{eq:unpol_lattice_op}
+\end{equation}
+
+在Euclidean空间中，胶子流$O^{(0)}_g$的形式为\cite{NoteGluonPDFs}：
+
+\begin{equation}
+\begin{aligned}
+O^{(0)}_g(z, t_i) &= \Big[ -F^{0i}(z,t_i)W[z,0]F_{0i}(0,t_i)W[0,z] \\
+&\quad + 2F^{12}(z,t_i)W[z,0]F_{12}(0,t_i)W[0,z] \Big]_{\text{Eucl}},
+\end{aligned}
+\label{eq:Og0_eucl}
+\end{equation}
+
+其中时间分量前的``$-$''号来自Minkowski/Euclidean转换$F^{tx,(M)}F^{(M)}_{tx} = -F^{(E)}_{tx}F^{(E)}_{tx}$。另外还定义了辅助算符$O^{(1)}_g$用于交叉检验：
+
+\begin{equation}
+O^{(1)}_g(z, t_i) = F^{0i}(z,t_i)W[z,0]F_{0i}(0,t_i)W[0,z] \quad (\text{Euclidean})。
+\label{eq:Og1_eucl}
+\end{equation}
+
+\subsection{极化（螺旋度）胶子流算符}
+
+极化情形中使用的算符为\cite{NoteGluonPDFs}：
+
+\begin{equation}
+\begin{aligned}
+O^{(0)}_g(z, t_i) &= -\Big\{ \{F^{01}W F^{23} - F^{02}W F^{13} + 2F^{12}W F^{03}\} \\
+&\quad - \{ (z \leftrightarrow -z) \} \Big\}_{\text{Eucl}},
+\end{aligned}
+\label{eq:pol_gluon_current}
+\end{equation}
+
+其中$\tilde{F}^{\mu\nu} = \frac{1}{2}\epsilon^{\mu\nu\rho\sigma}F_{\rho\sigma}$的对偶关系已被展开为Euclidean$F^{\mu\nu}$的具体分量。辅助算符$O^{(1)}_g$为：
+
+\begin{equation}
+O^{(1)}_g(z, t_i) = \{F^{01}W F^{23} + F^{02}W F^{13}\} - \{ (z \leftrightarrow -z) \} \quad (\text{Euclidean})。
+\label{eq:pol_Og1}
+\end{equation}
+
+\subsection{Wilson线的离散化与涂抹}
+
+所有胶子流算符中出现的Wilson线$W[z,0]$和$U(\vec{x}+z\hat{z}, \vec{x})$在格点上通过规范连接变量的乘积来离散化。为抑制线性紫外发散（$\sim e^{-\delta m|z|}$），胶子算符通常经过HYP（超立方）涂抹处理\cite{Chen2025gluon,NoteGluonPDFs}。
+
+CLQCD/LPC的计算使用了10步HYP涂抹（HYP5），而MSULat组使用了梯度流涂抹（$\tau_W = 3a^2$）\cite{NieMiera2025}。HYP涂抹步数对线性发散的抑制效果显著：步数越多，裸矩阵元随$|z|$的指数衰减越慢。
+
+\section{味单态混合与$2\times2$匹配矩阵}
+
+\subsection{准PDF与PDF之间的味混合}
+
+在微扰匹配阶段，胶子准PDF和夸克准PDF通过一个$2\times2$的匹配矩阵与物理PDF相联系\cite{Zhang2019,Yao2023}：
+
+\begin{equation}
+\begin{pmatrix} \tilde{g}(x, P^z) \\ \tilde{q}_i(x, P^z) \end{pmatrix} =
+\int_0^1 \frac{dy}{y}
+\begin{pmatrix} C_{gg} & C_{gq} \\ C_{qg} & C_{qq} \end{pmatrix}
+\begin{pmatrix} g(y, \mu) \\ q_j(y, \mu) \end{pmatrix} + \mathcal{O}\left(\frac{\Lambda^2_{\text{QCD}}}{P_z^2}\right)。
+\label{eq:2x2_matching}
+\end{equation}
+
+\textbf{味混合的物理起源}\cite{Zhang2019,Li2018multiplicative}：
+
+\begin{itemize}
+    \item 胶子准PDF算符插入夸克态中给出UV有限的贡献（准PDF定义在类空分离上，不存在非局域UV发散）；
+    \item 但该贡献包含$\ln(P^2_z/p^2)$项（$p^2$为IR正规化子），这些项对应于胶子$\to$夸克的分裂核；
+    \item 在因子化阶段，这些对数项被匹配到夸克PDF，以确保准PDF和PDF之间的IR发散抵消。
+\end{itemize}
+
+\textbf{关键结论：}胶子准PDF在UV重整化阶段不与夸克准PDF混合（乘性重整化），但\textbf{在微扰匹配到光锥PDF的阶段}通过硬匹配核发生混合\cite{Zhang2019}。
+
+\subsection{NLO匹配核的全集}
+
+Yao、Ji和Zhang\cite{Yao2023}在2023年的JHEP论文中给出了味单态和非单态组合在非前行运动学下的完整NLO匹配核统一框架。这是目前最完整的理论手册，覆盖了GPDs、PDFs和DAs。
+
+\textbf{坐标空间中的NLO匹配核}（$\overline{\text{MS}}$方案）\cite{Yao2023}：
+
+\begin{itemize}
+    \item \textbf{夸克在夸克中（$C_{qq}$）：}
+    \begin{equation}
+    \begin{aligned}
+    C^{\overline{\text{MS}}}_{qq}(\alpha, \beta, \mu^2 z^2_{12}) &= \delta(\alpha)\delta(\beta) + 2a_s C_F \Bigg\{ \left[A_2 + \left(\frac{\bar{\alpha}}{\alpha}\right)_+ \delta(\beta) + \left(\frac{\bar{\beta}}{\beta}\right)_+ \delta(\alpha)\right](L_z - 1) \\
+    &\quad + A_3 - 2\left(\frac{\ln\alpha}{\alpha}\right)_+ \delta(\beta) - 2\left(\frac{\ln\beta}{\beta}\right)_+ \delta(\alpha) \Bigg\} + 2a_s C_F (-2L_z + 2)\delta(\alpha)\delta(\beta),
+    \end{aligned}
+    \end{equation}
+    其中$L_z = \ln\frac{4e^{-2\gamma_E}}{-\mu^2 z^2_{12}}$，$A_2 = 1$（非极化），$A_3 = 2$（非极化）。
+
+    \item \textbf{胶子在夸克中（$C_{qg}$）：}
+    \begin{equation}
+    C^{\overline{\text{MS}}}_{qg}(\alpha, \beta, \mu^2 z^2_{12}) = 4i a_s T_F N_f z_{12} B_3 L_z,
+    \end{equation}
+    其中$B_3 = \bar{\alpha}\bar{\beta} + 3\alpha\beta$（非极化）。
+
+    \item \textbf{夸克在胶子中（$C_{gq}$）：}
+    \begin{equation}
+    C^{\overline{\text{MS}}}_{gq}(\alpha, \beta, \mu^2 z^2_{12}) = -2i a_s C_F / z_{12} \Big\{ D_3(L_z + 1) + 4 - 2(\delta(\alpha) + \delta(\beta)) + (L_z + D_4)\delta(\alpha)\delta(\beta) \Big\},
+    \end{equation}
+    其中$D_3 = 2$, $D_4 = 1$（非极化）。
+
+    \item \textbf{胶子在胶子中（$C_{gg}$）：}
+    \begin{equation}
+    \begin{aligned}
+    C^{\overline{\text{MS}}}_{gg}(\alpha, \beta, \mu^2 z^2_{12}) &= \delta(\alpha)\delta(\beta) + 2a_s C_A \Bigg\{ \left[E_1 + \left(\frac{\bar{\alpha}^2}{\alpha}\right)_+ \delta(\beta) + \left(\frac{\bar{\beta}^2}{\beta}\right)_+ \delta(\alpha)\right](L_z - 1) \\
+    &\quad + E_2 - 2\left(\frac{\ln\alpha}{\alpha}\right)_+ \delta(\beta) - 2\left(\frac{\ln\beta}{\beta}\right)_+ \delta(\alpha) \Bigg\} \\
+    &\quad + 2a_s C_A (-3L_z + 2)\delta(\alpha)\delta(\beta),
+    \end{aligned}
+    \end{equation}
+    其中$E_1 = 4(1-\alpha-\beta+3\alpha\beta)$, $E_2 = \frac{5}{2}E_1 + 6\alpha\beta$（非极化）。
+\end{itemize}
+
+\subsection{非极化与极化匹配核的差异}
+
+极化情形中关键的差异来自Dirac/$F_{\mu\nu}$结构的不同\cite{Yao2023}：
+
+\begin{table}[H]
+\centering
+\caption{非极化和极化情形中NLO匹配核参数的对比\cite{Yao2023}}
+\label{tab:unpol_vs_pol}
+\begin{tabular}{lcccc}
+\toprule
+参数 & 非极化 & 螺旋度 \\
+\midrule
+$A_2$（$C_{qq}$）     & 1   & 1 \\
+$A_3$（$C_{qq}$）     & 2   & 4 \\
+$B_3$（$C_{qg}$）     & $\bar{\alpha}\bar{\beta}+3\alpha\beta$ & $\bar{\alpha}\bar{\beta}-\alpha\beta$ \\
+$D_3$（$C_{gq}$）     & 2   & $-2$ \\
+$D_4$（$C_{gq}$）     & 1   & 0 \\
+$E_1$（$C_{gg}$）     & $4(1-\alpha-\beta+3\alpha\beta)$ & $4(1-\alpha-\beta)$ \\
+$E_2$（$C_{gg}$）     & $\frac{5}{2}E_1 + 6\alpha\beta$ & $\frac{3}{2}E_1$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{重整化方案：从Ratio到Hybrid}
+
+\subsection{Ratio重整化}
+
+在赝PDF方法和早期的准PDF计算中，``ratio重整化''方案被广泛使用\cite{Fan2018gluon}：
+
+\begin{equation}
+\tilde{H}^{\text{Ra}}_0(z, P^z, \mu) = \frac{\tilde{H}^{\overline{\text{MS}}}_0(0, 0, \mu)}{\tilde{H}_0(z, 0)} \tilde{H}_0(z, P^z)。
+\label{eq:ratio_renorm}
+\end{equation}
+
+这一方案利用零动量矩阵元作为``重整化因子''，可以有效消除线性发散。然而，ratio方案可能在长距离处引入不希望有的非微扰红外效应\cite{Ji2021hybrid}。
+
+\subsection{混合（Hybrid）重整化}
+
+Ji等人提出的混合重整化方案\cite{Ji2021hybrid}根据距离尺度采用不同策略，避免了ratio方案的IR问题：
+
+\begin{equation}
+\tilde{h}^R(z, P^z) = \frac{\tilde{h}^n_B(z, P^z, 1/a)}{\tilde{h}^n_B(z, P^z=0, 1/a)} \theta(z_s - |z|) + \eta_s \frac{\tilde{h}^n_B(z, P^z, 1/a)}{Z_R(z, 1/a)} \theta(|z| - z_s)。
+\label{eq:hybrid_renorm}
+\end{equation}
+
+在短距离（$|z| < z_s$），使用ratio方案；在长距离（$|z| > z_s$），使用自重整化因子$Z_R$：
+
+\begin{equation}
+\begin{aligned}
+Z_R(z, 1/a, \mu) = \exp\Bigg\{&\frac{kz}{a}\ln[a\Lambda_{\text{QCD}}] + m_0 z \\
+&+ \frac{5C_A}{3b_0} \ln\left[\frac{\ln(1/a\Lambda_{\text{QCD}})}{\ln(\mu/\Lambda_{\text{QCD}})}\right] \\
+&+ \frac{1}{2}\ln\left[\left(1 + \frac{d}{\ln[a\Lambda_{\text{QCD}}]}\right)^2\right]\Bigg\}。
+\end{aligned}
+\label{eq:ZR}
+\end{equation}
+
+\textbf{胶子情形的特殊参数：}在胶子准PDF中，线性发散系数$k$与夸克情形相差一个因子$C_A/C_F$（领头阶），因此胶子的线性发散更为显著\cite{Chen2025gluon}。
+
+\subsection{RI/MOM非微扰重整化}
+
+在RI/MOM方案中\cite{Zhang2019}，胶子准PDF的重整化因子通过计算远离壳胶子态中算符的截肢Green函数来确定：
+
+\begin{equation}
+[e^{\delta m|z|}Z^2_{11}Z_3]^{-1}(zn, p^R_z, 1/a, \mu_R) = \frac{P^{ab}_{ij} \langle 0| T[A^{a,i}(p) \mathcal{O}^1(z,0) A^{b,j}(-p)] |0\rangle |_{\text{amp}}}{P^{ab}_{ij} \langle 0| T[A^{a,i}(p) \mathcal{O}^1(z,0) A^{b,j}(-p)] |0\rangle |_{\text{amp,tree}}} \Bigg|_{p^2=-\mu^2_R, p^z=p^R_z}。
+\label{eq:RI_MOM}
+\end{equation}
+
+\section{胶子算符在格点实践中的应用全景}
+
+\subsection{已实现的格点计算汇总}
+
+\begin{table}[H]
+\centering
+\caption{使用胶子算符的主要格点QCD计算汇总}
+\label{tab:gluon_op_applications}
+\begin{tabular}{lcccl}
+\toprule
+合作组 & 算符 & 观测量 & 系综 & 参考文献 \\
+\midrule
+MSULat & $O_0$ (ratio) & $g(x)$ & $a=0.111$~fm, DWF & \cite{Fan2018gluon} \\
+CLQCD/LPC & $O(z)$ (hybrid) & $g(x)$ & 3个$a$, 连续极限 & \cite{Chen2025gluon} \\
+MSULat & $O(z)$ (自重整化) & $g(x)$ & 3个$a$, 梯度流 & \cite{NieMiera2025} \\
+HadStruc & $\tilde{M}_{0i;0i}+\tilde{M}_{ij;ij}$ & $\Delta g(x)$ & $a=0.094$~fm & \cite{Egerer2022} \\
+MSULat & $O(z)$ & $g(x)$ & 物理$m_\pi$, $2+1+1$味 & \cite{Lin2025gluon} \\
+CLQCD/LPC & $O^{(0)}_g$, $O^{(1)}_g$ & $g(x)$, $\Delta g(x)$ & $a=0.105$~fm & \cite{NoteGluonPDFs} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{非连通图的计算策略}
+
+胶子流插入与核子之间没有夸克线连接——这是胶子算符与夸克算符之间的本质区别。三点关联函数因此是\textbf{非连通的}\cite{NoteGluonPDFs,Chen2025gluon}：
+
+\begin{equation}
+C_{\text{3pt}}(z, P^z, t, t_i, t_0) = \langle (O_g(z, t_i) - \langle O_g(z, t_i) \rangle)(C^N_{\text{2pt}}(P^z, t, t_0) - \langle C^N_{\text{2pt}}(P^z, t, t_0) \rangle) \rangle。
+\label{eq:disconnected_3pt}
+\end{equation}
+
+真空期望值的减除对获得正确的物理信号至关重要。胶子流和核子两点关联函数可以\textbf{分别计算}，然后通过系综平均关联起来。这既是优势（计算灵活），也是挑战（信噪比远差于夸克同位旋矢量组合）。
+
+\subsection{蒸馏方法中的胶子算符}
+
+在蒸馏框架中\cite{Peardon2009,Egerer2021a}，胶子流算符的构造与夸克perambulator的计算完全解耦。Perambulator仅依赖于规范场组态和蒸馏本征矢，与具体的胶子流选择无关。这允许在完成后验地尝试不同的胶子算符组合，是胶子算符系统误差研究的有力工具。
+
+\section{总结}
+
+胶子算符的构造、分类、重整化和匹配构成了格点QCD胶子物理计算的完整理论基础。本文的核心结论包括：
+
+\begin{enumerate}
+    \item \textbf{不变振幅分类：}Balitsky-Morris-Radyushkin的六个不变振幅分解为理解胶子算符的Lorentz结构提供了系统框架。非极化胶子PDF由$M_{pp}$振幅决定，极化胶子螺旋度由$\tilde{M}_{(ps)}^{(+)}(\nu) - \nu\tilde{M}_{(pp)}(\nu)$决定。
+
+    \item \textbf{可乘性重整化的严格性：}Li、Ma和Qiu证明\cite{Li2018multiplicative}，在规范不变的UV正规化下，所有36个纯准胶子算符可以\textbf{不互相混合地}被乘性重整化。重整化常数仅依赖于每个算符中$z$分量的数目$s$。
+
+    \item \textbf{辅助场方法的实用性：}Zhang等人\cite{Zhang2019}利用伴随``重夸克''辅助场，将Wilson线替换为辅助场的乘积，系统导出了四个可乘性重整化的构建块，并识别出不可乘性重整化的算符组合。
+
+    \item \textbf{味单态$2\times2$匹配：}Yao、Ji和Zhang\cite{Yao2023}给出了味单态扇区完整的NLO匹配核，覆盖了非前行运动学下的GPDs、PDFs和DAs。非极化和极化情形中匹配核的差异通过一系列参数（$A_i, B_i, D_i, E_i$）来刻画。
+
+    \item \textbf{格点实现：}在基础表示下的$M_{\mu\lambda;\nu\rho}(z)$构造、Clover $F_{\mu\nu}$的格点离散化、Minkowski/Euclidean张量转换、HYP/梯度流涂抹，以及非连通三点函数的处理，构成了胶子算符格点计算的完整技术链条。
+
+    \item \textbf{与夸克算符的本质区别：}（a）胶子-规范链顶点在破坏规范对称性的正规化下可出现线性发散，但规范不变的DR使这些发散抵消；（b）不同$z$分量数$s$的算符需要不同的重整化常数，而夸克情形中所有分量统一重整化；（c）非连通图是胶子算符的固有特征（胶子流与核子无夸克线连接）。
+\end{enumerate}
+
+\begin{thebibliography}{99}
+
+\bibitem{Zhang2019}
+J.-H.~Zhang, X.~Ji, A.~Sch\"afer, W.~Wang, and S.~Zhao,
+``Accessing gluon parton distributions in large momentum effective theory,''
+Phys.\ Rev.\ Lett.\ \textbf{122}, 142001 (2019), arXiv:1808.10824.
+\quad\textbf{[来源:} \texttt{refer/papers/Accessing gluon parton distributions in large momentum effective theory.pdf}\textbf{]}
+
+\bibitem{Li2018multiplicative}
+Z.-Y.~Li, Y.-Q.~Ma, and J.-W.~Qiu,
+``Multiplicative renormalizability of quasi-parton operators,''
+Phys.\ Rev.\ Lett.\ \textbf{122}, 062002 (2019), arXiv:1809.01836.
+\quad\textbf{[来源:} \texttt{refer/papers/Multiplicative renormalizability of quasi-parton operators.pdf}\textbf{]}
+
+\bibitem{Balitsky2020}
+I.~Balitsky, W.~Morris, and A.~Radyushkin,
+``Gluon pseudo-distributions at short distances: Forward case,''
+Phys.\ Lett.\ B \textbf{808}, 135621 (2020), arXiv:1910.13963.
+\quad\textbf{[来源:} \texttt{refer/papers/Short-Distance Structure of Unpolarized Gluon Pseudodistributions.pdf}\textbf{]}
+
+\bibitem{Yao2023}
+F.~Yao, Y.~Ji, and J.-H.~Zhang,
+``Connecting Euclidean to light-cone correlations: From flavor nonsinglet in forward kinematics to flavor singlet in non-forward kinematics,''
+JHEP \textbf{11}, 021 (2023), arXiv:2212.14415.
+\quad\textbf{[来源:} \texttt{refer/papers/Connecting Euclidean to light-cone correlations From flavor nonsinglet in forward kinematics to flavor singlet in non-forward kinematics.pdf}\textbf{]}
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,''
+内部笔记。（含非极化和极化胶子流算符的构造与数值结果）
+\quad\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}
+
+\bibitem{Wang2018}
+W.~Wang, S.~Zhao, and R.~Zhu,
+``Gluon quasi-PDF from lattice QCD,''
+Eur.\ Phys.\ J.\ C \textbf{78}, 147 (2018), arXiv:1708.02458.
+
+\bibitem{Wang2018b}
+W.~Wang and S.~Zhao,
+``Gluon quasi-PDF from lattice QCD,''
+JHEP \textbf{05}, 142 (2018), arXiv:1712.09247.
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\quad\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{Chen2025first}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``First self-renormalized gluon PDF of nucleon from large-momentum effective theory in the continuum limit,''
+Phys.\ Rev.\ D \textbf{111}, 074506 (2025), arXiv:2408.12819.
+\quad\textbf{[来源:} \texttt{refer/papers/First Self-Renormalized Gluon PDF of Nucleon from Large-Momentum Effective Theory in the Continuum Limit.pdf}\textbf{]}
+
+\bibitem{NieMiera2025}
+A.~NieMiera, W.~Good, H.-W.~Lin, and F.~Yao,
+``First self-renormalized gluon PDF of nucleon from large-momentum effective theory in the continuum limit,''
+(2025), arXiv:2510.17758.
+\quad\textbf{[来源:} \texttt{refer/papers/First Self-Renormalized Gluon PDF of Nucleon from Large-Momentum Effective Theory in the Continuum Limit.pdf}\textbf{]}
+
+\bibitem{Fan2018gluon}
+Z.-Y.~Fan, Y.-B.~Yang, A.~Anthony, H.-W.~Lin, and K.-F.~Liu,
+``Gluon quasi-PDF from lattice QCD,''
+Phys.\ Rev.\ Lett.\ \textbf{121}, 242001 (2018), arXiv:1808.02077.
+\quad\textbf{[来源:} \texttt{refer/papers/Gluon Quasi-PDF From Lattice QCD.pdf}\textbf{]}
+
+\bibitem{Good2025a}
+W.~Good, F.~Yao, and H.-W.~Lin,
+``First nucleon gluon PDF from large momentum effective theory,''
+(2025), arXiv:2505.13321.
+\quad\textbf{[来源:} \texttt{refer/papers/First Nucleon Gluon PDF from Large Momentum Effective Theory.pdf}\textbf{]}
+
+\bibitem{Lin2025gluon}
+W.~Good, K.~Hasan, and H.-W.~Lin,
+``Gluon parton distribution of the nucleon from $2+1+1$-flavor lattice QCD in the physical-continuum limit,''
+J.\ Phys.\ G \textbf{52}, 035105 (2025), arXiv:2409.02750.
+\quad\textbf{[来源:} \texttt{refer/papers/Gluon Parton Distribution of the Nucleon from 2+1+1-Flavor Lattice QCD in the Physical-Continuum Limit.pdf}\textbf{]}
+
+\bibitem{Egerer2022}
+C.~Egerer \textit{et al.} (HadStruc Collaboration),
+``Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics,''
+Phys.\ Rev.\ D \textbf{106}, 094511 (2022), arXiv:2207.08733.
+\quad\textbf{[来源:} \texttt{refer/papers/Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics.pdf}\textbf{]}
+
+\bibitem{Ji2021hybrid}
+X.~Ji, Y.~Liu, A.~Sch\"afer, W.~Wang, Y.-B.~Yang, J.-H.~Zhang, and Y.~Zhao,
+``A hybrid renormalization scheme for quasi light-front correlations in large-momentum effective theory,''
+Nucl.\ Phys.\ B \textbf{964}, 115311 (2021), arXiv:2008.03886.
+\quad\textbf{[来源:} \texttt{refer/papers/A Hybrid Renormalization Scheme for Quasi Light-Front Correlations in Large-Momentum Effective Theory.pdf}\textbf{]}
+
+\bibitem{Izubuchi2018}
+T.~Izubuchi, X.~Ji, L.~Jin, I.~W.~Stewart, and Y.~Zhao,
+``Factorization theorem relating Euclidean and light-cone parton distributions,''
+Phys.\ Rev.\ D \textbf{98}, 056004 (2018), arXiv:1801.03917.
+\quad\textbf{[来源:} \texttt{refer/papers/Factorization Theorem Relating Euclidean and Light-Cone Parton Distributions.pdf}\textbf{]}
+
+\bibitem{Peardon2009}
+M.~Peardon \textit{et al.} (Hadron Spectrum),
+``A novel quark-field creation operator construction for hadronic physics in lattice QCD,''
+Phys.\ Rev.\ D \textbf{80}, 054506 (2009), arXiv:0905.2160.
+\quad\textbf{[来源:} \texttt{refer/papers/A novel quark-field creation operator construction for hadronic physics in lattice QCD.pdf}\textbf{]}
+
+\bibitem{Egerer2021a}
+C.~Egerer, R.~G.~Edwards, K.~Orginos, and D.~G.~Richards,
+``Distillation at high-momentum,''
+Phys.\ Rev.\ D \textbf{103}, 034502 (2021), arXiv:2009.10691.
+\quad\textbf{[来源:} \texttt{refer/papers/Distillation at High-Momentum.pdf}\textbf{]}
+
+\bibitem{CLQCD2024}
+Z.-C.~Hu \textit{et al.} (CLQCD),
+``Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{109}, 054507 (2024), arXiv:2310.00814.
+\quad\textbf{[来源:} \texttt{refer/papers/Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\bibitem{CLQCD2025}
+H.-Y.~Du \textit{et al.} (CLQCD),
+``Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{111}, 054504 (2025), arXiv:2408.03548.
+\quad\textbf{[来源:} \texttt{refer/papers/Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\end{thebibliography}
+
+\end{document}

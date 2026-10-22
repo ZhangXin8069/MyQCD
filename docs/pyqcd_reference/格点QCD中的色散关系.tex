@@ -1,0 +1,496 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption,multirow}
+\usepackage{hyperref,xcolor,enumitem,mathtools}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的色散关系}
+\author{基于本库全部相关文献与教材的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+\textbf{色散关系（dispersion relation）}是量子场论和格点QCD中连接能量与动量的基本方程。在连续时空中，相对论性粒子的能量与动量由 $E(\mathbf{p}) = \sqrt{m^2 + \mathbf{p}^2}$ 联系；在格点上，这一关系因离散化而修正为格点色散关系 $\cosh(aE) = \cosh(am) + \sum_{k}(1 - \cos(ap_k))$。色散关系在格点QCD中具有多层次的重要意义：它是强子谱学中从关联函数提取能谱的理论基础；它是验证格点费米子方案正确性和改进程度的核心诊断工具；它是LaMET大动量有效理论中核子boost数据可靠性的首要检验；它还是L\"uscher有限体积方法中将能级转化为散射相移的关键桥梁。
+
+本文基于本库中的三本核心教材（Gattringer与Lang的\textit{Quantum Chromodynamics on the Lattice}、Gupta的\textit{Introduction to Lattice QCD}、Peskin与Schroeder的\textit{An Introduction to Quantum Field Theory}）以及多篇相关研究论文和已有补充资料，从以下六个维度系统解析格点QCD中的色散关系：
+
+\textbf{第一维度——连续时空中的相对论色散关系（§2）：}
+从洛伦兹不变性导出 $E(\mathbf{p}) = \sqrt{m^2 + \mathbf{p}^2}$，介绍K\"all\'en-Lehmann谱表示及其与色散关系的深刻联系。这一表示为关联函数的解析结构提供了场论基础，也是QCD求和规则和深度非弹散射中解析色散关系方法的核心。
+
+\textbf{第二维度——格点上的色散关系（§3）：}
+从格点上自由玻色子/费米子传播子的极点分析导出格点色散关系 $\cosh(aE) = \cosh(am) + \sum_{k}(1 - \cos(ap_k))$。讨论$a \to 0$极限下向连续色散关系的恢复，以及有限格距$a$导致的离散化修正 $E(\mathbf{p}) = \sqrt{m^2 + \mathbf{p}^2}(1 + O(ap))$。
+
+\textbf{第三维度——费米子加倍子与Wilson费米子的色散关系（§4）：}
+阐述na\"ive费米子传播子的16个极点导致的加倍子问题，以及Wilson项如何通过赋予加倍子质量 $m_{\text{doubler}} = m + 2\ell r/a$ 来消除非物理极点，使传播子仅保留单一分支的物理色散关系 $e^{Ea} = 1 + ma$。
+
+\textbf{第四维度——改进的色散关系（§5）：}
+系统阐述两类改进方案对色散关系的优化：(i) \textbf{Symanzik改进}——通过添加Clover项消除$O(a)$离散化误差；(ii) \textbf{HISQ费米子}——通过Fat7涂抹 + Naik三跳项（消除$O(a^2)$误差）+ Lepage项（校正涂抹引入的色散关系扭曲），实现高度改进的色散关系；(iii) \textbf{Twisted Mass费米子}——在最大扭曲条件下实现$O(a)$自动改进，消除色散关系中的$O(a)$修正。
+
+\textbf{第五维度——``完美''色散关系与重整化群（§6）：}
+阐述通过实空间重整化群（blocking）构造的``阻断Dirac算符''如何实现几乎到截断$\pi/a$的完美线性色散关系 $E(q) = |q|$，并与Ginsparg-Wilson关系建立联系。这一方法同时实现了无加倍子、局域作用和（近似）手征对称性三个理想性质。
+
+\textbf{第六维度——色散关系在格点QCD计算中的应用（§7）：}
+讨论色散关系在三个关键场景中的实际应用：(i) \textbf{LaMET中的色散关系检验}——$E^2(P_z) = m_N^2 + P_z^2$ 是核子boost数据可靠性的首要检验；(ii) \textbf{L\"uscher有限体积方法}——通过 $W_n = 2\sqrt{m^2 + k_n^2}$ 将有限体积能级转化为无限体积散射相移；(iii) \textbf{深度非弹散射中的解析色散关系}——利用关联函数的解析性质将类空区域的OPE计算与类时区域的实验截面联系起来。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+\section{引言：色散关系——格点QCD的``能量--动量字典''}
+% ==============================================================================
+
+色散关系（dispersion relation）是物理学中连接能量与动量的基本方程——它告诉我们，一个具有确定质量$m$和空间动量$\mathbf{p}$的粒子，其能量$E$应该是多少。在经典力学中它是$E = \mathbf{p}^2/2m$，在狭义相对论中它是$E = \sqrt{m^2 + \mathbf{p}^2}$，而在格点上它变为一个更复杂的超越方程。无论是哪种形式，色散关系始终是``能量--动量字典''的核心条目。
+
+在格点QCD中，色散关系的重要性远超一个简单的运动学公式。它渗透到从强子谱学、费米子方案选择、离散化误差分析到LaMET大动量有效理论和有限体积散射的几乎所有方面~\cite{GattringerLang2010,GuptaLatticeQCD}：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{强子谱的基础}：关联函数 $C(n_t) \sim e^{-n_t E(\mathbf{p})}$ 中提取的能量$E$必须通过色散关系与质量$m$联系。没有正确的色散关系，就无法从格点数据中定义物理质量~\cite{GattringerLang2010}。
+    \item \textbf{费米子方案的诊断}：不同费米子离散化方案（Wilson、Clover、Staggered、HISQ、Domain-Wall、Overlap、Twisted Mass）的优劣，在相当程度上体现为它们对自由场色散关系的保真度——加倍子污染、$O(a)$/$O(a^2)$离散化误差、taste破缺等缺陷都在色散关系的偏离中暴露无遗~\cite{GattringerLang2010}。
+    \item \textbf{LaMET的可靠性检验}：在大动量有效理论计算中，$E^2(P_z) = m_N^2 + P_z^2$的验证是核子boost数据可靠性的首要检验——如果色散关系被破坏，则意味着激发态污染或离散化误差尚未受控~\cite{hadronSpectroscopy2026}。
+    \item \textbf{有限体积散射}：L\"uscher方法将有限体积中的能级$W_n$通过色散关系 $W_n = 2\sqrt{m^2 + k_n^2}$ 转化为无限体积的散射动量$k_n$，进而得到相移 $\delta(k_n)$~\cite{GattringerLang2010}。
+    \item \textbf{解析色散关系}：在连续场论中，K\"all\'en-Lehmann谱表示将两点关联函数表示为谱密度的色散积分。这一解析结构是QCD求和规则和深度非弹散射OPE分析中使用``色散关系方法''的基础~\cite{PeskinSchroeder1995}。
+\end{enumerate}
+
+本文以下各节将沿着``连续$\to$格点$\to$改进$\to$完美$\to$应用''的逻辑链条，逐步深入地解析格点QCD中色散关系的各个方面。
+
+% ==============================================================================
+\section{连续时空中的相对论色散关系}
+% ==============================================================================
+
+\subsection{洛伦兹不变性与质壳条件}
+
+在狭义相对论中，四动量平方 $p^\mu p_\mu = E^2 - \mathbf{p}^2$ 是洛伦兹不变量。对于质量为$m$的物理粒子，它必须满足质壳条件（on-shell condition）：
+\begin{equation}\label{eq:continuum_disp}
+    E(\mathbf{p}) = \sqrt{m^2 + \mathbf{p}^2},
+\end{equation}
+其中我们采用了自然单位制 $c = \hbar = 1$。对于零动量（$\mathbf{p} = 0$），这给出 $E(0) = m$——粒子静止时的能量就等于其质量。对于小动量 $|\mathbf{p}| \ll m$，展开得到非相对论极限 $E(\mathbf{p}) \approx m + \mathbf{p}^2/2m$；对于极端相对论情况 $|\mathbf{p}| \gg m$，$E(\mathbf{p}) \approx |\mathbf{p}|$。
+
+\textbf{与群论的联系：} 式(\ref{eq:continuum_disp})是庞加莱群Wigner分类的直接推论——质量$m$和自旋$j$标记了庞加莱群的不可约表示，而质壳条件定义了动量空间中的单粒子态所在的``质量超曲面''。
+
+\subsection{K\"all\'en-Lehmann谱表示}
+
+连续场论中与色散关系具有深层联系的一个重要结果是\textbf{K\"all\'en-Lehmann谱表示}~\cite{PeskinSchroeder1995}。对于任意相互作用场论中的两点关联函数，谱表示给出：
+\begin{equation}\label{eq:KL}
+    \langle\Omega| T\phi(x)\phi(y) |\Omega\rangle = \int_0^\infty \frac{dM^2}{2\pi}\,\rho(M^2)\, D_F(x-y; M^2),
+\end{equation}
+其中 $\rho(M^2)$ 是正定的谱密度函数：
+\begin{equation}\label{eq:spectral_density}
+    \rho(M^2) = \sum_A (2\pi)\,\delta(M^2 - m_A^2)\,|\langle\Omega|\phi(0)|A\rangle|^2.
+\end{equation}
+单粒子态贡献一个孤立的$\delta$函数峰：$\rho(M^2) = 2\pi\,\delta(M^2 - m^2)\cdot Z + \text{（多粒子连续谱，从}(2m)^2\text{开始）}$，其中$Z$是场强重整化常数。
+
+\textbf{与解析色散关系的联系：} K\"all\'en-Lehmann表示表明，两点关联函数的傅里叶变换 $\Pi(q^2)$ 是$q^2$的解析函数，在正实轴上有分支切割，而在复$q^2$平面的其他区域解析。这一解析结构正是第7.4节将要讨论的``色散关系方法''的数学基础——它允许通过围道积分将类空区域的OPE计算与类时区域的物理截面联系起来。
+
+% ==============================================================================
+\section{格点上的色散关系}
+% ==============================================================================
+
+\subsection{格点自由玻色子传播子与极点分析}
+
+在格点上，连续时空被离散化为间距为$a$的超立方格点。自由玻色子的格点作用量为：
+\begin{equation}
+    S = \frac{a^4}{2}\sum_n \left[ \sum_\mu (\phi(n+\hat{\mu}) - \phi(n))^2 + m^2\phi(n)^2 \right].
+\end{equation}
+动量空间的传播子为：
+\begin{equation}
+    \tilde{G}(p) = \frac{1}{\frac{4}{a^2}\sum_\mu \sin^2(ap_\mu/2) + m^2}.
+\end{equation}
+传播子的极点位置对应于物理态的能量。将四动量写为 $(iE(\mathbf{p}), \mathbf{p})$，极点条件 $\tilde{G}^{-1}(iE, \mathbf{p}) = 0$ 给出~\cite{GattringerLang2010}：
+\begin{equation}\label{eq:lattice_disp}
+    \cosh(aE(\mathbf{p})) = \cosh(am) + \sum_{k=1}^3 \bigl(1 - \cos(ap_k)\bigr).
+\end{equation}
+这是\textbf{最简单格点离散化（最近邻差分）的自由粒子色散关系}。它在$a \to 0$时的展开：
+\begin{equation}
+    E(\mathbf{p}) = \sqrt{m^2 + \mathbf{p}^2}\,\bigl(1 + O(ap)\bigr),
+\end{equation}
+表明格点色散关系在连续极限下恢复为标准的相对论色散关系，但有限格距下存在$O(ap)$的离散化修正。
+
+\subsection{格点色散关系与欧几里得不变性的恢复}
+
+式(\ref{eq:lattice_disp})的一个关键特征是：即使连续理论的关联函数在欧几里得时空中具有$O(4)$转动不变性，格点上的最近邻离散化仅保留了超立方对称性（$W_4$群）。格点色散关系对连续色散关系的偏离正是这种对称性破缺的体现。
+
+Gattringer与Lang强调~\cite{GattringerLang2010}：
+\begin{quote}
+``Determining the hadron propagators for non-zero momenta allows one to study the spectral relation between energy and momentum as realized on the lattice. Since the asymptotic states describe free particles in the lattice world, the adequate spectral relation is that of free lattice particles... Careful analysis of hadron propagators along these lines allows one to check for the recovery of full Euclidean invariance.''
+\end{quote}
+
+在实践中，通过在多个非零动量$\mathbf{p}$上计算强子关联函数并拟合能量$E(\mathbf{p})$，可以定量检查色散关系是否满足连续形式。偏离的大小直接反映了离散化误差的严重程度。
+
+\subsection{从关联函数到色散关系的验证}
+
+在实际格点QCD计算中，色散关系的验证通过以下流程进行~\cite{hadronSpectroscopy2026}：
+
+\begin{enumerate}[leftmargin=*]
+    \item 对每个动量$\mathbf{p}$，构建具有该动量的强子内插算符 $O(\mathbf{p}, n_t) = \sum_{\mathbf{n}} e^{-i\mathbf{p}\cdot\mathbf{n}} O(\mathbf{n}, n_t)$；
+    \item 计算两点关联函数 $C(\mathbf{p}, n_t) = \langle O(\mathbf{p}, n_t) O^\dagger(\mathbf{p}, 0) \rangle$；
+    \item 在大$n_t$下，关联函数被基态主导：$C(\mathbf{p}, n_t) \sim A e^{-n_t E(\mathbf{p})}$；
+    \item 从指数衰减率提取 $E(\mathbf{p})$，然后检验 $E^2(\mathbf{p})$ 与 $\mathbf{p}^2$ 是否满足线性关系 $E^2 = m^2 + \mathbf{p}^2$。
+\end{enumerate}
+
+偏离线性关系表明存在显著的离散化误差或激发态污染。
+
+% ==============================================================================
+\section{费米子加倍子与Wilson费米子的色散关系}
+% ==============================================================================
+
+\subsection{Na\"ive费米子的色散灾难：16个极点}
+
+na\"ive格点费米子作用将连续Dirac算符中的导数替换为对称差分：
+\begin{equation}
+    S_F^{\text{na\"ive}} = a^4\sum_n \bar{\psi}(n)\left[ \sum_{\mu=1}^4 \gamma_\mu \frac{\psi(n+\hat{\mu}) - \psi(n-\hat{\mu})}{2a} + m\psi(n) \right].
+\end{equation}
+在自由场极限下，动量空间的Dirac算符为~\cite{GattringerLang2010}：
+\begin{equation}
+    D(p) = m\mathbf{1} + \frac{i}{a}\sum_{\mu=1}^4 \gamma_\mu \sin(p_\mu a).
+\end{equation}
+传播子 $D^{-1}(p)$ 的极点出现在 $\sin(p_\mu a) = 0$ 即 $p_\mu = 0$ 或 $p_\mu = \pi/a$ 处。在四维中，共有 $2^4 = 16$ 个极点——1个物理费米子和15个非物理的``加倍子''（doublers）。这些加倍子在连续极限$a \to 0$下\textbf{不消失}——它们在布里渊区边缘的动量$\pi/a$处持续存在，破坏理论的正确连续极限。
+
+这导致了na\"ive费米子的\textbf{色散灾难}：传播子具有15个额外的非物理分支，无法描述单一费米子的正确色散关系。
+
+\subsection{Nielsen--Ninomiya定理：根本性的禁止}
+
+加倍子问题并非na\"ive作用的技术疏忽。Nielsen和Ninomiya在1981年证明的定理确立了一个根本性限制~\cite{GattringerLang2010}：
+
+\begin{theorem}[Nielsen--Ninomiya定理]\label{thm:NN}
+考虑一个具有以下性质的格点费米子作用：(i) 平移不变性；(ii) 局域性；(iii) 厄米性。则费米子加倍子不可避免地成对出现，且左/右手征费米子的数量相等，因此无法描述具有确定手征性的单一费米子。
+\end{theorem}
+
+\textbf{核心推论：} 在格点上同时实现无加倍子和（完整的）手征对称性是不可能的。各种费米子方案以不同策略绕开这一定理的限制。
+
+\subsection{Wilson费米子：消除加倍子，获得干净色散}
+
+Wilson在1974年提出的方案是最直接的解决加倍子问题的方法~\cite{GattringerLang2010,fermionFormulations2026}：向na\"ive作用中添加一个维度5的不可重整化项（Wilson项）：
+\begin{equation}
+    S_F^{\text{Wilson}} = S_F^{\text{na\"ive}} - a^5 \frac{r}{2} \sum_n \bar{\psi}(n)\Box\psi(n),
+\end{equation}
+其中Wilson参数通常取$r=1$，格点d'Alembertian $\Box\psi(n) = \frac{1}{a^2}\sum_\mu[\psi(n+\hat{\mu}) + \psi(n-\hat{\mu}) - 2\psi(n)]$。在动量空间中：
+\begin{equation}
+    D_W(p) = m\mathbf{1} + \frac{i}{a}\sum_{\mu} \gamma_\mu \sin(p_\mu a) + \frac{r}{a}\sum_{\mu} \bigl(1 - \cos(p_\mu a)\bigr)\mathbf{1}.
+\end{equation}
+
+\textbf{加倍子的消除机制：} Wilson项贡献一个动量依赖的质量项：
+\begin{equation}
+    m_{\text{eff}}(p) = m + \frac{r}{a}\sum_{\mu} \bigl(1 - \cos(p_\mu a)\bigr).
+\end{equation}
+对于物理极点（所有$p_\mu = 0$），$m_{\text{eff}} = m$——Wilson项消失。对于具有$\ell$个动量分量等于$\pi/a$的加倍子：
+\begin{equation}\label{eq:doubler_mass}
+    m_{\text{doubler}} = m + \frac{2\ell r}{a}, \quad \ell = 1, 2, 3, 4.
+\end{equation}
+在连续极限$a \to 0$下，所有加倍子的质量发散为 $\sim 1/a$，因此它们从物理谱中退耦。
+
+\textbf{Wilson费米子的色散关系：} 在自由场极限下，仅有$p_\mu = 0$处的物理极点存活。对于$r=1$，传播子具有单一分支的色散关系~\cite{fermionFormulations2026}：
+\begin{equation}\label{eq:wilson_disp}
+    e^{Ea} = 1 + ma,
+\end{equation}
+没有加倍子或ghost分支。这意味着Wilson费米子提供了干净、无歧义的物理色散关系。
+
+\textbf{代价——手征对称性的破缺：} Wilson项在连续极限下形式地消失（$\propto a$），但在有限格距下显式破缺手征对称性，导致夸克质量的加法重整化和``例外组态''问题。
+
+% ==============================================================================
+\section{改进的色散关系}
+% ==============================================================================
+
+\subsection{Clover费米子与Symanzik改进}
+
+Wilson费米子的离散化误差为$O(a)$。在Symanzik改进框架下，Sheikholeslami和Wohlert提出通过添加``Clover项''（Pauli项）来消除$O(a)$截断效应~\cite{GattringerLang2010}：
+\begin{equation}
+    S_F^{\text{Clover}} = S_F^{\text{Wilson}} - a^5 c_{\text{sw}} \sum_n \bar{\psi}(n) \frac{i}{4}\sigma_{\mu\nu} \hat{F}_{\mu\nu}(n) \psi(n),
+\end{equation}
+其中 $\sigma_{\mu\nu} = \frac{i}{2}[\gamma_\mu, \gamma_\nu]$，$\hat{F}_{\mu\nu}$ 是格点场强张量（由clover型plaquette构造），$c_{\text{sw}}$是Sheikholeslami--Wohlert系数。当$c_{\text{sw}}$被适当调节（非微扰确定）时，所有物理观测量中的$O(a)$离散化误差被消除，色散关系获得$O(a^2)$精度。
+
+\subsection{Staggered费米子与HISQ改进}
+
+\subsubsection{Staggered费米子的基本思想}
+
+Staggered（Kogut--Susskind）费米子通过自旋对角化变换将16个加倍子重新解释为4个``taste''（味）自由度~\cite{GattringerLang2010,fermionFormulations2026}：
+\begin{equation}
+    \psi(n) = \gamma_1^{n_1} \gamma_2^{n_2} \gamma_3^{n_3} \gamma_4^{n_4} \chi(n).
+\end{equation}
+在此变换下，Dirac算符在自旋空间中变为平凡的（无$\gamma$矩阵），仅保留staggered相位因子$\eta_\mu(n) = (-1)^{\sum_{\nu<\mu}n_\nu}$：
+\begin{equation}
+    D_{\text{stag}}(n|m) = m\delta_{n,m} + \frac{1}{2a}\sum_\mu \eta_\mu(n)\bigl[U_\mu(n)\delta_{n+\hat{\mu},m} - U_\mu^\dagger(n-\hat{\mu})\delta_{n-\hat{\mu},m}\bigr].
+\end{equation}
+Staggered费米子在零质量极限下保持一个$U(1)$手征子群，使离散化误差天然为$O(a^2)$——这优于Wilson费米子的$O(a)$。但有限格距下的taste对称性破缺导致介子质量分裂（非物理的taste分裂）。
+
+\subsubsection{HISQ：高度改进的Staggered夸克}
+
+HISQ（Highly Improved Staggered Quarks）是HPQCD/MILC合作组发展的staggered费米子改进方案~\cite{fermionFormulations2026}。其Dirac算符包含：
+\begin{equation}
+    D_{\text{HISQ}} = D_{\text{stag}}^{\text{1-link}} + D_{\text{Naik}} + D_{\text{Lepage}},
+\end{equation}
+其中三项各自针对色散关系的不同扭曲源：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{1链项}：标准staggered Dirac算符，但链接变量经过两级涂抹（Fat7涂抹 + AsqTad风格reunitarization），压制taste破缺。
+    \item \textbf{Naik项（三跳项）}：$O(a^2)$改进的关键——添加连接三倍格距的``长跳''项。其系数被精确调节以消除$p_\mu a$展开中的$O(a^2)$误差。数学上，Naik项修正了自由场色散关系在$|p|a \sim 1$区域的偏离。
+    \item \textbf{Lepage项}：进一步的$O(a^2)$改进，专门校正Fat7涂抹引入的\textbf{色散关系扭曲}。涂抹虽然压制了taste破缺，但同时改变了自由场的有效传播子，Lepage项将这一扭曲补偿回来。
+\end{enumerate}
+
+HISQ方案的优势：离散化误差降至$\sim O(\alpha_s a^2, a^4)$；taste破缺极小——在$a = 0.12$~fm处，taste分裂仅为标准staggered的约1/3；允许在较粗格距上使用相对论性$c$夸克。
+
+\subsection{Twisted Mass费米子：最大扭曲下的自动$O(a)$改进}
+
+Twisted Mass QCD（tmQCD）在Wilson作用的质量项中引入同位旋空间的手征旋转~\cite{GattringerLang2010}：
+\begin{equation}
+    D_{\text{tm}} = D_W + m_0 + i\mu_q \gamma_5 \tau^3.
+\end{equation}
+将$m_0$和$\mu_q$参数化为极坐标：$m_0 = M\cos\alpha$，$\mu_q = M\sin\alpha$，其中$\alpha$是扭曲角。自由场色散关系在有限$a$下的$O(a)$修正为：
+\begin{equation}
+    E(\mathbf{p}) = \sqrt{M^2 + \mathbf{p}^2}\,(1 + O(a\cos\alpha)).
+\end{equation}
+
+\textbf{关键洞察：} $O(a)$修正与$\cos\alpha$成正比！通过选择\textbf{最大扭曲} $\alpha = \pi/2$（对应$m_0 = m_c$即临界标准质量），$O(a)$项被完全消除。正如Gattringer与Lang所指出的~\cite{GattringerLang2010}：
+\begin{quote}
+``It is evident that the $O(a)$ correction to the dispersion relation in the continuum, $ip_4 = \pm\sqrt{\mathbf{p}^2 + M^2}$, comes with a factor of $\cos(\alpha)$. This allows to turn off the $O(a)$ term by choosing maximal twist, i.e., by setting $\alpha = \pi/2$.''
+\end{quote}
+
+\textbf{物理直观：} 在$\alpha = \pi/2$处，Wilson项（矢量在同位旋空间）与质量项（纯扭曲部分，沿$\tau^3$方向）在同位旋空间中正交，因此不能产生$O(a)$的混合项。最大扭曲条件实现了\textbf{自动$O(a)$改进}——物理观测量中所有$O(a)$截断效应被消除，无需微调改进系数。
+
+% ==============================================================================
+\section{``完美''色散关系与重整化群}
+% ==============================================================================
+
+\subsection{实空间重整化群与阻断费米子}
+
+Gattringer与Lang在第9章中讨论了一种通过\textbf{实空间重整化群（blocking）}从连续理论直接构造格点Dirac算符的方法~\cite{GattringerLang2010}。基本思路是：不对连续作用做朴素的离散化，而是对连续路径积分做``粗粒化''——将超立方体（边长$a$）内的自由度积分掉，得到格点上的有效理论。
+
+对于自由费米子，这一阻断过程可以解析地完成。得到的\textbf{阻断Dirac算符}（blocked Dirac operator）$\tilde{D}(q)$在动量空间中具有以下性质~\cite{GattringerLang2010}：
+\begin{equation}\label{eq:blocked_ideal}
+    \tilde{D}(q) \approx \begin{cases}
+        i\gamma_\mu q_\mu, & \text{当 } q \approx 0 \text{（物理区域）},\\
+        0, & \text{当至少一个 } q_\mu \approx \pi/a \text{（布里渊区边缘）}.
+    \end{cases}
+\end{equation}
+
+\subsection{几乎到截断的完美线性色散}
+
+阻断Dirac算符最引人注目的性质是其色散关系。通过在复$q_4$平面中寻找$\tilde{D}^{-1}(q)$的极点，可以得到动量$q$处的能量$E(q)$。Gattringer与Lang报告了以下显著结果~\cite{GattringerLang2010}：
+\begin{quote}
+``Plotting the energy $E(q)$, which is given by the modulus of the position $q_4$ of the pole, versus the spatial momentum, one finds that for the blocked Dirac operator the values fall exactly on top of the linear continuum dispersion relation, $E(q) = |q|$, essentially almost all the way up to the cutoff $\pi/a$. This indicates that the discretization errors are small.''
+\end{quote}
+
+\textbf{这意味着什么：} 对于na\"ive/Wilson/Staggered费米子，色散关系在动量$|p| \gtrsim 0.5\pi/a$时就开始显著偏离连续线性关系。而阻断Dirac算符的色散关系几乎在\textbf{整个布里渊区}（直到$\pi/a$）都与连续关系重合——离散化误差被抑制到了极低的水平。
+
+阻断Dirac算符同时实现了三个理想性质：
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{无加倍子}——布里渊区边缘的极点被消除；
+    \item \textbf{完美色散关系}——几乎到截断的线性色散；
+    \item \textbf{Ginsparg--Wilson关系}——格点手征对称性：
+    \begin{equation}
+        \gamma_5 \tilde{D}(q) + \tilde{D}(q)\gamma_5 = 2a\,\tilde{D}(q)\gamma_5\tilde{D}(q).
+    \end{equation}
+\end{enumerate}
+
+这证明了RG阻断方法是构造格点费米子离散化的强大工具。然而，对于完整QCD（含规范场耦合），从连续直接阻断面临严重的技术困难——连续路径积分中的非高斯项无法解析求解。实际的解决策略是用极细格距上的格点QCD替代连续理论作为阻断的起点。
+
+\subsection{与Ginsparg--Wilson费米子的联系}
+
+阻断Dirac算符满足Ginsparg--Wilson关系并非巧合，而是连续手征对称性在格点上的精确体现。Ginsparg--Wilson关系是格点手征对称性的定义性条件。满足此关系的Dirac算符都天然具有\textbf{精确的格点手征对称性}、\textbf{正确的指标定理}和\textbf{无加倍子的色散关系}。
+
+Overlap费米子~\cite{GattringerLang2010}是Ginsparg--Wilson关系的另一种精确实现：
+\begin{equation}
+    D_{\text{ov}} = \frac{1}{a}\left[1 - \gamma_5\,\text{sign}(\gamma_5 D_W)\right].
+\end{equation}
+Overlap算符提供了精确的手征对称性，但其计算成本极高（涉及矩阵符号函数），限制了它在大型系综上的应用。
+
+% ==============================================================================
+\section{色散关系在格点QCD计算中的应用}
+% ==============================================================================
+
+\subsection{LaMET中的色散关系检验}
+
+在大动量有效理论（LaMET）中，计算涉及高度boost的强子态——核子被赋予大的空间动量$P_z$（如$P_z = 2\pi n_z / L$，$n_z$可达6--10）。此时，色散关系 $E^2(P_z) = m_N^2 + P_z^2$ 的验证成为数据可靠性的\textbf{首要检验}~\cite{hadronSpectroscopy2026}。
+
+\textbf{为什么LaMET特别需要色散关系检验？} 在大动量下，多个效应可能导致色散关系被破坏：
+\begin{itemize}
+    \item \textbf{激发态污染}：高动量态的关联函数信噪比随$P_z$指数衰减，使得基态提取更加困难。如果激发态未被充分衰减，提取的有效能量将偏离基态色散关系。
+    \item \textbf{离散化误差放大}：$O(ap)$的修正在大$P_z$下正比于$P_z$，可能变得显著。例如在$a \approx 0.1$~fm的格距上，$P_z \approx 2$~GeV对应的$ap_z \approx 1$，格点色散关系与连续色散关系的差异不再可忽略。
+    \item \textbf{动量涂抹的效果}：动量涂抹（momentum smearing）~\cite{KinematicallyEnhanced2015}通过相因子$e^{i\boldsymbol{\xi}\cdot\mathbf{x}}$增强内插算符与boost态的耦合，但涂抹参数的优化也需要色散关系作为校准基准。
+\end{itemize}
+
+\textbf{检验方法：} 对每个动量$P_z$，从关联函数拟合中提取$E(P_z)$，然后做线性拟合 $E^2 = m_{\text{eff}}^2 + P_z^2$。斜率为1表明洛伦兹不变性在离散化误差范围内得到保持；偏离1则表明需要减小格距或改进算符~\cite{hadronSpectroscopy2026,KinematicallyEnhanced2015}。
+
+\textbf{运动学增强内插算符：} Zhang等人的研究指出~\cite{KinematicallyEnhanced2015}，使用``运动学增强''的内插算符（如将$\bar{u}\gamma_5 d$替换为$\bar{u}\gamma_t\gamma_5 d$或$\bar{u}\gamma_z\gamma_5 d$）可以显著改善boost态的色散关系提取精度。这些算符的重叠因子在大动量下获得$O(E_\pi)$或$O(P_z)$的运动学增强，信噪比因此提升$O(P_\mu^2/m_\pi^2)$。
+
+在本书库的实际计算中（如$2\text{pt\_proton\_Cg5gmu\_L32x64\_mom2\_xdir\_gpu.py}$等），动量涂抹和蒸馏的结合被用于确保即使在高boost下也能获得可靠的色散关系。
+
+\subsection{L\"uscher有限体积方法}
+
+L\"uscher在1986年和1991年的开创性工作中建立了有限体积能谱与无限体积散射相移之间的定量关系~\cite{GattringerLang2010}。这一关系的推导和使用\textbf{处处依赖色散关系}。
+
+对于两个相同质量$m$的粒子，在边长为$L$的有限体积中，相互作用将自由能级移动。L\"uscher公式~\cite{GattringerLang2010}：
+\begin{equation}\label{eq:Luscher}
+    \delta(k) = \phi\left(\frac{kL}{2\pi}\right) \mod \pi, \quad \tan(-\phi(q)) = \frac{q\pi^{3/2}}{Z_{00}(1; q^2)},
+\end{equation}
+其中$Z_{00}$是L\"uscher的广义$\zeta$函数。
+
+\textbf{色散关系的关键作用：} 动量$k_n$通过色散关系从格点上测得的有限体积能级$W_n$中提取~\cite{GattringerLang2010}：
+\begin{equation}\label{eq:Luscher_disp}
+    W_n = 2\sqrt{m^2 + k_n^2}.
+\end{equation}
+具体流程为：对给定的$L$计算离散能级 $W_0, W_1, W_2, \ldots$，然后通过式(\ref{eq:Luscher_disp})从每个$W_n$确定$k_n$，再通过式(\ref{eq:Luscher})确定相应的相移 $\delta(k_n)$。
+
+\textbf{适用范围与限制~\cite{GattringerLang2010}：}
+\begin{itemize}
+    \item 相互作用范围和单粒子关联长度应小于空间体积，特别需要 $m_\pi L \gg 1$；
+    \item 关系仅适用于第一个非弹性阈值以下；
+    \item 需控制虚粒子绕环面的极化效应；
+    \item 对于大$k$，格点假象（lattice artifacts）——即色散关系对连续形式的偏离——将显现。
+\end{itemize}
+
+在物理四维情况下，关系更为复杂，但色散关系 $W_n = 2\sqrt{m^2 + k_n^2}$ 始终是连接有限体积能谱与无限体积散射动力学信息的不可替代的桥梁。
+
+\subsection{深度非弹散射中的解析色散关系方法}
+
+在连续场论的深度非弹散射（DIS）分析中，\textbf{解析色散关系方法}（method of dispersion relations）是利用关联函数解析性质连通不同运动学区间的强大工具~\cite{PeskinSchroeder1995}。Peskin与Schroeder在第18章中给出了标准的三步法~\cite{PeskinSchroeder1995}：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{光学定理}：将$e^+e^-$湮灭总截面与流乘积的矩阵元虚部联系起来；
+    \item \textbf{算符乘积展开（OPE）}：将流乘积在类空区域展开为定域算符的级数——但这一展开仅在非物理的类空运动学区有效；
+    \item \textbf{色散关系}：利用$\Pi_h(q^2)$的K\"all\'en-Lehmann谱表示所保证的解析结构——在正$q^2$实轴上有分支切割而在其他区域解析——通过围道积分将类空区域的OPE结果与类时区域的物理截面连接起来。
+\end{enumerate}
+
+从K\"all\'en-Lehmann表示出发，$\Pi_h(q^2)$在复$q^2$平面中的解析结构允许写出色散积分：
+\begin{equation}\label{eq:dispersion_integral}
+    \Pi_h(q^2) = \frac{1}{\pi} \int_{s_0}^\infty ds\,\frac{\operatorname{Im}\Pi_h(s)}{s - q^2 - i\epsilon} + \text{减除项},
+\end{equation}
+其中$\operatorname{Im}\Pi_h(s)$通过光学定理直接联系到$e^+e^- \to \text{强子}$的总截面。这一公式将``不可计算的''类时物理截面与``可计算的''类空OPE关联函数连接起来——这正是QCD求和规则和部分子分布函数全局分析的核心方法。
+
+\textbf{与格点QCD的联系：} 虽然式(\ref{eq:dispersion_integral})是连续场论中的解析色散关系，但它为格点QCD中计算的准PDF/赝PDF如何通过微扰匹配与光锥PDF联系起来提供了概念模板。LaMET中的匹配核本质上也可理解为一种``色散关系''——在欧几里得（类空）关联函数与闵可夫斯基（类时/光锥）分布函数之间建立桥梁。
+
+% ==============================================================================
+\section{总结与展望}
+% ==============================================================================
+
+\textbf{总结：} 色散关系在格点QCD中扮演着多重角色：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{运动学基础}——$E(\mathbf{p}) = \sqrt{m^2 + \mathbf{p}^2}$（连续）及其格点推广是连接关联函数与物理质量的核心方程；
+    \item \textbf{离散化诊断}——格点色散关系对连续形式的偏离直接度量了离散化误差的大小，是费米子方案优劣的``试金石''；
+    \item \textbf{改进目标}——Symanzik改进、HISQ的Naik/Lepage项、Twisted Mass的最大扭曲条件都以优化色散关系为核心目标；
+    \item \textbf{理想基准}——RG阻断Dirac算符的``完美''色散关系（几乎到截断的线性）设定了所有格点费米子方案追求的理想上限；
+    \item \textbf{实用验证}——在LaMET中，$E^2(P_z) = m_N^2 + P_z^2$是大动量数据可靠性的首要检验；
+    \item \textbf{散射桥梁}——L\"uscher方法中 $W_n = 2\sqrt{m^2 + k_n^2}$ 将有限体积能谱与无限体积相移联系起来；
+    \item \textbf{解析连接}——K\"all\'en-Lehmann谱表示保证的解析结构是色散关系方法连接OPE与物理截面的数学基础。
+\end{enumerate}
+
+\textbf{展望：} 随着格点QCD向更高动量、更小格距和更精确物理预言推进，色散关系将继续发挥其核心作用。当前的前沿课题——如大$x$区域的胶子PDF、TMD的Collins-Soper核、以及横动量依赖的波函数——都要求对boost强子的色散关系有精确的格点控制。未来更高精度的计算（物理 pion 质量、连续外推、无限体积外推）将需要对色散关系中的$O(a^2)$甚至$O(a^4)$修正有更精细的理解。
+
+从方法论角度看，色散关系的精确验证不仅是计算可靠性的保障，更是``格点QCD是否真正恢复了连续时空的庞加莱对称性''这一深层问题的定量回答。
+
+% ==============================================================================
+% 参考文献
+% ==============================================================================
+
+\begin{thebibliography}{99}
+
+\bibitem{GattringerLang2010}
+C.~Gattringer and C.~B.~Lang,
+\textit{Quantum Chromodynamics on the Lattice: An Introductory Presentation},
+Lect.\ Notes Phys.\ \textbf{788}, Springer (2010).
+[来源: \texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}]
+\begin{itemize}
+    \item 第5章：自由格点费米子、加倍子问题、Wilson费米子
+    \item 第6章（Eqs.~6.23--6.25）：强子谱学中的格点色散关系
+    \item 第9章（§9.2）：RG阻断与完美色散关系
+    \item 第10章（Eq.~10.63）：Twisted Mass费米子的$O(a)$改进色散关系
+    \item 第11章（Eq.~11.91）：L\"uscher有限体积方法中的色散关系
+\end{itemize}
+
+\bibitem{PeskinSchroeder1995}
+M.~E.~Peskin and D.~V.~Schroeder,
+\textit{An Introduction to Quantum Field Theory},
+Westview Press (1995).
+[来源: \texttt{refer/books/An Introduction to Quantum Field Theory.pdf}]
+\begin{itemize}
+    \item 第7章（§7.1）：K\"all\'en-Lehmann谱表示
+    \item 第18章（§18.4--18.5）：色散关系方法在$e^+e^-$湮灭和DIS中的应用
+\end{itemize}
+
+\bibitem{GuptaLatticeQCD}
+R.~Gupta,
+\textit{Introduction to Lattice QCD},
+Lecture Notes, arXiv:hep-lat/9807028.
+[来源: \texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf}]
+\begin{itemize}
+    \item 第17章：强子谱学与色散关系
+\end{itemize}
+
+\bibitem{hadronSpectroscopy2026}
+\textit{格点QCD中的强子谱学：从内插算符到淬火谱的完整解析},
+基于本库全部相关文献与教材的综合解析, 2026年7月13日.
+[来源: \texttt{docs/格点QCD中的强子谱学.pdf}]
+\begin{itemize}
+    \item §3.3：色散关系——连续与格点形式；LaMET验证
+\end{itemize}
+
+\bibitem{fermionFormulations2026}
+\textit{格点QCD中的费米子方案：Wilson, Clover, Staggered, HISQ, Domain-Wall, Overlap, Twisted Mass与HISQ},
+基于本库全部相关文献与教材的综合解析, 2026年7月12日.
+[来源: \texttt{docs/格点QCD中的费米子方案.pdf}]
+\begin{itemize}
+    \item §2.2：Wilson费米子的色散关系 $e^{Ea} = 1 + ma$
+    \item §4.4：HISQ的Naik项（$O(a^2)$消除）和Lepage项（色散关系扭曲校正）
+\end{itemize}
+
+\bibitem{KinematicallyEnhanced2015}
+R.~Zhang, W.~Detmold, A.~Grebe, B.~H\"ork, C.~Monahan, D.~Murphy, P.~Shanahan, M.~Wagman, F.~Winter, and S.~Zafeiropoulos,
+\textit{Kinematically-enhanced interpolating operators for boosted hadrons},
+in preparation (2025).
+[来源: \texttt{refer/papers/Kinematically-enhanced interpolating operators for boosted hadrons.pdf}]
+\begin{itemize}
+    \item 运动学增强内插算符对boost态色散关系提取的改进
+\end{itemize}
+
+\bibitem{LPC_TMD}
+LPC合作组,
+\textit{Transverse Momentum Distributions from Lattice QCD without Wilson Lines},
+等系列论文.
+[来源: \texttt{refer/papers/} 中约15篇相关研究论文]
+\begin{itemize}
+    \item MILC HISQ系综上的核子TMD-PDF计算；色散关系在boost强子态中的应用
+\end{itemize}
+
+\bibitem{gluonPDFContinuum}
+\textit{Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit},
+[来源: \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}]
+\begin{itemize}
+    \item 连续外推中的色散关系验证
+\end{itemize}
+
+\bibitem{glossary2026}
+\textit{格点QCD中的常见名词短语与缩写},
+基于本库全部相关文献与教材的综合解析, 2026年7月.
+[来源: \texttt{docs/格点QCD中的常见名词短语与缩写.pdf}]
+\begin{itemize}
+    \item HISQ定义：Fat7涂抹 + Naik项（$O(a^2)$消除）+ Lepage项（色散关系校正）
+\end{itemize}
+
+\bibitem{noteGluonPDF}
+\textit{Note of gluon PDFs},
+内部理论笔记.
+[来源: \texttt{refer/papers/Note of gluon PDFs.pdf}]
+\begin{itemize}
+    \item 胶子PDF理论框架；LaMET色散关系背景
+\end{itemize}
+
+\bibitem{gluonDerivation}
+\textit{胶子PDF推导},
+[来源: \texttt{docs/胶子PDF完整推导.pdf}]
+\begin{itemize}
+    \item 胶子准PDF算符的格点构建；色散关系在匹配中的角色
+\end{itemize}
+
+\end{thebibliography}
+
+\end{document}

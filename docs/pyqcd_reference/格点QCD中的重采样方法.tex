@@ -1,0 +1,507 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption,multirow}
+\usepackage{hyperref,xcolor,enumitem,mathtools}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的重采样方法：\\
+Bootstrap、Jackknife、Binning与关联拟合}
+\author{基于本库全部相关文献与教材的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+格点QCD的Monte Carlo模拟生成的是\textbf{统计关联}的规范组态序列——通过Markov链中连续更新的组态之间存在不可忽略的自相关。直接从这些关联数据中计算物理观测量的期望值需要特殊的统计技术来处理两个核心问题：（1）\textbf{自相关的校正}——对$\sqrt{N}$误差公式的自相关时间修正；（2）\textbf{复合观测量的误差传播}——拟合参数、有效质量和其它非平凡函数的统计误差无法通过简单的误差传播公式可靠确定。
+
+重采样（resampling）方法——特别是\textbf{统计Bootstrap}、\textbf{Jackknife}和\textbf{数据分块}（Binning/Blocking）——提供了处理这些问题的系统框架。它们基于一个共同的原理：通过对原始数据集的抽样（带放回抽样、逐一剔除、或合并为块），生成一系列``伪数据集''，在这些伪数据集上重复计算所需的观测量，从结果的分布中直接估计期望值和统计误差，\textbf{而无需解析地推导误差传播公式}。
+
+本文基于本库中的核心教材（Gattringer与Lang的\textit{Quantum Chromodynamics on the Lattice}——第4.5节为Bootstrap、Jackknife、Binning和自相关的系统阐述，第6.3.2节为关联$\chi^2$拟合的应用实例；Gupta的\textit{Introduction to Lattice QCD}——第16.1节从实践角度讨论统计误差与binning检验）以及相关研究论文（以NNPDF4.0的Monte Carlo replica方法为Bootstrap在大规模PDF拟合中的拓展范例），从以下六个层次系统解析格点QCD中的重采样方案：
+
+\textbf{第一层——统计误差的基本理论（§2）：}
+从不相关数据的标准$\sigma/\sqrt{N}$误差公式出发，阐述自相关（autocorrelation）如何破坏这一简化公式。定义自相关函数$C_X(t)$、指数自相关时间$\tau_{\text{exp}}$、积分自相关时间$\tau_{\text{int}}$，并推导相关数据的真正方差：$\sigma^2_{\hat X} = \sigma_X^2 \cdot 2\tau_{\text{int}} / N$——即有效的独立测量数为$N_{\text{indep}} = N/(2\tau_{\text{int}})$。
+
+\textbf{第二层——Binning（数据分块法）（§3）：}
+当完整的自相关分析计算成本过高时，binning通过将原始数据划分为大小为$K$的连续块来估计数据间的相关性。逐块平均被视为新的``独立''变量——当$K$足够大使得块与块之间的相关性消失时，其方差应按$1/K$缩放。详述binning的操作步骤、如何通过$K$变化的方差曲线确定合适的块大小、以及binning与Bootstrap/Jackknife的联合使用。
+
+\textbf{第三层——统计Bootstrap（自助法）（§4）：}
+全面阐述Gattringer与Lang在§4.5.3中描述的Bootstrap方法。核心操作：从$N$个原始数据中有放回地随机抽取$N$个（允许重复），生成$K$个Bootstrap样本（伪数据集）。在每个样本上计算感兴趣的观测量$\theta_k$，$K$个$\theta_k$值的分布给出对$\theta$的期望值和标准差的\textbf{非参数估计}：$\bar\theta = \frac{1}{K}\sum_k\theta_k$，$\sigma_{\bar\theta}^2 = \frac{1}{K}\sum_k(\theta_k-\bar\theta)^2$。强调Bootstrap的关键优势——对拟合参数（如从关联函数的指数拟合中提取的强子质量）的误差估计\emph{无需推导复杂的误差传播链}，只需 \emph{在Bootstrap样本上重复拟合流程}。
+
+\textbf{第四层——Jackknife（刀切法）（§4）：}
+与Bootstrap互补的方法——从$N$个数据中\textbf{逐个剔除}第$n$个，形成$N$个大小为$N-1$的子集。每个子集计算的$\theta_n$值用于估计方差：$\sigma^2_{\hat\theta} = \frac{N-1}{N}\sum_n(\theta_n - \hat\theta)^2$（Gattringer \& Lang的公式(4.72)）。Jackknife与Bootstrap的视角差异：Bootstrap适合大样本（$K$可自由选择）、提供偏差（bias）的直接估计、但对``尖峰''观测量（如中位数）可能不稳定；Jackknife是确定性的（无需随机性）、对$N$较小时方差估计更稳健、但在非线性观测量上偏差可能较大。
+
+\textbf{第五层——关联数据的$\chi^2$拟合与协方差矩阵（§5）：}
+当观测量是关联函数的指数拟合（如从$C(t) = A_0 e^{-E_0 t}$中提取基态质量）时，拟合的可靠性取决于协方差矩阵$\text{Cov}(t, t')$的正确处理。给出关联$\chi^2$拟合的完整定义：$\chi^2 = \sum_{t,t'}[C(t)-f(t)]\,\text{Cov}^{-1}(t,t')\,[C(t')-f(t')]$，其中$\text{Cov}(t,t')$从$N$个组态上的关联函数测量值中估计。讨论在数据量不足定时协方差矩阵的奇异性和正则化策略（如仅使用对角部分、平滑近似、或截断奇异值分解）。
+
+\textbf{第六层——NNPDF的Monte Carlo Replica方法（§6）：}
+以NNPDF4.0的PDF拟合为Bootstrap理念在大规模数据分析中的拓展实例。NNPDF使用\textbf{Monte Carlo Replica}方法——在原始实验数据的协方差矩阵中生成人工的``伪数据''副本（通过多变量Gaussian抽样），对每个replica独立训练神经网络以拟合PDF。1000个replica的结果分布自然地给出PDF的中心值（平均）和误差带（标准差）——这是Bootstrap思想在``数据重采样+模型重训练''范式下的直接推广。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==========================================================================
+\section{引言：格点QCD中的统计——关联数据的挑战}
+%==========================================================================
+
+\subsection{Monte Carlo数据的自相关本质}
+
+格点QCD的路径积分通过Markov链Monte Carlo方法数值计算——连续生成的规范组态之间存在\textbf{不可约的自相关}。这是任何Markov过程的固有特征：从组态$U^{(n)}$到$U^{(n+1)}$的更新步骤仅依赖于当前组态，因此相邻组态具有一定程度的统计依赖性。Gattringer与Lang将这一现象正式定义为自相关函数~\cite{GattringerLang2010}：
+
+\begin{equation}
+C_X(t) \equiv \langle (X_i - \langle X\rangle)(X_{i+t} - \langle X\rangle) \rangle = \langle X_i X_{i+t} \rangle - \langle X_i\rangle\langle X_{i+t}\rangle,
+\label{eq:autocorr_func}
+\end{equation}
+其中$X_i$是第$i$个``测量''（以Monte Carlo时间标记）的观测量值，$t$是两次测量之间的``时间''间隔（以更新步数或MD轨迹长度计）。
+
+\subsection{自相关对误差的影响}
+
+在不相关数据的简单情形中，$N$次测量的样本均值$\bar X = \frac{1}{N}\sum_i X_i$的方差为$\sigma^2_{\bar X} = \sigma_X^2 / N$——即标准的$1/\sqrt{N}$误差衰减。当数据相关时，这一公式\textbf{严重低估}真实的统计误差。Gattringer与Lang推导了相关情形下的真实方差~\cite{GattringerLang2010}：
+
+\begin{equation}
+\boxed{\sigma^2_{\bar X} = \frac{\sigma_X^2}{N} \cdot 2\tau_{\text{int}}},
+\label{eq:correlated_variance}
+\end{equation}
+其中\textbf{积分自相关时间}$\tau_{\text{int}}$定义为：
+\begin{equation}
+\tau_{\text{int}} = \frac{1}{2} + \sum_{t=1}^\infty \Gamma_X(t), \qquad \Gamma_X(t) \equiv \frac{C_X(t)}{C_X(0)}.
+\label{eq:tau_int}
+\end{equation}
+
+\textbf{物理含义：}真正的``有效独立测量数''为$N_{\text{indep}} = N/(2\tau_{\text{int}})$——即自相关将统计效率\textbf{减半}了$\tau_{\text{int}}$倍。对于HMC算法（Hybrid Monte Carlo——格点QCD中动力学费米子的标准算法），$\tau_{\text{int}}$的典型值为10--100个MD轨迹（取决于观测量和算法参数），因此有效的独立组态数远小于生成的组态总数。Gupta指出，基于当前经验，HMC的退相关速度对于$m_\pi/M_\rho \ge 0.56$的情况约需80单位的MD时间~\cite{Gupta1997intro}。
+
+\subsection{本库中的核心参考文献}
+
+\begin{table}[H]
+\centering
+\caption{本库中重采样方法相关的核心文献}
+\label{tab:rs_papers}
+\small
+\begin{tabular}{lp{9cm}}
+\toprule
+文献 & 核心贡献 \\
+\midrule
+\texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf} & §4.5 统计数据分析：不相关误差、自相关函数与$\tau_{\text{int}}$、Binning（分块法）、统计Bootstrap与Jackknife的完整定义和公式；§6.3.2 关联$\chi^2$拟合与协方差矩阵 \\
+\texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf} & §16.1 统计误差与binning检验的实践视角；自相关时间的物理分析 \\
+\texttt{refer/papers/The Path to Proton Structure at One-Percent Accuracy.pdf} &
+NNPDF4.0的Monte Carlo Replica方法——Bootstrap理念在大规模PDF全局分析中的最新应用 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%==========================================================================
+\section{统计误差的理论基础}
+%==========================================================================
+
+\subsection{不相关数据的标准分析}
+
+Gattringer与Lang第4.5.1节给出了不相关数据统计分析的严格推导~\cite{GattringerLang2010}。假设$N$次独立同分布的测量值$\{X_1, X_2, \dots, X_N\}$，均具有期望值$\langle X\rangle$和方差$\sigma_X^2$。样本均值和样本方差的无偏估计量为：
+
+\begin{equation}
+\bar X = \frac{1}{N}\sum_{i=1}^N X_i, \qquad
+\hat\sigma_X^2 = \frac{1}{N-1}\sum_{i=1}^N (X_i - \bar X)^2.
+\label{eq:unbiased_estimators}
+\end{equation}
+
+样本均值的方差（即统计误差的平方）为：
+\begin{equation}
+\sigma^2_{\bar X} = \left\langle \left(\frac{1}{N}\sum_{i=1}^N (X_i - \langle X\rangle)\right)^2 \right\rangle
+= \frac{1}{N^2}\sum_{i,j} \langle (X_i-\langle X\rangle)(X_j-\langle X\rangle) \rangle.
+\label{eq:var_derivation}
+\end{equation}
+
+对于\textbf{不相关}数据，$i\neq j$的交叉项为零（$\langle X_i X_j\rangle = \langle X\rangle^2$），故：
+\begin{equation}
+\boxed{\sigma^2_{\bar X} = \frac{\sigma_X^2}{N}}, \qquad
+\sigma_{\bar X} = \frac{\sigma_X}{\sqrt{N}}.
+\label{eq:uncorrelated_error}
+\end{equation}
+
+最终结果报道为$\bar X \pm \sigma_{\bar X}$（$\sigma_{\bar X} = \hat\sigma_X / \sqrt{N}$）。
+
+\subsection{自相关函数与自相关时间}
+
+在格点QCD的Markov链中，数据天然地具有自相关。Gattringer与Lang定义了归一化的自相关函数~\cite{GattringerLang2010}：
+\begin{equation}
+\Gamma_X(t) \equiv \frac{C_X(t)}{C_X(0)}, \qquad C_X(0) = \sigma_X^2.
+\label{eq:normalized_autocorr}
+\end{equation}
+
+$\Gamma_X(t)$在大$t$下通常展示\textbf{指数衰减}：
+\begin{equation}
+\Gamma_X(t) \sim \exp(-t / \tau_{X,\text{exp}}), \qquad t \gg 1,
+\label{eq:exp_decay}
+\end{equation}
+其中{\bf 指数自相关时间}$\tau_{\text{exp}}$是系统中所有可能的$\tau_{X,\text{exp}}$的上确界（对所有观测量$X$取上确界）。
+
+代入$i\neq j$的非零交叉项后，式(\ref{eq:var_derivation})变为：
+\begin{equation}
+\sigma^2_{\bar X} = \frac{\sigma_X^2}{N} \left[ 1 + 2\sum_{t=1}^{N-1} \left(1 - \frac{t}{N}\right) \Gamma_X(t) \right].
+\label{eq:full_correlated_variance}
+\end{equation}
+
+在大$N$极限下（$1 - t/N \approx 1$，且$\Gamma_X(t)$的指数衰减使求和快速收敛），简化为式(\ref{eq:correlated_variance})中引入的形式。
+
+\textbf{数值确定$\tau_{\text{int}}$的实践：}Gattringer与Lang指出~\cite{GattringerLang2010}，$\tau_{\text{int}}$的可靠确定至少需要$\sim 1000\,\tau$个数据点（$1000$倍自相关时间的数据量）。在实践中，求和$\sum_{t=1}^{\infty}\Gamma_X(t)$在$\Gamma_X(t)$变得不可靠时被截断，剩余部分通过指数衰减来近似。
+
+\subsection{临界减速}
+
+自相关时间随系统接近连续极限（$a \to 0$，相关长度$\xi \to \infty$）而增长——这一现象称为\textbf{临界减速}（critical slowing down）。Gattringer与Lang~\cite{GattringerLang2010}指出：
+\begin{equation}
+\tau_{\text{int}} \sim \xi^z, \qquad \tau_{\text{exp}} \sim \xi^z,
+\label{eq:critical_slowing}
+\end{equation}
+其中$z \ge 0$是\textbf{动力学临界指数}，依赖于具体的更新算法。对于细格距和轻夸克质量（大$\xi$）的高精度计算，临界减速将严重限制可达到的统计精度——除非使用专门的对策（如multigrid求解器、改进的HMC算法）来降低$z$。
+
+在\textbf{一阶相变}处，情况更为恶劣：自相关时间按$\exp(c L^{D-1})$增长（$D$维空间）。幸运的是，QCD的``相变''（从禁闭到退禁闭）在物理夸克质量下是平滑的crossover，不存在严格的一阶相变——临界减速在物理点处相对温和。
+
+%==========================================================================
+\section{Binning（数据分块法）}
+%==========================================================================
+
+\subsection{Binning的基本原理}
+
+当完整的自相关分析计算成本过高（这是格点QCD中的常见情况），Binning（也称Blocking）提供了一种简便的替代方案~{\cite GattringerLang2010}。其核心思想是将原始数据划分为大小为$K$的连续``块''，以块均值作为新的``数据点''：
+
+\begin{definition}[Binning/Blocking]
+将$N$个原始数据$\{X_1, \dots, X_N\}$划分为$M = N/K$个大小为$K$的连续块（假设$N$可被$K$整除）。第$m$个块的平均值为：
+\begin{equation}
+X_m^{(K)} \equiv \frac{1}{K} \sum_{i=(m-1)K+1}^{mK} X_i, \qquad m = 1, \dots, M.
+\label{eq:block_average}
+\end{equation}
+然后计算这$M$个块平均值的样本方差$\sigma^2_{(K)}$。
+\end{definition}
+
+\textbf{Binning的诊断学：}如果原始数据是独立（不相关）的，块均值$X_m^{(K)}$的方差应随$1/K$衰减：
+\begin{equation}
+\sigma^2_{(K)} \propto \frac{1}{K} \quad \text{（对独立数据）}.
+\label{eq:binning_independent}
+\end{equation}
+
+偏离$1/K$行为标志着残余的自相关——块内的数据点仍存在统计依赖。当$K$足够大（大于自相关时间），块与块之间变得真正独立，$\sigma^2_{(K)}$回归$1/K$标度。\textbf{通过绘制$K \cdot \sigma^2_{(K)}$ vs.\ $K$的图，}其\textbf{平台区域}的起始标志着合适的块大小已被达到。
+
+\textbf{Gupta的实践指南~\cite{Gupta1997intro}：}``Tests like binning of the data and the calculation of auto-correlation times for various observables are used to determine the Monte-Carlo time between independent configurations.''在实践层面，binning是检验数据独立性最常用的诊断工具。
+
+\subsection{Binning与重采样方法的联合使用}
+
+在实际应用中，binning常作为预处理器与Bootstrap或Jackknife联合使用~\cite{GattringerLang2010}：先将原始数据bin为独立块，然后在\emph{块}（而非单个数据点）上执行Bootstrap或Jackknife重采样。这一组合策略的优点在于：
+
+\begin{enumerate}[nosep]
+    \item Binning消除了块内的残余自相关——使Bootstrap/Jackknife的基本假设（独立数据）以较高精度满足；
+    \item Bootstrap/Jackknife在此基础上提供了复合观测量（如拟合参数）的误差估计——无需解析误差传播。
+\end{enumerate}
+
+%==========================================================================
+\section{统计Bootstrap（自助法）}
+%==========================================================================
+
+\subsection{Bootstrap的操作原理}
+
+Gattringer与Lang第4.5.3节给出了Bootstrap在格点QCD中的标准描述~\cite{GattringerLang2010}：
+
+\begin{definition}[统计Bootstrap]
+给定$N$个（假设独立的）数据点$\{X_1, \dots, X_N\}$，从中计算观测量$\theta$（可以是一个简单平均、一个比值、或一个完整的拟合结果）。Bootstrap过程为：
+\begin{enumerate}[nosep]
+    \item \textbf{生成Bootstrap样本：}从原始数据中\textbf{有放回地}随机抽取$N$个数据点，形成第$k$个Bootstrap样本$\{X_1^{(k)}, \dots, X_N^{(k)}\}$。某些原始数据可能在该样本中出现多次，另一些可能完全不出现。
+    \item \textbf{重复$K$次：}生成$K$个独立的Bootstrap样本（$k = 1, \dots, K$，通常$K = 100\text{--}1000$）。
+    \item \textbf{在每个样本上计算$\theta_k$：}对每个Bootstrap样本重新执行\emph{完整的观测量计算流程}（包括任何所需的拟合）。得到$K$个$\theta_k$值。
+    \item \textbf{估计期望值与误差：}
+    \begin{equation}
+    \bar\theta \equiv \frac{1}{K}\sum_{k=1}^K \theta_k, \qquad
+    \sigma_{\bar\theta}^2 \equiv \frac{1}{K}\sum_{k=1}^K (\theta_k - \bar\theta)^2.
+    \label{eq:bootstrap_estimators}
+    \end{equation}
+\end{enumerate}
+\end{definition}
+
+\textbf{Bootstrap偏差（Bias）：}设$\hat\theta$为从全部原始数据计算出的观测量值。Bootstrap均值$\bar\theta$与$\hat\theta$之差称为\textbf{Bootstrap偏差}：$\text{Bias} = \bar\theta - \hat\theta$。偏差反映了观测量在有限样本下的非线性系统偏移——理想情况下应远小于统计误差$\sigma_{\bar\theta}$。
+
+\textbf{最终报道值：}$\langle \theta \rangle = \bar\theta \pm \sigma_{\bar\theta}$。通常$K \approx 200\text{--}500$已足够降低Bootstrap本身引入的额外Monte Carlo误差至可忽略的水平（$\sim 1/\sqrt{K}$）。
+
+\subsection{Bootstrap的核心优势：拟合误差的自动传播}
+
+Bootstrap最具价值的特点是其在\textbf{拟合参数误差估计}中的应用~\cite{GattringerLang2010}。在格点QCD中，许多关键可观测量不是原始数据的简单平均，而是通过复杂的拟合流程获得的——例如：
+\begin{itemize}[nosep]
+    \item 从关联函数$C(t) = A_0 e^{-E_0 t} + \cdots$的指数拟合中提取强子质量$E_0$；
+    \item 从三点函数与两点函数的比值中提取裸矩阵元$h(z, P_z)$；
+    \item 从多指数联合拟合中提取激发态能级。
+\end{itemize}
+
+对于这些复合观测量，解析地推导误差传播公式（即通过$\partial\theta/\partial X_i$的链式法则传播每个$X_i$的误差）是极其复杂且容易出错的。Bootstrap通过以下方式优雅地绕过了这一困难：
+
+\begin{center}
+\fbox{\begin{minipage}{0.92\textwidth}
+\small
+\textbf{Bootstrap处理拟合误差的核心逻辑：}
+
+在\emph{每个}Bootstrap样本上重新运行\emph{完整的拟合}（包括选择拟合范围$[t_{\min}, t_{\max}]$、最小化$\chi^2$、确定最佳拟合参数）。$K$个Bootstrap拟合产生$K$个质量估计值$E_0^{(1)}, \dots, E_0^{(K)}$。这些值的分布直接给出了$E_0$的期望值和统计误差——\textbf{无需任何解析误差传播}。所有拟合流程中的非线性效应（$\chi^2$最小化过程中的参数关联、拟合范围的依赖性等）均被自动纳入Bootstrap误差估计。
+\end{minipage}}
+\end{center}
+
+Gattringer与Lang在格点QCD教材中明确指出~\cite{GattringerLang2010}：``A powerful feature of the statistical bootstrap and the jackknife methods is the fact that they can be applied to the determination of the statistical error for fitted quantities. ...Thus these two methods can be used for determining the errors for fitted quantities without the need for additional data or consideration of complicated error propagation.''
+
+\subsection{Bootstrap的局限与注意事项}
+
+\begin{itemize}[nosep]
+    \item \textbf{独立数据假设：}Bootstrap假设原始数据是独立（或近似独立）的。对于关联数据，必须先用binning消除自相关。
+    \item \textbf{厚尾分布：}对具有极端厚尾分布的观测量，Bootstrap的覆盖概率可能偏低（置信区间过窄）。在格点QCD中，这一般不是问题，因为观测量通常是良好行为的平均值（由中心极限定理保证正态性）。
+    \item \textbf{重抽样数量$K$：}$K$太小导致Bootstrap本身引入额外的MC噪声（$\sim 1/\sqrt{K}$）。$K \gtrsim 200$在格点QCD中通常足够。
+    \item \textbf{偏差的非零性：}对高度非线性的观测量，Bootstrap偏差可能不可忽略。偏差的符号和量级提供了估计量有偏性的信息。
+\end{itemize}
+
+%==========================================================================
+\section{Jackknife（刀切法）}
+%==========================================================================
+
+\subsection{Jackknife的基本操作}
+
+Jackknife是与Bootstrap互补的重采样方法，在Gattringer与Lang的§4.5.3中给出了标准定义~\cite{GattringerLang2010}：
+
+\begin{definition}[Jackknife]
+给定$N$个（假设独立的）数据点：
+\begin{enumerate}[nosep]
+    \item \textbf{生成Jackknife子集：}逐一剔除第$n$个数据（$n = 1, \dots, N$），生成$N$个大小为$N-1$的子集。
+    \item \textbf{计算$\theta_n$：}在第$n$个Jackknife子集上计算观测量（包括任何所需的拟合），得到$\theta_n$。
+    \item \textbf{估计方差：}
+    \begin{equation}
+    \boxed{\sigma^2_{\hat\theta} = \frac{N-1}{N} \sum_{n=1}^N (\theta_n - \hat\theta)^2},
+    \label{eq:jackknife_variance}
+    \end{equation}
+    其中$\hat\theta$是从全部$N$个原始数据计算的观测量值。
+    \item \textbf{偏差校正（可选）：}定义$\tilde\theta = \frac{1}{N}\sum_n \theta_n$，则无偏估计量为$\hat\theta - (N-1)(\tilde\theta - \hat\theta)$。
+\end{enumerate}
+\end{definition}
+
+\textbf{Jackknife方差公式中的因子$(N-1)/N$：}这一因子补偿了Jackknife子集因剔除一个数据而造成的方差膨胀——因为每个子集仅含$N-1$而非$N$个数据，其自身方差偏大。
+
+\subsection{Bootstrap与Jackknife的系统对比}
+
+\begin{table}[H]
+\centering
+\caption{Bootstrap与Jackknife的系统对比}
+\label{tab:bs_vs_jk}
+\begin{tabular}{p{3.5cm}p{4.5cm}p{4.5cm}}
+\toprule
+\textbf{特性} & \textbf{Bootstrap} & \textbf{Jackknife} \\
+\midrule
+抽样方式 & 有放回抽取$N$个 & 逐一剔除，留$N-1$个 \\
+样本数量$K$ & 任意（通常$200\text{--}1000$） & 固定$N$（数据点数） \\
+随机性 & 随机（需设定随机种子） & 确定性的 \\
+偏差估计 & $\bar\theta - \hat\theta$直接给出 & 需额外计算 \\
+对小$N$的稳定性 & 较差（多样性不足） & 较好（$N$个确切子集） \\
+对非光滑观测量 & 可能失败 & 更稳健 \\
+计算成本 & $K$倍（可调控） & $N$倍（对于大$N$可能很高） \\
+格点QCD中偏好 & 通用首选 & $N$较小时或需确定性时 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Gattringer与Lang的总结~\cite{GattringerLang2010}：}两种方法均可与binning联合使用（在块上而非原始数据上重抽样），且均直接适用于拟合误差的估计。
+
+\subsection{格点QCD中的典型使用场景}
+
+\begin{enumerate}[nosep]
+    \item \textbf{Bootstrap + 拟合：}在$K \approx 200\text{--}500$个Bootstrap样本上各自独立执行完整的指数拟合流程——提取的强子质量（或PDF矩阵元）的$K$个结果的分布直接给出误差带。这是LPC合作组大多数PDF计算的标准做法。
+    \item \textbf{Jackknife + 比值分析：}在处理矩阵元的比值时，Jackknife因其对每个数据点的剔除具有明确的``影响函数''解释而更具优势。每个Jackknife子集上的比值结果$\theta_n$与全部数据上的结果$\hat\theta$之差$\theta_n - \hat\theta$直接量化了第$n$个数据点对该观测量的影响。
+    \item \textbf{Binning + Bootstrap：}对于HMC生成的$\mathcal{O}(10^4)$个组态，先bin为$\mathcal{O}(10^2)$个独立块，再在块上执行Bootstrap——这是计算效率和统计正确性之间的标准折中。
+\end{enumerate}
+
+%==========================================================================
+\section{关联$\chi^2$拟合与协方差矩阵}
+%==========================================================================
+
+\subsection{关联数据的拟合问题}
+
+当观测量是时间序列上的关联函数$C(t)$（例如$t = t_{\min}, \dots, t_{\max}$的衰减曲线），不同$t$处的$C(t)$值天然存在统计关联——相邻时间片上的涨落是相关的。忽略这种关联（即仅在拟合中使用对角$\chi^2$）会导致两个问题：\textbf{（a）拟合参数的标准误差被严重低估}（因为数据点之间的正关联被忽略，有效数据点数被高估）；\textbf{（b）拟合参数的``最佳值''可能发生偏移}（因为关联结构未被纳入$\chi^2$的极小化中）。
+
+\subsection{关联$\chi^2$拟合的定义}
+
+Gattringer与Lang§6.3.2给出了格点QCD中关联$\chi^2$拟合的标准形式~\cite{GattringerLang2010}：
+
+\begin{definition}[关联$\chi^2$拟合]
+\begin{equation}
+\boxed{\chi^2 = \sum_{t,t' = t_{\min}}^{t_{\max}} \big[ C(t) - f(t; \boldsymbol\alpha) \big] \, \operatorname{Cov}^{-1}(t, t') \, \big[ C(t') - f(t'; \boldsymbol\alpha) \big]},
+\label{eq:correlated_chisq}
+\end{equation}
+其中$C(t)$是$t$处的关联函数测量值（在$N$个组态上的均值），$f(t; \boldsymbol\alpha)$是含参数$\boldsymbol\alpha$的假设函数（如$f(t) = A_0 e^{-E_0 t}$），而$\operatorname{Cov}(t,t')$是从$N$个组态数据中估计的\textbf{协方差矩阵}：
+\begin{equation}
+\operatorname{Cov}_N(t, t') = \frac{1}{N-1} \Big\langle \big( C_t - \langle C_t\rangle_N \big) \big( C_{t'} - \langle C_{t'}\rangle_N \big) \Big\rangle_N.
+\label{eq:covariance_matrix}
+\end{equation}
+\end{definition}
+
+\textbf{拟合参数通过最小化$\chi^2(\boldsymbol\alpha)$确定}——通常使用Levenberg--Marquardt算法或其变体。\textbf{参数的误差}既可从$\chi^2$的Hessian矩阵（在最小值处）解析获得，也可通过Bootstrap在伪数据集上重拟合获得——后者因其自动处理所有非线性效应和关联结构而更为稳健。
+
+\subsection{协方差矩阵的奇异性和正则化}
+
+协方差矩阵的估计\textbf{仅在$N_{\text{indep}} \gg N_{\text{bins}}$时才是可靠的}——即独立组态数必须远大于拟合中使用的$t$值的数目。当这一条件不被满足时（这在格点QCD中是常态，因为独立组态数有限而$t$范围可能较大），$\operatorname{Cov}$的特征值中出现极小的``伪''值——导致$\operatorname{Cov}^{-1}$不稳定。Gattringer与Lang指出~\cite{GattringerLang2010}：
+
+\begin{quote}
+``This estimator is often too badly determined and due to statistical fluctuations there may be accidental small eigenvalues destabilizing the fit.''
+\end{quote}
+
+\textbf{常用的正则化策略包括~\cite{GattringerLang2010}：}
+\begin{enumerate}[nosep]
+    \item \textbf{对角近似：}仅使用协方差矩阵的对角部分，即$w(t,t') = \delta_{t,t'}/\sigma(t)^2$——此时$\chi^2$退化为不相关拟合的标准形式。这是最粗糙但最稳定的选择。
+    \item \textbf{平滑近似：}对协方差矩阵的非对角元应用平滑函数——在高$|t-t'|$处压制不可靠的远距离关联。
+    \item \textbf{SVD截断（奇异值分解截断）：}仅保留$\operatorname{Cov}$的$r$个最大的奇异值（$r < N_{\text{bins}}$），将较小的奇异值置为0或一个调节常数。这等价于在``最重要的$r$个主成分''上做拟合。
+\end{enumerate}
+
+\textbf{拟合范围的确定：}$[t_{\min}, t_{\max}]$的选择本身就是一个带有任意性的决策。Gattringer与Lang推荐的判据包括~\cite{GattringerLang2010}：增加$t_{\min}$（排除激发态污染）或减小$t_{\max}$（排除信噪比过差的点）时$\chi^2/$d.o.f.\ 的变化不超过$\mathcal{O}(1)$。实践中，这一选择通常需辅以视觉检验。
+
+\subsection{Bootstrap在关联拟合中的应用}
+
+如§4所述，Bootstrap是处理关联拟合误差的首选方法~\cite{GattringerLang2010}。操作流程为：
+\begin{enumerate}[nosep]
+    \item 在$N$个组态上先bin为$M$个独立块；
+    \item 对$K$个Bootstrap伪数据集分别：
+    \begin{itemize}[nosep]
+        \item 计算Bootstrap样本的关联函数均值和协方差矩阵；
+        \item 在选定的$[t_{\min}, t_{\max}]$上执行关联$\chi^2$拟合；
+        \item 记录最佳拟合参数$E_0^{(k)}$（质量）和$A_0^{(k)}$。
+    \end{itemize}
+    \item $K$个$E_0^{(k)}$值的分布给出质量和误差：$E_0 = \bar E_0 \pm \sigma_{E_0}$。
+\end{enumerate}
+
+\textbf{LPC合作组的实践：}在核子TMD-PDF~\cite{He2024unpolTMD}和Boer-Mulders函数~\cite{Ma2025BoerMulders}的计算中，双态拟合的$\chi^2/$d.o.f.\ 在$0.5\text{--}1.2$之间被报告为可接受——这是通过Bootstrap伪数据集上的重拟合来验证的。
+
+%==========================================================================
+\section{Monte Carlo Replica方法——Bootstrap在大规模PDF拟合中的拓展}
+%==========================================================================
+
+\subsection{NNPDF4.0的Replica范式}
+
+NNPDF（Neural Network Parton Distribution Functions）合作组的PDF全局分析方法提供了Bootstrap理念在大规模数据分析中拓展应用的杰出范例。NNPDF4.0~\cite{NNPDF2021}使用\textbf{Monte Carlo Replica}方法：
+
+\begin{definition}[Monte Carlo Replica方法~\cite{NNPDF2021}]
+\begin{enumerate}[nosep]
+    \item \textbf{生成伪数据（``replicas''）：}对实验数据的中心值，利用其完整的协方差矩阵（包含统计和系统的全关联不确定性），通过多变量Gaussian抽样生成$N_{\text{rep}}$（通常$\sim 1000$）组``人工数据''。
+    \item \textbf{独立训练神经网络：}对每一组伪数据，独立训练一个前馈神经网络以参数化PDF的$x$依赖。每个replica的拟合是独立的——使用不同的随机初始化、不同的伪数据集、然后最小化相同的$\chi^2$目标函数。
+    \item \textbf{PDF中心值与误差：}1000个独立训练的replica给出的1000个PDF结果构成了PDF在每一$(x, Q^2)$点上的\textbf{经验分布}。分布的平均值作为中心值，标准差（或68\%置信区间）作为误差带。
+\end{enumerate}
+\end{definition}
+
+\textbf{与经典Bootstrap的联系：}MC Replica方法本质上是Bootstrap在``数据重抽样+模型重训练''范式下的扩展。经典Bootstrap对原始数据做有放回抽样——每个Bootstrap样本是原始数据的``多重复制版''。MC Replica对实验数据的协方差矩阵做多变量Gaussian抽样——每个replica是原始数据在误差范围内的``可能真实实现''。在两种情况下，\textbf{完整的分析流程在多个伪数据集上重复执行}，结果的不确定性从结果的分布中直接读出。
+
+NNPDF4.0使用1000个replica，通过``压缩算法''（Compressor algorithm）进一步约化为100个代表性的replica，用于Monte Carlo误差传播至LHC观测量。
+
+%==========================================================================
+\section{总结与展望}
+%==========================================================================
+
+基于本库核心教材（Gattringer与Lang~\cite{GattringerLang2010}——Bootstrap、Jackknife、Binning和关联$\chi^2$的完整标准参考；Gupta~\cite{Gupta1997intro}——统计误差控制的实践指南）和NNPDF4.0~\cite{NNPDF2021}（MC Replica的现代拓展），本文系统解析了格点QCD中重采样方法的核心理论与应用。
+
+\subsection*{核心结论}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{自相关是格点QCD统计分析的起点：}Markov链Monte Carlo产生的规范组态天然地具有自相关。积分自相关时间$\tau_{\text{int}}$定义了有效独立测量数$N_{\text{indep}} = N/(2\tau_{\text{int}})$——忽略自相关的朴素误差分析将\textbf{系统性低估}统计误差（低估因子为$\sqrt{2\tau_{\text{int}}}$，通常$\sim 3\text{--}10$倍）。
+
+    \item \textbf{Binning是消除自相关的第一道防线：}当完整的自相关函数计算过于昂贵时，绘制$K \cdot \sigma^2_{(K)}$随$K$变化的曲线并寻找平台区域提供了确定合适块大小的可靠诊断。Binning将关联的原始数据转化为（近似）独立的``块''——为Bootstrap和Jackknife的应用奠定基础。
+
+    \item \textbf{统计Bootstrap是格点QCD中拟合误差估计的首选方法：}从$N$个数据中有放回地抽取$K$（通常$200\text{--}500$）个Bootstrap样本，在每个样本上重做完整的观测量计算（包括任何所需的拟合），从$K$个结果的分布中直接读取中心值和误差。\textbf{核心优势：无需推导复杂的解析误差传播公式}——所有非线性和关联效应被Bootstrap的``重复实验''范式自动捕获。
+
+    \item \textbf{Jackknife提供确定性的互补方案：}逐一剔除单个数据形成$N$个子集，利用式(\ref{eq:jackknife_variance})估计方差。Jackknife在$N$较小时更稳健（不依赖随机抽样）、并且`$\theta_n - \hat\theta$'直接量化每个数据点对结果的影响（``影响函数''解释）。在格点QCD的比值分析中，Jackknife的确定性特质尤具优势。
+
+    \item \textbf{关联$\chi^2$拟合需要协方差矩阵的谨慎处理：}在关联函数的指数拟合中，不同$t$处数据间的关联不可忽略。关联$\chi^2$通过逆协方差矩阵$\operatorname{Cov}^{-1}(t,t')$正确加权不同$t$的贡献。当数据有限时，协方差矩阵的奇异性需通过正则化（对角近似、平滑或SVD截断）来稳定。
+
+    \item \textbf{Binning + Bootstrap的组合是现代格点QCD的通用策略：}先bin为独立块、再在块上执行Bootstrap或Jackknife重抽样——这一组合同时解决了自相关消除和误差传播两个核心问题。LPC合作组的全部PDF/TMD-PDF计算均依赖此框架进行误差分析和传播。NNPDF4.0的MC Replica方法将其推广到了数千个实验数据点和神经网络拟合的规模。
+\end{enumerate}
+
+\textbf{展望：}随着Exascale计算允许更长的HMC轨迹和更高的统计精度，自相关时间的精确分析和重采样方法的自动化将成为标准数据分析pipeline的标配组件。将Bootstrap与机器学习方法（如Bayesian神经网络）的整合将为格点QCD的统计系统学控制开辟新的维度。
+
+%==========================================================================
+\begin{thebibliography}{99}
+
+\bibitem{GattringerLang2010}
+C.~Gattringer and C.~B.~Lang,
+\textit{Quantum Chromodynamics on the Lattice: An Introductory Presentation},
+Lect.\ Notes Phys.\ \textbf{788}, Springer (2010).
+\\\textbf{[来源:} \texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}\textbf{]}
+\\§4.5: 不相关误差公式的推导（Eq.\,(4.53)--(4.58)）、自相关函数$C_X(t)$与归一化自相关$\Gamma_X(t)$（Eq.\,(4.59)--(4.61)）、指数自相关时间$\tau_{\text{exp}}$与积分自相关时间$\tau_{\text{int}}$（Eq.\,(4.63)--(4.67)）、Binning/Blocking方法、统计Bootstrap的完整定义（$K$个伪样本、均值$\bar\theta$与方差$\sigma_{\bar\theta}^2$，Eq.\,(4.71)）、Jackknife的完整定义（$N$个子集、方差公式$\sigma^2_{\hat\theta} = \frac{N-1}{N}\sum_n(\theta_n-\hat\theta)^2$，Eq.\,(4.72)--(4.73)）、临界减速（Eq.\,(4.69)--(4.70)）。§6.3.2: 关联$\chi^2$拟合的定义（Eq.\,(6.58)）、协方差矩阵$\operatorname{Cov}_N(t,t')$（Eq.\,(6.60)）、逆协方差权重的稳定性问题。
+
+\bibitem{Gupta1997intro}
+R.~Gupta,
+``Introduction to Lattice QCD,''
+arXiv:hep-lat/9807028 (1997).
+\\\textbf{[来源:} \texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf}\textbf{]}
+\\§16.1: 统计误差与Monte Carlo抽样、binning检验用于确定独立组态的实践指南、自相关时间的唯象分析（HMC轨迹长度5000--10000单位与$m_\pi/M_\rho \ge 0.56$的80单位退相关时间）。
+
+\bibitem{PeskinSchroeder1995}
+M.~E.~Peskin and D.~V.~Schroeder,
+\textit{An Introduction to Quantum Field Theory},
+Westview Press (1995).
+\\\textbf{[来源:} \texttt{refer/books/An Introduction to Quantum Field Theory.pdf}\textbf{]}
+\\统计力学与Monte Carlo方法的理论背景（Part I）。
+
+\bibitem{NNPDF2021}
+R.~D.~Ball \textit{et al.} (NNPDF Collaboration),
+``The path to proton structure at 1\% accuracy,''
+Eur.\ Phys.\ J.\ C \textbf{82}, 428 (2022), arXiv:2109.02653.
+\\\textbf{[来源:} \texttt{refer/papers/The Path to Proton Structure at One-Percent Accuracy.pdf}\textbf{]}
+\\NNPDF4.0的Monte Carlo Replica方法——1000个replica的伪数据生成、独立神经网络训练、中心值与误差带的经验分布估计、Compressor算法将1000个replica约化为100个。
+
+\bibitem{He2024unpolTMD}
+J.-C.~He \textit{et al.} (LPC),
+``Unpolarized transverse-momentum-dependent parton distributions of the nucleon from lattice QCD,''
+Phys.\ Rev.\ D \textbf{109}, 114513 (2024), arXiv:2211.02340.
+\\\textbf{[来源:} \texttt{refer/papers/Unpolarized Transverse-Momentum-Dependent Parton Distributions of the Nucleon from Lattice QCD.pdf}\textbf{]}
+——双态拟合的$\chi^2/$d.o.f.\ 报告（$0.5\text{--}1.2$）——Bootstrap误差控制的实践应用。
+
+\bibitem{Ma2025BoerMulders}
+L.~Ma \textit{et al.} (LPC),
+``Quark transverse spin-momentum correlation of the nucleon from lattice QCD: The Boer-Mulders function,''
+(2025), arXiv:2502.11807.
+\\\textbf{[来源:} \texttt{refer/papers/Quark Transverse Spin-Momentum Correlation of the Nucleon from Lattice QCD The Boer-Mulders Function.pdf}\textbf{]}
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, LPC),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\\\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{NucleonTransversity2024}
+(LPC),
+``Nucleon transversity distribution in the continuum and physical mass limit from lattice QCD,''
+(2024).
+\\\textbf{[来源:} \texttt{refer/papers/Nucleon Transversity Distribution in the Continuum and Physical Mass Limit from Lattice QCD.pdf}\textbf{]}
+
+\bibitem{Zhang2022renormTMD}
+K.~Zhang \textit{et al.} (LPC),
+``Renormalization of transverse-momentum-dependent parton distribution on the lattice,''
+Phys.\ Rev.\ D \textbf{106}, 094510 (2022), arXiv:2205.13402.
+\\\textbf{[来源:} \texttt{refer/papers/Renormalization of transverse-momentum-dependent parton distribution on the lattice.pdf}\textbf{]}
+
+\bibitem{Huo2021self}
+Y.-K.~Huo \textit{et al.} (LPC),
+``Self-renormalization of quasi-light-front correlators on the lattice,''
+Nucl.\ Phys.\ B \textbf{969}, 115443 (2021), arXiv:2103.02965.
+\\\textbf{[来源:} \texttt{refer/papers/Self-Renormalization of Quasi-Light-Front Correlators on the Lattice.pdf}\textbf{]}
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,'' 内部笔记。
+\\\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}和\texttt{refer/papers/Note of gluon PDFs.pdf}
+
+\end{thebibliography}
+
+\vspace{0.5cm}
+\noindent\rule{\textwidth}{0.5pt}
+\small
+\textbf{交叉参考建议：}本报告应结合同一\texttt{docs/}目录下的以下文件阅读：
+\begin{itemize}[nosep]
+    \item \texttt{格点QCD中的关联函数.pdf}——关联函数的构造与拟合为Bootstrap/Jackknife的主要应用场景
+    \item \texttt{格点QCD中的外推.pdf}——外推中的系统误差估计与统计误差的协同
+    \item \texttt{格点QCD中的维克收缩与傅里叶变换.pdf}——Monte Carlo组态上的缩并流程
+    \item \texttt{格点QCD中的连通图与非连通图.pdf}——连通/非连通图的信噪比与统计特征
+    \item \texttt{格点QCD中的重整化.pdf}——重整化常数的非微扰确定与误差分析
+    \item \texttt{格点QCD中的DGLAP演化方程.pdf}——PDF全局拟合中replica方法的语境
+    \item \texttt{格点QCD中的部分子分布函数.pdf}——PDF格点计算的完整统计误差预算
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,472 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的UV涨落：\\
+线性发散、重正子与幂次修正的级联控制}
+\author{基于本库文献的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+格点QCD中的紫外（UV）涨落是制约从第一性原理精确提取连续物理观测量的核心障碍。这些涨落表现为三种层级的效应：最严重的是Wilson线自能产生的$\sim z/a$线性发散，若不消除将导致格点关联函数随空间分离指数衰减；其次是与算符顶点相关的对数紫外发散，由反常量纲和DGLAP演化来描述；最微妙的是红外重正子（IR renormalon）导致微扰级数的阶乘发散$\sim n!(\beta_0/2\pi)^n$，使得twist-2的微扰匹配本身具有$\mathcal{O}(\Lambda_{\text{QCD}}z)$的内在模糊性。本文系统梳理了这三种UV效应的物理起源和级联控制策略：从Chen-Ji-Zhang的辅助$z$-场形式给出线性发散的质量抵消项，到Huo等人（LPC合作组）的自重整化方案对多格点间距数据中线性发散和重正子模糊性的联合提取，再到Zhang等人利用重整化群重求和（RGR）和领头重正子重求和（LRR）将匹配精度提升至twist-3（领先幂次）水平的系统方案。同时讨论了规范场涂抹（HYP/stout/梯度流）作为``第一道防线''在格点上直接抑制UV涨落的物理机制，以及DR/格点截断两种正规化方案下线性发散的不同表现。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{引言：UV涨落的三重面孔}
+
+格点QCD在离散的Euclidean时空中表述，格点间距$a$作为紫外（UV）截断引入了一个内在的能标$\sim 1/a$。当$a \to 0$的连续极限被逼近时，所有在截断尺度附近的量子涨落都必须被系统地控制和消除，才能得到与连续理论一致的物理预言。
+
+在LaMET框架下的部分子物理计算中，UV涨落以三种彼此关联但又各具特征的形式出现\cite{Chen2016improved,Huo2021self,Zhang2023RGR,Su2023LRR}：
+
+\begin{enumerate}
+    \item \textbf{线性发散（Linear Divergence）：}$\sim |z|/a$，来自Wilson线的自能图。这是最严重的形式——在格点单位下随分离$|z|$线性增长，若不消除，裸矩阵元将呈指数衰减，使得长程关联的提取不可能。线性发散来源于这样的物理事实：空间方向的Wilson线$W(z,0)$相当于一个无限重的辅助``夸克''的传播子，其``质量''获取了$\sim 1/a$的辐射修正。
+
+    \item \textbf{对数发散（Logarithmic Divergence）：}$\sim \ln(1/a)$，来自算符顶点处的标准QCD重整化。这些对数发散由部分子分布函数的反常量纲控制，对应于标准的DGLAP演化。在DR下它们表现为$1/\epsilon$极点；在格点上表现为$\ln(1/a)$行为。
+
+    \item \textbf{红外重正子（IR Renormalon）：}微扰Wilson系数的阶乘发散$\sim n!(\beta_0/2\pi)^n$。这是最微妙的形式——它不是裸格点数据中的发散，而是\textbf{微扰匹配核本身}在大阶数下的发散行为。它意味着twist-2的匹配本身具有$\mathcal{O}(\Lambda_{\text{QCD}}/P^z)$的内在模糊性，必须通过引入非微扰的twist-3参数并一致地处理来消除。
+\end{enumerate}
+
+这三种效应的\textbf{级联控制}构成了现代格点PDF计算的精度基石。本文将逐层展开这一控制体系。
+
+\section{第一层：线性发散——Wilson线自能}
+
+\subsection{辅助$z$-场形式与质量重正化}
+
+Chen、Ji和Zhang在2016年的开创性工作中\cite{Chen2016improved}引入了辅助$z$-场形式来系统处理Wilson线的线性发散。定义辅助场$Z(z)$为从$z$延伸到$\infty$的Wilson线：
+
+\begin{equation}
+Z(z) = L(z, \infty), \qquad [\partial_z - igA^z(z)] Z(z) = 0。
+\label{eq:Z_field}
+\end{equation}
+
+这个$Z(z)$满足与无限重夸克场完全类似的运动方程。Wilson线$L(z,0)$可以表示为两个$Z$场的乘积：
+
+\begin{equation}
+L(z, 0) = Z(z) Z^\dagger(0),
+\label{eq:Wilson_as_ZZ}
+\end{equation}
+
+从而Wilson线的重整化完全类似于重夸克两点函数\cite{Chen2016improved,Huo2021self}：
+
+\begin{definition}[Wilson线的重正化]\cite{Chen2016improved}
+\begin{equation}
+\boxed{L_{\text{ren}}(z, 0) = Z^{-1}_Z e^{-\delta m |z|} L(z, 0)},
+\label{eq:Wilson_renorm}
+\end{equation}
+其中$\delta m$是类比于重夸克质量抵消项的线性发散量（量纲为1），$Z_Z$是对数发散的重整化常数（量纲为0）。
+\end{definition}
+
+在一圈水平上，线性发散的质量抵消项为\cite{Chen2016improved,Huo2021self}：
+
+\begin{equation}
+\delta m = \frac{2\pi}{3a} \alpha_s + \mathcal{O}(\alpha_s^2),
+\label{eq:delta_m_one_loop}
+\end{equation}
+
+其中$\alpha_s$在能标$1/a$处取值。这一结果在领头阶上与格点作用量的细节无关\cite{Huo2021self}：
+
+\begin{equation}
+\alpha_s(1/a, \Lambda_{\text{QCD}}) = \frac{2\pi}{b_0 \ln[1/(a\Lambda_{\text{QCD}})]}, \qquad b_0 = 11 - \frac{2}{3}n_f。
+\label{eq:alpha_s_lattice}
+\end{equation}
+
+\subsection{格点截断 vs 维数正规化：线性发散的不同命运}
+
+\textbf{一个关键的理论洞察}\cite{Li2018multiplicative,Zhang2019}：线性发散在\textbf{不同的正规化方案下表现截然不同}。
+
+\begin{itemize}
+    \item \textbf{格点截断（硬截断）：}Wilson线自能图产生显式的$|z|/a$线性发散。这是破坏规范对称性的截断方案中不可避免的结果。
+    \item \textbf{维数正规化（DR）：}在DR下，线性发散表现为$d=3-2\epsilon$维度处的极点。Li、Ma和Qiu\cite{Li2018multiplicative}证明，在规范不变的DR方案下，胶子-规范链顶点（gluon-gauge-link vertex）的线性发散\textbf{在一圈层次上相互抵消}。这一抵消依赖于规范对称性。
+\end{itemize}
+
+\textbf{这一差异的物理后果}\cite{Li2018multiplicative,Zhang2019}：
+
+\begin{quote}
+``If one uses a cutoff regularization that breaks the gauge symmetry, the linear divergences from these two diagrams do not cancel. This implies that gauge invariance plays an important role in taming the UV behavior of quasi-gluon operators.''\cite{Li2018multiplicative}
+\end{quote}
+
+因此，在格点上处理胶子准PDF算符时，必须格外注意规范不变性的保持——这正是HYP涂抹等方法在抑制线性发散的同时需尽量保持规范对称性的物理原因。
+
+\subsection{线性发散的指数化与非微扰扣除}
+
+由于线性发散来自Wilson线自能，且在高阶下指数化（$\sim e^{-\delta m |z|}$），对整个非局域算符的重整化是乘性的\cite{Chen2016improved,Li2018multiplicative}。对于准夸克算符：
+
+\begin{equation}
+\mathcal{O}_\Gamma(z)_R = Z^{-1}_{\mathcal{O}} e^{\delta\bar{m}z} \mathcal{O}_\Gamma(z),
+\label{eq:renorm_operator}
+\end{equation}
+
+其中$Z_{\mathcal{O}}$包含所有对数发散。对于胶子算符，36个独立分量根据$z$分量数$s$分类，具有不同但乘性的重整化常数\cite{Li2018multiplicative}。
+
+\textbf{LPC合作组的自重整化方案}\cite{Huo2021self}通过在多个格点间距上拟合$P^z=0$的零动量裸矩阵元，系统地提取了线性发散和重正子模糊性：
+
+\begin{equation}
+\ln \tilde{h}^B(z, P^z=0, 1/a) = \ln[Z_R(z, 1/a, \mu; k, \Lambda_{\text{QCD}}, m_0, d)] + \text{微扰Wilson系数}。
+\label{eq:self_renorm_fit}
+\end{equation}
+
+自重整化因子包含了线性发散、对数重求和和离散化误差\cite{Chen2025gluon}：
+
+\begin{equation}
+\begin{aligned}
+Z_R(z, 1/a, \mu) = \exp\Bigg\{&\frac{kz}{a}\ln[a\Lambda_{\text{QCD}}] + m_0 z + f(z)a^2 \\
+&+ \frac{5C_A}{3b_0} \ln\left[\frac{\ln(1/a\Lambda_{\text{QCD}})}{\ln(\mu/\Lambda_{\text{QCD}})}\right] + \frac{1}{2}\ln\left[\left(1 + \frac{d}{\ln[a\Lambda_{\text{QCD}}]}\right)^2\right]\Bigg\}。
+\end{aligned}
+\label{eq:ZR_full}
+\end{equation}
+
+\textbf{胶子vs夸克的差异}\cite{Chen2025gluon}：胶子情形中线性发散系数$k$与夸克情形相差因子$C_A/C_F$，因此胶子的线性发散显著更强。CLQCD/LPC的胶子PDF计算中拟合得到$k = 1.92(1.18)$（HYP5涂抹后），而夸克的典型值约为$0.3$--$0.5$。
+
+\section{第二层：对数发散与DGLAP演化}
+
+\subsection{对数发散的标准QCD重整化}
+
+对数紫外发散由标准的QCD重整化程序来处理。对于准PDF算符，相关算符的反常量纲和Wilson系数在微扰论中已被计算至NLO甚至NNLO（参见\cite{Chen2025gluon,Zhang2019,Izubuchi2018}中的系统分析）。
+
+在$\overline{\text{MS}}$方案下，非极化胶子准PDF的NLO Wilson系数为\cite{Chen2025gluon}：
+
+\begin{equation}
+\tilde{h}^{\text{pert}}_{\overline{\text{MS}}}(z, \mu) = 1 + \frac{\alpha_s(\mu)C_A}{4\pi}\left[\frac{5}{3}\ln\frac{z^2\mu^2}{4e^{-2\gamma_E}} + 3\right]。
+\label{eq:NLO_Wilson}
+\end{equation}
+
+这里的$\ln(z^2\mu^2)$项对应于DGLAP演化——它将$z$（空间分离）处的物理与$\mu$（重整化标度）处的物理联系起来。
+
+\subsection{Radyushkin的约化Ioffe-时间分布}
+
+Radyushkin指出\cite{Radyushkin2018one_loop}，对于小的类空间隔$z^2 = -z^2_3$，约化赝PDF与$\overline{\text{MS}}$分布在领头对数水平上通过简单的标度重标度相联系：
+
+\begin{equation}
+\mu^2 = 4e^{-2\gamma_E}/z^2_3。
+\label{eq:scale_rescaling}
+\end{equation}
+
+$2e^{-\gamma_E} = 1.12$使得重标度因子非常接近1。但$\mathcal{O}(\alpha_s)$项可能显著改变这一简单的标度关系：单圈修正包含一个大的贡献，反映了最相关的图中涉及的有效距离远小于名义距离$z_3$\cite{Radyushkin2018one_loop}。这个大的修正可以被吸收到演化项中，使得用于提取PDF的微扰展开在$\mu \approx 2$~GeV标度下是可控的。
+
+\subsection{重整化群重求和（RGR）}
+
+当格点数据在能标$1/a \sim 2\text{--}10$~GeV之间时，匹配核中的大对数$\alpha_s^n \ln^n(P^z/\mu)$会破坏微扰展开的收敛性。RGR技术通过求解重整化群方程将这些对数重求和到所有阶\cite{Zhang2023RGR}。
+
+Zhang等人\cite{Zhang2023RGR}证明，RGR显著减小了匹配中的标度依赖性。然而，仅使用RGR（NLO+RGR）时，提取的PDF在动量$P^z \sim 2$~GeV下仍然存在显著的误差带——这表明仅控制对数发散是不够的，还需要处理下一层级的效应。
+
+\section{第三层：红外重正子与幂次修正}
+
+\subsection{重正子的物理起源}
+
+微扰Wilson系数$C_k(\alpha_s) = \sum_n c_{kn} \alpha_s^n$是\textbf{渐近级数}——由于大阶数下红外区域的贡献，系数呈现阶乘增长\cite{Su2023LRR,Zhang2023RGR,Braun2019power}：
+
+\begin{equation}
+c_{kn} \propto n! \left(\frac{\beta_0}{2\pi}\right)^n \quad (n \to \infty)。
+\label{eq:renormalon_growth}
+\end{equation}
+
+对于准PDF算符，领头红外重正子来自Wilson线自能的\textbf{长程贡献}——即与``极点''质量的重正子模糊性完全相同的来源\cite{Zhang2023RGR}。
+
+\textbf{重正子模糊性的量级}\cite{Zhang2023RGR}：微扰级数中最小项的量级为$\mathcal{O}(z\Lambda_{\text{QCD}})$——这是一个twist-3（线性幂次）的贡献。因此：
+
+\begin{quote}
+``The twist-two contributions themselves are ambiguous up to higher-twist contributions, and the twist-three parameter $m_0(\tau)$ depends on the resummation/regularization method for the leading renormalon series.''\cite{Zhang2023RGR}
+\end{quote}
+
+这意味着：\textbf{即使在微扰匹配核中，也无法在不指定重正子正规化方案的情况下将twist-2的贡献与twist-3的贡献完全分离}。
+
+\subsection{线性发散与重正子的交织}
+
+Huo等人\cite{Huo2021self}的分析揭示了线性发散和重正子模糊性之间的深刻联系。$\delta \bar{m}$的微扰级数由于红外重正子而不收敛\cite{Huo2021self}：
+
+\begin{equation}
+\delta \bar{m} = m_{-1}(a)/a - m_0,
+\label{eq:delta_m_renormalon}
+\end{equation}
+
+其中$m_{-1}(a)$是微扰可计算的（但在高阶下发散），$m_0$是$\sim \Lambda_{\text{QCD}}$的非微扰参数，两者之间的模糊性相互补偿。$m_0$的物理意义可以从零动量矩阵元的短距离展开中看出\cite{Zhang2023RGR}：
+
+\begin{equation}
+h_R(z, P^z=0, \mu, \tau) = (1 - m_0(\tau)z) \sum_k C_k(\alpha_s(\mu), \mu^2 z^2) \lambda^k a_{k+1}(\mu) + \mathcal{O}(z^2)。
+\label{eq:short_distance_expansion}
+\end{equation}
+
+$m_0(\tau)$依赖于重正子正规化方案$\tau$，作为$z$的线性项出现——它是\textbf{twist-3精度的关键参数}。
+
+\subsection{领先幂次精度：RGR + LRR}
+
+Zhang等人\cite{Zhang2023RGR}提出了一个方案，通过结合RGR（控制对数发散）和LRR（控制重正子发散），在匹配中达到\textbf{领先幂次（twist-3）精度}。
+
+\textbf{方案的核心}\cite{Zhang2023RGR}：在重正子重求和中采用\textbf{主值（Principal Value, PV）}方案来正规化Borel积分中的重正子极点。这一定义下的Wilson系数$C_k(\alpha_s)$与UV正规化一起构成完整的$\tau$-方案。
+
+带有twist-3精度的重整化常数为\cite{Zhang2023RGR}：
+
+\begin{equation}
+\boxed{Z_R(z, a, \mu, \tau) = \exp[I_{\text{lat}}(a^{-1}) - I(\mu) - \delta m(a,\tau)z - m_0(\tau)z]}。
+\label{eq:ZR_twist3}
+\end{equation}
+
+\textbf{数值效果}\cite{Zhang2023RGR}：以ANL/BNL合作组的$\pi$介子PDF格点数据（$a = 0.04$~fm, $P^z = 1.9$~GeV）为例：
+\begin{itemize}
+    \item 仅NLO匹配：标度$\mu$在1--4~GeV间变动时，提取的PDF不确定性巨大；
+    \item NLO+RGR：不确定性显著减小，但在小$z$区域标度依赖性仍明显；
+    \item NLO+RGR+LRR（PV方案）：\textbf{匹配精度在$x = 0.2\text{--}0.5$区域提高了3--5倍}，$m_0(\tau) = 0.164^{+0.016}_{-0.003}$~GeV（NNLO+LRR），标度依赖性被大幅抑制。
+\end{itemize}
+
+这一结果令人信服地证明：\textbf{在$P^z \sim 2$~GeV的格点数据中，达到twist-3（领先幂次）精度对于可靠地提取PDF是至关重要的}。
+
+\subsection{重正子与幂次修正的函数形式}
+
+Braun、Vladimirov和Zhang\cite{Braun2019power}利用重正子分析，预言了准（赝）PDF中领头幂次修正对Bjorken-$x$变量的\textbf{函数依赖性}。
+
+\textbf{靶质量修正}：对于准PDF，靶质量修正具有$m^2 v^2/(pv)^2$的形式，在大$x$区域被因子$1/(1-x)$增强\cite{Braun2019power}：
+
+\begin{equation}
+Q_\parallel(x, p) = q(x) + \frac{1}{4}\frac{m^2 v^2}{(pv)^2} [x q'(x) + q(x)] + \mathcal{O}(m^4/p^4)。
+\label{eq:target_mass_qPDF}
+\end{equation}
+
+而对于赝PDF，靶质量修正在大$x$处是$\mathcal{O}(1-x)$压低的，而非$\mathcal{O}(1/(1-x))$增强。这一差异对选择qPDF还是pPDF方案具有实际意义。
+
+\textbf{归一化程序对幂次修正的强烈影响}\cite{Braun2019power}：归一化到零动量矩阵元（ratio方案）会\textbf{根本性地改变}幂次修正的结构——这一观察对于理解不同重整化方案之间的系统性差异至关重要。
+
+\section{格点上的实战：涂抹作为第一道防线}
+
+\subsection{HYP涂抹对线性发散的抑制}
+
+在裸格点水平上，规范场涂抹是抑制UV涨落的``第一道防线''。CLQCD/LPC合作组的实践表明\cite{Chen2025gluon,Fan2018gluon}：
+
+\begin{itemize}
+    \item 无涂抹：裸矩阵元随$|z|$急剧指数衰减，线性发散系数$k$很大；
+    \item HYP1：衰减速率显著减小；
+    \item HYP3/HYP5：衰减进一步减弱。5步HYP涂抹给出最小的统计误差。
+\end{itemize}
+
+Fan等人\cite{Fan2018gluon}的胶子准PDF计算系统地比较了HYP1、HYP3和HYP5涂抹对裸矩阵元$z$依赖性的影响（见原文图2）。``Ratio重整化''后的矩阵元在不同HYP步数下相互一致，验证了ratio方案对线性发散的消除能力。
+
+Huo等人\cite{Huo2021self}指出：``It is unclear to us how strongly the smearing will interfere with renormalization.''因此，涂抹对重整化的影响（在多大程度上``干扰''了微扰可计算的重整化常数）是一个仍然需要系统研究的问题。
+
+\subsection{梯度流（Wilson Flow）作为UV正规化}
+
+梯度流（Wilson flow/Gradient flow）提供了另一种连续的UV调节方案\cite{NieMiera2025,Chen2025gluon}。在flow时间$\tau$下，规范场被平滑到物理尺度$\sqrt{8\tau}$。
+
+MSULat合作组\cite{NieMiera2025}在自重整化胶子PDF计算中使用了flow时间$\tau_W = 3a^2$，验证了在梯度流下自重整化保持稳定。NiMiera等人得到的参数为$k = 0.61(27)$，$m_0 = 0.13(30)$~GeV，$\Lambda_{\text{QCD}} = 0.286(85)$~GeV。
+
+\textbf{梯度流 vs HYP涂抹：}梯度流是\textbf{严格可重整化的连续操作}，而HYP涂抹是离散的、经验性的。在连续极限$a \to 0$下，固定物理flow时间$\tau \propto a^2$的操作保证关联函数具有有限的连续极限，且与未flow理论通过微扰匹配相联系。HYP涂抹则不具备这样的严格性。
+
+\subsection{蒸馏方法中的谱滤波}
+
+蒸馏方法\cite{Peardon2009}通过只保留Laplace算符的最低$N_{\text{ev}}$个本征模，实现了对夸克场的\textbf{UV模式硬截断}。这本质上是动量空间中的一个尖锐的UV截断：
+
+\begin{equation}
+\Box_{xy}(t) = \sum_{k=1}^{N_{\text{ev}}} v^{(k)}_x(t) v^{(k)\dagger}_y(t) = \Theta(\lambda_{N_{\text{ev}}} + \nabla^2(t))。
+\label{eq:distillation_UV_cut}
+\end{equation}
+
+Laplace本征值$\lambda_k$与动量平方$p^2_k$的关系为$\lambda_k \sim p^2_k a^2$（在自由场极限下）。因此蒸馏通过截断$\lambda_k < \lambda_{\text{max}}$等价于截断夸克动量$|p| < \sqrt{\lambda_{\text{max}}}/a$。
+
+Peardon等人\cite{Peardon2009}的实验数据清楚地表明：
+\begin{itemize}
+    \item 蒸馏算符的空间分布由\textbf{高斯波函数}很好地描述——表明其在格点截断处受到的影响很弱；
+    \item 增加$N_{\text{ev}}$等价于减小涂抹半径，在$N_{\text{ev}} = M$时蒸馏算符退化为恒等算符（无涂抹）；
+    \item $N_{\text{ev}}$必须与格点空间体积成正比以维持相同的物理截断。
+\end{itemize}
+
+\section{UV涨落控制的统一框架}
+
+\subsection{三级级联控制的逻辑链}
+
+综合前述分析，格点QCD中对UV涨落的系统控制形成了一个清晰的\textbf{三级级联}结构：
+
+\begin{center}
+\begin{tabular}{lp{3cm}p{3cm}p{3cm}}
+\toprule
+层级 & 目标 & 工具 & 关键参数 \\
+\midrule
+\textbf{Level 0}（格点）& 裸数据UV噪声抑制 & HYP/stout/流涂抹, 蒸馏 & $N_{\text{HYP}}$, $N_{\text{ev}}$, $\tau$ \\
+\textbf{Level 1}（重整化）& 线性+对数发散消除 & 混合重整化, 自重整化 & $k$, $m_0$, $d$, $\Lambda_{\text{QCD}}$ \\
+\textbf{Level 2}（匹配）& 重正子模糊性控制 & RGR + LRR (PV) & $m_0(\tau)$, 重求和方案 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{从格点数据到物理预言的全精度路径}
+
+将三级级联控制统一起来，一个完整的精度控制流程为\cite{Zhang2023RGR,Chen2025gluon,Huo2021self}：
+
+\begin{enumerate}
+    \item \textbf{Level 0：}在格点上计算涂抹后的裸矩阵元$\tilde{h}^B(z, P^z, 1/a)$。选择适当的规范场涂抹方案（HYP/stout/流）以初步抑制线性发散和统计噪声。
+
+    \item \textbf{Level 1a：}在多个格点间距上拟合$P^z=0$的零动量矩阵元，提取自重整化参数$k, \Lambda_{\text{QCD}}, m_0, d$。应用混合重整化方案得到重整化矩阵元$\tilde{h}^R(z, P^z, \mu)$。
+
+    \item \textbf{Level 1b：}大$\lambda$外推补全长程关联函数：$\tilde{h}^R(\lambda) = l_1 \lambda^{-a_1} e^{-\lambda/\lambda_0}$。
+
+    \item \textbf{Level 2a：}Fourier变换到动量空间，应用带有RGR+LRR重求和的匹配核将准PDF转换为$\overline{\text{MS}}$ PDF。匹配核的重正子发散通过PV方案正规化。
+
+    \item \textbf{Level 2b：}联合连续极限$(a^2 \to 0)$和无穷大动量$(1/P_z^2 \to 0)$外推，消除剩余的离散化误差和高阶twist污染。
+\end{enumerate}
+
+\textbf{从重正子分析看匹配精度的现状}\cite{Zhang2023RGR}：
+
+\begin{quote}
+``After an all-order resummation of the large logarithms in both the perturbative Wilson coefficient and renormalon series, the twist-three matrix element at $P^z = 0$ provides a direct constraint on $m_0(\tau)$. The large uncertainty from scale-variation of C is drastically reduced, which translates to an improved accuracy for matching the quasi-PDF to PDF. For the pion valence PDF at $P^z = 1.9$~GeV, this amounts to a factor of more than $3\sim5$ improvement in the expansion region $x = 0.2\sim0.5$.''
+\end{quote}
+
+\subsection{DR下消失的线性发散：一个重要的理论注记}
+
+对于胶子算符，一个值得特别注意的事实是\cite{Li2018multiplicative}：
+
+\begin{itemize}
+    \item 在\textbf{格点截断}（破坏规范对称性）下：胶子-规范链顶点的线性发散$\sim 1/a$是一个实际的威胁，必须通过涂抹和重整化来消除。
+    \item 在\textbf{维数正规化}（保持规范对称性）下：同样的线性发散在$d=3$处的极点\textbf{被广义Ward恒等式确保抵消}。
+\end{itemize}
+
+这一差异的根源在于：格点截断破坏了非Abel规范理论中的广义Ward恒等式——具体地，破坏了$\langle -i\partial_y^\lambda A_\lambda^d(y) [\Phi]^{ab} F^{\mu\nu}_b \rangle = \langle g_s \bar{c}^d(y) c^e [t^e\Phi]^{ab} F^{\mu\nu}_b \rangle$这一关系\cite{Li2018multiplicative}。在DR下这一关系精确保持，从而确保胶子-规范链顶点的UV有限性。
+
+\textbf{因此，格点上胶子算符的计算对规范不变的UV正规化方案（如梯度流）具有内在的偏好。}
+
+\section{总结与展望}
+
+格点QCD中的UV涨落不是一个单一的现象，而是一个从硬截断尺度$\sim 1/a$一直延伸到微扰-非微扰过渡区$\sim \Lambda_{\text{QCD}}$的\textbf{多层次级联系统}。本文的核心结论为：
+
+\begin{enumerate}
+    \item \textbf{线性发散是UV涨落最直接的表现，但不是最深刻的。} Wilson线自能的质量重正化$\delta m \sim 1/a$可以通过辅助$z$-场形式\cite{Chen2016improved}被系统地理解和乘性地消除。胶子算符中的线性发散由于$C_A/C_F$因子而比夸克情形更严重。
+
+    \item \textbf{对数发散由标准QCD重整化处理，但格点上大对数$\ln(P^z/\mu)$的重求和（RGR）对于有限动量下的精度至关重要。}仅NLO匹配在$P^z \sim 2$~GeV下是不充分的——标度不确定性可超过30\%\cite{Zhang2023RGR}。
+
+    \item \textbf{红外重正子是连接微扰和非微扰物理的最微妙纽带。}微扰级数的阶乘发散意味着twist-2和twist-3贡献在原理上无法完全分离——它们通过重正子模糊性$\mathcal{O}(\Lambda_{\text{QCD}}z)$相互交织\cite{Su2023LRR,Braun2019power}。只有通过指定重正子正规化方案（如主值PV）并引入非微扰的twist-3参数$m_0(\tau)$，才能在匹配中达到领先幂次精度。
+
+    \item \textbf{``RGR + LRR + 混合重整化''构成了当前格点PDF计算的精度金标准。}Zhang等人的系统分析\cite{Zhang2023RGR}证明，这一组合在$\pi$介子价夸克PDF的$P^z = 1.9$~GeV数据上实现了匹配精度3--5倍的提升。
+
+    \item \textbf{格点上的涂抹（HYP/stout/梯度流）和蒸馏提供了在连续极限外推之前的``第一道防线''。}梯度流因其可重整化的严格性，在胶子算符的重整化中具有独特的理论优势\cite{NieMiera2025}。
+\end{enumerate}
+
+未来的关键方向包括：在物理$\pi$介子质量和更细格点间距下验证RGR+LRR方案的稳健性；将LRR方案系统地推广到胶子算符的匹配核；开发在规范不变框架下统一处理线性发散和重正子的非微扰方案。
+
+\begin{thebibliography}{99}
+
+\bibitem{Chen2016improved}
+J.-W.~Chen, X.~Ji, and J.-H.~Zhang,
+``Improved quasi parton distribution through Wilson line renormalization,''
+Nucl.\ Phys.\ B \textbf{915}, 1 (2017), arXiv:1609.08102.
+\quad\textbf{[来源:} \texttt{refer/papers/Improved quasi parton distribution through Wilson line renormalization.pdf}\textbf{]}
+
+\bibitem{Huo2021self}
+Y.-K.~Huo \textit{et al.} (Lattice Parton Collaboration (LPC)),
+``Self-renormalization of quasi-light-front correlators on the lattice,''
+Nucl.\ Phys.\ B \textbf{969}, 115443 (2021), arXiv:2103.02965.
+\quad\textbf{[来源:} \texttt{refer/papers/Self-Renormalization of Quasi-Light-Front Correlators on the Lattice.pdf}\textbf{]}
+
+\bibitem{Zhang2023RGR}
+R.~Zhang, J.~Holligan, X.~Ji, and Y.~Su,
+``Leading power accuracy in lattice calculations of parton distributions,''
+Phys.\ Lett.\ B \textbf{844}, 138081 (2023), arXiv:2305.05212.
+\quad\textbf{[来源:} \texttt{refer/papers/Leading Power Accuracy in Lattice Calculations of Parton Distributions.pdf}\textbf{]}
+
+\bibitem{Su2023LRR}
+Y.~Su, J.~Holligan, X.~Ji, F.~Yao, J.-H.~Zhang, and R.~Zhang,
+``Power corrections and renormalons in parton quasi-distributions,''
+Nucl.\ Phys.\ B \textbf{991}, 116201 (2023), arXiv:2209.01236.
+\quad\textbf{[来源:} \texttt{refer/papers/Power corrections and renormalons in parton quasi-distributions.pdf}\textbf{]}
+
+\bibitem{Braun2019power}
+V.~M.~Braun, A.~Vladimirov, and J.-H.~Zhang,
+``Power corrections and renormalons in parton quasi-distributions,''
+Phys.\ Rev.\ D \textbf{99}, 014013 (2019), arXiv:1810.00048.
+\quad\textbf{[来源:} \texttt{refer/papers/Power corrections and renormalons in parton quasi-distributions.pdf}\textbf{]}
+
+\bibitem{Li2018multiplicative}
+Z.-Y.~Li, Y.-Q.~Ma, and J.-W.~Qiu,
+``Multiplicative renormalizability of quasi-parton operators,''
+Phys.\ Rev.\ Lett.\ \textbf{122}, 062002 (2019), arXiv:1809.01836.
+\quad\textbf{[来源:} \texttt{refer/papers/Multiplicative renormalizability of quasi-parton operators.pdf}\textbf{]}
+
+\bibitem{Zhang2019}
+J.-H.~Zhang, X.~Ji, A.~Sch\"afer, W.~Wang, and S.~Zhao,
+``Accessing gluon parton distributions in large momentum effective theory,''
+Phys.\ Rev.\ Lett.\ \textbf{122}, 142001 (2019), arXiv:1808.10824.
+\quad\textbf{[来源:} \texttt{refer/papers/Accessing gluon parton distributions in large momentum effective theory.pdf}\textbf{]}
+
+\bibitem{Ji2021hybrid}
+X.~Ji, Y.~Liu, A.~Sch\"afer, W.~Wang, Y.-B.~Yang, J.-H.~Zhang, and Y.~Zhao,
+``A hybrid renormalization scheme for quasi light-front correlations in large-momentum effective theory,''
+Nucl.\ Phys.\ B \textbf{964}, 115311 (2021), arXiv:2008.03886.
+\quad\textbf{[来源:} \texttt{refer/papers/A Hybrid Renormalization Scheme for Quasi Light-Front Correlations in Large-Momentum Effective Theory.pdf}\textbf{]}
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\quad\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{NieMiera2025}
+A.~NieMiera, W.~Good, H.-W.~Lin, and F.~Yao,
+``First self-renormalized gluon PDF of nucleon from large-momentum effective theory in the continuum limit,''
+(2025), arXiv:2510.17758.
+\quad\textbf{[来源:} \texttt{refer/papers/First Self-Renormalized Gluon PDF of Nucleon from Large-Momentum Effective Theory in the Continuum Limit.pdf}\textbf{]}
+
+\bibitem{Fan2018gluon}
+Z.-Y.~Fan, Y.-B.~Yang, A.~Anthony, H.-W.~Lin, and K.-F.~Liu,
+``Gluon quasi-PDF from lattice QCD,''
+Phys.\ Rev.\ Lett.\ \textbf{121}, 242001 (2018), arXiv:1808.02077.
+\quad\textbf{[来源:} \texttt{refer/papers/Gluon Quasi-PDF From Lattice QCD.pdf}\textbf{]}
+
+\bibitem{Peardon2009}
+M.~Peardon \textit{et al.} (Hadron Spectrum),
+``A novel quark-field creation operator construction for hadronic physics in lattice QCD,''
+Phys.\ Rev.\ D \textbf{80}, 054506 (2009), arXiv:0905.2160.
+\quad\textbf{[来源:} \texttt{refer/papers/A novel quark-field creation operator construction for hadronic physics in lattice QCD.pdf}\textbf{]}
+
+\bibitem{Chen2025first}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``First self-renormalized gluon PDF of nucleon from large-momentum effective theory in the continuum limit,''
+Phys.\ Rev.\ D \textbf{111}, 074506 (2025), arXiv:2408.12819.
+\quad\textbf{[来源:} \texttt{refer/papers/First Self-Renormalized Gluon PDF of Nucleon from Large-Momentum Effective Theory in the Continuum Limit.pdf}\textbf{]}
+
+\bibitem{Radyushkin2018one_loop}
+A.~Radyushkin,
+``One-loop evolution of parton pseudo-distribution functions on the lattice,''
+Phys.\ Rev.\ D \textbf{98}, 014019 (2018), arXiv:1801.02427.
+\quad\textbf{[来源:} \texttt{refer/papers/One-loop evolution of parton pseudo-distribution functions on the lattice.pdf}\textbf{]}
+
+\bibitem{Zhang2023RGR2}
+R.~Zhang, J.~Holligan, X.~Ji, and Y.~Su,
+``Resumming quark's longitudinal momentum logarithms in LaMET expansion of lattice PDFs,''
+Phys.\ Lett.\ B \textbf{844}, 138081 (2023), arXiv:2305.05212.
+\quad\textbf{[来源:} \texttt{refer/papers/Resumming Quark's Longitudinal Momentum Logarithms in LaMET Expansion of Lattice PDFs.pdf}\textbf{]}
+
+\bibitem{Izubuchi2018}
+T.~Izubuchi, X.~Ji, L.~Jin, I.~W.~Stewart, and Y.~Zhao,
+``Factorization theorem relating Euclidean and light-cone parton distributions,''
+Phys.\ Rev.\ D \textbf{98}, 056004 (2018), arXiv:1801.03917.
+\quad\textbf{[来源:} \texttt{refer/papers/Factorization Theorem Relating Euclidean and Light-Cone Parton Distributions.pdf}\textbf{]}
+
+\bibitem{CLQCD2025}
+H.-Y.~Du \textit{et al.} (CLQCD),
+``Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{111}, 054504 (2025), arXiv:2408.03548.
+\quad\textbf{[来源:} \texttt{refer/papers/Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,''
+内部笔记。
+\quad\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,573 @@
+\documentclass[12pt,a4paper]{ctexart}
+
+% === 页面设置 ===
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+
+% === 数学和物理 ===
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{slashed}
+
+% === 图形和表格 ===
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% === 引用 ===
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+% === 其他 ===
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{multirow}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+}
+
+% === 标题信息 ===
+\title{\heiti 连续极限下核子非极化胶子部分子分布函数的格点QCD计算}
+\author{Chen Chen}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+\small
+$^{1}$中国科学院近代物理研究所，兰州 730000，中国\\
+$^{2}$中国科学院大学核科学与技术学院，北京 100049，中国\\
+$^{3}$南京师范大学，南京，江苏 210023，中国\\
+$^{4}$中南大学物理与电子学院，长沙 418003，中国\\
+$^{5}$中国科学院大学物理科学学院，北京 100049，中国\\
+$^{6}$中国科学院理论物理研究所，中国科学院理论物理前沿重点实验室，北京 100190，中国\\
+$^{7}$中国科学院大学杭州高等研究院，基础物理与数学科学学院，杭州 310024，中国\\
+$^{8}$国际理论物理中心亚太中心，北京/杭州，中国\\
+$^{9}$布鲁克海文国家实验室物理系，厄普顿，纽约 11973，美国\\
+$^{10}$香港中文大学（深圳）理工学院，深圳 518172，中国
+\end{center}
+
+\vspace{5pt}
+
+\begin{abstract}
+\noindent
+我们报告了采用大动量有效理论（LaMET）对核子胶子部分子分布函数（PDF）进行的最新格点QCD计算。计算在CLQCD合作组的$2+1$味动力学组态上进行，使用了三个格点间距$a = \{0.105, 0.0897, 0.0775\}$~fm，$\pi$介子质量约为300~MeV，核子动量最高可达1.97~GeV。我们采用蒸馏（distillation）技术来改善两点关联函数的信号。随后应用了最新的混合重整化方案和单圈微扰匹配，并将结果外推至连续极限和无穷大动量极限。我们的结果在误差范围内与全局分析的结果一致。
+\end{abstract}
+
+\section{引言}
+
+部分子分布函数（PDFs）是描述强子内部结构的基本物理量，它们以组分夸克和胶子的形式编码了强子的内部信息。在这些分布函数中，胶子PDF $g(x)$ 对于我们理解量子色动力学（QCD）发挥着至关重要的作用，并对高能物理唯象学有着深远的影响。胶子PDF描述了在核子中发现携带核子动量份额$x$的胶子的概率密度，为强子-强子碰撞、深度非弹性散射过程以及强子对撞机上标准模型精确检验的理论预言提供了重要的输入量。
+
+尽管胶子PDF具有根本的重要性，但其确定在历史上一直面临着重大的理论和计算挑战。传统方法依赖于对深度非弹性散射和强子-强子碰撞实验数据的全局拟合\cite{MSHT20,CT18,NNPDF31,NNPDF40,JAM16,CT14}。然而，这些唯象学提取本身就依赖于模型，并且在大$x$区域面临严重的限制，因为该区域实验数据稀疏，胶子PDF变得越来越不确定。大$x$区域缺乏直接的实验约束，推动了第一性原理理论方法的发展。
+
+大动量有效理论（LaMET）\cite{Ji13,Ji14,Ji17}的出现彻底改变了这一领域，使得从格点QCD进行PDF的第一性原理计算成为可能。LaMET提供了一个系统性的框架，用于从准PDF中提取光锥PDF，其中准PDF可以直接在格点上计算，并通过微扰匹配关系与物理PDF进行匹配。LaMET的核心洞见在于：当强子携带大动量$P_z \gg \Lambda_{\text{QCD}}$时，准PDF趋近于光锥PDF，两者之间仅差可系统性控制的微扰匹配和幂次修正。
+
+近年来，格点PDF计算取得了显著进展，大量研究成功提取了核子和介子的夸克PDF\cite{LP3-2018,LP3-2020a,LP3-2021,LP3-2021b,LP3-2022a,LP3-2022b,LP3-2022c,LP3-2023,LP3-2023b,LP3-2024a,LP3-2024b,LP3-2024c,LP3-2025a,LP3-2025b,LP3-2025c,Lin-2025}。然而，格点计算胶子PDF面临着独特的挑战，使其进展相对于夸克PDF有所滞后。胶子算符在格点模拟中以其高噪声而闻名，需要使用复杂技术来提取清晰的信号。胶子算符的重整化由于与夸克算符的混合而带来了额外的复杂性。几项开创性研究在胶子PDF计算中取得了重要进展，其中大多数采用了赝PDF方法\cite{Fan2018,Fan2021,Khan2021,Fan2023,Good2023,Delmar2023,Fan2021a,Good2024,Salas2022}。最近出现了基于LaMET的胶子PDF计算\cite{Good2025a,Good2025b,NieMiera2025}，但这些研究要么在单一格点间距上进行，未经连续外推，要么在单一有限动量上进行，未经无穷大动量外推。
+
+在本文中，我们提出了在LaMET框架下对核子非极化胶子PDF的全面格点QCD计算，同时进行了连续极限外推和无穷大动量外推，这两者对于获得真实的光锥PDF至关重要。我们的计算在三个格点间距$a = \{0.0775, 0.0897, 0.105\}$~fm上进行，$\pi$介子质量约为300~MeV。我们使用多个核子动量（最高可达1.97~GeV）来外推至无穷大动量。我们采用蒸馏夸克涂抹方法\cite{Peardon2009}来改善胶子矩阵元的信噪比。我们应用了最新的混合重整化方案\cite{Ji2021}来非微扰地消除紫外发散，并采用单圈微扰匹配来获得光锥PDF。我们的结果代表了从第一性原理精确确定胶子PDF的重要一步，并提供了迄今为止最完整的核子胶子PDF格点QCD计算。
+
+\section{格点计算}
+
+在本工作中，我们使用CLQCD合作组生成的$2+1$味QCD组态\cite{CLQCD-2024,CLQCD-2025}，其规范作用量为tadpole改进树级Symanzik（TITLS）作用量，费米子作用量为tadpole改进树级Clover（TITLC）作用量。计算在具有三个格点间距的三个组态上进行，$\pi$介子质量相近，约为300~MeV。每个组态使用了超过700个组态。详细信息见表\ref{tab:ensembles}。
+
+\begin{table}[H]
+\centering
+\caption{模拟设置，包括格点间距$a$、格点体积$L^3 \times T$、$\pi$介子质量$m_\pi$和每个组态的组态数目$N_{\text{conf}}$。}
+\label{tab:ensembles}
+\begin{tabular}{cccccc}
+\toprule
+组态 & $a$ (fm) & $L^3 \times T$ & $m_\pi$ (MeV) & $m_\pi L$ & $N_{\text{conf}}$ \\
+\midrule
+C24P29 & 0.105  & $24^3 \times 72$ & 292.3(1.0) & 3.746(13) & 879 \\
+E32P29 & 0.0897 & $32^3 \times 64$ & 287.3(2.5) & 4.179(36) & 900 \\
+F32P30 & 0.0775 & $32^3 \times 96$ & 300.4(1.2) & 3.780(15) & 777 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+根据LaMET，为得到光锥PDF，首先需要计算裸矩阵元$\tilde{h}^B(z, P_z, 1/a) = \langle P_z|O(z)|P_z\rangle$，它可以从两点和三点关联函数中提取。胶子算符$O(z)$采用以下可乘性重整化的形式\cite{Zhang2019,Balitsky2020}：
+
+\begin{equation}
+O(z) = M_{tx;tx}(z) + M_{ty;ty}(z) - 2M_{xy;xy}(z),
+\label{eq:operator}
+\end{equation}
+
+其中在基础表示下
+
+\begin{equation}
+M_{\mu\lambda;\nu\rho}(z) = \sum_{\vec{x}} \operatorname{Tr}[F_{\mu\lambda}(\vec{x} + z\hat{z})U(\vec{x} + z\hat{z},\vec{x}) F_{\nu\rho}(\vec{x})U(\vec{x},\vec{x} + z\hat{z})]。
+\label{eq:Mmunu}
+\end{equation}
+
+$U(\vec{x} + z\hat{z},\vec{x})$是为了确保规范不变性而引入的Wilson线，$F_{\mu\nu} = (\partial_\mu A^a_\nu - \partial_\nu A^a_\mu - g f^{abc} A^b_\mu A^c_\nu)T^a$是规范场张量。
+
+我们采用核子插值算符$N = P^+(u^T C\gamma_5\gamma_t d)u$，其中$C$表示电荷共轭算符，$P^+ = \frac{1}{2}(1+\gamma_t)$是正宇称投影算符。如文献\cite{Zhang2025}所示，该算符在大动量下与基态有运动学增强的重叠。
+
+夸克传播子使用蒸馏夸克涂抹方法\cite{Peardon2009}在所有时间片上计算。对于三个组态，涂抹算符中的本征矢数目$N_{\text{ev}}$均为100。对胶子算符施加了十步超立方（HYP）涂抹，以抑制线性紫外发散。
+
+裸矩阵元通过拟合三点关联函数与两点关联函数的比值得到，拟合的详细信息见补充材料\cite{supplemental}。
+
+\section{重整化}
+
+裸矩阵元同时包含线性和对数发散，必须通过重整化程序来消除。虽然已有几种非微扰重整化方法被开发用于这一目的\cite{Chen2017,Izubuchi2018,Alexandrou2017,Radyushkin2018,Braun2019,Li2019}，但它们的重整化因子可能包含不希望有的非微扰效应。为避免这一问题，我们采用混合方案\cite{Ji2021}。在该方法中，短距离的发散通过除以零动量裸矩阵元来消除。在长距离处，我们采用自重整化程序。重整化矩阵元定义为：
+
+\begin{equation}
+\tilde{h}^R(z, P_z) = \frac{\tilde{h}^n_B(z, P_z, 1/a)}{\tilde{h}^n_B(z, P_z=0, 1/a)} \theta(z_s - |z|) + \eta_s \frac{\tilde{h}^n_B(z, P_z, 1/a)}{Z_R(z, 1/a)} \theta(|z| - z_s),
+\label{eq:hybrid}
+\end{equation}
+
+其中$\tilde{h}^n_B(z, P_z, 1/a)$是归一化的裸矩阵元，$z_s$的引入用于区分短距离和长距离，$\eta_s$是方案转换因子，确保重整化准光前关联函数在$z = z_s$处的连续性。自重整化因子$Z_R(z, 1/a)$采用以下参数化形式，包含线性发散、对数紫外发散：
+
+\begin{equation}
+\begin{aligned}
+Z_R(z, 1/a, \mu; k, \Lambda_{\text{QCD}}, m_0, d) = \exp\Bigg\{&\frac{kz}{a}\ln[a\Lambda_{\text{QCD}}] + m_0 z \\
+&+ \frac{5C_A}{3b_0} \ln\left[\frac{\ln(1/a\Lambda_{\text{QCD}})}{\ln(\mu/\Lambda_{\text{QCD}})}\right] \\
+&+ \frac{1}{2}\ln\left[\left(1 + \frac{d}{\ln[a\Lambda_{\text{QCD}}]}\right)^2\right]\Bigg\},
+\end{aligned}
+\label{eq:ZR}
+\end{equation}
+
+其中第一项是线性发散，$m_0 z$表示重整化模糊性带来的有限质量贡献，最后两项来自领头阶和次领头阶对数发散的重求和。根据文献\cite{LP3-2021}，参数$k$与具体的离散化作用量有关，而$d$和$m_0$通过短距离处与连续方案的匹配来确定。在$\overline{\text{MS}}$方案中，次领头阶（NLO）的短距离结果取以下形式：
+
+\begin{equation}
+\tilde{h}^{\text{pert}}_{\overline{\text{MS}}}(z, \mu) = 1 + \frac{\alpha_s(\mu)C_A}{4\pi}\left[\frac{5}{3}\ln\frac{z^2\mu^2}{4e^{-2\gamma_E}} + 3\right],
+\label{eq:MSbar}
+\end{equation}
+
+其中$\gamma_E$是Euler-Mascheroni常数。我们设重整化标度$\mu = 2$~GeV，相应的跑动耦合常数$\alpha_s(\mu) = 0.296$。
+
+表\ref{tab:ZRparams}列出了$Z_R$参数的拟合结果。需要指出的是，虽然某些参数的不确定度看起来很大，但它们之间存在很强的关联并互相补偿，导致计算的自重整化因子$Z_R$的不确定度减小。
+
+\begin{table}[H]
+\centering
+\caption{通过将零动量矩阵元拟合到公式(\ref{eq:ZRfit})确定的自重整化因子参数。同时给出了拟合的$\chi^2$/d.o.f.。}
+\label{tab:ZRparams}
+\begin{tabular}{cc}
+\toprule
+参数 & 值 \\
+\midrule
+$k$ & 1.92(1.18) \\
+$\Lambda_{\text{QCD}}$ (GeV) & 0.59(0.15) \\
+$m_0$ (GeV) & 2.78(1.51) \\
+$d$ & $-0.079(0.403)$ \\
+$\chi^2$/d.o.f. & 0.09 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+$Z_R$中的参数通过拟合零动量的裸矩阵元来确定：
+
+\begin{equation}
+\begin{aligned}
+\ln\tilde{h}^n_B(z, P_z=0, 1/a) = &\ln[Z_R(z, 1/a, \mu; k, \Lambda_{\text{QCD}}, m_0, d)] \\
+&+ \begin{cases}
+\ln\left[\tilde{h}^{\text{pert}}_{\overline{\text{MS}}}(z, \mu)\right] & \text{若 } z_0 \leq z \leq z_1 \\[5pt]
+g(z) - m_0 z & \text{若 } z_1 < z
+\end{cases},
+\end{aligned}
+\label{eq:ZRfit}
+\end{equation}
+
+其中$k$, $\Lambda_{\text{QCD}}$, $m_0$, $d$和$g(z)$作为自由参数处理。我们选择$z_0 = 0.15$~fm，$z_1 = 0.3$~fm，$z$的最大值为1~fm。注意此处的$k$值与夸克准PDF的$k$值相差一个领头阶因子$C_A/C_F$，因此可以显著更大。
+
+图\ref{fig:renorm}（见原文）展示了重整化矩阵元与微扰单圈$\overline{\text{MS}}$结果的比较。如图所示，重整化矩阵元在短距离处与连续单圈结果吻合良好，而在大距离处由于非微扰红外效应可能出现显著偏离。
+
+图\ref{fig:renorm_matrix}（见原文）显示了每个组态的重整化矩阵元，不同颜色代表不同的核子动量。所有三个组态显示出一致的趋势：矩阵元在更高动量下衰减更慢。对于组态C24P29和E32P29，在$P_z > 1.5$~GeV时结果明显收敛。对于组态F32P30，超过1.5~GeV后的信号质量过差，因此此处未予显示。我们未来的研究将通过采用动量涂抹技术来改善信号，以解决这一局限。
+
+重整化矩阵元的不确定度随着$\lambda = zP_z$的增加而变差。然而，向动量空间的傅里叶变换需要所有距离上的准关联函数。为解决这一问题，我们遵循文献\cite{Ji2021}，在大$\lambda$区域采用以下形式的外推：
+
+\begin{equation}
+\tilde{h}^R(\lambda) = l_1 \lambda^{-a_1} e^{-\lambda/\lambda_0},
+\label{eq:lambda_extrap}
+\end{equation}
+
+其中$\lambda^{-a_1}$与非极化PDF在端点区域的幂律行为相关，指数因子反映了关联函数在有限动量下关联长度$\lambda_0$有限这一预期\cite{Ji2021}。大$\lambda$外推的示例可见补充材料\cite{supplemental}。
+
+\section{光锥PDF}
+
+在完成$\lambda$外推后，我们可以进行傅里叶变换，得到动量空间中依赖于$x$的准PDF，然后通过微扰匹配提取光锥PDF。详细的匹配公式见补充材料\cite{supplemental}。
+
+经过微扰匹配得到的光锥PDF仍然包含$P_z$依赖性和格点间距依赖性，必须通过外推至无穷大动量极限和连续极限来消除：
+
+\begin{equation}
+xg(x, P_z, a) = xg_0(x) + a^2 f(x) + a^2 P_z^2 h(x) + \frac{d(x)}{P_z^2},
+\label{eq:extrap}
+\end{equation}
+
+其中$xg(x, P_z, a)$表示在不同组态和不同动量下得到的PDF，$xg_0(x)$表示外推至连续极限和无穷大动量极限的光锥PDF。$a^2 f(x)$项代表离散化误差，$a^2 P_z^2 h(x)$项表示依赖于动量的离散化误差，$d(x)/P_z^2$项则对应领头高阶twist贡献。可能的高阶修正（如$d(x)$的格点间距依赖性）在统计上不显著，因此为保证稳定的拟合而被省略。此外，我们在本工作中未包含$\pi$介子质量依赖性，因为基于先前的研究\cite{Fan2023}，其效应预计较弱。我们计划在未来的工作中纳入更细的格点间距、多个$\pi$介子质量以及更高的动量，以改进这一外推。
+
+图\ref{fig:lightcone}（见原文）展示了通过微扰匹配得到的三个组态的光锥PDF $xg(x)/\langle x \rangle$的结果，其中$\langle x \rangle = \int_0^1 dx\, xg(x)$代表胶子动量份额。彩色带显示了在不同格点间距和不同动量下得到的结果。灰色带（在三幅图中重复出现）展示了外推至无穷大动量极限和连续极限后的结果。可以看到，对于所有三个组态，中大$x$区域的PDF随着动量的增加而被压低。外推后，PDF的值与零一致，中心值略为负值。
+
+本工作包含了来自大$\lambda$外推、微扰匹配、联合连续极限和无穷大动量外推以及$z_s$选择的系统不确定度。第一种不确定度来自大$\lambda$外推，该误差通过选择不同的拟合范围进行外推来估计。第二种来自微扰匹配的高阶修正，通过将标度从2变动到4~GeV来估计。第三种来自连续极限和无穷大动量极限的外推，通过取外推结果与$a = 0.0775$~fm、$P_z = 1.5$~GeV结果之间的差异来估计。最后一种不确定度来自混合重整化方案中$z_s$的选择。我们选择$z_s = 0.3$~fm，将其下调至$z_s = 0.2$~fm，并将差异作为系统不确定度。系统不确定度的详细分析见补充材料\cite{supplemental}。
+
+\section{结果与讨论}
+
+我们在连续极限和无穷大动量极限下的非极化PDF最终结果如图\ref{fig:final}（见原文）所示。深蓝色带表示我们结果的统计不确定度，浅蓝色带代表统计和系统不确定度的综合效应。灰色带标记了$x < 0.2$和$x > 0.8$的区域，在这些区域LaMET结果被认为不可靠。我们将结果与CT18 NNLO\cite{CT18}、NNPDF NNLO\cite{NNPDF31}和JAM24全局拟合\cite{JAM24}进行了比较，在当前的不确定度范围内彼此一致。我们观察到，大$x$区域的理论和实验结果都非常接近零，表明胶子PDF在大$x$处受到压制。由于同时进行连续极限和无穷大动量极限外推，我们最终的预言带有显著增大的不确定度。这一过程同时涉及$1/P_z^2$和$a^2 P_z^2$项，表明必须以保守的方式处理非平凡的系统效应。
+
+\begin{figure}[H]
+\centering
+\fbox{\parbox{0.8\textwidth}{\centering
+\vspace{3cm}
+（原文图4：连续极限和无穷大动量极限下非极化胶子PDF的LPC预言 $xg(x)/\langle x \rangle$ 与全局拟合结果的比较。深蓝色带表示统计不确定度，浅蓝色带表示统计和系统不确定度的综合效应。灰色带表示LaMET结果被认为不可靠的区域。）
+\vspace{1cm}}}
+\caption{LPC预言与全局拟合结果的比较（示意图，完整图见原始论文）}
+\label{fig:final}
+\end{figure}
+
+\section{总结}
+
+我们利用LaMET方法对核子胶子PDF进行了格点QCD计算。我们的计算在三个格点间距（从0.105~fm到0.077~fm）的组态上进行，$\pi$介子质量约为300~MeV。通过高统计量，我们使用了多个源-汇间隔来控制激发态污染，并应用了最先进的重整化、匹配和外推程序。蒸馏方法被用于提高统计精度。我们还研究了动量和格点间距依赖性，并将结果外推至无穷大动量和连续极限。我们的最终结果在当前不确定度范围内与全局拟合以及MSULat组的另一项格点计算一致。
+
+未来的改进可以从几个方向展开。大动量下的信号质量可以通过动量涂抹来提高，而在更细格点间距和更大动量下的计算将为外推至无穷大动量和连续极限提供更好的控制。此外，$\pi$介子质量依赖性的研究将使手征外推成为可能。最后，重整化和匹配程序可以通过实施重整化群重求和\cite{Zhang2023}和领头重正子重求和\cite{Su2023}来进一步优化。发展这些方法可以扩展LaMET的有效范围并减少我们最终结果的标度依赖性。
+
+\vspace{5pt}
+\noindent\textbf{补充说明：}在本文定稿期间，文献\cite{NieMiera2025}发表，该工作使用基于梯度流的另一种格点设置同样计算了核子的非极化胶子PDF。与他们的计算相比，我们进行了无穷大动量极限的外推，使得与从全局拟合中提取的非极化胶子PDF可以进行更直接的比较。尽管如此，两者结果在误差范围内是一致的。
+
+\section*{致谢}
+
+我们感谢CLQCD合作组为我们提供了包含动力学费米子的规范组态\cite{CLQCD-2024,CLQCD-2025}，这些组态在中国科学院理论物理研究所、中国科学院高能物理研究所和中国散裂中子源科学中心的高性能计算集群、南方核科学计算中心（SNSC）、上海交通大学高性能计算中心支持的思源一号集群以及东江源智能计算中心上生成。我们感谢苏玉珊的有益讨论和评论。本文中的数值计算在东江源智能计算中心、中国科学院理论物理研究所高性能计算集群和南方核科学计算中心（SNSC）上完成。
+
+本工作部分得到国家自然科学基金（NSFC）资助，批准号：12293060、12375080、12293061、12293062、12175279、12525504、12293065、12047503、12435002、12375080、11975051和12447101；中国科学院战略性先导科技专项，批准号：XDB34030301、XDB34030303和YSBR-101；广东省基础与应用基础研究重大项目，批准号：2020B0301030008；中国科学院大学科教融合青年教师项目；科技部资助项目，批准号：2024YFA1611004；香港中文大学（深圳）资助项目，批准号：UDF01002851；NSFC-DFG联合资助项目，批准号：12061131006和SCHA 458/22；以及GHfund A，批准号：202107011598。
+
+\vspace{10pt}
+\begin{flushleft}
+*通讯作者: \url{liuming@impcas.ac.cn}\\
+\dag 通讯作者: \url{pengsun@impcas.ac.cn}\\
+\ddag 通讯作者: \url{ybyang@itp.ac.cn}\\
+\S 通讯作者: \url{zhangjianhui@cuhk.edu.cn}
+\end{flushleft}
+
+% ====================
+% 补充材料
+% ====================
+
+\newpage
+\section*{补充材料}
+
+\subsection*{理论框架}
+
+在伴随表示下，胶子的光锥PDF定义为：
+
+\begin{equation}
+xg(x, \mu) = \int \frac{dz^-}{2\pi P^+} e^{-ixP^+z^-} \times \langle P|F^a_{+\mu}(z^-)U^{ab}(z^-,0)F^{b\mu}_{\phantom{b\mu}+}(0)(\mu)|P\rangle,
+\label{eq:lightcone_pdf}
+\end{equation}
+
+其中$z^\pm = \frac{1}{2}(z^0 \pm z^3)$是沿光锥方向的时空坐标。沿光锥方向的Wilson线
+
+\begin{equation}
+U(z^-,0) = \mathcal{P} \exp\left[ ig \int_0^{z^-} d\eta^- A_+(\eta^-) \right]
+\label{eq:wilson_adj}
+\end{equation}
+
+的引入是为确保非定域双线性算符的规范不变性，其中$A^{bc}_\mu = if^{abc}A^a_\mu$代表伴随表示下的规范场。
+
+根据LaMET，光锥PDF $y g(y, \mu)$可以通过匹配公式从准PDF $\tilde{x}\tilde{g}(x, P_z)$中提取：
+
+\begin{equation}
+\tilde{x}\tilde{g}(x, P_z) = \int_{-\infty}^{\infty} \frac{dy}{|y|} C^{\text{hybrid}}\left(\frac{x}{y}, \lambda_s, \frac{\mu}{yP_z}\right) y g(y, \mu) + \mathcal{O}\left(\frac{\Lambda^2_{\text{QCD}}}{(xP_z)^2}, \frac{\Lambda^2_{\text{QCD}}}{((1-x)P_z)^2}\right),
+\label{eq:matching}
+\end{equation}
+
+其中$C^{\text{hybrid}}\left(\frac{x}{y}, \lambda_s, \frac{\mu}{yP_z}\right)$代表动量空间中的微扰匹配核。文献\cite{Balitsky2020,Balitsky2022}给出了ratio方案下至次领头阶（NLO）的坐标空间微扰匹配核。我们随后通过直接傅里叶变换得到动量空间的对应核，并实施了文献\cite{Yao2023}中详述的方法。混合方案和ratio方案下至NLO的微扰核为：
+
+\begin{equation}
+\begin{aligned}
+C^{\text{ratio}}\left(\xi, \frac{\mu}{yP_z}\right) = \delta(1-\xi) + \frac{\alpha_s(\mu)C_A}{2\pi}
+\begin{cases}
+\left[\frac{2(1-\xi+\xi^2)^2}{1-\xi}\ln\frac{\xi}{\xi-1} + \frac{11-28\xi+18\xi^2-12\xi^3}{6(1-\xi)}\right]_+ & \xi > 1 \\[10pt]
+\left[\frac{2(1-\xi+\xi^2)^2}{1-\xi}\left(-\ln\frac{\mu^2}{4y^2P_z^2} + \ln(\xi(1-\xi))\right) \right. \\
+\left. -\frac{15-56\xi+102\xi^2-96\xi^3+48\xi^4}{6(1-\xi)}\right]_+ & 0 < \xi < 1 \\[10pt]
+\left[-\frac{2(1-\xi+\xi^2)^2}{1-\xi}\ln\frac{\xi}{\xi-1} - \frac{11-28\xi+18\xi^2-12\xi^3}{6(1-\xi)}\right]_+ & \xi < 0,
+\end{cases}
+\end{aligned}
+\label{eq:Cratio}
+\end{equation}
+
+\begin{equation}
+C^{\text{hybrid}}\left(\xi, \lambda_s, \frac{\mu}{yP_z}\right) = C^{\text{ratio}}\left(\xi, \frac{\mu}{yP_z}\right) + \frac{\alpha_s(\mu)C_A}{2\pi} \frac{5}{6}\left[-\frac{1}{|1-\xi|} + \frac{2\,\text{Si}((1-\xi)|y|\lambda_s)}{\pi(1-\xi)}\right]_+,
+\label{eq:Chybrid}
+\end{equation}
+
+其中$\xi = x/y$。
+
+可以直接在格点上计算的准PDF定义为：
+
+\begin{equation}
+\tilde{x}\tilde{g}(x, P_z) = \frac{1}{\mathcal{N}} \int \frac{dz}{2\pi P_z} e^{-ixzP_z} \tilde{h}^R(z, P_z),
+\label{eq:quasi_pdf}
+\end{equation}
+
+其中$\tilde{h}^R(z, P_z) = \langle P|O(z)|P\rangle_R$是重整化矩阵元，$O(z)$代表胶子算符的线性组合$M_{\mu\lambda,\nu\rho}(z)$（如公式(\ref{eq:operator})所示），$\mathcal{N} = (P_z)^2/(P_t)^2$是归一化因子。在伴随表示下，$M_{\mu\lambda,\nu\rho}(z)$的表达式为：
+
+\begin{equation}
+M_{\mu\lambda,\nu\rho}(z) = F^a_{\mu\lambda}(z)U^{ab}(z,0)F^b_{\nu\rho}(0)。
+\label{eq:Madjoint}
+\end{equation}
+
+在格点上，计算在基础表示下进行，此时$M_{\mu\lambda,\nu\rho}(z)$的表达式变为公式(\ref{eq:Mmunu})。
+
+\subsection*{裸矩阵元}
+
+\subsubsection*{两点和三点关联函数}
+
+裸矩阵元$\tilde{h}^B(z, P_z)$可以通过计算两点和三点关联函数得到。核子的两点关联函数定义为：
+
+\begin{equation}
+C_{\text{2pt}}(P_z; t_{\text{sep}}) = \sum_{t_0} \langle 0|N(P_z; t_0 + t_{\text{sep}})N^\dagger(P_z; t_0)|0\rangle
+\label{eq:2pt}
+\end{equation}
+
+其中
+
+\begin{equation}
+N(\vec{P}; t) = \sum_{\vec{x}} e^{-i\vec{x}\cdot\vec{P}} P^+(u^T C\gamma_5\gamma_t d)u(\vec{x}; t)
+\label{eq:nucleon_op}
+\end{equation}
+
+代表核子算符\cite{Zhang2025}。三点关联函数定义为：
+
+\begin{equation}
+C_{\text{3pt}}(P_z; z; t_{\text{sep}}, t) = \sum_{t_0} \langle 0|N(P_z; t_0 + t_{\text{sep}})O(z; t_0 + t)N^\dagger(P_z; t_0)|0\rangle。
+\label{eq:3pt}
+\end{equation}
+
+在格点上，三点关联函数可以通过计算如图5（见原文）所示的非连通插入来得到。它可以表示为：
+
+\begin{equation}
+C_{\text{3pt}}(P_z; z; t_{\text{sep}}, t) = \sum_{t_0} \bigl(O(z; t_0 + t) - \langle O(z; t_0 + t) \rangle\bigr) \times \bigl(C_{\text{2pt}}(P_z; t_0 + t_{\text{sep}}, t_0) - \langle C_{\text{2pt}}(P_z; t_0 + t_{\text{sep}}, t_0) \rangle\bigr)。
+\label{eq:3pt_disconnected}
+\end{equation}
+
+\subsubsection*{裸矩阵元的拟合}
+
+考虑到基态和第一激发态的主导贡献，两点关联函数$C_{\text{2pt}}(P_z; t_{\text{sep}})$和三点关联函数$C_{\text{3pt}}(P_z; z; t, t_{\text{sep}})$可以分解为：
+
+\begin{equation}
+\begin{aligned}
+C_{\text{2pt}}(P_z; t_{\text{sep}}) &= |A_0|^2 e^{-E_0 t_{\text{sep}}} + |A_1|^2 e^{-E_1 t_{\text{sep}}}, \\
+C_{\text{3pt}}(P_z; z; t, t_{\text{sep}}) &= |A_0|^2 \langle 0|O(z; t)|0\rangle e^{-E_0 t_{\text{sep}}} + |A_1|^2 \langle 1|O(z; t)|1\rangle e^{-E_1 t_{\text{sep}}} \\
+&\quad + A_1 A^*_0 \langle 1|O(z; t)|0\rangle e^{-E_1(t_{\text{sep}}-t)} e^{-E_0 t} \\
+&\quad + A_0 A^*_1 \langle 0|O(z; t)|1\rangle e^{-E_0(t_{\text{sep}}-t)} e^{-E_1 t},
+\end{aligned}
+\label{eq:decomposition}
+\end{equation}
+
+其中$\langle 0|O(z; t)|0\rangle$是所需的基态准矩阵元，$|n\rangle$代表第$n$个激发态，$A_{0,1}$是依赖于涂抹参数的振幅，$E_{0,1}$分别是基态和激发态的能量。
+
+三点与两点关联函数的比值因此可以分解为以下拟合形式：
+
+\begin{equation}
+R_{\text{3pt}}(P_z; t_{\text{sep}}, t) = \frac{C_{\text{3pt}}(P_z; t_{\text{sep}}, t)}{C_{\text{2pt}}(P_z; t_{\text{sep}})} \approx c_0 + c_1 e^{-\Delta E (t_{\text{sep}}-t)} + c_1 e^{-\Delta E t} + c_2 e^{-\Delta E t_{\text{sep}}},
+\label{eq:ratio_fit}
+\end{equation}
+
+其中$c_0$对应于裸准矩阵元，$\Delta E = E_1 - E_0$表示基态与第一激发态之间的能隙。$c_1 e^{-\Delta E (t_{\text{sep}}-t)} + c_1 e^{-\Delta E t}$项通常被称为跃迁项，在大$t_{\text{sep}}$时主导了散射项$c_2 e^{-\Delta E t_{\text{sep}}}$。这样我们可以进一步忽略散射项，将最终拟合形式简化为：
+
+\begin{equation}
+R_{\text{3pt}}(P_z; t_{\text{sep}}, t) \approx c_0 + c_1 e^{-\Delta E (t_{\text{sep}}-t)} + c_1 e^{-\Delta E t}。
+\label{eq:ratio_fit_simple}
+\end{equation}
+
+比值在计算3000个bootstrap重采样后的三点和两点关联函数后取平均。我们进行包含$z = n_z a$和$z = 0$数据的联合拟合，以更好地约束$\Delta E$。对于每个$t_{\text{sep}}$，我们排除源和汇附近的$n_{\text{ex}}$个点，以减少来自更高激发态的污染。
+
+表\ref{tab:fitting_ranges}列出了不同动量的最优拟合范围。
+
+\begin{table}[H]
+\centering
+\caption{核子动量$P_z$、用于拟合的$t_{\text{sep}}$以及每个$t_{\text{sep}}$两侧排除的点数$n_{\text{ex}}$的信息。}
+\label{tab:fitting_ranges}
+\begin{tabular}{cccc}
+\toprule
+组态 & $P_z$ (GeV) & $t_{\text{sep}}/a$ & $n_{\text{ex}}$ \\
+\midrule
+C24P29 & 0     & [7, 18] & 3 \\
+        & 0.98  & [7, 14] & 3 \\
+        & 1.48  & [7, 11] & 3 \\
+        & 1.97  & [6, 10] & 2 \\
+\midrule
+E32P29 & 0     & [8, 16] & 3 \\
+        & 0.86  & [8, 16] & 3 \\
+        & 1.3   & [8, 14] & 3 \\
+        & 1.73  & [8, 12] & 3 \\
+\midrule
+F32P30 & 0     & [9, 16] & 3 \\
+        & 1.00  & [9, 16] & 3 \\
+        & 1.50  & [9, 14] & 3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{大$\lambda$外推}
+
+向动量空间作傅里叶变换需要整个坐标空间上的重整化矩阵元。直接截断会将振荡引入动量空间的结果。这一问题可以通过使用公式(\ref{eq:lambda_extrap})进行外推来解决，以补全大$\lambda$区域的结果。表\ref{tab:lambda_fit}列出了$\lambda$外推的默认拟合范围和新拟合范围。
+
+\begin{table}[H]
+\centering
+\caption{$\lambda$外推的默认拟合范围和新拟合范围。$\lambda$外推带来的系统不确定度通过取默认外推范围与新外推范围得到的结果之差来估计。}
+\label{tab:lambda_fit}
+\begin{tabular}{cccc}
+\toprule
+组态 & $P_z$ (GeV) & 默认范围 ($aP_z$) & 新范围 ($aP_z$) \\
+\midrule
+C24P29 & 0.98 & [10, 14] & [8, 14] \\
+        & 1.48 & [7, 11]  & [5, 11] \\
+        & 1.97 & [6, 10]  & [4, 10] \\
+\midrule
+E32P29 & 0.86 & [12, 16] & [10, 16] \\
+        & 1.3  & [9, 13]  & [7, 13] \\
+        & 1.73 & [7, 11]  & [5, 11] \\
+\midrule
+F32P30 & 1.00 & [10, 15] & [8, 15] \\
+        & 1.50 & [8, 15]  & [7, 15] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{系统不确定度和统计不确定度的估计}
+
+我们最终结果的系统不确定度来自四个主要来源：
+
+\begin{enumerate}[label=(\arabic*)]
+    \item \textbf{$\lambda$外推：}我们取表\ref{tab:lambda_fit}中所示两个拟合范围得到的结果之差作为$\lambda$外推带来的系统不确定度。
+    \item \textbf{重整化标度依赖性：}在我们默认的情况下，重整化标度$\mu$取为2~GeV，$\alpha_s(\mu) = 0.296$。为探究重整化标度带来的系统性，我们将$\mu$变化至4~GeV，$\alpha_s(\mu)$变化至0.23。我们将它们中心值之差纳入系统不确定度。
+    \item \textbf{无穷大动量和连续极限外推：}为解释公式(\ref{eq:extrap})中联合外推的系统不确定度，我们取联合外推结果与最小格点间距$a = 0.0775$~fm、动量$P_z = 1.5$~GeV处的结果之差作为估计。
+    \item \textbf{混合方案$z_s$的选择：}$z_s$选择带来的系统偏差通过取默认情况$z_s = 0.3$~fm与$z_s = 0.2$~fm的结果之差得到。
+\end{enumerate}
+
+这些不确定度以平方和方式相加并开方，得到总不确定度。
+
+% ====================
+% 参考文献
+% ====================
+
+\begin{thebibliography}{99}
+
+\bibitem{MSHT20} S.~Bailey, T.~Cridge, L.~A.~Harland-Lang, A.~D.~Martin, and R.~S.~Thorne, Eur.\ Phys.\ J.\ C \textbf{81}, 341 (2021), arXiv:2012.04684.
+
+\bibitem{CT18} T.-J.~Hou \textit{et al.}, Phys.\ Rev.\ D \textbf{103}, 014013 (2021), arXiv:1912.10053.
+
+\bibitem{NNPDF31} R.~D.~Ball \textit{et al.} (NNPDF), Eur.\ Phys.\ J.\ C \textbf{77}, 663 (2017), arXiv:1706.00428.
+
+\bibitem{NNPDF40} R.~D.~Ball \textit{et al.} (NNPDF), Eur.\ Phys.\ J.\ C \textbf{82}, 428 (2022), arXiv:2109.02653.
+
+\bibitem{JAM16} A.~Accardi, L.~T.~Brady, W.~Melnitchouk, J.~F.~Owens, and N.~Sato, Phys.\ Rev.\ D \textbf{93}, 114017 (2016), arXiv:1602.03154.
+
+\bibitem{CT14} S.~Dulat, T.-J.~Hou, J.~Gao, M.~Guzzi, J.~Huston, P.~Nadolsky, J.~Pumplin, C.~Schmidt, D.~Stump, and C.~P.~Yuan, Phys.\ Rev.\ D \textbf{93}, 033006 (2016), arXiv:1506.07443.
+
+\bibitem{Ji13} X.~Ji, Phys.\ Rev.\ Lett.\ \textbf{110}, 262002 (2013), arXiv:1305.1539.
+
+\bibitem{Ji14} X.~Ji, Sci.\ China Phys.\ Mech.\ Astron.\ \textbf{57}, 1407 (2014), arXiv:1404.6680.
+
+\bibitem{Ji17} X.~Ji, J.-H.~Zhang, and Y.~Zhao, Nucl.\ Phys.\ B \textbf{924}, 366 (2017), arXiv:1706.07416.
+
+\bibitem{LP3-2018} H.-W.~Lin \textit{et al.}, Phys.\ Rev.\ Lett.\ \textbf{121}, 242003 (2018), arXiv:1807.07431.
+
+\bibitem{LP3-2020a} Y.-S.~Liu \textit{et al.} (Lattice Parton), Phys.\ Rev.\ D \textbf{101}, 034020 (2020), arXiv:1807.06566.
+
+\bibitem{LP3-2020b} Q.-A.~Zhang \textit{et al.} (Lattice Parton), Phys.\ Rev.\ Lett.\ \textbf{125}, 192001 (2020), arXiv:2005.14572.
+
+\bibitem{LP3-2021} Y.-K.~Huo \textit{et al.} (Lattice Parton (LPC)), Nucl.\ Phys.\ B \textbf{969}, 115443 (2021), arXiv:2103.02965.
+
+\bibitem{LP3-2021b} J.~Hua \textit{et al.} (Lattice Parton), Phys.\ Rev.\ Lett.\ \textbf{127}, 062002 (2021), arXiv:2011.09788.
+
+\bibitem{LP3-2022a} M.-H.~Chu \textit{et al.} (Lattice Parton (LPC)), Phys.\ Rev.\ D \textbf{106}, 034509 (2022), arXiv:2204.00200.
+
+\bibitem{LP3-2022b} K.~Zhang \textit{et al.} (Lattice Parton (LPC)), Phys.\ Rev.\ Lett.\ \textbf{129}, 082002 (2022), arXiv:2205.13402.
+
+\bibitem{LP3-2022c} J.~Hua \textit{et al.} (Lattice Parton), Phys.\ Rev.\ Lett.\ \textbf{129}, 132001 (2022), arXiv:2201.09173.
+
+\bibitem{LP3-2023} M.-H.~Chu \textit{et al.} (Lattice Parton (LPC)), JHEP \textbf{08}, 172 (2023), arXiv:2306.06488.
+
+\bibitem{LP3-2023b} F.~Yao \textit{et al.} (Lattice Parton), Phys.\ Rev.\ Lett.\ \textbf{131}, 261901 (2023), arXiv:2208.08008.
+
+\bibitem{LP3-2024a} J.-C.~He \textit{et al.} (Lattice Parton Collaboration (LPC)), Phys.\ Rev.\ D \textbf{109}, 114513 (2024), arXiv:2211.02340.
+
+\bibitem{LP3-2024b} M.-H.~Chu \textit{et al.} (Lattice Parton), Phys.\ Rev.\ D \textbf{109}, L091503 (2024), arXiv:2302.09961.
+
+\bibitem{LP3-2024c} K.~Zhang \textit{et al.} (Lattice Parton), Phys.\ Rev.\ D \textbf{110}, 074505 (2024), arXiv:2405.14097.
+
+\bibitem{LP3-2025a} C.~Chen \textit{et al.} (CLQCD, Lattice Parton), Phys.\ Rev.\ D \textbf{111}, 074506 (2025), arXiv:2408.12819.
+
+\bibitem{LP3-2025b} X.-Y.~Han \textit{et al.} (Lattice Parton), Phys.\ Rev.\ D \textbf{111}, 034503 (2025), arXiv:2410.18654.
+
+\bibitem{LP3-2025c} L.~Ma \textit{et al.} (LPC) (2025), arXiv:2502.11807.
+
+\bibitem{LP3-2025d} Q.-A.~Zhang \textit{et al.}, PoS QNP2024, 052 (2025).
+
+\bibitem{Lin-2025} W.~Good, K.~Hasan, and H.-W.~Lin, J.\ Phys.\ G \textbf{52}, 035105 (2025), arXiv:2409.02750.
+
+\bibitem{Fan2018} Z.-Y.~Fan, Y.-B.~Yang, A.~Anthony, H.-W.~Lin, and K.-F.~Liu, Phys.\ Rev.\ Lett.\ \textbf{121}, 242001 (2018), arXiv:1808.02077.
+
+\bibitem{Fan2021} Z.~Fan, R.~Zhang, and H.-W.~Lin, Int.\ J.\ Mod.\ Phys.\ A \textbf{36}, 2150080 (2021), arXiv:2007.16113.
+
+\bibitem{Khan2021} T.~Khan \textit{et al.} (HadStruc), Phys.\ Rev.\ D \textbf{104}, 094516 (2021), arXiv:2107.08960.
+
+\bibitem{Fan2023} Z.~Fan, W.~Good, and H.-W.~Lin, Phys.\ Rev.\ D \textbf{108}, 014508 (2023), arXiv:2210.09985.
+
+\bibitem{Good2023} W.~Good, Z.~Fan, and H.-W.~Lin, in \textit{30th International Workshop on Deep-Inelastic Scattering and Related Subjects} (2023), arXiv:2307.06916.
+
+\bibitem{Delmar2023} J.~Delmar, C.~Alexandrou, K.~Cichy, M.~Constantinou, and K.~Hadjiyiannakou, Phys.\ Rev.\ D \textbf{108}, 094515 (2023), arXiv:2310.01389.
+
+\bibitem{Fan2021a} Z.~Fan and H.-W.~Lin, Phys.\ Lett.\ B \textbf{823}, 136778 (2021), arXiv:2104.06372.
+
+\bibitem{Good2024} W.~Good, K.~Hasan, A.~Chevis, and H.-W.~Lin, Phys.\ Rev.\ D \textbf{109}, 114509 (2024), arXiv:2310.12034.
+
+\bibitem{Salas2022} A.~Salas-Chavira, Z.~Fan, and H.-W.~Lin, Phys.\ Rev.\ D \textbf{106}, 094510 (2022), arXiv:2112.03124.
+
+\bibitem{Good2025a} W.~Good, F.~Yao, and H.-W.~Lin (2025), arXiv:2505.13321.
+
+\bibitem{Good2025b} W.~Good, K.~Hasan, and H.-W.~Lin, J.\ Phys.\ G \textbf{52}, 035105 (2025), arXiv:2409.02750.
+
+\bibitem{NieMiera2025} A.~NieMiera, W.~Good, H.-W.~Lin, and F.~Yao (2025), arXiv:2510.17758.
+
+\bibitem{Peardon2009} M.~Peardon \textit{et al.} (Hadron Spectrum), Phys.\ Rev.\ D \textbf{80}, 054506 (2009), arXiv:0905.2160.
+
+\bibitem{Ji2021} X.~Ji, Y.~Liu, A.~Sch\"afer, W.~Wang, Y.-B.~Yang, J.-H.~Zhang, and Y.~Zhao, Nucl.\ Phys.\ B \textbf{964}, 115311 (2021), arXiv:2008.03886.
+
+\bibitem{CLQCD-2024} Z.-C.~Hu \textit{et al.} (CLQCD), Phys.\ Rev.\ D \textbf{109}, 054507 (2024), arXiv:2310.00814.
+
+\bibitem{CLQCD-2025} H.-Y.~Du \textit{et al.} (CLQCD), Phys.\ Rev.\ D \textbf{111}, 054504 (2025), arXiv:2408.03548.
+
+\bibitem{Zhang2019} J.-H.~Zhang, X.~Ji, A.~Sch\"afer, W.~Wang, and S.~Zhao, Phys.\ Rev.\ Lett.\ \textbf{122}, 142001 (2019), arXiv:1808.10824.
+
+\bibitem{Balitsky2020} I.~Balitsky, W.~Morris, and A.~Radyushkin, Phys.\ Lett.\ B \textbf{808}, 135621 (2020), arXiv:1910.13963.
+
+\bibitem{Zhang2025} R.~Zhang, A.~V.~Grebe, D.~C.~Hackett, M.~L.~Wagman, and Y.~Zhao (2025), arXiv:2501.00729.
+
+\bibitem{supplemental} 见补充材料了解理论框架和数据分析的进一步细节 (2025).
+
+\bibitem{Chen2017} J.-W.~Chen, X.~Ji, and J.-H.~Zhang, Nucl.\ Phys.\ B \textbf{915}, 1 (2017), arXiv:1609.08102.
+
+\bibitem{Izubuchi2018} T.~Izubuchi, X.~Ji, L.~Jin, I.~W.~Stewart, and Y.~Zhao, Phys.\ Rev.\ D \textbf{98}, 056004 (2018), arXiv:1801.03917.
+
+\bibitem{Alexandrou2017} C.~Alexandrou, K.~Cichy, M.~Constantinou, K.~Hadjiyiannakou, K.~Jansen, H.~Panagopoulos, and F.~Steffens, Nucl.\ Phys.\ B \textbf{923}, 394 (2017), arXiv:1706.00265.
+
+\bibitem{Radyushkin2018} A.~Radyushkin, Phys.\ Rev.\ D \textbf{98}, 014019 (2018), arXiv:1801.02427.
+
+\bibitem{Braun2019} V.~M.~Braun, A.~Vladimirov, and J.-H.~Zhang, Phys.\ Rev.\ D \textbf{99}, 014013 (2019), arXiv:1810.00048.
+
+\bibitem{Li2019} Z.-Y.~Li, Y.-Q.~Ma, and J.-W.~Qiu, Phys.\ Rev.\ Lett.\ \textbf{122}, 062002 (2019), arXiv:1809.01836.
+
+\bibitem{JAM24} T.~Anderson, W.~Melnitchouk, and N.~Sato (2024), arXiv:2501.00665.
+
+\bibitem{Zhang2023} R.~Zhang, J.~Holligan, X.~Ji, and Y.~Su, Phys.\ Lett.\ B \textbf{844}, 138081 (2023), arXiv:2305.05212.
+
+\bibitem{Su2023} Y.~Su, J.~Holligan, X.~Ji, F.~Yao, J.-H.~Zhang, and R.~Zhang, Nucl.\ Phys.\ B \textbf{991}, 116201 (2023), arXiv:2209.01236.
+
+\bibitem{Balitsky2022} I.~Balitsky, W.~Morris, and A.~Radyushkin, Phys.\ Rev.\ D \textbf{105}, 014008 (2022), arXiv:2111.06797.
+
+\bibitem{Yao2023} F.~Yao, Y.~Ji, and J.-H.~Zhang, JHEP \textbf{11}, 021 (2023), arXiv:2212.14415.
+
+\end{thebibliography}
+
+\end{document}

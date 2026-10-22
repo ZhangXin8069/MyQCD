@@ -1,0 +1,576 @@
+\documentclass[12pt,a4paper]{ctexart}
+
+% === 页面设置 ===
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+
+% === 数学和物理 ===
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{slashed}
+
+% === 图形和表格 ===
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+
+% === 引用 ===
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+% === 其他 ===
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{multirow}
+\usepackage{tikz}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+}
+
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的场强张量：\\
+从Wilson圈到Clover项的完整推导与应用}
+\author{基于本库文献的综合解析}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+规范场强张量$F_{\mu\nu}$是格点QCD中胶子观测量计算的核心对象。格点上规范不变的唯一基本对象是Wilson圈（封闭的规范链的迹），而连续理论中的场强张量$F_{\mu\nu} = -i[D_\mu, D_\nu]$必须通过Wilson圈的小面积展开来构造。Clover项——由四个共面的plaquette组合而成——是格点上构造场强张量的标准方法，因其在离散化误差（$O(a^2)$）和统计噪声抑制之间取得了最优平衡。本文从规范连接变量$U_\mu(n) = \exp(iaA_\mu(n))$和plaquette的Baker-Campbell-Hausdorff展开出发，系统推导Clover项$Q_{\mu\nu}$的定义、$F_{\mu\nu}$的格点离散化形式、Minkowski空间与Euclidean空间之间的张量分量转换关系，以及场强张量在胶子PDF和胶子螺旋度格点计算中的实际应用。同时讨论规范场涂抹（HYP涂抹、stout涂抹、梯度流/Wilson flow）在抑制紫外涨落和改善算符信噪比方面的关键作用，以及CLQCD合作组所使用的TITLS/TITLC（tadpole改进树级Symanzik/Clover）作用量的基本构造。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{引言：为什么场强张量是格点胶子物理的核心}
+% ============================================================
+
+在格点QCD中，基本的自由度是规范连接变量（link variables）$U_\mu(n)$，它们直接联系着连续理论中的规范势$A_\mu(n)$：
+
+\begin{equation}
+U_\mu(n) = \exp(iaA_\mu(n))。
+\label{eq:link_variable}
+\end{equation}
+
+然而，所有物理的胶子观测量——从胶子部分子分布函数（gluon PDFs）\cite{Chen2025gluon,NieMiera2025}到胶子螺旋度分布\cite{Egerer2022}——都需要规范场强张量$F_{\mu\nu}$。在连续理论中，$F_{\mu\nu}$定义为协变导数的对易子：
+
+\begin{equation}
+F_{\mu\nu}(x) = -\frac{i}{g}[D_\mu(x), D_\nu(x)], \qquad D_\mu(x) = \partial_\mu + igA_\mu(x)。
+\label{eq:F_continuum}
+\end{equation}
+
+但在格点上，由于离散化，我们无法直接定义$\partial_\mu A_\nu$。格点上唯一规范不变的量是Wilson圈（封闭的规范链的迹），最简单的Wilson圈就是plaquette——一个$1 \times 1$的方框。因此，格点上的场强张量\textbf{必须通过plaquette的展开来构造}。
+
+这一构造的核心就是\textbf{Clover项}（clover term）\cite{NoteGluonPDFs}，它通过平均四个共面plaquette来定义格点上的$F_{\mu\nu}$，在$O(a^2)$精度上具有改进的离散化误差和最优的统计性质。
+
+\section{从连续理论到格点：规范场的离散化}
+
+\subsection{规范连接变量与规范变换}
+
+在格点上，夸克场$\psi(n)$定义在格点上，而规范场通过连接相邻格点的$SU(3)$矩阵$U_\mu(n)$来表述。在规范变换下\cite{UKQCD1993}：
+
+\begin{equation}
+\psi(n) \to V(n)\psi(n), \qquad U_\mu(n) \to V(n)U_\mu(n)V^\dagger(n+\hat{\mu})。
+\label{eq:gauge_transform}
+\end{equation}
+
+连续极限下的规范势$A_\mu(n)$与$U_\mu(n)$的关系为$U_\mu(n) = \exp(iaA_\mu(n))$，其中$A_\mu(n) = A_\mu^a(n)T^a$，$T^a$是$SU(3)$的生成元。在小$a$展开下：
+
+\begin{equation}
+U_\mu(n) = 1 + iaA_\mu(n) - \frac{a^2}{2}A_\mu^2(n) + O(a^3)。
+\label{eq:link_expansion}
+\end{equation}
+
+\subsection{Plaquette：格点上最基本的规范不变量}
+
+规范不变量的构造基于Wilson圈——沿闭合路径的规范链的迹\cite{NoteGluonPDFs}。最基本的Wilson圈是plaquette（$1 \times 1$的方框）：
+
+\begin{equation}
+P_{\mu\nu}(x) = U_\mu(x) U_\nu(x+\hat{\mu}) U^\dagger_\mu(x+\hat{\nu}) U^\dagger_\nu(x)。
+\label{eq:plaquette}
+\end{equation}
+
+它是一个规范不变的量：$\operatorname{Tr} P_{\mu\nu}(x)$在规范变换下不变。利用Baker-Campbell-Hausdorff（BCH）公式，可以将plaquette展开为$A_\mu$的表达式\cite{NoteGluonPDFs}：
+
+\begin{equation}
+\begin{aligned}
+P_{\mu\nu} &= \exp\Big[ iaA_\mu(x) + iaA_\nu(x+\hat{\mu}) - iaA_\mu(x+\hat{\nu}) - iaA_\nu(x) \\
+&\quad -\frac{a^2}{2}[A_\mu(x), A_\nu(x+\hat{\mu})] -\frac{a^2}{2}[A_\mu(x+\hat{\nu}), A_\nu(x)] \\
+&\quad +\frac{a^2}{2}[A_\mu(x), A_\mu(x+\hat{\nu})] +\frac{a^2}{2}[A_\mu(x), A_\nu(x)] \\
+&\quad +\frac{a^2}{2}[A_\nu(x+\hat{\mu}), A_\mu(x+\hat{\nu})] +\frac{a^2}{2}[A_\nu(x+\hat{\mu}), A_\nu(x)] + O(a^3) \Big]。
+\end{aligned}
+\label{eq:plaquette_BCH}
+\end{equation}
+
+利用$A_\mu(x+\hat{\nu}) = A_\mu(x) + a\partial_\nu A_\mu(x) + O(a^2)$的Taylor展开，得到简洁的结果\cite{NoteGluonPDFs}：
+
+\begin{equation}
+\begin{aligned}
+P_{\mu\nu} &= \exp\Big[ ia^2\big(\partial_\mu A_\nu(x) - \partial_\nu A_\mu(x) + i[A_\mu(x), A_\nu(x)]\big) + O(a^3) \Big] \\
+&= 1 + ia^2 F_{\mu\nu}(x) + O(a^3)。
+\end{aligned}
+\label{eq:plaquette_to_F}
+\end{equation}
+
+这一展开是格点上构造$F_{\mu\nu}$的基础。注意一个plaquette给出的$F_{\mu\nu}$具有$O(a^2)$的离散化误差，且单个plaquette的方向选择会导致统计涨落的不对称性。
+
+\section{Clover项的完整构造}
+
+\subsection{四个Plaquette的平均}
+
+为减小统计涨落并改善对称性，标准做法是平均四个共面plaquette的贡献\cite{NoteGluonPDFs}。这四个plaquette通过改变$\mu$和$\nu$的符号来构造。这一组合因其四叶草形状而被称为Clover项：
+
+\begin{definition}[Clover项 $Q_{\mu\nu}$]\cite{NoteGluonPDFs}
+\begin{equation}
+\boxed{Q_{\mu\nu}(x) = P_{\mu\nu}(x) - P_{\nu,-\mu}(x) + P_{-\nu,\mu}(x) + P_{-\mu,-\nu}(x)}。
+\label{eq:clover_Q}
+\end{equation}
+\end{definition}
+
+这里$P_{\mu\nu}$表示沿$+\mu$方向再沿$+\nu$方向的plaquette；$P_{\nu,-\mu}$表示先沿$+\nu$方向再沿$-\mu$方向（等价于$-\hat{\mu}$方向）的plaquette，其余类推。四个plaquette的几何排布如原文图1所示。
+
+\textbf{Clover项的对称性：}
+\begin{itemize}
+    \item 在$\mu$和$\nu$指标交换下：$Q_{\nu\mu} = -Q_{\mu\nu}$（因为$P_{\nu\mu} = P_{\mu\nu}^\dagger$，每个plaquette都反号）;
+    \item Clover项通过平均消除了plaquette中$O(a)$和$O(a^3)$的奇次项离散化误差，使得首项误差为$O(a^4)$;
+    \item 在四个方向的平均下，统计涨落得到有效抑制。
+\end{itemize}
+
+\subsection{从Clover项到场强张量}
+
+格点上的场强张量由Clover项的反对称部分给出\cite{NoteGluonPDFs}：
+
+\begin{definition}[格点场强张量]
+\begin{equation}
+\boxed{F_{\mu\nu}(x) = -\frac{i}{8a^2} \big(Q_{\mu\nu}(x) - Q_{\nu\mu}(x)\big)}。
+\label{eq:F_from_clover}
+\end{equation}
+\end{definition}
+
+推导：从$Q_{\mu\nu}$中提取$F_{\mu\nu}$的反对称部分。由于$Q_{\mu\nu} \approx 4ia^2F_{\mu\nu}$加上高阶项，通过取$Q_{\mu\nu} - Q_{\nu\mu}$并除以$8ia^2$，得到hermitian的$F_{\mu\nu}$。
+
+\textbf{离散化误差分析：}Clover定义的$F_{\mu\nu}$具有$O(a^2)$的离散化误差。这意味着在连续极限$a \to 0$下，Clover $F_{\mu\nu}$以$a^2$的速率收敛到连续理论的场强张量。对于$O(a)$改进的作用量（如Clover费米子作用量），这种$a^2$标度行为与理论的自洽性要求是一致的。
+
+\subsection{为什么叫Clover？}
+
+这一名称来源于四个plaquette在格点上的几何排列。围绕一个格点$x$，在$\mu$-$\nu$平面内，四个plaquette从中心点向外伸展，形似四叶草（clover）的叶子。这个形象的名称已被格点QCD社区广泛采用。
+
+\section{规范场张量的完整张量结构}
+
+\subsection{Minkowski空间中的协变与逆变形式}
+
+在Minkowski空间中，协变场强张量$F^{(M)}_{\mu\nu}$和逆变场强张量$F^{\mu\nu,(M)}$具有明确的结构\cite{NoteGluonPDFs}：
+
+\begin{equation}
+F^{(M)}_{\mu\nu} =
+\begin{pmatrix}
+0      & F_{tx} & F_{ty} & F_{tz} \\
+F_{xt} & 0      & F_{xy} & F_{xz} \\
+F_{yt} & F_{yx} & 0      & F_{yz} \\
+F_{zt} & F_{zx} & F_{zy} & 0
+\end{pmatrix}_{\!\!M}, \qquad
+F^{\mu\nu,(M)} =
+\begin{pmatrix}
+0       & -F_{tx} & -F_{ty} & -F_{tz} \\
+-F_{xt} & 0       & F_{xy}  & F_{xz}  \\
+-F_{yt} & F_{yx}  & 0       & F_{yz}  \\
+-F_{zt} & F_{zx}  & F_{zy}  & 0
+\end{pmatrix}_{\!\!M}。
+\label{eq:F_Minkowski}
+\end{equation}
+
+协变和逆变张量之间的关系为$F^{\mu\nu,(M)} = g^{\mu\rho,(M)} F^{(M)}_{\rho\sigma} g^{\sigma\nu,(M)}$，其中$g^{\mu\nu,(M)} = \operatorname{diag}(1,-1,-1,-1)$。
+
+\subsection{Euclidean空间中的对应关系}
+
+在Euclidean空间中（通过Wick旋转$t \to -i\tau$），度规变为$g^{\mu\nu,(E)} = \operatorname{diag}(1,1,1,1)$。关键的改变在于时间分量：
+
+\begin{itemize}
+    \item $F^{(E)}_{4i}$（即$F^{(E)}_{ti}$）与$F^{(M)}_{ti}$相差一个因子$i$；
+    \item $F^{(E)}_{ij}$（纯空间分量）与$F^{(M)}_{ij}$相同（差一个符号约定）。
+\end{itemize}
+
+具体地，在格点计算中最重要的转换关系是\cite{NoteGluonPDFs}：
+
+\begin{equation}
+\boxed{F^{tx,(M)}F^{(M)}_{tx} = -F^{(E)}_{tx}F^{(E)}_{tx}}, \qquad
+\boxed{F^{xy,(M)}F^{(M)}_{xy} = F^{(E)}_{xy}F^{(E)}_{xy}}。
+\label{eq:ME_conversion}
+\end{equation}
+
+\textbf{这一转换关系对胶子流算符的构造至关重要。}正因如此，在非极化胶子流$O^{(0)}_g$中，$F^{0i}WF_{0i}$项前出现一个``$-$''号\cite{NoteGluonPDFs,Chen2025gluon}：
+
+\begin{equation}
+\begin{aligned}
+O^{(0)}_g(z, t_i) &= \Big[ F^{0i}(z,t_i)W[z,0]F_{0i}(0,t_i)W[0,z] + 2F^{12}(z,t_i)W[z,0]F_{12}(0,t_i)W[0,z] \Big]_{\text{Mink}} \\
+&= \Big[ -F^{0i}(z,t_i)W[z,0]F_{0i}(0,t_i)W[0,z] + 2F^{12}(z,t_i)W[z,0]F_{12}(0,t_i)W[0,z] \Big]_{\text{Eucl}}。
+\end{aligned}
+\label{eq:gluon_current_ME}
+\end{equation}
+
+\subsection{螺旋度情形中的对偶场强张量}
+
+对于极化胶子（螺旋度）的计算，还需要对偶场强张量\cite{NoteGluonPDFs,Egerer2022}：
+
+\begin{equation}
+\tilde{F}^{\mu\nu} = \frac{1}{2}\epsilon^{\mu\nu\rho\sigma}F_{\rho\sigma}, \qquad \epsilon^{0123} = 1。
+\label{eq:dual_F}
+\end{equation}
+
+在Euclidean空间中，极化胶子流$O^{(0)}_g$展开为\cite{NoteGluonPDFs}：
+
+\begin{equation}
+\begin{aligned}
+O^{(0)}_g(z, t_i) &= -\Big\{ \{F^{01}(z,t_i)W[z,0]F^{23}(0,t_i)W[0,z] \\
+&\quad - F^{02}(z,t_i)W[z,0]F^{13}(0,t_i)W[0,z] \\
+&\quad + 2F^{12}(z,t_i)W[z,0]F^{03}(0,t_i)W[0,z]\} \\
+&\quad - \{ (z \leftrightarrow -z) \} \Big\}_{\text{Eucl}}。
+\end{aligned}
+\label{eq:helicity_current}
+\end{equation}
+
+$O^{(0)}_g$的整体``$-$''号源于Minkowski与Euclidean对偶场强张量之间的转换。$z$-奇的组合（$z \leftrightarrow -z$）用于提取与核子自旋相关的部分。
+
+\section{Clover项在CLQCD组态中的应用}
+
+\subsection{TITLS和TITLC作用量}
+
+CLQCD合作组使用的组态\cite{CLQCD2024,CLQCD2025}采用以下作用量：
+
+\begin{itemize}
+    \item \textbf{规范作用量：}Tadpole改进树级Symanzik（TITLS）作用量。Symanzik改进通过在作用量中引入$1 \times 2$矩形Wilson圈（除了plaquette外），消除了$O(a^2)$的离散化误差。Tadpole改进通过重定义规范连接变量$U_\mu \to U_\mu/u_0$（其中$u_0$是平均plaquette的四次根）来吸收微扰展开中的tadpole图贡献，改善微扰级数的收敛性\cite{CLQCD2025}。
+
+    \item \textbf{费米子作用量：}Tadpole改进树级Clover（TITLC）作用量。Clover费米子作用量是$O(a)$改进的Wilson费米子作用量，通过在作用量中添加Sheikholeslami-Wohlert项（本质上就是Clover型$F_{\mu\nu}$项）来消除$O(a)$的离散化误差。
+\end{itemize}
+
+CLQCD系综的格点间距覆盖$a \in [0.05, 0.11]$~fm，$\pi$介子质量范围$m_\pi \in [135, 350]$~MeV\cite{CLQCD2025}。胶子PDF连续极限计算使用了三个格点间距$a = \{0.105, 0.0897, 0.0775\}$~fm\cite{Chen2025gluon}。
+
+\subsection{胶子算符的格点实现}
+
+在格点上，胶子PDF矩阵元的计算需要在基础表示下进行。非极化胶子算符为\cite{Chen2025gluon,Zhang2019}：
+
+\begin{equation}
+O(z) = M_{tx;tx}(z) + M_{ty;ty}(z) - 2M_{xy;xy}(z),
+\label{eq:gluon_operator}
+\end{equation}
+
+其中矩阵元在基础表示下计算：
+
+\begin{equation}
+M_{\mu\lambda;\nu\rho}(z) = \sum_{\vec{x}} \operatorname{Tr}[F_{\mu\lambda}(\vec{x} + z\hat{z}) U(\vec{x} + z\hat{z}, \vec{x}) F_{\nu\rho}(\vec{x}) U(\vec{x}, \vec{x} + z\hat{z})]。
+\label{eq:gluon_ME_lattice}
+\end{equation}
+
+在伴随表示下的等价形式为$M_{\mu\lambda;\nu\rho}(z) = F^a_{\mu\lambda}(z)U^{ab}(z,0)F^b_{\nu\rho}(0)$，两种表示通过恒等式$2\operatorname{Tr}[T^a U T^b U^\dagger] = U^{ab}$相联系。
+
+\textbf{关键选择：}$M_{tx;tx} + M_{ty;ty} - 2M_{xy;xy}$这一组合的选取基于Balitsky、Morris和Radyushkin\cite{Balitsky2020}的证明：$M_{ti;it}$和$M_{ij;ji}$具有相同的单圈紫外反常量纲，使得它们的组合在至少单圈层次上是可乘性重整化的。
+
+\section{规范场涂抹：抑制紫外涨落}
+
+格点上的裸规范场包含大量的短距离（紫外）涨落，这些涨落对物理的低能观测量几乎没有贡献，但会显著增大统计噪声。涂抹（smearing）技术通过在保持长程物理的同时平滑短距离涨落来解决这个问题。
+
+\subsection{HYP涂抹}
+
+HYP（hypercubic）涂抹是最常用的胶子算符涂抹方法之一\cite{NoteGluonPDFs,Chen2025gluon}。HYP涂抹通过在超立方体内的规范连接变量上执行多步迭代平均来平滑规范场。其关键特征是在涂抹过程中$\textbf{严格保持在超立方体边界之内}$，从而避免引入额外的非局域效应。
+
+在CLQCD/LPC的胶子PDF计算中，对胶子算符施加了\textbf{10步HYP涂抹}（HYP5）\cite{Chen2025gluon}，显著抑制了Wilson线的线性紫外发散$\sim e^{-\delta m|z|}$。HYP涂抹对$F_{\mu\nu}$的影响主要体现在：
+
+\begin{itemize}
+    \item 减小了构成Clover项的plaquette中的统计涨落；
+    \item 平滑了$F_{\mu\nu}$的空间分布，使其更接近连续理论的预期；
+    \item 减少了Wilson线自能的线性发散系数$k$。
+\end{itemize}
+
+\subsection{Stout涂抹}
+
+Stout涂抹是另一种广泛使用的平滑方法\cite{CLQCD2024,CLQCD2025}。它通过对规范连接变量应用解析的``stout''变换来实现平滑：
+
+\begin{equation}
+U_\mu^{(n+1)}(x) = \exp(iQ_\mu^{(n)}(x)) \cdot U_\mu^{(n)}(x),
+\label{eq:stout}
+\end{equation}
+
+其中$Q_\mu^{(n)}(x)$由围绕link $U_\mu^{(n)}(x)$的``staple''之和的投影到$su(3)$代数的部分给出。stout涂抹是可微的，这意味着它可以在HMC（Hybrid Monte Carlo）模拟中直接使用——这是其相对于HYP涂抹的一个关键优势。
+
+CLQCD合作组在生成组态时使用了stout涂抹的Clover费米子作用量\cite{CLQCD2024,CLQCD2025}。在蒸馏方法中，Laplace算符中的规范场通常预先经过10次stout涂抹的处理\cite{Egerer2021a}。
+
+\subsection{梯度流（Wilson Flow）}
+
+梯度流（gradient flow，也称为Wilson flow）是一种连续性的规范场平滑方法。规范场按照扩散方程演化：
+
+\begin{equation}
+\frac{dB_\mu(x,\tau)}{d\tau} = -g^2 \frac{\delta S_W[B]}{\delta B_\mu(x,\tau)}, \qquad B_\mu(x,0) = A_\mu(x),
+\label{eq:wilson_flow}
+\end{equation}
+
+其中$\tau$是flow时间（具有质量量纲$[\tau] = -2$），$S_W$是Wilson规范作用量。在离散格点上，梯度流等价于反复应用特定的stout-like涂抹步骤。
+
+梯度流的优势在于\cite{NieMiera2025,Chen2025gluon}：
+\begin{itemize}
+    \item 它是一个\textbf{严格定义的连续操作}，具有明确的重整化性质；
+    \item 平滑半径由$\sqrt{8\tau}$给出，可以在连续极限下保持固定物理尺度；
+    \item 在flow时间$\tau$下，关联函数具有有限的连续极限，且与未flow的理论通过微扰匹配相联系。
+\end{itemize}
+
+在内部笔记的比较中\cite{NoteGluonPDFs}，HYP5涂抹和Wilson flow（$\tau = 1.4$）的结果被进行了系统对比，两种方法给出了定性一致的结果。
+
+\subsection{不同涂抹方案的对比}
+
+\begin{table}[H]
+\centering
+\caption{格点上规范场涂抹方案的比较}
+\label{tab:smearing_comparison}
+\begin{tabular}{lcccc}
+\toprule
+特性 & HYP & Stout & Wilson Flow \\
+\midrule
+基本思想 & 超立方体内迭代平均 & 解析link变换 & 扩散方程 \\
+可微性 & 否 & 是（HMC中可用） & 是 \\
+平滑半径控制 & 步数$N_{\text{HYP}}$ & 参数$\rho$ & flow时间$\tau$ \\
+标度行为 & 离散 & 离散 & 连续（$O(a^2)$改进） \\
+重整化性质 & 经验性的 & 经验性的 & 严格可重整化 \\
+在CLQCD中的用途 & 胶子算符涂抹 & 组态生成 & 胶子算符涂抹 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{场强张量在部分子物理中的核心应用}
+
+\subsection{非极化胶子PDF的计算}
+
+在CLQCD/LPC合作组的非极化胶子PDF计算中\cite{Chen2025gluon}，由Clover项构造的$F_{\mu\nu}$是胶子算符的核心组成部分。完整的计算流程包括：
+
+\begin{enumerate}
+    \item 在多个格点间距和核子动量下，通过Clover $F_{\mu\nu}$和Wilson线构造胶子算符$O(z)$；
+    \item 计算裸矩阵元$\tilde{h}^B(z, P^z, 1/a) = \langle P^z|O(z)|P^z\rangle$；
+    \item 应用混合重整化方案消除紫外发散，得到$\tilde{h}^R(z, P^z)$；
+    \item 大$\lambda = zP^z$外推、Fourier变换、微扰匹配；
+    \item 联合连续-无穷大动量外推：$xg = xg_0 + a^2 f(x) + a^2 (P^z)^2 h(x) + d(x)/(P^z)^2$。
+\end{enumerate}
+
+\textbf{HYP涂抹对Wilson线线性发散的影响}\cite{Fan2018gluon,Chen2025gluon}：
+\begin{itemize}
+    \item 无涂抹：线性发散系数$k$很大，裸矩阵元随$|z|$指数衰减；
+    \item HYP1：衰减速率显著减小;
+    \item HYP3/HYP5：衰减进一步减弱，5步HYP涂抹给出最小的统计误差和最佳的信号质量。
+\end{itemize}
+
+\subsection{自重整化中的梯度流应用}
+
+MSULat合作组的自重整化胶子PDF计算\cite{NieMiera2025}使用了梯度流涂抹（$\tau = 3a^2$）来处理胶子算符。他们发现在梯度流下自重整化保持稳定，参数为$k = 0.61(27)$，$\Lambda_{\text{QCD}} = 0.286(85)$~GeV，$m_0 = 0.13(30)$~GeV。
+
+$\eta_s$介子（而非核子）的零动量矩阵元被用于提取自重整化因子，因为$\eta_s$具有更好的信噪比。算符重整化不依赖于外部强子态的选择——这一特性在非极化胶子PDF计算中得到了显式验证\cite{NieMiera2025}。
+
+\subsection{极化胶子（螺旋度）计算}
+
+在HadStruc合作组的极化胶子Ioffe-时间分布计算中\cite{Egerer2022}，Clover $F_{\mu\nu}$与对偶场强张量$\tilde{F}^{\mu\nu}$的乘积构成了螺旋度胶子流算符。与非极化情形相比，螺旋度的信号更弱，对$F_{\mu\nu}$的统计精度要求更高。
+
+为了实现高动量下的可靠信号，蒸馏方法被用于夸克场涂抹（$R_D = 64$个本征矢），Laplace算符中的规范场经过了10次stout涂抹的预处理\cite{Egerer2022}。
+
+\subsection{连续极限下$F_{\mu\nu}$的系统误差}
+
+Clover $F_{\mu\nu}$的格点离散化引入的系统误差通过以下策略来控制：
+
+\begin{itemize}
+    \item \textbf{多格点间距外推：}使用至少三个格点间距（如CLQCD的$a = \{0.105, 0.0897, 0.0775\}$~fm）进行$a^2 \to 0$外推\cite{Chen2025gluon}；
+    \item \textbf{涂抹依赖性：}HYP5和Wilson flow两种独立方法的交叉检验\cite{NoteGluonPDFs}；
+    \item \textbf{算符选择：}比较$O^{(0)}_g$（$F^{0i}WF_{0i} + 2F^{12}WF_{12}$）和$O^{(1)}_g$（仅$F^{0i}WF_{0i}$）的结果，验证算符组合的系统稳定性\cite{NoteGluonPDFs}。
+\end{itemize}
+
+\section{格点规范作用量的构造原理}
+
+\subsection{Wilson规范作用量}
+
+最基本的格点规范作用量是Wilson作用量，由plaquette构造：
+
+\begin{equation}
+S_W = \beta \sum_x \sum_{\mu<\nu} \left(1 - \frac{1}{N_c}\operatorname{Re}\operatorname{Tr} P_{\mu\nu}(x)\right), \qquad \beta = \frac{2N_c}{g^2}。
+\label{eq:wilson_action}
+\end{equation}
+
+其离散化误差为$O(a^2)$。在连续极限下的展开中，Wilson作用量还原为连续Yang-Mills作用量加上$O(a^2)$的修正。
+
+\subsection{Symanzik改进}
+
+Symanzik改进通过在作用量中引入额外的算符来系统地消除离散化误差。在树级，Symanzik改进的规范作用量包含plaquette项和$1 \times 2$矩形Wilson圈项\cite{CLQCD2025}：
+
+\begin{equation}
+S_{\text{Symanzik}} = \beta \sum_x \left( c_0 \sum_{\mu<\nu} [1 - \operatorname{Re}\operatorname{Tr} P_{\mu\nu}] + c_1 \sum_{\mu,\nu} [1 - \operatorname{Re}\operatorname{Tr} R_{\mu\nu}] \right),
+\label{eq:symanzik_action}
+\end{equation}
+
+其中$R_{\mu\nu}$是$1 \times 2$矩形Wilson圈。树级系数为$c_0 = 5/3$，$c_1 = -1/12$，使得$O(a^2)$离散化误差在树级被消除。
+
+\subsection{Tadpole改进}
+
+Tadpole改进\cite{CLQCD2025}是一种重求和微扰展开中tadpole图贡献的重整化方法。其基本思想是：格点微扰论中tadpole图会产生大的$O(g^2)$修正，但这些修正可以通过重定义规范连接变量来吸收。
+
+定义平均plaquette $u_0 = \langle \frac{1}{3}\operatorname{Re}\operatorname{Tr} P_{\mu\nu} \rangle^{1/4}$，然后对作用量中所有规范连接变量进行重标度$U_\mu \to U_\mu/u_0$。这使得微扰展开在tadpole改进后的参量$\tilde{g}^2 = g^2/u_0^4$下进行，显著改善了微扰级数的收敛性。
+
+CLQCD使用的$\hat{\beta} = 10/(g^2 u_0^4)$就是tadpole改进后的规范耦合常数\cite{CLQCD2025}，用于标记不同的系综（如C24P29对应$\hat{\beta}=6.20$，$a=0.105$~fm）。
+
+\section{总结与展望}
+
+场强张量$F_{\mu\nu}$是格点QCD中连接规范场的离散表述（link variables）与连续物理观测量（胶子PDF、螺旋度等）的核心桥梁。Clover项通过四个共面plaquette的平均，以$O(a^2)$的精度构造了格点上的$F_{\mu\nu}$，在对称性、统计噪声和计算效率之间取得了最优平衡。
+
+本文的核心结论包括：
+
+\begin{enumerate}
+    \item \textbf{Clover构造的数学基础：}从plaquette的BCH展开出发，$P_{\mu\nu} = 1 + ia^2F_{\mu\nu} + O(a^3)$，通过四个plaquette的组合$Q_{\mu\nu}$提取反对称部分，得到$F_{\mu\nu} = -\frac{i}{8a^2}(Q_{\mu\nu} - Q_{\nu\mu})$。
+
+    \item \textbf{Minkowski/Euclidean转换的必要性：}时间分量满足$F^{tx,(M)}F^{(M)}_{tx} = -F^{(E)}_{tx}F^{(E)}_{tx}$，这一符号差异直接决定了胶子流算符的构造——非极化$O^{(0)}_g$和极化$O^{(0)}_g$中的符号均源于此。
+
+    \item \textbf{涂抹是场强张量应用的关键辅助技术：}HYP涂抹、stout涂抹和梯度流各自在不同的应用场景中发挥作用。HYP涂抹在胶子算符的紫外噪声抑制方面效果显著；stout涂抹在现代组态生成中被广泛使用；梯度流提供了最严格的连续极限行为。
+
+    \item \textbf{Tadpole改进是CLQCD系综精度控制的核心：}通过重标度规范连接变量$U_\mu \to U_\mu/u_0$，微扰展开的收敛性得到显著改善。TITLS + TITLC作用量组合使得在$a \approx 0.05$~fm至0.11~fm范围内的系统误差得到了有效控制。
+
+    \item \textbf{Clover $F_{\mu\nu}$在胶子结构计算中无处不在：}从非极化胶子PDF的连续极限计算到极化胶子螺旋度的首次格点提取，Clover项都是不可替代的基础构造块。
+\end{enumerate}
+
+未来方向包括：在更细格点间距上验证Clover $F_{\mu\nu}$的$a^2$标度行为；发展更高阶的$F_{\mu\nu}$离散化方案（如利用更大面积的Wilson圈）；探索梯度流在连续极限$a \to 0$、$\tau \to 0$联合极限下的最优操作方案；以及将重整化群改进技术系统应用于胶子算符的构造。
+
+\begin{thebibliography}{99}
+
+% === 核心文献：场强张量构造 ===
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,''
+内部笔记。（含场强张量的完整Clover推导和非极化/极化胶子流的构造）
+\quad\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}
+
+\bibitem{Balitsky2020}
+I.~Balitsky, W.~Morris, and A.~Radyushkin,
+``Gluon pseudo-distributions at short distances: Forward case,''
+Phys.\ Lett.\ B \textbf{808}, 135621 (2020), arXiv:1910.13963.
+\quad\textbf{[来源:} \texttt{refer/papers/Short-Distance Structure of Unpolarized Gluon Pseudodistributions.pdf}\textbf{]}
+
+\bibitem{Zhang2019}
+J.-H.~Zhang, X.~Ji, A.~Sch\"afer, W.~Wang, and S.~Zhao,
+``Accessing gluon parton distributions in large momentum effective theory,''
+Phys.\ Rev.\ Lett.\ \textbf{122}, 142001 (2019), arXiv:1808.10824.
+\quad\textbf{[来源:} \texttt{refer/papers/Accessing gluon parton distributions in large momentum effective theory.pdf}\textbf{]}
+
+% === 格点作用量与系综 ===
+
+\bibitem{CLQCD2024}
+Z.-C.~Hu \textit{et al.} (CLQCD),
+``Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{109}, 054507 (2024), arXiv:2310.00814.
+\quad\textbf{[来源:} \texttt{refer/papers/Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\bibitem{CLQCD2025}
+H.-Y.~Du \textit{et al.} (CLQCD),
+``Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{111}, 054504 (2025), arXiv:2408.03548.
+\quad\textbf{[来源:} \texttt{refer/papers/Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+% === 胶子PDF计算（使用Clover F_munu） ===
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\quad\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{Chen2025first}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``First self-renormalized gluon PDF of nucleon from large-momentum effective theory in the continuum limit,''
+Phys.\ Rev.\ D \textbf{111}, 074506 (2025), arXiv:2408.12819.
+\quad\textbf{[来源:} \texttt{refer/papers/First Self-Renormalized Gluon PDF of Nucleon from Large-Momentum Effective Theory in the Continuum Limit.pdf}\textbf{]}
+
+\bibitem{NieMiera2025}
+A.~NieMiera, W.~Good, H.-W.~Lin, and F.~Yao,
+``First self-renormalized gluon PDF of nucleon from large-momentum effective theory in the continuum limit,''
+(2025), arXiv:2510.17758.
+\quad\textbf{[来源:} \texttt{refer/papers/First Self-Renormalized Gluon PDF of Nucleon from Large-Momentum Effective Theory in the Continuum Limit.pdf}\textbf{]}
+
+\bibitem{Good2025a}
+W.~Good, F.~Yao, and H.-W.~Lin,
+``First nucleon gluon PDF from large momentum effective theory,''
+(2025), arXiv:2505.13321.
+\quad\textbf{[来源:} \texttt{refer/papers/First Nucleon Gluon PDF from Large Momentum Effective Theory.pdf}\textbf{]}
+
+\bibitem{Lin2025gluon}
+W.~Good, K.~Hasan, and H.-W.~Lin,
+``Gluon parton distribution of the nucleon from $2+1+1$-flavor lattice QCD in the physical-continuum limit,''
+J.\ Phys.\ G \textbf{52}, 035105 (2025), arXiv:2409.02750.
+\quad\textbf{[来源:} \texttt{refer/papers/Gluon Parton Distribution of the Nucleon from 2+1+1-Flavor Lattice QCD in the Physical-Continuum Limit.pdf}\textbf{]}
+
+\bibitem{Fan2018gluon}
+Z.-Y.~Fan, Y.-B.~Yang, A.~Anthony, H.-W.~Lin, and K.-F.~Liu,
+``Gluon quasi-PDF from lattice QCD,''
+Phys.\ Rev.\ Lett.\ \textbf{121}, 242001 (2018), arXiv:1808.02077.
+\quad\textbf{[来源:} \texttt{refer/papers/Gluon Quasi-PDF From Lattice QCD.pdf}\textbf{]}
+
+% === 极化胶子（使用对偶F_munu） ===
+
+\bibitem{Egerer2022}
+C.~Egerer \textit{et al.} (HadStruc Collaboration),
+``Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics,''
+Phys.\ Rev.\ D \textbf{106}, 094511 (2022), arXiv:2207.08733.
+\quad\textbf{[来源:} \texttt{refer/papers/Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics.pdf}\textbf{]}
+
+% === 涂抹方法 ===
+
+\bibitem{UKQCD1993}
+C.~R.~Allton \textit{et al.} (UKQCD Collaboration),
+``Gauge-invariant smearing and matrix correlators using Wilson fermions at $\beta=6.2$,''
+Phys.\ Rev.\ D \textbf{47}, 5128 (1993), arXiv:hep-lat/9303009.
+\quad\textbf{[来源:} \texttt{refer/papers/Gauge-Invariant Smearing and Matrix Correlators using Wilson Fermions at beta=6.2.pdf}\textbf{]}
+
+\bibitem{Egerer2021a}
+C.~Egerer, R.~G.~Edwards, K.~Orginos, and D.~G.~Richards,
+``Distillation at high-momentum,''
+Phys.\ Rev.\ D \textbf{103}, 034502 (2021), arXiv:2009.10691.
+\quad\textbf{[来源:} \texttt{refer/papers/Distillation at High-Momentum.pdf}\textbf{]}
+
+\bibitem{Peardon2009}
+M.~Peardon \textit{et al.} (Hadron Spectrum),
+``A novel quark-field creation operator construction for hadronic physics in lattice QCD,''
+Phys.\ Rev.\ D \textbf{80}, 054506 (2009), arXiv:0905.2160.
+\quad\textbf{[来源:} \texttt{refer/papers/A novel quark-field creation operator construction for hadronic physics in lattice QCD.pdf}\textbf{]}
+
+% === LaMET框架 ===
+
+\bibitem{Ji2013Euclidean}
+X.~Ji,
+``Parton physics on a Euclidean lattice,''
+Phys.\ Rev.\ Lett.\ \textbf{110}, 262002 (2013), arXiv:1305.1539.
+\quad\textbf{[来源:} \texttt{refer/papers/Parton Physics on Euclidean Lattice.pdf}\textbf{]}
+
+\bibitem{Ji2021hybrid}
+X.~Ji, Y.~Liu, A.~Sch\"afer, W.~Wang, Y.-B.~Yang, J.-H.~Zhang, and Y.~Zhao,
+``A hybrid renormalization scheme for quasi light-front correlations in large-momentum effective theory,''
+Nucl.\ Phys.\ B \textbf{964}, 115311 (2021), arXiv:2008.03886.
+\quad\textbf{[来源:} \texttt{refer/papers/A Hybrid Renormalization Scheme for Quasi Light-Front Correlations in Large-Momentum Effective Theory.pdf}\textbf{]}
+
+% === 其他 ===
+
+\bibitem{Zhang2025kinematic}
+R.~Zhang, A.~V.~Grebe, D.~C.~Hackett, M.~L.~Wagman, and Y.~Zhao,
+``Kinematically-enhanced interpolating operators for boosted hadrons,''
+(2025), arXiv:2501.00729.
+\quad\textbf{[来源:} \texttt{refer/papers/Kinematically-enhanced interpolating operators for boosted hadrons.pdf}\textbf{]}
+
+\bibitem{Fan2023}
+Z.~Fan, W.~Good, and H.-W.~Lin,
+``Physical-continuum limit of the nucleon gluon parton distribution from lattice QCD,''
+Phys.\ Rev.\ D \textbf{108}, 014508 (2023), arXiv:2210.09985.
+\quad\textbf{[来源:} \texttt{refer/papers/Physical-Continuum Limit of the Nucleon Gluon Parton Distribution from Lattice QCD.pdf}\textbf{]}
+
+\end{thebibliography}
+
+\end{document}

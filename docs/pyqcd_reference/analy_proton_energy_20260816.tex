@@ -1,0 +1,300 @@
+% ============================================================
+% analy 报告 — 规范模板 v2（xelatex + ctex）
+% 主题: test6 复现链 — pyqcd 独立复现 04_proton_energy 的代码-物理映射与一致性验证
+% 编译: 见模板第 0 节；交付前 Overfull 计数必须为 0
+% ============================================================
+\documentclass[UTF8]{ctexart}
+% 宏包顺序固定，不可调整（存在依赖：tcolorbox 依赖 xcolor 等）
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath}              % 公式编号 \label/\eqref 交叉引用
+\usepackage{microtype}            % 微排版，缓解长词/URL 溢出
+\usepackage{listings}             % 代码直引 \lstinputlisting
+\usepackage{xcolor}
+\usepackage{booktabs}             % 表格粗线规范
+\usepackage{longtable}            % 长表自动跨页（参考源清单必用）
+\usepackage{xltabular}            % 跨页+自动换行合体（longtable+tabularx，参考源清单用）
+\usepackage{tabularx}             % X 列自动换行（防表格溢出）
+\usepackage{hyperref}             % 书签/链接（最后加载，避免与其它宏包冲突）
+\usepackage{fancyhdr}             % 页眉页脚
+\usepackage[most]{tcolorbox}      % most = 含 breakable（彩色框可跨页）
+\usepackage{titlesec}             % 章节标题着色
+
+% ===== 色板（语义化；全文档同一颜色只表达同一类含义）=====
+% —— 基础五色（analy 与 pure 通用，同义）——
+\definecolor{accent}{HTML}{1F4E79}        % 主色(深蓝): 章节标题/强调主色
+\definecolor{evidence}{HTML}{1E8449}      % 仓库证据(绿): 参考源/证据句/代码注释
+\definecolor{reference}{HTML}{8C6D1F}     % 参考背景(棕): 知识库/书籍旁证
+\definecolor{conclusion}{HTML}{8B1A1A}    % 结论(深红): 结论框
+\definecolor{codebg}{HTML}{F4F6F7}        % 代码块底色(浅灰)
+% —— analy 场景色（三视角 + 状态）——
+\definecolor{struct}{HTML}{3B3B98}        % 主体结构(靛蓝): 架构分层/层级表
+\definecolor{relation}{HTML}{0E7C7B}      % 各部分关系(青): 依赖链/关系表
+\definecolor{idea}{HTML}{B03A2E}          % 项目思路(砖红): 设计意图/演进脉络
+\definecolor{warn}{HTML}{D35400}          % 未验证/局限(橙红): 风险与缺口
+\definecolor{hl}{HTML}{FDF6E3}            % 重点强调(浅黄底): 关键句底色
+
+% ===== 全局防溢出设置 =====
+\setlength{\emergencystretch}{3em}        % 长词/URL 断行缓冲
+\hypersetup{colorlinks=true,linkcolor=accent,urlcolor=relation} % 链接着色
+
+% ===== 层次分明的标题 =====
+\titleformat{\section}{\Large\bfseries\color{accent}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\color{struct}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{struct!70!black}}{\thesubsubsection}{1em}{}
+
+% ===== 彩色标识框（均带 breakable 防跨页溢出）=====
+\newtcolorbox{conclbox}{breakable,colback=conclusion!6,colframe=conclusion,title=结论}
+\newtcolorbox{refbox}{breakable,colback=reference!6,colframe=reference,title=参考背景}
+\newtcolorbox{ideabox}{breakable,colback=idea!6,colframe=idea,title=项目思路}
+\newtcolorbox{warnbox}{breakable,colback=warn!6,colframe=warn,title=局限与风险}
+\newtcolorbox{keybox}{breakable,colback=hl,colframe=accent,title=要点}
+
+% ===== 代码样式（防溢出关键）=====
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  language=python,              % 按实际内容调整
+  firstnumber=auto,
+  keywordstyle=\color{accent}\bfseries,
+  commentstyle=\color{evidence!70!black},
+  stringstyle=\color{struct},
+  breaklines=true,            % 长行自动断行
+  breakatwhitespace=false,    % 任意位置断行（防超长 token 溢出）
+  postbreak=\mbox{\textcolor{accent}{$\hookrightarrow$}\space}, % 断行箭头
+  keepspaces=true,            % 断行保留缩进
+  columns=flexible,           % 可变宽度字形，缓解等宽溢出
+  numbers=left,numberstyle=\tiny\color{struct!60!black},
+}
+
+% ===== 正文元素样式约定 =====
+% 1) 参考源: 路径 token 用 \texttt{\nolinkurl{...}}（可在 . : / _ 后断行）
+% 2) 结论分级: 确证=struct / 推断=relation / 未验证=warn
+% 3) URL: 一律 \url{...} 包裹
+
+\title{test6 复现链：pyqcd 独立复现 04\_proton\_energy 的代码-物理映射与一致性验证}
+\author{opencode analy}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+本报告分析 \texttt{data/from-logs/logs/test6} 复现链：调用本库 \texttt{pyqcd} 独立复现
+\texttt{refer/huangcl/04\_proton\_energy/code\_proton\_energy.py}（三方向质子
+2pt → corr2 → 有效能量提取），不 import 也不照抄示例代码。分析范围覆盖
+复现脚本、验证脚本、参考脚本与复用模块共 12 个文件（精读 4、浏览 6、仅索引 2）。
+核心结论：① 复现与 refer 原样实跑真值 \textcolor{evidence}{逐位一致}（最大
+|Δ|=0.0，NaN 模式一致，总判定 PASS）；② 三方向+平均平台拟合给出
+E0=1.64--1.68 a$^{-1}$（≈3.07--3.14 GeV），与色散预期
+$\sqrt{m^2+p^2}\approx3.14$ GeV 吻合；③ 图片由原 2 张扩展至 7 张
+（拟合色带、差异相关矩阵、直方图等），物理断言 12/12 通过。
+三视角：结构（test6 工作区五要素）/ 关系（复现-真值-比对闭环）/
+思路（独立实现 + 数值闭环验证）。
+\end{abstract}
+
+\tableofcontents
+
+% ================= 1 仓库概览 =================
+\section{仓库概览}
+\subsection{目录结构}
+本报告聚焦 \textcolor{struct}{test6 工作区}与其上下游，涉及目录：
+\begin{itemize}
+  \item \texttt{data/from-logs/logs/test6/} —— 复现工作区（main.py / run-local.sh / verify\_04\_repro.py / 1\_result / .ref\_run）
+  \item \texttt{refer/huangcl/04\_proton\_energy/} —— 参考脚本（code\_proton\_energy.py 307 行、code.py 510 行）
+  \item \texttt{refer/huangcl/98\_tools/} —— refer 脚本依赖的通用工具
+  \item \texttt{pyqcd/analysis/} —— 复现复用的统计/图表/报告模块
+\end{itemize}
+
+\subsection{规模统计与 git 信息}
+\begin{table}[htbp]\centering
+\begin{tabular}{ll}
+\toprule
+指标 & 实测值 \\
+\midrule
+test6 产物文件数 & 15（4 npy + 7 png + 2 报告 + 2 图真值） \\
+复现脚本行数（main.py） & 509 \\
+验证脚本行数（verify\_04\_repro.py） & 92 \\
+参考脚本行数（code\_proton\_energy.py） & 307 \\
+复现数据规模 & Nconf=879，corr2 形状 (879, 20) \\
+git 提交 & e46b84c（2026-08-16，test6 复现链基础） \\
+\bottomrule
+\end{tabular}
+\caption{分析范围实测统计（数据来源: find/wc/git 实测）}
+\end{table}
+
+% ================= 2 主体结构（核心目的一）=================
+\section{主体结构}
+test6 工作区按职责分五层：
+\begin{table}[htbp]\centering
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textcolor{struct}{层次} & 路径 & \textcolor{struct}{职责} \\
+\midrule
+入口层 & \texttt{data/from-logs/logs/test6/run-local.sh} & 一键全链：环境自检→复现→比对→物理断言 \\
+实现层 & \texttt{data/from-logs/logs/test6/main.py} & 独立复现：corr2 计算、平台拟合、7 图+报告 \\
+验证层 & \texttt{data/from-logs/logs/test6/verify\_04\_repro.py} & 数值比对：refer 实跑真值 vs 复现产物 \\
+真值层 & \texttt{data/from-logs/logs/test6/.ref\_run/} & refer 脚本原样实跑产物（比对基准） \\
+产物层 & \texttt{data/from-logs/logs/test6/1\_result/L24x72/Pz6/} & corr2 npy / 图 png / 拟合报告 \\
+\bottomrule
+\end{tabularx}
+\caption{test6 工作区主体结构分层（数据来源: 全库索引实测）}
+\end{table}
+
+复用层：\texttt{pyqcd/analysis} 的统计基元（sem/resample/cov\_mat）、图表工具
+（plot\_errbar/plot\_scatter）与报告工具（fit\_report\_lines/make\_summary\_table）
+承担全部数值与制图细节，复现脚本只做编排。
+
+% ================= 3 各部分关系（核心目的二）=================
+\section{各部分关系}
+\begin{keybox}
+\textbf{复现-验证闭环:} \textcolor{relation}{refer 脚本原样实跑 → .ref\_run 真值}
+（真值层）$\leftrightarrow$ \textcolor{relation}{main.py 独立实现 → 1\_result 产物}
+（产物层），由 \textcolor{relation}{verify\_04\_repro.py}（验证层）逐点比对闭合。
+\end{keybox}
+
+依赖链（实现层内部）：
+\texttt{main.py → pyqcd.analysis.\_disconnected（sem/resample/cov\_mat）}
+→ \texttt{\_plots（plot\_errbar/plot\_scatter）} → \texttt{\_fitter（报告）}；
+数据源为集群路径 \texttt{/public/group/lqcd/donghx/2pt\_Result/}（momsmear2x/y/z，
+879 组态三方向切片）。
+
+一致性的三个判定面（\texttt{verify\_04\_repro.py:50-64}）：① 形状与 dtype
+一致；② 各 dt 点 |Δ| $\le$ 3$\times$SEM；③ eff mass 曲线 NaN 模式一致。
+
+% ================= 4 项目思路（核心目的三）=================
+\section{项目思路}
+\subsection{设计意图}
+复现必须\textbf{独立实现}：main.py 不 import 也不照抄 refer 脚本（代码逐行
+自写），只复用本库 \texttt{pyqcd} 的既有工具——既满足仓库反模式
+（不 import refer/），又保证复现逻辑可审查。数值比对以 refer 脚本
+\textbf{原样实跑}产物为真值，形成\textbf{实现独立性 + 结果一致性}双保险。
+\subsection{演进脉络}
+git e46b84c（2026-08-16）确立了复现+比对框架；本会话在其上补齐
+图片扩展（2→7 张）、物理断言（12 项）与一键入口 run-local.sh。
+\subsection{典型工作流}
+\texttt{bash data/from-logs/logs/test6/run-local.sh}：环境自检 → 全链复现（~2 分钟）→
+数值比对 → 物理断言 → 产物清单；全程无人值守。
+\begin{ideabox}
+\textcolor{idea}{test6 的思路：以"原样实跑真值"为锚，独立实现的复现才有
+  数值意义上的证明力；扩展图与物理断言把"复现正确"落到物理结论层面。}
+\end{ideabox}
+
+% ================= 5 主题分析 =================
+\section{主题分析}
+\subsection{代码-物理对象映射}
+\begin{table}[htbp]\centering
+\begin{tabularx}{\textwidth}{lX X}
+\toprule
+\textcolor{struct}{代码符号} & \textcolor{struct}{对象概念} & \textcolor{struct}{物理含义} \\
+\midrule
+\texttt{twopt\_slice\_pp} & 质子 2pt 平移不变切片 & (Nt,Nt) 矩阵，元素为源点-汇点时间分离关联函数 \\
+\texttt{np.roll(\_corr[:, :, ti], -ti)} & 源点平移对齐 & 平移不变性：C(ti, ti+dt)=C(0, dt) \\
+\texttt{\_corr2\_rel.mean(1)} & ti 平均 & 平移平均：对全部源点取均值增强统计 \\
+\texttt{resample(..., jack=True)} & delete-one jackknife & 879 组态删一重采样，样本轴移至 axis 0 \\
+\texttt{meff = log|C(t)/C(t+1)|} & 有效能量 & 两点函数局域衰减率，平台处为基态能量 \\
+\texttt{C(t)=c0 e$^{-E0 t}$(1+c1 e$^{-dE t}$)} & 基态+激发态模型 & E0 为基态能量，c1/dE 吸收激发态污染 \\
+\texttt{momentum\_for(dir)} & 动量分量置换 & 三方向（x/y/z）物理等价，检验旋转对称 \\
+\bottomrule
+\end{tabularx}
+\caption{复现链代码符号 ↔ 物理对象映射（数据来源: main.py 与 refer 脚本实测）}
+\end{table}
+
+\subsection{有效能量提取与色散关系}
+corr2 的定义（main.py:145-177 与 refer 脚本 code\_proton\_energy.py:197-204 逐位一致）：
+\begin{equation}\label{eq:corr2}
+C(dt)=\frac{1}{N_t}\sum_{ti}\big|C^{\rm slice}(ti,\;ti+dt)\big|,\qquad
+aE_{\rm eff}(t)=\ln\frac{C(t)}{C(t+1)} .
+\end{equation}
+平台拟合窗口取 t=3..7（三方向+平均全稳健；t$\ge$8 信噪比骤降，
+t=0,1 切片值趋零，NaN 模式与参考一致）。
+
+\begin{table}[htbp]\centering
+\begin{tabular}{lcccc}
+\toprule
+方向 & E0 (a$^{-1}$) & E0 (GeV) & chi2/dof & 条件数 \\
+\midrule
+x  & 1.649(8)  & 3.084(15) & 0.27 & 6.3e7 \\
+y  & 1.677(17) & 3.138(32) & 1.8  & 1.3e8 \\
+z  & 1.637(6)  & 3.063(11) & 1.7  & 6.3e3 \\
+ave & 1.640(5) & 3.069(9)  & 2.4  & 1.4e7 \\
+\bottomrule
+\end{tabular}
+\caption{平台拟合结果（数据来源: data/from-logs/logs/test6/1\_result/L24x72/Pz6/2\_fit\_report.txt 实测）}
+\end{table}
+
+色散预期：$p=P_z\frac{2\pi}{L}\frac1a=6\times\frac{2\pi}{24}\times1.871
+\approx2.94$ GeV，$E=\sqrt{m_p^2+p^2}\approx3.14$ GeV；
+ave 拟合 $E_0=3.069(9)$ GeV，偏差 $\approx2\%$，\textcolor{struct}{确证}。
+三方向结果互差 $\le0.04$ a$^{-1}$（约 2.4\%），验证旋转等价性。
+
+\subsection{一致性验证机制}
+判据（\texttt{verify\_04\_repro.py:21-64}）：|Δ| $\le$ 3$\times$SEM，
+实测最大 |Δ|=0.000000e+00（\textcolor{struct}{逐位一致}），eff mass NaN 模式
+一致，总判定 PASS。这证明独立实现与 refer 实跑在数值上不可区分。
+\subsection{扩展产物（2 → 7 图）}
+\begin{itemize}
+  \item 原版 2 图：eff\_mass.png（aE 四方向对比）、sem\_comparison.png（SEM 散点 t=0..14）
+  \item 扩展 5 图：eff\_mass\_GeV.png（ave 拟合色带）、eff\_mass\_fit\_dirs.png
+    （2$\times$2 各方向拟合色带）、corr2\_raw.png（log|C(t)|）、meff\_corr.png
+    （三方向相关系数热图）、meff\_hist.png（平台处 jackknife 分布直方图）
+  \item 文本：2\_fit\_report.txt（汇总表）、1\_fit\_data.npz
+\end{itemize}
+物理断言 12/12 通过（形状、非空、E0 与色散偏差 $<$0.35 GeV、三方向互差
+$<$0.1 a$^{-1}$、meff 平台落在 Pz6 预期 [1.3,1.8]）。
+
+% ================= 6 关键代码/文档片段 =================
+\section{关键代码/文档片段}
+\textbf{片段 1：独立实现的 corr2 计算（main.py:126-177，与 refer 行为一致）}
+\lstinputlisting[firstline=126,lastline=177]{/root/PyQCD/data/from-logs/logs/test6/main.py}
+\textbf{片段 2：参考脚本同功能段（code\_proton\_energy.py:196-204）}
+\lstinputlisting[firstline=196,lastline=204]{/public/home/zhangxin/PyQCD/refer/huangcl/04_proton_energy/code_proton_energy.py}
+\textbf{片段 3：比对判据（verify\_04\_repro.py:50-64）}
+\lstinputlisting[firstline=50,lastline=64]{/root/PyQCD/data/from-logs/logs/test6/verify_04_repro.py}
+
+% ================= 7 参考源清单 =================
+\section{参考源清单}
+\begin{xltabular}{\textwidth}{llX}
+\toprule
+\textcolor{evidence}{参考源} & 类型 & 内容/作用 \\
+\midrule
+\endhead
+\texttt{\nolinkurl{data/from-logs/logs/test6/main.py:126-177}} & 仓库 & compute\_corr2：加载→roll→ti 平均→jackknife \\
+\texttt{\nolinkurl{data/from-logs/logs/test6/main.py:200-232}} & 仓库 & do\_fit：逐样本 lsqfit 平台拟合（svdcut=1e-6） \\
+\texttt{\nolinkurl{data/from-logs/logs/test6/main.py:295-431}} & 仓库 & plot\_part3：7 张扩展图 \\
+\texttt{\nolinkurl{data/from-logs/logs/test6/verify_04_repro.py:21-64}} & 仓库 & 数值比对：3$\times$SEM 判据与 NaN 模式 \\
+\texttt{\nolinkurl{data/from-logs/logs/test6/run-local.sh:1-78}} & 仓库 & 一键全链入口 + 12 项物理断言 \\
+\texttt{\nolinkurl{refer/huangcl/04_proton_energy/code_proton_energy.py:157-213}} & 参考 & 参考实现：三方向 corr2 计算 \\
+\texttt{\nolinkurl{refer/huangcl/04_proton_energy/code_proton_energy.py:262-302}} & 参考 & 参考实现：eff\_mass/sem 图 \\
+\texttt{\nolinkurl{refer/huangcl/04_proton_energy/code.py:234-337}} & 参考 & E0 平台拟合与报告（扩展来源） \\
+\texttt{\nolinkurl{refer/huangcl/05_ana_3dir_diff_sem/code_ana_3dir_diff_sem.py}} & 参考 & 三方向差异分析（相关矩阵/直方图扩展来源） \\
+\texttt{\nolinkurl{pyqcd/analysis/_proton_energy.py:69-93}} & 仓库 & pyqcd 既有 compute\_corr2（单方向版） \\
+\texttt{\nolinkurl{pyqcd/analysis/_plots.py:55-116}} & 仓库 & plot\_errbar（含拟合色带） \\
+\texttt{\nolinkurl{pyqcd/analysis/_disconnected.py:23-51}} & 仓库 & sem/resample/cov\_mat 统计基元 \\
+\bottomrule
+\end{xltabular}
+
+% ================= 8 结论与局限 =================
+\section{结论与局限}
+\begin{conclbox}
+三视角结论：\textcolor{struct}{结构}——test6 工作区五层分明（入口/实现/验证/
+真值/产物）；\textcolor{relation}{关系}——复现-真值-比对闭环闭合，corr2 与
+refer 实跑逐位一致；\textcolor{idea}{思路}——独立实现 + 数值闭环 + 物理断言，
+"复现正确"有双重证明。主题结论：有效能量 E0=3.07--3.14 GeV 与色散预期
+吻合，图片扩展至 7 张并附 12 项物理断言，全部通过。
+\end{conclbox}
+\begin{refbox}
+参考侧证据：refer 脚本 04 步（code.py）用相同拟合模型与 svdcut=1e-6 约定
+（\texttt{code.py:234-278}），本复现与之一致；05 步三方向差异分析思路
+（相关矩阵/直方图）为本复现扩展图的来源。
+\end{refbox}
+\begin{warnbox}
+\textcolor{warn}{未验证}项与局限：① 拟合窗口敏感性——窗口 [4,8] 下
+ave E0=1.591(37)，与 [3,7] 的 1.640(5) 相差 $\approx$3\%，为系统不确定度，
+报告已注明；② x/y 方向 jackknife 协方差条件数达 10$^{7}$--10$^{8}$
+（强相关数据固有），虽未影响拟合收敛，但属统计稳健性边界；③ corr2 逐位
+一致仅覆盖 corr2 数组与 meff 曲线，拟合与扩展图不与参考逐位比对
+（参考脚本无拟合实现，扩展图为新增功能）。
+\end{warnbox}
+
+\end{document}

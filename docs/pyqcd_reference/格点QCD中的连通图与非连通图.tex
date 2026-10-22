@@ -1,0 +1,531 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption,multirow}
+\usepackage{hyperref,xcolor,enumitem,mathtools}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的连通图与非连通图：\\
+Wick缩并、价夸克与海夸克的拓扑学}
+\author{基于本库全部相关文献与教材的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+连通图（connected diagram）与非连通图（disconnected diagram）的区分是格点QCD计算中一个具有深远物理后果的技术性概念——它直接决定了哪些强子可观测量可以在当前计算资源下被精确提取，哪些因信噪比和计算成本而被系统性地回避。本文基于本库中的核心教材（Gattringer与Lang的\textit{Quantum Chromodynamics on the Lattice}——第5--6章和第8章的完整推导；Gupta的\textit{Introduction to Lattice QCD}——第14--16章的实践指南；Peskin与Schroeder的\textit{An Introduction to Quantum Field Theory}——连续场论背景）以及相关研究论文，从以下五个层次系统解析格点QCD中的连通图与非连通图。
+
+\textbf{第一层——Wick缩并的格点语言（§2）：}
+从Grassmann变量的路径积分出发，推导Wick定理在格点上的具体形式。阐明：含有$2n$个费米子场的关联函数被分解为$n!$对费米子传播子$D^{-1}(n|m)$乘积的代数和（由符号的置换奇偶性决定），每个收缩对应一条\textbf{费米子线}——从源点$m$到汇点$n$的夸克传播子。
+
+\textbf{第二层——连通图：价夸克在两点之间传播（§3）：}
+以同位旋矢量介子关联函数$\langle \bar u\Gamma d(x)\,\bar d\Gamma u(0)\rangle$为例，展示Wick缩并如何产生唯一的连通贡献：$-\operatorname{tr}[\Gamma D_u^{-1}(x|0)\,\Gamma D_d^{-1}(0|x)]$——一条$u$夸克从$0$传播到$x$，一条$d$夸克从$x$反方向传播回$0$。图解为\textbf{连通回路}：两个时空点由两条相互反向的夸克线直接连接。连通图的信噪比在大$t$下衰减为$e^{-m_\pi t}$——仅由基态质量控制，是可以精确计算的结构。
+
+\textbf{第三层——非连通图：真空的量子涨落与海夸克（§4）：}
+以同位旋单态介子关联函数$\langle \bar u\Gamma u + \bar d\Gamma d\rangle/\sqrt{2}$为例，展示Wick缩并如何产生\textbf{连通贡献}（与同位旋矢量相似）和\textbf{非连通贡献}（$+\operatorname{tr}[\Gamma D_u^{-1}(x|x)]\operatorname{tr}[\Gamma D_u^{-1}(0|0)]/2 + u\leftrightarrow d$）。非连通贡献的特征是\textbf{两个独立的闭合夸克回线}——每条夸克线从某时空点出发并终止于同一点（$D^{-1}(n|n)$）。这对应真空中的夸克-反夸克对涨落——即\textbf{海夸克}（sea quarks）的动力学效应。图解为两个在空间上分离但在规范场中独立闭合的夸克环。
+
+\textbf{第四层——淬火近似与动力学模拟（§5）：}
+阐明连通图与非连通图的区分如何直接导致了格点QCD历史上的核心近似策略——\textbf{淬火近似}（quenched approximation）。淬火近似将费米子行列式设为$\det[D] = 1$，等价于忽略所有闭合夸克环（海夸克）对规范组态的反馈。在此近似下：价夸克的传播被完整保留，但真空极化效应——非连通图的物理根源——被系统地忽略。讨论了淬火近似的物理后果：$m_\pi$不能达到物理值（例外组态问题）、海夸克对强子质量的缺失贡献（约5--10\%系统误差）。对比了full QCD（动力学模拟）中两种夸克的统一处理。
+
+\textbf{第五层——非连通图在现代格点部分子物理中的角色（§6）：}
+以本库中的具体物理问题为例，展示非连通图的关键性和当前处理的挑战：(a) 奇异夸克PDF——$\bar s\Gamma s$算符的矩阵元纯由非连通图贡献，是全局拟合中约束最弱的味之一；(b) 胶子PDF中的非连通收缩——准胶子算符的部分收缩涉及胶子真空圈，信噪比极差；(c) $\pi$介子形状因子的非连通插入——在大动量转移因子化中，基于连通插入的假设（即忽略非连通贡献）需要独立的数值验证；(d) 质子自旋危机——味单态轴矢流矩阵元同时需要连通和非连通贡献，后者的计算是$\Delta\Sigma$和$\Delta G$格点确定的瓶颈。
+
+本文以统一的数学语言（Wick定理、费米子传播子、Grassmann积分、行列式的hopping展开）将分散在教材各章和论文中的连通图/非连通图知识编织成一个有机整体，为理解格点QCD计算中的``图拓扑学''提供了系统性的理论手册。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==========================================================================
+\section{引言：费米子路径积分与关联函数的图表示}
+%==========================================================================
+
+\subsection{格点QCD中费米子关联函数的计算范式}
+
+在格点QCD中，任何包含夸克场的物理可观测量——从最简单的$\pi$介子质量到复杂的PDF矩阵元——都必须经历一个关键的数学手续：\textbf{费米子缩并}（fermion contraction）或称\textbf{Wick缩并}。这一手续将反交换的Grassmann变量从路径积分中积分掉，留下仅包含规范链接$U_\mu$和夸克传播子$D^{-1}$的玻色型表达式，从而可以通过Monte Carlo方法数值计算。
+
+Wick缩并的输出具有直观的\textbf{图表示}：夸克传播子$D^{-1}(n|m)$对应于从源点$m$到汇点$n$的一条\textbf{夸克线}；闭合的夸克环$\operatorname{tr}[D^{-1}(n|n)]$对应于真空中的夸克-反夸克对涨落。正是这些夸克线的\textbf{拓扑连通性}决定了关联函数的解析结构和计算难度~\cite{GattringerLang2010}。
+
+\subsection{连通与非连通图的直观区分}
+
+图\ref{fig:connected_disconnected_concept}（以文字描述）展示了区分的基本思想：
+
+\begin{center}
+\fbox{\begin{minipage}{0.92\textwidth}
+\small
+\textbf{连通图（connected diagram）：}夸克线在两个算符插入点（源和汇）之间形成\textbf{连续}的路径——所有夸克线都参与了连接两个算符的``信息传递''。图解为一条或多条夸克线将算符$O(x)$和$O(0)$直接或间接地连接起来。
+
+\textbf{非连通图（disconnected diagram）：}存在至少一个\textbf{独立}的闭合夸克环——该环不参与算符之间的信息传递，仅作为``真空背景''存在。图解为两个算符被各自独立的夸克环包围，两个环之间没有夸克线的直接连接——它们仅通过胶子场的关联$\langle U_\mu U_\nu \cdots \rangle$（在组态平均中）间接耦合。
+
+\textbf{图示（Gattringer \& Lang, Fig.\,6.1）：}中微子传播图：左侧为连通图——两个算符由两条方向相反的夸克线相连（一条从$0$到$x$的$u$夸克，一条从$x$回到$0$的$d$夸克）；右侧为非连通图——每个算符各自被一个独立的闭合夸克环包围，两个环仅在组态平均的意义上``感觉''到彼此的存在。
+\end{minipage}}
+\end{center}
+
+\subsection{本库中的相关教材与文献}
+
+\begin{table}[H]
+\centering
+\caption{本库中连通图/非连通图相关的核心文献}
+\label{tab:cd_papers}
+\small
+\begin{tabular}{lp{9cm}}
+\toprule
+文献 & 核心贡献 \\
+\midrule
+\texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf} &
+Ch.5.1 (\S 5.1.6, Wick定理); Ch.5.3 (hopping展开与夸克传播子的费米子线解释); Ch.6.1 (\S 6.1.2, 连通与非连通图的标准定义, Fig.\,6.1); Ch.6.1.6 (淬火近似与海夸克); Ch.8 (动力学费米子的行列式与HMC算法) \\
+\texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf} &
+Ch.10 (Wilson费米子与关联函数), Ch.14 (\S 14.2.1, Wilson圈); Ch.16.8 (淬火近似QQCD); Ch.17 (介子关联函数的缩并展开) \\
+\texttt{refer/books/An Introduction to Quantum Field Theory.pdf} &
+Ch.9 (路径积分与Grassmann变量), Ch.17 (部分子与QCD因子化) \\
+\texttt{refer/papers/Strangeness in the proton from W+charm...pdf} &
+奇异夸克PDF的唯象约束——纯非连通图贡献的物理观测量 \\
+\texttt{refer/papers/Note of gluon PDFs.pdf} &
+胶子PDF计算中非连通收缩的讨论 \\
+\texttt{refer/papers/Parton Distribution Function of a Deuteron-like Dibaryon System...pdf} &
+多强子关联函数中的连通/非连通结构 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%==========================================================================
+\section{Wick缩并：从Grassmann积分到费米子传播子}
+%==========================================================================
+
+\subsection{格点上的费米子路径积分}
+
+格点QCD中，含有费米子场的真空期望值定义为Grassmann变量的路径积分~\cite{GattringerLang2010}：
+
+\begin{equation}
+\langle \mathcal{O}[\psi,\bar\psi,U] \rangle = \frac{1}{Z}\int\mathcal{D}U\,\mathcal{D}\bar\psi\mathcal{D}\psi\; \mathcal{O}[\psi,\bar\psi,U]\,e^{-S_G[U] - \bar\psi D[U]\psi},
+\label{eq:path_integral_fermions}
+\end{equation}
+其中$D[U]$是依赖于规范场$U$的格点Dirac算符（$12|\Lambda|\times 12|\Lambda|$维矩阵，$|\Lambda|$为格点数），$\bar\psi D\psi = a^4\sum_{n,m}\bar\psi(n)D(n|m)\psi(m)$。
+
+费米子场是Grassmann值——反对易$c$数，其积分规则为：
+\begin{equation}
+\int d\psi(n) = 0,\qquad \int d\psi(n)\,\psi(n) = 1,\qquad \int d\bar\psi(n) = 0,\qquad \int d\bar\psi(n)\,\bar\psi(n) = 1.
+\label{eq:grassmann_rules}
+\end{equation}
+
+\subsection{Wick定理在格点上的表述}
+
+Gattringer与Lang~\cite{GattringerLang2010}给出了Wick定理在格点场合的标准形式（\S 5.1.6）。将费米子场$\psi,\bar\psi$各自收集为一个多分量矢量（指标集$I = (n,\alpha,a)$，每个$I$即为``一个Grassmann变量''），费米子作用取二次型$S_F = \sum_{I,J}\bar\psi_I M_{IJ}\psi_J$。
+
+\begin{theorem}[Wick定理（格点形式）~\cite{GattringerLang2010}]
+对于$n$对费米子场（$\bar\psi_{I_1}\psi_{J_1}\cdots\bar\psi_{I_n}\psi_{J_n}$）与高斯权重的积分：
+\begin{equation}
+\begin{aligned}
+&\frac{1}{Z}\int\mathcal{D}\bar\psi\mathcal{D}\psi\; \bar\psi_{I_1}\psi_{J_1}\cdots\bar\psi_{I_n}\psi_{J_n}\; e^{-\bar\psi M\psi} \\
+&\quad = \sum_{\sigma\in S_n}\operatorname{sgn}(\sigma)\,M^{-1}_{I_1,J_{\sigma(1)}}\cdots M^{-1}_{I_n,J_{\sigma(n)}},
+\end{aligned}
+\label{eq:wick_theorem_lattice}
+\end{equation}
+其中$S_n$是对$n$个指标的所有置换的群，$\operatorname{sgn}(\sigma)=\pm1$是其奇偶性。每一个$M^{-1}_{I_\alpha,J_{\sigma(\alpha)}} = D^{-1}(n_\alpha|m_{\sigma(\alpha)})$是夸克传播子的一个矩阵元，对应一条从$m$到$n$的夸克线。
+\end{theorem}
+
+\textbf{置换的图解释：}每一项$M^{-1}_{I_1,J_{\sigma(1)}}\cdots M^{-1}_{I_n,J_{\sigma(n)}}$对应将$n$个$\bar\psi$（源）与$n$个$\psi$（汇）通过$n$条夸克线两两配对的一种方式。不同置换对应不同的配对组合。符号因子$\operatorname{sgn}(\sigma)$来自Grassmann变量的反对易性——每交换两个费米子场，结果乘$-1$。
+
+\textbf{对夸克双线型算符的具体应用：}\textbf{每个夸克双线型算符}$\bar\psi(n)\Gamma\psi(n)$涉及一对碰撞在同一格点的$\bar\psi$和$\psi$。当两个这样的算符在关联函数中同时出现时，Wick定理将其分解为两个传播子的乘积（连通）与每个算符各自形成闭合环（非连通）的线性组合。
+
+\subsection{夸克传播子：费米子线的数学实现}
+
+格点上将夸克传播子记为$D^{-1}(n|m)^{\beta a}_{\alpha b}$——从源$m$处的颜色$a$、Dirac分量$\alpha$传播到汇$n$处的颜色$b$、Dirac分量$\beta$。通过\textbf{Hopping展开}（\S 5.3），传播子可以表达为规范链接路径的加权求和：
+
+\begin{equation}
+D^{-1}(n|m) = \sum_{j=0}^\infty \kappa^j H^j(n|m),
+\label{eq:hopping_expansion_prop}
+\end{equation}
+其中$\kappa$为hopping参数，$H$为收集最近邻项的hopping矩阵。每一项$\kappa^j H^j$对应连接$m$和$n$的一条长度为$j$的非回溯路径（由规范链接的乘积组成），权重为$\kappa^j$。
+
+\textbf{闭合夸克环的图解：}当$n=m$时，夸克线从一点出发回到同一点——形成\textbf{闭合的夸克环}（fermion loop）。从hopping展开的角度，$\operatorname{tr}[D^{-1}(n|n)]$是所有以$n$为起止点的闭合非回溯路径的加权和：
+
+\begin{equation}
+\operatorname{tr}[D^{-1}(n|n)] = \sum_{j} \kappa^j \times (\text{从}n\text{出发回到}n\text{的长度为}j\text{的所有闭合路径之和}).
+\label{eq:closed_loop_trace}
+\end{equation}
+
+在颜色空间中取迹（trace over color indices）保证闭合路径的规范不变性——因为闭合路径的颜色矩阵乘积的迹在规范变换下不变。\textbf{闭合夸克环是海夸克（sea quarks）和费米子行列式$\det[D]$的微观图像}——这正是第5节讨论的淬火近似的核心对象。
+
+%==========================================================================
+\section{连通图：价夸克在两点之间的直接传播}
+%==========================================================================
+
+\subsection{同位旋矢量介子的连通关联函数}
+
+以$\pi^+ = \bar d\gamma_5 u$（同位旋矢量，$I=1$，$I_z=+1$）的关联函数为最简洁的例子~\cite{GattringerLang2010}。两个$\pi^+$介子内插算符的真空期望值经过Wick缩并给出：
+
+\begin{definition}[同位旋矢量$\pi$介子关联函数（纯连通）~\cite{GattringerLang2010}]
+\begin{equation}
+\boxed{\langle \pi^+(n) \pi^+(m)^\dagger \rangle_F = -\operatorname{tr}\!\big[\gamma_5 D_u^{-1}(n|m)\,\gamma_5 D_d^{-1}(m|n)\big]},
+\label{eq:pion_connected}
+\end{equation}
+其中$D_u$和$D_d$分别为$u$和$d$夸克的Dirac算符，迹取遍Dirac和颜色指标，$\langle\cdots\rangle_F$表示仅对费米子场的路径积分（规范场仍待后续平均）。
+\end{definition}
+
+\textbf{缩并过程的步骤：}
+\begin{enumerate}[nosep]
+    \item $\pi^+(n) = \bar d(n)_\alpha \gamma_{5\,\alpha\beta} u(n)_\beta$，$\pi^+(m)^\dagger = \bar u(m)_\gamma \gamma_{5\,\gamma\delta} d(m)_\delta$；
+    \item Grassmann积分中仅有同味的$\bar\psi, \psi$可配对：$u$必须与$u$配对，$d$必须与$d$配对；
+    \item 唯一种配对方式：$\bar d(n)$与$d(m)$配对$\to$传播子$D_d^{-1}(m|n)$（从$m$到$n$的$d$夸克），$\bar u(m)$与$u(n)$配对$\to$传播子$D_u^{-1}(n|m)$（从$n$返回$m$的$u$夸克）；
+    \item 因此\textbf{仅有连通贡献}，无非连通项。
+\end{enumerate}
+
+\textbf{图解（图6.1左半）：}两个时空点由两条方向相反的夸克线直接连接——形成了一个单一的非回溯回路。这条回路在规范组态平均后决定了介子的质量、衰变常数和与其它过程的耦合。
+
+\subsection{连通图的大$t$行为与基态质量提取}
+
+连通关联函数在大时间分离下具有简洁的基态主导行为~\cite{GattringerLang2010}：
+\begin{equation}
+C_{\text{conn}}(t) = \sum_{\mathbf{n}} \langle \pi^+(\mathbf{n}, t) \pi^+(0)^\dagger \rangle
+\;\xrightarrow{t\gg 0}\;
+\frac{|\langle 0|\pi^+|\pi\rangle|^2}{2m_\pi}\, e^{-m_\pi t},
+\label{eq:conn_large_t}
+\end{equation}
+其中基态质量$m_\pi$可从有效质量$m_{\text{eff}}(t) = \ln[C(t)/C(t+1)]$的平台值中直接提取。信噪比随$t$的衰减为$\sim e^{-m_\pi t}$——由基态$\pi$介子质量控制。对物理$\pi$介子（$m_\pi \approx 135$~MeV），衰减速度相对温和，即使在$t \sim 2$~fm处仍保持可用的信噪比。\textbf{连通图是格点QCD中计算精度最高的结构}，大多数精确的强子谱学结果均基于连通关联函数。
+
+\subsection{连通图在部分子物理中的核心角色}
+
+在格点PDF计算中，同位旋矢量（$u-d$）夸克PDF的准PDF矩阵元\textbf{纯由连通图贡献}：
+\begin{equation}
+\tilde h_{u-d}(z, P_z) = \langle P_z | \bar u(z)\gamma^t U(z,0) u(0) - (u\to d) | P_z \rangle_{\text{conn}},
+\label{eq:isovector_PDF_connected}
+\end{equation}
+其中非连通贡献在相减中精确抵消。这是为什么\textbf{同位旋矢量夸克PDF是格点部分子物理中计算最可靠、精度最高的可观测量}——它完全避开了非连通图的计算困难。LPC合作组的大量准PDF和TMD-PDF计算均基于这一关键性质。
+
+%==========================================================================
+\section{非连通图：真空极化与海夸克的拓扑学}
+%==========================================================================
+
+\subsection{同位旋单态介子的缩并：非连通项的出现}
+
+当考虑同位旋单态（$I=0$）的介子内插算符时——例如$O_S = (\bar u\Gamma u + \bar d\Gamma d)/\sqrt{2}$——Wick缩并的结果具有截然不同的拓扑结构~\cite{GattringerLang2010}。
+
+\begin{definition}[同位旋单态介子关联函数（连通+非连通）~\cite{GattringerLang2010}]
+\begin{equation}
+\begin{aligned}
+\boxed{\langle O_S(n) O_S(m) \rangle_F} = &
+-\frac{1}{2}\operatorname{tr}\!\big[\Gamma D_u^{-1}(n|m)\,\Gamma D_u^{-1}(m|n)\big] \quad (\text{连通}, u\text{味})\\
+&-\frac{1}{2}\operatorname{tr}\!\big[\Gamma D_u^{-1}(n|n)\big]\operatorname{tr}\!\big[\Gamma D_u^{-1}(m|m)\big] \quad (\text{非连通}, u\text{味})\\
+&+ \frac{1}{2}\operatorname{tr}\!\big[\Gamma D_u^{-1}(n|n)\big]\operatorname{tr}\!\big[\Gamma D_d^{-1}(m|m)\big] + \;u \leftrightarrow d.
+\end{aligned}
+\label{eq:singlet_correlator}
+\end{equation}
+\end{definition}
+
+\textbf{图解（图6.1右半）：}连通部分与同位旋矢量情形完全相同；非连通部分由\textbf{两个独立的闭合夸克环}构成——一个环包围算符$O_S(n)$（从$n$出发并回到$n$），另一个环包围$O_S(m)$（从$m$出发并回到$m$）。两个环之间没有夸克线的直接连接——它们\textbf{仅在规范组态平均}中通过胶子场的关联$\langle U \cdots U \rangle$间接相互感知。
+
+\textbf{为什么同位旋矢量取消了非连通贡献？}对于$O_{I=1} = (\bar u\Gamma u - \bar d\Gamma d)/\sqrt{2}$，由于$u$和$d$的非连通贡献以\textbf{相反的相对符号}出现（来自内插算符中的减号），在$m_u = m_d$的精确同位旋对称性下相互抵消。这是同位旋对称性在Wick缩并层面的直接表现——它使得同位旋矢量的计算\textbf{纯粹是连通的}。
+
+\subsection{非连通图的数值挑战}
+
+从数值计算的角度，非连通图的计算难度\textbf{远远超越}连通图~\cite{GattringerLang2010,Gupta1997intro}：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{计算成本指数增长：}连通图仅需计算从源点$m$到所有汇点$\{n\}$的12列夸克传播子（12个源，对应颜色和Dirac指标各三个和一个分量）。而非连通图需要计算\textbf{所有格点上的闭合夸克环}$\operatorname{tr}[D^{-1}(n|n)]$——即所有$n$处的传播子对角元之和。这需要从\textbf{所有}格点出发解Dirac方程——$|\Lambda|$个源而非12个——计算成本增加$|\Lambda|$倍（对$L=48$的格点，$|\Lambda| \sim 10^7$）。
+
+    \item \textbf{信噪比极差：}闭合夸克环$\operatorname{tr}[D^{-1}(n|n)]$的信噪比随系统体积增大而恶化——因为信号来自短距离的量子涨落，而噪声来自全系统的规范场涨落。在体积$V \to \infty$极限下，非连通贡献的相对统计误差按$1/\sqrt{V}$发散。实践中，非连通图需要\textbf{数量级更高}的统计量才能与连通图达到相当的信噪比。
+
+    \item \textbf{规范噪声与信号抵消：}在动力学费米子的Monte Carlo生成中，每个组态上的非连通环受到强规范场涨落的影响。由于闭合环的迹对UV涨落极其敏感，不同组态之间的巨大方差使得非连通信号被掩埋在噪声中。
+\end{enumerate}
+
+\subsection{海夸克与费米子行列式}
+
+闭合夸克环$\operatorname{tr}[D^{-1}(n|n)]$不仅仅是关联函数中的一项——它们是\textbf{费米子行列式}$\det[D]$的hopping展开的基础~\cite{GattringerLang2010}：
+
+\begin{equation}
+\det[D] = \exp\!\left[-\sum_{j=1}^\infty \frac{1}{j}\sum_n \kappa^j \operatorname{tr}[H^j(n|n)]\right],
+\label{eq:determinant_hopping}
+\end{equation}
+其中$\operatorname{tr}[H^j(n|n)]$恰好是所有长度为$j$的闭合非回溯路径的加权和。$\det[D]$——它在路径积分中作为规范组态的\textbf{概率权重因子}——可以理解为\textbf{所有可能的闭合夸克环（任意长度和形状）的指数求和}。
+
+\textbf{海夸克（sea quarks）的物理定义：}来自行列式中的闭合夸克环——它们代表真空中不断产生和湮灭的虚夸克-反夸克对。海夸克不携带任何强子的价量子数——它们仅通过影响规范场的概率分布（因子$\det[D]$）间接影响强子的性质。
+
+\textbf{价夸克（valence quarks）的物理定义：}来自连通图的夸克线——即强子内插算符中的``开放式''夸克传播子。价夸克携带强子的量子数（如电荷、同位旋），是强子光谱学中``看得见''的夸克组分。
+
+在full QCD中，这两种夸克是\textbf{完全相同的粒子}——它们由同一个Dirac算符$D[U]$描述，具有相同的质量。区分仅在于它们出现在关联函数中的\textbf{拓扑角色}：价夸克连接不同的算符，海夸克形成独立闭合环。
+
+%==========================================================================
+\section{淬火近似与动力学模拟：海夸克的命运}
+%==========================================================================
+
+\subsection{淬火近似：$\det[D] \to 1$}
+
+在格点QCD发展的前二十年（1980--2000年代），绝大多数计算都在\textbf{淬火近似}（quenched approximation）下进行~\cite{GattringerLang2010,Gupta1997intro}：
+
+\begin{definition}[淬火近似~\cite{GattringerLang2010}]
+在路径积分中，将所有费米子行列式手动设置为$1$：
+\begin{equation}
+\det[D]_{\text{quenched}} \equiv 1, \qquad
+\langle O \rangle_{\text{quenched}} = \frac{1}{Z_G} \int\mathcal{D}U\, e^{-S_G[U]}\, O_{\text{valence}}[U],
+\label{eq:quenched}
+\end{equation}
+其中$O_{\text{valence}}[U]$仅包含连通图的夸克传播子（在纯规范组态上计算），而$Z_G$中的规范组态分布由纯规范作用$S_G$决定——**不受海夸克反馈的影响**。
+\end{definition}
+
+\textbf{淬火近似的物理意义：}它对应所有海夸克质量$m_q \to \infty$的极限——在hopping展开中$\kappa = 1/[2(am+4)] \to 0$，$\det[D] \to 1$（因为所有闭合环的权重$\kappa^j \to 0$）。海夸克变得``无限重''而无法从真空中产生——真空极化和夸克-反夸克对的涨落被\textbf{完全冻结}。
+
+\textbf{淬火中的非连通图：}即使$\det[D] = 1$（不对规范组态施加反馈），闭合夸克环$D^{-1}(n|n)$仍可以被计算——但它们不具有完整量子场论的诠释（淬火理论缺乏幺正性和正定性~\cite{GattringerLang2010}）。淬火下的非连通图计算更具有方法论意义——作为从淬火过渡到full QCD的测试平台。
+
+\subsection{图6.2：淬火与full QCD中的费米子线拓扑}
+
+Gattringer与Lang的图6.2~\cite{GattringerLang2010}是理解这一区分的核心图解：
+
+\begin{center}
+\fbox{\begin{minipage}{0.92\textwidth}
+\small
+\textbf{图6.2（文字描述）——介子和重子关联函数中的费米子线拓扑:}
+
+\medskip
+\textbf{最上行（纯连通，淬火中保留）：}两条夸克线直接连接两个算符——形成单个连通回路。
+
+\textbf{第二行（``发夹图'' hairpin diagrams，淬火中保留但含问题）：}连通拓扑但包含一个内线真空涨落——夸克线仅在一个算符处闭合。这类图在淬火近似中存在但引入了``淬火手征对数''——在$m_q\to 0$时额外发散，导致手征外推的困难。
+
+\textbf{第三行（海夸克环，淬火中省略）：}两个算符由连通夸克线连接，外加一个独立的闭合夸克环——海夸克的物理贡献。这类图仅在full QCD中存在。
+
+\textbf{最下行（多海夸克环，淬火中省略）：}多个独立闭合环——代表真空的高阶极化效应。
+\end{minipage}}
+\end{center}
+
+\textbf{淬火近似的物理后果~\cite{GattringerLang2010,Gupta1997intro}：}
+\begin{itemize}[nosep]
+    \item 强子质量谱的淬火结果与full QCD之间存在约5--10\%的系统偏差——这是海夸克对强子质量的典型效应；
+    \item 在轻夸克极限（$m_q\to 0$）下，淬火近似产生``淬火手征对数''——额外的手征发散使手征微扰论分析失效；
+    \item 例外组态（exceptional configurations）问题：没有海夸克行列式的保护，Wilson费米子的Dirac算符更易出现近零模，限制了可模拟的最小$m_\pi$；
+    \item 无法处理共振态衰变——因为海夸克环是衰变道的量子场论对应物，淬火近似下衰变被禁止。
+\end{itemize}
+
+\subsection{Partially Quenched QCD：海夸克与价夸克的独立控制}
+
+在实际计算中，常使用\textbf{部分淬火}（partially quenched, PQ）策略~\cite{GattringerLang2010}：海夸克（行列式中的$m_{\text{sea}}$）取较大质量以降低计算成本，价夸克（传播子中的$m_{\text{val}}$）取较小质量以使强子质量接近物理值。PQ手征微扰论（PQChPT）提供了分析$m_{\text{sea}} \neq m_{\text{val}}$情况下数据外推的系统框架。
+
+\textbf{本库中的使用：}LPC合作组的多篇TMD-PDF计算采用$m_{\text{val}} < m_{\text{sea}}$的策略——例如He等人的核子TMD-PDF~\cite{He2024unpolTMD}在MILC物理海夸克质量的HISQ系综上使用$m_\pi^{\text{val}} = 220$~MeV的Clover价夸克。这种部分淬火策略平衡了计算成本和物理$\pi$质量外推的需求。
+
+\subsection{Full QCD中的连通与非连通图}
+
+在full QCD（即完整计入$\det[D]$）中，连通与非连通图的区分仍然成立——它们的差异是关联函数中夸克线拓扑结构的差异，而非近似的人为产物。但在full QCD中：
+
+\begin{enumerate}[nosep]
+    \item 非连通图的统计涨落被$\det[D]$因子所调控——海夸克环在行列式中的贡献恰好抵消了测量中的部分噪声；
+    \item 非连通图有了完整的量子场论诠释——它们对应物理的真空极化效应；
+    \item 非连通图的计算构成了从第一性原理确定味单态矩阵元（如奇异夸克标量荷、胶子动量分数、质子自旋$\Delta\Sigma$）的\textbf{唯一途径}。
+\end{enumerate}
+
+\subsection{现代计算方法：随机噪声估计}
+
+为了克服非连通图的计算瓶颈，现代格点QCD广泛使用\textbf{随机噪声估计}技术~\cite{GattringerLang2010}：
+
+\begin{definition}[随机噪声估计闭合夸克环]
+闭合夸克环的迹通过随机噪声向量$\eta^{(r)}$（$r=1,\dots,N_r$）来估计：
+\begin{equation}
+\operatorname{tr}[\Gamma D^{-1}(n|n)] \approx \frac{1}{N_r}\sum_{r=1}^{N_r} \eta_a^{(r)}(n)^*\, \Gamma_{\alpha\beta}\, \big[D^{-1}\eta^{(r)}\big]^{\beta a}(n),
+\label{eq:stochastic_estimation}
+\end{equation}
+其中$\eta^{(r)}$是满足$\langle \eta_i^{(r)*}\eta_j^{(s)}\rangle = \delta_{ij}\delta^{rs}$的随机复向量（如$Z_2$噪声或$U(1)$噪声）。通过求解$D\chi^{(r)} = \eta^{(r)}$，$N_r$个解给出了对全矩阵迹的无偏估计——方差以$1/N_r$被压低。
+\end{definition}
+
+\textbf{常用的噪声降方差技术}包括：
+\begin{itemize}[nosep]
+    \item \textbf{Hopping参数展开}（HPE）：对重夸克，$\kappa$很小，闭合环贡献集中在前几阶——截断的级数近似可绕过随机噪声的大方差问题；
+    \item \textbf{Truncated Solver Method}（TSM）：对Dirac算符的低模精确求解（高精度），对高模用随机噪声粗略估计——两者互补；
+    \item \textbf{蒸馏}（Distillation）：在Laplacian算符的低模本征向量空间中投影夸克场——自动消除高模噪声。
+\end{itemize}
+
+%==========================================================================
+\section{非连通图在现代格点部分子物理中的关键应用}
+%==========================================================================
+
+\subsection{奇异夸克PDF：纯非连通图贡献}
+
+奇异夸克在质子中的分布$s(x)$和$\bar s(x)$是通过算符$\bar s(z)\Gamma U(z,0) s(0)$在核子态中的矩阵元来定义的。由于质子（$uud$）不包含任何价奇异夸克，这一矩阵元\textbf{纯粹由非连通图贡献}——Wick缩并中$s$夸克必须以闭合环的形式出现：
+
+\begin{equation}
+\langle P | \bar s(z)\Gamma U(z,0) s(0) | P \rangle_{\text{disco}},
+\label{eq:strange_disco}
+\end{equation}
+
+这是\textbf{质子中奇异夸克PDF的格点计算}是当前格点部分子物理中最具挑战性的目标之一的核心原因。本库中的\texttt{Strangeness in the proton from W+charm production and SIDIS data.pdf}提供了奇异夸克PDF的唯象学约束——实验上奇异夸克分布的约束极弱（主要通过$W+$charm数据的关联），使得格点QCD的第一性原理计算具有独特价值。
+
+\subsection{胶子PDF中的非连通收缩}
+
+胶子准PDF算符$O_g(z) = F^{3\mu}(z)\mathcal{W}[z,0]F_\mu^3(0)$在核子态中的矩阵元涉及夸克传播子的缩并——这些缩并可能同时包含连通和\textbf{非连通}贡献。非连通部分来自胶子真空极化图（QCD等效于QED中的``光-光散射''图），其信噪比在当前的$P_z \sim 2$~GeV下极差。
+
+\textbf{本库中的相关讨论：}\texttt{Note of gluon PDFs.pdf}（内部笔记）详细讨论了胶子PDF计算中的连通/非连通收缩区分问题，以及这些区分对最终PDF误差的影响。
+
+\subsection{味单态组合与$2\times2$反常维数矩阵}
+
+在DGLAP演化的味单态扇区，夸克单态分布$\Sigma(x,\mu^2) = \sum_f[q_f(x) + \bar q_f(x)]$和胶子分布$g(x,\mu^2)$通过$2\times2$反常维数矩阵混合演化。$\Sigma$的格点计算\textbf{必须包含非连通图}——因为$\Sigma$中的每个味对同位旋单态波函数都有贡献，而非连通贡献的相消（在同位旋矢量中自动发生）在单态中不发生。
+
+\subsection{质子自旋危机与味单态轴矢流}
+
+质子自旋分解中，夸克自旋贡献$\Delta\Sigma = \Delta u + \Delta d + \Delta s$的格点计算直接依赖味单态轴矢流矩阵元——这又需要同时计算连通和非连通贡献。$\Delta s$（奇异夸克对质子自旋的贡献）纯由非连通图决定，其格点计算在$m_s$物理值处是当前味物理格点QCD中的核心挑战。
+
+\subsection{$\pi$介子形状因子的非连通插入}
+
+在大动量转移的$\pi$介子形状因子因子化中，LPC合作组的软函数提取方案~\cite{LPC2020soft}使用了大动量赝标量介子形状因子$F(b_\perp, P_z)$，其中非连通插入被\textbf{默认忽略}——这在数值上是否合理取决于非连通贡献的大小和$P_z$依赖。Chu等人~\cite{Chu2023soft}在Fierz重排的语境中对此进行了分析。
+
+%==========================================================================
+\section{总结与展望}
+%==========================================================================
+
+本文基于本库核心教材和相关论文，系统解析了格点QCD中连通图与非连通图的理论基础、计算挑战和物理应用。
+
+\subsection*{核心结论}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Wick缩并是连通/非连通区分的数学根源：}费米子场的Grassmann路径积分经Wick定理分解为夸克传播子的乘积和。传播子线是否形成闭合环——即是否包含$\operatorname{tr}[D^{-1}(n|n)]$型的迹——决定了Feynman图的连通性拓扑。连通图由连接不同算符的``开放式''夸克线构成；非连通图包含至少一个独立闭合夸克环。
+
+    \item \textbf{同位旋对称性自动消除非连通贡献：}在精确同位旋对称性（$m_u=m_d$）下，同位旋矢量介子关联函数中的非连通贡献精确相消——这使得$\pi^\pm$、$\rho^\pm$等同位旋矢量态的计算\textbf{纯粹是连通的}，具有最优的信噪比和精度。LPC合作组的大量准PDF和TMD-PDF计算正是利用了这一关键性质。
+
+    \item \textbf{淬火近似是忽略所有非连通图的极限：}淬火近似设置$\det[D] = 1$，等价于消除所有由闭合夸克环（海夸克）对规范组态的反馈。在此近似下，仅保留连通图（价夸克）——强子质量谱的淬火结果与full QCD之间约有5--10\%的系统偏差。
+
+    \item \textbf{非连通图的计算是现代格点QCD的主要数值瓶颈：}计算闭合夸克环需要从\textbf{所有}格点出发解Dirac方程（$|\Lambda| \sim 10^6--10^7$个源 vs.\ 连通图的12个源），且信噪比按$1/\sqrt{V}$在体积极限下发散。随机噪声估计（HPE、TSM、蒸馏）是目前缓解这一瓶颈的主要技术路线。
+
+    \item \textbf{非连通图对味单态物理不可或缺：}奇异夸克PDF（纯非连通）、胶子动量分数（味单态扇区的$2\times2$混合）、质子自旋分解（$\Delta\Sigma$和$\Delta G$）、味单态真空极化——所有这些物理量都需要非连通图的精确计算，不能通过选择同位旋矢量来规避。它们是当前格点部分子物理的精度前沿。
+
+    \item \textbf{部分淬火策略在连通/非连通图的中间地带提供灵活性：}通过独立控制$m_{\text{sea}}$和$m_{\text{val}}$，可以在计算成本和物理精度之间做权衡。PQ手征微扰论为分析这类数据提供了系统框架。
+
+\end{enumerate}
+
+\textbf{展望：}随着Exascale计算时代的到来，HPC资源的大幅增长将使得非连通图的全格点计算逐渐变得可行——届时味单态PDF、奇异夸克分布、质子自旋分解等当前由连通图主导的物理将获得完整的非连通图补充约束，格点QCD对强子结构的描述将从``连通图近似''跃进到``全量子场论精度''。
+
+%==========================================================================
+\begin{thebibliography}{99}
+
+\bibitem{GattringerLang2010}
+C.~Gattringer and C.~B.~Lang,
+\textit{Quantum Chromodynamics on the Lattice: An Introductory Presentation},
+Lect.\ Notes Phys.\ \textbf{788}, Springer (2010).
+\\\textbf{[来源:} \texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}\textbf{]}
+\\Ch.~5.1 (\S 5.1.6, Wick定理); Ch.~5.3 (hopping展开与费米子线/费米子圈解释); Ch.~6.1.2 (连通与非连通图的标准定义, Fig.\,6.1, Eq.\,(6.12)--(6.13)); Ch.~6.1.6 (淬火近似与海夸克, Fig.\,6.2); Ch.~6.2.4 (夸克传播子计算); Ch.~8 (动力学费米子的行列式与HMC算法)。
+
+\bibitem{Gupta1997intro}
+R.~Gupta,
+``Introduction to Lattice QCD,''
+arXiv:hep-lat/9807028 (1997).
+\\\textbf{[来源:} \texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf}\textbf{]}
+\\Ch.~7--10 (费米子作用与夸克传播子); Ch.~14 (\S 14.2.1, Wilson圈); Ch.~16.8 (淬火近似QQCD); Ch.~17 (介子和重子关联函数的缩并展开)。
+
+\bibitem{PeskinSchroeder1995}
+M.~E.~Peskin and D.~V.~Schroeder,
+\textit{An Introduction to Quantum Field Theory},
+Westview Press (1995).
+\\\textbf{[来源:} \texttt{refer/books/An Introduction to Quantum Field Theory.pdf}\textbf{]}
+\\Ch.~9 (路径积分与Grassmann变量); Ch.~17 (部分子模型与QCD因子化)。
+
+\bibitem{He2024unpolTMD}
+J.-C.~He \textit{et al.} (LPC),
+``Unpolarized transverse-momentum-dependent parton distributions of the nucleon from lattice QCD,''
+Phys.\ Rev.\ D \textbf{109}, 114513 (2024), arXiv:2211.02340.
+\\\textbf{[来源:} \texttt{refer/papers/Unpolarized Transverse-Momentum-Dependent Parton Distributions of the Nucleon from Lattice QCD.pdf}\textbf{]}
+——连通图在同位旋矢量TMD-PDF计算中的实际应用（MILC HISQ海夸克+Clover价夸克）。
+
+\bibitem{Zhang2022renormTMD}
+K.~Zhang \textit{et al.} (LPC),
+``Renormalization of transverse-momentum-dependent parton distribution on the lattice,''
+Phys.\ Rev.\ D \textbf{106}, 094510 (2022), arXiv:2205.13402.
+\\\textbf{[来源:} \texttt{refer/papers/Renormalization of transverse-momentum-dependent parton distribution on the lattice.pdf}\textbf{]}
+
+\bibitem{Chu2023soft}
+M.-H.~Chu \textit{et al.} (LPC),
+``Lattice calculation of the intrinsic soft function and the Collins-Soper kernel,''
+JHEP \textbf{08}, 172 (2023), arXiv:2306.06488.
+\\\textbf{[来源:} \texttt{refer/papers/Lattice Calculation of the Intrinsic Soft Function and the Collins-Soper Kernel.pdf}\textbf{]}
+——赝标量介子形状因子中非连通插入的理论分析（Fierz重排语境）。
+
+\bibitem{LPC2020soft}
+Q.-A.~Zhang \textit{et al.} (LPC),
+``Lattice-QCD calculations of TMD soft function through large-momentum effective theory,''
+Phys.\ Rev.\ Lett.\ \textbf{125}, 192001 (2020), arXiv:2005.14572.
+\\\textbf{[来源:} \texttt{refer/papers/Lattice-QCD Calculations of TMD Soft Function Through Large-Momentum Effective Theory.pdf}\textbf{]}
+——形状因子因子化方案中连通插入假设的起源。
+
+\bibitem{Fan2018gluonQuasi}
+Z.-Y.~Fan, Y.-B.~Yang, A.~Anthony, H.-W.~Lin, and K.-F.~Liu,
+``Gluon quasi-PDF from lattice QCD,''
+Phys.\ Rev.\ Lett.\ \textbf{121}, 242001 (2018), arXiv:1808.02077.
+\\\textbf{[来源:} \texttt{refer/papers/Gluon Quasi-PDF From Lattice QCD.pdf}\textbf{]}
+——胶子准PDF算符中连通/非连通收缩的区分。
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, LPC),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\\\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{Huo2021self}
+Y.-K.~Huo \textit{et al.} (LPC),
+``Self-renormalization of quasi-light-front correlators on the lattice,''
+Nucl.\ Phys.\ B \textbf{969}, 115443 (2021), arXiv:2103.02965.
+\\\textbf{[来源:} \texttt{refer/papers/Self-Renormalization of Quasi-Light-Front Correlators on the Lattice.pdf}\textbf{]}
+
+\bibitem{Ma2025BoerMulders}
+L.~Ma \textit{et al.} (LPC),
+``Quark transverse spin-momentum correlation of the nucleon from lattice QCD: The Boer-Mulders function,''
+(2025), arXiv:2502.11807.
+\\\textbf{[来源:} \texttt{refer/papers/Quark Transverse Spin-Momentum Correlation of the Nucleon from Lattice QCD The Boer-Mulders Function.pdf}\textbf{]}
+
+\bibitem{StrangenessSIDIS}
+``Strangeness in the proton from W+charm production and SIDIS data,''
+\\\textbf{[来源:} \texttt{refer/papers/Strangeness in the proton from W+charm production and SIDIS data.pdf}\textbf{]}
+——奇异夸克PDF（纯非连通图贡献）的唯象约束。
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,'' 内部笔记。
+\\\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}和\texttt{refer/papers/Note of gluon PDFs.pdf}
+——胶子PDF计算中连通/非连通收缩的讨论。
+
+\bibitem{Distillation}
+M.~Peardon \textit{et al.} (Hadron Spectrum),
+``A novel quark-field creation operator construction for hadronic physics in lattice QCD,''
+Phys.\ Rev.\ D \textbf{80}, 054506 (2009), arXiv:0905.2160.
+\\\textbf{[来源:} \texttt{refer/papers/A novel quark-field creation operator construction for hadronic physics in lattice QCD.pdf}\textbf{]}
+——蒸馏方法：在Laplacian低模空间中投影，抑制非连通图噪声。
+
+\bibitem{DibaryonPDF}
+``Parton Distribution Function of a Deuteron-like Dibaryon System from Lattice QCD,''
+\\\textbf{[来源:} \texttt{refer/papers/Parton Distribution Function of a Deuteron-like Dibaryon System from Lattice QCD.pdf}\textbf{]}
+——多强子系统中连通/非连通图结构的实例。
+
+\bibitem{Chu2023TMDWF}
+M.-H.~Chu \textit{et al.} (LPC),
+``Transverse-momentum-dependent wave functions of pion from lattice QCD,''
+Phys.\ Rev.\ D \textbf{108}, 094513 (2023), arXiv:2302.09961.
+\\\textbf{[来源:} \texttt{refer/papers/Transverse-Momentum-Dependent Wave Functions of Pion from Lattice QCD.pdf}\textbf{]}
+
+\bibitem{ETMCgluonPDF}
+ETMC Collaboration,
+``Gluon PDF of the proton using twisted mass fermions,''
+\\\textbf{[来源:} \texttt{refer/papers/Gluon PDF of the proton using twisted mass fermions.pdf}\textbf{]}。
+
+\bibitem{CharmedClover}
+``Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles,''
+\\\textbf{[来源:} \texttt{refer/papers/Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+——Tadpole改进Clover费米子上粲介子衰变常数的计算（含连通/非连通图分析）。
+
+\end{thebibliography}
+
+\vspace{0.5cm}
+\noindent\rule{\textwidth}{0.5pt}
+\small
+\textbf{交叉参考建议：}本报告应结合同一\texttt{docs/}目录下的以下文件阅读：
+\begin{itemize}[nosep]
+    \item \texttt{格点QCD中的维克收缩与傅里叶变换.pdf}——Wick缩并的技术细节
+    \item \texttt{格点QCD中的部分子分布函数.pdf}——共线PDF中的连通图优势
+    \item \texttt{格点QCD中的TMD\_PDF.pdf}——TMD-PDF中的连通图运用
+    \item \texttt{格点QCD中的胶子算符.pdf}——胶子算符的连通/非连通收缩
+    \item \texttt{格点QCD中的关联函数.pdf}——强子关联函数的基础
+    \item \texttt{格点QCD中的费米子方案.pdf}——费米子方案对淬火/动力学模拟的影响
+    \item \texttt{格点QCD中的重整化.pdf}——重整化与海夸克反馈的关系
+    \item \texttt{格点QCD蒸馏方法解析.pdf}——蒸馏方法与随机噪声估计
+    \item \texttt{质子自旋危机解析.pdf}——味单态矩阵元与非连通图
+\end{itemize}
+
+\end{document}

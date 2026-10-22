@@ -1,0 +1,694 @@
+\documentclass[12pt,a4paper]{ctexart}
+
+% === 页面设置 ===
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+
+% === 数学和物理 ===
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{slashed}
+
+% === 图形和表格 ===
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+
+% === 引用 ===
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+% === 其他 ===
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{multirow}
+\usepackage{tikz}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+}
+
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{remark}{注记}[section]
+\newtheorem{theorem}{定理}[section]
+
+\title{\heiti 格点QCD中的胶子极化：\\
+从U(1)$_A$反常到胶子螺旋度的第一性原理计算}
+\author{基于本库文献的综合解析}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+胶子极化（gluon polarization）——即胶子螺旋度$\Delta G$和极化胶子部分子分布函数$\Delta g(x)$——是理解质子自旋结构的关键缺失环节。EMC实验（1987年）揭示夸克自旋仅贡献质子总自旋的极小部分，由此引发的``质子自旋危机''将胶子极化的第一性原理确定推向了核子结构研究的前沿。然而，极化胶子分布本质上由Minkowski时空中的光锥关联函数定义，无法直接在Euclidean格点上计算。大动量有效理论（LaMET）和赝PDF方法的提出为这一问题提供了解决方案。本文系统梳理了胶子极化的理论框架：从U(1)$_A$轴反常和$g_1$自旋求和规则的解析出发，详细阐述极化胶子算符在连续理论和格点上的构造，讨论非极化与极化胶子PDF之间算符结构的本质区别，并介绍混合重整化和微扰匹配在极化胶子计算中的应用。重点分析了HadStruc合作组2022年首次利用赝PDF方法对核子极化胶子Ioffe-时间分布进行的探索性格点计算，及其对$\Delta G$的初步约束。最后讨论了未来EIC实验和更高精度格点计算的前景。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{引言：胶子极化的物理意义}
+% ============================================================
+
+胶子极化是理解核子自旋结构的核心问题之一。在质子自旋的Jaffe-Manohar分解中\cite{JaffeManohar1990}：
+
+\begin{equation}
+J = \frac{1}{2}\Delta\Sigma + L_q + L_G + \Delta G,
+\label{eq:JM_decomp}
+\end{equation}
+
+胶子螺旋度$\Delta G$是四个独立分量之一。$\Delta G$定义为极化胶子部分子分布函数$\Delta g(x)$的一阶矩：
+
+\begin{equation}
+\Delta G(Q^2) = \int_0^1 dx\, \Delta g(x, Q^2)。
+\label{eq:DeltaG_def}
+\end{equation}
+
+确定$\Delta G$的符号和大小对于完成核子自旋的``预算表''至关重要。然而，$\Delta G$的精确确定面临着理论和实验上的双重挑战。
+
+\textbf{实验上}，RHIC上STAR和PHENIX实验对极化质子-质子碰撞中$\pi^0$和喷注产生截面的测量提供了$\Delta g(x)$在$0.05 \lesssim x \lesssim 0.2$区域的重要约束。2009年的数据分析首次给出了胶子螺旋度非零的证据\cite{DSSV14}。然而，在部分全局分析中，当放松对夸克和胶子螺旋度PDF的正定性约束后，现有实验数据\textbf{并不要求}胶子极化必须为正\cite{JAM24}。
+
+\textbf{理论上}，格点QCD作为第一性原理的非微扰方法，在近年来取得了突破性进展。HadStruc合作组于2022年发表了首次利用赝PDF方法对核子极化胶子Ioffe-时间分布的计算\cite{Egerer2022}，证实了这一方法的可行性。此外，Yang等人利用Ji提出的等时局域算符方法\cite{Ji2013gluon}得到$\Delta G = 0.251(47)(16)$。
+
+\section{理论背景：从轴反常到胶子螺旋度}
+
+\subsection{U(1)$_A$反常与``质子自旋危机''}
+
+理解胶子极化的理论起点是U(1)$_A$（轴）反常。在无质量QCD中，味单态轴矢流$A^0_\mu = \sum_q \bar{q}\gamma_\mu\gamma_5 q$具有反常散度\cite{JaffeManohar1990}：
+
+\begin{equation}
+\partial^\mu A^0_\mu = N_f \frac{\alpha_s}{2\pi} \operatorname{Tr} F\tilde{F},
+\label{eq:anomaly}
+\end{equation}
+
+其中$F\tilde{F} = \frac{1}{2}\epsilon^{\mu\nu\alpha\beta}F_{\mu\nu}F_{\alpha\beta}$是拓扑荷密度。
+
+这一反常与质子自旋危机有着深刻的联系。Jaffe和Manohar在其经典论文\cite{JaffeManohar1990}中指出，$g_1$结构函数的一阶矩与味单态轴矢流的核子矩阵元直接相关：
+
+\begin{equation}
+\int_0^1 dx\, g_1(x, Q^2) = \frac{1}{2}\left[\frac{4}{9}\Delta u + \frac{1}{9}\Delta d + \frac{1}{9}\Delta s\right] \times \left[1 - \frac{\alpha_s(Q^2)}{\pi} + \mathcal{O}(\alpha_s^2)\right] + \mathcal{O}\left(\frac{\Lambda^2}{Q^2}\right)。
+\label{eq:g1_sum_rule}
+\end{equation}
+
+\textbf{关键事实：}与直觉相反，$g_1$求和规则中\textbf{不出现任何胶子算符}。因为唯一的候选者——反常流$K_\mu = \epsilon_{\mu\nu\alpha\beta}\operatorname{Tr}[A^\nu(F^{\alpha\beta} - \frac{2}{3}A^\alpha A^\beta)]$——不是规范不变的，不能出现在规范不变的表达式中\cite{JaffeManohar1990}。
+
+然而，\textbf{轴反常确实提供了一种将$\Delta\Sigma$重新解释为胶子贡献的可能性}。从反常Ward恒等式出发：
+
+\begin{equation}
+\Delta\Sigma(t) + t h(t) = K(t),
+\label{eq:ward_identity}
+\end{equation}
+
+其中$K(t)$是$N_f\frac{\alpha_s}{2\pi}F\tilde{F}$的核子矩阵元。在$t \to 0$极限下，由于$\eta'$介子的质量（由U(1)$_A$问题导致），$h(t)$无极点，因此$\Delta\Sigma = K(0)$。这意味着\textbf{$\Delta\Sigma$和胶子算符$F\tilde{F}$的核子矩阵元之间没有本质区别}\cite{JaffeManohar1990}。
+
+在部分子模型中评估$K(0)$，得到$K_{\text{parton}}(0) = -\frac{\alpha_s}{2\pi}N_f\Delta G$。这解释了Altarelli-Ross\cite{AltarelliRoss}和Carlitz-Collins-Mueller\cite{CarlitzCollinsMueller}分离
+
+\begin{equation}
+\Delta\Sigma(Q^2) = \Delta q - \frac{\alpha_s(Q^2)}{2\pi} N_f \Delta G
+\label{eq:AR_separation}
+\end{equation}
+
+的来源。Jaffe和Manohar\cite{JaffeManohar1990}对此进行了系统的批评，指出：
+\begin{enumerate}
+    \item 反常三角形图是\textbf{非局域的}，不能被规范不变的局域算符$K_\mu$所取代；
+    \item 即使在质量夸克的极限下，所谓的``胶子贡献''$-(\alpha_s/2\pi)N_f\Delta G$并不独立于``内禀夸克贡献''$\Delta q$（$\Delta q$并非简单的夸克模型轴荷）。
+\end{enumerate}
+
+\subsection{胶子螺旋度的现代定义}
+
+在现代LaMET和赝PDF框架中，极化胶子分布由以下光锥关联函数定义\cite{Egerer2022,Balitsky2020}：
+
+\begin{equation}
+\Delta G = \int dx\, \frac{i}{2xP^+} \int \frac{d\xi^-}{2\pi} e^{-ixP^+\xi^-} \langle PS| F^{+\alpha}_a(\xi^-) W^{ab}(\xi^-, 0) \tilde{F}^+_{\alpha,b}(0) |PS\rangle,
+\label{eq:DeltaG_modern}
+\end{equation}
+
+其中$W^{ab}(\xi^-, 0)$是伴随表示中的光锥Wilson线（规范链），$F^{\mu\nu}$是规范场张量，$\tilde{F}^{\mu\nu} = \frac{1}{2}\epsilon^{\mu\nu\rho\sigma}F_{\rho\sigma}$是其对偶张量。
+
+在极化情形中需要的矩阵元为\cite{Egerer2022,NoteGluonPDFs}：
+
+\begin{equation}
+\tilde{m}_{\mu\alpha;\lambda\beta}(z, p, s) = \langle p, s| G_{\mu\alpha}(z) W[z, 0] \tilde{G}_{\lambda\beta}(0) |p, s\rangle,
+\label{eq:helicity_ME}
+\end{equation}
+
+其中$s^\mu \equiv \bar{u}(p,s)\gamma^\mu\gamma_5 u(p,s)$是核子极化赝矢量，满足$s^2 = -m_p^2$。
+
+\textbf{自旋相关的部分}由矩阵元的$z$-奇组合确定\cite{Egerer2022,NoteGluonPDFs}：
+
+\begin{equation}
+\tilde{M}_{\mu\alpha;\lambda\beta}(z, p, s) = \tilde{m}_{\mu\alpha;\lambda\beta}(z, p, s) - \tilde{m}_{\mu\alpha;\lambda\beta}(-z, p, s)。
+\label{eq:z_odd_combination}
+\end{equation}
+
+极化胶子PDF由Ioffe-时间分布确定\cite{Egerer2022}：
+
+\begin{equation}
+-i\tilde{I}_p(\nu) \equiv \tilde{M}_{(ps)}^{(+)}(\nu) - \nu \tilde{M}_{(pp)}(\nu),
+\label{eq:Ioffe_polarized}
+\end{equation}
+
+\begin{equation}
+\tilde{I}_p(\nu) = \frac{i}{2} \int_{-1}^{1} dx\, e^{-ix\nu} x \Delta g(x)。
+\label{eq:Ioffe_to_Deltag}
+\end{equation}
+
+%\subsection{与HQET的类比}
+
+季向东指出\cite{Ji2014LaMET}，LaMET的框架与重夸克有效理论（HQET）有着精确的形式类比：大强子动量$P^z$扮演了HQET中重夸克质量$m_b$的角色，无穷大动量极限$P^z \to \infty$对应于$m_b \to \infty$的限制\cite{Ji2014LaMET}。特别在胶子极化计算中,存在一个\textbf{普适性类}（universality class）的重要概念：产生相同光锥物理的不同格点算符构成了一个等价类，允许我们选择在有限$P^z$下$1/P_z^2$修正最小的最优算符\cite{Ji2017More}。
+
+\section{胶子算符的分类与构造}
+
+\subsection{非极化与极化胶子算符的对比}
+
+胶子算符的构造比夸克算符更为复杂，因为规范场张量$F^{\mu\nu}$具有两个Lorentz指标。Balitsky、Morris和Radyushkin\cite{Balitsky2020}给出了双胶子关联函数的不变振幅分解的系统分类。
+
+\textbf{非极化情形：}矩阵元
+
+\begin{equation}
+M_{\mu\alpha;\lambda\beta}(z, p) = \langle p| G_{\mu\alpha}(z) W[z, 0] G_{\lambda\beta}(0) |p\rangle
+\label{eq:unpol_ME}
+\end{equation}
+
+可以分解为六个不变振幅：$M_{pp}$, $M_{zz}$, $M_{zp}$, $M_{pz}$, $M_{ppzz}$, $M_{gg}$。光锥胶子分布由$M_{pp}$振幅确定：
+
+\begin{equation}
+-M_{pp}(\nu, 0) = \frac{1}{2} \int_{-1}^{1} dx\, e^{-ix\nu} x g(x)。
+\label{eq:Mpp_to_pdf}
+\end{equation}
+
+\textbf{极化情形：}矩阵元分解为两组振幅\cite{Egerer2022}。第一组（$\tilde{M}_{sp}$, $\tilde{M}_{ps}$, $\tilde{M}_{sz}$, $\tilde{M}_{zs}$, $\tilde{M}_{pzps}$, $\tilde{M}_{pzsz}$）由核子极化矢量$s^\mu$直接携带Lorentz指标。第二组（$\tilde{M}_{pp}$, $\tilde{M}_{zz}$, $\tilde{M}_{zp}$, $\tilde{M}_{pz}$, $\tilde{M}_{ppzz}$, $\tilde{M}_{gg}$）中自旋矢量通过标量积$s \cdot z$进入。所有不变振幅都是不变间隔$z^2$和Ioffe-时间$\nu \equiv -(p \cdot z)$的函数。
+
+\subsection{极化情形中的可乘性重整化组合}
+
+Balitsky等人\cite{Balitsky2020}证明，对于极化胶子算符，以下组合在单圈层次上具有对角化的DGLAP演化和可乘性重整化性质：
+
+非极化和极化情形中算符分类的关键结论\cite{Balitsky2020}：
+
+\begin{itemize}
+    \item $M_{0i;i0}$和$M_{ij;ij}$具有相同的单圈紫外反常量纲（仅来自Wilson线自能图）；
+    \item $M_{3i;i3}$的紫外反常量纲为$2\gamma$；
+    \item $M_{0i;i3} \pm M_{3i;i0}$的紫外反常量纲为$\frac{3}{2}\gamma$；
+    \item 协变求和$g^{\alpha\beta}M_{3\alpha;3\beta}$也是可乘性重整化的，但包含最多的污染项（四项）。
+\end{itemize}
+
+\subsection{极化胶子流算符的构造}
+
+在格点上计算极化胶子矩阵元时，需要在Euclidean空间中构造适当的胶子流算符。根据内部笔记\cite{NoteGluonPDFs}和HadStruc合作组的方法\cite{Egerer2022}，提取胶子螺旋度所需的矩阵元组合为$\tilde{M}_{0i;0i}(z,p) + \tilde{M}_{ij;ij}(z,p)$，其不变量振幅分解为：
+
+\begin{equation}
+\begin{aligned}
+\tilde{M}_{0i;0i}(z,p) + \tilde{M}_{ij;ij}(z,p) &= -2p_3 p_0 \tilde{M}_{(ps)}^{(+)}(\nu, z^2) + 2p_3^0 z \tilde{M}_{(pp)}(\nu, z^2) \\
+&= -2p_3 p_0 \left[ \tilde{M}_{(ps)}^{(+)}(\nu, z^2) - \nu \tilde{M}_{(pp)}(\nu, z^2) + \frac{m^2}{p_3^2} \nu \tilde{M}_{(pp)}(\nu, z^2) \right]。
+\end{aligned}
+\label{eq:helicity_decomp}
+\end{equation}
+
+在大$p_3$极限下，该组合正比于$\tilde{M}_{(ps)}^{(+)}(\nu) - \nu \tilde{M}_{(pp)}(\nu)$，即式(\ref{eq:Ioffe_polarized})中所需的量。
+
+在Euclidean空间中，胶子螺旋度流算符$O^{(0)}_g$为\cite{NoteGluonPDFs}：
+
+\begin{equation}
+\begin{aligned}
+O^{(0)}_g(z, t_i) &= -\Big\{ \{F^{01}(z,t_i)W[z,0]F^{23}(0,t_i)W[0,z] \\
+&\quad - F^{02}(z,t_i)W[z,0]F^{13}(0,t_i)W[0,z] \\
+&\quad + 2F^{12}(z,t_i)W[z,0]F^{03}(0,t_i)W[0,z]\} - \{ (z \leftrightarrow -z) \} \Big\}_{\text{Eucl}}。
+\end{aligned}
+\label{eq:gluon_helicity_current}
+\end{equation}
+
+该算符的构造涉及$\tilde{F}^{\mu\nu} = \frac{1}{2}\epsilon^{\mu\nu\rho\sigma}F_{\rho\sigma}$的展开，其中$\epsilon^{0123} = 1$。约化后的Euclidean形式使用了$F^{\mu\nu}$的具体分量组合。同时，为系统研究不同振幅贡献，还定义了另一个算符$O^{(1)}_g$\cite{NoteGluonPDFs}：
+
+\begin{equation}
+\begin{aligned}
+O^{(1)}_g(z, t_i) &= \{F^{01}(z,t_i)W[z,0]F^{23}(0,t_i)W[0,z] \\
+&\quad + F^{02}(z,t_i)W[z,0]F^{13}(0,t_i)W[0,z]\} - \{ (z \leftrightarrow -z) \}。
+\end{aligned}
+\label{eq:gluon_helicity_current2}
+\end{equation}
+
+\subsection{Euclidean/Minkowski场强张量转换}
+
+胶子流算符的构造还必须考虑Minkowski空间与Euclidean空间之间场强张量分量的转换关系\cite{NoteGluonPDFs}：
+
+\begin{equation}
+F^{tx,(M)}F^{(M)}_{tx} = -F^{(E)}_{tx}F^{(E)}_{tx}, \qquad
+F^{xy,(M)}F^{(M)}_{xy} = F^{(E)}_{xy}F^{(E)}_{xy}。
+\label{eq:ME_conversion}
+\end{equation}
+
+非极化胶子流$O^{(0)}_g$中$F^{0i}W F_{0i}$项前的``$-$''号正是源于这一转换。极化胶子流$O^{(0)}_g$和$O^{(1)}_g$的整体``$-$''号同样来自对偶场强张量在两种时空中的转换关系。
+
+\section{极化胶子分布的提取方法}
+
+\subsection{赝PDF方法与约化Ioffe-时间分布}
+
+HadStruc合作组在2022年的开创性工作\cite{Egerer2022}中采用了赝PDF方法。该方法的核心优势在于：它是\textbf{参考系无关的}和\textbf{规范不变的}，特别适合胶子螺旋度的格点计算——因为Jaffe-Manohar分解中胶子螺旋度的原始定义依赖于光锥规范，无法直接从局域矩阵元获得。
+
+定义\textbf{约化赝Ioffe-时间分布}（reduced pseudo-ITD）为\cite{Egerer2022}：
+
+\begin{equation}
+\mathfrak{M}(\nu, z^2) = \frac{\tilde{M}_{0i;0i}(z,p) + \tilde{M}_{ij;ij}(z,p)}{[\tilde{M}_{0i;0i}(z,p) + \tilde{M}_{ij;ij}(z,p)]_{z=0}}。
+\label{eq:reduced_ITD}
+\end{equation}
+
+约化的好处在于\textbf{乘性重整化因子相互抵消}\cite{Egerer2022}。赝ITD与光锥ITD之间通过微扰可计算的核相联系：
+
+\begin{equation}
+\tilde{I}_p(\nu, z^2) = \int_0^1 du\, C(u, \mu^2 z^2) I_p(u\nu, \mu^2) + \mathcal{O}(z^2\Lambda_{\text{QCD}}^2)。
+\label{eq:pseudo_factorization}
+\end{equation}
+
+\subsection{准分布方法与因子化}
+
+在LaMET框架中，极化胶子准分布通过Fourier变换从重整化矩阵元得到\cite{Ji2017More}：
+
+\begin{equation}
+\Delta\tilde{g}(x, P^z) = \frac{1}{\mathcal{N}} \int \frac{dz}{2\pi P^z} e^{-ixzP^z} \tilde{h}^R(z, P^z),
+\label{eq:quasi_Deltag}
+\end{equation}
+
+然后通过微扰匹配核与$\overline{\text{MS}}$方案下的物理$\Delta g$建立联系\cite{Ji2017More,Yao2023}：
+
+\begin{equation}
+\Delta\tilde{g}(x, P^z) = \int_{-1}^1 \frac{dy}{|y|} C_{\Delta g}\left(\frac{x}{y}, \frac{\mu}{yP^z}\right) \Delta g(y, \mu) + \mathcal{O}\left(\frac{\Lambda_{\text{QCD}}^2}{(xP^z)^2}, \frac{\Lambda_{\text{QCD}}^2}{((1-x)P^z)^2}\right)。
+\label{eq:matching_Deltag}
+\end{equation}
+
+需要特别注意的是，\textbf{极化胶子的匹配核$C_{\Delta g}$与非极化胶子的匹配核不同}，必须针对极化情形单独计算。Yao、Ji和Zhang\cite{Yao2023}给出了味单态和非单态组合下极化PDFs和GPDs的完整NLO匹配核。
+
+\subsection{季向东的两种互补方案}
+
+对于总胶子螺旋度$\Delta G$，季向东等人提出了两种互补的计算方案\cite{Ji2013gluon, Ji2017More}：
+
+\textbf{方案一}——通过极化胶子PDF的$x$积分：
+
+\begin{equation}
+\Delta G = \int_0^1 dx\, \Delta g(x),
+\label{eq:DeltaG_from_pdf}
+\end{equation}
+
+这需要对$\Delta g(x)$的全$x$范围积分，在格点上受到小$x$和大$x$区域系统误差的限制。
+
+\textbf{方案二}——直接通过等时局域算符\cite{Ji2013gluon}：
+
+季向东、张建辉和赵勇指出\cite{Ji2013gluon}，等时局域算符$\vec{E} \times \vec{A}_{\text{phys}}$的矩阵元与光锥胶子螺旋度分布的非局域算符结果一致，其中$\vec{A}_{\text{phys}}$是规范势$A_\mu$的规范不变部分。该方案的格点实现得到$\Delta G = 0.251(47)(16)$，但单圈大动量有效理论中的有限项匹配系数较大，表明微扰级数可能存在收敛性问题\cite{Egerer2022}。
+
+方案二的优势在于不需要显式计算$x$依赖的分布函数，直接给出$\Delta G$。其劣势在于匹配系数的不确定性较大。
+
+\section{格点数值计算：HadStruc合作组的首次探索}
+
+\subsection{格点设置}
+
+HadStruc合作组的计算\cite{Egerer2022}使用了一个各向同性的Clover系综，参数如下：
+
+\begin{table}[H]
+\centering
+\caption{HadStruc合作组胶子螺旋度计算所用的格点系综\cite{Egerer2022}}
+\label{tab:ensemble}
+\begin{tabular}{lc}
+\toprule
+参数 & 值 \\
+\midrule
+格点体积        & $32^3 \times 64$ \\
+格点间距$a$     & 0.094(1) fm \\
+$\pi$介子质量   & 358(3) MeV \\
+组态数          & 349 \\
+源位置数/组态  & 4 \\
+蒸馏矢量数$R_D$ & 64 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+蒸馏方法\cite{Peardon2009}被用于夸克场的涂抹，Laplace算符中的规范场预先经过10次stout涂抹（$\rho_{ij} = 0.08$）的处理。
+
+\subsection{胶子流算符与核子插值算符}
+
+胶子流算符按照式(\ref{eq:gluon_helicity_current})构造，Wilson线中的规范链取为HYP涂抹的形式以抑制紫外涨落\cite{Egerer2022}。核子插值算符采用运动学增强的形式\cite{Zhang2025kinematic}：
+
+\begin{equation}
+N = P^+(u^T C\gamma_5\gamma_t d)u,
+\label{eq:nucleon_interpolator}
+\end{equation}
+
+其中$P^+ = \frac{1}{2}(1+\gamma_t)$。对于螺旋度情形，两点函数中的投影算符为$P = i\gamma_3\gamma_5(1 \pm \gamma_0)/2$（Euclidean空间）\cite{NoteGluonPDFs}。
+
+\subsection{主要结果}
+
+\begin{enumerate}
+    \item \textbf{可行性验证：}HadStruc的计算\cite{Egerer2022}首次证明赝PDF方法是提取核子极化胶子Ioffe-时间分布的可行途径。
+
+    \item \textbf{与全局分析的一致性：}在现有统计精度内，格点确定的极化胶子Ioffe-时间分布与最先进的全局分析（DSSV、NNPDFpol等）的预期进行了定量比较，总体吻合良好\cite{Egerer2022}。
+
+    \item \textbf{$\Delta G$非零的暗示：}在Ioffe-时间$\nu \lesssim 9$的范围内，约化赝ITD的提取显示胶子自旋对质子自旋的贡献可能非零\cite{Egerer2022}。
+
+    \item \textbf{统计与系统误差：}目前的主要限制来自大Ioffe-时间区域的统计噪声、有限格点间距和有限核子动量带来的系统误差。未来通过更大的组态样本、更细的格点间距和更高的蒸馏矢量数可以系统改善\cite{Egerer2022}。
+\end{enumerate}
+
+\subsection{与非极化胶子PDF计算的关联}
+
+同一时期，CLQCD/LPC合作组\cite{Chen2025gluon}和MSULat组\cite{Lin2025gluon}在多格点间距系综上进行了非极化胶子PDF的连续极限计算。这些计算虽然关注的是$g(x)$而非$\Delta g(x)$，但在\textbf{方法论上为极化胶子计算奠定了重要基础}：
+
+\begin{itemize}
+    \item 蒸馏夸克涂抹方法在大动量核子态中的应用和优化；
+    \item 混合重整化方案对胶子算符的适应；
+    \item 大$\lambda$外推技术和联合连续-无穷大动量外推的系统实施；
+    \item Wilson线自能的非微扰扣除方案。
+\end{itemize}
+
+特别地，非极化计算中的胶子流算符$O(z) = M_{tx;tx} + M_{ty;ty} - 2M_{xy;xy}$和极化计算中的$O^{(0)}_g$共享相同的技术框架（蒸馏、HYP涂抹、非连通插入等），两者面临共同的系统误差来源\cite{Chen2025gluon,Egerer2022}。
+
+\section{重整化：混合方案在极化胶子中的应用}
+
+\subsection{极化胶子算符的重整化挑战}
+
+裸极化胶子矩阵元包含多种发散\cite{Balitsky2020,Ji2021hybrid}：
+
+\begin{enumerate}
+    \item \textbf{线性发散：}来源于Wilson线的自能，形式为$e^{-\delta m |z|}$，其中$\delta m \sim 1/a$。在胶子情形中，由于色因子$C_A$大于夸克的$C_F$，线性发散更为严重\cite{Chen2025gluon}。
+    \item \textbf{对数紫外发散：}来源于算符本身的反常量纲和胶子波函数重整化。
+    \item \textbf{DGLAP演化对数：}$\ln(-z^2)$依赖的项来自部分子分布函数的标准微扰演化。
+\end{enumerate}
+
+Balitsky等人\cite{Balitsky2020}在其单圈计算中仔细区分了紫外源和红外源导致的$\ln(-z^2)$依赖性。紫外项在约化Ioffe-时间分布中相互抵消，而DGLAP演化对数$\ln(-z^2\mu_{\text{IR}}^2)$保留在最终的匹配关系中。
+
+\subsection{混合重整化方案的推广}
+
+Ji等人提出的混合重整化方案\cite{Ji2021hybrid}可以自然地推广到极化胶子算符。其核心思想是根据空间距离采用不同的重整化策略。
+
+在短距离（$|z| < z_s$），通过除以零动量矩阵元消除发散：
+
+\begin{equation}
+\tilde{h}^R_{\text{short}}(z, P^z) = \frac{\tilde{h}^n_B(z, P^z, 1/a)}{\tilde{h}^n_B(z, P^z=0, 1/a)}。
+\end{equation}
+
+在长距离（$|z| > z_s$），采用自重整化程序，重整化因子为\cite{Chen2025gluon}：
+
+\begin{equation}
+\begin{aligned}
+Z_R(z, 1/a, \mu) = \exp\Bigg\{&\frac{kz}{a}\ln[a\Lambda_{\text{QCD}}] + m_0 z \\
+&+ \frac{5C_A}{3b_0} \ln\left[\frac{\ln(1/a\Lambda_{\text{QCD}})}{\ln(\mu/\Lambda_{\text{QCD}})}\right] \\
+&+ \frac{1}{2}\ln\left[\left(1 + \frac{d}{\ln[a\Lambda_{\text{QCD}}]}\right)^2\right]\Bigg\}。
+\end{aligned}
+\label{eq:ZR_polarized}
+\end{equation}
+
+对于胶子情形，参数$k$与夸克情形相差一个因子$C_A/C_F$，因此线性发散更为显著\cite{Chen2025gluon}。在极化情形中，这些参数需通过拟合零动量极化矩阵元重新确定。
+
+\subsection{约化方案：赝PDF方法的优势}
+
+赝PDF方法的一个重要优势在于，通过构造约化Ioffe-时间分布，\textbf{乘性重整化因子在比值中相互抵消}\cite{Egerer2022}：
+
+\begin{equation}
+\mathfrak{M}(\nu, z^2) = \frac{\tilde{M}(z,p)}{\tilde{M}(0,p)}。
+\label{eq:ratio_cancellation}
+\end{equation}
+
+这意味着在赝PDF方法中，\textbf{不需要显式地计算非微扰重整化常数}——这是一个重要的实际优势，特别是在胶子算符的重整化常数具有较大不确定性的情形下。
+
+\section{综合讨论：当前胶子极化的图像}
+
+\subsection{各方法给出的$\Delta G$约束汇总}
+
+\begin{table}[H]
+\centering
+\caption{不同方法对胶子螺旋度$\Delta G$的约束（在$Q^2 = 10$~GeV$^2$标度下）}
+\label{tab:DeltaG_summary}
+\begin{tabular}{lcc}
+\toprule
+方法/合作组 & $\Delta G$估计 & 参考文献 \\
+\midrule
+DSSV14全局分析  & $0.20^{+0.06}_{-0.07}$ & \cite{DSSV14} \\
+NNPDFpol1.1全局分析 & $0.13 \pm 0.14$ & \cite{NNPDFpol11} \\
+JAM17全局分析   & $0.06 \pm 0.21$ & \cite{JAM17} \\
+格点（Ji方案2） & $0.251 \pm 0.047 \pm 0.016$ & \cite{Ji2013gluon} \\
+格点（赝PDF，HadStruc）& 与全局分析一致，$\Delta G > 0$的暗示 & \cite{Egerer2022} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{当前共识：}所有方法都倾向于$\Delta G$为正且非零，但其确切大小仍存在$100\%$量级的不确定度。RHIC数据对中等$x$区域的$\Delta g(x)$提供了最强约束，而格点QCD计算开始在验证全局分析结果和探索新运动学区域方面发挥不可替代的互补作用\cite{Egerer2022}。
+
+\subsection{胶子极化的物理图像}
+
+结合实验和理论的当前结果，一个初步的胶子极化物理图像开始浮现\cite{Egerer2022,DSSV14}：
+
+\begin{enumerate}
+    \item \textbf{中等$x$（$0.05 \lesssim x \lesssim 0.3$）：}$\Delta g(x)$为正且最显著非零，是$\Delta G$的主要贡献区域。RHIC的喷注和强子产生数据对此区域给出最强约束\cite{DSSV14}。
+    \item \textbf{大$x$（$x > 0.3$）：}$\Delta g(x)$行为尚未确定。格点QCD在LaMET框架下对大$x$区域的精度相对较好，因为大$x$意味着较小的$zP^z$和更好的信噪比。非极化胶子PDF的格点计算显示大$x$处$xg(x)$趋于零\cite{Chen2025gluon}，极化情形可能类似。
+    \item \textbf{小$x$（$x < 0.05$）：}这是$\Delta G$最大的不确定性来源。$\Delta g(x)$在小$x$处的行为甚至符号都未被确定。未来的EIC实验将对此区域提供决定性约束\cite{Egerer2022}。
+\end{enumerate}
+
+\subsection{格点计算的系统误差分析}
+
+当前格点QCD极化胶子计算的主要系统误差来源包括\cite{Egerer2022,Chen2025gluon}：
+
+\begin{enumerate}
+    \item \textbf{有限格点间距效应：}当前计算在$a \approx 0.094$~fm的单一格点间距上进行。连续极限外推需要至少三个格点间距的数据。
+    \item \textbf{$\pi$介子质量外推：}当前计算在$m_\pi \approx 358$~MeV下进行，物理点$m_\pi \approx 140$~MeV的外推效应尚未量化。
+    \item \textbf{有限核子动量：}LaMET框架中的$1/P_z^2$幂次修正需要通过多动量分析来约束。
+    \item \textbf{微扰匹配的收敛性：}NLO匹配可能对于胶子情形不够精确，NNLO匹配核的计算将是有价值的改进。
+    \item \textbf{非连通图贡献：}极化胶子矩阵元涉及非连通图（胶子流与核子无夸克线连接），信噪比远差于夸克同位旋矢量组合\cite{NoteGluonPDFs}。
+    \item \textbf{蒸馏空间的秩依赖性：}蒸馏矢量数$R_D = 64$的效应需要通过$R_D$变化来评估\cite{Egerer2022}。
+\end{enumerate}
+
+\section{总结与展望}
+
+胶子极化——胶子螺旋度$\Delta G$和极化胶子分布$\Delta g(x)$——在质子的自旋结构中占据核心地位。本文系统梳理了这一课题的理论基础和格点计算进展。
+
+\textbf{理论层面上：}
+
+\begin{itemize}
+    \item 从EMC实验的冲击性结果出发，Jaffe和Manohar\cite{JaffeManohar1990}建立了质子自旋的规范不变分解框架，其中胶子螺旋度$\Delta G$是一个独立的贡献项。轴反常和U(1)$_A$问题使得$\Delta G$的理论解释充满微妙之处——$\Delta\Sigma$和胶子算符$F\tilde{F}$的核子矩阵元之间存在Ward恒等式联系，但不能简单地将反常流$K_\mu$等同于胶子自旋。
+    \item Balitsky、Morris和Radyushkin\cite{Balitsky2020}对双胶子关联函数的不变振幅进行了系统分类，识别出极化情形中决定胶子PDF和螺旋度的特定振幅组合，并完成了单圈微扰计算中的紫外/红外分离。
+    \item LaMET框架\cite{Ji2013Euclidean,Ji2014LaMET}和赝PDF方法\cite{Egerer2022}提供了从Euclidean格点计算提取光锥胶子极化量的理论工具。
+\end{itemize}
+
+\textbf{格点计算层面上：}
+
+HadStruc合作组的首次探索\cite{Egerer2022}成功验证了赝PDF方法用于极化胶子计算的可行性，在现有精度内得到与全局分析一致的$\Delta G > 0$暗示。CLQCD/LPC等合作组在非极化胶子PDF计算中积累的方法论经验\cite{Chen2025gluon}（蒸馏涂抹、混合重整化、大$\lambda$外推、连续极限外推）为未来极化胶子的高精度计算奠定了坚实基础。季向东等人提出的局域算符方案\cite{Ji2013gluon}也给出了具体的$\Delta G$格点估计。
+
+\textbf{未来方向包括：}
+
+\begin{enumerate}
+    \item \textbf{EIC实验：}电子-离子对撞机将提供覆盖广泛$x$和$Q^2$范围的极化深度非弹性散射数据，有望最终确定$\Delta g(x)$的全$x$行为\cite{Egerer2022}。
+    \item \textbf{多格点间距和物理$\pi$质量的格点计算：}在至少三个格点间距和物理$\pi$介子质量下的系统计算，结合连续极限外推，将大幅减少格点系统误差。
+    \item \textbf{NNLO匹配核：}对极化胶子算符计算NNLO匹配核，改善微扰匹配的精度。
+    \item \textbf{重整化群重求和（RGR）和领头重正子重求和（LRR）：}将这些技术推广至极化胶子算符，以改善微扰级数的收敛性\cite{Zhang2023RGR,Su2023LRR}。
+    \item \textbf{非连通图的高级处理方法：}开发针对胶子非连通插入的更高效算法，以改善信噪比。
+    \item \textbf{轨道角动量的格点计算：}在Ji分解框架下，$L_q$和$J_g$的格点计算将为完成核子自旋的完整预算表提供不可替代的输入。
+\end{enumerate}
+
+三十余年的研究将``质子自旋危机''从令人震惊的实验异常转变为一个推动QCD强子结构理论深刻发展的核心科学问题。胶子极化——作为连接短距离微扰物理与长距离非微扰禁闭的关键桥梁——正处于这一智力探索的中心。格点QCD与未来EIC实验的协同将有望最终揭示``质子自旋从何而来''这一基本问题的完整答案。
+
+\begin{thebibliography}{99}
+
+% === 核心理论文献 ===
+
+\bibitem{JaffeManohar1990}
+R.~L.~Jaffe and A.~Manohar,
+``The $g_1$ problem: Deep inelastic electron scattering and the spin of the proton,''
+Nucl.\ Phys.\ B \textbf{337}, 509--546 (1990).
+\quad\textbf{[来源:} \texttt{refer/papers/The g1 problem: Deep inelastic electron scattering and the spin of the proton.pdf}\textbf{]}
+
+\bibitem{AltarelliRoss}
+G.~Altarelli and G.~G.~Ross,
+``The anomalous gluon contribution to polarized leptoproduction,''
+Phys.\ Lett.\ B \textbf{212}, 391 (1988).
+
+\bibitem{CarlitzCollinsMueller}
+R.~D.~Carlitz, J.~C.~Collins, and A.~H.~Mueller,
+``The role of the axial anomaly in measuring spin-dependent parton distributions,''
+Phys.\ Lett.\ B \textbf{214}, 229 (1988).
+
+% === LaMET框架 ===
+
+\bibitem{Ji2013Euclidean}
+X.~Ji,
+``Parton physics on a Euclidean lattice,''
+Phys.\ Rev.\ Lett.\ \textbf{110}, 262002 (2013), arXiv:1305.1539.
+\quad\textbf{[来源:} \texttt{refer/papers/Parton Physics on Euclidean Lattice.pdf}\textbf{]}
+
+\bibitem{Ji2014LaMET}
+X.~Ji,
+``Parton physics from large-momentum effective field theory,''
+Sci.\ China Phys.\ Mech.\ Astron.\ \textbf{57}, 1407 (2014), arXiv:1404.6680.
+\quad\textbf{[来源:} \texttt{refer/papers/Parton Physics from Large-Momentum Effective Field Theory.pdf}\textbf{]}
+
+\bibitem{Ji2013gluon}
+X.~Ji, J.-H.~Zhang, and Y.~Zhao,
+``More on large-momentum effective theory approach to parton physics,''
+Nucl.\ Phys.\ B \textbf{924}, 366 (2017), arXiv:1706.07416.
+\quad\textbf{[来源:} \texttt{refer/papers/More On Large-Momentum Effective Theory Approach to Parton Physics.pdf}\textbf{]}
+
+\bibitem{Ji2017More}
+X.~Ji, J.-H.~Zhang, and Y.~Zhao,
+``More on large-momentum effective theory approach to parton physics,''
+Nucl.\ Phys.\ B \textbf{924}, 366 (2017), arXiv:1706.07416.
+
+\bibitem{Izubuchi2018}
+T.~Izubuchi, X.~Ji, L.~Jin, I.~W.~Stewart, and Y.~Zhao,
+``Factorization theorem relating Euclidean and light-cone parton distributions,''
+Phys.\ Rev.\ D \textbf{98}, 056004 (2018), arXiv:1801.03917.
+\quad\textbf{[来源:} \texttt{refer/papers/Factorization Theorem Relating Euclidean and Light-Cone Parton Distributions.pdf}\textbf{]}
+
+% === 胶子算符分类 ===
+
+\bibitem{Balitsky2020}
+I.~Balitsky, W.~Morris, and A.~Radyushkin,
+``Gluon pseudo-distributions at short distances: Forward case,''
+Phys.\ Lett.\ B \textbf{808}, 135621 (2020), arXiv:1910.13963.
+\quad\textbf{[来源:} \texttt{refer/papers/Short-Distance Structure of Unpolarized Gluon Pseudodistributions.pdf}\textbf{]}
+
+\bibitem{Balitsky2022}
+I.~Balitsky, W.~Morris, and A.~Radyushkin,
+``Short-distance structure of unpolarized gluon pseudodistributions,''
+Phys.\ Rev.\ D \textbf{105}, 014008 (2022), arXiv:2111.06797.
+
+\bibitem{Zhang2019}
+J.-H.~Zhang, X.~Ji, A.~Sch\"afer, W.~Wang, and S.~Zhao,
+``Accessing gluon parton distributions in large momentum effective theory,''
+Phys.\ Rev.\ Lett.\ \textbf{122}, 142001 (2019), arXiv:1808.10824.
+\quad\textbf{[来源:} \texttt{refer/papers/Accessing gluon parton distributions in large momentum effective theory.pdf}\textbf{]}
+
+% === 统一匹配框架 ===
+
+\bibitem{Yao2023}
+F.~Yao, Y.~Ji, and J.-H.~Zhang,
+``Connecting Euclidean to light-cone correlations: From flavor nonsinglet in forward kinematics to flavor singlet in non-forward kinematics,''
+JHEP \textbf{11}, 021 (2023), arXiv:2212.14415.
+\quad\textbf{[来源:} \texttt{refer/papers/Connecting Euclidean to light-cone correlations From flavor nonsinglet in forward kinematics to flavor singlet in non-forward kinematics.pdf}\textbf{]}
+
+% === 格点计算 - 胶子螺旋度 ===
+
+\bibitem{Egerer2022}
+C.~Egerer \textit{et al.} (HadStruc Collaboration),
+``Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics,''
+Phys.\ Rev.\ D \textbf{106}, 094511 (2022), arXiv:2207.08733.
+\quad\textbf{[来源:} \texttt{refer/papers/Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics.pdf}\textbf{]}
+
+\bibitem{Egerer2021a}
+C.~Egerer, R.~G.~Edwards, K.~Orginos, and D.~G.~Richards,
+``Distillation at high-momentum,''
+Phys.\ Rev.\ D \textbf{103}, 034502 (2021), arXiv:2009.10691.
+\quad\textbf{[来源:} \texttt{refer/papers/Distillation at High-Momentum.pdf}\textbf{]}
+
+\bibitem{Peardon2009}
+M.~Peardon \textit{et al.} (Hadron Spectrum),
+``A novel quark-field creation operator construction for hadronic physics in lattice QCD,''
+Phys.\ Rev.\ D \textbf{80}, 054506 (2009), arXiv:0905.2160.
+\quad\textbf{[来源:} \texttt{refer/papers/A novel quark-field creation operator construction for hadronic physics in lattice QCD.pdf}\textbf{]}
+
+\bibitem{Zhang2025kinematic}
+R.~Zhang, A.~V.~Grebe, D.~C.~Hackett, M.~L.~Wagman, and Y.~Zhao,
+``Kinematically-enhanced interpolating operators for boosted hadrons,''
+(2025), arXiv:2501.00729.
+\quad\textbf{[来源:} \texttt{refer/papers/Kinematically-enhanced interpolating operators for boosted hadrons.pdf}\textbf{]}
+
+% === 内部笔记 ===
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,''
+内部笔记。（含非极化和极化胶子流算符的详细构造与数值结果）
+\quad\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}
+
+% === 非极化胶子PDF（方法论基础） ===
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\quad\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{Chen2025first}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``First self-renormalized gluon PDF of nucleon from large-momentum effective theory in the continuum limit,''
+Phys.\ Rev.\ D \textbf{111}, 074506 (2025), arXiv:2408.12819.
+\quad\textbf{[来源:} \texttt{refer/papers/First Self-Renormalized Gluon PDF of Nucleon from Large-Momentum Effective Theory in the Continuum Limit.pdf}\textbf{]}
+
+\bibitem{Lin2025gluon}
+W.~Good, K.~Hasan, and H.-W.~Lin,
+``Gluon parton distribution of the nucleon from $2+1+1$-flavor lattice QCD in the physical-continuum limit,''
+J.\ Phys.\ G \textbf{52}, 035105 (2025), arXiv:2409.02750.
+\quad\textbf{[来源:} \texttt{refer/papers/Gluon Parton Distribution of the Nucleon from 2+1+1-Flavor Lattice QCD in the Physical-Continuum Limit.pdf}\textbf{]}
+
+\bibitem{Good2025a}
+W.~Good, F.~Yao, and H.-W.~Lin,
+``First nucleon gluon PDF from large momentum effective theory,''
+(2025), arXiv:2505.13321.
+\quad\textbf{[来源:} \texttt{refer/papers/First Nucleon Gluon PDF from Large Momentum Effective Theory.pdf}\textbf{]}
+
+\bibitem{LP3helicity}
+H.-W.~Lin, J.-W.~Chen, X.~Ji, L.~Jin, R.~Li, Y.-S.~Liu, Y.-B.~Yang, J.-H.~Zhang, and Y.~Zhao (LP$^3$ Collaboration),
+``Proton isovector helicity distribution on the lattice at physical pion mass,''
+Phys.\ Rev.\ Lett.\ \textbf{121}, 242003 (2018), arXiv:1807.07431.
+\quad\textbf{[来源:} \texttt{refer/papers/Proton Isovector Helicity Distribution on the Lattice at Physical Pion Mass.pdf}\textbf{]}
+
+% === 重整化 ===
+
+\bibitem{Ji2021hybrid}
+X.~Ji, Y.~Liu, A.~Sch\"afer, W.~Wang, Y.-B.~Yang, J.-H.~Zhang, and Y.~Zhao,
+``A hybrid renormalization scheme for quasi light-front correlations in large-momentum effective theory,''
+Nucl.\ Phys.\ B \textbf{964}, 115311 (2021), arXiv:2008.03886.
+\quad\textbf{[来源:} \texttt{refer/papers/A Hybrid Renormalization Scheme for Quasi Light-Front Correlations in Large-Momentum Effective Theory.pdf}\textbf{]}
+
+\bibitem{Zhang2023RGR}
+R.~Zhang, J.~Holligan, X.~Ji, and Y.~Su,
+``Resumming quark's longitudinal momentum logarithms in LaMET expansion of lattice PDFs,''
+Phys.\ Lett.\ B \textbf{844}, 138081 (2023), arXiv:2305.05212.
+\quad\textbf{[来源:} \texttt{refer/papers/Resumming Quark's Longitudinal Momentum Logarithms in LaMET Expansion of Lattice PDFs.pdf}\textbf{]}
+
+\bibitem{Su2023LRR}
+Y.~Su, J.~Holligan, X.~Ji, F.~Yao, J.-H.~Zhang, and R.~Zhang,
+``Power corrections and renormalons in parton quasi-distributions,''
+Nucl.\ Phys.\ B \textbf{991}, 116201 (2023), arXiv:2209.01236.
+\quad\textbf{[来源:} \texttt{refer/papers/Power corrections and renormalons in parton quasi-distributions.pdf}\textbf{]}
+
+% === 全局分析 ===
+
+\bibitem{DSSV14}
+D.~de Florian, R.~Sassot, M.~Stratmann, and W.~Vogelsang,
+``Evidence for polarization of gluons in the proton,''
+Phys.\ Rev.\ Lett.\ \textbf{113}, 012001 (2014), arXiv:1404.4293.
+
+\bibitem{NNPDFpol11}
+E.~R.~Nocera, R.~D.~Ball, S.~Forte, G.~Ridolfi, and J.~Rojo (NNPDF),
+``A first unbiased global determination of polarized PDFs and their uncertainties,''
+Nucl.\ Phys.\ B \textbf{887}, 276 (2014), arXiv:1406.5539.
+
+\bibitem{JAM17}
+J.~J.~Ethier, N.~Sato, and W.~Melnitchouk,
+``First simultaneous extraction of spin-dependent parton distributions and fragmentation functions from a global QCD analysis,''
+Phys.\ Rev.\ Lett.\ \textbf{119}, 132001 (2017), arXiv:1705.05889.
+
+\bibitem{JAM24}
+T.~Anderson, W.~Melnitchouk, and N.~Sato,
+``New global analysis of spin-dependent parton distribution functions,''
+(2024), arXiv:2501.00665.
+
+% === 组态文献 ===
+
+\bibitem{CLQCD2024}
+Z.-C.~Hu \textit{et al.} (CLQCD),
+``Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{109}, 054507 (2024), arXiv:2310.00814.
+\quad\textbf{[来源:} \texttt{refer/papers/Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\bibitem{CLQCD2025}
+H.-Y.~Du \textit{et al.} (CLQCD),
+``Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{111}, 054504 (2025), arXiv:2408.03548.
+\quad\textbf{[来源:} \texttt{refer/papers/Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,947 @@
+\documentclass[12pt,a4paper]{ctexart}
+
+% === 页面设置 ===
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{multirow}
+\usepackage{listings}
+
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{remark}{注记}[section]
+\newtheorem{theorem}{定理}[section]
+
+\definecolor{codebg}{rgb}{0.95,0.95,0.95}
+\lstset{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+}
+
+\title{\heiti 格点上计算胶子准算符：\\
+从规范组态到物理胶子PDF的完整计算链}
+\author{基于本库全部文献与代码的综合解析}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+在格点QCD上计算胶子准算符（gluon quasi-operator）是从第一性原理提取胶子部分子分布函数（gluon PDF）的核心步骤。与夸克情形不同，胶子准算符的计算面临三重独有的挑战：胶子流与核子之间无夸克线连接（非连通图）、Wilson线自能产生的线性发散$\sim|z|/a$、以及场强张量$F_{\mu\nu}$的36个Lorentz分量中需挑选可乘性重整化的组合。本文基于本库中收集的CLQCD/LPC合作组的实际计算代码和约60篇参考文献，从规范组态准备到物理PDF提取的完整计算链，系统解析格点上计算胶子准算符的每个技术环节：
+（1）\textbf{规范组态与系综}——CLQCD的$N_f=2+1$ Wilson Clover系综参数（$\beta=6.20$, $a\approx0.105$~fm, $m_\pi\approx290$~MeV, $24^3\times72$）；
+（2）\textbf{场强张量的格点构造}——从plaquette到Clover项的完整推导及Minkowski/Euclidean转换；
+（3）\textbf{Wilson线的离散化与涂抹}——HYP5超立方涂抹与梯度流($\tau_W=1.4$)两种方案对线性发散的抑制效果对比；
+（4）\textbf{蒸馏方法与动量涂抹}——Laplace算符本征值问题、perambulator计算、VVV重子块构造、以及相位因子$\vec{\zeta}=2\times 2\pi/L\,\hat{z}$实现大动量boost；
+（5）\textbf{质子两点关联函数}——宇称投影$P_\pm=(1\pm\gamma_0)/2$、Dirac矩阵的DeGrand-Rossi基表示、以及GPU加速的收缩计算；
+（6）\textbf{胶子准算符的构造}——非极化$O^{(0)}_g$和$O^{(1)}_g$的Euclidean实现、极化螺旋度胶子流$O^{(0)}_g$和$O^{(1)}_g$的对偶场强张量构造；
+（7）\textbf{非连通三点关联函数}——真空期望值减除、胶子流与核子的独立计算与系综平均关联；
+（8）\textbf{矩阵元提取与激发态控制}——比值法$C_3/C_2$、双态拟合、多源汇分离$t_{\text{sep}}$策略；
+（9）\textbf{重整化与匹配}——ratio方案、混合方案（hybrid scheme）中的$Z_R$因子计算、以及从裸格点矩阵元到$\overline{\text{MS}}$光锥PDF的完整流程；
+（10）\textbf{统计方法}——Bootstrap/Jackknife重采样与关联$\chi^2$拟合在协方差矩阵处理中的应用。
+全文以CLQCD/LPC合作组的实际计算为例，辅以本库中refer/donghx/目录的完整Python代码解析（CuPy GPU加速、MPI并行、opt\_einsum张量收缩），呈现从原始规范组态到可与全局拟合比较的物理胶子PDF的完整数值实现链路，所有论据均标注参考源。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{引言：格点上计算胶子准算符的总体框架}
+% ============================================================
+
+格点QCD中计算胶子准算符的目标是提取核子矩阵元：
+\begin{equation}
+h(z, P^z) = \langle P| O_g(z) |P\rangle,
+\label{eq:target_me}
+\end{equation}
+其中$O_g(z)$是沿空间$z$方向分离的非定域双胶子场强张量算符（含Wilson线），$|P\rangle$是具有大动量$P^z$的核子态。从这一格点可计算的矩阵元出发，通过Fourier变换和微扰匹配，最终获得物理的胶子PDF $g(x,\mu)$。
+
+\textbf{胶子准算符计算的独有困难}\cite{Fan2018gluon,Chen2025gluon,NoteGluonPDFs}：
+\begin{enumerate}
+    \item \textbf{非连通图：}胶子流$O_g(z)$的插入与核子之间没有夸克线连接——三点关联函数本质上是非连通的（disconnected）。这意味着胶子流和核子两点关联函数必须独立计算，然后通过系综平均关联。信噪比远差于夸克同位旋矢量组合。
+    \item \textbf{线性发散：}Wilson线自能产生$\sim |z|/a$的线性紫外发散，在格点上导致裸矩阵元随$|z|$指数衰减$\sim e^{-\delta m |z|/a}$。这要求在计算胶子准算符之前或之后进行专门的线性发散扣除（HYP涂抹、ratio重整化、或显式的$m_0$扣除）。
+    \item \textbf{算符选择的多样性：}场强张量的36个Lorentz分量中，必须挑选可乘性重整化的组合——最常用的是$M_{ti;it}+M_{ij;ji}$组合\cite{Balitsky2020}。
+\end{enumerate}
+
+图\ref{fig:pipeline}给出了从原始规范组态到物理胶子PDF的完整计算管道。
+
+\begin{table}[H]
+\centering
+\caption{格点上计算胶子准算符的完整管道}
+\label{fig:pipeline}
+\begin{tabular}{c|c|c}
+\toprule
+\textbf{阶段} & \textbf{计算内容} & \textbf{关键技术} \\
+\midrule
+I. 系综生成 & 规范组态（含HYP/Wilson flow涂抹） & CLQCD $N_f=2+1$ Wilson Clover \\
+II. 蒸馏准备 & Laplace算符本征值问题 & $N_{\text{ev}}=100$, Scipy/ARPACK \\
+III. Perambulator & Dirac算符求逆$\to$蒸馏空间传播子 & 每个系综计算一次，所有算符复用 \\
+IV. 两点函数 & 质子$C_{2\text{pt}}(P^z,t,t_0)$ & VVV Baryon Block + 动量涂抹 \\
+V. 胶子准算符 & Clover $F_{\mu\nu}$ + Wilson线 + OPE收缩 & Operator.py (NumPy/opt\_einsum) \\
+VI. 三点函数 & 非连通$C_{3\text{pt}}(z,P^z,t,t_i,t_0)$ & 真空期望值减除 \\
+VII. 矩阵元提取 & 比值法 + 双态拟合 & Bootstrap + $\chi^2$拟合 \\
+VIII. 重整化 & Ratio/Hybrid方案消除UV发散 & $Z_R(z,1/a,\mu)$因子 \\
+IX. Fourier变换 & 准PDF $\tilde{g}(x,P^z)$ & 大$\lambda$外推 \\
+X. 微扰匹配 & $g(x,\mu)=C_{gg}\otimes \tilde{g}(y,P^z)$ & NLO匹配核 + $2\times2$味混合 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
+\section{规范组态与系综参数}
+% ============================================================
+
+\subsection{CLQCD系综}
+
+胶子准算符的计算基于CLQCD合作组生成的规范组态\cite{NoteGluonPDFs,Chen2025gluon}。如表\ref{tab:ensemble}所示，当前分析使用的系综参数为：
+
+\begin{table}[H]
+\centering
+\caption{CLQCD/LPC胶子PDF计算使用的系综参数\cite{NoteGluonPDFs}}
+\label{tab:ensemble}
+\begin{tabular}{lcccccc}
+\toprule
+系综ID & $a$ (fm) & $\beta$ & $m_\pi$ (MeV) & $L^3\times N_t$ & $N_{\text{conf}}$ & 涂抹 \\
+\midrule
+C11P29S & 0.105 & 6.20 & 290 & $24^3\times72$ & 317 & HYP5 / Wilson3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{itemize}
+    \item \textbf{费米子作用量：}$N_f=2+1$ Wilson Clover费米子，tadpole改进\cite{CLQCD2024,CLQCD2025}
+    \item \textbf{规范作用量：}Iwasaki规范作用量（$\beta=6.20$）
+    \item \textbf{涂抹方案：}两种独立方案用于交叉检验——10步HYP超立方涂抹（HYP5）和Wilson梯度流涂抹（$\tau_W=1.4$，标记为Wilson3）\cite{NoteGluonPDFs}
+    \item \textbf{格点体积：}$24^3\times72$，空间长度$L\approx2.5$~fm，时间长度$T\approx7.6$~fm
+    \item \textbf{动量：}$P^z=(0,0,2)\times 2\pi/L$（约1 GeV的boost）
+\end{itemize}
+
+\subsection{HYP涂抹与梯度流}
+
+两种涂抹方案的对比是理解线性发散抑制效果的关键\cite{NoteGluonPDFs}：
+
+\begin{itemize}
+    \item \textbf{HYP5（10步HYP涂抹）：}在SU(3)子群中通过三层次（fat links within hypercubes）优化投影来抑制格点人工噪声。HYP5对短距离涨落的过滤更激进，裸矩阵元随$|z|$的衰减更慢。
+    \item \textbf{Wilson3（梯度流$\tau_W=1.4$）：}通过求解规范场的扩散方程$\partial_t V_\mu(x,t)=-g^2\{\partial_{x,\mu}S[V]\}V_\mu(x,t)$，在流时间$t=\tau_W$处平滑化规范场。梯度流具有严格的UV正规化性质——流时间$t$处的关联函数在$a\to0$极限下自动有限。
+\end{itemize}
+
+两者的定性比较：HYP5的数值信号通常更好（更大的有效矩阵元值），但Wilson3提供了更清晰的连续极限行为。
+
+% ============================================================
+\section{场强张量$F_{\mu\nu}$的格点构造}
+% ============================================================
+
+\subsection{从Plaquette到Clover项}
+
+在格点上，规范场强张量$F_{\mu\nu}$通过plaquette（$1\times1$ Wilson圈）的Baker-Campbell-Hausdorff展开来构造\cite{NoteGluonPDFs,Gattringer2010}。
+
+基本plaquette定义为：
+\begin{equation}
+P_{\mu\nu}(x) = U_\mu(x) U_\nu(x+\hat{\mu}) U_\mu^\dagger(x+\hat{\nu}) U_\nu^\dagger(x)。
+\end{equation}
+
+展开到$\mathcal{O}(a^2)$：
+\begin{equation}
+P_{\mu\nu}(x) = 1 + ia^2 F_{\mu\nu}(x) + \mathcal{O}(a^3),
+\end{equation}
+
+其中连续场强张量$F_{\mu\nu}(x)=-i[D_\mu(x),D_\nu(x)]$，$D_\mu(x)=\partial_\mu+iA_\mu(x)$。
+
+为降低统计涨落，取四个方向翻转的plaquette的平均来构造\textbf{Clover项}\cite{NoteGluonPDFs,Gattringer2010}：
+\begin{equation}
+\boxed{Q_{\mu\nu}(x) = P_{\mu\nu}(x) - P_{\nu,-\mu}(x) + P_{-\nu,\mu}(x) + P_{-\mu,-\nu}(x)}。
+\end{equation}
+
+Clover形式的场强张量为：
+\begin{equation}
+\boxed{F_{\mu\nu}(x) = -\frac{i}{8a^2}(Q_{\mu\nu}(x) - Q_{\nu\mu}(x))}。
+\label{eq:clover_F}
+\end{equation}
+
+该构造的图示为围绕格点$x$的四叶苜蓿形（clover leaf），每个瓣对应一个方向翻转的plaquette\cite{NoteGluonPDFs}。式(\ref{eq:clover_F})是格点上所有胶子准算符计算的基础——无论非极化还是极化，无论哪种算符组合，都是从这个Clover $F_{\mu\nu}$出发来构造的。
+
+\subsection{Minkowski/Euclidean转换关系}
+
+胶子准算符在格点上的实际计算是在Euclidean空间中进行的，必须处理Minkowski与Euclidean场强张量的转换。关键关系\cite{NoteGluonPDFs}：
+\begin{equation}
+F^{(M)}_{tx}F^{(M)}_{tx} = -F^{(E)}_{tx}F^{(E)}_{tx}, \qquad
+F^{(M)}_{xy}F^{(M)}_{xy} = F^{(E)}_{xy}F^{(E)}_{xy}。
+\label{eq:mink_eucl_convert}
+\end{equation}
+
+时间分量前的负号直接影响胶子流算符的最终形式——见第\ref{sec:gluon_currents}节。
+
+% ============================================================
+\section{Wilson线的离散化与涂抹}
+% ============================================================
+
+\subsection{基础表示下的离散化}
+
+胶子准算符中的Wilson线在格点上通过规范连接变量$U_\mu(n)$的乘积来离散化。对于沿$z$方向、
+长度为$z$的直线路径，基础表示下的Wilson线直接为\cite{NoteGluonPDFs}：
+\begin{equation}
+U(\vec{x}, \vec{x}+z\hat{z}) = \prod_{k=0}^{z/a-1} U_z(\vec{x}+k a\hat{z})。
+\end{equation}
+
+借助恒等式$2\operatorname{Tr}[T^a U T^b U^\dagger]=U^{ab}$，可将伴随表示的Wilson线转换为基础表示：
+\begin{equation}
+W^{ab}[z,0] = 2\operatorname{Tr}[T^a U(z,0) T^b U(0,z)]。
+\end{equation}
+
+这在实践中更方便——格点规范组态存储的是基础表示的链接变量$U_\mu(n)$。
+
+\subsection{HYP涂抹对线性发散的抑制}
+
+线性发散来源于Wilson线的自能：在格点截断方案下，空间方向Wilson线的量子修正包含正
+比于$|z|/a$的发散项$\sim e^{-\delta m|z|/a}$。在格点上，这种线性发散导致裸矩阵元随$|z|$指数衰
+减，使长程关联的信号被完全淹没。
+
+\textbf{涂抹作为第一道防线}\cite{Chen2025gluon,NoteGluonPDFs,本库补充4}：在格点上对规范场进行涂抹（smearing）——将每个链接变量$U_\mu(x)$替换为其近邻的平滑化版本——可以有效抑制
+$\sim 1/a$的短距离UV涨落。
+CLQCD/LPC的计算使用两种涂抹方案：
+\begin{itemize}
+    \item \textbf{HYP5：}10步超立方涂抹，在SU(3)子群中通过三层次优化投影实现
+    \item \textbf{Wilson3（梯度流$\tau_W=1.4$）：}通过规范场扩散方程的积分来平滑化
+\end{itemize}
+
+图\ref{fig:smear_comparison}中的数值结果\cite{NoteGluonPDFs}显示：HYP5涂抹的裸矩阵元随$|z|$增加衰减更慢（信号更大），而
+Wilson3涂抹的统计涨落更大但连续极限行为更清晰。
+
+\begin{table}[H]
+\centering
+\caption{两种涂抹方案对非极化胶子算符$O^{(0)}_g$矩阵元的影响\cite{NoteGluonPDFs}}
+\label{fig:smear_comparison}
+\begin{tabular}{lcc}
+\toprule
+性质 & HYP5 & Wilson3 ($\tau_W=1.4$) \\
+\midrule
+$N_{\text{conf}}$ & 317 & 316 \\
+短距离信号 ($z=2$) & 较大，$C_3/C_2\approx1.0$ & 稍小，$C_3/C_2\approx0.8$ \\
+长距离衰减 ($z=7$) & 缓慢，$C_3/C_2\approx0.5$ & 较快，$C_3/C_2\approx0.3$ \\
+$t_{\text{sep}}$稳定性 & 6--10处稳定 & 6--10处稳定 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
+\section{蒸馏方法与动量涂抹}
+% ============================================================
+
+\subsection{蒸馏的基本原理}
+
+蒸馏（Distillation）方法\cite{Peardon2009,本库补充5}是CLQCD/LPC合作组计算胶子PDF的核心技术。
+它利用三维规范协变Laplace算符的低阶本征模构建低秩投影算符\cite{NoteGluonPDFs,Egerer2021a}：
+\begin{equation}
+\Box_{xy}(t) = \sum_{k=1}^{N_{\text{ev}}} v_x^{(k)}(t) v_y^{(k)\dagger}(t) \equiv V(t)V^\dagger(t),
+\label{eq:distillation_op}
+\end{equation}
+其中$v^{(k)}$是三维Laplace算符$- \nabla^2$的第$k$个本征矢：
+\begin{equation}
+-\nabla^2_{xy}(t) = 6\delta_{xy} - \sum_{j=1}^{3} \left[ \tilde{U}_j(x,t)\delta_{x+\hat{j},y} + \tilde{U}_j^\dagger(x-\hat{j},t)\delta_{x-\hat{j},y} \right]。
+\end{equation}
+
+\textbf{核心参数}\cite{NoteGluonPDFs}：
+\begin{itemize}
+    \item $M = N_c\times N_x\times N_y\times N_z = 3\times24^3 = 41472$——Laplace算符的维度
+    \item $N_{\text{ev}} = 100$——保留的本征模数（蒸馏空间维度）
+    \item 蒸馏的低秩性$\text{rank}(\Box) = N_{\text{ev}} \ll M$使得所有传播子可在蒸馏空间内完整计算
+\end{itemize}
+
+\subsection{Perambulator：夸克传播的蒸馏空间编码}
+
+Perambulator是蒸馏框架的核心数据结构，它将完整的夸克传播子$M^{-1}$投影到蒸馏空间中\cite{NoteGluonPDFs,Peardon2009,本库补充5}：
+\begin{equation}
+\boxed{\tau_{\alpha\beta}^{(p,\bar{p})}(t',t) = V^{(p)\dagger}(t') M^{-1}_{\alpha\beta}(t',t) V^{(\bar{p})}(t)}。
+\label{eq:perambulator}
+\end{equation}
+
+其中$\alpha,\beta$是Dirac自旋指标，$p,\bar{p}$是蒸馏空间指标。
+
+\textbf{Perambulator的关键性质}\cite{Peardon2009,Egerer2021a}：
+\begin{itemize}
+    \item \textbf{仅依赖于规范场：}Perambulator的计算完全独立于插值算符的选择
+    \item \textbf{一次计算，多次复用：}每个系综的perambulator只需计算一次，之后可以在扩展的插值算符基上高效重复使用，带来显著的计算节约
+    \item \textbf{可跨道共享：}介子和重子的perambulator计算可以共享
+\end{itemize}
+
+\subsection{动量涂抹：高动量态的Boost}
+
+为了计算大动量$P^z$下的矩阵元（LaMET框架要求$P^z\to\infty$极限），需要在蒸馏框架中加入动量信息。通过在蒸馏本征矢上施加相位因子实现\cite{Egerer2021a,NoteGluonPDFs}：
+\begin{equation}
+\boxed{\tilde{v}_x^k(\vec{z},t) = e^{i\vec{\zeta}\cdot\vec{z}} \, v_x^k(\vec{z},t)}, \qquad
+\vec{\zeta} = 2 \times \frac{2\pi}{L} \hat{z}。
+\label{eq:mom_smear}
+\end{equation}
+
+该动量涂抹的相位因子$\vec{\zeta}=2\times2\pi/L\,\hat{z}$给每个本征矢赋予沿$z$方向的动量，保持平移不变性$v(\vec{z}+L\hat{z})=e^{i\vec{\zeta}\cdot L}v(\vec{z})$。对于$L=24a$，这给出可达$P^z=6\times2\pi/L$的多个动量值。
+
+\subsection{VVV重子块计算}
+
+在蒸馏框架中，核子两点关联函数的构造需要VVV（矢量-矢量-矢量）重子块\cite{NoteGluonPDFs,代码解析}：
+\begin{equation}
+\boxed{\Phi^{abc}(P,t) = \sum_{\vec{x}} e^{-i\vec{P}\cdot\vec{x}} \, \epsilon^{ijk} \, \tilde{v}_i^a(\vec{x},t) \, \tilde{v}_j^b(\vec{x},t) \, \tilde{v}_k^c(\vec{x},t)}。
+\label{eq:VVV}
+\end{equation}
+
+其中$\tilde{v}_i^a(\vec{x},t)$是动量涂抹后的第$i$个蒸馏本征矢在空间位置$\vec{x}$、颜色$a$处的值。VVV块对每种颜色组合$(a,b,c)$和每个源时间片$t$分别计算。
+
+% ============================================================
+\section{质子两点关联函数}
+% ============================================================
+
+\subsection{蒸馏框架中的因子化两点函数}
+
+利用蒸馏的因子化性质，质子两点关联函数可以分解为perambulator和VVV块的乘积\cite{NoteGluonPDFs,Peardon2009}：
+\begin{equation}
+\begin{aligned}
+C_{2\text{pt}}(P^z, t, t_0) = P_{\alpha\beta} \sum_{\vec{x}} e^{-iP^z z} \langle 0| N_\alpha(\vec{x},t) \bar{N}_\beta(\vec{0},t_0) |0\rangle。
+\end{aligned}
+\label{eq:2pt}
+\end{equation}
+
+在蒸馏框架中显式收缩为：
+\begin{equation}
+\begin{aligned}
+\langle O(t)\bar{O}(t_0)\rangle &= (P_\pm)_{\alpha,\bar{\alpha}} (C\gamma_5)_{\beta\rho} (C\gamma_5)_{\bar{\beta}\bar{\rho}} \\
+&\quad \times \epsilon^{abc} \left[V_a^{(p)} V_b^{(q)} V_c^{(r)}\right](t) \\
+&\quad \times \tau_{\rho,\bar{\rho}}^{(r,\bar{r})} \left( \tau_{\alpha,\bar{\alpha}}^{(p,\bar{p})} \tau_{\beta,\bar{\beta}}^{(q,\bar{q})} - \tau_{\alpha,\bar{\beta}}^{(p,\bar{q})} \tau_{\beta,\bar{\alpha}}^{(q,\bar{p})} \right) \\
+&\quad \times \left[V_{\bar{a}}^{(\bar{p})\dagger} V_{\bar{b}}^{(\bar{q})\dagger} V_{\bar{c}}^{(\bar{r})\dagger}\right](t_0) \, \epsilon^{\bar{a}\bar{b}\bar{c}}。
+\end{aligned}
+\label{eq:2pt_distillation}
+\end{equation}
+
+这里清晰展示了蒸馏的因子化结构：perambulator矩阵$\tau$与算符构造细节（$V$矩阵与$\epsilon$张量）完全分离。
+
+\subsection{宇称投影与插值算符}
+
+\textbf{宇称投影算符}\cite{NoteGluonPDFs,代码解析}：
+\begin{equation}
+P_+ = \frac{1}{2}(1+\gamma_0), \qquad P_- = \frac{1}{2}(1-\gamma_0)。
+\end{equation}
+
+\textbf{插值算符：}质子插值算符使用$C\gamma_5\gamma_\mu$型结构。在DeGrand-Rossi (DR)基下\cite{代码解析}，电荷共轭矩阵$C$表示为：
+\begin{equation}
+C = \gamma_3\gamma_1 \quad (\text{DR基下的}\;\gamma_7),
+\end{equation}
+插值算符为$C\gamma_5\gamma_4$（对应$C\gamma_5\gamma_t$），投影到正/负宇称态。
+
+\subsection{GPU加速计算}
+
+两点函数收缩在GPU上使用CuPy库加速\cite{代码解析}。核心计算涉及：
+\begin{itemize}
+    \item \textbf{opt\_einsum张量收缩：}对perambulator的Dirac/蒸馏指标的复杂收缩使用最优化的Einstein求和路径
+    \item \textbf{批量化处理：}对不同源时间片$t_0$的perambulator配对进行并行处理
+    \item \textbf{内存优化：}蒸馏空间的低维性（$N_{\text{ev}}=100$）使得perambulator可完全驻留在GPU内存中
+\end{itemize}
+
+% ============================================================
+\section{胶子准算符的构造（OPE计算）}
+\label{sec:gluon_currents}
+
+\subsection{基础表示下的矩阵元构造}
+
+在格点上，胶子准算符的矩阵元在基础表示下计算\cite{NoteGluonPDFs,Chen2025gluon}：
+\begin{equation}
+\boxed{M_{\mu\lambda;\nu\rho}(z) = \sum_{\vec{x}} \operatorname{Tr}\left[ F_{\mu\lambda}(\vec{x}+z\hat{z}) \, U(\vec{x}+z\hat{z},\vec{x}) \, F_{\nu\rho}(\vec{x}) \, U(\vec{x},\vec{x}+z\hat{z}) \right]}。
+\label{eq:lattice_ME_fund}
+\end{equation}
+
+其中$F_{\mu\nu}$由式(\ref{eq:clover_F})的Clover项构造。矩阵元的每个分量$M_{\mu\lambda;\nu\rho}(z)$是一个$z$依赖的复数，需要逐$z$值（$z=0,1,2,\ldots,7$）计算。
+
+\subsection{非极化胶子流算符}
+
+根据不变振幅分解的结果，可乘性重整化的非极化胶子准算符组合为\cite{Balitsky2020,NoteGluonPDFs,Chen2025gluon}：
+\begin{equation}
+O(z) = M_{tx;tx}(z) + M_{ty;ty}(z) - 2M_{xy;xy}(z)。
+\label{eq:unpol_op_combo}
+\end{equation}
+
+具体地，在Euclidean空间中：\cite{NoteGluonPDFs}
+
+\textbf{主算符$O^{(0)}_g$}（非极化）：
+\begin{equation}
+\begin{aligned}
+O^{(0)}_g(z, t_i) &= \Big[ -F^{0i}(z,t_i)\,W[z,0]\,F_{0i}(0,t_i)\,W[0,z] \\
+&\quad + 2F^{12}(z,t_i)\,W[z,0]\,F_{12}(0,t_i)\,W[0,z] \Big]_{\text{Eucl}},
+\end{aligned}
+\label{eq:Og0}
+\end{equation}
+其中$i=1,2$为横向指标（$i=x,y$）。时间分量前的``$-$''号来自Minkowski/Euclidean转换式(\ref{eq:mink_eucl_convert})：
+\begin{equation}
+F^{tx,(M)}F^{(M)}_{tx} = -F^{(E)}_{tx}F^{(E)}_{tx}, \qquad
+F^{xy,(M)}F^{(M)}_{xy} = F^{(E)}_{xy}F^{(E)}_{xy}。
+\end{equation}
+
+\textbf{辅助算符$O^{(1)}_g$}（仅含$M_{ti;it}$部分，用于交叉检验）：
+\begin{equation}
+O^{(1)}_g(z, t_i) = F^{0i}(z,t_i)\,W[z,0]\,F_{0i}(0,t_i)\,W[0,z] \quad (\text{Euclidean})。
+\label{eq:Og1}
+\end{equation}
+
+\subsection{极化（螺旋度）胶子流算符}
+
+极化情形涉及对偶场强张量$\tilde{F}^{\mu\nu}=\frac{1}{2}\epsilon^{\mu\nu\rho\sigma}F_{\rho\sigma}$（$\epsilon^{0123}=1$），在Euclidean空间中展开为具体分量\cite{NoteGluonPDFs,Egerer2022}。
+
+\textbf{主算符$O^{(0)}_g$}（螺旋度）：
+\begin{equation}
+\begin{aligned}
+O^{(0)}_g(z, t_i) &= -\Big\{ \big[F^{01}W F^{23} - F^{02}W F^{13} + 2F^{12}W F^{03}\big] \\
+&\quad - \big[ (z \leftrightarrow -z) \big] \Big\}_{\text{Eucl}}。
+\end{aligned}
+\label{eq:pol_Og0}
+\end{equation}
+
+\textbf{辅助算符$O^{(1)}_g$}（螺旋度，仅含$\tilde{F}^{0i}$）：
+\begin{equation}
+O^{(1)}_g(z, t_i) = \big\{F^{01}W F^{23} + F^{02}W F^{13}\big\} - \big\{ (z \leftrightarrow -z) \big\} \quad (\text{Euclidean})。
+\label{eq:pol_Og1}
+\end{equation}
+
+极化情形中的$z\leftrightarrow -z$反对称化是提取自旋相关分布的关键——它消除了与自旋无关的背景贡献\cite{Egerer2022}。
+
+\subsection{代码实现：Operator.py}
+
+Calc\_ope\_unpol.py通过MPI并行在所有可用进程间分配$z$值\cite{代码解析}。对每个$z$，计算流程为：
+\begin{enumerate}
+    \item 读取该时间片上的格点规范组态（链接变量$U_\mu(x)$）
+    \item 对每个空间位置$\vec{x}$，计算Clover项$Q_{\mu\nu}(x)$和场强张量$F_{\mu\nu}(x)=-\frac{i}{8a^2}(Q_{\mu\nu}-Q_{\nu\mu})$
+    \item 构造Wilson线$U(\vec{x},\vec{x}+z\hat{z})$（沿$z$方向的链接变量乘积）
+    \item 计算式(\ref{eq:lattice_ME_fund})中的矩阵元$M_{\mu\lambda;\nu\rho}(z)$（迹+对$\vec{x}$求和）
+    \item 组合为$O^{(0)}_g$和$O^{(1)}_g$
+    \item 通过MPI收集所有$z$的结果
+\end{enumerate}
+
+对于极化情形，额外需要计算Levi-Civita张量和对偶场强张量$\tilde{F}^{\mu\nu}$。
+
+% ============================================================
+\section{非连通三点关联函数}
+% ============================================================
+
+\subsection{非连通分解}
+
+胶子准算符三点关联函数的核心特征是\textbf{非连通性}\cite{NoteGluonPDFs,Chen2025gluon}——胶子流与核子之间没有夸克线连接。这允许将三点函数分解为：
+\begin{equation}
+C_{3\text{pt}}(z, P^z, t, t_i, t_0) = \langle O_g(z, t_i) \, C^N_{2\text{pt}}(P^z, t, t_0) \rangle。
+\label{eq:3pt_disconnected}
+\end{equation}
+
+\subsection{真空期望值减除}
+
+为确保物理信号的正确提取，必须减去胶子流和核子两点关联函数的真空期望值\cite{NoteGluonPDFs,Chen2025gluon}：
+\begin{equation}
+\boxed{C_{3\text{pt}}(z, P^z, t, t_i, t_0) = \langle (O_g(z, t_i) - \langle O_g(z, t_i) \rangle)(C^N_{2\text{pt}}(P^z, t, t_0) - \langle C^N_{2\text{pt}}(P^z, t, t_0) \rangle) \rangle}。
+\label{eq:3pt_vacuum_sub}
+\end{equation}
+
+其中$\langle\cdot\rangle$表示系综平均（在所有规范组态上求平均）。
+
+\textbf{真空期望值减除的重要性}\cite{Chen2025gluon}：
+\begin{itemize}
+    \item 胶子流$O_g(z,t_i)$的真空期望值非零——它是胶子场的平方算符，即使在真空态中也有非零的期望值
+    \item 不减除真空期望值将导致矩阵元被一个大的常数（真空贡献）主导，完全淹没核子态中的物理信号
+    \item 实际计算中，$\langle O_g(z,t_i)\rangle$通过对所有$t_i$切片上的胶子流求平均来估计
+\end{itemize}
+
+\subsection{胶子流与核子两点函数的独立计算}
+
+式(\ref{eq:3pt_vacuum_sub})的关键优势是\textbf{可操作性}\cite{NoteGluonPDFs}：
+\begin{itemize}
+    \item $O_g(z,t_i)$仅依赖于规范组态——通过Calc\_ope\_unpol.py对所有组态和所有$z$独立计算
+    \item $C^N_{2\text{pt}}(P^z,t,t_0)$通过蒸馏框架对所有组态独立计算
+    \item 两者在任何阶段都无需同时计算——只需在最终的系综平均中关联起来
+    \item 这既是优势（计算灵活，两部分可并行完成），也是挑战（信噪比远差于夸克同位旋矢量组合中的连通三点函数）
+\end{itemize}
+
+% ============================================================
+\section{矩阵元提取与激发态控制}
+% ============================================================
+
+\subsection{比值法}
+
+从三点关联函数提取物理矩阵元的标准方法是比值法\cite{NoteGluonPDFs,Chen2025gluon,本库补充3}：
+\begin{equation}
+R(z, P^z, t, t_i, t_0) = \frac{C_{3\text{pt}}(z, P^z, t, t_i, t_0)}{C_{2\text{pt}}(P^z, t, t_0)}。
+\label{eq:ratio_method}
+\end{equation}
+
+在基态饱和极限下（$t_i-t_0\to\infty$, $t-t_i\to\infty$），比值趋近裸矩阵元：
+\begin{equation}
+\lim_{\substack{t_i-t_0\to\infty \\ t-t_i\to\infty}} R(z, P^z, t, t_i, t_0) = h^B(z, P^z)。
+\label{eq:ground_state}
+\end{equation}
+
+\subsection{多源汇分离与激发态污染控制}
+
+实际计算中\cite{NoteGluonPDFs,Chen2025gluon}，对每个$z$值使用多个源汇分离（$t_{\text{sep}}=4,5,6,7,8,9,10$）：
+\begin{itemize}
+    \item \textbf{短$t_{\text{sep}}$（4--6）：}比值可能被激发态污染，表现出对插入时间$t_i$的依赖性
+    \item \textbf{长$t_{\text{sep}}$（8--10）：}激发态贡献被指数压低，比值趋于平台，是矩阵元的可靠估计
+    \item \textbf{双态拟合：}$R(t_{\text{sep}}) = h^B(z,P^z) + A_1 e^{-\Delta E t_{\text{sep}}}$，同时在所有$t_{\text{sep}}$上拟合以同时提取基态矩阵元和激发态间隙$\Delta E$
+\end{itemize}
+
+\textbf{注：}CLQCD/LPC的计算\cite{NoteGluonPDFs}显示，对于胶子准算符，$t_{\text{sep}}\geq 6$后比值基本稳定——表明基态饱和在中等大小的源汇分离下即可实现。
+
+% ============================================================
+\section{胶子准算符的重整化}
+% ============================================================
+
+\subsection{Ratio重整化}
+
+在早期胶子准PDF计算和赝PDF方法中，ratio重整化是最简单的方案\cite{Fan2018gluon,Chen2025gluon}：
+\begin{equation}
+\tilde{h}^{\text{Ra}}(z, P^z, \mu) = \frac{\tilde{h}_{\overline{\text{MS}}}(0, 0, \mu)}{\tilde{h}(z, 0)} \tilde{h}(z, P^z)。
+\label{eq:ratio_renorm}
+\end{equation}
+
+利用零动量矩阵元$\tilde{h}(z,0)$作为``重整化因子''，基于以下假设：
+\begin{itemize}
+    \item 零动量矩阵元具有与有限动量矩阵元相同的UV发散结构
+    \item 它们的比值因此是UV有限的
+    \item 分母中的$\tilde{h}(z,0)$在$z\to 0$时附加了$\tilde{h}_{\overline{\text{MS}}}(0,0,\mu)$微扰值作为归一化条件
+\end{itemize}
+
+ratio方案的优点是简单、不需要额外计算。缺点是长距离处可能引入不希望有的非微扰红外效应\cite{Ji2021hybrid}。
+
+\subsection{混合（Hybrid）重整化}
+
+Ji等人提出的混合重整化方案\cite{Ji2021hybrid}根据距离尺度采用不同策略，避免了ratio方案的IR问题：
+\begin{equation}
+\boxed{\tilde{h}^R(z, P^z) = \frac{\tilde{h}^n_B(z, P^z, 1/a)}{\tilde{h}^n_B(z, P^z=0, 1/a)} \theta(z_s - |z|) + \eta_s \frac{\tilde{h}^n_B(z, P^z, 1/a)}{Z_R(z, 1/a)} \theta(|z| - z_s)}。
+\label{eq:hybrid_renorm}
+\end{equation}
+
+\begin{itemize}
+    \item \textbf{短距离（$|z| < z_s$）：}使用ratio方案——在距离足够短时，非微扰IR效应可忽略
+    \item \textbf{长距离（$|z| > z_s$）：}使用自重整化因子$Z_R(z,1/a)$——显式包含线性发散、对数发散和重正子模糊性
+\end{itemize}
+
+\subsection{胶子的自重整化因子$Z_R$}
+
+胶子准PDF的自重整化因子显式包含三种UV效应\cite{Ji2021hybrid,Chen2025gluon}：
+\begin{equation}
+\boxed{
+\begin{aligned}
+Z_R(z, 1/a, \mu) = \exp\Bigg\{&\frac{kz}{a}\ln[a\Lambda_{\text{QCD}}] + m_0 z \\
+&+ \frac{5C_A}{3b_0} \ln\left[\frac{\ln(1/a\Lambda_{\text{QCD}})}{\ln(\mu/\Lambda_{\text{QCD}})}\right] \\
+&+ \frac{1}{2}\ln\left[\left(1 + \frac{d}{\ln[a\Lambda_{\text{QCD}}]}\right)^2\right]\Bigg\}。
+\end{aligned}
+}
+\label{eq:ZR_gluon}
+\end{equation}
+
+\textbf{胶子与夸克的关键差异：}\cite{Chen2025gluon}线性发散系数$k$在胶子情形中比夸克情形大一个因子$C_A/C_F$（领头阶$k_g/k_q \approx 9/4$）。胶子的Wilson线在伴随表示中，自能修正更大——因此胶子准算符的裸矩阵元随$|z|$的衰减比夸克情形更剧烈，对涂抹和重整化的需求也更为迫切。
+
+% ============================================================
+\section{从裸格点数据到物理PDF的完整管道}
+% ============================================================
+
+\subsection{Fourier变换：准PDF的构造}
+
+重整化后的矩阵元$\tilde{h}^R(z, P^z)$通过Fourier变换给出准PDF\cite{Ji2013,Zhang2019}：
+\begin{equation}
+\boxed{\tilde{g}(x, P^z) = \frac{1}{N} \int_{-\infty}^{\infty} \frac{dz}{2\pi P^z} e^{-ixzP^z} \, \tilde{h}^R(z, P^z)}。
+\label{eq:quasi_pdf_fourier}
+\end{equation}
+
+在实际格点计算中\cite{Chen2025gluon,代码解析}：
+\begin{itemize}
+    \item $z$仅取离散值$z=0,1,2,\ldots,z_{\max}$（$z_{\max}\approx7$—10）
+    \item 需要外推到$z\to\infty$以完成Fourier积分——常用polynomial外推或模型依赖的extrapolation
+    \item $|x|>1$区域的贡献是准PDF的非物理特征（对应``部分子携带多于核子总动量''的组态），在$P^z\to\infty$极限下被幂次压低
+\end{itemize}
+
+\subsection{NLO微扰匹配：从准PDF到光锥PDF}
+
+准胶子PDF通过$2\times2$的味单态匹配矩阵与物理光锥PDF相联系\cite{Zhang2019,Yao2023}：
+\begin{equation}
+\boxed{\begin{pmatrix} \tilde{g}(x, P^z) \\ \tilde{q}_i(x, P^z) \end{pmatrix} =
+\int_0^1 \frac{dy}{y}
+\begin{pmatrix} C_{gg} & C_{gq} \\ C_{qg} & C_{qq} \end{pmatrix}
+\begin{pmatrix} g(y, \mu) \\ q_j(y, \mu) \end{pmatrix} + \mathcal{O}\left(\frac{\Lambda^2_{\text{QCD}}}{P_z^2}\right)}。
+\label{eq:2x2_matching}
+\end{equation}
+
+\textbf{NLO胶子在胶子中的匹配核$C_{gg}$}\cite{Yao2023}：
+\begin{equation}
+\begin{aligned}
+C^{\overline{\text{MS}}}_{gg}(\alpha, \beta, \mu^2 z^2_{12}) &= \delta(\alpha)\delta(\beta) \\
+&+ 2a_s C_A \Bigg\{ \left[E_1 + \left(\frac{\bar{\alpha}^2}{\alpha}\right)_+ \delta(\beta) + \left(\frac{\bar{\beta}^2}{\beta}\right)_+ \delta(\alpha)\right](L_z - 1) \\
+&+ E_2 - 2\left(\frac{\ln\alpha}{\alpha}\right)_+ \delta(\beta) - 2\left(\frac{\ln\beta}{\beta}\right)_+ \delta(\alpha) \Bigg\} \\
+&+ 2a_s C_A (-3L_z + 2)\delta(\alpha)\delta(\beta),
+\end{aligned}
+\end{equation}
+其中$E_1=4(1-\alpha-\beta+3\alpha\beta)$, $E_2=\frac{5}{2}E_1+6\alpha\beta$（非极化），$L_z=\ln\frac{4e^{-2\gamma_E}}{-\mu^2 z^2_{12}}$。
+
+\subsection{连续极限与无穷大动量外推}
+
+最终的系统误差消去需要\cite{Chen2025gluon}：
+\begin{enumerate}
+    \item \textbf{多格距分析：}在至少三个格距上重复计算，外推$a\to 0$
+    \item \textbf{大$P^z$外推：}在多个动量值上计算，检验$1/P_z^2$幂次修正的尺度
+    \item \textbf{与全局拟合比较：}将格点PDF演化到实验标度，与CT18、NNPDF4.0、MSHT20等全局拟合结果进行定量比较
+\end{enumerate}
+
+% ============================================================
+\section{统计方法与误差分析}
+% ============================================================
+
+\subsection{Bootstrap重采样}
+
+Monte Carlo规范组态上的测量值之间存在自相关。Bootstrap重采样\cite{Gattringer2010,本库补充6}通过有放回地从原始组态中抽样来非参数地估计误差：
+\begin{itemize}
+    \item 从$N_{\text{conf}}$个组态中有放回地抽取$N_{\text{conf}}$个（允许重复），生成$K$个Bootstrap样本（典型$K=500$—$1000$）
+    \item 在每个Bootstrap样本上完整地重复整个分析流程（矩阵元提取$\to$重整化$\to$Fourier变换$\to$匹配）
+    \item $K$个结果的分布直接给出对胶子PDF中心值和误差带的非参数估计
+\end{itemize}
+
+\subsection{Jackknife与关联$\chi^2$拟合}
+
+对关联数据（如不同$z$值处的矩阵元）的拟合需要正确处理协方差矩阵\cite{Gattringer2010,本库补充6}：
+\begin{equation}
+\chi^2 = \sum_{z,z'} [\tilde{h}(z) - f(z)] \, \text{Cov}^{-1}(z,z') \, [\tilde{h}(z') - f(z')],
+\end{equation}
+其中$\text{Cov}(z,z')$从$N_{\text{conf}}$个组态上在$z$和$z'$处的矩阵元测量值中估计。
+
+\textbf{协方差矩阵的处理}\cite{本库补充6}：
+\begin{itemize}
+    \item 当$N_{\text{conf}}$不足以可靠确定所有矩阵元时，协方差矩阵可能是奇异的
+    \item 对策包括仅使用对角元素、正则化（加入小的对角偏移）、或截断奇异值分解（SVD）
+    \item Jackknife方法通过逐一剔除每个组态来提供确定性的误差估计，适合小样本情形
+\end{itemize}
+
+% ============================================================
+\section{代码实现概览}
+% ============================================================
+
+\subsection{完整代码链}
+
+CLQCD/LPC合作组的胶子准算符计算实现为模块化的Python代码链\cite{代码解析}：
+
+\begin{table}[H]
+\centering
+\caption{胶子准算符计算的代码模块}
+\label{tab:code_modules}
+\begin{tabular}{llp{6cm}}
+\toprule
+\textbf{模块} & \textbf{功能} & \textbf{关键技术} \\
+\midrule
+2pt\_proton\_*.py & 质子两点函数 & CuPy GPU加速, opt\_einsum收缩 \\
+Calc\_ope\_unpol.py & 非极化胶子算符 & MPI并行, Operator.py调用 \\
+Operator.py & $F_{\mu\nu}$\& OPE算符 & Clover项构造, Levi-Civita, 对偶张量 \\
+gamma\_matrix\_cupy\_DR.py & Dirac矩阵 & DeGrand-Rossi基下的$\gamma$矩阵 \\
+input\_output\_4\_cupy.py & I/O辅助 & Perambulator读取, HDF5/NumPy \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{GPU加速的张量收缩}
+
+两点函数计算的核心是perambulator的大规模张量收缩\cite{代码解析}。CuPy + opt\_einsum的组合提供：
+\begin{itemize}
+    \item \textbf{opt\_einsum：}自动搜索最优的Einstein求和收缩路径，最小化浮点运算次数
+    \item \textbf{CuPy：}在GPU上执行实际的张量运算，利用数千个CUDA核心并行
+    \item \textbf{批量化：}多个源时间片$t_0$的perambulator配对被批量处理为高维张量，最大化GPU占用率
+\end{itemize}
+
+\subsection{MPI并行策略}
+
+Calc\_ope\_unpol.py使用MPI（Message Passing Interface）在所有可用进程间分配不同$z$值的计算\cite{代码解析}。由于不同$z$的计算完全独立（仅需要相同的规范组态），这是embarrassingly parallel的理想场景——scaling效率接近100\%。
+
+% ============================================================
+\section{数值结果与验证}
+% ============================================================
+
+\subsection{比值$C_3/C_2$的$t_{\text{sep}}$平台行为}
+
+图\ref{fig:ratio_results}总结了CLQCD/LPC合作组\cite{NoteGluonPDFs}的非极化胶子算符的比值$C_3/C_2$随流插入时间$t_i$和源汇分离$t_{\text{sep}}$的依赖关系：
+
+\begin{table}[H]
+\centering
+\caption{非极化胶子算符$O^{(0)}_g$的比值$C_3/C_2$在不同$t_{\text{sep}}$下的平台值\cite{NoteGluonPDFs}}
+\label{fig:ratio_results}
+\begin{tabular}{lcccccc}
+\toprule
+$z$ & $t_{\text{sep}}=4$ & $t_{\text{sep}}=6$ & $t_{\text{sep}}=8$ & $t_{\text{sep}}=10$ & 平台值 & 涂抹 \\
+\midrule
+2 & $\sim$1.0 & $\sim$0.95 & $\sim$0.9 & $\sim$0.85 & 0.87(5) & HYP5 \\
+3 & $\sim$0.85 & $\sim$0.8 & $\sim$0.75 & $\sim$0.7 & 0.73(5) & HYP5 \\
+4 & $\sim$0.7 & $\sim$0.65 & $\sim$0.6 & $\sim$0.55 & 0.58(6) & HYP5 \\
+5 & $\sim$0.55 & $\sim$0.5 & $\sim$0.45 & $\sim$0.42 & 0.44(6) & HYP5 \\
+6 & $\sim$0.45 & $\sim$0.4 & $\sim$0.38 & $\sim$0.35 & 0.36(7) & HYP5 \\
+7 & $\sim$0.35 & $\sim$0.32 & $\sim$0.3 & $\sim$0.28 & 0.29(8) & HYP5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{关键发现}\cite{NoteGluonPDFs}：
+\begin{itemize}
+    \item \textbf{$t_{\text{sep}}$稳定性：}$t_{\text{sep}}\ge 6$后平台已经稳定——表明胶子准算符的基态饱和可以在中等源汇分离下实现
+    \item \textbf{$z$衰减：}比值随$z$增加而指数衰减——符合线性发散$e^{-\delta m z/a}$的预期行为。HYP5涂抹下衰减更慢
+    \item \textbf{算符对比：}$O^{(0)}_g$和$O^{(1)}_g$给出定性一致但定量不同的结果——验证了不同Lorentz分量组合包含相同的物理信息但具有不同的重整化性质
+\end{itemize}
+
+\subsection{螺旋度胶子流的数值特征}
+
+极化胶子流的结果\cite{NoteGluonPDFs}显示出两个独特特征：
+\begin{itemize}
+    \item $C_3/C_2$的绝对值显著小于非极化情形（$\sim0.2$--$0.5$ vs $\sim0.3$--$1.0$）——螺旋度分布的信号本质上更弱
+    \item $z\leftrightarrow -z$反对称化后，比值在$t_i$扫过$t/2$时改变符号——这是$z$-奇组合的预期行为，是正确提取螺旋度分布的验证
+\end{itemize}
+
+% ============================================================
+\section{总结：格点上计算胶子准算符的路线图}
+
+格点上计算胶子准算符的完整技术路线可总结为以下十个步骤：
+
+\begin{enumerate}
+    \item \textbf{规范组态准备：}CLQCD $N_f=2+1$ Wilson Clover系综，$\beta=6.20$, $a\approx0.105$~fm, $24^3\times72$，应用HYP5或Wilson3涂抹\cite{NoteGluonPDFs,Chen2025gluon}
+
+    \item \textbf{蒸馏准备：}求解三维Laplace算符的本征值问题，保留$N_{\text{ev}}=100$个最低本征模，构建蒸馏算符$\Box_{xy}(t)=V(t)V^\dagger(t)$\cite{Peardon2009,Egerer2021a}
+
+    \item \textbf{Perambulator计算：}对每个规范组态计算Dirac算符的逆在蒸馏空间中的投影$\tau_{\alpha\beta}^{(p,\bar{p})}$——这是整个计算中最耗时的步骤，但每个系综只需计算一次\cite{NoteGluonPDFs,Peardon2009}
+
+    \item \textbf{动量涂抹：}在本征矢上施加相位因子$e^{i\vec{\zeta}\cdot\vec{z}}$（$\vec{\zeta}=2\times2\pi/L\,\hat{z}$），实现大动量boost\cite{Egerer2021a,NoteGluonPDFs}
+
+    \item \textbf{两点函数：}在GPU上通过CuPy+opt\_einsum计算质子两点关联函数$C_{2\text{pt}}(P^z,t,t_0)$，覆盖$P^z=(0,0,2)$及多个$t_0$\cite{代码解析}
+
+    \item \textbf{胶子准算符构建：}通过Calc\_ope\_unpol.py（MPI并行）对每个$z$值计算Clover $F_{\mu\nu}$、Wilson线、矩阵元$M_{\mu\lambda;\nu\rho}(z)$、并组合为$O^{(0)}_g$和$O^{(1)}_g$\cite{NoteGluonPDFs,代码解析}
+
+    \item \textbf{非连通三点函数：}通过系综平均关联胶子流和核子两点函数，减去各自的真空期望值\cite{NoteGluonPDFs,Chen2025gluon}
+
+    \item \textbf{矩阵元提取：}比值法$R=C_3/C_2$结合多$t_{\text{sep}}$分析（$t_{\text{sep}}=4$--$10$），通过双态拟合或平台区平均提取基态矩阵元$\tilde{h}^B(z,P^z)$\cite{NoteGluonPDFs,本库补充3}
+
+    \item \textbf{重整化：}通过ratio或hybrid方案消除线性发散和对数发散，得到重整化矩阵元$\tilde{h}^R(z,P^z,\mu)$\cite{Ji2021hybrid,Chen2025gluon}
+
+    \item \textbf{Fourier变换与匹配：}通过Fourier变换获得准PDF $\tilde{g}(x,P^z)$，再通过NL O的$2\times2$匹配矩阵$C_{gg},C_{gq},C_{qg},C_{qq}$转换到$\overline{\text{MS}}$光锥PDF $g(x,\mu)$\cite{Yao2023,Zhang2019,代码解析}
+\end{enumerate}
+
+\textbf{胶子与夸克准算符计算的核心差异总结}：
+\begin{table}[H]
+\centering
+\caption{夸克与胶子准算符格点计算的关键差异}
+\label{tab:quark_vs_gluon_compute}
+\begin{tabular}{lcc}
+\toprule
+方面 & 夸克准算符 & 胶子准算符 \\
+\midrule
+连通性 & 连通图 & \textbf{非连通图} \\
+信噪比 & 良好 & 较差（非连通） \\
+算符构造 & $\bar{\psi}(z)\Gamma U(z,0)\psi(0)$ & $M_{\mu\lambda;\nu\rho}(z)$ + Clover $F_{\mu\nu}$ \\
+线性发散来源 & Wilson线自能 & Wilson线自能（\textbf{大$C_A/C_F$因子}）\\
+算符混合（UV） & 无 & 36个分量，需挑组合 \\
+3pt函数分解 & 一体计算 & 独立计算+系综关联 \\
+涂抹策略 & HYP/梯度流 & HYP5 / Wilson3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{thebibliography}{99}
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,''
+内部笔记。（含非极化和极化胶子流算符的构造、系综参数、HYP/Wilson flow对比、以及完整的数值结果）
+\quad\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\quad\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{Zhang2019}
+J.-H.~Zhang, X.~Ji, A.~Sch\"afer, W.~Wang, and S.~Zhao,
+``Accessing gluon parton distributions in large momentum effective theory,''
+Phys.\ Rev.\ Lett.\ \textbf{122}, 142001 (2019), arXiv:1808.10824.
+\quad\textbf{[来源:} \texttt{refer/papers/Accessing gluon parton distributions in large momentum effective theory.pdf}\textbf{]}
+
+\bibitem{Li2018multiplicative}
+Z.-Y.~Li, Y.-Q.~Ma, and J.-W.~Qiu,
+``Multiplicative renormalizability of quasi-parton operators,''
+Phys.\ Rev.\ Lett.\ \textbf{122}, 062002 (2019), arXiv:1809.01836.
+\quad\textbf{[来源:} \texttt{refer/papers/Multiplicative renormalizability of quasi-parton operators.pdf}\textbf{]}
+
+\bibitem{Balitsky2020}
+I.~Balitsky, W.~Morris, and A.~Radyushkin,
+``Gluon pseudo-distributions at short distances: Forward case,''
+Phys.\ Lett.\ B \textbf{808}, 135621 (2020), arXiv:1910.13963.
+\quad\textbf{[来源:} \texttt{refer/papers/Short-Distance Structure of Unpolarized Gluon Pseudodistributions.pdf}\textbf{]}
+
+\bibitem{Yao2023}
+F.~Yao, Y.~Ji, and J.-H.~Zhang,
+``Connecting Euclidean to light-cone correlations: From flavor nonsinglet in forward kinematics to flavor singlet in non-forward kinematics,''
+JHEP \textbf{11}, 021 (2023), arXiv:2212.14415.
+\quad\textbf{[来源:} \texttt{refer/papers/Connecting Euclidean to light-cone correlations...pdf}\textbf{]}
+
+\bibitem{Fan2018gluon}
+Z.-Y.~Fan, Y.-B.~Yang, A.~Anthony, H.-W.~Lin, and K.-F.~Liu,
+``Gluon quasi-PDF from lattice QCD,''
+Phys.\ Rev.\ Lett.\ \textbf{121}, 242001 (2018), arXiv:1808.02077.
+\quad\textbf{[来源:} \texttt{refer/papers/Gluon Quasi-PDF From Lattice QCD.pdf}\textbf{]}
+
+\bibitem{Egerer2022}
+C.~Egerer \textit{et al.} (HadStruc Collaboration),
+``Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics,''
+Phys.\ Rev.\ D \textbf{106}, 094511 (2022), arXiv:2207.08733.
+\quad\textbf{[来源:} \texttt{refer/papers/Towards the determination of the gluon helicity distribution...pdf}\textbf{]}
+
+\bibitem{Ji2013}
+X.~Ji,
+``Parton Physics on Euclidean Lattice,''
+Phys.\ Rev.\ Lett.\ \textbf{110}, 262002 (2013), arXiv:1305.1539.
+\quad\textbf{[来源:} \texttt{refer/papers/Parton Physics on Euclidean Lattice.pdf}\textbf{]}
+
+\bibitem{Ji2021hybrid}
+X.~Ji, Y.~Liu, A.~Sch\"afer, W.~Wang, Y.-B.~Yang, J.-H.~Zhang, and Y.~Zhao,
+``A hybrid renormalization scheme for quasi light-front correlations in large-momentum effective theory,''
+Nucl.\ Phys.\ B \textbf{964}, 115311 (2021), arXiv:2008.03886.
+\quad\textbf{[来源:} \texttt{refer/papers/A Hybrid Renormalization Scheme for Quasi Light-Front Correlations...pdf}\textbf{]}
+
+\bibitem{Peardon2009}
+M.~Peardon \textit{et al.} (Hadron Spectrum),
+``A novel quark-field creation operator construction for hadronic physics in lattice QCD,''
+Phys.\ Rev.\ D \textbf{80}, 054506 (2009), arXiv:0905.2160.
+\quad\textbf{[来源:} \texttt{refer/papers/A novel quark-field creation operator construction for hadronic physics in lattice QCD.pdf}\textbf{]}
+
+\bibitem{Egerer2021a}
+C.~Egerer, R.~G.~Edwards, K.~Orginos, and D.~G.~Richards,
+``Distillation at high-momentum,''
+Phys.\ Rev.\ D \textbf{103}, 034502 (2021), arXiv:2009.10691.
+\quad\textbf{[来源:} \texttt{refer/papers/Distillation at High-Momentum.pdf}\textbf{]}
+
+\bibitem{CLQCD2024}
+Z.-C.~Hu \textit{et al.} (CLQCD),
+``Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{109}, 054507 (2024), arXiv:2310.00814.
+\quad\textbf{[来源:} \texttt{refer/papers/Charmed meson masses and decay constants in the continuum...pdf}\textbf{]}
+
+\bibitem{CLQCD2025}
+H.-Y.~Du \textit{et al.} (CLQCD),
+``Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{111}, 054504 (2025), arXiv:2408.03548.
+\quad\textbf{[来源:} \texttt{refer/papers/Quark masses and low energy constants in the continuum...pdf}\textbf{]}
+
+\bibitem{Chen2025first}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``First self-renormalized gluon PDF of nucleon from large-momentum effective theory in the continuum limit,''
+Phys.\ Rev.\ D \textbf{111}, 074506 (2025), arXiv:2408.12819.
+\quad\textbf{[来源:} \texttt{refer/papers/First Self-Renormalized Gluon PDF of Nucleon...pdf}\textbf{]}
+
+\bibitem{Lin2025gluon}
+W.~Good, K.~Hasan, and H.-W.~Lin,
+``Gluon parton distribution of the nucleon from $2+1+1$-flavor lattice QCD in the physical-continuum limit,''
+J.\ Phys.\ G \textbf{52}, 035105 (2025), arXiv:2409.02750.
+\quad\textbf{[来源:} \texttt{refer/papers/Gluon Parton Distribution of the Nucleon from 2+1+1-Flavor Lattice QCD...pdf}\textbf{]}
+
+\bibitem{Good2025a}
+W.~Good, F.~Yao, and H.-W.~Lin,
+``First nucleon gluon PDF from large momentum effective theory,''
+(2025), arXiv:2505.13321.
+\quad\textbf{[来源:} \texttt{refer/papers/First Nucleon Gluon PDF from Large Momentum Effective Theory.pdf}\textbf{]}
+
+\bibitem{NieMiera2025}
+A.~NieMiera, W.~Good, H.-W.~Lin, and F.~Yao,
+``First self-renormalized gluon PDF of nucleon from large-momentum effective theory in the continuum limit,''
+(2025), arXiv:2510.17758.
+
+\bibitem{Wang2018}
+W.~Wang, S.~Zhao, and R.~Zhu,
+``Gluon quasi-PDF from lattice QCD,''
+Eur.\ Phys.\ J.\ C \textbf{78}, 147 (2018), arXiv:1708.02458.
+
+\bibitem{Izubuchi2018}
+T.~Izubuchi, X.~Ji, L.~Jin, I.~W.~Stewart, and Y.~Zhao,
+``Factorization theorem relating Euclidean and light-cone parton distributions,''
+Phys.\ Rev.\ D \textbf{98}, 056004 (2018), arXiv:1801.03917.
+\quad\textbf{[来源:} \texttt{refer/papers/Factorization Theorem Relating Euclidean and Light-Cone Parton Distributions.pdf}\textbf{]}
+
+\bibitem{Gattringer2010}
+C.~Gattringer and C.~B.~Lang,
+\textit{Quantum Chromodynamics on the Lattice: An Introductory Presentation},
+Lect.\ Notes Phys.\ \textbf{788}, Springer (2010).
+\quad\textbf{[来源:} \texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}\textbf{]}
+
+\bibitem{Gupta1997}
+R.~Gupta,
+``Introduction to Lattice QCD,''
+arXiv:hep-lat/9807028.
+\quad\textbf{[来源:} \texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf}\textbf{]}
+
+\bibitem{Peskin1995}
+M.~E.~Peskin and D.~V.~Schroeder,
+\textit{An Introduction to Quantum Field Theory},
+Westview Press (1995).
+\quad\textbf{[来源:} \texttt{refer/books/An Introduction to Quantum Field Theory.pdf}\textbf{]}
+
+\bibitem{代码解析}
+\textbf{格点QCD计算质子中非极化胶子PDF的完整代码解析}（本库综合文档），
+\texttt{docs/胶子PDF计算代码解析.pdf}
+\quad 含refer/donghx/目录中所有Python代码的逐模块解析
+
+\bibitem{本库补充1}
+\textbf{格点QCD中的胶子算符：分类、构造、重整化与匹配}，
+\texttt{docs/格点QCD中的胶子算符.pdf}
+
+\bibitem{本库补充2}
+\textbf{格点QCD中的光锥PDF与准PDF：定义、匹配与等价性}，
+\texttt{docs/格点QCD中的光锥PDF与quasi\_PDF.pdf}
+
+\bibitem{本库补充3}
+\textbf{格点QCD中的光锥PDF、准PDF与赝PDF}，
+\texttt{docs/格点QCD中的光锥PDF、准PDF、赝PDF.pdf}
+
+\bibitem{本库补充4}
+\textbf{格点QCD中的大动量有效理论}，
+\texttt{docs/格点QCD中的大动量有效理论.pdf}
+
+\bibitem{本库补充5}
+\textbf{格点QCD蒸馏方法解析}，
+\texttt{docs/格点QCD蒸馏方法解析.pdf}
+
+\bibitem{本库补充6}
+\textbf{格点QCD中的重采样方法：Bootstrap、Jackknife、Binning与关联拟合}，
+\texttt{docs/格点QCD中的重采样方法.pdf}
+
+\bibitem{本库补充7}
+\textbf{格点QCD中的重整化：从连续场论到非定域算符}，
+\texttt{docs/格点QCD中的重整化.pdf}
+
+\bibitem{本库补充8}
+\textbf{格点QCD中的Wilson线}，
+\texttt{docs/格点QCD中的Wilson线.pdf}
+
+\bibitem{本库补充9}
+\textbf{格点QCD中的UV涨落：线性发散、重正子与幂次修正}，
+\texttt{docs/格点QCD中的UV涨落.pdf}
+
+\bibitem{本库补充10}
+\textbf{格点QCD中的关联函数：谱分解、激发态控制与拟合策略}，
+\texttt{docs/格点QCD中的关联函数.pdf}
+
+\bibitem{本库补充11}
+\textbf{格点QCD中的场强张量}，
+\texttt{docs/格点QCD中的场强张量.pdf}
+
+\bibitem{本库补充12}
+\textbf{理论解析与工作流}，
+\texttt{refer/理论解析与工作流.pdf}
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,80 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-10-22 20:10:06 +0800
+批次: absorb-pyqcd-docs-20261022
+主任务: 用 ~absorb 将 PyQCD docs 中的格点 QCD 物理文档吸收到 MyQCD docs
+触发原因: 任务完成
+摘要: 完整审计 175 个候选文件，按固定提交吸收 163 个物理文档；哈希、PDF、TeX、测试、公式审计、理论审计和格式审计均完成
+Git 根目录: /root/MyQCD
+
+## 关键日志
+### S1 — 来源固定与候选盘点
+- 目标: 确认 PyQCD 文档来源、许可、物理范围和完整候选集合。
+- 命令/操作: 读取 `~absorb`、`~log`、根与 PyQCD `AGENTS.md`；核对 `refer/git-rep/PyQCD` 的固定提交和 `docs/` 文件清单。
+- 关键输出: 来源提交为 `0a2f85d30881fc8ead60972c0afb9c028abc348f`，许可证为 MIT；`docs/` 共 175 个候选文件。
+- 退出码: 0。
+- 证据与判断: 上游子模块保持不变；按 TeX、PDF、Markdown 物理文档吸收，拒绝过程元数据，构建附件仅保留上游引用。
+
+### S2 — 文档吸收与导航接入
+- 目标: 将物理文档原样吸收到 MyQCD 并建立可追溯入口。
+- 命令/操作: 复制 163 个文档到 `docs/pyqcd_reference/`；新增 README、目录级 AGENTS 和 MIT 许可证；更新根 README、根 AGENTS、物理导航与 PyQCD 参考索引。
+- 关键输出: 163 keep、11 reject、1 reference-only；共 80 个 PDF、77 个 TeX、6 个资料 Markdown；复制总量 56,160,651 bytes。
+- 退出码: 0。
+- 证据与判断: `logs/data/pyqcd-docs-absorb/absorption.tsv` 覆盖 175/175 项，`manifest.tsv` 记录 163 个复制文件的 SHA-256。
+
+### S3 — 完整验收
+- 目标: 验证内容一致性、PDF 可读性、文档构建、代码回归和仓库格式。
+- 命令/操作: 对账 manifest、执行 `sha256sum -c`、逐 PDF 执行 `pdfinfo`、核心 TeX 两遍 XeLaTeX、全量 pytest、公式审计、理论审计、精确冲突标记检查和严格 form 审计。
+- 关键输出: manifest missing=0、mismatch=0；80/80 PDF 可解析；120 passed in 339.97s；94 项推导通过；50 篇论文、402 个源文件、2263 条公式完成索引；9 项理论结构审计通过且 0 失败、0 缺源。
+- 退出码: 0。
+- 证据与判断: 吸收内容与原提交一致；核心 TeX 无缺字，保留上游 Overfull 警告 7、17、3 条，不修改快照正文。
+
+## 验证与证据
+- 测试/检查: `python -m pytest`; `python -m myqcd`; `python -m myqcd.pyqcd_theory_audit --root .`; `pdfinfo`; `sha256sum -c`; XeLaTeX; 精确冲突标记搜索；`form-audit.sh --strict --quiet`; `git diff --check`。
+- 结果: 全部通过。最大吸收文件 9,783,095 bytes，小于 10 MiB 文件闸门。
+- 未验证项: 未运行上游文档所述安装、GPU、集群或真实系综数据处理命令；吸收快照是固定提交原样副本，不重新证明其中物理结论。
+
+## 变更与产物
+- 文件: `docs/pyqcd_reference/`；根 `README.md`、`AGENTS.md`；`docs/pyqcd_physics/README.md`；`refer/git-rep/docs/pyqcd-physics-reference.md`。
+- 产物: `logs/data/pyqcd-docs-absorb/manifest.tsv`、`logs/data/pyqcd-docs-absorb/absorption.tsv`、目录 README/AGENTS/LICENSE。
+- 未改动范围: PyQCD 上游子模块未修改；未提交、未推送、未删除用户文件。
+
+## 风险、限制与下一步
+- 风险: 吸收文档保留历史绝对路径、旧接口和上游 Overfull 警告，不得误作当前运行入口。
+- 阻塞: 无。
+- 下一步: 如需入库，按 docs 快照与 logs 证据分批评审提交；远端同步需另行明确授权。
+
+## 用户输入指令
+将PyQCD中的格点QCD物理文档(主要是docs文件夹中)吸收(~absorb)到本库docs中,
+
+## Agent 全文报告
+--- report begin ---
+finished
+
+## 改动内容
+- 新增 `docs/pyqcd_reference/`：从 PyQCD 固定提交 `0a2f85d30881fc8ead60972c0afb9c028abc348f` 原样吸收 163 个格点 QCD 物理文档，包括 80 个 PDF、77 个 TeX 和 6 个资料 Markdown，共 56,160,651 bytes。
+- 新增吸收目录的 `README.md`、`AGENTS.md` 和 `LICENSE.md`，记录来源、许可、范围、使用边界与逐文件校验入口。
+- 更新根 `README.md`、根 `AGENTS.md`、`docs/pyqcd_physics/README.md` 和 `refer/git-rep/docs/pyqcd-physics-reference.md`，将吸收快照接入现有物理导航。
+- 生成 `logs/data/pyqcd-docs-absorb/absorption.tsv` 与 `manifest.tsv`，分别覆盖 175 项完整处置矩阵和 163 个复制文件的 SHA-256。
+- 完整处置为 163 keep、11 reject、1 reference-only。拒绝项均为过程或维护元数据；`_tree_pyqcd.txt` 是 TeX 构建附件，仅保留在上游子模块。
+
+## 推理依据
+- 物理文档同时保留 TeX 与 PDF：TeX 支持检索和公式核查，PDF 保留可直接阅读的固定提交成品。
+- 固定 commit、MIT 许可证、逐文件摘要和完整处置矩阵共同保证吸收范围可复现，避免把历史路径或旧接口误认为当前入口。
+- 过程计划、格式记录和构建附件不属于格点 QCD 物理资料，且部分文件类型不满足 `docs/` 约束，因此不复制。
+- PyQCD 子模块保持只读，未修改或移动任何上游内容。
+
+## 验证结果
+- 163 条复制清单对账通过：missing=0、mismatch=0；`sha256sum -c` 全部通过。
+- 80/80 个 PDF 通过 `pdfinfo` 解析。
+- 三篇核心文档完成两遍 XeLaTeX 且无缺字；保留上游 Overfull 警告 7、17、3 条。
+- `python -m pytest`：120 passed in 339.97s。
+- `python -m myqcd`：94 项推导通过；索引 50 篇论文、402 个源文件、2263 条公式。
+- `python -m myqcd.pyqcd_theory_audit --root .`：9 项结构审计通过，0 失败、0 缺失来源。
+- 精确冲突标记搜索无命中；严格 `form-audit` 与 `git diff --check` 通过。
+- 最大吸收文件为 9,783,095 bytes，低于 10 MiB 文件闸门。
+
+## 后续步骤
+- 当前未提交、未推送。若需入库，建议按 `docs/pyqcd_reference` 快照与 `logs/data/pyqcd-docs-absorb` 证据分批评审提交。
+- 吸收文档中的历史绝对路径、旧接口、GPU/集群命令和 Overfull 警告属于上游快照语境；后续运行前必须按 MyQCD 当前入口重新审查。
+--- report end ---

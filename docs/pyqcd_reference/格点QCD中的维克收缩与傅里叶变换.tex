@@ -1,0 +1,469 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption}
+\usepackage{hyperref,xcolor,enumitem}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的Wick收缩与Fourier变换：\\
+从路径积分到动量空间观测量}
+\author{基于本库文献的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+格点QCD中的Wick收缩和Fourier变换是连接格点规范场组态与物理强子观测量的两道核心计算工序。Wick收缩将费米子路径积分（Grassmann变量的泛函积分）转化为规范场组态上夸克传播子（Dirac算符的逆矩阵）的乘积与迹的代数操作——在蒸馏（distillation）框架下，这一过程被优雅地因子化为perambulator（编码夸克传播）和elemental（编码算符构造）的分立结构。Fourier变换则完成从坐标/时间空间到动量空间的最后一步跨越：动量投影$e^{-i\vec{p}\cdot\vec{x}}$将空间方向的平面波叠加到确定的强子动量态上；准PDF的$e^{ixP^zz}$变换将空间分离$z$映射到Bjorken-$x$；bootstrap重采样在关联函数级别正确传播统计相关性。本文从费米子路径积分的基本公式出发，系统推导介子和重子Wick收缩的完整表达式——包括连接图和非连通图的区分；详细阐述蒸馏框架中perambulator和elemental的因子化结构及广义perambulator在三点函数中的推广；深入讨论动量投影在格点上的离散实现、相位因子的动量涂抹推广（$\tilde{v}^k_x = e^{i\vec{\zeta}\cdot\vec{z}}v^k_x$）；完整呈现LaMET框架中的坐标-动量Fourier变换链；并讨论bootstrap、Jackknife和协方差矩阵在关联函数分析中的统计角色。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{引言：从费米子路径积分到物理观测量}
+
+格点QCD中的基本自由度是规范连接变量$U_\mu(n)$（玻色型）和夸克场$\psi(n), \bar{\psi}(n)$（费米型，Grassmann变量）。任何物理观测量的期望值都由路径积分给出\cite{Peardon2009}：
+
+\begin{equation}
+\langle \mathcal{O} \rangle = \frac{1}{Z} \int \mathcal{D}U \mathcal{D}\bar{\psi} \mathcal{D}\psi \, \mathcal{O} \, e^{-S_G[U] - \bar{\psi}M[U]\psi},
+\label{eq:path_integral}
+\end{equation}
+
+其中$S_G$是规范作用量，$M[U]$是Dirac算符（依赖于规范场组态$U$），$Z$是配分函数。
+
+由于$\psi$和$\bar{\psi}$是Grassmann变量，费米子部分的积分可以\textbf{解析地}完成——这正是\textbf{Wick收缩}（Wick contraction）的本质。其结果将Grassmann泛函积分转化为Dirac算符逆矩阵$M^{-1}$（即夸克传播子）的乘积与迹的组合。\textbf{本文聚焦的核心问题正是：如何系统、高效地执行这些矩阵操作，再将结果通过Fourier变换映射到物理的动量空间。}
+
+\section{Wick收缩的基本原理}
+
+\subsection{费米子积分的Wick定理}
+
+对于费米子双线性型的作用量，路径积分中的费米子部分可以精确积分\cite{Peardon2009,NoteGluonPDFs}：
+
+\begin{definition}[费米子路径积分的Wick定理]
+\begin{equation}
+\boxed{\frac{1}{Z_f} \int \mathcal{D}\bar{\psi}\mathcal{D}\psi \, \psi_{a}(x)\bar{\psi}_{b}(y) \, e^{-\bar{\psi}M\psi} = M^{-1}_{ab}(x,y)},
+\label{eq:wick_2pt}
+\end{equation}
+其中$a,b$是综合了颜色、自旋和时空坐标的复合指标，$M^{-1}$是Dirac算符的逆（夸克传播子）。对于$2n$个费米子场的乘积，Wick定理将其分解为所有可能的``收缩''（即$M^{-1}$因子）的乘积之和，每个配对贡献一个$M^{-1}$因子，符号由费米子排列的宇称决定。
+\end{definition}
+
+\textbf{格点上的实践意义：}在蒙特卡洛模拟中，费米子场\textbf{不被直接采样}（采样Grassmann变量极其困难）。相反，每个规范场组态上计算Dirac算符的逆$M^{-1}$，然后通过Wick定理用$M^{-1}$的乘积来构造关联函数。这正是格点QCD计算中最耗时的步骤——Dirac算符求逆是$\mathcal{O}(V^{3/2}\text{--}V^2)$量级的计算。
+
+\subsection{介子两点关联函数的Wick收缩}
+
+以同位旋矢量介子为例，产生和湮灭算符分别为$\bar{u}\Gamma_A d$和$\bar{d}\Gamma_B u$\cite{Peardon2009}。两点关联函数的Wick收缩为：
+
+\begin{equation}
+\begin{aligned}
+C^{(2)}_M(t', t) &= \langle \bar{d}(t')\Gamma_B u(t') \cdot \bar{u}(t)\Gamma_A d(t) \rangle \\
+&= -\operatorname{Tr}\left[ \Gamma_B M^{-1}_u(t', t) \Gamma_A M^{-1}_d(t, t') \right] \\
+&\quad + \operatorname{Tr}\left[ \Gamma_A M^{-1}_d(t, t) \right] \operatorname{Tr}\left[ \Gamma_B M^{-1}_u(t', t') \right]。
+\end{aligned}
+\label{eq:meson_wick}
+\end{equation}
+
+\textbf{第一项}（连接图，connected diagram）：两个夸克传播子连接了源和汇，迹$\operatorname{Tr}$同时对颜色、自旋和空间坐标进行；
+
+\textbf{第二项}（非连接图，disconnected diagram）：每个夸克传播子在同一时间片上形成闭合圈（``单圈''图），仅在\textbf{味单态}（如同位旋标量介子）中非零。对于同位旋矢量组合，$\operatorname{Tr}[\Gamma_A M^{-1}_d] = \operatorname{Tr}[\Gamma_B M^{-1}_u] = 0$（在精确的$SU(2)$同位旋对称性下），非连通图完全抵消。
+
+\subsection{重子两点关联函数的Wick收缩}
+
+对于同位旋-1/2重子（如核子），其插值算符包含三个夸克场的颜色反对称乘积\cite{Peardon2009,NoteGluonPDFs}：
+
+\begin{equation}
+\chi_B(t) = \epsilon^{abc} S_{\alpha_1\alpha_2\alpha_3} (D_1 d)^a_{\alpha_1} (D_2 u)^b_{\alpha_2} (D_3 u)^c_{\alpha_3}(t)。
+\label{eq:baryon_op}
+\end{equation}
+
+对六个费米子场（三个在源，三个在汇）进行Wick收缩，得到\textbf{两个拓扑不同的项}\cite{Peardon2009}：
+
+\begin{equation}
+\boxed{
+\begin{aligned}
+C^{(2)}_B(t', t) &= \Phi^{(i,j,k)}(t') \tau^{(i,\bar{i})}_d(t',t) \tau^{(j,\bar{j})}_u(t',t) \tau^{(k,\bar{k})}_u(t',t) \Phi^{(\bar{i},\bar{j},\bar{k})*}(t) \\
+&\quad - \Phi^{(i,j,k)}(t') \tau^{(i,\bar{i})}_d(t',t) \tau^{(j,\bar{k})}_u(t',t) \tau^{(k,\bar{j})}_u(t',t) \Phi^{(\bar{i},\bar{j},\bar{k})*}(t)。
+\end{aligned}}
+\label{eq:baryon_wick}
+\end{equation}
+
+这里我们已经在蒸馏框架的表示下写出了收缩结果——perambulator $\tau$编码了夸克传播，elemental $\Phi$编码了算符构造。两项之间的``$-$''号来自费米子交换的反对称性：第二项对应于交换了两个$u$夸克后产生的贡献（在$\epsilon^{abc}$收缩下自动反号）。
+
+\subsection{非连通图与真空减除}
+
+胶子流算符的一个本质特征是：插入的胶子流与核子态之间\textbf{没有夸克线连接}。因此三点关联函数是非连通的\cite{Chen2025gluon,NoteGluonPDFs}：
+
+\begin{equation}
+\boxed{C_{\text{3pt}} = \langle (O_g - \langle O_g \rangle)(C^N_{\text{2pt}} - \langle C^N_{\text{2pt}} \rangle) \rangle}。
+\label{eq:disconnected_3pt}
+\end{equation}
+
+\textbf{真空减除（vacuum subtraction）}是处理非连通图的关键：$O_g$和$C^N_{\text{2pt}}$各自的\textbf{真空期望值}（$\langle O_g \rangle$和$\langle C^N_{\text{2pt}} \rangle$）必须被单独减去。这一减除消除了与物理信号无关的常数背景——这些背景来自胶子流在QCD真空中的非零期望值以及核子关联函数中的真空涨落贡献。
+
+\textbf{非连通图的计算策略}\cite{NoteGluonPDFs}：
+\begin{itemize}
+    \item 胶子流算符$O_g$在\textbf{所有时间片}上独立计算（不涉及夸克传播子）——仅依赖于规范场组态；
+    \item 核子两点关联函数$C^N_{\text{2pt}}$通过蒸馏perambulator计算；
+    \item 两者通过系综平均关联起来：$\langle O_g C^N_{\text{2pt}} \rangle - \langle O_g \rangle \langle C^N_{\text{2pt}} \rangle$。
+\end{itemize}
+
+\section{蒸馏框架中的Wick收缩因子化}
+
+\subsection{Perambulator：夸克传播的酉编码}
+
+蒸馏框架的核心创新在于将Wick收缩\textbf{完全因子化}为两个独立的部分\cite{Peardon2009,Egerer2021a,NoteGluonPDFs}：
+
+\begin{definition}[Perambulator]
+\begin{equation}
+\boxed{\tau^{(p,\bar{p})}_{\alpha\beta}(t', t) = V^{(p)\dagger}(t') M^{-1}_{\alpha\beta}(t', t) V^{(\bar{p})}(t)},
+\label{eq:perambulator}
+\end{equation}
+其中$V^{(p)}(t)$是蒸馏空间（$N_{\text{ev}}$维）的第$p$个本征矢，$M^{-1}$是Dirac算符的逆，$\alpha,\beta$是Dirac自旋指标。
+\end{definition}
+
+\textbf{维度分析：}Perambulator是一个$N_{\text{ev}} \times N_{\text{ev}} \times 4 \times 4$的矩阵（$N_{\text{ev}}$是蒸馏矢量数，4是Dirac自旋分量）。对于典型的$N_{\text{ev}} = 64$（HadStruc）或$100$（CLQCD/LPC），perambulator的存储和运算量是高度可控的\cite{Chen2025gluon,Egerer2022}。
+
+\textbf{关键性质}：
+
+\begin{enumerate}
+    \item \textbf{仅依赖于规范场：}perambulator对\textbf{所有}插值算符的选择是盲目的——一次计算，任意复用；
+    \item \textbf{跨道共享：}介子和重子的perambulator使用相同的$M^{-1}$数据；
+    \item \textbf{时间片对称性：}$\tau(t',t)$包含了从任意源时间$t$到任意汇时间$t'$的传播。
+\end{enumerate}
+
+\subsection{Elemental：算符构造的酉编码}
+
+\begin{definition}[Baryon Elemental]
+\begin{equation}
+\boxed{\Phi^{(i,j,k)}_{\alpha_1\alpha_2\alpha_3}(t) = \epsilon^{abc} \left[D_1 v^{(i)}\right]_a \left[D_2 v^{(j)}\right]_b \left[D_3 v^{(k)}\right]_c (t) \, S_{\alpha_1\alpha_2\alpha_3}},
+\label{eq:elemental}
+\end{equation}
+其中$D_i$是协变导数算符，$S$是subduction系数（将连续旋量投影到格点不可约表示）。
+\end{definition}
+
+Elemental是\textbf{纯几何/群论对象}——它仅依赖于蒸馏本征矢$v^{(i)}$（从Laplace算符提取）和插值算符的对称性构造，完全不涉及Dirac算符求逆。这意味着：
+\begin{itemize}
+    \item 一旦本征矢$v^{(i)}$被确定（一次对角化），任意复杂度的插值算符的elemental都可以\textbf{离线构建}；
+    \item 不同的算符选择（不同的$D_i$、不同的$S$、不同的$N_{\text{ev}}$）不需要重新计算$M^{-1}$。
+\end{itemize}
+
+\subsection{广义Perambulator与三点函数}
+
+对于涉及流插入的三点关联函数，引入\textbf{广义perambulator}（generalized perambulator）\cite{Peardon2009}：
+
+\begin{definition}[广义Perambulator]
+\begin{equation}
+\boxed{\mathcal{J}_{\alpha\beta}(t_f, t, t_i) = V^\dagger(t_f) \left[ M^{-1}(t_f, t) \, \Gamma(t) \, M^{-1}(t, t_i) \right]_{\alpha\beta} V(t_i)},
+\label{eq:generalized_perambulator}
+\end{equation}
+其中$\Gamma(t)$是在中间时间$t$处插入的流算符（如矢量流、轴矢流或胶子流）。
+\end{definition}
+
+广义perambulator需要\textbf{两组}Dirac求逆——一组从源时间片$t_i$处的蒸馏矢量出发，另一组从汇时间片$t_f$处出发。两者的解在中间时间$t$处通过$\Gamma(t)$``焊接''起来：
+
+\begin{enumerate}
+    \item 对每个蒸馏矢量$v^{(i)}(t_i)$，求解$M^{-1}(t, t_i)v^{(i)}(t_i)$（``源侧传播''）；
+    \item 对每个蒸馏矢量$v^{(f)}(t_f)$，求解$M^{-1}(t, t_f)v^{(f)}(t_f)$（``汇侧传播''）；
+    \item 在时间$t$处，通过流算符$\Gamma(t)$连接两者。
+\end{enumerate}
+
+介质三点函数的连接部分最终表达为\cite{Peardon2009}：
+\begin{equation}
+C^{(3)}_{\text{conn}}(t_f, t, t_i) = \operatorname{Tr}\left[ \Phi_B(t_f) \mathcal{J}(t_f, t, t_i) \Phi_A(t_i) \gamma_5 \tau^\dagger(t_f, t_i) \gamma_5 \right]。
+\label{eq:3pt_factorized}
+\end{equation}
+
+\subsection{蒸馏框架中收缩的数值标度}
+
+Wick收缩的计算复杂度在蒸馏框架中由蒸馏空间的维数$N_{\text{ev}}$控制\cite{Egerer2021a}：
+
+\begin{table}[H]
+\centering
+\caption{蒸馏框架中Wick收缩的计算标度\cite{Egerer2021a,Peardon2009}}
+\label{tab:contraction_scaling}
+\begin{tabular}{lcc}
+\toprule
+关联函数类型 & 标度 & 说明 \\
+\midrule
+Dirac求逆（perambulator） & $\propto N_{\text{ev}}$ & 每个蒸馏矢量需要一次求逆 \\
+介质两点（连接） & $\propto N^3_{\text{ev}}$ & 三重perambulator迹 \\
+重子两点 & $\propto N^4_{\text{ev}}$ & 三重perambulator + 两个elemental \\
+介质三点（连接） & $\propto N^3_{\text{ev}}$ & 广义perambulator + 普通perambulator \\
+非连通图 & $\propto N^4_{\text{ev}}$ & 各时间片的独立迹之乘积 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Fourier变换：从坐标到动量空间}
+
+\subsection{动量投影：从空间坐标到确定动量态}
+
+在格点上，具有确定三动量$\vec{p}$的强子态通过对空间坐标的Fourier变换来投影\cite{Peardon2009,Ji2013Euclidean}。以核子算符为例\cite{Chen2025gluon}：
+
+\begin{equation}
+\boxed{N(\vec{P}; t) = \sum_{\vec{x}} e^{-i\vec{x}\cdot\vec{P}} P^+ (u^T C\gamma_5\gamma_t d) u(\vec{x}; t)}。
+\label{eq:momentum_projection}
+\end{equation}
+
+\textbf{格点上的离散Fourier变换：}$\vec{P}$只能取离散值$\vec{P} = \frac{2\pi}{L}(n_x, n_y, n_z)$，其中$n_i = 0, 1, \ldots, L/a - 1$，$L$是空间格点长度。动量方向上的格点数为$L_z/a$，决定了可达到的最大动量和动量分辨率。
+
+\textbf{蒸馏框架中的双边动量投影：}蒸馏方法的一个独特优势是可以在\textbf{源和汇同时}进行动量投影\cite{Peardon2009,Egerer2021a}：
+
+\begin{equation}
+\chi^\dagger_M(\vec{p}, t) = \bar{u}_x(t) \Box_{xy}(t) \cdot e^{-i\vec{p}\cdot\vec{y}} \Gamma^A_{yz}(t) \cdot \Box_{zw}(t) d_w(t)。
+\label{eq:double_momentum_proj}
+\end{equation}
+
+双边的投影（源+汇）将动量态的统计精度\textbf{加倍}——因为在传统point-to-all方法中，源时间片处无法进行动量投影（源被固定在空间原点）。双边投影同时也为多强子算符的构造提供了基础\cite{Peardon2009}。
+
+\subsection{动量涂抹：蒸馏中的相位增强}
+
+为实现高动量的有效投影，Egerer等人将Bali等人的\textbf{动量涂抹}方法嵌入蒸馏框架\cite{Egerer2021a}。核心构造是带相位的蒸馏本征矢\cite{Egerer2021a,NoteGluonPDFs}：
+
+\begin{definition}[带相位的蒸馏本征矢]
+\begin{equation}
+\boxed{\tilde{v}^k_x(\vec{z}, t) = e^{i\vec{\zeta}\cdot\vec{z}} v^k_x(\vec{z}, t)}, \qquad \vec{\zeta} = 2 \times \frac{2\pi}{L} \hat{z}。
+\label{eq:phased_distillation}
+\end{equation}
+这给出了最高可达$P = 6 \times 2\pi/(aL)$的boost所需的动量涂抹\cite{NoteGluonPDFs}。相位因子$\vec{\zeta}$取为允许格点动量的\textbf{整数倍}（这里是2倍的基本单位），以确保平移不变性。
+\end{definition}
+
+\textbf{平移不变性的保持：}Egerer等人\cite{Egerer2021a}严格证明了：在四种候选相位方案中（单相位、对向相位、恒等加对向相位、多单向相位），\textbf{只有单相位方案（Type 1）保持平移不变性}。对于Type 2--4，变换后的perambulator中包含显式的平移变体项（依赖于$\vec{d}$），破坏了动量投影所需的平移对称性\cite{Egerer2021a}。
+
+\begin{equation}
+\begin{aligned}
+\tilde{\tau}^{ij}_{\mu\nu}(t', t) &= \xi^{(i)\dagger}(\vec{x}, t') e^{-i\vec{\zeta}\cdot\vec{x}} M^{-1}_{\mu\nu}(\vec{x}, t'; \vec{y}, t) e^{i\vec{\zeta}\cdot\vec{y}} \xi^{(j)}(\vec{y}, t) \\
+&\neq \xi^{(i)\dagger}(\vec{x}, t') e^{-i\vec{\zeta}\cdot(\vec{x}+\vec{d})} M^{-1}_{\mu\nu} e^{i\vec{\zeta}\cdot(\vec{y}+\vec{d})} \xi^{(j)}(\vec{y}, t) \quad (\text{Type 2--4})。
+\end{aligned}
+\label{eq:translation_invariance}
+\end{equation}
+
+\textbf{数值效果：}$P^z = 2 \times (2\pi/L)$的相位因子（CLQCD/LPC的标准选择\cite{Chen2025gluon,NoteGluonPDFs}）使核子能量可在$|\vec{p}| \lesssim 3$~GeV范围内可靠提取。不使用相位涂抹时，$|\vec{p}| \gtrsim 2 \times (2\pi/L)$的核子信号已严重退化\cite{Egerer2021a}。
+
+\subsection{准PDF的Fourier变换：从$z$-空间到$x$-空间}
+
+LaMET框架的核心Fourier变换将空间分离$z$的关联函数映射到Bjorken-$x$空间\cite{Ji2013Euclidean,Chen2025gluon}：
+
+\begin{definition}[准PDF的Fourier变换]
+\begin{equation}
+\boxed{\tilde{x}\tilde{q}(x, P^z) = \frac{1}{\mathcal{N}} \int_{-\infty}^{\infty} \frac{dz}{2\pi P^z} e^{-ixzP^z} \tilde{h}^R(z, P^z)},
+\label{eq:quasi_pdf_fourier}
+\end{equation}
+其中$\tilde{h}^R(z, P^z) = \langle P|\mathcal{O}(z)|P\rangle_R$是重整化矩阵元，$\mathcal{N}$是归一化因子。
+\end{definition}
+
+\textbf{变换的数值实施：}在格点上，$z$仅取离散值$z = n_z a$，$n_z = 0, \pm1, \ldots, \pm L_z$。存在的问题是：
+\begin{itemize}
+    \item \textbf{有限$z$范围：}最大$|z|$由格点体积和信噪比限制——在CLQCD/LPC的胶子PDF计算中\cite{Chen2025gluon}，最大$z \approx 1$~fm。直接截断导致$x$空间的\textbf{Gibbs振荡}。
+    \item \textbf{大$\lambda = zP^z$区域的噪声：}重整化矩阵元在$\lambda \gtrsim 8$--$10$时信噪比急剧恶化。
+\end{itemize}
+
+\textbf{解决方案——大$\lambda$外推}\cite{Chen2025gluon,Ji2021hybrid}：
+
+\begin{equation}
+\tilde{h}^R(\lambda) = l_1 \lambda^{-a_1} e^{-\lambda/\lambda_0},
+\label{eq:lambda_extrap}
+\end{equation}
+
+其中$\lambda^{-a_1}$与非极化PDF在端点区域的幂律行为相关，指数因子反映了有限动量下关联长度的有限性。外推补全了$\lambda$大区域的矩阵元，从而进行更精确的Fourier变换。
+
+\subsection{赝PDF方案：Ioffe-时间分布}
+
+Radyushkin提出的赝PDF方案\cite{Radyushkin2018one_loop}使用了另一种Fourier变换策略——在坐标空间（Ioffe-时间$\nu = zP^z$空间）中直接分析：
+
+\begin{equation}
+\boxed{\mathcal{P}(x, z^2) = \frac{1}{2\pi} \int_{-\infty}^{\infty} d\nu \, e^{-iy\nu} \mathcal{M}(\nu, z^2)}。
+\label{eq:pseudo_fourier}
+\end{equation}
+
+Ioffe-时间分布$\mathcal{M}(\nu, z^2)$本身就是Lorentz不变量，不需要大动量极限（$z$方向上的大$P^z$只是为了达到更大的$\nu$值）。这一方案的Fourier变换在$\nu$的支持$[-P^z \cdot z_{\text{max}}, P^z \cdot z_{\text{max}}]$上进行，避免了准PDF中的$z \to \infty$截断问题。
+
+\subsection{匹配核的Fourier变换}
+
+Yao、Ji和Zhang\cite{Yao2023}的统一匹配框架涉及坐标空间和动量空间之间的双重Fourier变换。以GPD为例\cite{Yao2023}：
+
+\begin{equation}
+\mathcal{P}(\tau, \xi, \mu^2 z^2_{12}) = \mathcal{N} \int \frac{d\zeta_1}{2\pi} \int \frac{d\zeta_2}{2\pi} e^{i(\xi+\tau)\zeta_1 + i(\xi-\tau)\zeta_2} \mathcal{H}(\zeta_i, \mu^2 z^2_{12})。
+\label{eq:GPD_fourier}
+\end{equation}
+
+匹配核在坐标空间和动量空间之间的转换通过以下积分关系实现\cite{Yao2023}：
+
+\begin{equation}
+C(\tau_1, \tau_2, y_1, y_2; \mu^2 z^2_{12}) = \int_0^1 d\alpha \int_0^1 d\beta \, C(\alpha, \beta, \mu^2 z_{12}) \, \delta(\tau_1 - \bar{\alpha}y_1 - \bar{\alpha}\beta y_2)。
+\label{eq:matching_fourier}
+\end{equation}
+
+\section{统计方法：Bootstrap、Jackknife与协方差}
+
+\subsection{Bootstrap重采样}
+
+格点QCD的数据具有\textbf{组态间的强统计相关性}——同一组态上计算的所有观测量（不同的$z$值、不同的$t_{\text{sep}}$值）共享相同的底层规范涨落。Bootstrap重采样是正确处理这一相关性的标准方法\cite{Chen2025gluon,UKQCD1993}：
+
+\begin{enumerate}
+    \item 从$N_{\text{cfg}}$个原始组态中有放回地抽取$N_{\text{cfg}}$个组态，形成bootstrap样本；
+    \item 对每个bootstrap样本独立执行\textbf{完整的分析链}：关联函数计算$\to$比值构造$\to$拟合提取参数；
+    \item 重复$N_{\text{boot}}$次（CLQCD/LPC使用3000次\cite{Chen2025gluon}）；
+    \item 参数分布的68\%分位数给出统计误差。
+\end{enumerate}
+
+\textbf{``先Bootstrap，后拟合''的原则}：在CLQCD/LPC的计算中\cite{Chen2025gluon}，bootstrap重采样在拟合之前进行——每个bootstrap样本上独立拟合，而非先拟合再对参数做bootstrap。这\textbf{正确传播了}关联函数之间的全协方差信息。
+
+\subsection{全协方差矩阵拟合}
+
+UKQCD合作组\cite{UKQCD1993}在全协方差矩阵下进行关联拟合。对于多时间片、多算符的联合拟合，协方差矩阵编码了所有数据点之间的相关性：
+
+\begin{equation}
+\chi^2 = \sum_{i,j} (y_i - f_i(\theta)) \operatorname{Cov}^{-1}_{ij} (y_j - f_j(\theta))。
+\label{eq:chisq_cov}
+\end{equation}
+
+协方差矩阵$\operatorname{Cov}_{ij}$通过bootstrap样本估计，其逆矩阵对数据的统计涨落高度敏感。在实际应用中，对协方差矩阵的本征值进行适当的平滑或截断（``SVD cut''）有时是必要的。
+
+\subsection{Jackknife方法}
+
+Jackknife是Bootstrap的一种替代方案，在特定场景下计算成本更低：
+\begin{itemize}
+    \item 对$N$个组态，依次剔除第$i$个组态，用剩余的$N-1$个组态估计观测量；
+    \item Jackknife误差：$\sigma^2_{\text{jack}} = \frac{N-1}{N} \sum_i (x_i - \bar{x})^2$。
+\end{itemize}
+
+对于\textbf{非连通图}的计算，由于胶子流和核子两点函数的独立平均化要求，Jackknife有时比Bootstrap更稳定——因为Jackknife在每次剔除时保持了数据的块状结构。
+
+\section{综合示例：从组态到PDF的完整计算链}
+
+以CLQCD/LPC合作组的非极化胶子PDF计算\cite{Chen2025gluon}为例，展示Wick收缩和Fourier变换在完整计算链中的位置。
+
+\subsection{Step 1--2：Perambulator计算与Wick收缩}
+
+\begin{enumerate}
+    \item 对每个组态和时间片，对角化Laplace算符获取$N_{\text{ev}} = 100$个蒸馏本征矢；
+    \item 计算perambulator $\tau^{(p,\bar{p})}(t', t)$——对每个蒸馏矢量执行Dirac算符求逆；
+    \item Wick收缩：构建两点关联函数$C_{\text{2pt}}$（蒸馏框架的因子化形式，式(\ref{eq:baryon_wick})）和三点关联函数$C_{\text{3pt}}$（非连通形式，Eq.\ref{eq:disconnected_3pt}）。
+\end{enumerate}
+
+\subsection{Step 3--4：动量投影与Bootstrap}
+
+\begin{enumerate}
+    \item 在源和汇处执行双边动量投影（Eq.\ref{eq:momentum_projection}），对C24P29系综使用$P^z = 0, 0.98, 1.48, 1.97$~GeV四个动量；
+    \item Bootstrap重采样：3000个样本$\to$比值$R_{\text{3pt}} = C_{\text{3pt}}/C_{\text{2pt}}$（每个样本独立计算）；
+    \item 联合拟合$R_{\text{3pt}} \approx c_0 + c_1 e^{-\Delta E(t_{\text{sep}}-t)} + c_1 e^{-\Delta E t}$，提取裸矩阵元$c_0$。
+\end{enumerate}
+
+\subsection{Step 5--6：重整化与Fourier变换}
+
+\begin{enumerate}
+    \item 混合重整化：短距离用ratio方案，长距离用自重整化$Z_R$（见混合重整化方案）；
+    \item 大$\lambda$外推$\tilde{h}^R(\lambda) = l_1 \lambda^{-a_1} e^{-\lambda/\lambda_0}$，补全$\lambda \gtrsim 8$的数据；
+    \item Fourier变换$\tilde{x}\tilde{g}(x,P^z) = \mathcal{N}^{-1} \int dz/(2\pi P^z) e^{-ixzP^z} \tilde{h}^R(z, P^z)$ — 坐标$\to$动量；
+    \item 微扰匹配$\tilde{g} \to g$（$\overline{\text{MS}}$）；
+    \item 联合连续$+$无穷大动量外推$xg = xg_0 + a^2f + a^2(P^z)^2h + d/(P^z)^2$。
+\end{enumerate}
+
+\section{总结}
+
+Wick收缩和Fourier变换构成了格点QCD中从规范场组态到物理动量空间观测量的\textbf{核心计算骨架}：
+
+\begin{enumerate}
+    \item \textbf{Wick收缩}将费米子路径积分（Grassmann泛函积分）解析地转化为夸克传播子（Dirac算符逆矩阵）的乘积与迹。在蒸馏框架下，这一过程被优雅地因子化为\textbf{perambulator}（编码传播）+ \textbf{elemental}（编码算符）的独立结构——任意复杂度的关联函数可在perambulator预计算后\textbf{后验}地评估\cite{Peardon2009}。
+
+    \item \textbf{非连通图}（胶子流与核子无夸克线连接）的处理要求真空期望值的单独减除，并构成了胶子PDF计算中信噪比的主要限制因素\cite{Chen2025gluon,NoteGluonPDFs}。
+
+    \item \textbf{动量投影}通过空间Fourier变换$e^{-i\vec{p}\cdot\vec{x}}$将强子态投影到确定动量。双边投影（蒸馏的独特优势）和\textbf{相位涂抹}$\tilde{v}^k_x = e^{i\vec{\zeta}\cdot\vec{z}}v^k_x$是高效利用高动量态的关键\cite{Egerer2021a}。
+
+    \item \textbf{准PDF的Fourier变换}将空间分离$z$映射到Bjorken-$x$。大$\lambda$外推$\tilde{h}^R(\lambda) = l_1 \lambda^{-a_1} e^{-\lambda/\lambda_0}$是解决有限$z$范围问题、实现精确$x$空间分辨的必要技术\cite{Chen2025gluon}。
+
+    \item \textbf{Bootstrap + 全协方差矩阵拟合}是正确处理格点数据间强统计相关性的标准统计框架\cite{Chen2025gluon,UKQCD1993}。
+\end{enumerate}
+
+\begin{thebibliography}{99}
+
+\bibitem{Peardon2009}
+M.~Peardon \textit{et al.} (Hadron Spectrum),
+``A novel quark-field creation operator construction for hadronic physics in lattice QCD,''
+Phys.\ Rev.\ D \textbf{80}, 054506 (2009), arXiv:0905.2160.
+\quad\textbf{[来源:} \texttt{refer/papers/A novel quark-field creation operator construction for hadronic physics in lattice QCD.pdf}\textbf{]}
+
+\bibitem{Egerer2021a}
+C.~Egerer, R.~G.~Edwards, K.~Orginos, and D.~G.~Richards,
+``Distillation at high-momentum,''
+Phys.\ Rev.\ D \textbf{103}, 034502 (2021), arXiv:2009.10691.
+\quad\textbf{[来源:} \texttt{refer/papers/Distillation at High-Momentum.pdf}\textbf{]}
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\quad\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,'' 内部笔记。
+\quad\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}
+
+\bibitem{UKQCD1993}
+C.~R.~Allton \textit{et al.} (UKQCD),
+``Gauge-invariant smearing and matrix correlators using Wilson fermions at $\beta=6.2$,''
+Phys.\ Rev.\ D \textbf{47}, 5128 (1993), arXiv:hep-lat/9303009.
+\quad\textbf{[来源:} \texttt{refer/papers/Gauge-Invariant Smearing and Matrix Correlators using Wilson Fermions at beta=6.2.pdf}\textbf{]}
+
+\bibitem{Ji2013Euclidean}
+X.~Ji,
+``Parton physics on a Euclidean lattice,''
+Phys.\ Rev.\ Lett.\ \textbf{110}, 262002 (2013), arXiv:1305.1539.
+\quad\textbf{[来源:} \texttt{refer/papers/Parton Physics on Euclidean Lattice.pdf}\textbf{]}
+
+\bibitem{Egerer2022}
+C.~Egerer \textit{et al.} (HadStruc),
+``Towards the determination of the gluon helicity distribution,''
+Phys.\ Rev.\ D \textbf{106}, 094511 (2022), arXiv:2207.08733.
+\quad\textbf{[来源:} \texttt{refer/papers/Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics.pdf}\textbf{]}
+
+\bibitem{Ji2021hybrid}
+X.~Ji, Y.~Liu, A.~Sch\"afer, W.~Wang, Y.-B.~Yang, J.-H.~Zhang, and Y.~Zhao,
+``A hybrid renormalization scheme for quasi light-front correlations in LaMET,''
+Nucl.\ Phys.\ B \textbf{964}, 115311 (2021), arXiv:2008.03886.
+\quad\textbf{[来源:} \texttt{refer/papers/A Hybrid Renormalization Scheme for Quasi Light-Front Correlations in Large-Momentum Effective Theory.pdf}\textbf{]}
+
+\bibitem{Yao2023}
+F.~Yao, Y.~Ji, and J.-H.~Zhang,
+``Connecting Euclidean to light-cone correlations,''
+JHEP \textbf{11}, 021 (2023), arXiv:2212.14415.
+\quad\textbf{[来源:} \texttt{refer/papers/Connecting Euclidean to light-cone correlations From flavor nonsinglet in forward kinematics to flavor singlet in non-forward kinematics.pdf}\textbf{]}
+
+\bibitem{Fan2018gluon}
+Z.-Y.~Fan, Y.-B.~Yang, A.~Anthony, H.-W.~Lin, and K.-F.~Liu,
+``Gluon quasi-PDF from lattice QCD,''
+Phys.\ Rev.\ Lett.\ \textbf{121}, 242001 (2018), arXiv:1808.02077.
+\quad\textbf{[来源:} \texttt{refer/papers/Gluon Quasi-PDF From Lattice QCD.pdf}\textbf{]}
+
+\bibitem{Zhang2025kinematic}
+R.~Zhang, A.~V.~Grebe, D.~C.~Hackett, M.~L.~Wagman, and Y.~Zhao,
+``Kinematically-enhanced interpolating operators for boosted hadrons,''
+(2025), arXiv:2501.00729.
+\quad\textbf{[来源:} \texttt{refer/papers/Kinematically-enhanced interpolating operators for boosted hadrons.pdf}\textbf{]}
+
+\bibitem{Radyushkin2018one_loop}
+A.~Radyushkin,
+``One-loop evolution of parton pseudo-distribution functions on the lattice,''
+Phys.\ Rev.\ D \textbf{98}, 014019 (2018), arXiv:1801.02427.
+\quad\textbf{[来源:} \texttt{refer/papers/One-loop evolution of parton pseudo-distribution functions on the lattice.pdf}\textbf{]}
+
+\bibitem{Izubuchi2018}
+T.~Izubuchi, X.~Ji, L.~Jin, I.~W.~Stewart, and Y.~Zhao,
+``Factorization theorem relating Euclidean and light-cone parton distributions,''
+Phys.\ Rev.\ D \textbf{98}, 056004 (2018), arXiv:1801.03917.
+\quad\textbf{[来源:} \texttt{refer/papers/Factorization Theorem Relating Euclidean and Light-Cone Parton Distributions.pdf}\textbf{]}
+
+\bibitem{CLQCD2024charm}
+H.-Y.~Du \textit{et al.} (CLQCD),
+``Charmed meson masses and decay constants in the continuum,''
+Phys.\ Rev.\ D \textbf{109}, 054507 (2024), arXiv:2310.00814.
+\quad\textbf{[来源:} \texttt{refer/papers/Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\end{thebibliography}
+
+\end{document}

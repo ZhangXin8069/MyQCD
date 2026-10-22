@@ -1,0 +1,304 @@
+% ============================================================
+% pure 报告 — 规范模板 v2（xelatex + ctex）
+% 用途: PyQCD 核心部分穷尽剖析（代码-物理交叉）
+% 编译: xelatex 两遍；Overfull / Float too large / Missing 计数必须为 0
+% ============================================================
+\documentclass[UTF8]{ctexart}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{microtype}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{xltabular}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage[most]{tcolorbox}
+\usepackage{titlesec}
+\usepackage{fontspec}
+\setmonofont{DejaVu Sans Mono}
+
+\definecolor{accent}{HTML}{1F4E79}
+\definecolor{evidence}{HTML}{1E8449}
+\definecolor{reference}{HTML}{8C6D1F}
+\definecolor{conclusion}{HTML}{8B1A1A}
+\definecolor{codebg}{HTML}{F4F6F7}
+\definecolor{struct}{HTML}{3B3B98}
+\definecolor{relation}{HTML}{0E7C7B}
+\definecolor{idea}{HTML}{B03A2E}
+\definecolor{warn}{HTML}{D35400}
+\definecolor{hl}{HTML}{FDF6E3}
+
+\setlength{\emergencystretch}{3em}
+\hypersetup{colorlinks=true,linkcolor=accent,urlcolor=relation}
+
+\titleformat{\section}{\Large\bfseries\color{accent}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\color{struct}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{struct!70!black}}{\thesubsubsection}{1em}{}
+
+\newtcolorbox{conclbox}{breakable,colback=conclusion!6,colframe=conclusion,title=结论}
+\newtcolorbox{refbox}{breakable,colback=reference!6,colframe=reference,title=参考背景}
+\newtcolorbox{ideabox}{breakable,colback=idea!6,colframe=idea,title=物理图像}
+\newtcolorbox{warnbox}{breakable,colback=warn!6,colframe=warn,title=局限与风险}
+\newtcolorbox{keybox}{breakable,colback=hl,colframe=accent,title=要点}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  language=python,
+  firstnumber=auto,
+  keywordstyle=\color{accent}\bfseries,
+  commentstyle=\color{evidence!70!black},
+  stringstyle=\color{struct},
+  breaklines=true,
+  breakatwhitespace=false,
+  postbreak=\mbox{\textcolor{accent}{$\hookrightarrow$}\space},
+  keepspaces=true,
+  columns=flexible,
+  numbers=left,numberstyle=\tiny\color{struct!60!black},
+}
+
+\title{PyQCD 核心部分穷尽剖析：梯度流重整化胶子 TMD-PDF}
+\author{opencode pure}
+\date{2026-08-18}
+
+\begin{document}
+\maketitle
+\sloppy
+
+\begin{abstract}
+本报告对主仓库 PyQCD 的\textcolor{struct}{核心部分}做穷尽剖析（pure 技能），旨在回答
+「这个仓库最强的是什么」。项目性质判定为\textcolor{idea}{代码--物理交叉向}
+（胶子 TMD 计算代码与物理图像一一对应）。穷尽枚举 9 个核心候选，分配三态：
+深挖 C1 梯度流 RK3、C2 胶子 TMD 算符（Clover+staple+O）、C3 Z\_R 自重整化、
+C4 混合方案 $\lambda$ 外推、C5 NLO 匹配核 g\_0..g\_3 与 Z\_ij、C7 torch 后端+h5+MPI 并行；
+浅析 C6 连续极限外推、C8 蒸馏管线、C9 数据分析链；排除 cpp 占位与 refer 参考库。
+每深挖部分给出对象映射表（代码符号 $\leftrightarrow$ 物理对象双向可查）与独特性评估。
+结论：最具竞争力的是「梯度流非微扰重整化 + 可乘性 O 组合 + Z\_R/混合 + NLO 匹配核」
+的端到端自包含实现，以及三后端可移植工程骨架。
+\end{abstract}
+
+\tableofcontents
+
+% ================= 1 核心部分清单 =================
+\section{项目定位与核心部分清单（穷尽枚举）}
+\subsection{候选清单与三态分配}
+\label{sec:list}
+按仓库实测内容（代码/公式/映射占比）穷举核心候选，逐项分配三态
+（\textcolor{struct}{深挖}/浅析/\textcolor{warn}{排除}），证明「穷尽」而非「挑选」。
+\begin{xltabular}{\textwidth}{llX}
+\toprule
+\textcolor{struct}{候选} & 类型 & 三态与理由 \\
+\midrule
+\endhead
+C1 Wilson flow 梯度流（RK3） & 算法 & \textcolor{struct}{深挖}：非微扰重整化核心，Luescher 2010 RK3 \\
+C2 胶子 TMD 算符（Clover F + staple + O） & 代码-物理 & \textcolor{struct}{深挖}：可乘性组合 $O=M^{tx;tx}+M^{ty;ty}-2M^{xy;xy}$ 为本库独特之处 \\
+C3 Z\_R 自重整化 & 算法 & \textcolor{struct}{深挖}：arXiv:2510.17758 参数化全局拟合 \\
+C4 混合方案 $\lambda$ 外推 & 算法 & \textcolor{struct}{深挖}：短距比值 + 长距 Z\_R 拼接 \\
+C5 NLO 匹配核 g\_0..g\_3 与 Z\_ij & 代码-物理 & \textcolor{struct}{深挖}：单圈胶子匹配核 + 矩阵反演 \\
+C6 连续极限外推 & 算法 & 浅析：仅拟合入口，未系统化 \\
+C7 torch 后端 + h5 IO + MPI 并行 & 工程 & \textcolor{struct}{深挖}：三后端统一适配层，实测 2.7--4.8x 加速 \\
+C8 蒸馏管线 run\_pipeline & 工程 & 浅析：调度层，逻辑照抄 docker \\
+C9 数据分析链（analysis/） & 工程 & 浅析：meff/ratio/disconnected 编排 \\
+排除 cpp/ 占位 & --- & \textcolor{warn}{排除}：仅占位未实现 \\
+排除 refer/ 参考库 & --- & \textcolor{warn}{排除}：第三方参考，逻辑照抄不 import \\
+\bottomrule
+\caption{核心部分候选三态分配（穷尽枚举，C1..C9 + 2 排除项）}
+\end{xltabular}
+
+% ================= 2 性质判定 =================
+\section{项目性质判定}
+\label{sec:nature}
+判定依据（实测占比）：仓库主体是胶子 TMD 计算的物理代码（renorm/operator 含显式
+公式与物理注释），同时每个算法都对应明确物理量（规范场、场强、Wilson 线、矩阵元）。
+故判定为\textcolor{idea}{代码--物理交叉向}。报告剖析框架：对每深挖部分先讲物理图像，
+再给算法原理与对象映射表（代码符号 $\leftrightarrow$ 物理对象双向可查），最后评估独特性。
+
+% ================= 3 深度剖析 =================
+\section{核心部分深度剖析}
+
+\subsection{C1 Wilson flow 梯度流（RK3）}
+\paragraph{目的与输入} 以 Wilson flow（Luescher 2010）对非微扰规范场做平滑涂抹，
+提供梯度流重整化方案所需的流规范场 $V_\tau$。输入：规范场 $U$，流时间 $\tau$（物理约定 $\tau=3a^2$，NieMiera 2025），步长 $\varepsilon=0.01$。
+\paragraph{算法原理} 流方程右端 $Z(V)=P_{ah}[\Omega\cdot V^\dagger]$（无迹反厄米 $\in su(3)$），
+RK3 单步 $V(t+\varepsilon)=\exp(\sum c_i Z_i)\cdot V(t)$
+（\textcolor{evidence}{\texttt{\nolinkurl{pyqcd/renorm/_gradient_flow.py:111-135}}}）。
+\paragraph{对象映射}
+\begin{xltabular}{\textwidth}{llX}
+\toprule
+\textcolor{relation}{代码符号} & 物理对象 & 含义 \\
+\midrule
+\endhead
+\texttt{U} & 规范场链接 & $g_\mu(x)\in SU(3)$，张量 $(Nt,Nz,Ny,Nx,4,3,3)$ \\
+\texttt{staple\_6} & 六-link  staple & 流方程生成元 $\Omega$ 的几何来源 \\
+\texttt{flow\_derivative} & $Z(V)$ & 反厄米投影 $P_{ah}[M]=(M-M^\dagger)/2-\mathrm{Tr}(\cdots)/2N$ \\
+\texttt{wilson\_flow\_step} & RK3 步 & $\varepsilon\le0.05$ 保 $O(\varepsilon^3)$ 精度 \\
+\texttt{wilson\_flow} & 演化到 $\tau$ & 返回 $V_\tau$ 供后续算符构造 \\
+\bottomrule
+\caption{C1 对象映射表}
+\end{xltabular}
+\paragraph{正确性与独特性} 正确性由 RK3 截断误差 $O(\varepsilon^3)$ 保证；独特性在于
+统一后端（numpy/cupy/torch）实现且经 torus 一致性验证（AGENTS.md:64）。
+\paragraph{小结} C1 是非微扰重整化的基石，实现标准但工程可移植性强。
+
+\subsection{C2 胶子 TMD 算符（Clover F + staple + O 组合）}
+\paragraph{目的与输入} 构造横向极化投影的胶子 TMD 算符矩阵元 $O(z,b_\perp)$。
+输入：流规范场 $V_\tau$、纵向位移 $z$、横向位移 $b_\perp$、方向 $z\_dir,b\_dir$。
+\paragraph{算法原理} (1) Clover 场强 $F_{\mu\nu}=(-i/8)\sum_k(P_k-P_k^\dagger)$ 四叶平均
+（\textcolor{evidence}{\texttt{\nolinkurl{pyqcd/operator/_gluon_ope.py:63-115}}}）；
+(2) staple Wilson 线 $W_{\mathrm{st}}(z,b_\perp)$ 连接分离点；
+(3) 非定域矩阵元 $M^{\mu\lambda;\nu\rho}(z,b_\perp)=\sum_x\mathrm{Tr}[F^{\mu\lambda}(x+z\hat z+b_\perp)W_{\mathrm{st}} F^{\nu\rho}(x)W_{\mathrm{st}}^\dagger]$
+（\textcolor{evidence}{\texttt{\nolinkurl{pyqcd/renorm/_tmd.py:123-149}}}）；
+(4) 可乘性重整化组合
+\lstinputlisting[firstline=152,lastline=161]{/root/PyQCD/pyqcd/renorm/_tmd.py}
+\paragraph{物理图像} $O=M^{tx;tx}+M^{ty;ty}-2M^{xy;xy}$ 即横向极化投影的胶子
+TMD 算符（Eq.:O\_mult\_tmd）；三项虚部在色迹+空间求和后归零，故 $O$ 为实数
+（\textcolor{evidence}{\texttt{\nolinkurl{pyqcd/renorm/_tmd.py:164-181}}}）。
+\paragraph{对象映射}
+\begin{xltabular}{\textwidth}{llX}
+\toprule
+\textcolor{relation}{代码符号} & 物理对象 & 含义 \\
+\midrule
+\endhead
+\texttt{plaquette\_clover} & $F_{\mu\nu}$ & Clover 四叶平均场强 \\
+\texttt{staple\_wilson\_line} & $W_{\mathrm{st}}$ & staple Wilson 线（非局域连接） \\
+\texttt{M\_mu\_lambda\_nu\_rho} & $M^{\mu\lambda;\nu\rho}$ & 算符色迹（未空间求和） \\
+\texttt{gluon\_tmd\_operator} & $O(z,b_\perp)$ & 可乘性组合（TMD 投影） \\
+\bottomrule
+\caption{C2 对象映射表}
+\end{xltabular}
+\paragraph{正确性与独特性} 正确性：色迹维序 $t,z,y,x$、roll 轴序严格对应位移；
+独特性：该 $O$ 组合是梯度流胶子 TMD 方案的核心，区别于朴素准 PDF（仅 $M^{tx;tx}$ 类）。
+\paragraph{小结} C2 是本库最具物理独特性的部分，直接决定可观测的胶子 TMD 信号。
+
+\subsection{C3 Z\_R 自重整化}
+\paragraph{目的与输入} 以自重整化方案（arXiv:2510.17758 Eq.3-8）参数化并全局拟合 $Z_R(z,a,\mu)$。
+输入：各 $z,a,\mu$ 下的裸/重整化比值数据集、拟合初值。
+\paragraph{算法原理} \texttt{th\_ZR} 给出理论参数化，\texttt{cost\_function\_all}
+汇总多数据集 $\chi^2$，\texttt{fit\_ZR} 用 iminuit 全局拟合
+（\textcolor{evidence}{\texttt{\nolinkurl{pyqcd/renorm/_zr.py:84-135,155}}}）。
+\paragraph{对象映射} \texttt{th\_ZR} $\leftrightarrow$ $Z_R(z,a,\mu;k,d,m_0,m_2,\lambda_{QCD})$ 参数化；
+\texttt{fit\_ZR} $\leftrightarrow$ 最小 $\chi^2$ 拟合。
+\paragraph{独特性} 复用 zengch 约定但自包含实现，支持多系综联合约束。
+
+\subsection{C4 混合方案 $\lambda$ 外推}
+\paragraph{目的与输入} 短距比值 + 长距 Z\_R 拼接，对辅助参数 $\lambda$ 外推到物理点。
+输入：$h_R(z,P_z)$、$\lambda$ 网格、拟合初值。
+\paragraph{算法原理} \texttt{hR\_lambda\_fit\_form} 定义外推形式，\texttt{fit\_hR\_lambda}
+做 $\chi^2$ 拟合，\texttt{hR\_lambda/hR\_x} 给出外推后的 $h_R$
+（\textcolor{evidence}{\texttt{\nolinkurl{pyqcd/renorm/_hybrid.py:59-119}}}）。
+\paragraph{独特性} 将短距可算部分与长距 Z\_R 部分以 $\lambda$ 外推连接，规避算符混合。
+
+\subsection{C5 NLO 匹配核 g\_0..g\_3 与 Z\_ij}
+\paragraph{目的与输入} 由准 TMD 到光锥 PDF 的 NLO 匹配：$h_R^{PDF}=Z^{-1}\cdot h_R$。
+输入：x 网格、动量 $P_z$、匹配标度 $\mu=2$ GeV、截断 $\lambda_s=0.3$ fm。
+\paragraph{算法原理} 按 $\xi=x/y$ 分区计算匹配核 $g_0..g_3$
+（\textcolor{evidence}{\texttt{\nolinkurl{pyqcd/renorm/_matching.py:25-61}}}），
+Z\_ij 矩阵结构（zengch 约定 $A_s=\alpha_s/4\pi$）
+\begin{align}
+Z_{ij} &= \delta_{ij} + \frac{\alpha_s C_A}{2\pi}\,dx\,\frac{x}{|x|} \notag\\
+&\quad\times\left[\frac{g_{ij}}{y_j} - \delta_{ij}\,y_j\sum_k \frac{g_{ik}}{y_k^2}\right]\,,
+\end{align}
+反演得 $h_R^{PDF}=Z_{ij}^{-1}\,h_R(y)$
+（\textcolor{evidence}{\texttt{\nolinkurl{pyqcd/renorm/_matching.py:94-105}}}；\texttt{\nolinkurl{pyqcd/renorm/_tmdextract.py:116,155}}）。
+\paragraph{对象映射} $g_i$ $\leftrightarrow$ 单圈胶子匹配核分区贡献；
+$Z_{ij}$ $\leftrightarrow$ 重整化群核（$\delta + \alpha_s C_A/2\pi$ 核）；
+$h_R^{PDF}$ $\leftrightarrow$ 光锥胶子 PDF。
+\paragraph{独特性} 复用 zengch 约定但直接实现 Z\_ij 矩阵反演，含快度演化与软函数（\_tmdextract）。
+
+\subsection{C6 连续极限外推（浅析）}
+仅给出拟合入口 \texttt{fit\_hR\_PDF\_extrap}（\textcolor{evidence}{\texttt{\nolinkurl{pyqcd/renorm/_extrapolate.py:33-55}}}），
+未做 $a/P_z/m_\pi/L$ 联合外推的系统误差量化，标注\textcolor{warn}{未验证}。
+
+\subsection{C7 torch 后端 + h5 IO + MPI 并行（深挖）}
+\paragraph{目的与输入} 以 torch 后端替换 numpy/cupy 做 GPU/CPU 统一计算；
+产物统一 h5 读写；MPI 按 $N\cdot a=n\cdot b$ 调度 step×conf 元任务。
+\paragraph{算法原理} \texttt{set\_backend('torch')} 切换；torch.Tensor 补丁
+\texttt{transpose/astype/repeat} 对齐 numpy 语义
+（\textcolor{evidence}{\texttt{\nolinkurl{pyqcd/tools/_torch_backend.py:222-254}}}）；
+\texttt{save\_tensor\_h5/load\_tensor\_h5} 通用 IO；\texttt{plan\_parallel} 给出进程数 $N$、批次 $X$、每卡进程 $Y$。
+\paragraph{正确性与独特性} 实测 torch CPU 梯度流 2.7--4.8x（逐位一致 max$|d|\sim10^{-15}$）；
+rank 0 独占分析作图（不并行）。独特性：三后端零改算法代码、h5 可移植。
+\paragraph{小结} C7 是工程竞争力的核心，使规模化实战（test7：100 组态）可行。
+
+\subsection{C8 蒸馏管线 run\_pipeline（浅析）}
+\texttt{run\_pipeline}（\textcolor{evidence}{\texttt{\nolinkurl{pyqcd/pipeline/_steps.py:1418}}}）
+调度 9 步（env→vertex→2pt→ope→3pt→4pt→analysis→plots→report），
+逻辑照抄 docker-v20260805，自包含实现。
+
+\subsection{C9 数据分析链（浅析）}
+\texttt{analysis/} 实现 meff/ratio\_fit/disconnected/色散拟合与 三方向 ana\_3dir，
+复用 \_disconnected 的 sem/resample/cov\_mat 基元，纯工程编排。
+
+% ================= 4 独特性评估 =================
+\section{独特性评估}
+\begin{xltabular}{\textwidth}{XXX}
+\toprule
+核心部分 & 独特性 & 对照基准 \\
+\midrule
+C2 算符 O 组合 & 高（梯度流胶子 TMD 投影） & 朴素准 PDF 仅单指标 \\
+C5 匹配核 Z\_ij & 中（自包含矩阵反演） & zengch 公式移植 \\
+C7 三后端骨架 & 高（零改算法+GPU 加速） & 单 numpy 实现 \\
+C1 梯度流 & 低（标准 RK3） & Luescher 2010 \\
+C3/C4 Z\_R/混合 & 中（多系综联合） & 文献参数化 \\
+\bottomrule
+\caption{独特性评估（高/中/低）}
+\end{xltabular}
+
+% ================= 5 关键片段 =================
+\section{关键片段与公式}
+\subsection{Wilson flow RK3 单步}
+\lstinputlisting[firstline=125,lastline=135]{/root/PyQCD/pyqcd/renorm/_gradient_flow.py}
+\subsection{Clover 场强（节选）}
+\lstinputlisting[firstline=63,lastline=100]{/root/PyQCD/pyqcd/operator/_gluon_ope.py}
+\subsection{NLO 匹配核 g\_0..g\_3}
+\lstinputlisting[firstline=25,lastline=61]{/root/PyQCD/pyqcd/renorm/_matching.py}
+\subsection{torch Tensor 补丁}
+\lstinputlisting[firstline=222,lastline=254]{/root/PyQCD/pyqcd/tools/_torch_backend.py}
+
+% ================= 6 参考源清单 =================
+\section{参考源清单}
+\begin{xltabular}{\textwidth}{llX}
+\toprule
+\textcolor{evidence}{参考源} & 类型 & 内容/作用 \\
+\midrule
+\endhead
+\texttt{\nolinkurl{pyqcd/renorm/_gradient_flow.py:111-135}} & 仓库 & flow\_derivative / wilson\_flow\_step RK3 \\
+\texttt{\nolinkurl{pyqcd/renorm/_gradient_flow.py:163-173}} & 仓库 & flow\_action\_density E(t) \\
+\texttt{\nolinkurl{pyqcd/operator/_gluon_ope.py:63-115}} & 仓库 & plaquette\_clover 四叶平均 \\
+\texttt{\nolinkurl{pyqcd/renorm/_tmd.py:123-161}} & 仓库 & M 矩阵 + O 组合 \\
+\texttt{\nolinkurl{pyqcd/renorm/_tmd.py:203-213}} & 仓库 & self\_renormalized\_ratio \\
+\texttt{\nolinkurl{pyqcd/renorm/_zr.py:84-135}} & 仓库 & th\_ZR / fit\_ZR \\
+\texttt{\nolinkurl{pyqcd/renorm/_hybrid.py:59-119}} & 仓库 & hR\_lambda 混合外推 \\
+\texttt{\nolinkurl{pyqcd/renorm/_matching.py:25-105}} & 仓库 & g\_0..g\_3 与 Z\_ij 反演 \\
+\texttt{\nolinkurl{pyqcd/renorm/_tmdextract.py:116}} & 仓库 & Z\_ij 数值结构 \\
+\texttt{\nolinkurl{pyqcd/renorm/_extrapolate.py:33-55}} & 仓库 & 外推拟合入口 \\
+\texttt{\nolinkurl{pyqcd/tools/_torch_backend.py:222-254}} & 仓库 & torch 补丁 \\
+\texttt{\nolinkurl{pyqcd/pipeline/_steps.py:1418}} & 仓库 & run\_pipeline 9 步 \\
+\texttt{\nolinkurl{AGENTS.md:64}} & 仓库 & torch 加速实测 2.7--4.8x \\
+\texttt{\nolinkurl{refer/}} & 参考 & zengch/donghx/git-rep 等（逻辑照抄不 import） \\
+\bottomrule
+\end{xltabular}
+
+% ================= 7 结论与局限 =================
+\section{结论与局限}
+\begin{conclbox}
+最强竞争力：(1) C2 梯度流胶子 TMD 算符 O 组合（物理独特）；(2) C5 NLO 匹配核 Z\_ij 自包含反演；
+(3) C7 三后端可移植工程骨架（工程独特）。三者共同支撑「梯度流重整化胶子 TMD-PDF」
+端到端自包含、可复现、可扩展的实现。核心部分穷尽枚举 9 候选 + 2 排除，三态闭合。
+\end{conclbox}
+\begin{ideabox}
+物理图像主线：裸矩阵元 → 梯度流涂抹 → 可乘性 O 算符 → Z\_R/混合重整化 →
+NLO 匹配 → 连续极限外推，对应代码链 C1→C2→C3/C4→C5→C6，对象映射双向可查。
+\end{ideabox}
+\begin{warnbox}
+未覆盖/未验证：(1) C6 连续极限外推仅入口，未量化 $a/P_z/m_\pi/L$ 联合系统误差，标注\textcolor{warn}{未验证}；
+(2) cpp 后端占位未实现；(3) refer 内部库仅参考未深剖；
+(4) 部分运行时数值（显存/耗时）引自 AGENTS.md 实测，未独立重测。
+\end{warnbox}
+
+\end{document}

@@ -1,0 +1,630 @@
+\documentclass[12pt,a4paper]{ctexart}
+
+% === 页面设置 ===
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+
+% === 数学和物理 ===
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{slashed}
+\usepackage{braket}
+
+% === 图形和表格 ===
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+
+% === 引用 ===
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+% === 其他 ===
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{multirow}
+\usepackage{tikz}
+\usepackage{seqsplit}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+}
+
+% 允许参考文献中长文件路径灵活断行
+\emergencystretch=3em
+
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{remark}{注记}[section]
+\newtheorem{theorem}{定理}[section]
+
+\title{\heiti 格点QCD中的smear算法：\\
+从夸克场涂抹到规范场平滑的统一解析}
+\author{基于本库文献与代码的综合解析}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+涂抹（smearing）是格点QCD中抑制统计噪声、改善算符-态重叠、从而可靠提取低能物理的关键数值技术。本文以统一视角系统解析格点QCD中的smear算法：按作用对象分为\textbf{夸克场涂抹}（Wuppertal/Jacobi涂抹、动量涂抹、蒸馏方法）与\textbf{规范场平滑}（APE涂抹、HYP涂抹、stout涂抹、梯度流/Wilson flow）两大类；按数学结构分为\textbf{格点算符型}（离散迭代）与\textbf{连续演化型}（流方程）。在理论层面，本文给出Wuppertal涂抹核$J = (1+\sigma\nabla^2/n_\sigma)^{n_\sigma}$、stout变换$U_\mu' = \exp(iQ_\mu)U_\mu$的完整推导及其投影性质，阐明动量涂抹$\tilde\psi(x) = e^{i\vec{\zeta}\cdot\vec{x}}\psi(x)$通过带相位本征矢构造高动量插值算符的原理，并说明梯度流作为可重整化连续涂抹的理论地位。在实现层面，本文结合本库代码（\texttt{snsc/main.py}的相位因子计算、\texttt{refer/sush/lqcddb}的stout涂抹实现、\texttt{refer/donghx}与\texttt{refer/zhangxin}的动量涂抹蒸馏脚本）逐行解读各类smear算法的数值实现，并汇总其在CLQCD胶子PDF、蒸馏2pt关联函数等实际计算中的应用。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{引言：为什么需要涂抹？}
+% ============================================================
+
+格点QCD中的物理观测量（强子质量、形状因子、部分子分布函数等）最终都要从欧几里得关联函数中提取。关联函数一般可以写成谱分解形式\cite{Peardon2009}：
+
+\begin{equation}
+C(t', t) = \langle \chi(t') \chi^\dagger(t) \rangle = \sum_k \left|\langle \chi | k \rangle\right|^2 e^{-E_k (t'-t)},
+\label{eq:correlator}
+\end{equation}
+
+其中$\chi$是强子插值算符，$|k\rangle$为具有相应量子数的哈密顿量本征态。在$t'-t$很大时，关联函数被能量最低的态（基态）主导，从而可以提取其能量$E_0$。然而，基态信号随$t'-t$按$e^{-E_0\Delta t}$衰减，而噪声$\sigma_C \sim e^{-(E_0+E_{\text{noise}})\Delta t}$衰减得更慢，导致\textbf{信噪比在大的时间分离下指数恶化}。
+
+因此，实际计算需要选择与目标态重叠$|\langle\chi|k\rangle|$尽可能大的插值算符，使关联函数在尽可能早的时间就进入基态主导区。\textbf{涂抹（smearing）}正是构造这种优化算符的标准工具\cite{UKQCD1993}：通过把格点场局域地加宽，将算符的权重转移到与轻模式（低动量、大空间尺度）匹配的分量上，从而压制激发态贡献。
+
+\subsection{涂抹问题的统一分类}
+
+涂抹算法种类繁多，本文按两个正交维度加以组织：
+
+\begin{enumerate}
+    \item \textbf{按作用对象：}
+    \begin{itemize}
+        \item \textbf{夸克场涂抹}（quark-field smearing）——对费米子场/算符进行空间延展，改善强子插值算符的重叠：Wuppertal/Jacobi涂抹、Gaussian涂抹、动量涂抹、蒸馏（distillation）。本库中的\texttt{2pt}蒸馏关联函数即基于此类涂抹\cite{Egerer2021a,Chen2025gluon}。
+        \item \textbf{规范场平滑}（gauge-field smearing）——对规范连接变量$U_\mu(x)$迭代求平均，抑制短距离紫外涨落：APE涂抹、HYP涂抹、stout涂抹、梯度流。本库中stout涂抹用于蒸馏Laplace算符中的规范场预处理，HYP涂抹/梯度流用于胶子算符$F_{\mu\nu}$的紫外噪声抑制\cite{Chen2025gluon,NoteGluonPDFs}。
+    \end{itemize}
+    \item \textbf{按数学结构：}
+    \begin{itemize}
+        \item \textbf{格点算符型}（离散迭代）：每一步涂抹都是局域的线性（或投影）变换，如APE、HYP、stout。
+        \item \textbf{连续演化型}（流方程）：场沿某个作用量的梯度方向连续演化，如梯度流（Wilson flow）\cite{Luscher2010,LuscherWeisz2011}。
+    \end{itemize}
+\end{enumerate}
+
+值得注意的是，这两类之间并没有不可逾越的界限：重复施加stout涂抹的无穷小步长极限就是Wilson flow\cite{Luscher2010}，而蒸馏方法则可以被理解为Laplace本征模截断对Wuppertal涂抹的精确实现\cite{Peardon2009}。本库的补充文档\cite{GradientFlowDoc,DistillationDoc}分别对蒸馏与梯度流作了专题解析，本文则提供一个统一的框架，并重点补充规范的stout/HYP/APE涂抹公式与本库代码的对应关系。
+
+% ============================================================
+\section{夸克场涂抹：Wuppertal/Jacobi与Gaussian涂抹}
+% ============================================================
+
+\subsection{格点协变Laplace算符}
+
+规范协变涂抹的共同基础是三维规范协变Laplace算符\cite{UKQCD1993,Peardon2009}：
+
+\begin{equation}
+-\nabla^2_{xy}(t) = 6\delta_{xy} - \sum_{j=1}^{3} \left[\tilde{U}_j(x,t)\,\delta_{x+\hat{j},y} + \tilde{U}^\dagger_j(x-\hat{j},t)\,\delta_{x-\hat{j},y}\right],
+\label{eq:laplacian}
+\end{equation}
+
+其中$\tilde{U}_j$为（经过规范场平滑后的）规范连接变量，$x, y$为空间格点指标。该算符在空间旋转下按标量变换、在规范变换下协变，且在宇称和电荷共轭下不变\cite{Peardon2009}。Laplace算符的本征值谱$\lambda_1 \le \lambda_2 \le \cdots$中，低本征模对应空间平滑（长程）的模式，高本征模对应快速振荡（短程）的模式。
+
+\subsection{Wuppertal/Jacobi涂抹核}
+
+\textbf{Wuppertal涂抹}（又称Jacobi涂抹）通过对场反复应用以下核来压制高本征模\cite{UKQCD1993,NoteGluonPDFs}：
+
+\begin{definition}[Wuppertal/Jacobi涂抹核]
+\begin{equation}
+\boxed{J_{\sigma, n_\sigma}(t) = \left(1 + \frac{\sigma\nabla^2(t)}{n_\sigma}\right)^{n_\sigma}},
+\label{eq:jacobi_kernel}
+\end{equation}
+其中$\sigma > 0$是涂抹半径参数（量纲与$\nabla^2$的倒数一致），$n_\sigma$是迭代次数。
+\end{definition}
+
+这里$\sigma\nabla^2$本征值的绝对值随模的振荡加剧而增大，因此该核\textbf{指数压制高本征模}。在大$n_\sigma$极限下，涂抹核趋于指数形式\cite{NoteGluonPDFs,Peardon2009}：
+
+\begin{equation}
+\lim_{n_\sigma \to \infty} J_{\sigma, n_\sigma}(t) = \exp\!\big(\sigma\nabla^2(t)\big)。
+\label{eq:jacobi_limit}
+\end{equation}
+
+这就是连续Gaussian涂抹的格点对应：在自由场极限下，$\exp(\sigma\nabla^2)$在坐标空间给出宽度约$\sqrt{2\sigma}$的高斯核，因此涂抹算符在空间上呈指数/Gaussian延展。
+
+在费米子源构造中，涂抹后的源场为
+
+\begin{equation}
+\psi_{\text{smear}}(x) = J_{\sigma,n_\sigma}\, \psi(x) = \left(1 + \frac{\sigma\nabla^2}{n_\sigma}\right)^{n_\sigma} \psi(x),
+\label{eq:smeared_source}
+\end{equation}
+
+实际中通常先在源处施加涂抹$\chi \to J\chi$，在汇处也施加$J$，从而得到涂抹-涂抹关联函数。
+
+\begin{remark}[Jacobi迭代与Gaussian的等价性]
+\label{rem:jacobi_gaussian}
+当$n_\sigma$取为与$\sigma$无关的固定迭代次数、并利用$\nabla^2$的局域性逐次迭代时，(\ref{eq:jacobi_kernel})正是数值线性代数中求解Poisson方程的标准Jacobi迭代形式；该迭代在连续极限下逼近热扩散核，即Gaussian涂抹\cite{UKQCD1993}。本库文献\cite{NoteGluonPDFs}即指出：``只有在这些最低本征模上$J$才有实质贡献，这直接导致了蒸馏方法的核心思想''。
+\end{remark}
+
+% ============================================================
+\section{动量涂抹：高动量强子算符的构造}
+% ============================================================
+
+LaMET与赝PDF方法要求在\textbf{大核子动量}下提取准分布矩阵元，而普通涂抹算符与动量为$\vec{p}$的平面波的乘积$\chi(\vec{p}) = \sum_{\vec{x}} e^{-i\vec{p}\cdot\vec{x}} \chi(\vec{x})$对高动量态的重叠迅速恶化。Bali等人提出了\textbf{动量涂抹}（momentum smearing）方案\cite{Bali2016}：在对源场进行涂抹前先乘上一个空间相位因子。
+
+\subsection{定义与物理动机}
+
+\begin{definition}[动量涂抹]
+对动量为$\vec{p}$的强子，动量涂抹将源场按如下方式改造\cite{Bali2016,Egerer2021a}：
+\begin{equation}
+\boxed{\tilde\psi(\vec{x}, t) = e^{i\vec{\zeta}\cdot\vec{x}}\, \psi(\vec{x}, t)},
+\label{eq:mom_smear_phase}
+\end{equation}
+其中$\vec{\zeta}$是一个固定的参考动量（动量涂抹矢量）。等价的算符表述是：对动量为$\vec{p}$的插值算符，将其中每个夸克场替换为\textbf{带相位}的场：
+\begin{equation}
+\chi_{\vec{p}}(t) \to \tilde\chi_{\vec{p}}(t) = \sum_{\vec{x}} e^{-i(\vec{p} - \vec{\zeta})\cdot\vec{x}} \tilde\chi(\vec{x}, t)。
+\label{eq:boosted_operator}
+\end{equation}
+\end{definition}
+
+物理图像如下：把空间相位$e^{i\vec{\zeta}\cdot\vec{x}}$吸收进涂抹核后，\textbf{涂抹算符的动量中心由$\vec{0}$移动到$\vec{\zeta}$}。这样，相对动量为$\vec{p}-\vec{\zeta}$的场再与普通的（零动量涂抹）源重叠，就能在高总动量下保持与低动量情形相当的重叠质量。其效果等价于在连续理论中把涂抹高斯核替换为携带相位的核：
+
+\begin{equation}
+G_{\text{smear}}(\vec{x},\vec{y}) \longrightarrow G_{\text{smear}}(\vec{x},\vec{y})\, e^{i\vec{\zeta}\cdot(\vec{x}-\vec{y})},
+\label{eq:phase_kernel}
+\end{equation}
+
+即Gaussian核的动量中心被平移了$\vec{\zeta}$。这正是``动量涂抹''名称的由来。
+
+\subsection{平移不变性与Type选择}
+
+Egerer等人将动量涂抹与蒸馏框架结合，提出了四种候选方案\cite{Egerer2021a}：
+
+\begin{enumerate}
+    \item \textbf{Type 1（单相位）：}$\tilde\xi^{(k)}_a(\vec{z}, t) = e^{i\vec{\zeta}\cdot\vec{z}} \xi^{(k)}_a(\vec{z}, t)$；
+    \item \textbf{Type 2（对向相位）：}$\tilde\xi^{(k)}_a(\vec{z}, t) = 2\cos(\vec{\zeta}\cdot\vec{z}) \xi^{(k)}_a(\vec{z}, t)$；
+    \item \textbf{Type 3（恒等加对向相位）}；
+    \item \textbf{Type 4（多单向相位）}。
+\end{enumerate}
+
+\textbf{平移不变性}是选择方案的关键判据。可以证明，只有Type 1（单相位）保持平移不变性\cite{Egerer2021a}。其证明要点是：对插值算符作平移$\vec{x} \to \vec{x}+\vec{d}$时，源汇处的相位因子各自获得$e^{\pm i\vec{\zeta}\cdot\vec{d}}$，二者在perambulator
+
+\begin{equation}
+\tilde\tau^{ij}(t', t) = \xi^{(i)\dagger}(\vec{x}, t')\, e^{-i\vec{\zeta}\cdot\vec{x}} M^{-1}(t', t)\, e^{i\vec{\zeta}\cdot\vec{y}} \xi^{(j)}(\vec{y}, t)
+\label{eq:translation_invariance}
+\end{equation}
+
+中相乘抵消，从而保证关联函数的平移不变性。Type 2–4包含对向相位组合，会破坏这一性质。
+
+\subsection{本库中的动量涂抹实现}
+
+本库的胶子PDF计算正是基于动量涂抹蒸馏。在\texttt{snsc/main.py}中，动量涂抹的相位因子由\texttt{compute\_phase\_factor}实现：
+
+\begin{verbatim}
+# snsc/main.py  — compute_phase_factor(momentum, Nx)
+# 动量涂抹相位因子: φ_P(x) = exp(-i · 2π · P·x / L)
+V = Nx*Nx*Nx;  phase = zeros(V, dtype=complex);  idx = 0
+for z in range(Nx):
+    for y in range(Nx):
+        for x in range(Nx):
+            pos = np.array([z, y, x])          # 注意: (z, y, x) 顺序
+            phase[idx] = np.exp(-np.dot(momentum, pos) * 2.0j*np.pi / Nx)
+            idx += 1
+\end{verbatim}
+
+即按格点约定$\phi_{\vec{P}}(\vec{x}) = \exp\!\big(-i\,2\pi\,\vec{P}\cdot\vec{x}/L\big)$计算（$\vec{P}$以$2\pi/L$为单位，$L=N_x$）。在VVV重子块的构造中（\texttt{step\_04\_vvv}），总相位因子是\textbf{动量涂抹相位}与\textbf{外动量相位}的乘积：
+
+\begin{equation}
+\phi_{\text{total}}(\vec{x}) = \phi_{\text{smear}}(\vec{x}) \cdot \phi_{P}(\vec{x})
+= e^{-i 2\pi \vec{P}_{\text{smear}}\cdot\vec{x}/L}\, e^{-i 2\pi \vec{P}\cdot\vec{x}/L}，
+\label{eq:phase_total}
+\end{equation}
+
+\begin{verbatim}
+# snsc/main.py — step_04_vvv (节选)
+mom_smear_vec = np.array([self.cfg.mom_smear_phase, 0, 0])
+phase_smear   = compute_phase_factor(mom_smear_vec, Nx)
+phase_P       = compute_phase_factor(np.array([Pz, self.cfg.Py, self.cfg.Px]), Nx)
+phase_total   = phase_smear * phase_P
+VVV_Pz[t]     = compute_vvv_baryon_block(eig_t, phase_total, Nev1, Nx, fn)
+\end{verbatim}
+
+在\texttt{refer/donghx/2pt\_proton\_Cg5gmu\_L32x64\_mom2\_xdir\_gpu.py}中，动量涂抹相位通过\texttt{phase\_calc(Mom)}逐点生成：
+
+\begin{verbatim}
+# refer/donghx/2pt_proton_Cg5gmu_L32x64_mom2_xdir_gpu.py
+def phase_calc(Mom):
+    phase_factor = np.zeros(Nx*Nx*Nx, dtype=complex)
+    for z in range(0, Nx):
+        for y in range(0, Nx):
+            for x in range(0, Nx):
+                Pos = np.array([z, y, x])
+                phase_factor[z*Nx*Nx + y*Nx + x] = np.exp(
+                    -np.dot(Mom, Pos) * 2*np.pi*1j / Nx)
+    return cp.asarray(phase_factor)
+
+phase = np.array([0, 0, momsmear_phase], dtype=complex)   # 仅沿z方向
+phase_factor = phase_calc(phase)
+\end{verbatim}
+
+\subsection{系综配置与相位符号约定}
+
+本库各系综的动量涂抹参数在\texttt{snsc/main.py}的\texttt{ENSEMBLES}字典中集中配置。注意\textbf{相位符号约定}：对\texttt{L32x64}（$\beta=6.20$）系综，配置为\texttt{mom\_smear = 3}、\texttt{mom\_smear\_phase = -3}，即涂抹动量沿$+x$方向、VVV中的相位因子取$-3$；而对\texttt{L24x72}系综则为\texttt{mom\_smear = -2}、\texttt{mom\_smear\_phase = 2}，对应``\texttt{momsmear-2z}''、``\texttt{mz2\_my0\_mx0}''等目录命名。CLQCD胶子PDF计算中，蒸馏本征矢数目在各系综上均为$N_{\text{ev}} = 100$，核子动量最高约1.97~GeV\cite{Chen2025gluon}。
+
+\begin{table}[H]
+\centering
+\caption{本库各系综的动量涂抹配置（摘自 \texttt{snsc/main.py} 的 \texttt{ENSEMBLES}）}
+\label{tab:ensembles}
+\begin{tabular}{lcccc}
+\toprule
+系综 & $\beta$ & $N_{\text{ev}}$ & \texttt{mom\_smear} & \texttt{mom\_smear\_phase} \\
+\midrule
+L24x72 & 6.20 & 100 & -2 & 2 \\
+L32x64 & 6.20 & 100 & 3 & -3 \\
+L32x96 & 6.41 & 100 & 2 & -2 \\
+L36x108 & 6.498 & 200 & 2 & -2 \\
+L48x96 & 6.20 & 200 & 4 & -4 \\
+L48x144 & 6.72 & 200 & 2 & -2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{动量涂抹效果：}Egerer等人\cite{Egerer2021a}表明，动量涂抹可将可靠提取核子能量的动量范围扩展到$|\vec{p}| \lesssim 3$~GeV。本库的L32x64系综取相位因子$\vec{\zeta} = -3 \times 2\pi/L$，配合外动量$P_z = 3,4,\ldots,8$，最高覆盖约$P = 6 \times 2\pi/(aL)$的boost\cite{NoteGluonPDFs}。
+
+% ============================================================
+\section{蒸馏：Laplace本征模涂抹的精确化}
+% ============================================================
+
+\subsection{从Jacobi涂抹到本征模截断}
+
+由第\ref{rem:jacobi_gaussian}节，Jacobi涂抹核$J$主要由最低本征模贡献。Peardon等人\cite{Peardon2009}由此提出\textbf{蒸馏}（distillation）方法：直接求解Laplace本征值问题
+
+\begin{equation}
+-\nabla^2(t)\, v^{(i)} = \lambda_i v^{(i)},
+\label{eq:eigenvalue}
+\end{equation}
+
+并将\textbf{涂抹算符替换为到最低$N_{\text{ev}}$个本征模张成的子空间上的投影}：
+
+\begin{definition}[蒸馏算符]
+\begin{equation}
+\boxed{\Box_{xy}(t) = \sum_{k=1}^{N_{\text{ev}}} v^{(k)}_x(t)\, v^{(k)\dagger}_y(t) \equiv V(t)V^\dagger(t)},
+\label{eq:distillation_operator}
+\end{equation}
+其中$V(t)$为$M \times N_{\text{ev}}$矩阵（$M = N_c N_x N_y N_z$），第$k$列是$-\nabla^2$的第$k$个本征矢。
+\end{definition}
+
+蒸馏算符满足$\Box^2 = \Box$（投影性）、$\mathrm{rank}\,\Box = N_{\text{ev}} \ll M$（低秩性），且当$N_{\text{ev}} = M$时退化为单位算符。它的作用效果与Laplace涂抹（Wuppertal涂抹）一致：\textbf{把场投影到空间平滑的模式上}。空间延展宽度随$N_{\text{ev}}$增大而减小，对于$N_{\text{ev}} \in [8, 64]$，蒸馏算符的空间分布可以由高斯波函数很好地描述\cite{Peardon2009}。
+
+\subsection{蒸馏与动量的结合：动量涂抹蒸馏}
+
+蒸馏方法的关键优势是将\textbf{夸克传播子计算（perambulator）与算符构造完全解耦}\cite{Peardon2009,Egerer2021a}。perambulator定义为
+
+\begin{equation}
+\tau^{(p,\bar p)}_{\alpha\beta}(t', t) = V^{(p)\dagger}(t') M^{-1}_{\alpha\beta}(t', t) V^{(\bar p)}(t),
+\label{eq:perambulator}
+\end{equation}
+
+其中$V$为蒸馏矩阵。动量涂抹蒸馏即用\textbf{带相位的本征矢}$e^{i\vec{\zeta}\cdot\vec{x}}v^{(k)}$替换$V$中的本征矢，从而在不重新求逆Dirac算符的情况下得到高动量下的perambulator（即第3节的Type 1方案）。本库的胶子PDF计算即采用该技术：蒸馏本征矢通过Laplace算符的\texttt{stout}涂抹版本构造\cite{Egerer2021a}，本征矢读取见\texttt{snsc/main.py}的\texttt{\_read\_eigvecs}（二进制\texttt{eigvecs\_t...}文件，每个本征矢按$(N_{ev}, N_x,N_y,N_z, N_c, 2)$存储实部/虚部）。
+
+\begin{verbatim}
+# snsc/main.py — _read_eigvecs(eig_dir, t, conf_id, Nx) (节选)
+fn = f"{eig_dir}/eigvecs_t{t:03d}_{conf_id}"
+data = np.fromfile(fn, dtype="f8")
+Nev_full = len(data) // (Nx*Nx*Nx*3*2)
+data = data.reshape(Nev_full, Nx, Nx, Nx, 3, 2)
+eigvecs = (data[..., 0] + 1j*data[..., 1])[:self.cfg.Nev1]
+eigvecs = eigvecs.reshape(self.cfg.Nev1, Nx*Nx*Nx, 3)
+\end{verbatim}
+
+蒸馏方法的详细解析见本库\cite{DistillationDoc}（\texttt{docs/格点QCD蒸馏方法解析.tex}），此处不赘述。
+
+% ============================================================
+\section{规范场平滑：APE涂抹}
+% ============================================================
+
+\subsection{定义}
+
+\textbf{APE涂抹}是历史最悠久的规范场平滑方案\cite{APE1987}。它对规范连接变量迭代地进行局域平均：
+
+\begin{definition}[APE涂抹]
+\begin{equation}
+U_\mu'(x) = \mathcal{P}_{\mathrm{SU}(3)}\!\left[ (1-\alpha) U_\mu(x) + \frac{\alpha}{6} \sum_{\nu \ne \mu} C_{\mu\nu}(x) \right],
+\label{eq:ape}
+\end{equation}
+其中
+\begin{equation}
+C_{\mu\nu}(x) = U_\nu(x)\, U_\mu(x+\hat\nu)\, U^\dagger_\nu(x+\hat\mu)
+\label{eq:staple}
+\end{equation}
+是围绕link $U_\mu(x)$的\textbf{staple}（$\nu$方向的矩形项），$\alpha$为涂抹权重，$\mathcal{P}_{\mathrm{SU}(3)}$表示投影回$SU(3)$群。
+\end{definition}
+
+注意这里$U_\mu'$是涂抹后的\textbf{新}规范场，在连续极限下对应规范势的平滑。$\alpha$越大，平滑半径越大。APE涂抹的缺点是：每步涂抹后需要对每个link做一次$SU(3)$投影，且投影破坏了变换关于连接变量的解析性（可微性）。
+
+% ============================================================
+\section{HYP涂抹}
+% ============================================================
+
+\textbf{HYP}（\textbf{hyper}cubic）涂抹由Hasenfratz和Knechtli提出\cite{HYP2001}，其目的是\textbf{在保持可微性不要求的前提下，构造比APE涂抹更局域的平滑方案}。HYP涂抹的核心思想是\textbf{分三步、在超立方体内部构造staple}：每个被替换的link只用其所在超立方体边界内部的link构成，从而避免引入$O(a)$尺度的非局域性。
+
+\subsection{三步构造}
+
+记第$i$步（$i=1,2,3$）涂抹后的link为$\tilde U^{(i)}_\mu(x)$，涂抹权重为$\alpha_i$。三步递归定义为\cite{HYP2001,Morningstar2004}：
+
+\begin{definition}[HYP涂抹（标准三步）]
+\begin{align}
+\tilde U^{(1)}_\mu(x) &= \mathrm{Proj}_{\mathrm{SU}(3)}\!\Big[ (1-\alpha_1) U_\mu(x) + \frac{\alpha_1}{4}\sum_{\pm\nu \ne \mu} V^{(2)}_{\nu\mu}(x)\, V^{(2)}_\mu(x+\hat\nu)\, V^{(2)\dagger}_{\nu}(x+\hat\mu) \Big], \label{eq:hyp1} \\
+V^{(2)}_\mu(x) &= \mathrm{Proj}_{\mathrm{SU}(3)}\!\Big[ (1-\alpha_2) U_\mu(x) + \frac{\alpha_2}{4}\sum_{\pm\rho \ne \mu} V^{(3)}_{\rho\mu}(x)\, V^{(3)}_\mu(x+\hat\rho)\, V^{(3)\dagger}_{\rho}(x+\hat\mu) \Big], \label{eq:hyp2} \\
+V^{(3)}_\mu(x) &= \mathrm{Proj}_{\mathrm{SU}(3)}\!\Big[ (1-\alpha_3) U_\mu(x) + \frac{\alpha_3}{4}\sum_{\pm\sigma \ne \mu} U_\sigma(x)\, U_\mu(x+\hat\sigma)\, U^\dagger_\sigma(x+\hat\mu) \Big]. \label{eq:hyp3}
+\end{align}
+\end{definition}
+
+标准参数为$(\alpha_1, \alpha_2, \alpha_3) = (0.75, 0.6, 0.3)$\cite{HYP2001}。
+
+\begin{remark}[HYP涂抹的局域性]
+\label{rem:hyp_locality}
+第3层$V^{(3)}$只用最邻近的原始link构成（即plaquette型staple）；第2层$V^{(2)}$用$V^{(3)}$构成；第1层用$V^{(2)}$构成。由于每一层的staple都局限在超立方体内部，HYP涂抹平滑的是\textbf{格距尺度上的涨落}，其涂抹范围比APE更局域。这使得HYP涂抹成为胶子算符（如Clover $F_{\mu\nu}$、Wilson线）上施加涂抹以抑制短程噪声的标准选择，而不会过度抹掉物理信号\cite{Chen2025gluon}。
+\end{remark}
+
+在CLQCD/LPC的非极化胶子PDF计算中，对胶子算符施加了\textbf{10步HYP涂抹（HYP5）}\cite{Chen2025gluon}，有效抑制了Wilson线的线性紫外发散$\sim e^{-\delta m |z|}$（内部笔记\cite{NoteGluonPDFs}对HYP5与Wilson flow（$\tau=1.4$）作了系统对比，两种方案结果定性一致）。
+
+% ============================================================
+\section{stout涂抹}
+% ============================================================
+
+\subsection{解析stout变换}
+
+\textbf{stout涂抹}由Morningstar和Peardon提出\cite{Morningstar2004}，其定义与APE/HYP的关键区别在于\textbf{不显式投影}，而是通过解析的指数变换把link平均结果保持为$SU(3)$矩阵，从而\textbf{保持对连接变量的可微性}——这使得stout涂抹可以直接嵌入HMC（混合蒙特卡洛）的分子动力学演化。
+
+\begin{definition}[stout涂抹]
+\begin{equation}
+\boxed{U'_\mu(x) = e^{iQ_\mu(x)}\, U_\mu(x)},
+\label{eq:stout}
+\end{equation}
+其中
+\begin{equation}
+Q_\mu(x) = \frac{i}{2}\Big( \Omega_\mu^\dagger(x) - \Omega_\mu(x) \Big) - \frac{i}{2N_c}\operatorname{Tr}\Big( \Omega_\mu^\dagger(x) - \Omega_\mu(x) \Big),
+\label{eq:stout_Q}
+\end{equation}
+而
+\begin{equation}
+\Omega_\mu(x) = \sum_{\nu \ne \mu} \rho_{\mu\nu}\, C_{\mu\nu}(x)\, U^\dagger_\mu(x)
+\label{eq:stout_Omega}
+\end{equation}
+由所有与$U_\mu$共面的staple之和构成，$\rho_{\mu\nu}$为涂抹权重。
+\end{definition}
+
+$Q_\mu$是$su(3)$代数的\textbf{反厄米无迹}部分：$\Omega_\mu U^\dagger_\mu$分解为``余部''（$SU(3)$变换）与``纯反厄米无迹部分''（$Q_\mu$），指数化后仍为$SU(3)$矩阵。与APE的显式投影不同，stout的投影是\textbf{连续的（解析的）}：$U'_\mu$对$U$的依赖处处可导，因此其Jacobian对HMC的Fermion力是良定义的。
+
+\subsection{本库的stout涂抹实现}
+
+本库\texttt{lqcddb}包（\texttt{refer/sush/lqcddb/src/lqcddb/base/smear\_gauge.py}）实现了完整的stout涂抹。其实现严格遵循(\ref{eq:stout})–(\ref{eq:stout_Omega})：
+
+\begin{verbatim}
+# refer/sush/lqcddb/src/lqcddb/base/smear_gauge.py
+# stout_smear_ndarray(gauge, nstep, rho)   — 规范场形状 (3, Nt, Nz, Ny, Nx, Nc, Nc)
+def stout_smear_ndarray(gauge, nstep, rho):
+    backend = get_backend()
+    U = backend.ascontiguousarray(gauge[: Nd-1])
+    for _ in range(nstep):
+        Q = backend.zeros_like(U)
+        U_dag = U.transpose(0,1,2,3,4,6,5).conj()
+        for mu in range(Nd-1):                      # mu = 空间方向
+            for nu in range(Nd-1):
+                if mu != nu:
+                    # staple: C_{mu,nu}(x) = U_nu(x) U_mu(x+nu) U_nu^d(x+mu)
+                    Q[mu] += U[nu] @ backend.roll(U[mu], -1, 3-nu) @ \
+                             backend.roll(U_dag[nu], -1, 3-mu)
+                    Q[mu] += (backend.roll(U_dag[nu], +1, 3-nu)
+                              @ backend.roll(U[mu], +1, 3-nu)
+                              @ backend.roll(backend.roll(U[nu], +1, 3-nu), -1, 3-mu))
+        Q = rho * Q @ U_dag
+        Q = 0.5j * (Q.transpose(0,1,2,3,4,6,5).conj() - Q)   # (Ω† - Ω)/2i
+        # 投影到 su(3) 代数: 减去迹
+        contract("...aa->...a", Q)[:] -= \
+            1/Nc * contract("...aa->...", Q)[..., None]
+        ...
+        U = f @ U        # U' = exp(iQ) U,  f 由 Cayley-Hamilton 解析展开给出
+    gauge[: Nd-1] = U
+    return gauge
+\end{verbatim}
+
+其中$Q$的构造与(\ref{eq:stout_Q})完全对应：\texttt{Q = 0.5j*(Q.dagger() - Q)}正是$Q = \tfrac{i}{2}(\Omega^\dagger - \Omega)$；迹扣除对应$-i\operatorname{Tr}(\ldots)/(2N_c)$项。指数化部分使用$SU(3)$的Cayley-Hamilton技巧：对$Q$的本征值进行三角参数化（$u, w$），把$e^{iQ}$展开为$Q^0, Q^1, Q^2$的线性组合：
+
+\begin{equation}
+e^{iQ} = f_0(Q)\, \mathbf{1} + f_1(Q)\, Q + f_2(Q)\, Q^2,
+\label{eq:cayley_hamilton}
+\end{equation}
+
+其中系数$f_0, f_1, f_2$由$3\times 3$反厄米矩阵的特征方程决定。这与Morningstar-Peardon原始论文的算法一致\cite{Morningstar2004}。
+
+\begin{remark}[stout涂抹与本库蒸馏的联系]
+\label{rem:stout_distill}
+在蒸馏框架中，Laplace算符(\ref{eq:laplacian})所用的规范场$\tilde U_j$通常是经过stout涂抹的。HadStruc合作组\cite{Egerer2021a,Egerer2022}在蒸馏本征矢计算前对规范场施加\textbf{10次stout涂抹}，本库的CLQCD组态（TITLS规范作用量 + TITLC Clover费米子作用量）在组态生成阶段同样使用了stout涂抹\cite{CLQCD2024,CLQCD2025}。
+\end{remark}
+
+% ============================================================
+\section{梯度流：连续涂抹与可重整化框架}
+% ============================================================
+
+\subsection{定义}
+
+\textbf{梯度流}（gradient flow，规范场情形即Wilson flow）把涂抹从离散迭代推广为连续演化\cite{Luscher2010,LuscherWeisz2011}：
+
+\begin{definition}[规范场梯度流]
+\begin{equation}
+\frac{dB_\mu(x, \tau)}{d\tau} = -g_0^2 \frac{\delta S_{\text{YM}}[B]}{\delta B_\mu(x, \tau)},
+\qquad B_\mu(x, 0) = A_\mu(x),
+\label{eq:wilson_flow}
+\end{equation}
+其中$\tau$为流时间（$[\tau] = -2$），$S_{\text{YM}}$为（格点）Yang--Mills作用量。在格点上，最常用的离散化是Wilson plaquette作用量$S_W$，其梯度为
+\begin{equation}
+\frac{dV_\mu(x,\tau)}{d\tau} = -g_0^2 \left[ \partial_{\mu} S_W[V] \right] V_\mu(x,\tau),
+\qquad V_\mu(x,0) = U_\mu(x)。
+\label{eq:wilson_flow_lattice}
+\end{equation}
+\end{definition}
+
+平滑半径由$\sqrt{8\tau}$给出。流方程（3阶Runge-Kutta数值积分）在格点上可以看作\textbf{无穷小stout涂抹的连续极限}：每步RK积分等价于一步小权重$\rho \propto \epsilon g_0^2$的stout涂抹，因此stout迭代在$\epsilon \to 0$时收敛到Wilson flow\cite{Luscher2010}。
+
+\subsection{可重整化性}
+
+梯度流不同于经验性涂抹的关键是其\textbf{严格的重整化性质}：L\"uscher与Weisz证明了，对任意$t>0$，流规范场$B_\mu(x,t)$在标准QCD参数重整化后是紫外有限的，且流场本身不需要波函数重整化\cite{LuscherWeisz2011}。因此梯度流不仅是数值平滑技巧，更提供了在连续极限下控制算符混合的系统框架——其详细理论（$D+1$维场论表示、小流时展开SFTX、在PDFs重整化中的应用）见本库\cite{GradientFlowDoc}（\texttt{docs/格点QCD中的梯度流重整化.tex}）。
+
+% ============================================================
+\section{smear算法的系统比较}
+% ============================================================
+
+\begin{table}[H]
+\centering
+\caption{格点QCD中主要smear算法的系统比较}
+\label{tab:comparison}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{1.9cm}p{2.5cm}p{2.2cm}p{2.2cm}p{3.0cm}p{2.6cm}}
+\toprule
+特性 & Wuppertal/Jacobi & 动量涂抹 & 蒸馏 & HYP / stout / APE & 梯度流(Wilson flow) \\
+\midrule
+作用对象 & 夸克场 & 夸克场 & 夸克场 & 规范场 & 规范场 \\
+核心变换 & $J=(1+\sigma\nabla^2/n_\sigma)^{n_\sigma}$ & 乘相位$e^{i\vec{\zeta}\cdot\vec{x}}$ & 本征模投影$VV^\dagger$ & link迭代平均/解析投影 & 流方程演化 \\
+可微性 & 是 & 是 & 是 & APE:否; HYP:否; stout:是 & 是 \\
+高动量适用 & 差 & \textbf{优} & 优(配合动量涂抹) & --- & --- \\
+重整化性质 & 经验性 & 经验性 & 经验性 & 经验性 & \textbf{严格} \\
+在本库的用途 & 源/汇算符构造 & 高动量2pt蒸馏 & perambulator & stout:Laplace预处理; HYP:胶子算符 & 胶子算符/自重整化 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{选择指南：}
+\begin{itemize}
+    \item 需要\textbf{高动量}下的强子关联函数（LaMET/准PDF）时，首选动量涂抹蒸馏（第3、4节）\cite{Bali2016,Egerer2021a}；
+    \item 需要\textbf{紫外噪声抑制}且不要求可微性时（如胶子算符），首选HYP涂抹\cite{Chen2025gluon}；
+    \item 需要\textbf{可微}且可嵌入HMC时，首选stout涂抹\cite{Morningstar2004}；
+    \item 需要\textbf{严格可重整化}的涂抹（连续极限下的算符构造）时，选用梯度流\cite{LuscherWeisz2011}。
+\end{itemize}
+
+% ============================================================
+\section{总结与展望}
+% ============================================================
+
+涂抹算法是格点QCD数值方法的核心构件，本文按``作用对象$\times$数学结构''的统一框架梳理了其主要实现：
+
+\begin{enumerate}
+    \item \textbf{夸克场涂抹}以Wuppertal/Jacobi涂抹（Gaussian型核$J$）为原型，其本征模截断的精确化即蒸馏方法；为适应LaMET的高动量需求，动量涂抹通过相位因子$e^{i\vec{\zeta}\cdot\vec{x}}$将涂抹核的动量中心平移，并与蒸馏结合（Type 1单相位方案）实现最高约3~GeV的核子boost\cite{Bali2016,Egerer2021a}。
+
+    \item \textbf{规范场平滑}以APE涂抹为起点，HYP涂抹通过在超立方体内分步构造staple获得更局域的平滑并抑制Wilson线线性发散，stout涂抹通过解析指数变换保持可微性从而可嵌入HMC，梯度流则将离散涂抹推广为具有严格重整化性质的连续演化\cite{APE1987,HYP2001,Morningstar2004,LuscherWeisz2011}。
+
+    \item \textbf{本库实践}中，三类涂抹技术构成一个完整的生态：stout涂抹的规范场 $\to$ Laplace本征矢/蒸馏 $\to$ 动量涂抹perambulator $\to$ 高动量2pt关联函数（胶子PDF的连通部分），HYP涂抹/梯度流的规范场 $\to$ Clover $F_{\mu\nu}$与Wilson线胶子算符（非连通OPE部分）\cite{Chen2025gluon,NoteGluonPDFs}。代码层面，\texttt{snsc/main.py}、\texttt{refer/donghx/}、\texttt{refer/zhangxin/}与\texttt{refer/sush/lqcddb/}分别对应相位因子、蒸馏本征矢/相位、动量涂抹配置与stout涂抹的数值实现。
+\end{enumerate}
+
+未来方向包括：更高阶的流方程数值积分（O($\epsilon^3$)以上的RK格式）与多尺度涂抹策略；动量涂抹与其他smear的定量对比；以及梯度流框架下统一处理夸克场与规范场涂抹的算符构造（小流时展开SFTX的应用）\cite{GradientFlowDoc}。
+
+% ============================================================
+% 参考文献
+% ============================================================
+
+\begin{thebibliography}{99}
+
+% === 传统涂抹 ===
+
+\bibitem{UKQCD1993}
+C.~R.~Allton \textit{et al.} (UKQCD Collaboration),
+``Gauge-invariant smearing and matrix correlators using Wilson fermions at $\beta=6.2$,''
+Phys.\ Rev.\ D \textbf{47}, 5128 (1993), arXiv:hep-lat/9303009.
+\quad\textbf{[来源:} \texttt{refer/papers/Gauge-Invariant Smearing and Matrix Correlators using Wilson Fermions at beta=6.2.pdf}\textbf{]}
+
+\bibitem{APE1987}
+M.~Albanese \textit{et al.} (APE Collaboration),
+``Glueball masses and string tension in lattice QCD,''
+Phys.\ Lett.\ B \textbf{192}, 163 (1987).
+\quad（APE涂抹的原始提出）
+
+\bibitem{HYP2001}
+A.~Hasenfratz and F.~Knechtli,
+``Flavor symmetry and the static potential with hypercubic blocking,''
+Phys.\ Rev.\ D \textbf{64}, 034504 (2001), arXiv:hep-lat/0103029.
+\quad（HYP涂抹的原始提出）
+
+\bibitem{Morningstar2004}
+C.~Morningstar and M.~Peardon,
+``Analytic smearing of SU(3) link variables in lattice QCD,''
+Phys.\ Rev.\ D \textbf{69}, 054501 (2004), arXiv:hep-lat/0311018.
+\quad（stout涂抹的原始提出）
+
+% === 动量涂抹 ===
+
+\bibitem{Bali2016}
+G.~S.~Bali, B.~Lang, B.~U.~Musch, and A.~Sch\"afer,
+``Novel quark smearing for hadrons with high momenta in lattice QCD,''
+Phys.\ Rev.\ D \textbf{93}, 094515 (2016), arXiv:1602.05525.
+\quad（动量涂抹方法的原始提出）
+
+\bibitem{Egerer2021a}
+C.~Egerer, R.~G.~Edwards, K.~Orginos, and D.~G.~Richards,
+``Distillation at high-momentum,''
+Phys.\ Rev.\ D \textbf{103}, 034502 (2021), arXiv:2009.10691.
+\quad\textbf{[来源:} \texttt{refer/papers/Distillation at High-Momentum.pdf}\textbf{]}
+
+\bibitem{Peardon2009}
+M.~Peardon \textit{et al.} (Hadron Spectrum Collaboration),
+``A novel quark-field creation operator construction for hadronic physics in lattice QCD,''
+Phys.\ Rev.\ D \textbf{80}, 054506 (2009), arXiv:0905.2160.
+\quad\textbf{[来源:} \texttt{refer/papers/A novel quark-field creation operator construction for hadronic physics in lattice QCD.pdf}\textbf{]}
+
+% === 梯度流 ===
+
+\bibitem{Luscher2010}
+M.~L\"uscher,
+``Properties and uses of the Wilson flow in lattice QCD,''
+JHEP \textbf{08}, 071 (2010), arXiv:1006.4518.
+\quad\textbf{[来源:} \texttt{\seqsplit{refer/papers/Properties\_and\_uses\_of\_the\_Wilson\_flow\_in\_lattice\_QCD\_Luscher\_2010.pdf}}\textbf{]}
+
+\bibitem{LuscherWeisz2011}
+M.~L\"uscher and P.~Weisz,
+``Perturbative analysis of the gradient flow in non-abelian gauge theories,''
+JHEP \textbf{02}, 051 (2011), arXiv:1101.0963.
+\quad\textbf{[来源:} \texttt{\seqsplit{refer/papers/Perturbative\_analysis\_of\_the\_gradient\_flow\_in\_non-abelian\_gauge\_theories\_Luscher\_Weisz\_2011.pdf}}\textbf{]}
+
+% === 应用与系综 ===
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,''
+内部笔记。（含涂抹在胶子算符中的应用：HYP5、Wilson flow对比）
+\quad\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\quad\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{Egerer2022}
+C.~Egerer \textit{et al.} (HadStruc Collaboration),
+``Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics,''
+Phys.\ Rev.\ D \textbf{106}, 094511 (2022), arXiv:2207.08733.
+\quad\textbf{[来源:} \texttt{refer/papers/Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics.pdf}\textbf{]}
+
+\bibitem{CLQCD2024}
+Z.-C.~Hu \textit{et al.} (CLQCD),
+``Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{109}, 054507 (2024), arXiv:2310.00814.
+\quad\textbf{[来源:} \texttt{refer/papers/Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\bibitem{CLQCD2025}
+H.-Y.~Du \textit{et al.} (CLQCD),
+``Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{111}, 054504 (2025), arXiv:2408.03548.
+\quad\textbf{[来源:} \texttt{refer/papers/Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+% === 本库补充文档（交叉引用） ===
+
+\bibitem{DistillationDoc}
+``格点QCD蒸馏方法解析,''
+本库补充文档：\texttt{docs/格点QCD蒸馏方法解析.tex}。
+
+\bibitem{GradientFlowDoc}
+``格点QCD中的梯度流重整化,''
+本库补充文档：\texttt{docs/格点QCD中的梯度流重整化.tex}。
+
+\end{thebibliography}
+
+\end{document}

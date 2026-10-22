@@ -1,0 +1,499 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption,multirow}
+\usepackage{hyperref,xcolor,enumitem,mathtools}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的形状因子：\\
+从电磁结构到TMD软函数的核心桥梁}
+\author{基于本库全部相关文献与教材的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+形状因子（form factor）是强子结构研究中最基本、应用最广泛的非微扰观测量之一。它编码了强子与外部探针（光子、$W/Z$玻色子、或其它流）耦合的全部空间结构信息——从最简单的$\pi$介子电荷半径到最复杂的核子电磁形状因子的$Q^2$依赖性再到B介子遍举衰变中的过渡形状因子。在格点QCD中，形状因子的计算构成了连接第一性原理QCD与实验可观测量之间的核心桥梁，同时也在理论内部扮演着关键角色——特别是在LaMET框架下通过大动量转移赝标量介子形状因子提取TMD内禀软函数$S_I(b_\perp)$的方案中。
+
+本文基于本库中的核心教材（Gattringer与Lang的\textit{Quantum Chromodynamics on the Lattice}——第11.1和11.4节为形状因子格点计算的标准参考；Gupta的\textit{Introduction to Lattice QCD}；Peskin与Schroeder的\textit{An Introduction to Quantum Field Theory}——Part III的QCD背景）以及约20篇研究论文，从以下六个层次系统解析格点QCD中的形状因子：
+
+\textbf{第一层——形状因子的物理定义（§2）：}
+从连续QCD中流算符的强子矩阵元出发，定义电磁形状因子、轴矢形状因子、标量形状因子和张量形状因子。以$\pi$介子电磁形状因子$F_\pi(Q^2)$为原型：$\langle \pi^+(p_f) | V_\mu | \pi^+(p_i) \rangle = (p_f + p_i)_\mu F_\pi(Q^2)$。阐述电荷半径与形状因子在零动量转移处的导数关系$\langle r^2\rangle_V = 6\,dF_\pi(t)/dt|_{t=0}$。
+
+\textbf{第二层——格点上形状因子的提取技术（§3）：}
+详述Gattringer与Lang第11.4.1节的格点方法论。提取形状因子的核心技术包括三点关联函数的构造、顺序源（sequential source）方法、以及通过比值$R(t,\tau;p,q)$消除未知重叠因子和指数衰减的巧妙组合（式(11.104)）。讨论了$t_{\text{sep}}$的激发态污染控制、不同$Q^2$值对动量注入的需求、以及对角与非对角矩阵元的差异。
+
+\textbf{第三层——四夸克形状因子与TMD软函数的提取（§4）：}
+这是本库中形状因子在理论上最具创新性的应用。LPC合作组利用\textbf{大动量转移的赝标量介子形状因子}——一个由横向分离的四夸克算符定义的量：
+\begin{equation*}
+F(b_\perp, P^z) = \langle \pi(-\vec P) | (q_1\Gamma q_1)(\vec b_\perp)(q_2\Gamma q_2)(0) | \pi(\vec P) \rangle_c
+\end{equation*}
+——与准TMD波函数的因子化关系，首次从格点QCD中提取了内禀软函数$S_I(b_\perp)$：[LPC, PRL 125, 192001 (2020)]。详述因子化定理$F(b_\perp, P^z) = S_I(b_\perp) \int dx dx' H \Phi^\dagger \Phi + \mathcal{O}(1/(P^z)^2)$和领头阶提取公式$S_I(b_\perp) = 2N_c F(b_\perp, P^z)/|\phi(0,b_\perp,P^z)|^2$。讨论Chu等人[JHEP 08, 172 (2023)]的NLO改进：恰当归一化、Fierz重排抑制高扭度污染、以及在MILC和CLS两个系综上的交叉验证。
+
+\textbf{第四层——核子电磁形状因子与电荷半径（§5）：}
+从Dirac和Pauli形状因子$F_1(Q^2), F_2(Q^2)$到Sachs电和磁形状因子$G_E(Q^2), G_M(Q^2)$的转换。讨论核子电磁形状因子的格点计算前沿——在物理$\pi$质量下的电荷半径、磁矩、以及大$Q^2$行为的提取。
+
+\textbf{第五层——重味遍举衰变中的形状因子（§6）：}
+以$B \to \pi$和$B \to K^*$过渡形状因子为实例，展示形状因子在味物理中的核心角色——它们是将格点QCD的强子矩阵元与CKM矩阵元的实验约束联系起来的不可替代的输入。本库中的重介子光锥分布振幅计算直接贡献于这些形状因子的光锥QCD求和规则分析。
+
+\textbf{第六层——形状因子与现代格点QCD的深度融合（§7）：}
+总结形状因子在格点部分子物理中的三重角色：(i) 通过四夸克形状因子的因子化提取软函数——这是TMD因子化的核心输入；(ii) 作为遍举过程中因子化定理的规范不变矩阵元——连接实验与QCD的拉格朗日量；(iii) 作为格点方法论（三点函数、顺序源、多态拟合、外推）的基准测试平台。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==========================================================================
+\section{引言：形状因子——强子结构的动量空间指纹}
+%==========================================================================
+
+\subsection{形状因子在QCD中的核心地位}
+
+形状因子是描述强子与外部规范流（电磁流、弱流等）耦合的最基本的非微扰函数。在动量空间中，形状因子$F(Q^2)$作为动量转移$Q^2$的函数，编码了强子内部电荷（或更一般地，相应量子数）的\textbf{空间分布}——其$Q^2 \to 0$极限归一化到相应的荷，其$Q^2$导数给出均方根半径$\langle r^2 \rangle$，其大$Q^2$行为受微扰QCD的幂次计数规则支配。
+
+Gattringer与Lang在第11章的开篇即指出形状因子的基础地位~\cite{GattringerLang2010}：
+\begin{quote}
+``The matrix elements of vector or axial vector currents between single hadron states lead to the electromagnetic and the weak form factors. Further matrix elements provide information on semileptonic decays, quark- and gluon structure functions...''
+\end{quote}
+
+\subsection{形状因子的分类}
+
+根据插入的算符类型，形状因子可分为以下主要类别：
+
+\begin{table}[H]
+\centering
+\caption{格点QCD中计算的主要形状因子类别}
+\label{tab:ff_types}
+\small
+\begin{tabular}{p{2.5cm}p{2.5cm}p{2.5cm}p{5.5cm}}
+\toprule
+\textbf{类型} & \textbf{流算符} & \textbf{例子} & \textbf{物理信息} \\
+\midrule
+电磁（矢量） & $V_\mu = \bar q \gamma_\mu q$ & $F_\pi(Q^2)$, $G_E^N(Q^2)$, $G_M^N(Q^2)$ & 电荷半径、磁矩 \\
+轴矢 & $A_\mu = \bar q \gamma_\mu\gamma_5 q$ & $G_A(Q^2)$, $G_P(Q^2)$ & 轴矢耦合常数$g_A$ \\
+标量 & $S = \bar q q$ & $\sigma_{\pi N}$项 & 手征对称性破缺 \\
+张量 & $T_{\mu\nu} = \bar q \sigma_{\mu\nu} q$ & $g_T$ & 超越标准模型物理 \\
+赝标量 & $P = \bar q \gamma_5 q$ & $G_P(Q^2)$ & 诱导赝标量耦合 \\
+四夸克（非定域） & $(q\Gamma q)(q\Gamma q)$ & $F(b_\perp, P^z)$ & TMD软函数提取 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{本库中的核心文献}
+
+\begin{table}[H]
+\centering
+\caption{本库中形状因子相关的核心文献分类}
+\label{tab:ff_papers}
+\small
+\begin{tabular}{lp{9cm}}
+\toprule
+类别 & 关键文献 \\
+\midrule
+\textbf{教材（标准参考）} &
+Gattringer \& Lang: Ch.11.1（流算符定义与低能常数）、Ch.11.4.1（$\pi$介子形状因子的格点计算——顺序源法、比值法、三点函数）\\
+\textbf{四夸克形状因子} &
+\texttt{Lattice-QCD Calculations of TMD Soft Function Through LaMET.pdf}~\cite{LPC2020soft}（首次格点提取内禀软函数——PRL）；
+\texttt{Lattice Calculation of the Intrinsic Soft Function and the Collins-Soper Kernel.pdf}~\cite{Chu2023soft}（NLO精度+Fierz重排+MILC/CLS交叉验证——JHEP）\\
+\textbf{重介子形状因子} &
+\texttt{Calculation of heavy meson light-cone distribution amplitudes from lattice QCD.pdf}（$B\to V$形状因子的LCSR更新）\\
+\textbf{核子自旋/轴矢} &
+\texttt{The g1 problem: Deep inelastic electron scattering and the spin of the proton.pdf}（核子轴矢形状因子与自旋危机）\\
+\textbf{格点TMD计算} &
+\texttt{Unpolarized Transverse-Momentum-Dependent Parton Distributions...pdf}~\cite{He2024unpolTMD}（$S_I$的实际使用）；
+\texttt{Quark Transverse Spin-Momentum Correlation...pdf}~\cite{Ma2025BoerMulders}（形状因子依存的软函数）\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%==========================================================================
+\section{形状因子的物理定义——从连续QCD到格点}
+%==========================================================================
+
+\subsection{电磁形状因子：流算符的强子矩阵元}
+
+在连续QCD中，电磁形状因子由矢量流$V_\mu(x) = \sum_f e_f \bar\psi_f(x) \gamma_\mu \psi_f(x)$（$e_f$是以$e$为单位的夸克电荷）在强子态之间的矩阵元定义。对赝标量介子（$\pi$, $K$），Lorentz协变性将所有非微扰信息封装进\textbf{单个标量函数}$F(Q^2)$中~\cite{GattringerLang2010}：
+
+\begin{definition}[$\pi$介子电磁形状因子~\cite{GattringerLang2010}]
+\begin{equation}
+\boxed{\langle \pi^+(p_f) | V_\mu(0) | \pi^+(p_i) \rangle = (p_f + p_i)_\mu \, F_\pi(Q^2)},
+\label{eq:pion_FF}
+\end{equation}
+其中$V_\mu = \frac{2}{3}\bar u\gamma_\mu u - \frac{1}{3}\bar d\gamma_\mu d$是同位旋矢量电磁流（归一化到$F_\pi(0) = 1$，即电荷为$+e$），$Q^2 = -q^2 = -(p_f-p_i)^2 \ge 0$是类空间动量转移平方。
+\end{definition}
+
+\textbf{电荷半径：}将$F_\pi(Q^2)$在$Q^2=0$处展开：
+\begin{equation}
+F_\pi(Q^2) = 1 - \frac{1}{6} \langle r^2 \rangle_V \, Q^2 + \mathcal{O}(Q^4),
+\qquad \langle r^2 \rangle_V \equiv 6 \left.\frac{dF_\pi(t)}{dt}\right|_{t=0}.
+\label{eq:charge_radius}
+\end{equation}
+PDG的平均值为$\langle r^2 \rangle_V = 0.45(1)$~fm$^2$~\cite{GattringerLang2010}。
+
+\subsection{核子电磁形状因子：Dirac、Pauli与Sachs}
+
+对于自旋$1/2$的核子，电磁流矩阵元的Lorentz结构涉及\textbf{两个}独立形状因子~\cite{GattringerLang2010}：
+
+\begin{equation}
+\langle N(p_f) | V_\mu(0) | N(p_i) \rangle = \bar u(p_f) \left[ \gamma_\mu F_1(Q^2) + \frac{i\sigma_{\mu\nu} q^\nu}{2m_N} F_2(Q^2) \right] u(p_i),
+\label{eq:nucleon_FF}
+\end{equation}
+其中$F_1$是\textbf{Dirac形状因子}（$F_1(0) = 1$对质子、$0$对中子），$F_2$是\textbf{Pauli形状因子}（$F_2(0) = \kappa$，反常磁矩）。实验上更常用的是Sachs电和磁形状因子：
+\begin{equation}
+G_E(Q^2) = F_1(Q^2) - \frac{Q^2}{4m_N^2} F_2(Q^2), \qquad
+G_M(Q^2) = F_1(Q^2) + F_2(Q^2).
+\label{eq:Sachs_FF}
+\end{equation}
+
+\subsection{轴矢与赝标量形状因子}
+
+弱相互作用通过轴矢流$A_\mu^a = \bar\psi \gamma_\mu\gamma_5 (\tau^a/2) \psi$和赝标量密度$P^a = \bar\psi \gamma_5 (\tau^a/2) \psi$与强子耦合。相应的矩阵元定义了轴矢形状因子$G_A(Q^2)$和诱导赝标量形状因子$G_P(Q^2)$：
+
+\begin{equation}
+\langle N(p_f) | A_\mu^a(0) | N(p_i) \rangle = \bar u(p_f) \left[ \gamma_\mu\gamma_5 G_A(Q^2) + \frac{q_\mu}{2m_N}\gamma_5 G_P(Q^2) \right] \frac{\tau^a}{2} u(p_i).
+\label{eq:axial_FF}
+\end{equation}
+
+\textbf{轴矢耦合常数}$g_A \equiv G_A(0)$是核子物理中最重要的低能常数之一——它控制中子$\beta$衰变速率。$g_A$的格点QCD计算在物理$\pi$质量下已达到了$\sim 1\%$的理论精度~\cite{GattringerLang2010}。$G_P(Q^2)$在手征极限下通过Goldberger--Treiman关系与$G_A$和$F_\pi$关联。
+
+\subsection{标量和张量形状因子}
+
+标量形状因子来自标量密度$\bar q q$的矩阵元，它密切关联于手征对称性破缺——σ$_{\pi N}$项（核子质量中的显式手征破缺贡献）由标量形状因子在$t=0$处的值决定。张量形状因子来自$\bar q \sigma_{\mu\nu} q$算符，它在超越标准模型物理（如中子电偶极矩）的格点计算中扮演核心角色。
+
+%==========================================================================
+\section{格点上形状因子的提取技术}
+%==========================================================================
+
+\subsection{三点关联函数与流插入}
+
+形状因子的格点计算基于\textbf{三点关联函数}（Gattringer \& Lang, §11.4.1~\cite{GattringerLang2010}）。考虑一个在时间$0$处产生的$\pi$介子（源）、在时间$\tau$处插入电磁流$V_\mu$、在时间$t$处湮灭（汇）的过程（示意图见Gattringer \& Lang的Fig.\,11.5）：
+
+\begin{equation}
+C_{3\text{pt}}(t, \tau; \mathbf{p}_f, \mathbf{p}_i) = \sum_{\mathbf{x}, \mathbf{y}} e^{-i\mathbf{p}_f\cdot\mathbf{x}} e^{i\mathbf{q}\cdot\mathbf{y}} \,
+\big\langle P(t; \mathbf{x}) \, V_\mu(\tau; \mathbf{y}) \, P^\dagger(0; \mathbf{0}) \big\rangle,
+\label{eq:three_pt}
+\end{equation}
+其中$\mathbf{q} = \mathbf{p}_f - \mathbf{p}_i$为动量转移，$P$是赝标量内插算符。
+
+在大时间分离极限下（$t, \tau \gg 0$且$t-\tau \gg 0$），基态$\pi$介子主导三点函数~\cite{GattringerLang2010}：
+\begin{equation}
+\begin{aligned}
+C_{3\text{pt}} &\xrightarrow{t,\tau \gg 0} \;
+\frac{\langle 0|P|\pi(p_f)\rangle}{2E_f} \,
+e^{-E_f(t-\tau)} \;
+\langle \pi(p_f) | V_\mu | \pi(p_i) \rangle \;
+e^{-E_i \tau} \;
+\frac{\langle \pi(p_i)|P^\dagger|0\rangle}{2E_i}.
+\end{aligned}
+\label{eq:ground_state_3pt}
+\end{equation}
+
+\subsection{比值法：消除重叠因子与指数衰减}
+
+为了从三点关联函数中干净地提取矩阵元$\langle \pi(p_f)|V_\mu|\pi(p_i)\rangle$，Gattringer与Lang~\cite{GattringerLang2010}构造了以下\textbf{比值}（式(11.104)）：
+
+\begin{definition}[形状因子提取的比值法~\cite{GattringerLang2010}]
+\begin{equation}
+\boxed{
+R(t, \tau; \mathbf{p}_f, \mathbf{q}) =
+\frac{C_{3\text{pt}}(t,\tau; \mathbf{p}_f, \mathbf{p}_i)}
+{\sqrt{C_{2\text{pt}}(t; \mathbf{p}_f) \, C_{2\text{pt}}(t; \mathbf{p}_i)}}
+\times \text{（修正因子）},
+}
+\label{eq:ratio_method}
+\end{equation}
+其中$C_{2\text{pt}}(t; \mathbf{p})$是动量为$\mathbf{p}$的$\pi$介子两点函数。这一比值设计使得：(a) 未知的``源-$\pi$''重叠因子$\langle 0|P|\pi\rangle$在分子和分母之间抵消；(b) 指数时间衰减因子$e^{-E_f(t-\tau)}e^{-E_i\tau}$与两点函数的相应因子相消。在理想的基态主导极限下，$R$趋于与$t$和$\tau$无关的\textbf{平台值}——该平台值直接正比于所需的矩阵元。
+\end{definition}
+
+\textbf{平台拟合：}在中间时间区域（$\tau$既不接近$0$也不接近$t$——避开激发态污染和周期性镜像），$R$作为$\tau$的函数应展现出平坦的平台行为。对平台的常数值拟合给出基态矩阵元。平台的存在性和稳定性是检验激发态污染是否被充分控制的关键诊断。
+
+\subsection{顺序源方法——降低计算成本}
+
+在标准的格点计算中，每个夸克传播子需要对每个源点解一次Dirac方程。对于三点函数，这表面上需要从两个独立源（$0$和$\tau$）出发的传播子——计算成本加倍。\textbf{顺序源方法}（sequential source method）通过将传播子$S(y,x)$和$S(x,0)$``收缩''为一个组合对象来绕过这一困难~\cite{GattringerLang2010}：
+
+\begin{definition}[顺序传播子~\cite{GattringerLang2010}]
+\begin{equation}
+\Sigma(y, 0) \equiv \sum_{\mathbf{x}; x_0 = t} e^{-i\mathbf{p}_f\cdot\mathbf{x}} \, S(y, x) \, \gamma_5 \, S(x, 0),
+\label{eq:sequential_prop}
+\end{equation}
+通过求解辅助Dirac方程$D(z,y)\Sigma(y,0) = e^{-i\mathbf{p}_f\cdot\mathbf{z}}\gamma_5 S(z,0)$（仅在时间片$z_0=t$处的$\delta$函数源），$\Sigma$可从一个额外的Dirac算符求逆中获得——大大减少了所需的传播子计算。
+\end{definition}
+
+\textbf{局限：}每个末态动量$\mathbf{p}_f$都需要一个新的顺序传播子——如果要扫描多个$Q^2$值就需要多次求逆。实践中常在单个$\mathbf{p}_f$处计算，通过不同的$\mathbf{p}_i$来变化$Q^2 = |\mathbf{p}_f - \mathbf{p}_i|^2$。
+
+\subsection{激发态污染与多态拟合}
+
+在有限的时间分离$t$和$\tau$处，基态并非三点函数的唯一贡献者——核子（或介子）的激发态（如$N^*(1440)$）和$\pi N/\pi\pi$连续谱也会贡献。消除这些激发态污染对于精确的形状因子提取至关重要。标准的处理策略包括：
+
+\begin{enumerate}[nosep]
+    \item \textbf{增大$t_{\text{sep}}$（源-汇分离）：}使激发态的相对贡献以$e^{-\Delta E\, t_{\text{sep}}}$指数衰减（$\Delta E \sim 500$~MeV对核子第一激发态）。实践中$t_{\text{sep}} \gtrsim 1.0$~fm通常足够。
+    \item \textbf{双态（或多态）拟合：}将三点函数对$t_{\text{sep}}$和$\tau$的依赖性参数化为基态加一个（或多个）激发态的贡献之和——通过$\chi^2$最小化联合拟合所有$t_{\text{sep}}$和$\tau$处的数据点。
+    \item \textbf{涂抹（Smearing）：}使用空间涂抹的夸克源增强基态与内插算符的耦合——抑制激发态的重叠因子。
+\end{enumerate}
+
+LPC合作组在核子TMD-PDF计算~\cite{He2024unpolTMD}中报告了双态拟合的$\chi^2/$d.o.f.在$0.5\text{--}1.2$之间——表明激发态污染在统计精度内得到充分控制。
+
+%==========================================================================
+\section{四夸克形状因子与TMD软函数的提取}
+%==========================================================================
+
+\subsection{从形状因子到软函数：一个新颖的因子化桥梁}
+
+LPC合作组在2020年提出了一个将形状因子与TMD物理深度连接的新颖方案~\cite{LPC2020soft}。其核心思想是：一个\textbf{大动量转移的赝标量介子形状因子}——由横向分离为$\vec b_\perp$的两个夸克双线型算符的四夸克矩阵元定义——可以通过QCD因子化分解为内禀软函数$S_I(b_\perp)$与准TMD波函数的乘积。
+
+\begin{definition}[四夸克赝标量介子形状因子~\cite{LPC2020soft}]
+\begin{equation}
+\boxed{F(b_\perp, P^z) \equiv \langle \pi(-\vec P) | \big(q_1\Gamma q_1\big)(\vec b_\perp) \, \big(q_2\Gamma q_2\big)(0) | \pi(\vec P) \rangle_c},
+\label{eq:four_quark_FF}
+\end{equation}
+其中两个夸克双线型$(q_1\Gamma q_1)$和$(q_2\Gamma q_2)$在空间上横向分离为$\vec b_\perp$，下标$c$表示仅保留连通插入（connected insertion）的贡献。$\pi$介子携带大的空间动量$\pm P^z$。
+\end{definition}
+
+这一形状因子在$P^z \gg \Lambda_{\text{QCD}}$的极限下因子化为~\cite{LPC2020soft}：
+
+\begin{theorem}[四夸克形状因子的因子化~\cite{LPC2020soft}]
+\begin{equation}
+\boxed{F(b_\perp, P^z) = S_I(b_\perp) \int_0^1 dx\, dx' \, H(x, x', P^z) \, \Phi^\dagger(x', b_\perp, -P^z) \, \Phi(x, b_\perp, P^z) + \mathcal{O}\!\left(\frac{1}{(P^z)^2}\right)},
+\label{eq:FF_factorization}
+\end{equation}
+其中$\Phi(x, b_\perp, P^z)$是准TMD波函数，$H$是硬散射核，$S_I(b_\perp)$是\textbf{内禀软函数}——TMD因子化的核心非微扰要素之一。
+\end{theorem}
+
+\subsection{因子化的物理图像}
+
+因子化公式(\ref{eq:FF_factorization})的物理图像分为三个层次~\cite{LPC2020soft}：
+
+\begin{enumerate}[nosep]
+    \item \textbf{硬胶子交换（$\sim P^z$尺度）：}两个夸克双线型之间的硬胶子交换被吸收到硬核$H$中——微扰可计算。
+    \item \textbf{共线夸克动力学（$\sim \Lambda_{\text{QCD}}$尺度）：}每个$\pi$介子内部的价夸克-反夸克动力学被准TMD波函数$\Phi$捕获——格点上可计算。
+    \item \textbf{软胶子关联（$\sim \Lambda_{\text{QCD}}$尺度，两方向之间）：}来自两个相反方向$\pi$介子的软胶子交换不能独立因子化——它们之间的关联由内禀软函数$S_I(b_\perp)$编码。这正是\textbf{形状因子$\to$软函数}的提取方案的核心——$S_I$可通过$F$与$\Phi$的比值获得。
+\end{enumerate}
+
+\subsection{领头阶简化：直接提取$S_I$}
+
+在领头阶（$H = 1/(2N_c) + \mathcal{O}(\alpha_s)$），利用$\pi$介子的宇称对称性$\Phi(x, b_\perp, P^z) = \Phi(x, b_\perp, -P^z)$，因子化公式简化为~\cite{LPC2020soft}：
+
+\begin{equation}
+\boxed{S_I(b_\perp) = 2N_c \frac{F(b_\perp, P^z)}{|\phi(0, b_\perp, P^z)|^2} + \mathcal{O}(\alpha_s, 1/(P^z)^2)},
+\label{eq:SI_LO_extraction}
+\end{equation}
+其中$\phi(0, b_\perp, P^z) \equiv \int_0^1 dx\, \Phi(x, b_\perp, P^z)$是准TMD波函数的Fourier零点（归一化常数）。
+
+\subsection{LPC合作组的首次格点实现：LO精度}
+
+LPC合作组~\cite{LPC2020soft}在CLS A654系综（$a = 0.098$~fm, $m_\pi^{\text{val}} = 547$~MeV, 864个组态，$N_f = 2+1$ Clover费米子）上完成了这一方案的首次数值实现。使用三个$\pi$介子动量$P^z = \{1.05, 1.58, 2.11\}$~GeV，覆盖$b_\perp = 0.1\text{--}0.7$~fm范围。
+
+\textbf{关键发现~\cite{LPC2020soft}：}
+\begin{itemize}[nosep]
+    \item 提取的$|S_I(b_\perp)|$在可用$b_\perp$范围内展示了\textbf{对$P^z$的独立性}——验证了因子化定理和$1/(P^z)^2$修正的小量性；
+    \item 与单圈微扰理论（$\mu \in [1/\sqrt{2}, \sqrt{2}]/b_\perp$）的比较显示了趋势上的一致性，且格点的非微扰精度在统计误差内覆盖了微扰标度不确定性；
+    \item 在大$b_\perp$（$\gtrsim 0.5$~fm）处，格点结果明确地偏离微扰外推——确认了$S_I$在非微扰区域的不可替代性。
+\end{itemize}
+
+\subsection{Chu等人的NLO改进：Fierz重排与归一化}
+
+Chu等人~\cite{Chu2023soft}将上述方案推广到\textbf{NLO（单圈）精度}，并引入了两项关键改进：
+
+\textbf{(a) 恰当归一化：}在原始方案中，准TMD波函数$\Phi$的归一化未明确固定。Chu等人利用$\pi$介子轻子衰变常数$f_\pi$引入了恰当的归一化条件，确保波函数的归一化与实验一致。
+
+\textbf{(b) Fierz重排抑制高扭度：}形状因子$F$涉及两个夸克双线型算符。在QCD中，不同的Dirac结构组合（通过Fierz重排关联）可能导致不同的高扭度污染水平。Chu等人发现~\cite{Chu2023soft}：选择特定的Fierz等价形式（如矢量流$\times$矢量流组合）可以显著压低来自夸克-反夸克相对轨道角动量的高扭度效应——这是对这一提取方案的\textbf{关键数值优化}。
+
+\textbf{(c) 多系综交叉验证~\cite{Chu2023soft}：}在CLS系综（与\cite{LPC2020soft}不同的系综）和MILC系综上独立重复了$S_I$的提取——两个系综上的结果在误差范围内\textbf{一致}，证实了软函数的\textbf{系综无关性}。
+
+\textbf{(d) NLO硬核：}在NLO匹配精度下，硬核$H$的单圈修正在$\alpha_s$层面被纳入——提高了提取的理论精度。
+
+\subsection{形状因子方法在TMD物理中的深远意义}
+
+这一通过四夸克形状因子提取软函数的方法论标志着形状因子在现代格点QCD中角色的\textbf{质变}——从传统的``强子结构探针''转变为\emph{QCD因子化理论本身的构建块}。内禀软函数$S_I(b_\perp)$和Collins--Soper核$K(b_\perp,\mu)$——TMD因子化的两个核心非微扰要素——均间接或直接地依赖于形状因子的格点计算。这一范式确立了形状因子作为连接格点QCD、微扰QCD因子化和实验TMD观测量之间的\textbf{理论枢纽}。
+
+%==========================================================================
+\section{核子电磁形状因子：$G_E$与$G_M$}
+%==========================================================================
+
+\subsection{Dirac与Pauli形状因子}
+
+核子的电磁结构由两个独立的形状因子$F_1(Q^2)$和$F_2(Q^2)$完全确定（见式(\ref{eq:nucleon_FF})）。在非相对论极限下，它们的Fourier变换分别对应于核子内电荷和磁化强度的空间分布。实验上，$G_E^p(Q^2)$（质子电形状因子）和$G_M^p(Q^2)$（质子磁形状因子）已通过Rosenbluth分离和极化转移技术在广泛的$Q^2$范围内被测量。
+
+\textbf{电荷半径与磁矩：}在$Q^2 \to 0$极限下：
+\begin{equation}
+\langle r_E^2 \rangle^p = -6 \left.\frac{dG_E^p}{dQ^2}\right|_{Q^2=0}, \qquad
+\mu_p = G_M^p(0) = 1 + \kappa_p \approx 2.793,
+\label{eq:proton_moments}
+\end{equation}
+其中$\kappa_p \approx 1.793$是质子的反常磁矩。所谓``质子半径之谜''——$\mu p$兰姆位移测量与$ep$散射测量之间的$5\text{--}7\sigma$差异——使精确的格点QCD计算显得尤为紧迫。
+
+\subsection{格点计算现状与挑战}
+
+核子电磁形状因子的格点计算面临三个主要挑战~\cite{GattringerLang2010}：
+
+\begin{enumerate}[nosep]
+    \item \textbf{物理$\pi$质量：}核子半径对$m_\pi$高度敏感——$m_\pi \to 0$极限下的手征对数使得在非物理$m_\pi$处的计算结果需要通过ChPT外推；
+    \item \textbf{大$Q^2$处的信噪比：}大动量转移需要高空间动量的核子态——激发态污染加剧，信噪比指数恶化；
+    \item \textbf{非连通图：}核子的奇异夸克电磁形状因子$G_{E,M}^s$纯粹由非连通图贡献——其计算依赖高效的离对角矩阵元方法。
+\end{enumerate}
+
+当前格点QCD在物理$\pi$质量处的核子电磁形状因子计算已可覆盖$Q^2 \in [0, 1]$~GeV$^2$范围，误差在$\sim 2\text{--}5\%$量级。
+
+%==========================================================================
+\section{重味遍举衰变中的形状因子}
+%==========================================================================
+
+\subsection{$B$介子遍举衰变与CKM矩阵元}
+
+$B$介子到轻介子（$\pi$, $K$, $K^*$, $\rho$）的遍举半轻子衰变是确定CKM矩阵元$|V_{ub}|$和$|V_{ub}|/|V_{cb}|$的核心实验通道。这些衰变的微分宽度由\textbf{过渡形状因子}（transition form factors）控制——如$B \to \pi$的矢量形状因子$f_+(q^2)$和标量形状因子$f_0(q^2)$：
+
+\begin{equation}
+\langle \pi(p_\pi) | \bar b \gamma_\mu u | B(p_B) \rangle = f_+(q^2)(p_B + p_\pi)_\mu + f_0(q^2)(p_B - p_\pi)_\mu + \cdots,
+\label{eq:B_to_pi_FF}
+\end{equation}
+其中$q^2 = (p_B - p_\pi)^2$是轻子对的不变质量平方。这些形状因子的\textbf{全$q^2$范围的格点QCD计算}是将实验测量的分支比转化为$|V_{ub}|$的直接途径。
+
+\subsection{光锥QCD求和规则中的重介子LCDAs}
+
+在$q^2$的大反冲区域（大$E_\pi$），$B \to \pi$形状因子可以通过\textbf{光锥QCD求和规则（LCSRs）}用$B$介子和$\pi$介子的光锥分布振幅（LCDAs）解析表达。$B$介子LCDAs的\textbf{第一逆矩}$\lambda_B^{-1}(\mu)$是这一方法中最关键的未知参数——它直接决定了形状因子在整个大反冲区域的归一化。
+
+本库中的重介子LCDAs格点计算~\cite{HeavyMesonLCDAs}提供了对$\lambda_B$的第一性原理确定——从而将对$B\to\pi$和$B\to K^*$形状因子的LCSR预言升级为\textbf{无模型依赖的QCD预言}。这是形状因子在现代味物理中通过格点+有效理论联动发挥核心作用的一个突出例证。
+
+%==========================================================================
+\section{总结与展望}
+%==========================================================================
+
+基于本库核心教材（Gattringer与Lang~\cite{GattringerLang2010}——第11章的格点形状因子标准理论）和约20篇研究论文，本文系统解析了格点QCD中形状因子的完整理论体系。
+
+\subsection*{核心结论}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{形状因子是强子与外部流耦合的动量空间指纹：}从矢量流的电磁形状因子$F_\pi(Q^2), G_E^N, G_M^N$到轴矢流的$G_A(Q^2)$再到张量和标量形状因子，不同的Dirac结构编码了不同的物理信息——电荷半径、磁矩、轴矢耦合常数$g_A$、$\sigma_{\pi N}$项。形状因子在$Q^2=0$处的归一化由相应的守恒荷或部分守恒流确定。
+
+    \item \textbf{格点上的提取依赖三点关联函数与比值法：}通过构造巧妙的三点/两点函数比值$R(t,\tau;\mathbf{p}_f,\mathbf{q})$，未知的重叠因子和指数衰减被系统消除——基态矩阵元从平台拟合中提取。顺序源方法显著降低了多$Q^2$值扫描的计算成本。多态拟合是系统误差控制的关键。
+
+    \item \textbf{四夸克形状因子桥接了形状因子物理与TMD因子化：}LPC合作组的开创性工作~\cite{LPC2020soft}利用大动量转移赝标量介子形状因子$F(b_\perp, P^z)$与准TMD波函数的因子化，首次从格点QCD中提取了内禀软函数$S_I(b_\perp)$——TMD因子化的核心非微扰要素。从LO~\cite{LPC2020soft}到NLO~\cite{Chu2023soft}的进展——包括恰当归一化、Fierz重排抑制高扭度和MILC/CLS多系综交叉验证——确立了这一范式的数值可靠性。
+
+    \item \textbf{形状因子在味物理中不可替代：}重介子到轻介子的过渡形状因子是将实验分支比转化为CKM矩阵元约束的必经之路。$B$介子LCDAs的格点计算为光锥求和规则的形状因子预言提供了从第一性原理出发的非微扰输入。
+
+    \item \textbf{形状因子是现代格点QCD方法学的基准平台：}三点函数技术、顺序源方法、多态拟合、非连通收缩、流算符的重整化——所有这些核心格点技术都在形状因子的计算中得到了最充分的检验和校准。形状因子计算的精度直接反映了格点QCD对强子结构的整体理论控制能力。
+
+\end{enumerate}
+
+\textbf{展望：}随着Exascale计算资源使物理$\pi$质量下的大统计量核子电磁形状因子计算成为可能，``质子半径之谜''有望从格点QCD获得独立的第一性原理裁决。同时，四夸克形状因子方法向胶子软函数和更高扭度推广的前景令人期待。
+
+%==========================================================================
+\begin{thebibliography}{99}
+
+\bibitem{GattringerLang2010}
+C.~Gattringer and C.~B.~Lang,
+\textit{Quantum Chromodynamics on the Lattice: An Introductory Presentation},
+Lect.\ Notes Phys.\ \textbf{788}, Springer (2010).
+\\\textbf{[来源:} \texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}\textbf{]}
+\\Ch.~11.1: 流算符定义、PCAC关系、衰变常数与低能常数；Ch.~11.4.1: $\pi$介子电磁形状因子的完整格点计算——三点函数构造、顺序源法（Eqs.\,(11.99)--(11.101)）、比值法（Eq.\,(11.104)）、平台拟合与系统误差。
+
+\bibitem{Gupta1997intro}
+R.~Gupta,
+``Introduction to Lattice QCD,''
+arXiv:hep-lat/9807028 (1997).
+\\\textbf{[来源:} \texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf}\textbf{]}
+
+\bibitem{PeskinSchroeder1995}
+M.~E.~Peskin and D.~V.~Schroeder,
+\textit{An Introduction to Quantum Field Theory},
+Westview Press (1995).
+\\\textbf{[来源:} \texttt{refer/books/An Introduction to Quantum Field Theory.pdf}\textbf{]}
+\\Part III: QCD、部分子模型与硬散射过程的因子化背景。
+
+\bibitem{LPC2020soft}
+Q.-A.~Zhang \textit{et al.} (LPC),
+``Lattice-QCD calculations of TMD soft function through large-momentum effective theory,''
+Phys.\ Rev.\ Lett.\ \textbf{125}, 192001 (2020), arXiv:2005.14572.
+\\\textbf{[来源:} \texttt{refer/papers/Lattice-QCD Calculations of TMD Soft Function Through Large-Momentum Effective Theory.pdf}\textbf{]}
+——\textbf{四夸克赝标量介子形状因子的因子化方案：$F = S_I \int H \Phi^\dagger \Phi$，LO提取$S_I(b_\perp)$的首次格点实现。}CLS系综，$P^z = 1.05, 1.58, 2.11$~GeV，$b_\perp = 0.1\text{--}0.7$~fm。
+
+\bibitem{Chu2023soft}
+M.-H.~Chu \textit{et al.} (LPC),
+``Lattice calculation of the intrinsic soft function and the Collins-Soper kernel,''
+JHEP \textbf{08}, 172 (2023), arXiv:2306.06488.
+\\\textbf{[来源:} \texttt{refer/papers/Lattice Calculation of the Intrinsic Soft Function and the Collins-Soper Kernel.pdf}\textbf{]}
+——\textbf{NLO精度的内禀软函数提取：恰当归一化、Fierz重排抑制高扭度、MILC/CLS双系综交叉验证。}形状因子$F(b_\perp, P^z)$的NLO匹配与系统不确定性分析。
+
+\bibitem{He2024unpolTMD}
+J.-C.~He \textit{et al.} (LPC),
+``Unpolarized transverse-momentum-dependent parton distributions of the nucleon from lattice QCD,''
+Phys.\ Rev.\ D \textbf{109}, 114513 (2024), arXiv:2211.02340.
+\\\textbf{[来源:} \texttt{refer/papers/Unpolarized Transverse-Momentum-Dependent Parton Distributions of the Nucleon from Lattice QCD.pdf}\textbf{]}
+——核子TMD-PDF计算中$S_I$的实际使用；双态拟合的$\chi^2/$d.o.f.报告。
+
+\bibitem{Ma2025BoerMulders}
+L.~Ma \textit{et al.} (LPC),
+``Quark transverse spin-momentum correlation of the nucleon from lattice QCD: The Boer-Mulders function,''
+(2025), arXiv:2502.11807.
+\\\textbf{[来源:} \texttt{refer/papers/Quark Transverse Spin-Momentum Correlation of the Nucleon from Lattice QCD The Boer-Mulders Function.pdf}\textbf{]}
+——Boer-Mulders函数计算中依赖于形状因子方法提取的$S_I$。
+
+\bibitem{Chu2022CSkernel}
+M.-H.~Chu \textit{et al.} (LPC),
+``Nonperturbative determination of Collins-Soper kernel from quasi transverse-momentum dependent wave functions,''
+Phys.\ Rev.\ D \textbf{106}, 034509 (2022), arXiv:2204.00200.
+\\\textbf{[来源:} \texttt{refer/papers/Nonperturbative Determination of Collins-Soper Kernel from Quasi Transverse-Momentum Dependent Wave Functions.pdf}\textbf{]}
+
+\bibitem{Chu2023TMDWF}
+M.-H.~Chu \textit{et al.} (LPC),
+``Transverse-momentum-dependent wave functions of pion from lattice QCD,''
+Phys.\ Rev.\ D \textbf{108}, 094513 (2023), arXiv:2302.09961.
+\\\textbf{[来源:} \texttt{refer/papers/Transverse-Momentum-Dependent Wave Functions of Pion from Lattice QCD.pdf}\textbf{]}
+——$\pi$介子TMD波函数的首次格点计算，准TMD波函数是形状因子因子化方案的核心要素。
+
+\bibitem{HeavyMesonLCDAs}
+``Calculation of heavy meson light-cone distribution amplitudes from lattice QCD,''
+\\\textbf{[来源:} \texttt{refer/papers/Calculation of heavy meson light-cone distribution amplitudes from lattice QCD.pdf}\textbf{]}
+——重介子LCDAs的格点计算及其在$B\to V$形状因子LCSR分析中的应用（$B\to K^*$过渡形状因子的更新）。
+
+\bibitem{G1Problem}
+``The g1 problem: Deep inelastic electron scattering and the spin of the proton,''
+\\\textbf{[来源:} \texttt{refer/papers/The g1 problem: Deep inelastic electron scattering and the spin of the proton.pdf}\textbf{]}
+——核子自旋结构中的轴矢形状因子与质子自旋危机；核子矩阵元与SU(3)味对称性。
+
+\bibitem{DistillationHM}
+``Distillation at High-Momentum,''
+\\\textbf{[来源:} \texttt{refer/papers/Distillation at High-Momentum.pdf}\textbf{]}
+——高动量下的蒸馏方法，对形状因子计算中的大动量注入有直接应用。
+
+\bibitem{KinematicallyEnhanced}
+``Kinematically-enhanced interpolating operators for boosted hadrons,''
+\\\textbf{[来源:} \texttt{refer/papers/Kinematically-enhanced interpolating operators for boosted hadrons.pdf}\textbf{]}
+——boost强子态的内插算符优化，对形状因子中非零动量转移的精确计算至关重要。
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, LPC),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\\\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,'' 内部笔记。
+\\\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}和\texttt{refer/papers/Note of gluon PDFs.pdf}
+
+\end{thebibliography}
+
+\vspace{0.5cm}
+\noindent\rule{\textwidth}{0.5pt}
+\small
+\textbf{交叉参考建议：}本报告应结合同一\texttt{docs/}目录下的以下文件阅读：
+\begin{itemize}[nosep]
+    \item \texttt{格点QCD中的TMD\_PDF.pdf}——TMD-PDF中内禀软函数$S_I$的角色与Collins--Soper演化
+    \item \texttt{格点QCD中的大动量有效理论.pdf}——LaMET框架中准TMD波函数的定义
+    \item \texttt{格点QCD中的Wilson线.pdf}——形状因子中的Wilson线与规范不变性
+    \item \texttt{格点QCD中的关联函数.pdf}——两点/三点函数与顺序源方法
+    \item \texttt{格点QCD中的连通图与非连通图.pdf}——连通插入（$F$的下标$c$）与非连通贡献
+    \item \texttt{格点QCD中的重夸克有效理论.pdf}——$B$介子遍举衰变中的过渡形状因子
+    \item \texttt{格点QCD蒸馏方法解析.pdf}——顺序源方法与蒸馏的对比
+    \item \texttt{格点QCD中的外推.pdf}——形状因子的$m_\pi$外推、$Q^2$外推与连续极限
+    \item \texttt{格点QCD中的重整化.pdf}——流算符的重整化常数$Z_V, Z_A, Z_S, Z_T$
+\end{itemize}
+
+\end{document}

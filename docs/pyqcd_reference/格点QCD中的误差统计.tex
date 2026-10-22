@@ -1,0 +1,472 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption,multirow,longtable}
+\usepackage{hyperref,xcolor,enumitem,mathtools}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+
+\title{\heiti 格点QCD中的误差统计：\\
+统计误差、系统误差与全误差预算}
+\author{基于本库全部相关文献与教材的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+格点QCD计算的最终输出——无论是强子质量、衰变常数还是PDF——都是一个中心值加上若干独立误差分量。将这些误差正确地识别、分别量化并按照统计学的严格规程组合成全误差预算（total error budget），是实现``格点QCD作为精确科学''的核心前提。Gupta在\textit{Introduction to Lattice QCD}的第16节中将格点误差系统性地划分为\textbf{统计误差}和\textbf{五类系统误差}（有限体积、有限格距、手征外推、重夸克离散化、淬火/部分淬火），为整个领域提供了标准的误差分类学框架。Gattringer与Lang在\textit{Quantum Chromodynamics on the Lattice}的第4.5节和第6.4.3节提供了从自相关到外推误差的完整数学推导。
+
+本文基于本库中的核心教材（Gattringer与Lang~\cite{GattringerLang2010}、Gupta~\cite{Gupta1997intro}、Peskin与Schroeder~\cite{PeskinSchroeder1995}）以及约20篇研究论文，从以下六个层次系统解析格点QCD中的误差统计：
+
+\textbf{第一层——误差分类学（§2）：}
+以Gupta第16节的经典分类为框架，将格点QCD的全部误差源划分为\textbf{统计误差}（来源于Monte Carlo积分的有限抽样）和\textbf{系统误差}（来源于理论框架或数值方法中的固有近似）。系统误差进一步细分为六类：有限体积效应、有限格距（离散化）误差、手征外推误差、重夸克离散化误差、淬火/部分淬火误差、以及算符重整化误差。同时讨论NNPDF4.0~\cite{NNPDF2021}的全面不确定度分类作为唯象学视角的互补。
+
+\textbf{第二层——统计误差的完整推导（§3）：}
+从不相关数据的标准$\sigma/\sqrt{N}$误差开始，引入自相关时间和有效统计量对朴素误差公式的修正：$\sigma^2_{\bar X} = (\sigma_X^2/N)\cdot 2\tau_{\text{int}}$。给出自相关时间的两种定义——指数自相关时间$\tau_{\text{exp}}$和积分自相关时间$\tau_{\text{int}}$——以及它们在临界减速条件下的标度行为$\tau \sim \xi^z$。
+
+\textbf{第三层——六类系统误差的逐一量化（§4）：}
+对每一类系统误差，给出其物理起源、量级估计、以及标准的估计/消除策略：
+\begin{itemize}[nosep]
+    \item \textbf{有限体积误差：}$\sim e^{-m_\pi L}$（指数压低，$m_\pi L > 4$时可忽略）或$\sim 1/L^3$（功率律挤压，小体积）
+    \item \textbf{有限格距（离散化）误差：}$\mathcal{O}(a)$（Wilson费米子）或$\mathcal{O}(a^2)$（改进费米子）——需通过多格距$a^2$外推到零
+    \item \textbf{手征外推误差：}非物理$m_\pi$到物理点的外推——由手征微扰论（ChPT）控制
+    \item \textbf{激发态污染：}三点函数中基态-激发态的不可分性——由$\chi^2/$dof和Bootstrap重拟合估计
+    \item \textbf{重整化误差：}$Z$因子的非微扰确定中的统计+系统不确定性
+    \item \textbf{重夸克离散化误差：}$am_Q \sim 1$时的大离散化效应
+\end{itemize}
+
+\textbf{第四层——FLAG误差预算的标准格式（§5）：}
+以FLAG（Flavour Lattice Averaging Group）的误差报告标准为范例，展示格点QCD结果的标准误差分解格式——中心值$\pm$统计误差$\pm$系统误差（进一步分解为有限体积、离散化、手征外推等子项）。讨论FLAG的``color-coding''质量评估体系——通过星级评定（$\star$到$\star\star\star\star$）来表征对每个系统误差源的控制水平。
+
+\textbf{第五层——误差传播与组合（§6）：}
+系统阐述误差从原始格点数据传播到最终物理结果的两条路径：(a) \textbf{全协方差矩阵联合拟合}——利用Bootstrap/Jackknife生成的伪数据集上的全拟合流程，所有误差源被自动纳入；(b) \textbf{顺序外推+独立误差加和}——每个外推维度的误差被独立估计，然后以$\sqrt{\sum_i \sigma_i^2}$的形式按平方相加。讨论两种方法各自的优点、局限和适用场景。
+
+\textbf{第六层——现代格点PDF计算中的误差预算实例（§7）：}
+以LPC合作组的核子非极化TMD-PDF~\cite{He2024unpolTMD}和CLQCD/LPC合作组的胶子PDF连续极限计算~\cite{Chen2025gluon}为实例，展示实际的误差分解：大$\lambda$外推系统误差（通过变化$\lambda_L$截断估计）、微扰匹配标度不确定性（通过变化$\mu_R$从$1/\sqrt{2}$到$\sqrt{2}$倍标度估计）、联合外推误差（通过变化外推形式和包含的数据点子集估计）、以及总误差的Bootstrap全协方差估计。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==========================================================================
+\section{引言：格点QCD中的误差——为什么需要系统的分类学？}
+%==========================================================================
+
+\subsection{误差是格点QCD科学性的度量}
+
+格点QCD计算的最终价值不仅在于中心值，更在于对中心值\textbf{不确定度的诚实、全面和可验证的量化}。一个``精确但错误''的格点结果——例如忽略了某类系统误差以致中心值看似精确但实际偏差远超引用误差——比一个``粗糙但诚实''的结果危害更大。Gupta在格点QCD入门讲义中确立了这一哲学~\cite{Gupta1997intro}：
+
+\begin{quote}
+``Numerical simulations of lattice QCD introduce both statistical and a number of systematic errors. I have collected together a brief description of the various errors here, and in the remainder of the article I will only give quantitative estimates. I will label a particular systematic uncertainty as negligible/important if it is negligible/comparable in magnitude to the statistical error for that observable as determined in a state-of-the-art calculation.''
+\end{quote}
+
+这一\emph{误差相对于统计精度的对比分类}——``可忽略''（误差$\ll$统计误差）vs.\ ``重要''（误差$\sim$统计误差或更大）——构成了格点误差统计学的实用起点。
+
+\subsection{格点误差的两大类别}
+
+\textbf{统计误差（Statistical Errors）：}源于Monte Carlo路径积分仅使用有限数量的规范组态样本来估计期望值。统计误差原则上可通过增加样本量$N$来无限压低——按照中心极限定理以$1/\sqrt{N}$的速率衰减。在实际中，$N$受计算资源和HMC轨迹长度限制。统计误差的可靠估计需要正确考虑数据的自相关（见§3）。
+
+\textbf{系统误差（Systematic Errors）：}源于理论框架或数值方法中的固有近似——它们\textbf{不随$N$的增大而减小}。系统误差只能通过改进理论（使用更接近物理的参数、更精确的算符）或通过外推（从有限$a$、有限体积、非物理$m_\pi$极限向物理极限外推）来降低。系统误差的量级通过变化理论参数（如外推窗口、拟合形式、截断选择）并观察结果的变化来估计。
+
+\textbf{全误差（Total Error）：}统计误差和系统误差的平方和根（假设各分量独立）或通过全协方差联合分析（计及各分量之间的关联）。
+
+\subsection{本库中的核心文献}
+
+\begin{table}[H]
+\centering
+\caption{本库中误差统计相关的核心文献}
+\label{tab:err_papers}
+\small
+\begin{tabular}{lp{9cm}}
+\toprule
+\textbf{文献} & \textbf{核心贡献} \\
+\midrule
+\texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf}~\cite{Gupta1997intro} &
+\textbf{Ch.16: 格点误差的标准分类学}——统计误差+五类系统误差的完整框架，是本文第一层的主要理论来源 \\
+\texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}~\cite{GattringerLang2010} &
+Ch.4.5（自相关与统计误差、Bootstrap/Jackknife）、Ch.6.4.3（有限体积/连续极限/手征外推的系统误差）、Ch.11（重整化误差） \\
+\texttt{refer/papers/The Path to Proton Structure at One-Percent Accuracy.pdf} &
+\textbf{NNPDF4.0}~\cite{NNPDF2021}——全面不确定度分类（实验、理论、参数化、方法学），``百分之一精度''的误差控制范例 \\
+\texttt{refer/papers/Unpolarized gluon PDF...continuum limit.pdf} &
+\textbf{Chen et al. 2025}~\cite{Chen2025gluon}——大$\lambda$外推、RGR微扰匹配、联合外推、$z_s$选择等五类系统误差的完整预算 \\
+\texttt{refer/papers/Unpolarized TMD...Nucleon...pdf} &
+\textbf{He et al. 2024}~\cite{He2024unpolTMD}——双态拟合$\chi^2/$dof、$m_\pi$外推、NNLO vs.\ NNLO+RGR匹配误差 \\
+\texttt{refer/papers/Impact of gauge fixing precision...pdf} &
+规范固定精度作为新型系统误差源的定量分析~\cite{Zhang2024gauge_fixing} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%==========================================================================
+\section{误差分类学：Gupta的框架与FLAG标准}
+%==========================================================================
+
+\subsection{Gupta的经典分类框架}
+
+Gupta在\textit{Introduction to Lattice QCD}的第16节中~\cite{Gupta1997intro}，将格点结果的误差源按照其物理本质划分为六类。这一分类框架至今仍是格点QCD误差分析的\textbf{标准参考}：
+
+\begin{table}[H]
+\centering
+\caption{Gupta的格点QCD误差六分类（Ch.16, Gupta 1997）~\cite{Gupta1997intro}}
+\label{tab:gupta_errors}
+\small
+\begin{tabular}{p{2.5cm}p{3.5cm}p{2.5cm}p{4.5cm}}
+\toprule
+\textbf{误差类别} & \textbf{物理来源} & \textbf{典型量级（2025）} & \textbf{标准消除/估计策略} \\
+\midrule
+\textbf{统计} &
+Monte Carlo有限抽样 &
+$0.1\text{--}5\%$ &
+增大$N_{\text{cfg}}$; Bootstrap/Jackknife误差估计 \\
+\textbf{有限体积} &
+环绕空间环面的虚粒子交换 &
+$e^{-m_\pi L}$（指数压低，$m_\pi L>4$时可忽略） &
+保持$m_\pi L \ge 4-5$；有限体积外推 \\
+\textbf{有限格距（离散化）} &
+差分近似导数；格点截断效应 &
+$\mathcal{O}(a)$或$\mathcal{O}(a^2)$，格距依赖 &
+改进作用量；多格距$a^2$外推到零 \\
+\textbf{手征外推} &
+非物理的$m_\pi$值 &
+$c_3 M_\pi^3 + c_4 M_\pi^4\ln M_\pi$ & ChPT外推；物理$m_\pi$直接模拟 \\
+\textbf{重夸克离散化} &
+$am_Q \sim 1$ &
+$5\text{--}20\%$ &
+HQET有效理论；Fermilab重夸克作用量 \\
+\textbf{淬火/部分淬火} &
+$m_{\text{sea}}\neq m_{\text{val}}$ &
+未知系统偏差 &
+Full QCD（统一$m_{\text{sea}} = m_{\text{val}}$） \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{FLAG的质量评级体系}
+
+FLAG（Flavour Lattice Averaging Group）将Gupta的分类学推广为一个\textbf{质量星级}（$\star$到$\star\star\star\star$）的标准化评级体系，为格点QCD的全局平均值提供透明的质量评估。星级标准大致为：
+
+\begin{center}
+\fbox{\begin{minipage}{0.92\textwidth}
+\small
+\textbf{FLAG星级评定标准（摘要）:}
+
+\medskip
+\quad $\star$ \quad 计算结果已发表，但对某类系统误差的控制不充分（如单一格距、淬火近似）。
+
+\quad $\star\star$ \quad 至少两个格距值的外推；有限体积效应得到控制（$m_\pi L > 3.5$）。
+
+\quad $\star\star\star$ \quad 至少三个格距值；$m_\pi L > 4$；手征外推到物理$m_\pi$；非微扰重整化。
+
+\quad $\star\star\star\star$ \quad 满足$\star\star\star$的所有要求，且误差预算的所有已知系统误差源均已被量化并包含在总误差中。
+\end{minipage}}
+\end{center}
+
+对于单个格点计算，星级评定提供了一个快速检验误差控制完备性的工具。
+
+\subsection{NNPDF4.0的不确定度全景}
+
+在唯象PDF拟合侧，NNPDF4.0~\cite{NNPDF2021}提供了互补的误差分类视角——将全面不确定度分解为\textbf{实验不确定度}（来自输入数据的统计和系统误差）、\textbf{理论不确定度}（来自微扰核的阶数截断、因子化/重整化标度变化）、\textbf{参数化不确定度}（来自PDF参数化基的选择）和\textbf{方法学不确定度}（来自拟合算法和优化超参数的选择）。NNPDF通过Monte Carlo Replica方法——在多组伪数据集上独立重复整个拟合——将所有误差源统一传播到PDF的最终误差带中。这一``全误差传播''范式为格点QCD的误差分析提供了参照坐标。
+
+%==========================================================================
+\section{统计误差的完整推导与量化}
+%==========================================================================
+
+\subsection{独立数据：$\sigma/\sqrt{N}$规则的来历与局限}
+
+在数据点之间完全统计独立（不相关）的理想情况下，$N$次测量$\{X_1,\dots,X_N\}$的样本均值$\bar X$的方差为~\cite{GattringerLang2010}：
+\begin{equation}
+\boxed{\sigma^2_{\bar X} = \frac{\sigma_X^2}{N}, \qquad \sigma_{\bar X} = \frac{\sigma_X}{\sqrt{N}}},
+\label{eq:sigma_over_rootN}
+\end{equation}
+其中$\sigma_X^2 = \langle (X - \langle X\rangle)^2 \rangle$是单个测量的真实方差，在实际中由样本方差$\hat\sigma_X^2 = \frac{1}{N-1}\sum_{i=1}^N (X_i - \bar X)^2$来估计。此公式表明\textbf{统计误差以$1/\sqrt{N}$的速率随样本量的增加而衰减}。要降低统计误差至原来的$1/2$，需要$4$倍的样本量；降至$1/10$，需要$100$倍的样本量——这一定律顽固地定义了格点QCD中精度提升的计算成本。
+
+\subsection{自相关时间对有效统计量的削减}
+
+HMC轨迹中连续生成的规范组态之间存在\textbf{不减的自相关}。当相邻测量的$X_i$和$X_{i+1}$具有非零协方差时，样本均值的真实方差变为~\cite{GattringerLang2010}：
+\begin{equation}
+\boxed{\sigma^2_{\bar X} = \frac{\sigma_X^2}{N} \cdot 2\tau_{\text{int}}},
+\label{eq:correlated_sigma}
+\end{equation}
+其中$\tau_{\text{int}} = \frac{1}{2} + \sum_{t=1}^\infty \Gamma_X(t)$是\textbf{积分自相关时间}，$\Gamma_X(t) = C_X(t)/C_X(0)$是归一化的自相关函数。有效的独立组态数为$N_{\text{indep}} = N/(2\tau_{\text{int}})$——\textbf{自相关将统计效率降低了$2\tau_{\text{int}}$倍}。对HMC算法，$\tau_{\text{int}}$的典型值为$5-50$个MD轨迹单位（取决于观测量、夸克质量和格距）。这意味着在$10^4$个生成的组态中，有效的独立组态可能仅有$10^2$——对于$\sim 1\%$统计精度，这一数量勉强足够。
+
+\textbf{临界减速}在接近连续极限时进一步恶化：自相关时间按功率律$\tau \sim \xi^z$增长（$\xi$为相关长度，$z\ge 0$为动力学临界指数）。细格距（小$a$）上的高精度计算需要指数级增长的MD时间——这是Exascale计算的驱动力之一。
+
+\subsection{统计误差的Bootstrap/Jackknife估计}
+
+复合观测量（如从指数拟合提取的强子质量、从三点函数比值提取的矩阵元）的统计误差不能通过简单公式获得。两种互补的重采样方法可在伪数据集上重复完整分析，从结果的分布中直接估计误差。详见本库\texttt{格点QCD中的重采样方法.pdf}。
+
+\textbf{典型精度水平（2025年）：} 单格距上的强子质量统计误差$\sim 0.1-1\%$；PDF矩阵元的统计误差$\sim 5-15\%$（因胶子算符的信噪比远差于夸克算符）。
+
+%==========================================================================
+\section{六类系统误差：从物理起源到量化策略}
+%==========================================================================
+
+\subsection{有限体积效应}
+
+在周期边界条件下，强子的关联函数会受到穿过空间环面的``镜像''传播的污染~\cite{GattringerLang2010}。物理来源是虚拟$\pi$介子在环面上绕行后与原始传播子干涉。对于大体积，Gattringer与Lang指出~\cite{GattringerLang2010}：
+\begin{equation}
+\delta m(L) \sim e^{-m_\pi L} \quad (\text{对稳定单粒子态}),
+\label{eq:finite_volume_exp}
+\end{equation}
+因此\textbf{确保$m_\pi L \ge 4-5$}足以将有限体积误差压至统计精度以下。对于LaMET计算，还需要$P_z L \ge 6-8$来提供足够的动量分辨$\Delta x = 2\pi/(P_z L)$。
+
+\textbf{误差估计：}在多个体积$L$的系综上计算同一个观测量，通过外推$L\to\infty$（对指数衰减形式做拟合）来提取体积极限值。若仅有一个体积可用，通常采用$m_\pi L \ge 4$作为安全界限，并将有限体积误差视为可忽略。
+
+\subsection{有限格距（离散化）误差}
+
+这是所有格点计算中\textbf{最根本}的系统误差。不同费米子作用量的领头离散化误差阶数不同~\cite{GattringerLang2010}：
+\begin{itemize}[nosep]
+    \item Wilson费米子：$\mathcal{O}(a)$
+    \item Clover/HISQ/Staggered费米子：$\mathcal{O}(a^2)$（经改进）
+    \item Domain-Wall/Overlap费米子：$\mathcal{O}(a^2)$（$m_{\text{res}}\to 0$时）
+\end{itemize}
+
+对于$\mathcal{O}(a^2)$改进作用量，物理观测量的$a$依赖性通过$a^2$外推消除：$O(a) = O_0 + c_1 a^2 + c_2 a^4 + \cdots$。至少需要三个$a$值来区分$a^2$线性项和$a^4$非线性项。外推的系统误差通过变化外推中包含的$a$值的子集和/或对比$a^2$外推与$a$外推来估计~\cite{GattringerLang2010}。
+
+\textbf{CLQCD/LPC实践~\cite{Chen2025gluon}：} 三个格距（$a=0.0775, 0.0897, 0.105$~fm）上的胶子准PDF经$a^2$联合外推，外推误差通过变化外推形式和$a$点子集来估计——贡献约$5-15\%$的不确定度。
+
+\subsection{手征外推误差}
+
+当格点$\pi$介子质量$m_\pi^{\text{lat}} > m_\pi^{\text{phys}} = 135$~MeV时，计算结果需外推到物理点。手征微扰论提供外推形式~\cite{GattringerLang2010}。误差来自ChPT展开的截断——通常仅保留展开的前2-3项，截断误差通过对比不同阶数的外推来估计。
+
+\textbf{MILC物理$m_\pi$系综的突破}将手征外推的必要性大幅降低——在He等人的核子TMD-PDF~\cite{He2024unpolTMD}中，MILC $N_f=2+1+1$系综的海夸克已取物理质量，仅价夸克的$m_\pi=220$~MeV需要通过ChPT外推到135~MeV——外推距离缩短，系统误差显著降低。
+
+\subsection{激发态污染}
+
+三点函数中，中间态可以是基态$\pi$介子，也可以是激发态$\pi(1300)$或$\pi\pi$连续谱。在大$t_{\text{sep}}$极限下，激发态的贡献以$e^{-\Delta E\,t_{\text{sep}}}$指数衰减（$\Delta E\sim 400-600$~MeV）~\cite{GattringerLang2010,He2024unpolTMD}。
+
+\textbf{量化和控制策略：}
+\begin{enumerate}[nosep]
+    \item \textbf{双态拟合：}$R(t_{\text{sep}},\tau) = h_0 + c_1 e^{-\Delta E\,t_{\text{sep}}} + \cdots$，$\chi^2/$dof $\in [0.5, 1.2]$标志拟合质量可接受；
+    \item \textbf{Bootstrap变化拟合范围：}在Bootstrap伪数据集上变化$t_{\text{sep}}^{\min}$——提取的基态矩阵元的变化量化为激发态系统误差；
+    \item \textbf{涂抹技术：}使用空间涂抹的夸克源增强基态与内插算符的耦合——压低激发态重叠因子。
+\end{enumerate}
+
+\subsection{重整化系统误差}
+
+算符重整化常数$Z_\Gamma$的非微扰确定（通常通过RI/MOM方案）引入了自身的统计和系统不确定性。RI/MOM$\to\overline{\text{MS}}$的微扰转换因子已知到三圈精度——残余的高阶截断误差约$\mathcal{O}(\alpha_s^3) \sim 1-2\%$。对于包含Wilson线的准PDF算符，线性发散的非微扰消除（Wilson圈减除、自重整化或混合方案）引入了额外的方案依赖性——不同减除方案之间的差异量化为重整化系统误差~\cite{Huo2021self,Zhang2022renormTMD}。
+
+\subsection{重夸克离散化误差}
+
+在格距$a \sim 0.05-0.1$~fm上，$am_c \sim 0.3-0.7$对粲夸克不可忽略，$am_b \sim 2-4$对底夸克完全不能直接模拟。HQET、NRQCD和Fermilab重夸克作用量是标准的解决方案——它们通过按$1/m_Q$展开的系统有效理论来处理重夸克，但截断误差和匹配误差构成了重味物理中最大的系统误差源之一~\cite{GattringerLang2010}。
+
+%==========================================================================
+\section{误差预算的标准格式与FLAG评分}
+%==========================================================================
+
+\subsection{全误差预算的构成与报道格式}
+
+一个完整的格点QCD物理结果的\textbf{标准误差分解格式}为~\cite{Gupta1997intro,GattringerLang2010}：
+
+\begin{center}
+\fbox{\begin{minipage}{0.92\textwidth}
+\small
+\textbf{标准误差分解格式:}
+
+\medskip
+$O = O_0 \; (\text{stat.}) \; (\text{syst.}) = O_0 \; (\sigma_{\text{stat}}) \; (\sigma_{\text{FV}}) \; (\sigma_{\text{disc}}) \; (\sigma_{\chi}) \; (\sigma_{\text{ren}}) \; (\sigma_{\text{other}})$
+
+\medskip
+其中括号内依次为：统计、有限体积、离散化、手征外推、重整化、其他（包括激发态、重夸克效应等）。总误差为各分量的平方和根：
+\begin{equation*}
+\sigma_{\text{tot}} = \sqrt{\sigma_{\text{stat}}^2 + \sigma_{\text{FV}}^2 + \sigma_{\text{disc}}^2 + \sigma_{\chi}^2 + \sigma_{\text{ren}}^2 + \cdots}
+\end{equation*}
+\end{minipage}}
+\end{center}
+
+\textbf{实践要点：}每个系统误差分量应附有其\textbf{估计方法}的说明（例如``有限体积误差通过对比$L=32$和$L=48$的系综结果估计''或``离散化误差通过$a^2$外推与$a^4$外推的差异估计''），以确保误差预算的可验证性和可复现性。
+
+\subsection{误差估计的Bootstrap联合方法}
+
+在全Bootstrap分析中，\textbf{所有}系统误差源通过\textbf{在Bootstrap伪数据集上重复完整的外推流程}来联合传播~\cite{GattringerLang2010}。例如，对每个Bootstrap伪数据集独立执行$a^2$外推，然后对$P_z \to \infty$外推，结果$K$个外推值的分布直接给出联合外推不确定度——无需分别估计$a$外推和$P_z$外推的独立误差再将其平方相加。这一方法的优势在于\textbf{自动计及了不同外推维度之间的统计关联}。
+
+\textbf{CLQCD/LPC的实践~\cite{Chen2025gluon}：}胶子PDF的系统误差通过以下变化来估计：大$\lambda$外推截断$\lambda_L$（变化$6\to 7\to 8$）；微扰匹配标度$\mu_R$（变化$1/\sqrt{2}$到$\sqrt{2}$倍标度）；$z_s$混合方案参数（变化$0.2-0.4$~fm）；联合外推$a^2$形式（对比$a^2$和$a$外推）。
+
+\subsection{NNPDF4.0的不确定度量化}
+
+NNPDF4.0~\cite{NNPDF2021}通过以下方法提供PDF的全面不确定度带：
+\begin{itemize}[nosep]
+    \item 1000个独立Monte Carlo replica——每个replica对``伪数据'''（通过实验协方差矩阵的多变量Gaussian抽样生成）独立训练神经网络。结果的分布中心给出PDF中心值，标准差给出\textbf{数据不确定度}（含实验+理论）。
+    \item 通过``closure test''（即用已知的``伪PDF''生成伪数据，再验证是否可以从这些伪数据中恢复原始PDF）——检验拟合方法学的无偏性和完整性误差。
+    \item 通过变化PDF参数化基（如味基 vs.\ 进化基）、拟合中的超参数选择、以及所包含的数据集——来估计残余的方法学和参数化不确定度。
+\end{itemize}
+
+这一``replica ensemble''范式使得NNPDF4.0达到了``百分之一精度''的全面不确定度量化——为格点PDF计算设立了误差控制的基准目标。
+
+%==========================================================================
+\section{误差传播：从原始数据到物理结果的两条路径}
+%==========================================================================
+
+\subsection{路径A：全协方差联合分析（Bootstrap全流程重拟合）}
+
+在这条路径中，Bootstrap重采样被嵌入到\textbf{从原始格点关联函数到最终物理结果}的每一个分析步骤中~\cite{GattringerLang2010}。流程为：
+
+\begin{enumerate}[nosep]
+    \item 在$N$个原始组态上应用Binning（每$K$个组态合并为一个独立块）；
+    \item 生成$M$个Bootstrap伪数据集——每个伪数据集是$N$个块的有放回抽样；
+    \item 对\textbf{每个}Bootstrap伪数据集执行完整分析链：关联函数平均$\to$指数拟合（确定基态质量）$\to$（若需要）$a^2$外推$\to$（若需要）手征外推$\to$最终观测量；
+    \item $M$个最终结果的标准差即为包含统计误差和所有系统关联在内的\textbf{总误差}。
+\end{enumerate}
+
+\textbf{优势：}自动处理所有误差源之间的关联；不依赖误差传播的线性假设。\textbf{局限：}计算成本高（完整分析链运行$M$次）；当系统误差源于``硬选择''（如外推函数形式的选择）而非统计涨落时，Bootstrap的重抽样无法捕获这类不确定性——需要单独的变化分析。
+
+\subsection{路径B：顺序外推 + 独立误差平方相加}
+
+在这条路径中，每个系统误差维度被\textbf{逐一}量化~\cite{GattringerLang2010,Chen2025gluon}：
+
+\begin{enumerate}[nosep]
+    \item 在固定的``最优''分析参数（外推范围、拟合函数形式）下确定中心值$O_0$；
+    \item 统计误差$\sigma_{\text{stat}}$通过Bootstrap在固定所有系统参数的情况下估计；
+    \item 对每个系统维度$x$（$x = a, L, m_\pi, \dots$），通过\textbf{变化$x$相关的分析选择}来估计其独立系统误差$\sigma_x$：
+    \begin{itemize}[nosep]
+        \item \textbf{变化外推窗口}（如$t_{\min} \to t_{\min} \pm 1$）$\to \sigma_{\text{extrap}}$；
+        \item \textbf{变化微扰标度}（如$\mu_R \to \mu_R \times \{1/\sqrt{2}, \sqrt{2}\}$）$\to \sigma_{\text{scale}}$；
+        \item \textbf{对比不同外推形式}（如$a^2$ vs.\ $a$外推）$\to \sigma_{\text{form}}$。
+    \end{itemize}
+    \item 总误差：$\sigma_{\text{tot}} = \sqrt{\sigma_{\text{stat}}^2 + \sum_x \sigma_x^2}$。
+\end{enumerate}
+
+\textbf{优势：}每个误差源的量级和来源透明可追溯；计算高效。\textbf{局限：}独立误差的平方相加\textbf{假设各分量不相关}——当分量之间存在显著关联（如有限体积效应与手征外推）时，可能导致总误差被高估或低估；``变化选择''的幅度和范围含有主观成分。
+
+\subsection{两种路径的互补性}
+
+在实践中，大部分格点QCD计算采用\textbf{路径A和路径B的混合策略}：统计误差和拟合相关的不确定性通过全Bootstrap估计（路径A），而系统不确定性通过独立的变化分析量化（路径B），最终两项按平方和根组合为总误差。CLQCD/LPC的胶子PDF分析~\cite{Chen2025gluon}是这一混合策略的具体实现。
+
+%==========================================================================
+\section{总结与展望}
+%==========================================================================
+
+基于本库核心教材和约20篇研究论文，本文系统解析了格点QCD中误差统计学的完整体系。
+
+\subsection*{核心结论}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{误差分类是误差控制的先决条件：}Gupta的六分类框架（统计+有限体积+离散化+手征外推+重夸克+淬火/部分淬火）为系统地识别、量化和消除每类误差源提供了标准化的概念架构。
+
+    \item \textbf{统计误差受自相关时间的规制：}$\sigma_{\bar X} = (\sigma_X/\sqrt{N})\cdot\sqrt{2\tau_{\text{int}}}$——自相关时间$\tau_{\text{int}}$将有效统计量削减了$2\tau_{\text{int}}$倍。临界减速（$\tau\sim\xi^z$）在细格距极限下构成对可达到精度的终极限制。
+
+    \item \textbf{系统误差的控制依赖于物理参数的外推：}有限体积效应$\sim e^{-m_\pi L}$被$m_\pi L\ge 4-5$指数压低；离散化效应通过多格距$a^2$外推消除；手征外推在物理$m_\pi$系综上被最小化；激发态污染通过双态拟合和Bootstrap控制。每类系统误差的残余不确定性通过变化分析参数来量化。
+
+    \item \textbf{误差预算的透明报道是格点QCD科学性的基石：}FLAG的质量星级体系为格点结果的误差完备性提供了标准化的评估框架。全误差预算——中心值$\pm$各独立误差分量的平方和根——是当前精度前沿的报道标准。
+
+    \item \textbf{全Bootstrap联合分析与独立误差平方相加是两种互补的误差传播策略：}前者自动捕获所有误差源之间的统计关联（但计算成本高）；后者提供透明、可追溯的独立误差分解（但依赖于误差分量的独立性和变化范围的合理选择）。现代格点QCD通常采用二者的混合策略。
+\end{enumerate}
+
+%==========================================================================
+\begin{thebibliography}{99}
+
+\bibitem{Gupta1997intro}
+R.~Gupta,
+``Introduction to Lattice QCD,''
+arXiv:hep-lat/9807028 (1997).
+\\\textbf{[来源:} \texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf}\textbf{]}
+\\\textbf{Ch.16: 格点QCD误差的标准分类学框架——统计误差+五类系统误差}（有限体积、离散化、手征外推、重夸克离散化、淬火/部分淬火）。Ch.16.1: 统计误差的量化与自相关时间的物理分析；Ch.16.2--16.6: 每类系统误差的详述。这是本文§2--§4的核心来源。
+
+\bibitem{GattringerLang2010}
+C.~Gattringer and C.~B.~Lang,
+\textit{Quantum Chromodynamics on the Lattice: An Introductory Presentation},
+Lect.\ Notes Phys.\ \textbf{788}, Springer (2010).
+\\\textbf{[来源:} \texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}\textbf{]}
+\\Ch.~4.5: 统计误差的完整数学推导——不相关情况（Eqs.\,(4.53)-(4.58)）、自相关函数与$\tau_{\text{int}}$（Eqs.\,(4.59)-(4.67)）、Bootstrap和Jackknife的统计误差估计。Ch.~6.4.3: 三折外推框架（有限体积、连续极限、手征极限）与GMOR关系。Ch.~3.5.4: 真实连续极限与标度分析。
+
+\bibitem{PeskinSchroeder1995}
+M.~E.~Peskin and D.~V.~Schroeder,
+\textit{An Introduction to Quantum Field Theory},
+Westview Press (1995).
+\\\textbf{[来源:} \texttt{refer/books/An Introduction to Quantum Field Theory.pdf}\textbf{]}
+\\Ch.~12: Callan--Symanzik方程与重整化群——微扰标度不确定度的理论基础。
+
+\bibitem{NNPDF2021}
+R.~D.~Ball \textit{et al.} (NNPDF Collaboration),
+``The path to proton structure at 1\% accuracy,''
+Eur.\ Phys.\ J.\ C \textbf{82}, 428 (2022), arXiv:2109.02653.
+\\\textbf{[来源:} \texttt{refer/papers/The Path to Proton Structure at One-Percent Accuracy.pdf}\textbf{]}
+——\textbf{百分之一精度的全面不确定度量化：}实验不确定度、理论（微扰核截断+标度变化）不确定度、参数化不确定度、方法学不确定度——通过1000个replica的Monte Carlo ensemble联合估计。
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, LPC),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\\\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+——五类系统误差的完整预算：大$\lambda$外推、微扰匹配标度变化、联合外推形式、$z_s$选择、连续极限外推。CLQCD/LPC混合误差传播策略的现代实例。
+
+\bibitem{He2024unpolTMD}
+J.-C.~He \textit{et al.} (LPC),
+``Unpolarized transverse-momentum-dependent parton distributions of the nucleon from lattice QCD,''
+Phys.\ Rev.\ D \textbf{109}, 114513 (2024), arXiv:2211.02340.
+\\\textbf{[来源:} \texttt{refer/papers/Unpolarized Transverse-Momentum-Dependent Parton Distributions of the Nucleon from Lattice QCD.pdf}\textbf{]}
+——双态拟合$\chi^2/$dof在$0.5-1.2$；1000组态上的16个源/组态的统计精度。
+
+\bibitem{Zhang2024gauge_fixing}
+K.~Zhang \textit{et al.} (LPC),
+``Impact of gauge fixing precision on the continuum limit of non-local quark-bilinear lattice operators,''
+Phys.\ Rev.\ D \textbf{110}, 074505 (2024), arXiv:2405.14097.
+\\\textbf{[来源:} \texttt{refer/papers/Impact of gauge fixing precision on the continuum limit of non-local quark-bilinear lattice operators.pdf}\textbf{]}
+——规范固定精度作为新型系统误差源的定量分析：$\delta_F = 10^{-8}$，$a=0.03$~fm，$z=1.2$~fm $\to$ 12\%偏差。
+
+\bibitem{Ma2025BoerMulders}
+L.~Ma \textit{et al.} (LPC),
+``Quark transverse spin-momentum correlation of the nucleon from lattice QCD: The Boer-Mulders function,''
+(2025), arXiv:2502.11807.
+\\\textbf{[来源:} \texttt{refer/papers/Quark Transverse Spin-Momentum Correlation of the Nucleon from Lattice QCD The Boer-Mulders Function.pdf}\textbf{]}
+
+\bibitem{Zhang2022renormTMD}
+K.~Zhang \textit{et al.} (LPC),
+``Renormalization of transverse-momentum-dependent parton distribution on the lattice,''
+Phys.\ Rev.\ D \textbf{106}, 094510 (2022), arXiv:2205.13402.
+\\\textbf{[来源:} \texttt{refer/papers/Renormalization of transverse-momentum-dependent parton distribution on the lattice.pdf}\textbf{]}
+
+\bibitem{Huo2021self}
+Y.-K.~Huo \textit{et al.} (LPC),
+``Self-renormalization of quasi-light-front correlators on the lattice,''
+Nucl.\ Phys.\ B \textbf{969}, 115443 (2021), arXiv:2103.02965.
+\\\textbf{[来源:} \texttt{refer/papers/Self-Renormalization of Quasi-Light-Front Correlators on the Lattice.pdf}\textbf{]}
+
+\bibitem{Chu2023soft}
+M.-H.~Chu \textit{et al.} (LPC),
+``Lattice calculation of the intrinsic soft function and the Collins-Soper kernel,''
+JHEP \textbf{08}, 172 (2023), arXiv:2306.06488.
+\\\textbf{[来源:} \texttt{refer/papers/Lattice Calculation of the Intrinsic Soft Function and the Collins-Soper Kernel.pdf}\textbf{]}
+
+\bibitem{NucleonTransversity2024}
+(LPC),
+``Nucleon transversity distribution in the continuum and physical mass limit from lattice QCD,''
+(2024).
+\\\textbf{[来源:} \texttt{refer/papers/Nucleon Transversity Distribution in the Continuum and Physical Mass Limit from Lattice QCD.pdf}\textbf{]}
+——六系综联合外推的全误差预算实例。
+
+\bibitem{Su2023RGR}
+Y.~Su, J.~Holligan, X.~Ji, F.~Yao, J.-H.~Zhang, and R.~Zhang,
+``Resumming quark's longitudinal momentum logarithms in LaMET expansion of lattice PDFs,''
+Phys.\ Rev.\ D \textbf{107}, 074507 (2023), arXiv:2209.01236.
+\\\textbf{[来源:} \texttt{refer/papers/Resumming Quark's Longitudinal Momentum Logarithms in LaMET Expansion of Lattice PDFs.pdf}\textbf{]}
+
+\bibitem{Zhang2023leadingPower}
+R.~Zhang, J.~Holligan, X.~Ji, and Y.~Su,
+``Leading power accuracy in lattice calculations of parton distributions,''
+Phys.\ Lett.\ B \textbf{844}, 138081 (2023), arXiv:2305.05212.
+\\\textbf{[来源:} \texttt{refer/papers/Leading Power Accuracy in Lattice Calculations of Parton Distributions.pdf}\textbf{]}
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,'' 内部笔记。
+\\\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}和\texttt{refer/papers/Note of gluon PDFs.pdf}
+
+\end{thebibliography}
+
+\vspace{0.5cm}
+\noindent\rule{\textwidth}{0.5pt}
+\small
+\textbf{交叉参考建议：}本报告应结合同一\texttt{docs/}目录下的以下文件阅读：
+\begin{itemize}[nosep]
+    \item \texttt{格点QCD中的重采样方法.pdf}——Bootstrap、Jackknife与Binning的完整操作（与本报告的统计误差分析互补）
+    \item \texttt{格点QCD中的外推.pdf}——各类系统误差的消除与外推技术
+    \item \texttt{格点QCD中的重整化.pdf}——重整化系统误差的详细分析
+    \item \texttt{格点QCD中的费米子方案.pdf}——不同费米子方案的离散化误差阶数
+    \item \texttt{格点QCD中的DGLAP演化方程.pdf}——微扰标度不确定度与RGR重求和
+    \item \texttt{格点QCD中的部分子分布函数.pdf}——PDF计算的全部系统误差源
+    \item \texttt{格点QCD中的连通图与非连通图.pdf}——非连通图的信噪比与统计挑战
+\end{itemize}
+
+\end{document}

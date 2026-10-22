@@ -17,7 +17,6 @@
 - 关键内容: 已删除 3 个大文件，重写并推送 main 与 11 个标签，独立远端克隆验证通过
 - 验证: path, size, required sections, conflict markers
 - 批次状态: complete
-
 ## form-myqcd-20261020 - final - 2026-10-20 01:27:59 +0800
 - 主任务: MyQCD ~form 整改：清理 logs/.DS_Store、同步根 form 标记块并完成验证
 - 日志文件: logs/v2026102001-2.txt
@@ -98,5 +97,13 @@
 - 文件大小: 6621 bytes
 - 触发原因: 任务完成
 - 关键内容: 课程文档、技能、生成/验证代码、日志和缓存已删除；现行引用清零，测试、报告编译和严格格式审计通过
+- 验证: path, size, required sections, conflict markers
+- 批次状态: complete
+## absorb-pyqcd-docs-20261022 - final - 2026-10-22 20:10:06 +0800
+- 主任务: 用 ~absorb 将 PyQCD docs 中的格点 QCD 物理文档吸收到 MyQCD docs
+- 日志文件: logs/v2026102220.txt
+- 文件大小: 6167 bytes
+- 触发原因: 任务完成
+- 关键内容: 完整审计 175 个候选文件，按固定提交吸收 163 个物理文档；哈希、PDF、TeX、测试、公式审计、理论审计和格式审计均完成
 - 验证: path, size, required sections, conflict markers
 - 批次状态: complete

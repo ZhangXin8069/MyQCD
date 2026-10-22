@@ -1,0 +1,999 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption,multirow}
+\usepackage{hyperref,xcolor,enumitem,mathtools}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的费米子方案：\\
+Wilson、Clover、Domain-Wall、Staggered、Twisted Mass与HISQ}
+\author{基于本库全部相关文献与教材的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+费米子作用的离散化是格点QCD的核心问题之一。Nielsen--Ninomiya定理确立了一个根本性限制：在保持平移不变性、局域性、厄米性的格点上，无法同时实现无加倍子和手征对称性。这一``禁止定理''催生了多种费米子方案，每种方案以不同的策略绕过定理的限制，形成了格点QCD中丰富而互补的方法学格局。
+
+本文基于本库中的三本核心教材（Gattringer与Lang的\textit{Quantum Chromodynamics on the Lattice}、Gupta的\textit{Introduction to Lattice QCD}笔记、Peskin与Schroeder的\textit{An Introduction to Quantum Field Theory}）以及约40篇相关研究论文，对六种主要费米子方案进行系统性解析：
+
+\textbf{Wilson费米子}——通过添加维度5的Wilson项（$\propto a\bar\psi\Box\psi$）赋予加倍子质量$2rn/a$，使其在连续极限下退耦，但代价是手征对称性在$\mathcal{O}(a)$被显式破缺，导致夸克质量的加法重整化和``例外组态''问题。
+
+\textbf{Clover（Sheikholeslami--Wohlert）费米子}——在Symanzik改进框架下，通过添加``clover项''（Pauli项$\propto c_{\text{sw}}\sigma_{\mu\nu}F_{\mu\nu}$）消除Wilson作用的$\mathcal{O}(a)$离散化误差，实现非微扰$\mathcal{O}(a)$改进。$c_{\text{sw}}$系数的确定可通过Schr\"odinger泛函方法非微扰完成。Tadpole改进（平均场改进）通过重标定规范链接$U_\mu \to U_\mu/u_0$进一步加速微扰收敛。
+
+\textbf{Domain-Wall费米子}——基于Kaplan的域壁构造，引入第五维$s\in[0,L_s]$，通过质量缺陷（domain-wall mass $M_5$）在四维边界上局域化手征零模。左/右手征费米子分别束缚在$s=0$和$s=L_s-1$的边界上。在$L_s\to\infty$极限下，Ginsparg--Wilson关系被精确满足，手征对称性恢复。有限$L_s$导致残余质量$m_{\text{res}}$，需通过增大$L_s$或改进规范作用来控制。
+
+\textbf{Staggered费米子}——通过spinspin对角化将16个加倍子重新解释为4个``taste''（味）自由度，每个taste在连续极限下对应一个Dirac费米子。保留了一个$U(1)$手征子群（在零质量极限），使离散化误差为$\mathcal{O}(a^2)$，但taste对称性破缺导致介子质量分裂。第四根（fourth-root）技巧将4个taste约化为1个物理味。HISQ（Highly Improved Staggered Quarks）通过添加Naik项（三跳项）和Lepage项进一步压制$\mathcal{O}(a^2)$离散化误差和taste破缺。
+
+\textbf{Twisted Mass费米子}——在Wilson作用的质量项中引入同位旋空间的手征旋转$m_q \to m_q + i\mu_q\gamma_5\tau_3$。``最大扭曲''（maximal twist）条件$\kappa = \kappa_c$实现$\mathcal{O}(a)$自动改进——物理观测量中所有$\mathcal{O}(a)$截断效应被消除。Wilson项的实部保护Dirac算符免受例外组态（零模）的影响。
+
+\textbf{Overlap费米子}——作为Ginsparg--Wilson关系的精确解，由Neuberger给出：$D_{\text{ov}} = \frac{1}{a}[1 - \gamma_5\,\text{sign}(\gamma_5 D_W)]$。精确保持格点手征对称性，具有正确的指标定理和零模结构，无加倍子。主要限制是计算成本极高（涉及矩阵符号函数）。
+
+本文以比较表格和统一的理论框架贯穿始终，并通过Nielsen--Ninomiya定理、Ginsparg--Wilson关系、Symanzik改进和tadpole改进四条理论线索将六种方案编织成一个有机整体。最后讨论了各方案中手征对称性处理对部分子物理（PDF、TMD-PDF）格点计算的深远影响。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==========================================================================
+\section{引言：费米子离散化的根本困境}
+%==========================================================================
+
+\subsection{QCD作用量的格点离散化}
+
+量子色动力学（QCD）在连续欧几里得时空中的作用量为：
+\begin{equation}
+S_{\text{QCD}} = \int d^4x \left[ \frac{1}{2g^2}\operatorname{tr} F_{\mu\nu}F_{\mu\nu} + \sum_{f=1}^{N_f} \bar\psi^{(f)}(\gamma_\mu D_\mu + m_f)\psi^{(f)} \right],
+\label{eq:QCD_continuum}
+\end{equation}
+其中$D_\mu = \partial_\mu + iA_\mu$是协变导数，$F_{\mu\nu} = -i[D_\mu, D_\nu]$是场强张量。格点正则化将连续时空替换为超立方格点$\Lambda = \{n = (n_1,n_2,n_3,n_4) \,|\, n_\mu = 0,1,\dots,N_\mu-1\}$。
+
+规范场的离散化是直接的——通过链接变量$U_\mu(n) = \exp(i a A_\mu(n))$和plaquette作用实现Wilson规范作用。费米子场的离散化则远非平凡：核心困难在于连续Dirac作用中的一阶导数$\partial_\mu$必须替换为格点上的有限差分，而这一替换不可避免地引入了``加倍子''（doublers）问题。
+
+\subsection{Na\"ive费米子作用与加倍子问题}
+
+最自然的格点Dirac作用——na\"ive作用——将导数替换为对称差分：
+\begin{equation}
+S_F^{\text{na\"ive}}[\psi,\bar\psi,U] = a^4\sum_{n\in\Lambda} \bar\psi(n) \left[ \sum_{\mu=1}^4 \gamma_\mu \frac{U_\mu(n)\psi(n+\hat\mu) - U_\mu^\dagger(n-\hat\mu)\psi(n-\hat\mu)}{2a} + m\,\psi(n) \right].
+\label{eq:naive_action}
+\end{equation}
+
+在自由场极限（$U_\mu = 1$）下，动量空间的Dirac算符为：
+\begin{equation}
+D(p) = m\mathbf{1} + \frac{i}{a}\sum_{\mu=1}^4 \gamma_\mu \sin(p_\mu a).
+\label{eq:naive_Dirac_momentum}
+\end{equation}
+
+\textbf{加倍子问题：}传播子$D^{-1}(p)$在$p_\mu = 0$处的物理极点之外，在每个动量分量取$p_\mu = \pi/a$处产生额外的极点。在四维中，共有$2^4 = 16$个极点——1个物理费米子和15个非物理的``加倍子''。这些加倍子在连续极限$a\to 0$下不会消失；它们在Brillouin区边缘的动量$\pi/a$处持续存在，使理论在$a\to 0$时不回复到具有正确味数目的连续QCD。
+
+\subsection{Nielsen--Ninomiya定理：根本性的禁止定理}
+
+加倍子问题并非na\"ive作用的技术疏忽，而是具有根本性的理论原因。Nielsen和Ninomiya在1981年证明了一个著名的定理~\cite{NielsenNinomiya1981}：
+
+\begin{theorem}[Nielsen--Ninomiya定理]
+考虑一个具有以下性质的格点费米子作用：
+\begin{enumerate}[nosep]
+    \item 平移不变性（translation invariance）；
+    \item 局域性（locality）——Dirac算符在坐标空间指数衰减；
+    \item 厄米性（hermiticity）——对应的Hamilton算符是厄米的；
+    \item 手征对称性——$\{D, \gamma_5\} = 0$。
+\end{enumerate}
+则费米子加倍子不可避免地成对出现，且左右手征费米子的数量相等，因此无法描述具有确定手征性的单一费米子。
+\end{theorem}
+
+\textbf{定理的核心推论：}在格点上同时实现无加倍子和手征对称性是不可能的。任何格点费米子方案必须至少放弃上述四个条件之一。Nielsen--Ninomiya定理因此成为划分格点费米子方案的理论分水岭（见表\ref{tab:NN_theorem_strategies}）。
+
+\begin{table}[H]
+\centering
+\caption{费米子方案对Nielsen--Ninomiya定理的应对策略}
+\label{tab:NN_theorem_strategies}
+\begin{tabular}{lp{4.5cm}p{5.5cm}}
+\toprule
+方案 & 被放弃的条件 & 后果 \\
+\midrule
+\textbf{Wilson} & 手征对称性 & $\mathcal{O}(a)$手征破缺，夸克质量加法重整化 \\
+\textbf{Clover} & 手征对称性（但$\mathcal{O}(a^2)$） & 同Wilson，但离散化误差降低 \\
+\textbf{Domain-Wall} & 局域性（引入第五维） & $L_s\to\infty$时恢复手征对称性，$m_{\text{res}}\neq 0$ \\
+\textbf{Staggered} & 味对称性（taste破缺） & 保留$U(1)$手征子群，$\mathcal{O}(a^2)$误差 \\
+\textbf{Twisted Mass} & 手征对称性 & $\mathcal{O}(a)$自动改进，避免例外组态 \\
+\textbf{Overlap} & 局域性（指数衰减） & 精确手征对称性，极高计算成本 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{本库中的相关教材与文献}
+
+本库包含三本核心教材和大量研究论文，提供了费米子方案的全面参考：
+
+\begin{table}[H]
+\centering
+\caption{本库中费米子方案相关的主要教材}
+\label{tab:textbooks}
+\small
+\begin{tabular}{lp{6cm}l}
+\toprule
+教材 & 文件名 & 相关章节 \\
+\midrule
+Gattringer \& Lang & \texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf} &
+Ch.~5 (Wilson), Ch.~7 (手征对称性/Ginsparg--Wilson/Overlap), Ch.~9 (Symanzik改进/Clover), Ch.~10 (Staggered/Domain-Wall/Twisted Mass) \\
+
+Rajan Gupta & \texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf} &
+Ch.~9 (加倍子), Ch.~10 (Wilson), Ch.~11 (Staggered), Ch.~12 (改进/Clover/Tadpole), Ch.~13 (Domain-Wall/Overlap) \\
+
+Peskin \& Schroeder & \texttt{refer/books/An Introduction to Quantum Field Theory.pdf} &
+Part III（QCD连续理论背景）\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{论文文献中的相关计算}
+
+本库\texttt{refer/papers/}目录中包含大量使用上述费米子方案的格点计算论文，按方案分类见表\ref{tab:fermion_papers}。这些论文为本文的理论讨论提供了具体的数值实例和参数选择。
+
+\begin{table}[H]
+\centering
+\caption{本库论文按费米子方案分类（部分代表）}
+\label{tab:fermion_papers}
+\small
+\begin{tabular}{ll}
+\toprule
+费米子方案 & 代表性论文（文件路径简写） \\
+\midrule
+Clover（含tadpole改进） & 大量LPC合作组论文（TMD-PDF、准PDF等），CLS系综（$N_f=2+1$ Clover） \\
+Twisted Mass & \texttt{Gluon PDF of the proton using twisted mass fermions.pdf}；ETMC合作组计算 \\
+HISQ/Staggered & MILC系综（$N_f=2+1+1$ HISQ海夸克 + Clover价夸克），如核子TMD-PDF计算 \\
+Domain-Wall & 部分强子结构计算（RBC/UKQCD合作组风格） \\
+Overlap/GW & \texttt{Self-Renormalization of Quasi-Light-Front Correlators.pdf}（Overlap费米子交叉验证） \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%==========================================================================
+\section{Wilson费米子}
+%==========================================================================
+
+\subsection{Wilson项的引入：物理动机}
+
+Wilson在1974年提出了解决加倍子问题的最直接方案~\cite{Wilson1974}: 向na\"ive作用中添加一个\textbf{维度5的不可重整化项}（Wilson项），使加倍子获得与格距倒数成正比的额外质量，从而在连续极限$a\to 0$下退耦。
+
+\begin{definition}[Wilson Dirac算符]
+Wilson费米子的Dirac算符在动量空间中的形式为：
+\begin{equation}
+\begin{aligned}
+D_W(p) &= m\mathbf{1} + \frac{i}{a}\sum_{\mu=1}^4 \gamma_\mu \sin(p_\mu a) + \frac{1}{a}\sum_{\mu=1}^4 (1 - \cos(p_\mu a)) \\
+&= m\mathbf{1} + \frac{i}{a}\sum_\mu \gamma_\mu \sin(p_\mu a) + \frac{r}{a}\sum_\mu (1 - \cos(p_\mu a)),
+\label{eq:wilson_momentum}
+\end{aligned}
+\end{equation}
+其中$r$是Wilson参数（通常取$r=1$）。Wilson项$\propto (1-\cos(p_\mu a))$在$p_\mu=0$处为$\mathcal{O}(a)$，在Brillouin区边缘$p_\mu=\pi/a$处为$\mathcal{O}(1/a)$。
+\end{definition}
+
+\textbf{坐标空间的Wilson Dirac算符}（包括规范场）由Gattringer与Lang~\cite{GattringerLang2010}给出：
+\begin{equation}
+\begin{aligned}
+D_W^{(f)}(n|m)^{ab}_{\alpha\beta} &= \left(m^{(f)} + \frac{4}{a}\right) \delta_{\alpha\beta}\delta_{ab}\delta_{n,m} \\
+&\quad - \frac{1}{2a}\sum_{\mu=\pm 1}^{\pm 4} (1 - \gamma_\mu)_{\alpha\beta} U_\mu(n)^{ab} \delta_{n+\hat\mu,m},
+\label{eq:wilson_position}
+\end{aligned}
+\end{equation}
+其中$\gamma_{-\mu} \equiv -\gamma_\mu$，$U_{-\mu}(n) \equiv U_\mu(n-\hat\mu)^\dagger$。此为Wilson QCD的标准形式。
+
+\textbf{Wilson项的本质：}在连续极限下，Wilson项可以写为：
+\begin{equation}
+\frac{r}{a}\sum_\mu (1 - \cos(p_\mu a)) = \frac{ar}{2}\sum_\mu p_\mu^2 + \mathcal{O}(a^3) \to -\frac{ar}{2}\partial_\mu\partial_\mu,
+\label{eq:wilson_term_continuum}
+\end{equation}
+即一个负Laplace算符，乘以格距$a$——因此Wilson项是一个\textbf{维度5的不可重整化算符}，在na\"ive连续极限$a\to 0$下形式地消失。
+
+\subsection{加倍子质量的物理图像}
+
+对于Wilson项，具有$\ell$个动量分量等于$\pi/a$的加倍子获得额外质量：
+\begin{equation}
+m_{\text{doubler}} = m + \frac{2\ell r}{a}, \qquad \ell = 1,2,3,4.
+\label{eq:doubler_mass}
+\end{equation}
+
+在连续极限$a\to 0$下，所有加倍子的质量发散为$\sim 1/a$，因此它们从物理谱中退耦。在自由场极限下，仅有$p_\mu=0$处（$\ell=0$）的物理极点存活。对于$r=1$，传播子具有单一分支的色散关系：
+\begin{equation}
+e^{Ea} = 1 + ma,
+\label{eq:wilson_dispersion}
+\end{equation}
+无加倍子或ghost分支。
+
+\subsection{Hopping参数形式与fermion line解释}
+
+引入hopping参数$\kappa$和hopping矩阵$H$，Wilson Dirac算符重写为：
+\begin{equation}
+D_W = C(\mathbf{1} - \kappa H), \quad \kappa \equiv \frac{1}{2(am+4r)}, \quad C \equiv m + \frac{4r}{a},
+\label{eq:hopping_form}
+\end{equation}
+其中$H$收集所有最近邻项：
+\begin{equation}
+H(n|m)_{\alpha\beta}^{ab} = \sum_{\mu=\pm 1}^{\pm 4} (1-\gamma_\mu)_{\alpha\beta} U_\mu(n)^{ab} \delta_{n+\hat\mu,m}.
+\label{eq:hopping_matrix}
+\end{equation}
+
+\textbf{Hopping展开}提供了一个直观的物理图像~\cite{GattringerLang2010}：对于大夸克质量（小$\kappa$），夸克传播子可展开为：
+\begin{equation}
+D_W^{-1} = (\mathbf{1} - \kappa H)^{-1} = \sum_{j=0}^\infty \kappa^j H^j.
+\label{eq:hopping_expansion}
+\end{equation}
+
+每一项$\kappa^j H^j$对应一条从$n$到$m$、长度为$j$的非回溯路径——由规范链接和自旋因子$(1-\gamma_\mu)$的乘积组成。性质$(1-\gamma_\mu)(1+\gamma_\mu)=0$排除了$180^\circ$转折的路径。fermion行列式则是闭合fermion圈的指数求和。这一图像将费米子传播理解为\textbf{规范场中随机行走的加权求和}，为理解禁闭和强子谱提供了直观框架。
+
+\subsection{Wilson费米子的关键性质}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{手征对称性的显式破缺：}Wilson项$\propto \bar\psi\Box\psi$是一个类质量项，不与$\gamma_5$反对易。即使$m_q=0$，$\{D_W, \gamma_5\} \neq 0$。后果包括：
+    \begin{itemize}
+        \item 夸克质量获得\textbf{加法重整化}——$m_q$的裸值与重整化值之间存在有限偏移，手征极限（$m_\pi \to 0$）对应的裸质量不是$m_q=0$而是$m_q = m_{\text{crit}}$；
+        \item $\kappa_c$（临界hopping参数）需要通过数值外推确定（$m_\pi^2 \propto m_q \to 0$）；
+        \item 轴Ward恒等式获得$\mathcal{O}(a)$的额外项：$\partial_\mu A_\mu = 2mP + raX$，其中$X$来自Wilson项的变分。
+    \end{itemize}
+
+    \item \textbf{离散化误差为$\mathcal{O}(a)$：}与规范场的$\mathcal{O}(a^2)$Wilson作用不同，Wilson费米子作用的离散化误差是$\mathcal{O}(a)$——这是不可重整化Wilson项直接导致的。
+
+    \item \textbf{$\gamma_5$-厄米性：}$\gamma_5 D_W \gamma_5 = D_W^\dagger$——这一性质保证了行列式的实性（当无化学势、$\theta$项或扭曲质量项时），是HMC算法的基础。
+
+    \item \textbf{例外组态（exceptional configurations）：}在淬火近似下，$D_W$可能出现近零模（即使$\kappa < \kappa_c$），导致传播子在个别组态上奇异。这限制了轻夸克质量的模拟。
+
+    \item \textbf{优点：}简单、局域、计算成本低；自旋和味自由度与连续Dirac费米子一一对应——介子和重子的内插算符构造与连续理论相同；在大多数格点QCD计算中作为``工作马''使用。
+\end{enumerate}
+
+%==========================================================================
+\section{Clover费米子与Symanzik改进}
+%==========================================================================
+
+\subsection{Symanzik改进的基本思想}
+
+Symanzik在1983年提出了系统消除格点离散化误差的框架~\cite{Symanzik1983}。核心思想是：
+\begin{enumerate}
+    \item 将格点理论中的关联函数用连续有效作用量展开（Symanzik展开）：
+    \begin{equation}
+    \langle O \rangle_{\text{latt}} = \langle O \rangle_{\text{cont}} + a\int d^4x\, \langle O \mathcal{L}_1(x) \rangle_{\text{cont}} + \mathcal{O}(a^2),
+    \label{eq:Symanzik_expansion}
+    \end{equation}
+    其中$\mathcal{L}_1$是维度5的等效Lagrangian密度，由所有在格点对称性下允许的维度5算符的线性组合构成。
+    \item 在格点作用量中引入抵消项（维度5算符），使其有效作用量中的$\mathcal{L}_1$系数为零。
+\end{enumerate}
+
+\subsection{Clover项的导出}
+
+对于Wilson费米子作用，Symanzik分析~\cite{GattringerLang2010}表明，$\mathcal{O}(a)$改进仅需添加\textbf{一个}维度5算符——Pauli项：
+\begin{equation}
+\mathcal{L}_1 \propto \bar\psi(x)\, i\sigma_{\mu\nu}F_{\mu\nu}(x)\, \psi(x), \quad \sigma_{\mu\nu} \equiv \frac{i}{2}[\gamma_\mu, \gamma_\nu].
+\label{eq:Pauli_term}
+\end{equation}
+
+\begin{definition}[Sheikholeslami--Wohlert（Clover）作用]
+Clover改进的Wilson费米子作用由Sheikholeslami和Wohlert于1985年提出~\cite{SheikholeslamiWohlert1985}：
+\begin{equation}
+S_F^{\text{SW}} = S_F^{\text{Wilson}} + a^5 \sum_{n\in\Lambda} \sum_{\mu<\nu} c_{\text{sw}} \bar\psi(n) \frac{i}{4}\sigma_{\mu\nu} \hat{F}_{\mu\nu}(n) \psi(n),
+\label{eq:clover_action}
+\end{equation}
+其中$\hat{F}_{\mu\nu}(n)$是格点场强张量的``clover''（三叶草）离散化——由以$n$为中心的四个plaquette的平均构成：
+\begin{equation}
+\hat{F}_{\mu\nu}(n) = \frac{1}{8i}\Big[\big(Q_{\mu\nu}(n) - Q_{\nu\mu}(n)\big) - \text{h.c.}\Big],
+\label{eq:clover_Fmunu}
+\end{equation}
+$Q_{\mu\nu}(n)$是以$n$为起点的四个plaquette之和（形状类似三叶草的叶片，故得名）。
+\end{definition}
+
+\textbf{Clover项的物理本质：}Pauli项描述了夸克自旋与胶子场强之间的相互作用（类似于电子在电磁场中的Pauli项$\propto \vec\sigma\cdot\vec B$）。在格点上，这一不可重整化算符恰好抵消Wilson项在$\mathcal{O}(a)$层面引入的自旋-依赖的离散化效应。
+
+\subsection{Sheikholeslami--Wohlert系数$c_{\text{sw}}$的确定}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{树图值：}$c_{\text{sw}} = 1$——在此值下，自由场极限中的$\mathcal{O}(a)$离散化误差被完全消除。
+    \item \textbf{单圈微扰值：}辐射修正改变$c_{\text{sw}}$，使其依赖于规范耦合：
+    \begin{equation}
+    c_{\text{sw}}(\beta) = 1 + c_{\text{sw}}^{(1)} g_0^2 + \mathcal{O}(g_0^4),
+    \label{eq:csw_perturbative}
+    \end{equation}
+    $c_{\text{sw}}^{(1)}$对不同规范作用有不同的值~\cite{Wohlert1987}。
+    \item \textbf{非微扰确定（Schr\"odinger泛函方法）：}通过要求手征Ward恒等式在有限格距下的恢复（以PCAC质量$m_{\text{AWI}}$的$\mathcal{O}(a)$修正消失为判据）来非微扰调节$c_{\text{sw}}$。ALPHA合作组~\cite{Luscher1996SF}通过Schr\"odinger泛函方法给出了$c_{\text{sw}}$的精确非微扰值，该方法通过有限体积中的RG演化避免了微扰论的截断依赖。
+\end{enumerate}
+
+\textbf{对轴向流改进的$c_A$系数：}完全$\mathcal{O}(a)$改进还需要改进算符本身。对于轴矢流$A_\mu$，改进形式为：
+\begin{equation}
+A_\mu^I = A_\mu + a c_A \tilde\partial_\mu P,
+\label{eq:improved_axial}
+\end{equation}
+其中$P = \bar\psi\gamma_5\psi$是赝标量密度，$\tilde\partial_\mu$是对称格点导数。类似地，夸克质量改进为$m_q^I = m_q(1 + b_m a m_q)$。
+
+\subsection{Tadpole改进（平均场改进）}
+
+Lepage和Mackenzie在1993年提出了tadpole改进方案~\cite{LepageMackenzie1993}，其物理动机是：
+
+\begin{enumerate}
+    \item 格点微扰论中，规范链接$U_\mu$的期望值因tadpole图（UV发散的蝌蚪图）而显著偏离1：
+    \begin{equation}
+    \langle U_\mu \rangle \approx u_0 \mathbf{1}, \quad u_0 \approx 0.6\text{--}0.8,
+    \label{eq:u0_tadpole}
+    \end{equation}
+    这意味着微扰展开参数不是裸耦合$g_0$，而是``tadpole改进''后的有效耦合。
+    \item 通过重标定规范链接$\tilde U_\mu = U_\mu/u_0$，可大量吸收tadpole图的贡献，使微扰级数加速收敛。
+\end{enumerate}
+
+\begin{definition}[Tadpole改进的实际实现]
+\begin{enumerate}[nosep]
+    \item 从数值模拟中非微扰测量$u_0$：$u_0 = \langle \frac{1}{3}\operatorname{tr} U_{\mu\nu} \rangle^{1/4}$（从plaquette提取）；
+    \item 在Dirac算符中将所有$U_\mu$替换为$U_\mu/u_0$；
+    \item Clover系数在tadpole改进后的树图值为$c_{\text{sw}} = u_0^{-3}$而非1。
+\end{enumerate}
+\end{definition}
+
+\textbf{Tadpole改进的优势：}（1）几乎无额外计算成本（仅需测量plaquette期望值）；（2）大幅降低微扰展开中$\alpha_s$系数的量值，使非微扰修正更可控；（3）已被本库中大量LPC和CLQCD合作组的计算采用。
+
+\begin{table}[H]
+\centering
+\caption{Tadpole改进对Clover作用参数的修正}
+\label{tab:tadpole_csw}
+\begin{tabular}{lcc}
+\toprule
+量 & 无改进 & Tadpole改进后 \\
+\midrule
+规范链接 & $U_\mu$ & $U_\mu/u_0$ \\
+$c_{\text{sw}}$（树图） & 1 & $u_0^{-3}$ \\
+$\kappa$（树图临界值） & $1/8$ & $1/(8u_0)$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Clover费米子在本库计算中的应用}
+
+Clover费米子（含tadpole改进）是本库中\textbf{使用最广泛的费米子方案}，例如：
+\begin{itemize}
+    \item CLS（Coordinated Lattice Simulations）系综：$N_f = 2+1$ Clover费米子 + tree-level Symanzik改进规范作用。LPC合作组在多篇TMD/PDF计算中使用CLS系综~\cite{Chu2023soft,Chu2023TMDWF}；
+    \item 大量准PDF和TMD-PDF计算中的价夸克采用Clover费米子（搭配MILC HISQ海夸克）~\cite{He2024unpolTMD,Ma2025BoerMulders}；
+    \item 格距$a = 0.032\text{--}0.121$~fm的广泛覆盖，允许连续极限外推~\cite{Zhang2022renormTMD}。
+\end{itemize}
+
+%==========================================================================
+\section{Staggered费米子与HISQ}
+%==========================================================================
+
+\subsection{Kogut--Susskind（Staggered）变换}
+
+Staggered费米子（也称Kogut--Susskind费米子）~\cite{KogutSusskind1975}通过\textbf{spinspin对角化}将na\"ive作用的16个加倍子重新解释为物理自由度，将加倍子问题转化为额外的``taste''（味）自由度。
+
+\begin{definition}[Staggered变换]
+对四维格点上的费米子场进行以下幺正变换：
+\begin{equation}
+\psi(n) = \gamma_1^{n_1}\gamma_2^{n_2}\gamma_3^{n_3}\gamma_4^{n_4}\,\chi(n), \quad
+\bar\psi(n) = \bar\chi(n)\,\gamma_4^{n_4}\gamma_3^{n_3}\gamma_2^{n_2}\gamma_1^{n_1},
+\label{eq:staggered_transform}
+\end{equation}
+其中$n_\mu$是格点坐标（整数）。在此变换下，na\"ive Dirac算符中的$\gamma$矩阵被对角化——$\bar\psi(n)\gamma_\mu\psi(n+\hat\mu) \to \eta_\mu(n)\bar\chi(n)\chi(n+\hat\mu)$，其中$\eta_\mu(n) = (-1)^{\sum_{\nu<\mu} n_\nu}$是staggered相位因子。
+\end{definition}
+
+\textbf{Staggered Dirac算符：}
+\begin{equation}
+D_{\text{stag}}(n|m) = m\,\delta_{n,m} + \frac{1}{2a}\sum_{\mu=1}^4 \eta_\mu(n)\big[U_\mu(n)\delta_{n+\hat\mu,m} - U_\mu^\dagger(n-\hat\mu)\delta_{n-\hat\mu,m}\big].
+\label{eq:staggered_Dirac}
+\end{equation}
+
+\textbf{Staggered费米子场的自旋结构：}经过staggered变换后，Dirac算符在自旋空间中变为平凡的（无$\gamma$矩阵），自旋自由度分散到了$2^4=16$个超立方体的格点上。连续极限下，这16个格点组合出4个Dirac费米子的自旋分量——每个Dirac费米子称为一个``taste''。
+
+\subsection{Taste对称性与第四根技巧}
+
+\textbf{Taste对称性：}在连续极限下，4个taste的费米子具有$SU(4)$味对称性。但在有限格距下，这一对称性被破缺至一个更小的子群。taste破缺导致的主要现象是\textbf{介子质量分裂}——例如，16个$\pi$介子（对应$SU(4)$中15个非对角生成子+1个单态）在有限格距下不简并。``Goldstone $\pi$''（对应$\gamma_5$的守恒轴矢流）保持无质量（在$m_q=0$时），而其他$\pi$态获得$\mathcal{O}(a^2)$的质量分裂。
+
+\textbf{第四根技巧（Fourth-root trick）：}在动力学模拟中，为了获得所需的$N_f$味物理理论，对staggered费米子行列式开第四根：
+\begin{equation}
+\det[D_{\text{stag}}] \to (\det[D_{\text{stag}}])^{N_f/4},
+\label{eq:fourth_root}
+\end{equation}
+这意味着每个staggered味（taste）被``稀释''为1/4个物理味。对于$N_f=2+1$和$N_f=2+1+1$，分别取$N_f/4 = 1/2$（对$u,d$）和$N_f/4 = 1/4$（对$s$和$c$）。第四根技巧的合法性问题（特别是局域性和幺正性）曾是长期争议的话题，但在理论和数值实践中已被广泛接受~\cite{Durr2004,Sharpe2006}。
+
+\subsection{Staggered费米子的关键性质}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{手征对称性：}Staggered作用在零质量极限下保持一个\textbf{$U(1)$手征子群}（对应于$\eta_5(n) = (-1)^{n_1+n_2+n_3+n_4}$相位的变换）。这保护了$\mathcal{O}(a^2)$而非$\mathcal{O}(a)$的离散化误差——staggered费米子天然具有$\mathcal{O}(a^2)$改进，这是Wilson费米子（$\mathcal{O}(a)$误差）无法比拟的优势。
+    \item \textbf{计算效率：}无自旋矩阵乘法——Dirac算符仅为1分量（标量在自旋空间），求逆速度是Wilson费米子的4倍以上。
+    \item \textbf{缺点——taste破缺：}有限$a$下的taste破缺导致非物理的介子质量分裂，需要$a \lesssim 0.12$~fm才能使taste破缺足够小。
+    \item \textbf{应用：}MILC合作组的大型系综广泛使用staggered海夸克（$N_f=2+1$和$N_f=2+1+1$），本库中LPC合作组的大量结构计算（如核子TMD-PDF~\cite{He2024unpolTMD}）均以此为基础。
+\end{enumerate}
+
+\subsection{HISQ：高度改进的Staggered夸克}
+
+HISQ（Highly Improved Staggered Quarks）是由HPQCD/MILC合作组发展的staggered费米子改进方案~\cite{Follana2007HISQ}，旨在进一步压制$\mathcal{O}(a^2)$离散化误差和taste破缺。
+
+\begin{definition}[HISQ作用的构造]
+HISQ Dirac算符包含以下改进：
+\begin{equation}
+D_{\text{HISQ}} = D_{\text{stag}}^{\text{1-link}} + D^{\text{Naik}} + D^{\text{Lepage}},
+\label{eq:HISQ}
+\end{equation}
+其中：
+\begin{enumerate}[nosep]
+    \item \textbf{一链项：}标准staggered Dirac算符，但链接变量经过两级涂抹：
+    \begin{itemize}
+        \item 第一级：Fat7涂抹（包含7个方向上的规范链接）；
+        \item 第二级：AsqTad风格的 reunitarization（将涂抹后的$SU(3)$矩阵重新投影到$SU(3)$）。
+    \end{itemize}
+    \item \textbf{Naik项（三跳项）：}$\mathcal{O}(a^2)$改进的关键——添加连接三倍格距的``长跳''项，系数被调节到消除$p_\mu a$展开中的$\mathcal{O}(a^2)$误差。
+    \item \textbf{Lepage项：}进一步的$\mathcal{O}(a^2)$改进，校正Fat7涂抹引入的色散关系扭曲。
+\end{enumerate}
+\end{definition}
+
+\textbf{HISQ的核心优势：}
+\begin{itemize}
+    \item Taste破缺极小——在$a=0.12$~fm处，taste-分裂的$\pi$介子质量差异仅为标准staggered的$\sim\!1/3$；
+    \item 离散化误差$\sim\mathcal{O}(\alpha_s a^2, a^4)$；
+    \item 允许在较粗的格距上使用相对论性$c$夸克（$am_c < 1$），实现对charm物理的精确计算。
+\end{itemize}
+
+\textbf{本库中的应用：}MILC $N_f=2+1+1$ HISQ系综（$a=0.12$~fm，$48^3\times64$，物理海夸克质量）被LPC合作组用作所有核子TMD-PDF计算的海夸克背景~\cite{He2024unpolTMD,Ma2025BoerMulders}。
+
+%==========================================================================
+\section{Domain-Wall费米子}
+%==========================================================================
+
+\subsection{Kaplan的域壁构造：五维理论中的手征零模}
+
+Domain-Wall费米子（DWF）由Kaplan于1992年提出~\cite{Kaplan1992}，其核心思想是\textbf{利用第五维上的拓扑缺陷来局域化手征费米子}——这是凝聚态物理中``domain-wall fermion''概念在格点规范理论中的移植。
+
+\begin{definition}[五维Domain-Wall Dirac算符]
+在五维空间$(x_\mu, s)$（其中$s\in[0, L_s-1]$是第五维坐标）中，Domain-Wall作用量为：
+\begin{equation}
+S_F^{\text{DW}} = \sum_{x,s} \bar\Psi(x,s) \left[ D_W^{\text{4D}}\Psi(x,s) + D_5\Psi(x,s) \right],
+\label{eq:dwf_action}
+\end{equation}
+其中第五维Dirac算符为：
+\begin{equation}
+D_5\Psi(x,s) = \frac{1}{2}\big[(1+\gamma_5)\Psi(x,s+1) + (1-\gamma_5)\Psi(x,s-1) - 2\Psi(x,s)\big].
+\label{eq:D5}
+\end{equation}
+最关键的是，第五维方向上的\textbf{质量参数}$M_5$在$s$的中点发生符号翻转（domain wall）：
+\begin{equation}
+M_5(s) = \begin{cases}
++M_5, & 0 \le s < L_s/2,\\
+-M_5, & L_s/2 \le s < L_s,
+\end{cases}
+\quad 0 < M_5 < 2.
+\label{eq:domain_wall_mass}
+\end{equation}
+\end{definition}
+
+\textbf{物理机制：}质量缺陷$M_5(s)$的符号改变在四维边界$s=0$和$s=L_s-1$上产生\textbf{束缚态}——拓扑保护的零模。右手征零模局域在$s=0$边界，左手征零模局域在$s=L_s-1$边界。在$L_s\to\infty$极限下，两个边界无限分离，左右手征模式完全退耦，实现精确的手征对称性。
+
+\subsection{Shamir表述与等效四维算符}
+
+Shamir和Furman~\cite{FurmanShamir1995}将五维理论重新表述为等效的四维理论。在$L_s\to\infty$极限下，等效的四维Dirac算符满足Ginsparg--Wilson关系~\cite{GinspargWilson1982}：
+\begin{equation}
+D_{\text{eff}}\gamma_5 + \gamma_5 D_{\text{eff}} = a D_{\text{eff}}\gamma_5 D_{\text{eff}},
+\label{eq:GW_relation}
+\end{equation}
+因此Domain-Wall费米子是对Ginsparg--Wilson费米子的一个\textbf{近似实现}。
+
+等效的四维夸克传播子由五维传播子在边界上的分量给出：
+\begin{equation}
+S_q(x,y) = \langle \bar q(x) q(y) \rangle, \quad q(x) = P_L\Psi(x,0) + P_R\Psi(x,L_s-1).
+\label{eq:physical_quark}
+\end{equation}
+
+\subsection{残余质量$m_{\text{res}}$}
+
+对于\textbf{有限}$L_s$，两个边界之间存在指数级 suppressed 的耦合，导致手征对称性的轻微破缺。这一效应可以通过\textbf{残余质量}$m_{\text{res}}$来参数化：
+\begin{equation}
+m_{\text{res}} \sim \frac{1}{a} e^{-\alpha L_s},
+\label{eq:mres}
+\end{equation}
+其中$\alpha$依赖于规范场的光滑程度（与$M_5$和格距有关）。
+
+\begin{remark}[残余质量的控制]
+$m_{\text{res}}$的压制策略包括：
+\begin{enumerate}[nosep]
+    \item 增大$L_s$——直接但计算成本线性增长；
+    \item 使用更光顺的规范作用（如Iwasaki、DBW2作用）——这些``RG-improved''规范作用抑制了导致手征对称性破缺的拓扑涨落；
+    \item 采用M\"obius或Borici域壁费米子——通过调节五维Dirac算符的系数优化性能；
+    \item $L_s$的典型值为12--32（对物理夸克质量）。
+\end{enumerate}
+\end{remark}
+
+\subsection{Domain-Wall费米子的性质与应用}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{近似手征对称性：}在$m_{\text{res}} \ll m_q$的条件下，手征对称性被良好保护，$\mathcal{O}(a)$误差很小；
+    \item \textbf{$\mathcal{O}(a^2)$离散化误差：}当$m_{\text{res}}$被充分压制后，主导误差为$\mathcal{O}(a^2)$；
+    \item \textbf{无加倍子和例外组态：}域壁构造自动消除加倍子和零模问题；
+    \item \textbf{代价：}$L_s$维的额外自由度使计算成本比Wilson费米子高$L_s$倍（典型值10--30倍）；
+    \item \textbf{主要应用：}RBC/UKQCD合作组的$K\to\pi\pi$和$\epsilon'/\epsilon$计算、核子结构计算等。本库中部分参考论文使用Domain-Wall费米子（间接引用）。
+\end{enumerate}
+
+%==========================================================================
+\section{Twisted Mass费米子}
+%==========================================================================
+
+\subsection{基本构造：同位旋空间的手征旋转}
+
+Twisted Mass费米子（tmQCD）由Frezzotti、Grassi、Sint和Weisz在2001年提出~\cite{Frezzotti2001tmQCD}。其核心思想是在Wilson费米子的质量项中引入\textbf{同位旋空间的手征旋转}。
+
+\begin{definition}[Twisted Mass QCD作用]
+对$N_f=2$简并味，Twisted Mass作用量为：
+\begin{equation}
+S_F^{\text{tm}} = a^4\sum_{n} \bar\chi(n)\left[ D_W + m_0 + i\mu_q\gamma_5\tau_3 \right]\chi(n),
+\label{eq:tm_action}
+\end{equation}
+其中$D_W$是Wilson Dirac算符（在$m=0$处），$m_0$是标准质量参数（与Wilson费米子中的$\kappa$相关），$\mu_q$是扭曲质量（twisted mass），$\tau_3 = \operatorname{diag}(1,-1)$是同位旋空间的Pauli矩阵。费米子场$\chi$通过手征旋转与物理的夸克场$\psi$相联系：
+\begin{equation}
+\psi = \exp\left(i\frac{\omega}{2}\gamma_5\tau_3\right)\chi, \quad \bar\psi = \bar\chi\exp\left(i\frac{\omega}{2}\gamma_5\tau_3\right),
+\label{eq:tm_rotation}
+\end{equation}
+其中$\omega$是扭曲角（twist angle）。
+\end{definition}
+
+\textbf{物理质量与扭曲角的关系：}
+\begin{equation}
+\tan\omega = \frac{\mu_q}{m_0}, \quad m_q^{\text{phys}} = \sqrt{m_0^2 + \mu_q^2}.
+\label{eq:twist_angle}
+\end{equation}
+
+\subsection{最大扭曲与$\mathcal{O}(a)$自动改进}
+
+Twisted Mass方案最引人注目的特性是\textbf{最大扭曲条件}下的自动$\mathcal{O}(a)$改进~\cite{Frezzotti2001tmQCD}：
+
+\begin{theorem}[自动$\mathcal{O}(a)$改进]
+当扭曲角取$\omega = \pi/2$（即$m_0 = 0$，$\kappa = \kappa_c$）时，所有\textbf{物理可观测量}（如强子质量、衰变常数）中的所有$\mathcal{O}(a)$离散化误差被消除。剩余误差从$\mathcal{O}(a)$跳至$\mathcal{O}(a^2)$。
+\end{theorem}
+
+\textbf{自动改进的物理机制：}在最大扭曲下，Wilson项的$\mathcal{O}(a)$效应通过扭曲质量的手征旋转被``吸收''为$\mathcal{O}(a^2)$的效应——类似于使用另一个不可重整化算符（$\mu_q\gamma_5\tau_3$）来``抵消''Wilson项的手征破缺效应。
+
+\subsection{防止例外组态的保护机制}
+
+Twisted Mass方案的一个关键实际优势是\textbf{保护Dirac算符免受例外组态影响}。原因在于：Wilson项的实部（$\propto m_0$）可以被调节到足够大，以确保Dirac算符的最小本征值有一个有限的下界：
+\begin{equation}
+\lambda_{\min}(D_W + m_0 + i\mu_q\gamma_5\tau_3) \gtrsim \mu_q > 0,
+\label{eq:tm_protection}
+\end{equation}
+即使在$\kappa = \kappa_c$（$m_0 = 0$）时也是如此。这使得在接近手征极限的轻夸克质量下进行模拟成为可能，而无需担心Wilson费米子的例外组态问题。
+
+\subsection{$\gamma_5$-厄米性的修改与同位旋破缺}
+
+Twisted Mass Dirac算符满足修改的$\gamma_5$-厄米性：
+\begin{equation}
+\gamma_5 (D_W + m_0 + i\mu_q\gamma_5\tau_3) \gamma_5 = (D_W + m_0 - i\mu_q\gamma_5\tau_3)^\dagger.
+\label{eq:tm_gamma5}
+\end{equation}
+
+同味（$u$和$d$）之间的同位旋对称性在有限格距下被扭曲质量项\textbf{显式破缺}——因为$\tau_3$区分了$u$和$d$夸克。这导致$\pi^\pm$和$\pi^0$的质量分裂以及$u$和$d$夸克的一些观测量差异。在连续极限下，同位旋对称性恢复。
+
+\subsection{本库中的应用}
+
+ETM合作组（European Twisted Mass Collaboration）使用$N_f=2$和$N_f=2+1+1$ Twisted Mass费米子进行了大量强子物理计算。本库中包含：
+\begin{itemize}
+    \item \texttt{Gluon PDF of the proton using twisted mass fermions.pdf}——使用Twisted Mass费米子的胶子PDF计算~\cite{ETMCgluonPDF}；
+    \item 多个准PDF和TMD-PDF论文中引用的Twisted Mass系综计算结果。
+\end{itemize}
+
+%==========================================================================
+\section{Ginsparg--Wilson关系与Overlap费米子}
+%==========================================================================
+
+\subsection{Ginsparg--Wilson关系：格点手征对称性的精确表述}
+
+在Wilson引入格点规范理论近十年后的1982年，Ginsparg和Wilson~\cite{GinspargWilson1982}提出了格点上实现手征对称性的全新途径。他们不再要求$\{D,\gamma_5\} = 0$这一严格条件，而是提出了一个修正的关系：
+
+\begin{definition}[Ginsparg--Wilson关系]
+\begin{equation}
+\boxed{D\gamma_5 + \gamma_5 D = a D\gamma_5 D}.
+\label{eq:GW_equation}
+\end{equation}
+在连续极限$a\to 0$下，右端消失，恢复标准的$\{D,\gamma_5\}=0$。但对于有限$a$，右端的存在为格点手征对称性提供了新的定义空间。
+\end{definition}
+
+\textbf{Ginsparg--Wilson关系对传播子的影响：}假设$D$可逆，将式(\ref{eq:GW_equation})两边乘以$D^{-1}$：
+\begin{equation}
+\gamma_5 D^{-1}(n|m) + D^{-1}(n|m)\gamma_5 = a\gamma_5\delta(n-m).
+\label{eq:GW_propagator}
+\end{equation}
+即，$\gamma_5$与传播子的反对易子仅在$n=m$（接触项）处被修改——手征对称性的破缺被\textbf{严格局域化}在接触项中。
+
+\subsection{改进的手征变换与手征投影}
+
+L\"uscher在1998年证明~\cite{Luscher1998chiral}：基于Ginsparg--Wilson Dirac算符$D$，可以定义\textbf{修改的手征变换}：
+\begin{equation}
+\psi' = \exp\!\left[i\alpha\gamma_5\left(1-\frac{a}{2}D\right)\right]\psi, \quad
+\bar\psi' = \bar\psi\exp\!\left[i\alpha\left(1-\frac{a}{2}D\right)\gamma_5\right].
+\label{eq:lattice_chiral_trans}
+\end{equation}
+此变换在$a\to 0$时回复为连续手征变换，且\textbf{精确保持}质量为零的格点作用不变。
+
+\textbf{改进的手征投影算符：}
+\begin{equation}
+\hat P_R = \frac{1+\hat\gamma_5}{2}, \quad \hat P_L = \frac{1-\hat\gamma_5}{2}, \quad \hat\gamma_5 \equiv \gamma_5(1 - aD).
+\label{eq:GW_projectors}
+\end{equation}
+这些投影子满足正交性和幂等性（$\hat P_{R,L}^2 = \hat P_{R,L}$，$\hat P_R\hat P_L = 0$，$\hat P_R + \hat P_L = 1$），且手征组分被恰当分解：$D\hat P_R = P_L D$，$D\hat P_L = P_R D$。
+
+\textbf{Ginsparg--Wilson Dirac算符的谱性质：}Ginsparg--Wilson关系结合$\gamma_5$-厄米性$D^\dagger = \gamma_5 D\gamma_5$，导致所有本征值$\lambda$被约束在复平面上的\textbf{Ginsparg--Wilson圆}上：
+\begin{equation}
+\left|\lambda - \frac{1}{a}\right| = \frac{1}{a}.
+\label{eq:GW_circle}
+\end{equation}
+此圆以$1/a$为中心，$1/a$为半径。加倍子模式（$\lambda \approx 2/a$）被推向圆的远边缘，在$a\to 0$下退耦。
+
+\textbf{格点指标定理：}Ginsparg--Wilson Dirac算符提供了一个关键的拓扑量——通过零模的手征性直接计算拓扑荷：
+\begin{equation}
+Q_{\text{top}} \equiv \frac{1}{2}\operatorname{tr}[\gamma_5 D] = n_- - n_+,
+\label{eq:index_theorem}
+\end{equation}
+其中$n_-$和$n_+$分别是左、右手征零模的数目。这是连续Atiyah--Singer指标定理的格点精确版本。
+
+\subsection{Overlap Dirac算符：Ginsparg--Wilson关系的精确解}
+
+Neuberger在1998年给出了Ginsparg--Wilson关系的首个精确解~\cite{Neuberger1998overlap}——Overlap Dirac算符：
+
+\begin{definition}[Overlap Dirac算符]
+\begin{equation}
+\boxed{D_{\text{ov}} = \frac{1}{a}\left[1 - \gamma_5\,\operatorname{sign}\!\big(\gamma_5 D_W(-M_5)\big)\right]},
+\label{eq:overlap}
+\end{equation}
+其中$D_W(-M_5)$是质量参数为负的Wilson Dirac算符（通常取$M_5 \in (0,2)$），$\operatorname{sign}(H)$是矩阵$H = \gamma_5 D_W(-M_5)$的符号函数：
+\begin{equation}
+\operatorname{sign}(H) \equiv \frac{H}{\sqrt{H^\dagger H}}.
+\label{eq:sign_function}
+\end{equation}
+\end{definition}
+
+\textbf{构造的物理图像：}Overlap构造可以理解为从一个``内核''Wilson算符$D_W$出发，通过``投影''手续消除双重子和手征对称性破缺效应。负质量参数$-M_5$使Wilson算符在拓扑非平凡组态上产生正确的零模结构；符号函数将本征值投影到Ginsparg--Wilson圆上。
+
+\subsection{Overlap费米子的性质与局限}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{精确手征对称性：}$D_{\text{ov}}$精确满足Ginsparg--Wilson关系——手征对称性、指标定理和轴反常均在有限格距上被正确实现；
+    \item \textbf{无加倍子：}所有加倍子模式被投影到Ginsparg--Wilson圆的$2/a$处，退耦；
+    \item \textbf{局域性：}虽然$D_{\text{ov}}$不是超局域的（ultralocal），但其矩阵元满足指数衰减：$|D_{\text{ov}}(n|m)| \sim e^{-\gamma|n-m|/a}$——只要规范场足够光滑；
+    \item \textbf{计算成本极高：}矩阵符号函数$\operatorname{sign}(H)$的计算是主要瓶颈——需要精确对角化（对小格点）或多项式/有理逼近（对大格点），成本是Wilson费米子的50--100倍；
+    \item \textbf{拓扑荷的离散性：}当规范场在拓扑扇区之间隧穿时，符号函数出现不连续性——这在实际的HMC演化中导致拓扑冻结（topology freezing）问题。
+\end{enumerate}
+
+\subsection{本库中的应用}
+
+Overlap费米子（包括其近似变体Domain-Wall费米子）在本库中主要用于\textbf{交叉验证}——检验手征对称性破缺在非手征方案中的影响。关键应用包括：
+\begin{itemize}
+    \item Huo等人~\cite{Huo2021self}使用Overlap费米子验证了RI/MOM方案对直Wilson线准PDF算符的线性发散失败——Clover和Overlap费米子上的结果一致，确认了重整化方案的普适性和RI/MOM的失效；
+    \item Zhang等人~\cite{Zhang2022renormTMD}同样使用Overlap费米子进行了TMD重整化的交叉验证。
+\end{itemize}
+
+%==========================================================================
+\section{比较与统一视角}
+%==========================================================================
+
+\subsection{六种费米子方案的综合比较}
+
+\begin{table}[H]
+\centering
+\caption{六种费米子方案的综合比较}
+\label{tab:full_comparison}
+\small
+\begin{tabular}{p{2cm}p{2.2cm}p{2.2cm}p{2.2cm}p{2.2cm}p{2.2cm}p{2.2cm}}
+\toprule
+特性 & Wilson & Clover & Staggered/HISQ & Domain-Wall & Twisted Mass & Overlap \\
+\midrule
+离散化误差 & $\mathcal{O}(a)$ & $\mathcal{O}(a^2)$ {\small（经改进）} & $\mathcal{O}(a^2)$ & $\mathcal{O}(a^2)$ {\small（$m_{\text{res}}\to 0$）} & $\mathcal{O}(a^2)$ {\small（最大扭曲）} & $\mathcal{O}(a^2)$ \\
+手征对称性 & 显式破缺 & 显式破缺 & $U(1)$子群保留 & 近似（$L_s$有限） & 显式破缺 & 精确GW \\
+加倍子 & 无 & 无 & 16$\to$4 tastes & 无 & 无 & 无 \\
+taste破缺 & 无 & 无 & 有（需$a$小） & 无 & 无 & 无 \\
+例外组态 & 有 & 有（含csw） & 有（轻质量） & 无 & 无 & 无 \\
+加法重整化 & 有 & 有 & 无 & 有（$m_{\text{res}}$） & 有 & 无 \\
+计算成本 & 1（基准） & $\sim$1.15 & $\sim$0.25$^{\text{a}}$ & $\sim$15--30 & $\sim$1--2 & $\sim$50--100 \\
+主要使用 & 早期计算 & CLS, LPC & MILC, HISQ & RBC/UKQCD & ETMC & 检验/验证 \\
+\bottomrule
+\end{tabular}
+
+\vspace{3pt}
+\footnotesize
+$^{\text{a}}$Staggered费米子的计算成本在每flop的意义上约为Wilson的1/4（无自旋矩阵乘法），但taste简并带来的$N_f=4$倍数效应需额外考虑。
+\end{table}
+
+\subsection{从Nielsen--Ninomiya定理到实际计算：统一的理论框架}
+
+图\ref{fig:fermion_taxonomy}（以文字形式呈现）展示了本报告分析的六种费米子方案如何从Nielsen--Ninomiya定理的不可能性出发，通过不同的理论策略形成互补的方法学体系：
+
+\begin{center}
+\fbox{\begin{minipage}{0.92\textwidth}
+\small
+\textbf{费米子方案的理论谱系}
+
+\medskip
+Nielsen--Ninomiya定理（1981）
+\quad$\longrightarrow$\quad
+\begin{tabular}{ll}
+\textbf{放弃手征对称性} &
+  $\begin{cases}
+  \text{Wilson (1974)} \to \text{Clover (1985)} \to \text{Tadpole改进 (1993)} \\
+  \text{Twisted Mass (2001)：$\mathcal{O}(a)$自动改进}
+  \end{cases}$ \\[10pt]
+\textbf{手征对称性+加倍子共存} &
+  $\begin{cases}
+  \text{Staggered (1975) $\to$ AsqTad $\to$ HISQ (2007)} \\
+  \text{16个加倍子 $=$ 4个taste $\times$ 4个自旋分量}
+  \end{cases}$ \\[10pt]
+\textbf{绕过定理（第五维/非局域）} &
+  $\begin{cases}
+  \text{Domain-Wall (1992)：第五维边界束缚手征零模} \\
+  \text{Overlap (1998)：Ginsparg--Wilson的精确解}
+  \end{cases}$
+\end{tabular}
+
+\medskip
+\textbf{核心理论线索：}
+\begin{itemize}[nosep]
+  \item Symanzik改进程序（1983）$\to$ Clover项 + 高阶改进 + HISQ的Naik/Lepage项
+  \item Tadpole/平均场改进（1993）$\to$ $U_\mu \to U_\mu/u_0$重整化
+  \item Ginsparg--Wilson关系（1982）$\to$ 格点手征对称性的正确表述
+\end{itemize}
+\end{minipage}}
+\end{center}
+
+\subsection{费米子方案选择对部分子物理计算的影响}
+
+不同的费米子方案通过以下机制影响部分子分布函数（PDF和TMD-PDF）的格点计算精度：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{手征对称性破缺与算符混合：}非手征费米子（Wilson/Clover）中，不同手征性的夸克双线型算符可能发生混合。例如，$\bar\psi\gamma^t\psi$与$\bar\psi\gamma^t\gamma_5\psi$在Clover费米子中可能混合（虽在数值上通常可忽略~\cite{Zhang2022renormTMD}）。Twisted Mass费米子的$\gamma_5\tau_3$结构则导致同位旋对称性破缺。
+
+    \item \textbf{Wilson线的线性发散：}准PDF和准TMD-PDF算符中的Wilson线产生与格距相关的线性发散$\sim e^{-\delta m L/a}$。Zhang等人~\cite{Zhang2022renormTMD}在Clover和Overlap两种费米子上验证了Wilson圈减除方案对这些发散的普适消除——确认了重整化方案的费米子-作用量独立性。
+
+    \item \textbf{连续极限外推：}不同费米子方案的离散化误差阶数不同（$\mathcal{O}(a)$ vs $\mathcal{O}(a^2)$），直接影响连续极限外推的精度和需要的格点间距数量。Clover费米子（$\mathcal{O}(a)$改进后为$\mathcal{O}(a^2)$）和HISQ费米子（$\mathcal{O}(a^2)$天然改进）在连续极限研究中具有优势。
+
+    \item \textbf{计算成本与物理$\pi$质量的权衡：}物理$\pi$质量$m_\pi \approx 135$~MeV下的直接模拟对Dirac算符的条件数提出了极高要求。Twisted Mass方案通过$\mu_q$的保护机制和HISQ通过tadpole改进规范链接在接近手征极限时展现出更好的数值稳定性。
+\end{enumerate}
+
+%==========================================================================
+\section{总结与展望}
+%==========================================================================
+
+本文基于本库中的三本核心教材（Gattringer与Lang的\textit{Quantum Chromodynamics on the Lattice}~\cite{GattringerLang2010}、Gupta的\textit{Introduction to Lattice QCD}~\cite{Gupta1997intro}、Peskin与Schroeder的\textit{An Introduction to Quantum Field Theory}~\cite{PeskinSchroeder1995}）和约40篇研究论文，系统解析了格点QCD中六种主要费米子方案的理论基础、数值性质和实际应用。
+
+\textbf{核心结论：}
+
+\begin{enumerate}[leftmargin=*]
+
+    \item \textbf{Nielsen--Ninomiya定理是不可绕过的理论分水岭：}所有费米子方案都可以按``放弃了Nielsen--Ninomiya四个条件中的哪一个''来分类。Wilson和Clover方案放弃手征对称性（换取无加倍子），Staggered方案保留手征子群但容忍taste多重性，Domain-Wall和Overlap方案通过引入第五维或非局域性来``优雅地绕过''定理。
+
+    \item \textbf{Symanzik改进揭示了$\mathcal{O}(a)$误差的普遍结构：}Clover项（Pauli项$\propto c_{\text{sw}}\sigma_{\mu\nu}F_{\mu\nu}$）是实现Wilson费米子$\mathcal{O}(a)$改进的唯一必要维度5算符。Tadpole改进（平均场重标定$U_\mu \to U_\mu/u_0$）以几乎零成本大幅加速微扰展开的收敛。
+
+    \item \textbf{手征对称性的不同实现层次形成了计算精度与成本之间的阶梯：}从Wilson/Clover（显式破缺，$\mathcal{O}(a)$或$\mathcal{O}(a^2)$误差）到Staggered（$U(1)$手征子群保留，$\mathcal{O}(a^2)$天然改进）到Twisted Mass（$\mathcal{O}(a^2)$自动改进）到Domain-Wall（近似GW）到Overlap（精确GW），计算成本递增$\sim\!2$个数量级，而手征对称性的实现精度也同步提高。
+
+    \item \textbf{混合方案是当前部分子物理计算的实际主流：}MILC $N_f=2+1+1$ HISQ海夸克 + Clover价夸克的组合（LPC合作组的标准配置）利用了HISQ在海夸克中的计算优势和Clover在价夸克中介子/重子算符构造的简便性。这一策略在本库的核子TMD-PDF~\cite{He2024unpolTMD}和Boer-Mulders函数~\cite{Ma2025BoerMulders}计算中得到了充分应用。
+
+    \item \textbf{HISQ和Twisted Mass方案在近手征极限模拟中展现了显著优势：}HISQ通过Fat7涂抹+Naik项+Lepage项的三重改进将taste破缺压至极低水平；Twisted Mass方案的最大扭曲条件自动实现$\mathcal{O}(a)$改进且$\mu_q$项保护Dirac算符免受例外组态的困扰。
+
+    \item \textbf{Overlap和Domain-Wall费米子为手征极限下的系统误差控制提供了``黄金标准''：}在本库的准PDF重整化研究~\cite{Huo2021self}中，Overlap费米子被用作交叉验证手征费米子方案——Clover和Overlap上一致性结果消除了对手征对称性破缺引入系统误差的担忧。
+
+\end{enumerate}
+
+\textbf{展望：}随着Exascale计算时代的到来，Domain-Wall和Overlap费米子的计算成本瓶颈正在被逐步突破——利用GPU加速和更高效的算法（如M\"obius域壁费米子、有理逼近的Overlap算符），直接在精确手征对称性下进行物理$\pi$质量的格点QCD模拟已不再遥不可及。同时，HISQ和Twisted Mass方案在连续极限外推中的成熟技术将继续为强子结构和标准模型精确检验提供高精度的格点输入。
+
+%==========================================================================
+% 参考文献
+%==========================================================================
+\begin{thebibliography}{99}
+
+% === 教材 ===
+\bibitem{GattringerLang2010}
+C.~Gattringer and C.~B.~Lang,
+\textit{Quantum Chromodynamics on the Lattice: An Introductory Presentation},
+Lect.\ Notes Phys.\ \textbf{788}, Springer (2010).
+\\\textbf{[来源:} \texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}\textbf{]}
+——本报告Ch.~5（Wilson费米子）、Ch.~7（手征对称性/Ginsparg--Wilson/Overlap）、Ch.~9（Symanzik改进/Clover）、Ch.~10（Staggered/Domain-Wall/Twisted Mass）的主要理论来源。
+
+\bibitem{Gupta1997intro}
+R.~Gupta,
+``Introduction to Lattice QCD,''
+arXiv:hep-lat/9807028 (1997).
+\\\textbf{[来源:} \texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf}\textbf{]}
+——本报告Ch.~9（加倍子）、Ch.~10（Wilson）、Ch.~11（Staggered）、Ch.~12（改进/Clover/Tadpole）、Ch.~13（Domain-Wall/Overlap）的重要补充来源。
+
+\bibitem{PeskinSchroeder1995}
+M.~E.~Peskin and D.~V.~Schroeder,
+\textit{An Introduction to Quantum Field Theory},
+Westview Press (1995).
+\\\textbf{[来源:} \texttt{refer/books/An Introduction to Quantum Field Theory.pdf}\textbf{]}
+——连续QCD的理论背景。
+
+% === 原始论文 ===
+\bibitem{Wilson1974}
+K.~G.~Wilson,
+``Confinement of quarks,''
+Phys.\ Rev.\ D \textbf{10}, 2445 (1974).
+——Wilson费米子作用的原始提出。
+
+\bibitem{NielsenNinomiya1981}
+H.~B.~Nielsen and M.~Ninomiya,
+``A no-go theorem for regularizing chiral fermions,''
+Phys.\ Lett.\ B \textbf{105}, 219 (1981).
+——Nielsen--Ninomiya定理的原始证明：格点上无法同时实现无加倍子和手征对称性。
+
+\bibitem{Symanzik1983}
+K.~Symanzik,
+``Continuum limit and improved action in lattice theories,''
+Nucl.\ Phys.\ B \textbf{226}, 187 (1983).
+——Symanzik改进程序的原始提出。
+
+\bibitem{SheikholeslamiWohlert1985}
+B.~Sheikholeslami and R.~Wohlert,
+``Improved continuum limit lattice action for QCD with Wilson fermions,''
+Nucl.\ Phys.\ B \textbf{259}, 572 (1985).
+——Clover（Sheikholeslami--Wohlert）改进作用的原始论文。
+
+\bibitem{Wohlert1987}
+R.~Wohlert,
+``Improved continuum limit lattice action for quarks,''
+DESY preprint 87-069 (1987).
+——Clover系数的单圈微扰计算。
+
+\bibitem{Luscher1996SF}
+M.~L\"uscher, R.~Sommer, P.~Weisz, and U.~Wolff,
+``A precise determination of the running coupling in the SU(3) Yang-Mills theory,''
+Nucl.\ Phys.\ B \textbf{489}, 33 (1997), arXiv:hep-lat/9609035.
+——Schr\"odinger泛函方法用于非微扰重整化（含$c_{\text{sw}}$的非微扰确定）。
+
+\bibitem{KogutSusskind1975}
+J.~B.~Kogut and L.~Susskind,
+``Hamiltonian formulation of Wilson's lattice gauge theories,''
+Phys.\ Rev.\ D \textbf{11}, 395 (1975).
+——Staggered（Kogut--Susskind）费米子的原始提出。
+
+\bibitem{LepageMackenzie1993}
+G.~P.~Lepage and P.~B.~Mackenzie,
+``On the viability of lattice perturbation theory,''
+Phys.\ Rev.\ D \textbf{48}, 2250 (1993), arXiv:hep-lat/9209022.
+——Tadpole改进（平均场改进）方案的原始论文，奠定了现代格点QCD中微扰计算的范式。
+
+\bibitem{Follana2007HISQ}
+E.~Follana \textit{et al.} (HPQCD),
+``Highly improved staggered quarks on the lattice, with applications to charm physics,''
+Phys.\ Rev.\ D \textbf{75}, 054502 (2007), arXiv:hep-lat/0610092.
+——HISQ作用量的定义、构造和首次验证。
+
+\bibitem{Kaplan1992}
+D.~B.~Kaplan,
+``A method for simulating chiral fermions on the lattice,''
+Phys.\ Lett.\ B \textbf{288}, 342 (1992), arXiv:hep-lat/9206013.
+——Domain-Wall费米子的原始构造：第五维上的拓扑缺陷局域化手征零模。
+
+\bibitem{FurmanShamir1995}
+V.~Furman and Y.~Shamir,
+``Axial symmetries in lattice QCD with Kaplan fermions,''
+Nucl.\ Phys.\ B \textbf{439}, 54 (1995), arXiv:hep-lat/9405004.
+——Domain-Wall费米子的Shamir表述和等效四维算符。
+
+\bibitem{GinspargWilson1982}
+P.~H.~Ginsparg and K.~G.~Wilson,
+``A remnant of chiral symmetry on the lattice,''
+Phys.\ Rev.\ D \textbf{25}, 2649 (1982).
+——Ginsparg--Wilson关系的原始提出，奠定了格点手征对称性的理论基础。
+
+\bibitem{Neuberger1998overlap}
+H.~Neuberger,
+``Exactly massless quarks on the lattice,''
+Phys.\ Lett.\ B \textbf{417}, 141 (1998), arXiv:hep-lat/9707022.
+——Overlap Dirac算符的精确构造：Ginsparg--Wilson关系的首个显式解。
+
+\bibitem{Luscher1998chiral}
+M.~L\"uscher,
+``Exact chiral symmetry on the lattice and the Ginsparg--Wilson relation,''
+Phys.\ Lett.\ B \textbf{428}, 342 (1998), arXiv:hep-lat/9802011.
+——基于Ginsparg--Wilson关系定义格点手征对称性的系统阐述。
+
+\bibitem{Frezzotti2001tmQCD}
+R.~Frezzotti, P.~A.~Grassi, S.~Sint, and P.~Weisz (ALPHA),
+``Lattice QCD with a chirally twisted mass term,''
+JHEP \textbf{08}, 058 (2001), arXiv:hep-lat/0101001.
+——Twisted Mass QCD的原始提出和自动$\mathcal{O}(a)$改进的证明。
+
+\bibitem{Durr2004}
+S.~D\"urr, C.~Hoelbling, and U.~Wenger,
+``Staggered eigenvalue mimicry,''
+Phys.\ Rev.\ D \textbf{70}, 094502 (2004), arXiv:hep-lat/0406027.
+——Staggered费米子第四根技巧的理论检验。
+
+\bibitem{Sharpe2006}
+S.~R.~Sharpe,
+``Rooted staggered fermions: Good, bad or ugly?,''
+PoS \textbf{LAT2006}, 022 (2006), arXiv:hep-lat/0610094.
+——第四根技巧的综述和辩护。
+
+% === 本库中的研究论文 ===
+\bibitem{He2024unpolTMD}
+J.-C.~He \textit{et al.} (LPC),
+``Unpolarized TMD parton distributions of the nucleon from lattice QCD,''
+Phys.\ Rev.\ D \textbf{109}, 114513 (2024), arXiv:2211.02340.
+\\\textbf{[来源:} \texttt{refer/papers/Unpolarized Transverse-Momentum-Dependent Parton Distributions of the Nucleon from Lattice QCD.pdf}\textbf{]}
+——MILC HISQ海夸克+Clover价夸克上核子TMD-PDF的首次计算。
+
+\bibitem{Ma2025BoerMulders}
+L.~Ma \textit{et al.} (LPC),
+``Quark transverse spin-momentum correlation: The Boer-Mulders function,''
+(2025), arXiv:2502.11807.
+\\\textbf{[来源:} \texttt{refer/papers/Quark Transverse Spin-Momentum Correlation of the Nucleon from Lattice QCD The Boer-Mulders Function.pdf}\textbf{]}
+——CLS Clover系综上Boer-Mulders函数的首次核子计算。
+
+\bibitem{Zhang2022renormTMD}
+K.~Zhang \textit{et al.} (LPC),
+``Renormalization of TMD parton distribution on the lattice,''
+Phys.\ Rev.\ D \textbf{106}, 094510 (2022), arXiv:2205.13402.
+\\\textbf{[来源:} \texttt{refer/papers/Renormalization of transverse-momentum-dependent parton distribution on the lattice.pdf}\textbf{]}
+——5种格点间距上的TMD重整化验证，Clover与Overlap费米子的交叉验证。
+
+\bibitem{Huo2021self}
+Y.-K.~Huo \textit{et al.} (LPC),
+``Self-renormalization of quasi-light-front correlators on the lattice,''
+Nucl.\ Phys.\ B \textbf{969}, 115443 (2021), arXiv:2103.02965.
+\\\textbf{[来源:} \texttt{refer/papers/Self-Renormalization of Quasi-Light-Front Correlators on the Lattice.pdf}\textbf{]}
+——准光锥关联函数的Overlap费米子交叉验证。
+
+\bibitem{Chu2023soft}
+M.-H.~Chu \textit{et al.} (LPC),
+``Lattice calculation of the intrinsic soft function and the Collins-Soper kernel,''
+JHEP \textbf{08}, 172 (2023), arXiv:2306.06488.
+\\\textbf{[来源:} \texttt{refer/papers/Lattice Calculation of the Intrinsic Soft Function and the Collins-Soper Kernel.pdf}\textbf{]}
+——CLS Clover系综上的软函数计算。
+
+\bibitem{Chu2023TMDWF}
+M.-H.~Chu \textit{et al.} (LPC),
+``Transverse-momentum-dependent wave functions of pion from lattice QCD,''
+Phys.\ Rev.\ D \textbf{108}, 094513 (2023), arXiv:2302.09961.
+\\\textbf{[来源:} \texttt{refer/papers/Transverse-Momentum-Dependent Wave Functions of Pion from Lattice QCD.pdf}\textbf{]}
+——MILC HISQ + CLS Clover双系综上$\pi$介子TMD波函数的首次计算。
+
+\bibitem{ETMCgluonPDF}
+ETM Collaboration,
+``Gluon PDF of the proton using twisted mass fermions,''
+(相关年份)。
+\\\textbf{[来源:} \texttt{refer/papers/Gluon PDF of the proton using twisted mass fermions.pdf}\textbf{]}
+——使用Twisted Mass费米子的胶子PDF计算。
+
+\bibitem{CharmedClover}
+(相关合作组),
+``Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles,''
+\\\textbf{[来源:} \texttt{refer/papers/Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+——Tadpole改进Clover费米子在粲介子物理中的应用。
+
+\bibitem{QuarkMassesClover}
+(相关合作组),
+``Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles,''
+\\\textbf{[来源:} \texttt{refer/papers/Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+——Tadpole改进Clover费米子用于夸克质量和低能常数的确定。
+
+\bibitem{Zhang2024gauge_fixing}
+K.~Zhang \textit{et al.} (LPC),
+``Impact of gauge fixing precision on the continuum limit of non-local quark-bilinear lattice operators,''
+Phys.\ Rev.\ D \textbf{110}, 074505 (2024), arXiv:2405.14097.
+\\\textbf{[来源:} \texttt{refer/papers/Impact of gauge fixing precision on the continuum limit of non-local quark-bilinear lattice operators.pdf}\textbf{]}
+——规范固定精度对staple型Wilson线的连续极限影响（Clover费米子）。
+
+\bibitem{GaugeInvSmearing}
+``Gauge-Invariant Smearing and Matrix Correlators using Wilson Fermions at beta=6.2,''
+\\\textbf{[来源:} \texttt{refer/papers/Gauge-Invariant Smearing and Matrix Correlators using Wilson Fermions at beta=6.2.pdf}\textbf{]}
+——Wilson费米子的规范不变量涂抹技术。
+
+\end{thebibliography}
+
+\vspace{0.5cm}
+\noindent\rule{\textwidth}{0.5pt}
+\small
+\textbf{交叉参考建议：}本报告应结合同一\texttt{docs/}目录下的以下文件阅读：
+\begin{itemize}[nosep]
+    \item \texttt{格点QCD中的Symanzik有效理论.pdf}——Symanzik改进程序的详细讨论（与Clover/HISQ改进密切相关）
+    \item \texttt{格点QCD中的UV涨落.pdf}——格点QCD中紫外发散的讨论（Tadpole改进的物理背景）
+    \item \texttt{格点QCD中的场强张量.pdf}——Clover项中场强张量$\hat F_{\mu\nu}$的格点构造
+    \item \texttt{格点QCD中的大动量有效理论.pdf}——LaMET框架（依赖费米子方案的选择）
+    \item \texttt{格点QCD中的OPE算符.pdf}——算符乘积展开（费米子方案影响算符混合）
+    \item \texttt{格点QCD中的胶子算符.pdf}与\texttt{格点QCD中的夸克算符.pdf}——算符的格点构造
+    \item \texttt{格点QCD中的部分子分布函数.pdf}——共线PDF计算（费米子方案选择的综合影响）
+    \item \texttt{格点QCD中的TMD\_PDF.pdf}——TMD-PDF计算中费米子方案的具体应用
+\end{itemize}
+
+\end{document}

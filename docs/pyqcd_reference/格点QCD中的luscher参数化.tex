@@ -1,0 +1,603 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption,multirow}
+\usepackage{hyperref,xcolor,enumitem,mathtools}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的L\"uscher参数化：\\
+有限体积散射、共振态与衰变振幅的完整解析}
+\author{基于本库全部相关文献、教材与代码的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+\textbf{L\"uscher参数化（L\"uscher formalism / L\"uscher method）}是格点QCD中将\textbf{有限体积欧几里得能谱}映射到\textbf{无穷大体积Minkowski散射可观测量}的核心理论框架。由Martin L\"uscher在1986--1991年的一系列奠基性论文中建立，这一方法解决了格点QCD面临的一个根本性困难——欧几里得路径积分在大体积极限下由零动量态主导，无法直接提取实时散射振幅（Maiani--Testa定理）。L\"uscher方法将有限体积视为``散射实验室''而非``误差来源''：双粒子态在周期边界条件下的量子化能级因强相互作用而发生移动，这些移动被L\"uscher公式精确地与无穷大体积中的散射相移$\delta(k)$联系起来。
+
+本文基于本库中的核心教材（Gattringer与Lang的\textit{Quantum Chromodynamics on the Lattice}——第11.3节完整推导了L\"uscher公式、$s$波散射长度展开和$\rho\to\pi\pi$应用；Gupta的\textit{Introduction to Lattice QCD}——第14/19节），超过15篇研究论文，以及已有补充资料，从以下八个维度系统解析格点QCD中的L\"uscher参数化：
+
+\textbf{第一维度——根本困难：欧几里得关联函数为何不能直接提取散射振幅（§2）：}
+从Maiani--Testa定理出发，阐述为什么在大体积极限下欧几里得关联函数只能提取零动量态的信息，以及L\"uscher框架如何通过\textbf{有限体积能级移动}这一可观测量来绕过这一限制。
+
+\textbf{第二维度——L\"uscher公式的基本推导（§3）：}
+从一维周期边界条件下的平面波相移匹配条件 $e^{ikL+2i\delta(k)} = 1$ 出发，给出量子化条件 $k_n L + 2\delta(k_n) = 2\pi n$。推广到四维QCD中的完整L\"uscher公式 $\delta(k) = \phi(q) \bmod \pi$，$\tan(-\phi(q)) = q\pi^{3/2}/Z_{00}(1;q^2)$，详述推广Riemann zeta函数$Z_{00}$的数学定义和物理意义。
+
+\textbf{第三维度——阈值展开与$s$波散射长度（§4）：}
+推导双粒子基态能量$W(L)$的体积依赖性L\"uscher展开公式：$W = 2M_\pi - \frac{4\pi a_0}{M_\pi L^3}[1 + c_1 a_0/L + c_2 a_0^2/L^2] + O(L^{-6})$，给出纯几何常数$c_1 = -2.837297$、$c_2 = 6.375183$。讨论如何通过多个体积的能谱数据拟合提取散射长度$a_0$。
+
+\textbf{第四维度——运动框架推广（§5）：}
+阐述Rummukainen--Gottlieb的推广——当双粒子系统具有非零总动量$\mathbf{P} \neq 0$时，L\"uscher公式如何被推广以处理立方对称群的不同不可约表示（irreps），从而提取更高分波（$p$波、$d$波等）的相移。
+
+\textbf{第五维度——共振态参数化：$\rho\to\pi\pi$的格点计算（§6）：}
+以$\rho$介子衰变到两个$\pi$介子的$p$波共振为典范，详述完整流程：变分法提取$I=1, J^{PC}=1^{--}$道的有限体积能谱 $\to$ 推广L\"uscher公式提取相移 $\delta_1(k_n)$ $\to$ Breit--Wigner共振形式拟合 $\frac{k^3}{W}\cot\delta_1(k) = \frac{6\pi}{g_{\rho\pi\pi}^2}(m_\rho^2 - W^2)$ $\to$ 提取共振质量$m_\rho$（$\delta=\pi/2$处）和衰变宽度$\Gamma_\rho$。
+
+\textbf{第六维度——Lellouch--L\"uscher关系：$K\to\pi\pi$衰变（§7）：}
+阐述Lellouch和L\"uscher如何将这一框架推广到弱衰变矩阵元——建立有限体积中的$K\to\pi\pi$矩阵元与无穷大体积物理衰变振幅之间的精确关系，这是格点上$\epsilon'/\epsilon$和CP破坏计算的理论基石。
+
+\textbf{第七维度——耦合道推广与宽共振（§8）：}
+讨论L\"uscher方法在非弹性阈值以上的耦合道推广、$\sigma/f_0(500)$等极宽共振的挑战、以及Hansen--Sharpe等现代化的有限体积形式体系。
+
+\textbf{第八维度——L\"uscher在梯度流重整化中的贡献（§9）：}
+作为L\"uscher对格点QCD贡献的补充，简述他在梯度流（gradient flow）理论中的奠基性工作——L\"uscher--Weisz定理（2011）证明了梯度流关联函数的UV有限性——及其与有限体积方法的``族谱''关系。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ==============================================================================
+\section{引言：L\"uscher参数化——从有限体积到无穷大体积}
+% ==============================================================================
+
+\subsection{格点QCD中的核心矛盾}
+
+格点QCD的所有计算都在有限体积的Euclidean时空中进行——空间方向上具有周期边界条件，时间方向上具有有限范围。实验物理则发生在无穷大体积的Minkowski时空中。对于强子质量（束缚态），有限体积效应被指数压低$\sim e^{-m_\pi L}$，因此只要$m_\pi L \gtrsim 4$，有限体积校正就可忽略。
+
+然而，对于散射和衰变过程，情况截然不同~\cite{GattringerLang2010,decayChannels2026}：
+\begin{quote}
+``Whereas the finite volume effects for the single particle are exponentially small, now the interaction between the two particles leads to only polynomial suppression $O(1/L^3)$. The physical picture is that the localized particles need to be close to each other to interact and the probability to find one particle close to another is inversely proportional to the spatial volume.''
+\end{quote}
+
+\textbf{核心矛盾：}两个强子的相互作用在有限体积中产生$O(1/L^3)$量级的能级移动——这不是可忽略的误差，而恰恰是散射信息的编码载体。L\"uscher参数化的核心洞见是将这一``系统误差''转化为``信号''。
+
+\subsection{Maiani--Testa定理：为何Euclidean不能直接做散射}
+
+Maiani和Testa在1990年证明了一个根本性的定理~\cite{decayChannels2026,GattringerLang2010}：在Euclidean时空中，大时间（$T \to \infty$）和大体积（$L \to \infty$）极限下，关联函数被零动量态主导，因此无法直接从Euclidean关联函数中提取非零总动量的散射振幅或衰变宽度。
+
+L\"uscher框架通过一条巧妙的路径绕过了这一定理~\cite{GattringerLang2010,decayChannels2026}：
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{不取}无限体积极限——相反，保持在有限体积中，测量离散的双粒子能级$W_n(L)$；
+    \item 利用L\"uscher公式将$W_n(L)$映射到无穷大体积中的\textbf{散射相移}$\delta(k)$；
+    \item 最后通过相移的共振参数化提取\textbf{共振质量}和\textbf{衰变宽度}。
+\end{enumerate}
+
+\subsection{L\"uscher的三重贡献与本库文献}
+
+Martin L\"uscher对格点QCD的贡献主要集中在三个领域，本文聚焦于前两个：
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{领域} & \textbf{奠基性论文} & \textbf{本库文献} \\
+\midrule
+有限体积散射 & L\"uscher (1986, 1991)~\cite{GattringerLang2010} & 衰变道解析、色散关系解析、强子谱学 \\
+$K\to\pi\pi$衰变 & Lellouch--L\"uscher (2001)~\cite{decayChannels2026} & 衰变道解析 \\
+梯度流重整化 & L\"uscher (2010), L\"uscher--Weisz (2011)~\cite{gradFlow2026} & 梯度流重整化解析 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{本文定位与已有补充的关系}
+
+本库中已有四份补充材料覆盖了L\"uscher参数化的不同侧面：\textbf{衰变道解析}~\cite{decayChannels2026}（§3）给出了从衰变常数到L\"uscher方法的完整推导和$\rho\to\pi\pi$应用；\textbf{色散关系解析}~\cite{dispersion2026}（§7.2）阐述了$W_n = 2\sqrt{m^2 + k_n^2}$在连接能级和散射动量中的角色；\textbf{强子谱学}~\cite{hadronSpectroscopy2026}提及了L\"uscher方法和变分分析在共振态谱学中的应用；\textbf{3pt构造}~\cite{threepoint2026}（§8）指出了L\"uscher方法在提取高于阈值矩阵元中的挑战。
+
+本文在整合这四份材料的基础上，对L\"uscher参数化进行了\textbf{更深层次的理论展开}——包括运动框架推广的群论基础、有效力程展开的现代形式、耦合道L\"uscher公式、以及Lellouch--L\"uscher关系在$K\to\pi\pi$和$\epsilon'/\epsilon$中的应用——同时包含了梯度流L\"uscher理论的族谱关联。
+
+% ==============================================================================
+\section{根本困难：Maiani--Testa定理与L\"uscher的突破}
+% ==============================================================================
+
+\subsection{Euclidean关联函数的谱结构}
+
+考虑Euclidean时空中，由内插算符$O^\dagger(0)$在时间0产生、由$O(T)$在时间$T$湮灭的双粒子态关联函数~\cite{GattringerLang2010}：
+\begin{equation}\label{eq:corr_T}
+    C(T) = \langle 0 | O(T) O^\dagger(0) | 0 \rangle = \sum_n |A_n|^2 e^{-W_n T},
+\end{equation}
+其中$\{W_n\}$是有限体积中具有与$O^\dagger$相同量子数的所有双粒子态的能量本征值。
+
+在$T \to \infty$极限下，关联函数被\textbf{最低能级}$W_0$主导。对于两个$\pi$介子，真空中的最低能级是$W_0 = 2m_\pi$（零动量）——但物理散射过程发生在非零相对动量$k \neq 0$处！
+
+\textbf{Maiani--Testa定理的核心结论~\cite{decayChannels2026}：}无论我们如何构造内插算符，在大$T$和大$L$极限下，只有零总动量的态存活——这永远无法提取非零动量处的物理散射振幅。
+
+\subsection{L\"uscher的洞见：将有限体积视为``散射实验室''}
+
+L\"uscher的突破性想法是~\cite{GattringerLang2010}：
+\begin{enumerate}[leftmargin=*]
+    \item 不是在$L\to\infty$极限下工作，而是在\textbf{多个不同体积}$L$上计算离散能级$W_n(L)$；
+    \item 有限体积的周期边界条件将连续动量谱离散化为$k_n$。这些$k_n$的移位——相对于自由情况$k_n^{\text{free}} = 2\pi n/L$——完全由无限体积中的散射相移$\delta(k)$决定；
+    \item 因此，$W_n(L)$对$L$的依赖是$\delta(k)$的``指纹''——通过测量前者，可以反演后者。
+\end{enumerate}
+
+\textbf{物理直觉~\cite{GattringerLang2010,dispersion2026}：}在有限体积中，两个粒子在分离后绕环面传播，在再次相遇并散射之前传播距离$\sim L$。周期边界条件要求波函数在绕环一周后匹配——匹配条件中必须计入每次散射累积的相移$2\delta(k)$。这正是在§3中推导的量子化条件$k_n L + 2\delta(k_n) = 2\pi n$的物理起源。
+
+% ==============================================================================
+\section{L\"uscher公式的基本推导}
+% ==============================================================================
+
+\subsection{一维简化推导}
+
+考虑两个相同质量的标量粒子在长度为$L$的一维周期边界空间中散射~\cite{GattringerLang2010}。核心假设：\textbf{相互作用范围$R$远小于$L$}，因此在远离相互作用区域（$|x| > R$），相对运动的波函数是自由平面波：
+\begin{equation}\label{eq:wavefunc}
+    \psi(x) \propto e^{ikx} + e^{-ikx + 2i\delta(k)}, \quad |x| > R.
+\end{equation}
+第一项是入射波（沿$+x$方向），第二项是反射波（沿$-x$方向），携带了散射过程中累积的相移$2\delta(k)$。注意因子2：一次全散射过程（入射$\to$反射）涉及进入相互作用区域和离开，总共累积$2\delta(k)$的相位。
+
+\textbf{周期边界条件：}$\psi(0) = \psi(L)$给出（将$x=L$代入式(\ref{eq:wavefunc})）：
+\begin{equation}\label{eq:matching_1d}
+    e^{ikL+2i\delta(k)} = e^{ik\cdot 0} = 1.
+\end{equation}
+
+这直接给出了\textbf{L\"uscher量子化条件}~\cite{GattringerLang2010}：
+\begin{equation}\label{eq:Luscher_1d}
+    \boxed{k_n L + 2\delta(k_n) = 2\pi n, \quad n \in \mathbb{Z}.}
+\end{equation}
+
+\begin{remark}[自由粒子极限]
+如果$\delta(k) \equiv 0$（无相互作用），式(\ref{eq:Luscher_1d})回到自由粒子的标准量子化$k_n = 2\pi n/L$。任何$\delta(k) \neq 0$的偏移都意味着$k_n$相对于$2\pi n/L$发生了移动——这一移动是相移的直接度量。
+\end{remark}
+
+\subsection{色散关系的桥梁作用}
+
+L\"uscher量子化条件给出的是\textbf{动量}$k_n$而非\textbf{能量}$W_n$。将两者联系起来的正是\textbf{色散关系}~\cite{GattringerLang2010,dispersion2026}：
+\begin{equation}\label{eq:dispersion_Luscher}
+    \boxed{W_n = 2\sqrt{m^2 + k_n^2}}.
+\end{equation}
+
+这是格点上可测量的量（$W_n$）与理论中的相移自变量（$k_n$）之间的唯一连接。色散关系的精确性——无论连续形式$E = \sqrt{m^2 + p^2}$还是格点形式$\cosh(aE) = \cosh(am) + \sum_k(1 - \cos(ap_k))$——直接决定了L\"uscher分析的精度~\cite{dispersion2026}。
+
+Gattringer与Lang指出~\cite{GattringerLang2010}：
+\begin{quote}
+``The momenta can be obtained from the energy values of the two particle states which are accessible in the simulation. For given $L$ one computes the discrete levels $W_0, W_1, W_2, \ldots$ and from these the values of $k_n$ using the dispersion relation $W_n = 2\sqrt{m^2 + k_n^2}$.''
+\end{quote}
+
+\subsection{四维推广：L\"uscher的$\zeta$函数公式}
+
+在实际的四维QCD中，周期边界条件施加在三个空间方向上（体积$L^3$），相对运动发生在三维动量空间中。L\"uscher证明~\cite{GattringerLang2010}，四维中的量子化条件推广为：
+\begin{equation}\label{eq:Luscher_4d}
+    \boxed{\delta(k) = \phi(q) \bmod \pi, \quad \tan(-\phi(q)) = \frac{q\pi^{3/2}}{Z_{00}(1; q^2)},}
+\end{equation}
+其中：
+\begin{itemize}[leftmargin=*]
+    \item $q = kL/(2\pi)$是无量纲化的相对动量；
+    \item $Z_{00}(s; q^2)$是推广的Riemann zeta函数，由三维动量格点上的求和定义：
+    \begin{equation}\label{eq:zeta_def}
+        Z_{00}(s; q^2) = \frac{1}{\sqrt{4\pi}} \sum_{\mathbf{n} \in \mathbb{Z}^3} \frac{1}{(|\mathbf{n}|^2 - q^2)^s}.
+    \end{equation}
+    $s=1$时的值通过解析延拓获得。$Z_{00}$编码了立方格点的几何信息——不同体积$L$导致不同的$q$值，从而通过$Z_{00}(1; q^2)$影响量子化条件。
+\end{itemize}
+
+\textbf{注意模$\pi$：}由于$\tan$函数的周期性，$Z_{00}$公式只能确定$\delta(k)$模$\pi$。完整的相移需要通过连续性条件（$\delta(k)$随$k$的连续演化）来``展开''。这在共振态附近特别重要——当$\delta$穿过$\pi/2$时（共振点），模$\pi$的不确定性必须被正确解析。
+
+\subsection{从能级到相移的完整操作流程}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{变分法提取能级：}对每个体积$L$，构建具有目标量子数的内插算符相关矩阵$C_{ij}(t)$，通过求解广义本征值问题$C(t)v = \lambda(t) C(t_0) v$提取若干最低能级$W_0(L), W_1(L), \ldots$~\cite{hadronSpectroscopy2026,GattringerLang2010}；
+    \item \textbf{色散关系转换：}通过$W_n = 2\sqrt{m^2 + k_n^2}$将每个能级转换为相对动量$k_n$~\cite{dispersion2026}；
+    \item \textbf{L\"uscher公式映射：}通过$Z_{00}$函数将每个$k_n$映射为相移值$\delta(k_n)$~\cite{GattringerLang2010}；
+    \item \textbf{参数化拟合：}将离散数据点$(k_n, \delta(k_n))$拟合到共振参数化形式（如Breit--Wigner、有效力程展开等），提取物理共振参数~\cite{decayChannels2026}。
+\end{enumerate}
+
+% ==============================================================================
+\section{阈值展开与$s$波散射长度}
+% ==============================================================================
+
+\subsection{L\"uscher公式的$1/L$展开}
+
+在阈值附近（$k \to 0$），散射完全由$s$波主导。散射相移在$k=0$处的行为定义了\textbf{散射长度}$a_0$~\cite{GattringerLang2010}：
+\begin{equation}\label{eq:scattering_length_def}
+    a_0 = \lim_{k \to 0} \frac{\delta_0(k)}{k}.
+\end{equation}
+
+将L\"uscher公式在$1/L$展开，Gattringer与Lang给出~\cite{GattringerLang2010}：
+\begin{theorem}[双粒子基态能量的体积依赖性]\label{thm:Luscher_expand}
+\begin{equation}\label{eq:Luscher_expand}
+    \boxed{W = 2M_\pi - \frac{4\pi a_0}{M_\pi L^3}\left[1 + c_1\frac{a_0}{L} + c_2\frac{a_0^2}{L^2} + O(L^{-4})\right] + O(L^{-6}),}
+\end{equation}
+其中$c_1 = -2.837297$和$c_2 = 6.375183$是\textbf{纯几何常数}，仅依赖于格点的立方形状，由推广zeta函数$Z_{00}(1; q^2)$的$q\to 0$渐近行为决定。它们的普适性意味着：对于任何具有短程相互作用的非相对论性双粒子系统，体积依赖性的前三阶结构是\textbf{完全相同}的。
+\end{theorem}
+
+\subsection{散射长度的数值提取}
+
+\textbf{操作步骤~\cite{decayChannels2026,GattringerLang2010}：}
+\begin{enumerate}[leftmargin=*]
+    \item 在2--4个不同体积$L$的系综上，使用变分法计算双$\pi$系统的基态能量$W(L)$；
+    \item 将$[2M_\pi - W(L)] \cdot M_\pi L^3 / (4\pi)$对$1/L$进行多项式拟合；
+    \item 从截距提取$a_0$（领头阶）；从斜率提取对散射长度的$O(a_0^2/L)$修正。
+\end{enumerate}
+
+\textbf{物理重要案例：}
+\begin{itemize}[leftmargin=*]
+    \item $\pi\pi$散射的$I=2$道（同位旋-2，纯排斥）：$a_0^{I=2} < 0$，散射长度约$-0.044$~fm，是手征微扰论最重要的低能常数之一；
+    \item $\pi\pi$散射的$I=0$道（同位旋-0，$\sigma/f_0(500)$共振）：$a_0^{I=0} > 0$（吸引），远大于$I=2$的值，但由于$\sigma$共振极宽$(\Gamma \sim 400-700\ \text{MeV})$，阈展开的适用范围非常有限；
+    \item $NN$散射：$a_0({}^1S_0) \approx -23.7$~fm（自旋单态，大散射长度——接近幺正极限），$a_0({}^3S_1) \approx 5.4$~fm（自旋三重态，与氘核束缚态对应）。
+\end{itemize}
+
+\subsection{非简并质量的推广}
+
+当两个散射粒子的质量不相等（如$K\pi$散射）时，L\"uscher展开公式需要推广~\cite{GattringerLang2010}。质量不等性的主要效应是改变了约化质量和运动学因子，但$1/L^3$的体积依赖标度律保持不变。
+
+% ==============================================================================
+\section{运动框架推广：Rummukainen--Gottlieb方法}
+% ==============================================================================
+
+\subsection{非零总动量的必要性}
+
+在质心系（$\mathbf{P}=0$）中，双粒子态的角动量和立方群表示之间存在固定的对应关系。例如，$A_1^+$表示主要接收$s$波（$l=0$）的态，而$p$波（$l=1$）映射到$T_1^-$表示。但质心系中，更高分波的贡献被严重压制（$\propto k^{2l+1}$）。
+
+\textbf{运动框架（moving frame, $\mathbf{P} \neq 0$）}通过赋予双粒子系统非零总动量，打破了静止情况下的对称性约束，使不同分波的角动量混合发生变化~\cite{GattringerLang2010}。Rummukainen和Gottlieb在1995年将L\"uscher公式推广到这一情况~\cite{GattringerLang2010}。
+
+\subsection{群论基础：从$O_h$到Little Groups}
+
+静止框架中，有限体积的对称群是立方群$O_h$（包含48个元素：24个旋转和24个反射）。总角动量$J$的不可约表示$\mathcal{D}^J$在$O_h$中的约化（subduction）决定了哪些分波出现在哪个irrep中。
+
+当总动量$\mathbf{P} = (2\pi/L)\mathbf{d}$，$\mathbf{d} \in \mathbb{Z}^3$时，对称群被约化为保持$\mathbf{P}$不变的子群（little group）。不同的$\mathbf{d}$对应不同的little group，从而对应不同的分波混合模式。例如：
+\begin{itemize}[leftmargin=*]
+    \item $\mathbf{d} = (0,0,1)$：little group $C_{4v}$，$s$波与$p$波的$m=0$分量混合在同一个irrep中——这使通过不同irrep的能谱同时约束多条分波成为可能；
+    \item $\mathbf{d} = (1,1,0)$：little group $C_{2v}$，混合模式更为丰富；
+    \item $\mathbf{d} = (1,1,1)$：little group $C_{3v}$。
+\end{itemize}
+
+\subsection{运动框架中的L\"uscher公式}
+
+运动框架中，L\"uscher公式的$Z$函数推广为矩阵形式的行列式条件~\cite{GattringerLang2010}：
+\begin{equation}\label{eq:moving_frame}
+    \det\Bigl[ \mathbf{1} + i\boldsymbol{\rho}(k) \cdot \bigl(\mathbf{M}(k) - i\mathbf{1}\bigr)^{-1} \Bigr] = 0,
+\end{equation}
+其中$\boldsymbol{\rho}(k)$是相空间因子矩阵，$\mathbf{M}(k)$是散射矩阵在选定分波基上的表示，矩阵维度取决于考虑的不可约表示中混合的分波数量。
+
+\textbf{操作层面的简化：}在实践中，运动框架中通常采用``比值法''而非直接求解行列式条件——将运动框架中测得的能级代入推广的L\"uscher公式，通过数值根求解来提取分波相移。
+
+% ==============================================================================
+\section{共振态参数化：$\rho\to\pi\pi$的格点计算}
+% ==============================================================================
+
+\subsection{$\rho$介子：强衰变的格点QCD典范}
+
+$\rho$介子（$m_\rho \approx 775$~MeV，$\Gamma_\rho \approx 150$~MeV）是$\pi\pi$散射的$p$波共振态——它是格点QCD中强衰变过程计算最成功的案例。Gattringer与Lang给出~\cite{GattringerLang2010}：
+\begin{quote}
+``In [34] a simple 2D system was studied which couples a heavier and two lighter bosons on the lattice, with mass and coupling parameters allowing for a decay like in the $\rho \to \pi\pi$ system. Figure 11.3 demonstrates the expected phenomenon of level-crossing avoidance, which leads to a resonating phase shift.''
+\end{quote}
+
+\subsection{完整操作流程}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{构造内插算符基：}在$I=1, J^{PC}=1^{--}$道上，构建包含$\rho$介子类算符（$\bar{q}\gamma_i q$）和双$\pi$类算符（$\pi\pi$相对动量为$\mathbf{k}$的态）的变分基；
+
+    \item \textbf{变分法提取能谱：}求解广义本征值问题，从交叉关联矩阵中提取若干个最低的本征能量$W_n(L)$。这些$W_n(L)$将随$L$变化而演化——在共振能量附近，能级表现出``回避交叉''（avoided crossing）行为：包含共振态成分的能级在穿过共振质量时被``推开''，产生弯曲~\cite{GattringerLang2010}；
+
+    \item \textbf{运动框架推广L\"uscher公式：}由于$\rho$是$p$波共振，必须在运动框架中工作。利用总动量$\mathbf{P} \neq 0$的推广L\"uscher公式，从每个$W_n$提取$p$波相移$\delta_1(k_n)$；
+
+    \item \textbf{Breit--Wigner共振参数化~\cite{decayChannels2026}：}
+    \begin{equation}\label{eq:BW_param}
+        \boxed{\frac{k^3}{W}\cot\delta_1(k) = \frac{6\pi}{g_{\rho\pi\pi}^2}\bigl(m_\rho^2 - W^2\bigr),}
+    \end{equation}
+    其中$W = 2\sqrt{m_\pi^2 + k^2}$ 是双$\pi$系统的总能量。这就是$p$波的\textbf{有效力程展开}的领头阶形式。
+
+    \item \textbf{共振参数提取：}从$\frac{k^3}{W}\cot\delta_1(k)$对$W^2$的线性拟合中：
+    \begin{itemize}
+        \item 截距（与$W^2$轴的交点）：$m_\rho^2$——共振质量（$\delta_1 = \pi/2$处）；
+        \item 斜率：$-6\pi/g_{\rho\pi\pi}^2$——确定$\rho\pi\pi$耦合常数；
+        \item 衰变宽度从耦合常数推导：$\Gamma_\rho = \frac{g_{\rho\pi\pi}^2}{6\pi m_\rho^2} k_\rho^3$，其中$k_\rho = \sqrt{m_\rho^2/4 - m_\pi^2}$。
+    \end{itemize}
+\end{enumerate}
+
+\subsection{有效力程展开的完整形式}
+
+Breit--Wigner形式(\ref{eq:BW_param})只是有效力程展开（Effective Range Expansion, ERE）的领头阶。对于更高精度的分析和更宽的共振态，应使用完整ERE~\cite{GattringerLang2010}：
+\begin{equation}\label{eq:ERE}
+    \frac{k^{2l+1}}{W}\cot\delta_l(k) = -\frac{1}{a_l} + \frac{1}{2}r_l k^2 + O(k^4),
+\end{equation}
+其中$a_l$是$l$波散射长度，$r_l$是$l$波有效力程。对于$p$波（$l=1$），$1/a_1 \propto m_\rho^2$且$r_1 \propto 1/g_{\rho\pi\pi}^2$。
+
+\subsection{能级回避交叉的物理图像}
+
+Gattringer与Lang的图11.3展示了L\"uscher方法最引人注目的物理现象~\cite{GattringerLang2010}：当有限体积的离散能级在$L$变化中扫过共振能量时，包含共振态成分的能级与背景散射态的能级不能交叉——它们产生了``回避交叉''（avoided level crossing）。回避交叉的``锐度''直接度量了共振态的宽度：窄共振$\to$尖锐的回避交叉（$\delta$在$\pi/2$处迅速变化）；宽共振$\to$平滑的交叉（$\delta$缓慢穿过$\pi/2$）。
+
+这一现象是有限体积中``能级$\to$相移''映射的核心：通过精确测量回避交叉的形状，可以反演出$\delta(k)$穿越$\pi/2$的速率——即共振宽度。
+
+% ==============================================================================
+\section{Lellouch--L\"uscher关系：$K\to\pi\pi$衰变}
+% ==============================================================================
+
+\subsection{$K\to\pi\pi$的格点困境}
+
+$K\to\pi\pi$衰变是理解CP破坏（$\epsilon'/\epsilon$）的关键。然而，它在格点上遭遇了双重困难~\cite{decayChannels2026}：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{紫外问题：}四夸克算符$Q_i$的重整化和算符混合——不同$Q_i$在格点正规化下会发生混合，需要非微扰地确定混合矩阵；
+    \item \textbf{红外问题：}Maiani--Testa定理禁止直接从欧几里得关联函数中提取非零动量的$K\to\pi\pi$衰变振幅——这在$K$介子静止、两个$\pi$介子飞行离开的物理运动学中是个致命障碍。
+\end{enumerate}
+
+\subsection{Lellouch--L\"usher关系的推导思想}
+
+Lellouch和L\"usher在2001年~\cite{decayChannels2026}导出了一个精确关系，将\textbf{有限体积中的$K\to\pi\pi$矩阵元}与\textbf{无穷大体积中的物理衰变振幅}联系起来。Gattringer与Lang简洁地总结了核心结论~\cite{GattringerLang2010}：
+\begin{quote}
+``Lellouch and L\"uscher derived a relation between the $K \to \pi\pi$ matrix elements in finite volume and the physical kaon-decay amplitudes... A simple expression then relates the transition amplitude in finite volume to the decay rates in infinite volume.''
+\end{quote}
+
+\textbf{推导的基本思路~\cite{decayChannels2026}：}
+\begin{enumerate}[leftmargin=*]
+    \item 在有限体积中，通过弱Hamiltonian $H_W$的有效三点关联函数计算矩阵元$A_{\text{FV}} = \langle \pi\pi, n | H_W | K \rangle_{L}$——其中$|\pi\pi, n\rangle$是有限体积中第$n$个归一化的双$\pi$态；
+    \item Lellouch--L\"uscher因子（记为$\mathcal{F}$）将这一有限体积矩阵元转换为无穷大体积中的物理衰变振幅：
+    \begin{equation}\label{eq:LL_factor}
+        |A_{\infty}(k)|^2 = \mathcal{F}(k, L) \cdot |A_{\text{FV}}|^2.
+    \end{equation}
+    \item $\mathcal{F}$因子可以从同一个有限体积中双$\pi$态的能级$W_n(L)$和相移$\delta(k_n)$（通过L\"uscher公式获得）完全确定——不需要额外的自由参数。
+\end{enumerate}
+
+\subsection{Lellouch--L\"uscher因子的结构}
+
+Lellouch--L\"uscher因子$\mathcal{F}$具有以下结构~\cite{decayChannels2026}：
+\begin{equation}\label{eq:LL_structure}
+    \mathcal{F}(k, L) = \frac{4\pi}{k^2} \cdot \frac{\partial(\delta(k) + \phi(q))}{\partial k} \cdot (\text{运动学因子}),
+\end{equation}
+其中$\partial(\delta+\phi)/\partial k$编码了能级密度对动量的依赖——它是有限体积态归一化与无穷大体积态归一化之间差异的量化度量。
+
+\textbf{物理意义：}在无穷大体积中，散射态具有连续归一化（$\delta$函数归一化）；在有限体积中，散射态具有离散归一化（Kronecker $\delta$归一化）。Lellouch--L\"uscher因子正是这两种归一化之间的``转换因子''。
+
+\textbf{$\epsilon'/\epsilon$的格点计算：}Lellouch--L\"uscher关系是RBC/UKQCD合作组在格点上计算$\epsilon'/\epsilon$（直接CP破坏参数）的理论基石~\cite{decayChannels2026}。$\epsilon'/\epsilon \sim 1.6 \times 10^{-3}$的精确实验值要求理论计算精度达到$10^{-4}$量级——这是对格点QCD前所未有的精度挑战。
+
+% ==============================================================================
+\section{耦合道推广与宽共振的挑战}
+% ==============================================================================
+
+\subsection{非弹性阈值以上的耦合道L\"uscher公式}
+
+当$W$超过$4m_\pi$（四$\pi$阈值）或$2m_K$（$K\bar{K}$阈值）时，非弹性道开启。L\"uscher公式需要被推广为\textbf{耦合道形式}~\cite{decayChannels2026}：
+
+\begin{enumerate}[leftmargin=*]
+    \item 散射矩阵$\mathbf{S}$变为$N_{\text{ch}} \times N_{\text{ch}}$的矩阵（$N_{\text{ch}}$是开放的耦合道数）；
+    \item 量子化条件变为$N_{\text{ch}}$维矩阵的行列式方程：
+    \begin{equation}\label{eq:coupled_det}
+        \det\Bigl[ \mathbf{1} + i\boldsymbol{\rho}^{1/2}\,\mathbf{t}\,\boldsymbol{\rho}^{1/2}\,\mathbf{G} \Bigr] = 0,
+    \end{equation}
+    其中$\mathbf{t}$是耦合道$K$矩阵（或$T$矩阵），$\boldsymbol{\rho}$是对角相空间因子矩阵，$\mathbf{G}$是有限体积中的传播子矩阵（推广的$Z$函数）；
+    \item 有限体积能级$W_n(L)$现在依赖于\textbf{所有}开放道的散射信息，而不仅仅是目标衰变道。
+\end{enumerate}
+
+\textbf{当前状态：}耦合道L\"uscher公式在$\pi\pi$-$K\bar{K}$系统和$\pi\eta$-$K\bar{K}$系统上已有实践应用，但在包含三粒子态（$\pi\pi\pi$、$KK\pi$等）的系统上仍是活跃的研究前沿。
+
+\subsection{宽共振的挑战：$\sigma/f_0(500)$}
+
+$\sigma/f_0(500)$共振（$I=0, J^{PC}=0^{++}$）是强相互作用中最重要的标量共振之一——但其宽度极大（$\Gamma \sim 400-700$~MeV），给L\"uscher方法带来严峻挑战~\cite{decayChannels2026}：
+
+\begin{itemize}[leftmargin=*]
+    \item 宽度远大于有限体积的能级间隔$\Delta E \sim 2\pi/L$，回避交叉被``涂抹''为几乎无法辨认的平滑弯曲；
+    \item 阈展开（式(\ref{eq:Luscher_expand})）在仅$2m_\pi$以上就失效——因为共振能量$m_\sigma \sim 500$~MeV并不接近$2m_\pi \sim 280$~MeV；
+    \item 需要更高阶的有效力程展开或替代性参数化（如$K$矩阵的极点表示）来稳定地描述宽共振。
+\end{itemize}
+
+\subsection{Hansen--Sharpe等形式体系的现代化}
+
+近年来，L\"uscher方法的现代化包括Hansen、Sharpe、Brice\~no等人的推广~\cite{decayChannels2026}：将L\"uscher的有限体积量子化条件从双粒子扩展到三粒子系统；基于非相对论有效场论（NREFT）的推导为三体L\"uscher公式提供了更物理的解释框架；以及通过幺正手征微扰论（UChPT）将L\"uscher方法与手征动力学结合，为$\sigma$和$\kappa$等宽共振的格点分析提供替代方案。
+
+% ==============================================================================
+\section{L\"uscher在梯度流重整化中的贡献}
+% ==============================================================================
+
+\subsection{超越有限体积：L\"uscher的梯度流理论}
+
+作为L\"uscher对格点QCD贡献的补充性综述，L\"uscher在梯度流（gradient flow）理论中的奠基性工作构成了本文的第九维度。虽然梯度流方法独立于有限体积散射理论，但两者共享了L\"uscher的``处理不可直接计算量''的哲学精神。
+
+\subsection{梯度流的基本定义}
+
+规范场的梯度流由以下扩散型方程定义~\cite{GattringerLang2010,gradFlow2026}：
+\begin{equation}\label{eq:flow_eq}
+    \partial_t B_\mu(t, x) = D_\nu G_{\nu\mu}(t, x), \quad B_\mu(0, x) = A_\mu(x),
+\end{equation}
+其中$t \ge 0$是``流时间''（具有质量量纲$-2$），$D_\nu$是依赖于$B_\mu$的协变导数，$G_{\nu\mu}$是对应的场强张量。
+
+\subsection{L\"uscher--Weisz定理：梯度流关联函数的UV有限性}
+
+L\"uscher和Weisz在2011年严格证明~\cite{gradFlow2026}：
+
+\begin{theorem}[L\"uscher--Weisz, 2011]\label{thm:LW}
+对于由梯度流在流时间$t > 0$产生的规范场$B_\mu(t,x)$，其任意规范不变局域乘积的关联函数在标准QCD参数（耦合常数和质量）重整化后是\textbf{UV有限的}。流规范场$B_\mu(t,x)$本身不需要任何波函数重整化。
+\end{theorem}
+
+\textbf{证明的数学结构~\cite{gradFlow2026}：}L\"uscher和Weisz将梯度流关联函数等价地表示为一个$D+1$维（额外维度 = 流时间）的局域场论。通过幂次计数和BRS对称性，他们证明在正流时间（$t > 0$）处该$D+1$维理论不需要除标准四维QCD重整化之外的任何抵消项——体传播子和顶角函数都是UV收敛的。
+
+\subsection{与L\"uscher有限体积理论的``族谱相似性''}
+
+L\"uscher的梯度流理论和有限体积散射理论之间存在深刻的\textbf{哲学相似性}：
+\begin{itemize}[leftmargin=*]
+    \item 两者都将一个``不可行''的直接计算（直接从Minkowski散射 / 直接从裸格点场中提取复合算符矩阵元）转化为一个``可行''的间接计算（通过有限体积能谱 / 通过$t>0$的平滑流场）；
+    \item 两者都建立了\textbf{精确的映射关系}（L\"uscher公式 / L\"uscher--Weisz定理），将间接可观测量一一对应到目标物理量；
+    \item 两者都在格点QCD中成为标准的\textbf{理论基础设施}——L\"uscher方法被所有共振态格点计算所采用，梯度流被能动张量计算、能标设定和PDF重整化广泛使用。
+\end{itemize}
+
+\textbf{本库中梯度流的实践应用~\cite{gradFlow2026,gluonTMDContinuum2026}：}在胶子TMD-PDF的连续极限计算中，梯度流被用作Wilson线算符的正规化方案——流时间$t$自动抑制了Wilson线的线性发散和cusp发散，使非微扰重整化成为可能。
+
+% ==============================================================================
+\section{总结与展望}
+% ==============================================================================
+
+\textbf{总结：}L\"uscher参数化是格点QCD中连接有限体积欧几里得时空与无穷大体积Minkowski物理的不可替代的理论桥梁。它以有限体积中可计算的离散能级$W_n(L)$为输入，通过L\"uscher量子化条件和推广zeta函数$Z_{00}$为映射函数，输出无穷大体积中的散射相移$\delta(k)$和共振参数：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{L\"uscher公式}（§3）——$k_n L + 2\delta(k_n) = 2\pi n$（1D）和$\tan(-\phi(q)) = q\pi^{3/2}/Z_{00}(1;q^2)$（4D）——是这一映射的核心方程；
+    \item \textbf{阈值展开}（§4）——$W = 2M_\pi - \frac{4\pi a_0}{M_\pi L^3}[1 + c_1 a_0/L + c_2 a_0^2/L^2]$——提供了从体积依赖性提取$s$波散射长度的直接途径；
+    \item \textbf{运动框架推广}（§5）——Rummukainen--Gottlieb将公式推广到$\mathbf{P} \neq 0$，使得更高分波相移的提取成为可能；
+    \item \textbf{共振参数化}（§6）——Breit--Wigner形式$\frac{k^3}{W}\cot\delta_1 = \frac{6\pi}{g_{\rho\pi\pi}^2}(m_\rho^2 - W^2)$和有效力程展开提供了从相移到共振参数的完整拟合链条；
+    \item \textbf{Lellouch--L\"uscher关系}（§7）——将有限体积$K\to\pi\pi$矩阵元映射到物理衰变振幅，是$\epsilon'/\epsilon$格点计算的基石；
+    \item \textbf{耦合道推广}（§8）——在非弹性阈值以上，L\"uscher框架被推广为$N_{\text{ch}}$维行列式方程，但宽共振和三粒子系统仍是活跃的前沿；
+    \item \textbf{梯度流L\"uscher理论}（§9）——L\"uscher--Weisz定理证明了梯度流关联函数的UV有限性，为格点QCD中能动张量和PDF的重整化提供了理论基础。
+\end{enumerate}
+
+\textbf{展望：}未来几年L\"uscher参数化的最重要发展包括：
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{三粒子L\"uscher公式}的完全建立和数值实践——这将打开格点上$3\pi$共振（如$a_1(1260)$）和$KK\pi$系统的研究；
+    \item \textbf{弱衰变}——随格点精度的提升，$K\to\pi\pi$和$D\to\pi\pi$的Lellouch--L\"uscher分析将直接约束CKM幺正性和CP破坏参数；
+    \item \textbf{与LaMET的协同}——L\"uscher有限体积方法从3pt关联函数中提取高于阈值的矩阵元，为PDF和TMD-PDF的激发态控制提供互补视角；
+    \item \textbf{宽共振}——通过幺正手征微扰论和$K$矩阵表示的L\"uscher分析，$\sigma$和$\kappa$等长期困扰的宽共振正逐渐变得可处理。
+\end{itemize}
+
+L\"uscher参数化从1986年的一个巧妙的一维量子力学思想实验出发，已成长为格点QCD中最精密、最具物理产出的理论框架之一——它使``在计算机上做散射实验''从不可能变为可能，从粗略变为精确。在下一代格点QCD计算中，L\"uscher方法将继续是连接有限体积数值模拟与无穷大体积实验物理的核心纽带。
+
+% ==============================================================================
+% 参考文献
+% ==============================================================================
+
+\begin{thebibliography}{99}
+
+\bibitem{GattringerLang2010}
+C.~Gattringer and C.~B.~Lang,
+\textit{Quantum Chromodynamics on the Lattice: An Introductory Presentation},
+Lect.\ Notes Phys.\ \textbf{788}, Springer (2010).
+[来源: \texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}]
+\begin{itemize}
+    \item 第11章（§11.3--11.4）：强子衰变与散射——L\"uscher有限体积方法（§11.3.1阈区域，§11.3.2超越阈值区）、L\"uscher公式的完整推导（Eqs.~11.88--11.92）、Lellouch--L\"uscher关系、$\rho\to\pi\pi$作为共振态格点计算的典范
+    \item 第6章（§6.3.3）：变分方法（GEVP）——在L\"uscher分析中用于提取有限体积能谱
+    \item 参考文献[30--32]：L\"uscher (1986, 1991) 的奠基性论文；[38]：Rummukainen \& Gottlieb (1995)的运动框架推广
+\end{itemize}
+
+\bibitem{decayChannels2026}
+\textit{格点QCD中的衰变道：从衰变常数到L\"uscher有限体积方法的完整解析},
+基于本库全部相关文献与教材的综合解析, 2026年7月13日.
+[来源: \texttt{docs/格点QCD中的衰变道.pdf}]
+\begin{itemize}
+    \item §3：强子衰变与L\"uscher有限体积方法——完整推导、$s$波散射长度公式、$\rho\to\pi\pi$ Breit--Wigner参数化、L\"uscher方法局限与条件
+    \item §4：弦断裂与强子化
+    \item §5：弱衰变与有效Hamiltonian——Lellouch--L\"uscher关系在$K\to\pi\pi$中的应用
+    \item 参考文献[5]：L\"uscher (1986, 1991)；[6]：Lellouch \& L\"uscher (2001)
+\end{itemize}
+
+\bibitem{dispersion2026}
+\textit{格点QCD中的色散关系},
+基于本库全部相关文献与教材的综合解析, 2026年7月28日.
+[来源: \texttt{docs/格点QCD中的色散关系.pdf}]
+\begin{itemize}
+    \item §7.2：L\"uscher有限体积方法——$W_n = 2\sqrt{m^2 + k_n^2}$色散关系在连接能级与散射动量中的关键作用
+    \item §7.3：解析色散关系方法在DIS中的应用
+\end{itemize}
+
+\bibitem{hadronSpectroscopy2026}
+\textit{格点QCD中的强子谱学：从内插算符到淬火谱的完整解析},
+基于本库全部相关文献与教材的综合解析, 2026年7月13日.
+[来源: \texttt{docs/格点QCD中的强子谱学.pdf}]
+\begin{itemize}
+    \item §5.3：变分方法（GEVP）——在L\"uscher能谱提取中的核心技术
+    \item §6：通过L\"uscher方法和变分分析的共振态谱学
+\end{itemize}
+
+\bibitem{threepoint2026}
+\textit{格点QCD中的3pt构造：三点关联函数的理论、收缩与矩阵元提取},
+基于本库全部相关文献、教材与代码的综合解析, 2026年7月28日.
+[来源: \texttt{docs/格点QCD中的3pt构造.pdf}]
+\begin{itemize}
+    \item §8：展望——L\"uscher有限体积方法从3pt中提取高于阈值矩阵元的挑战
+\end{itemize}
+
+\bibitem{gradFlow2026}
+\textit{格点QCD中的梯度流重整化},
+基于本库全部相关文献与教材的综合解析, 2026年7月.
+[来源: \texttt{docs/格点QCD中的梯度流重整化.pdf}]
+\begin{itemize}
+    \item §3.2：L\"uscher--Weisz定理（2011）——梯度流关联函数的UV有限性的全阶证明
+    \item §3.3：包含夸克场的推广（L\"uscher, 2013）
+    \item §4.1：$D+1$维场论表示与幂次计数
+    \item 参考文献[1--4]：L\"uscher (2010, 2013, 2014), L\"uscher \& Weisz (2011)
+\end{itemize}
+
+\bibitem{gluonTMDContinuum2026}
+\textit{核子非极化胶子TMD-PDF的格点QCD计算：梯度流重整化与连续极限},
+基于本库全部核心文档与代码的综合分析, 2026年7月.
+[来源: \texttt{docs/胶子TMD梯度流连续极限.pdf}]
+\begin{itemize}
+    \item §2.4.3：L\"uscher--Weisz定理作为梯度流重整化的理论基础
+    \item 梯度流在Wilson线发散自动正规化中的应用
+\end{itemize}
+
+\bibitem{PeskinSchroeder1995}
+M.~E.~Peskin and D.~V.~Schroeder,
+\textit{An Introduction to Quantum Field Theory},
+Westview Press (1995).
+[来源: \texttt{refer/books/An Introduction to Quantum Field Theory.pdf}]
+\begin{itemize}
+    \item K\"all\'en-Lehmann谱表示——L\"uscher公式中场论背景的解析结构
+\end{itemize}
+
+\bibitem{LuscherGradientFlow}
+M.~L\"uscher,
+\textit{Properties and uses of the Wilson flow in lattice QCD},
+JHEP \textbf{08}, 071 (2010), arXiv:1006.4518 [hep-lat].
+[来源: \texttt{refer/papers/Properties\_and\_uses\_of\_the\_Wilson\_flow\_in\_lattice\_QCD\_Luscher\_2010.pdf}]
+\begin{itemize}
+    \item 梯度流的奠基性论文——定义了Wilson流（Yang-Mills梯度流），证明了一阶微扰下的UV有限性
+\end{itemize}
+
+\bibitem{LuscherWeisz2011}
+M.~L\"uscher and P.~Weisz,
+\textit{Perturbative analysis of the gradient flow in non-abelian gauge theories},
+JHEP \textbf{02}, 051 (2011), arXiv:1101.0963 [hep-th].
+[来源: \texttt{refer/papers/Perturbative\_analysis\_of\_the\_gradient\_flow\_in\_non-abelian\_gauge\_theories\_Luscher\_Weisz\_2011.pdf}]
+\begin{itemize}
+    \item 梯度流UV有限性的全阶证明——$D+1$维场论表示、BRS对称性、幂次计数
+    \item 图2：三点函数的Feynman图示例
+\end{itemize}
+
+\bibitem{LuscherChiralFlow2013}
+M.~L\"uscher,
+\textit{Chiral symmetry and the Yang--Mills gradient flow},
+JHEP \textbf{04}, 123 (2013), arXiv:1302.5246 [hep-lat].
+[来源: \texttt{refer/papers/Chiral\_symmetry\_and\_the\_Yang-Mills\_gradient\_flow\_Luscher\_2013.pdf}]
+\begin{itemize}
+    \item 将梯度流从规范场推广到夸克场
+\end{itemize}
+
+\bibitem{LuscherFuture2014}
+M.~L\"uscher,
+\textit{Future applications of the Yang--Mills gradient flow in lattice QCD},
+PoS \textbf{LATTICE2013}, 016 (2014), arXiv:1308.5598 [hep-lat].
+[来源: \texttt{refer/papers/Future\_applications\_of\_the\_Yang-Mills\_gradient\_flow\_in\_lattice\_QCD\_Luscher\_2014.pdf}]
+\begin{itemize}
+    \item 梯度流在格点QCD中的前瞻性应用——能动张量、能标设定、PDF重整化
+\end{itemize}
+
+\bibitem{GuptaLatticeQCD}
+R.~Gupta,
+\textit{Introduction to Lattice QCD},
+Lecture Notes, arXiv:hep-lat/9807028.
+[来源: \texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf}]
+\begin{itemize}
+    \item 第14/19节：散射与衰变的格点计算
+\end{itemize}
+
+\bibitem{kineEnhance2015}
+R.~Zhang, W.~Detmold, A.~Grebe, et al.,
+\textit{Kinematically-enhanced interpolating operators for boosted hadrons},
+in preparation (2025).
+[来源: \texttt{refer/papers/Kinematically-enhanced interpolating operators for boosted hadrons.pdf}]
+\begin{itemize}
+    \item 对$\pi\pi$散射和重介子衰变道的boost内插算符优化——与L\"uscher方法中间态的激发态控制相关
+\end{itemize}
+
+\bibitem{distillation2026}
+\textit{格点QCD蒸馏方法解析},
+基于本库全部相关文献与教材的综合解析, 2026年7月.
+[来源: \texttt{docs/格点QCD蒸馏方法解析.pdf}]
+\begin{itemize}
+    \item 蒸馏框架中的扩展算符基——支持L\"uscher方法所需的变分分析
+\end{itemize}
+
+\end{thebibliography}
+
+\end{document}

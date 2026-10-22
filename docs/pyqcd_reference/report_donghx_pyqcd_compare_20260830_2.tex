@@ -1,0 +1,351 @@
+% ============================================================
+% dhx / PyQCD 4150 对照总表（仅已实际运行且通过的条目）
+% 编译：XeLaTeX 两遍；逻辑上一张表，按语义分页并重复表头
+% ============================================================
+\documentclass[UTF8,aspectratio=169,11pt]{ctexbeamer}
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\definecolor{primary}{HTML}{17365D}
+\definecolor{evidence}{HTML}{1E8449}
+\definecolor{muted}{HTML}{5B6573}
+
+\setbeamersize{text margin left=0.55cm,text margin right=0.55cm}
+\setlength{\emergencystretch}{2em}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{normal text}{fg=black!86,bg=white}
+\setbeamercolor{structure}{fg=primary}
+\setbeamercolor{frametitle}{fg=primary,bg=white}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamertemplate{frametitle}{\vskip0.12cm\insertframetitle\par\vskip0.08cm}
+\setbeamertemplate{footline}{%
+  \hbox{\begin{beamercolorbox}[wd=\paperwidth,ht=2.3ex,dp=0.9ex,
+    leftskip=0.55cm,rightskip=0.55cm]{author in head/foot}%
+    \scriptsize\color{muted}PyQCD / dhx\hfill
+    4150 对照总表\hfill\insertframenumber/\inserttotalframenumber
+  \end{beamercolorbox}}}
+
+\newcommand{\source}[1]{\vspace{0.04em}\par{\raggedright\fontsize{5.8}{6.6}\selectfont\color{muted}来源：#1\par}}
+\newcommand{\codepath}[1]{\nolinkurl{#1}}
+\newcommand{\pass}{\textcolor{evidence}{通过}}
+\newcommand{\relerr}{\varepsilon_{\rm rel}=\dfrac{\lVert A_{\rm PyQCD}-A_{\rm dhx}\rVert_2}{\max(\lVert A_{\rm dhx}\rVert_2,10^{-300})}}
+\newcolumntype{A}{>{\raggedright\arraybackslash}p{0.075\linewidth}}
+\newcolumntype{B}{>{\raggedright\arraybackslash}p{0.16\linewidth}}
+\newcolumntype{C}{>{\raggedright\arraybackslash}X}
+\newcolumntype{D}{>{\raggedright\arraybackslash}X}
+\newcolumntype{E}{>{\raggedright\arraybackslash}p{0.14\linewidth}}
+\newcolumntype{F}{>{\raggedright\arraybackslash}p{0.10\linewidth}}
+\newcommand{\tablehead}{%
+  \toprule
+  对象 & 公式 / 物理意义 & dhx 数据路径 & PyQCD 函数（输入参数） & 输出 / 范围 & 相对误差 \\
+  \midrule}
+\newcommand{\twoptbase}{\codepath{/public/group/lqcd/donghx/2pt_Result/beta6.20_mu-0.2770_ms-0.2400_L24x72}}
+\newcommand{\hypinput}{\codepath{/public/group/lqcd/donghx/Hpysmear_beta6.20_mu-0.2770_ms-0.2400_L24x72/hpy_4D_10times_new/beta6.20_mu-0.2770_ms-0.2400_L24x72_cfg_4150.lime.contents/msg02.rec04.ildg-binary-data}}
+\newcommand{\hypout}{\codepath{/public/group/lqcd/donghx/Ope_Gluon/TMD_Ope_Gluon/Result/beta6.20_mu-0.2770_ms-0.2400_L24x72}}
+
+\title[dhx/PyQCD 4150 对照]{dhx/PyQCD 4150 数据对照总表}
+\author[PyQCD]{PyQCD 数值链}
+\date{2026 年 8 月 30 日}
+
+\begin{document}
+
+% ==================== 低层 ====================
+\begin{frame}[t]{dhx/PyQCD 4150 对照总表（1/10）：低层对象（1）}
+  \centering
+  \fontsize{7.55}{8.55}\selectfont
+  \setlength{\tabcolsep}{2pt}
+  \renewcommand{\arraystretch}{1.04}
+  \begin{tabularx}{0.98\textwidth}{@{}A B C D E F@{}}
+    \tablehead
+    EIG & $\phi_n(\vec x)$：低模空间/颜色基，供后续顶点构造。 &
+      \codepath{eigensystem/.../4150/eigvecs_t000_4150} &
+      \codepath{readin_eigvecs(path,Nx=24)[:8]} &
+      $(8,13824,3)$；$t=0$；$N_{ev1}=8$ & $0$ \\
+    PHASE & $e_p(\vec x)=\exp[-2\pi i\,\vec p\cdot\vec x/N_x]$：动量投影核。 &
+      参考公式；$N_x=24$ &
+      \codepath{phase_exp_3pt(24,[0,0,1])} &
+      $(13824,)$；$P_z=1$ & $0$ \\
+    VdV & $V_{mn}=\sum_{\vec x}e_p\,\phi_m^*\phi_n$：低模二体颜色/空间收缩。 &
+      \codepath{eigensystem/.../4150/eigvecs_t000_4150} &
+      \codepath{phase_exp_2pt(24,[0,0,1])};\newline
+      \codepath{Mom_VdV_sink_t(phase,eig)} &
+      $(1,4,4)$；$N_{ev}=4$；$P_z=1$ & $1.309\times10^{-15}$ \\
+    VVV & $V_{mnl}=\sum_{\vec x}e_p\,\epsilon_{abc}\phi_m^a\phi_n^b\phi_l^c$：三夸克颜色 singlet 顶点。 &
+      \codepath{eigensystem/.../4150/eigvecs_t000_4150} &
+      \codepath{phase_exp_3pt(24,[0,0,1])};\newline
+      \codepath{Mom_VVV_sink_t(phase,eig)[0]} &
+      $(4,4,4)$；$N_{ev}=4$；$P_z=1$ & $4.746\times10^{-16}$ \\
+    \bottomrule
+  \end{tabularx}
+  \par\vspace{0.04em}{\fontsize{6.6}{7.4}\selectfont\(\relerr\)（复数数组级 $L_2$）\par}
+  \source{dhx eigvec：\codepath{/public/group/lqcd/eigensystem/beta6.20_mu-0.2770_ms-0.2400_L24x72/4150/eigvecs_t000_4150}；PyQCD 证据：\codepath{pyqcd/testing/comparisons/artifacts/v202608291500_lowlevel/results.json}。}
+\end{frame}
+
+\begin{frame}[t]{dhx/PyQCD 4150 对照总表（2/10）：低层对象（2）}
+  \centering
+  \fontsize{7.55}{8.55}\selectfont
+  \setlength{\tabcolsep}{2pt}
+  \renewcommand{\arraystretch}{1.04}
+  \begin{tabularx}{0.98\textwidth}{@{}A B C D E F@{}}
+    \tablehead
+    Clover & $F_{\mu\nu}=-\frac{i}{8}\sum_C(P_{\mu\nu}-P_{\mu\nu}^{\dagger})$：局域胶子场强。 &
+      \codepath{configurations/CLOVER/.../cfg_4150.lime} &
+      \codepath{read_gauge_lime(path,Nt=2,Nx=24)};\newline
+      \codepath{plaquette_clover(gauge,mu,nu)} &
+      $(4,4,2,24^3,3^2)$；全 $(\mu,\nu)$ & $2.447\times10^{-16}$ \\
+    dual & $\widetilde F_{\mu\nu}=\frac12\epsilon_{\mu\nu\rho\sigma}F_{\rho\sigma}$：Euclidean 对偶场强。 &
+      同上 Clover 规范场 &
+      \codepath{compute_dual_field_strength(F_dict,mu,nu)};\newline
+      $F\_{{\rm dict}}=\{(\mu,\nu):F_{\mu\nu}\}$ &
+      $(4,4,2,24^3,3^2)$ & $1.894\times10^{-16}$ \\
+    OPE & $O^{FF}_{\mu\nu}(z)=\sum_{\vec x}\mathrm{tr}[F(x+z\hat d)W^\dagger F(x)W]$：规范不变非局部胶子算符。 &
+      \codepath{configurations/CLOVER/.../cfg_4150.lime} &
+      \codepath{gluon_ope_operator_z0(gauge,3,0,2,2,2,24,}\newline
+      \codepath{mu2=3,nu2=0,direction=1)} &
+      $(2,2)$；$+z$；$z=0,1$；$t=0,1$ & $1.361\times10^{-15}$ \\
+    \bottomrule
+  \end{tabularx}
+  \source{dhx 规范场：\codepath{/public/group/lqcd/configurations/CLOVER/}\newline
+  \codepath{beta6.20_mu-0.2770_ms-0.2400_L24x72/beta6.20_mu-0.2770_ms-0.2400_L24x72_cfg_4150.lime}。\newline
+  误差：\(\relerr\)；PyQCD 证据：\codepath{pyqcd/testing/comparisons/artifacts/v202608291500_lowlevel/results.json}；低层合计 7/7。}
+\end{frame}
+
+% ==================== HYP--OPE ====================
+\begin{frame}[t]{dhx/PyQCD 4150 对照总表（3/10）：4D10 HYP--OPE（1）}
+  \centering
+  \fontsize{7.45}{8.35}\selectfont
+  \setlength{\tabcolsep}{2pt}
+  \renewcommand{\arraystretch}{1.02}
+  \begin{tabularx}{0.98\textwidth}{@{}A B C D E F@{}}
+    \tablehead
+    $x:(1,2)$ & $O^{FF}=\sum_{\vec x}\mathrm{tr}[F(x+z\hat x)W^\dagger FW]$；$\Delta_\perp=0$ 直线胶子 OPE。 &
+      \codepath{xdir/4150/ops_mu1_nu2_zmax22_dx9_dy8_conf4150_new.npy} &
+      \codepath{read_gauge_lime(HYP_RECORDS["4d10"],72,24)};\newline
+      \codepath{gluon_ope_operator_z0(gauge,1,2,0,9,72,24,second_insert="F").T} &
+      $(72,9)$；$\Delta z=9$ & $3.288\times10^{-15}$ \\
+    $x:(3,1)$ & $O^{FF}$；$\Delta_\perp=0$；$\hat d=\hat x$。 &
+      \codepath{xdir/4150/ops_mu3_nu1_zmax22_dx9_dy8_conf4150_new.npy} &
+      \codepath{gluon_ope_operator_z0(gauge,3,1,0,9,72,24,second_insert="F").T} &
+      $(72,9)$；$\Delta z=9$ & $3.287\times10^{-15}$ \\
+    $x:(3,2)$ & $O^{FF}$；$\Delta_\perp=0$；$\hat d=\hat x$。 &
+      \codepath{xdir/4150/ops_mu3_nu2_zmax22_dx9_dy8_conf4150_new.npy} &
+      \codepath{gluon_ope_operator_z0(gauge,3,2,0,9,72,24,second_insert="F").T} &
+      $(72,9)$；$\Delta z=9$ & $3.292\times10^{-15}$ \\
+    $y:(2,0)$ & $O^{FF}$；$\Delta_\perp=0$；$\hat d=\hat y$。 &
+      \codepath{ydir/4150/ops_mu2_nu0_zmax22_dy9_dx8_conf4150_new.npy} &
+      \codepath{gluon_ope_operator_z0(gauge,2,0,1,9,72,24,second_insert="F").T} &
+      $(72,9)$；$\Delta z=9$ & $3.293\times10^{-15}$ \\
+    $y:(3,0)$ & $O^{FF}$；$\Delta_\perp=0$；$\hat d=\hat y$。 &
+      \codepath{ydir/4150/ops_mu3_nu0_zmax22_dy9_dx8_conf4150_new.npy} &
+      \codepath{gluon_ope_operator_z0(gauge,3,0,1,9,72,24,second_insert="F").T} &
+      $(72,9)$；$\Delta z=9$ & $3.294\times10^{-15}$ \\
+    $y:(3,2)$ & $O^{FF}$；$\Delta_\perp=0$；$\hat d=\hat y$。 &
+      \codepath{ydir/4150/ops_mu3_nu2_zmax22_dy9_dx8_conf4150_new.npy} &
+      \codepath{gluon_ope_operator_z0(gauge,3,2,1,9,72,24,second_insert="F").T} &
+      $(72,9)$；$\Delta z=9$ & $3.304\times10^{-15}$ \\
+    \bottomrule
+  \end{tabularx}
+  \source{完整路径与证据见（4/10）；$x/y$ 向 6/6。}
+\end{frame}
+
+\begin{frame}[t]{dhx/PyQCD 4150 对照总表（4/10）：4D10 HYP--OPE（2）}
+  \centering
+  \fontsize{7.70}{8.65}\selectfont
+  \setlength{\tabcolsep}{2pt}
+  \renewcommand{\arraystretch}{1.02}
+  \begin{tabularx}{0.98\textwidth}{@{}A B C D E F@{}}
+    \tablehead
+    $z:(0,1)$ & $O^{FF}=\sum_{\vec x}\mathrm{tr}[F(x+z\hat z)W^\dagger FW]$；$\Delta_\perp=0$ 直线 OPE。 &
+      \codepath{zdir/4150/ops_mu0_nu1_dz12_dx5_conf4150.npy} &
+      \codepath{read_gauge_lime(HYP_RECORDS["4d10"],72,24)};\newline
+      \codepath{gluon_ope_operator_z0(gauge,0,1,2,12,72,24,second_insert="F").T} &
+      $(72,12)$；$\Delta z=12$；$\hat d=\hat z$ & $7.340\times10^{-17}$ \\
+    $z:(3,0)$ & $O^{FF}$；$\Delta_\perp=0$；$\hat d=\hat z$。 &
+      \codepath{zdir/4150/ops_mu3_nu0_dz12_dx5_conf4150.npy} &
+      \codepath{gluon_ope_operator_z0(gauge,3,0,2,12,72,24,second_insert="F").T} &
+      $(72,12)$；$\Delta z=12$ & $7.495\times10^{-17}$ \\
+    $z:(3,1)$ & $O^{FF}$；$\Delta_\perp=0$；$\hat d=\hat z$。 &
+      \codepath{zdir/4150/ops_mu3_nu1_dz12_dx5_conf4150.npy} &
+      \codepath{gluon_ope_operator_z0(gauge,3,1,2,12,72,24,second_insert="F").T} &
+      $(72,12)$；$\Delta z=12$ & $7.355\times10^{-17}$ \\
+    \bottomrule
+  \end{tabularx}
+  \source{HYP 输入：\hypinput；dhx OPE 输出根：\hypout；证据：\codepath{pyqcd/testing/comparisons/artifacts/v20260829_hyp_ope_xyz/results.json}；$z$ 向 3/3。}
+\end{frame}
+
+% ==================== 2pt 直接 ====================
+\begin{frame}[t]{dhx/PyQCD 4150 对照总表（5/10）：质子 2pt 直接输出（1）}
+  \centering
+  \fontsize{7.90}{8.90}\selectfont
+  \setlength{\tabcolsep}{2pt}
+  \renewcommand{\arraystretch}{1.10}
+  \begin{tabularx}{0.98\textwidth}{@{}A B C D E F@{}}
+    \tablehead
+    $Cg5g4$ contract & $C_2=\langle O_p(t_s)\bar O_p(t_0)\rangle$：质子颜色/自旋收缩矩阵（$\vec p=0$）。 &
+      \codepath{momsmear0_Cg5g4/4150/*Cg5g4_contract_conf4150.npy} &
+      \codepath{readin_eigvecs(...,Nx=24)[:100]};\newline
+      \codepath{Mom_VVV_sink_t(...)[0]};\newline
+      \codepath{readin_peram_time_slice(...,t0=0,Nt=72,Nev=100)};\newline
+      \codepath{contract_donghx_2pt_pair(...,variant="Cg5g4")} &
+      $\begin{gathered}(72,72,\\4,4)\end{gathered}$；$\Delta t=2\ldots36$；35 对 & $3.498\times10^{-15}$ \\
+    $Cg5$ contract & $C_2=\langle O_p\bar O_p\rangle$：$Cg5$ 插值的未投影质子两点函数。 &
+      \codepath{momsmear0_Cg5/4150/*contract_conf4150.npy} &
+      \codepath{readin_eigvecs(...,Nx=24)[:100]};\newline
+      \codepath{Mom_VVV_sink_t(...)[0]};\newline
+      \codepath{readin_peram_time_slice(...,t0=0,Nt=72,Nev=100)};\newline
+      \codepath{contract_donghx_2pt_pair(...,variant="Cg5")} &
+      $\begin{gathered}(72,72,\\4,4)\end{gathered}$；$\Delta t=2\ldots36$；35 对 & $2.288\times10^{-15}$ \\
+    \bottomrule
+  \end{tabularx}
+  \source{完整输入路径、输出与证据见（6/10）。}
+\end{frame}
+
+\begin{frame}[t]{dhx/PyQCD 4150 对照总表（6/10）：质子 2pt 直接输出（2）}
+  \centering
+  \fontsize{8.25}{9.35}\selectfont
+  \setlength{\tabcolsep}{2pt}
+  \renewcommand{\arraystretch}{1.12}
+  \begin{tabularx}{0.98\textwidth}{@{}A B C D E F@{}}
+    \tablehead
+    $Cg5g4$ $nopol$ & $C_2^+=s_{++}\sum_{li}P^+_{li}C_{il}$，$P^+=\frac12(\gamma_0+\gamma_4)$：正宇称无极化投影。 &
+      \codepath{momsmear0_Cg5g4/4150/*Cg5g4_nopol_ss_conf4150.npy} &
+      \codepath{parity_and_boundary(contract,Nt=72)[0]}；\newline
+      $s_{++}=-1$（$t_s<t_0$），否则 $+1$ &
+      $(72,72)$；$t_0=0$；35 对 & $1.266\times10^{-15}$ \\
+    $Cg5$ $nopol$ & $C_2^+=s_{++}\sum_{li}P^+_{li}C_{il}$：$Cg5$ 正宇称无极化输出。 &
+      \codepath{momsmear0_Cg5/4150/*nopol_ss_conf4150.npy} &
+      \codepath{parity_and_boundary(contract,Nt=72)[0]}；$P^+=\frac12(\gamma_0+\gamma_4)$ &
+      $(72,72)$；$t_0=0$；35 对 & $1.533\times10^{-15}$ \\
+    \bottomrule
+  \end{tabularx}
+  \source{dhx eigvec：\codepath{/public/group/lqcd/eigensystem/beta6.20_mu-0.2770_ms-0.2400_L24x72/4150}；peram：\codepath{/public/group/lqcd/perambulators/beta6.20_mu-0.2770_ms-0.2400_L24x72/light/4150}.\newline
+  dhx 输出根：\twoptbase\codepath{/momsmear0_Cg5g4/4150}、\twoptbase\codepath{/momsmear0_Cg5/4150}；PyQCD 证据：\codepath{pyqcd/testing/comparisons/artifacts/v202608300145_cg5g4/results.json}、\codepath{pyqcd/testing/comparisons/artifacts/v202608300146_cg5/results.json}；本页 2/2。}
+\end{frame}
+
+% ==================== 正宇称投影 ====================
+\begin{frame}[t]{dhx/PyQCD 4150 对照总表（7/10）：2pt 正宇称/边界输出级（1）}
+  \centering
+  \fontsize{7.70}{8.70}\selectfont
+  \setlength{\tabcolsep}{2pt}
+  \renewcommand{\arraystretch}{1.05}
+  \begin{tabularx}{0.98\textwidth}{@{}A B C D E F@{}}
+    \tablehead
+    $-2\hat x$ & $nopol_{ss}=s_{++}\sum_{li}P^+_{li}C_{il}$；反周期边界：$t_s<t_0$ 取负号。 &
+      \codepath{momsmear-2x/4150} &
+      \codepath{compare_contract_nopol(contract,nopol)};\newline
+      \codepath{parity_and_boundary(contract,Nt=72)}；$P^+=\frac12(\gamma_0+\gamma_4)$ &
+      25 文件；5 组；$P_x=-2\ldots-6$；$\mathrm{c}:72^2\!\times4^2\to\mathrm{n}:72^2$ & $\max=5.202\times10^{-8}$ \\
+    $-2\hat y$ & 同一 $P_+$ 与反周期边界关系；检验 $y$ 向动量涂抹成品。 &
+      \codepath{momsmear-2y/4150} &
+      \codepath{compare_contract_nopol(contract,nopol)}；\codepath{parity_and_boundary(...,Nt=72)} &
+      25 文件；5 组；$P_y=-2\ldots-6$；$\mathrm{c}64$ & $\max=5.279\times10^{-8}$ \\
+    $-2\hat z$ & 同一 $P_+$ 与反周期边界关系；检验 $z$ 向负动量成品。 &
+      \codepath{momsmear-2z/4150} &
+      \codepath{compare_contract_nopol(contract,nopol)}；\codepath{parity_and_boundary(...,Nt=72)} &
+      25 文件；5 组；$P_z=-2\ldots-6$；$\mathrm{c}64$ & $\max=5.852\times10^{-8}$ \\
+    $+2\hat x$ & 同一 $P_+$ 与反周期边界关系；检验 $x$ 向正动量成品。 &
+      \codepath{momsmear2x/4150} &
+      \codepath{compare_contract_nopol(contract,nopol)}；\codepath{parity_and_boundary(...,Nt=72)} &
+      25文件/5组；$P_x=2\ldots6$；c64/128 & $\max=4.626\times10^{-8}$ \\
+    \bottomrule
+  \end{tabularx}
+  \source{根与证据见（8/10）；本页 20/20 组。}
+\end{frame}
+
+\begin{frame}[t]{dhx/PyQCD 4150 对照总表（8/10）：2pt 正宇称/边界输出级（2）}
+  \centering
+  \fontsize{8.0}{9.1}\selectfont
+  \setlength{\tabcolsep}{2pt}
+  \renewcommand{\arraystretch}{1.10}
+  \begin{tabularx}{0.98\textwidth}{@{}A B C D E F@{}}
+    \tablehead
+    $+2\hat z$ & 同一 $P_+$ 与反周期边界关系；检验 $z$ 向正动量成品。 &
+      \codepath{momsmear2z/4150} &
+      \codepath{compare_contract_nopol(contract,nopol)}；\codepath{parity_and_boundary(...,Nt=72)} &
+      27 文件；6 组；$P_z=0,2\ldots6$；$\mathrm{c}64/128$ & $\max=5.010\times10^{-8}$ \\
+    $Cg5$, $q=0$ & $P_+$ 投影得到 $nopol_{ss}$；零动量 $Cg5$ 质子两点输出。 &
+      \codepath{momsmear0_Cg5/4150} &
+      \codepath{compare_contract_nopol(contract,nopol)}；$P^+=\frac12(\gamma_0+\gamma_4)$ &
+      47 文件；16 组；$P_z=0\ldots5$、$P_{x,y}=1\ldots5$；$\mathrm{c}128$ & $0$ \\
+    $Cg5g4$, $q=0$ & $P_+$ 投影得到 $nopol_{ss}$；零动量 $Cg5g4$ 质子两点输出。 &
+      \codepath{momsmear0_Cg5g4/4150} &
+      \codepath{compare_contract_nopol(contract,nopol)}；\codepath{parity_and_boundary(...,Nt=72)} &
+      58 文件；16 组；$P_z=0\ldots5$、$P_{x,y}=1\ldots5$；$\mathrm{c}64/128$ & $\max=8.291\times10^{-7}$ \\
+    \bottomrule
+  \end{tabularx}
+  \source{共同 dhx 根：\twoptbase；各行目录均为其下的组态 4150。PyQCD 证据同（7/10）；本页 3 根共 38/38 组通过；正宇称投影合计 58/58。}
+\end{frame}
+
+% ==================== effmass ====================
+\begin{frame}[t]{dhx/PyQCD 4150 对照总表（9/10）：effmass 聚合索引与时间汇总（1）}
+  \centering
+  \fontsize{7.35}{8.25}\selectfont
+  \setlength{\tabcolsep}{2pt}
+  \renewcommand{\arraystretch}{1.03}
+  \begin{tabularx}{0.98\textwidth}{@{}A B C D E F@{}}
+    \tablehead
+    raw $+2z$ & $C_2(\Delta t)=\sum_{\Delta t}C_2(t_s,t_0)$：相对时间汇总的 raw 2pt 行。 &
+      \codepath{effmass/momsmear2_Cg5g4/Res_2pt.npy};\newline
+      ref: \codepath{momsmear2z/4150} &
+      \codepath{inspect_all(base=DEFAULT_BASE)};\newline
+      \codepath{compare_matrix_stack(stack,reference)} &
+      $\begin{gathered}(5,879,\\72,72)\end{gathered}$；$P_z=2\ldots6$；$4150\to k=2$；5/5 行 & $0$ \\
+    raw $-2z$ & 同一 $C_2(\Delta t)$ 聚合；检验负 $z$ 向动量序列。 &
+      \codepath{effmass/momsmear2_Cg5g4/Res_2pt_mp.npy};\newline
+      ref: \codepath{momsmear-2z/4150} &
+      \codepath{inspect_all(base=DEFAULT_BASE)};\newline
+      \codepath{compare_matrix_stack(stack,reference)} &
+      $\begin{gathered}(5,879,\\72,72)\end{gathered}$；$P_z=-2\ldots-6$；$k=2$；5/5 行 & $0$ \\
+    raw $q=0$, $Cg5g4$ & raw 组态矩阵保留两时间坐标；为后续时间汇总提供输入。 &
+      \codepath{effmass/momsmear0_Cg5g4/Res_2pt_momsmear0_Cg5g4.npy};\newline
+      ref: \codepath{momsmear0_Cg5g4/4150} &
+      \codepath{inspect_all(base=DEFAULT_BASE)};\newline
+      \codepath{compare_matrix_stack(stack,reference)} &
+      $(4,878,72^2)$；$P_z=2\ldots5$；$k=2$；4/4 行 & $0$ \\
+    \bottomrule
+  \end{tabularx}
+  \source{dhx 根同（6/10）；证据见（10/10）；raw 3/3 资产、13/13 行。}
+\end{frame}
+
+\begin{frame}[t]{dhx/PyQCD 4150 对照总表（10/10）：effmass 聚合索引与时间汇总（2）}
+  \centering
+  \fontsize{7.75}{8.75}\selectfont
+  \setlength{\tabcolsep}{2pt}
+  \renewcommand{\arraystretch}{1.06}
+  \begin{tabularx}{0.98\textwidth}{@{}A B C D E F@{}}
+    \tablehead
+    twoptall $+2z$ & $C_2(\Delta t)$：对 raw 矩阵按相对时间求和，作为有效质量/色散分析输入。 &
+      \codepath{effmass/momsmear2_Cg5g4_Disperion/twoptall.npy};\newline
+      ref: \codepath{momsmear2z/4150} &
+      \codepath{compare_time_stack(stack,reference)};\newline
+      \codepath{time_difference_sum(matrix)}；$\mathrm{c}64\to\mathrm{c}128$ &
+      $(5,879,72)$；$P_z=2\ldots6$；$k=2$；5/5 行 & $2.582\times10^{-16}$ \\
+    twoptall $q=0$, $Cg5g4$ & 同一相对时间求和；保留 $Cg5g4$ 零涂抹聚合链。 &
+      \codepath{effmass/momsmear0_Cg5g4_Disperion/twoptall_zdir.npy};\newline
+      ref: \codepath{momsmear0_Cg5g4/4150} &
+      \codepath{compare_time_stack(stack,reference)};\newline
+      \codepath{time_difference_sum(matrix)} &
+      $(4,878,72)$；$P_z=2\ldots5$；$k=2$；4/4 行 & $7.118\times10^{-18}$ \\
+    twoptall $q=0$, $Cg5$ & $C_2(\Delta t)$：零动量 $Cg5$ 质子通道的时间平移汇总。 &
+      \codepath{effmass/Pz0_Cg5_Cg5g4/twoptall_Cg5.npy};\newline
+      ref: \codepath{momsmear0_Cg5/4150} &
+      \codepath{compare_time_stack(stack,reference)};\newline
+      \codepath{time_difference_sum(matrix)} &
+      $(1,879,72)$；$P_z=0$；$k=2$；1/1 行 & $3.935\times10^{-17}$ \\
+    twoptall $q=0$, $Cg5g4$ & $C_2(\Delta t)$：零动量 $Cg5g4$ 质子通道的时间平移汇总。 &
+      \codepath{effmass/Pz0_Cg5_Cg5g4/twoptall_Cg5g4.npy};\newline
+      ref: \codepath{momsmear0_Cg5g4/4150} &
+      \codepath{compare_time_stack(stack,reference)};\newline
+      \codepath{time_difference_sum(matrix)} &
+      $(1,876,72)$；$P_z=0$；$k=2$；1/1 行 & $1.866\times10^{-17}$ \\
+    \bottomrule
+  \end{tabularx}
+  \source{证据：\codepath{pyqcd/testing/comparisons/artifacts/v202608301600_4150_effmass_aggregate/results.json}；twoptall 4/4 资产、12/12 行。}
+\end{frame}
+
+\end{document}

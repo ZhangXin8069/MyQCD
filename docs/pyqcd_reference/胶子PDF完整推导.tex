@@ -1,0 +1,742 @@
+\documentclass[11pt,a4paper]{article}
+
+% Packages
+\usepackage[UTF8]{ctex}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{bm}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{physics}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+\geometry{margin=2.5cm}
+
+% Custom commands
+\newcommand{\LaMET}{\text{LaMET}}
+\newcommand{\MS}{\overline{\text{MS}}}
+\providecommand{\Tr}{\text{Tr}}
+\newcommand{\Fmunu}{F_{\mu\nu}}
+\newcommand{\Wab}{W^{ab}}
+\newcommand{\hB}{\tilde{h}_B}
+\newcommand{\hR}{\tilde{h}_R}
+\newcommand{\hpert}{\tilde{h}^{\text{pert}}}
+\newcommand{\tsep}{t_{\text{sep}}}
+\newcommand{\Pz}{P_z}
+\newcommand{\QCD}{\Lambda_{\text{QCD}}}
+\newcommand{\alphas}{\alpha_s}
+\newcommand{\CA}{C_A}
+\newcommand{\CF}{C_F}
+
+\title{\textbf{格点QCD中核子非极化胶子PDF的完整推导过程}}
+\author{基于以下文献的综合推导：\\
+\textit{Unpolarized Gluon PDF of the Nucleon from Lattice QCD in the Continuum Limit}\\
+\textit{Note of Gluon PDFs}}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+%=============================================================================
+\section{引言：质子自旋危机与胶子PDF}
+%=============================================================================
+
+自从"质子自旋危机"提出以来，Jaffe-Manohar自旋分解给出了质子的自旋求和规则\cite{Jaffe:1989jz}：
+\begin{equation}
+    J = \frac{1}{2}\Delta\Sigma + L_q + L_G + \Delta G,
+\end{equation}
+其中 $\frac{1}{2}\Delta\Sigma$ 是夸克自旋贡献，$L_q$ 和 $L_G$ 分别是夸克和胶子的轨道角动量，而 $\Delta G$ 是胶子自旋贡献。
+
+胶子螺旋度贡献 $\Delta G$ 可以通过胶子螺旋度分布 $\Delta g(x)$ 的一阶矩来获取：
+\begin{equation}
+    \Delta G = \int \frac{dx}{2xP^+} \int \frac{d\xi^-}{2\pi} e^{-ixP^+\xi^-} \langle PS | F^{+\alpha}_a(\xi^-) \Wab(\xi^-,0) \tilde{F}^+_{\alpha,b}(0) | PS \rangle,
+\end{equation}
+其中 $\xi^\pm = (\xi^0 \pm \xi^3)/\sqrt{2}$ 是光锥坐标，$\Wab(\xi^-,0)$ 是伴随表示中的光锥规范链。场强张量 $F^{\mu\nu}$ 及其对偶 $\tilde{F}^{\mu\nu} = \frac{1}{2}\epsilon^{\mu\nu\rho\sigma}F_{\rho\sigma}$ 通过规范链连接以构成规范不变的算符。
+
+%=============================================================================
+\section{光锥胶子PDF的定义}
+%=============================================================================
+
+\subsection{伴随表示下的定义}
+
+在伴随表示下，光锥胶子PDF定义为\cite{Balitsky:2019krj}：
+\begin{equation}\label{eq:lightcone_pdf}
+    x g(x, \mu) = \int \frac{dz^-}{2\pi P^+} e^{-ixP^+z^-} \langle P | F^{+\mu}_a(z^-) U_{ab}(z^-,0) F^{b\mu}_{+}(0)(\mu) | P \rangle,
+\end{equation}
+其中 $z^\pm = \frac{1}{\sqrt{2}}(z^0 \pm z^3)$ 是沿光锥方向的时空坐标。沿光锥方向的Wilson线
+\begin{equation}
+    U_{ab}(z^-,0) = \mathcal{P}\exp\qty[ig \int_0^{z^-} d\eta^- A^+(\eta^-)]_{ab}
+\end{equation}
+被引入以确保非定域双线性算符的规范不变性。这里 $A^{bc}_\mu = i f^{abc} A^a_\mu$ 表示伴随表示下的规范场。
+
+\subsection{胶子场强张量}
+
+胶子场强张量定义为：
+\begin{equation}\label{eq:F_def}
+    F^a_{\mu\nu} = \partial_\mu A^a_\nu - \partial_\nu A^a_\mu - g f^{abc} A^b_\mu A^c_\nu,
+\end{equation}
+协变导数 $D_\mu = \partial_\mu + i g A_\mu$，场强张量也可写为：
+\begin{equation}
+    F_{\mu\nu} = -i [D_\mu, D_\nu].
+\end{equation}
+
+对偶场强张量为：
+\begin{equation}
+    \tilde{F}_{\mu\nu} = \frac{1}{2} \epsilon_{\mu\nu\rho\sigma} F^{\rho\sigma},
+\end{equation}
+其中约定 $\epsilon_{0123} = 1$。
+
+%=============================================================================
+\section{大动量有效理论框架}
+%=============================================================================
+
+\subsection{基本思想}
+
+大动量有效理论（\LaMET{}）的基本思想是\cite{Ji:2013dva,Ji:2014gla}：在一个以大动量 $P_z$ 运动的核子态中，类空分离的Euclidean关联函数的矩阵元可以通过因子化公式与标准的光锥PDF联系起来。
+
+\subsection{因子化公式}
+
+根据\LaMET{}，光锥PDF $y g(y, \mu)$ 可以通过匹配公式从准PDF $x\tilde{g}(x, \Pz)$ 中提取\cite{Ji:2017oey}：
+\begin{equation}\label{eq:matching}
+    x\tilde{g}(x, \Pz) = \int_{-\infty}^{\infty} \frac{dy}{|y|} \, C^{\text{hybrid}}\qty(\frac{x}{y}, \lambda_s, \frac{\mu}{y\Pz}) \, y g(y, \mu) + \mathcal{O}\qty(\frac{\QCD^2}{(x\Pz)^2}, \frac{\QCD^2}{((1-x)\Pz)^2}),
+\end{equation}
+其中 $C^{\text{hybrid}}$ 表示动量空间中的微扰匹配核。
+
+准PDF可以直接在格点上计算：
+\begin{equation}\label{eq:quasi-pdf}
+    x\tilde{g}(x, \Pz) = \frac{1}{\mathcal{N}} \int \frac{dz}{2\pi\Pz} e^{-ixz\Pz} \hR(z, \Pz),
+\end{equation}
+其中 $\hR(z, \Pz) = \langle P | \mathcal{O}(z) | P \rangle_R$ 是重整化后的矩阵元。归一化因子 $\mathcal{N} = (\Pz)^2/(P^t)^2$。
+
+\subsection{胶子准PDF算符}
+
+伴随表示下，胶子算符为：
+\begin{equation}\label{eq:M_adj}
+    \mathcal{M}^{\mu\lambda,\nu\rho}(z) = F^{\mu\lambda}_a(z) U_{ab}(z,0) F^{\nu\rho}_b(0).
+\end{equation}
+
+在格点上，计算在基础表示下进行，此时表达式变为：
+\begin{equation}\label{eq:M_fund}
+    \mathcal{M}^{\mu\lambda,\nu\rho}(z) = \sum_{\vec{x}} \Tr\qty[F^{\mu\lambda}(\vec{x}+z\hat{z}) \, U(\vec{x}+z\hat{z}, \vec{x}) \, F^{\nu\rho}(\vec{x}) \, U(\vec{x}, \vec{x}+z\hat{z})],
+\end{equation}
+其中 $U(\vec{x}+z\hat{z}, \vec{x})$ 是空间Wilson线。
+
+\subsection{胶子算符的乘法可重整性}
+
+文献\cite{Li:2018uif}证明了准胶子算符的乘法可重整性。在基础表示中，可乘性重整化的胶子算符为\cite{Zhang:2018diw,Balitsky:2019krj}：
+\begin{equation}\label{eq:O_mult}
+    \mathcal{O}(z) = \mathcal{M}^{tx;tx}(z) + \mathcal{M}^{ty;ty}(z) - 2\mathcal{M}^{xy;xy}(z).
+\end{equation}
+
+这一特定组合的关键性质是：$\mathcal{M}^{ti;it}$ 和 $\mathcal{M}^{ij;ji}$ 具有相同的一圈UV反常量纲，使得整个组合在一圈水平上（至少）是乘法可重整化的。
+
+\subsection{从不变振幅到胶子PDF}
+
+在光锥下 $g^{++} = g^{--} = 0$ 且 $F^{++} = 0$，因此：
+\begin{equation}
+    g^{\alpha\beta} \mathcal{M}^{+\alpha;\beta+}(z,p) = g^{ij} \mathcal{M}^{+i;j+}(z,p) = -2p^2_+ M_{pp}(\nu, 0),
+\end{equation}
+其中Ioffe时间 $\nu = p^3 z^3$。胶子PDF由 $M_{pp}$ 振幅确定：
+\begin{equation}\label{eq:Mpp_PDF}
+    -M_{pp} = \frac{1}{2} \int_{-1}^{1} dx \, e^{-ix\nu} \, x g(x).
+\end{equation}
+
+矩阵元组合 $\mathcal{M}^{ti;it} + \mathcal{M}^{ji;ij}$ 可以用来提取twist-2不变振幅 $M_{pp}$：
+\begin{equation}\label{eq:Mpp_extract}
+    \mathcal{M}^{ti;it} + \mathcal{M}^{ji;ij} = 2p_0^2 M_{pp}.
+\end{equation}
+
+$\mathcal{M}^{ti;it}$ 和 $\mathcal{M}^{ji;ij}$ 具有相同的一圈UV反常量纲，使得公式(\ref{eq:Mpp_extract})中的整个组合是可乘性重整化的。
+
+%=============================================================================
+\section{格点上的蒸馏方法}
+%=============================================================================
+
+\subsection{格点Laplace算符}
+
+蒸馏方法\cite{Peardon:2009gh}通过Jacobi涂抹算符的低秩近似提供了一种优化的夸克涂抹方法。格点上的三维规范协变Laplace算符为：
+\begin{equation}\label{eq:laplacian}
+    -\nabla^2_{xy}(t) = 6\delta_{xy} - \sum_{j=1}^{3} \qty[U_j(x,t)\delta_{x+\hat{j},y} + U^\dagger_j(x-\hat{j},t)\delta_{x-\hat{j},y}],
+\end{equation}
+其中 $x$ 和 $y$ 对应于三维空间坐标。
+
+\subsection{本征值问题}
+
+对于给定的时间切片 $t$，构造并求解Laplace算符的本征值问题：
+\begin{equation}\label{eq:eigenvalue}
+    -\nabla^2(t) \, v^{(i)} = \lambda_i \, v^{(i)}, \qquad v^{(i)} v^{(j)\dagger} = \delta_{ij},
+\end{equation}
+其中本征值 $\lambda_1, \ldots, \lambda_M$ 和对应的归一化本征矢 $v^{(1)}, \ldots, v^{(M)}$，$M = N_x \times N_y \times N_z \times N_c$。
+
+\subsection{Jacobi涂抹核}
+
+从格点Laplace算符出发，Jacobi涂抹核可以写为：
+\begin{equation}\label{eq:jacobi}
+    J_{\sigma, n_\sigma}(t) = \qty(1 + \frac{\sigma \nabla^2(t)}{n_\sigma})^{n_\sigma}, \qquad \lim_{n_\sigma \to \infty} J_{\sigma, n_\sigma}(t) = \exp(\sigma \nabla^2(t)).
+\end{equation}
+这意味着较高的本征模被指数级压低，表明主要贡献仅来自最低幅度本征模的一个小子集。因此，涂抹核可以通过仅保留这些低本征模的截断本征矢表示来有效近似。
+
+\subsection{蒸馏算符}
+
+时间切片 $t$ 处的蒸馏算符定义为\cite{Peardon:2009gh}：
+\begin{equation}\label{eq:distillation}
+    \Box_{xy}(t) = \sum_{k=1}^{N_{\text{ev}}} v^{(k)}_x(t) v^{(k)\dagger}_y(t) \equiv V(t) V^\dagger(t),
+\end{equation}
+其中 $V(t)$ 是一个 $M \times N_{\text{ev}}$ 矩阵，$N_{\text{ev}}$ 是蒸馏空间的维度。$v^{(k)}_x$ 是时间切片 $t$ 上 $\nabla^2$ 的第 $k$ 个本征矢。
+
+蒸馏算符作用于每个夸克场以实现涂抹。涂抹后的核子湮灭算符可写为：
+\begin{equation}\label{eq:nucleon_dist}
+    \mathcal{O}(t) = \epsilon^{abc} (P_+)_\alpha (\Box u)^a_\alpha \qty[(\Box u)^b_\beta (C\gamma_5)_{\beta\rho} (\Box d)^c_\rho],
+\end{equation}
+其中 $a,b,c$ 是颜色指标，$p,q,r$ 是蒸馏指标，重复的自旋指标 $\alpha,\beta,\rho$ 求和。
+
+展开蒸馏算符后：
+\begin{equation}\label{eq:nucleon_dist_expanded}
+    \mathcal{O}(t) = \epsilon^{abc} (P_+)_\alpha \qty(V^{(p)}_a V^{(q)}_b V^{(r)}_c(t)) \qty[u^{(p)}_\alpha (u^{(q)}_\beta (C\gamma_5)_{\beta\rho} d^{(r)}_\rho)] \qty(V^{(p)\dagger} V^{(q)\dagger} V^{(r)\dagger}(t)).
+\end{equation}
+
+\subsection{两点关联函数与Perambulator}
+
+积分掉夸克场后，两点关联函数变为：
+\begin{multline}\label{eq:C2pt_dist}
+    \langle \mathcal{O}(t) \bar{\mathcal{O}}(t_0) \rangle = (P_+)_{\alpha,\bar{\alpha}} (C\gamma_5)_{\beta\rho} (C\gamma_5)_{\bar{\beta}\bar{\rho}} \\
+    \times \epsilon^{abc} \qty(V^{(p)}_a V^{(q)}_b V^{(r)}_c(t))
+    \times \tau^{(r,\bar{r})}_{\rho,\bar{\rho}} \qty(\tau^{(p,\bar{p})}_{\alpha,\bar{\alpha}} \tau^{(q,\bar{q})}_{\beta,\bar{\beta}} - \tau^{(p,\bar{q})}_{\alpha,\bar{\beta}} \tau^{(q,\bar{p})}_{\beta,\bar{\alpha}}) \\
+    \times \qty(V^{(\bar{p})\dagger}_{\bar{a}} V^{(\bar{q})\dagger}_{\bar{b}} V^{(\bar{r})\dagger}_{\bar{c}}(t_0)) \epsilon^{\bar{a}\bar{b}\bar{c}},
+\end{multline}
+其中 $M^{-1}$ 是格点Dirac算符。Perambulator定义为：
+\begin{equation}\label{eq:perambulator}
+    \tau^{(p,\bar{p})}_{\alpha,\beta} = V^{(p)\dagger} M^{-1,p,\bar{p}}_{\alpha,\beta} V^{(\bar{p})}.
+\end{equation}
+
+Perambulator仅依赖于规范场构型而不依赖于插值算符的选择，这一关键性质使得它们可以为每个规范场系综仅计算一次，然后可以在扩展的插值算符基上高效地重复使用。
+
+\subsection{动量涂抹}
+
+对于更高动量的态，需要向蒸馏本征矢中添加相位以保持平移不变性\cite{Egerer:2020xma}。相位蒸馏本征矢和动量涂抹相位因子选择为：
+\begin{equation}\label{eq:momentum_smearing}
+    \tilde{v}^k_x(\vec{z},t) = e^{i\vec{\zeta}\cdot\vec{z}} \, v^k_x(\vec{z},t), \qquad \vec{\zeta} = 2 \times \frac{2\pi}{L} \hat{z},
+\end{equation}
+这提供了直到 $P = 6 \times 2\pi/(aL)$ 的boost所需的动量涂抹。
+
+%=============================================================================
+\section{格点上的场强张量}
+%=============================================================================
+
+\subsection{从Wilson圈到场强张量}
+
+以链接变量 $U_\mu$ 为起点，它们与 $A_\mu$ 场的关系为 $U_\mu(n) = \exp(i a A_\mu(n))$。唯一规范不变的客体是路径排序闭合圈的迹，称为Wilson圈。最简单的情况是plaquette：
+\begin{equation}\label{eq:plaquette}
+    P_{\mu\nu} = U_\mu(x) U_\nu(x+\hat{\mu}) U^\dagger_\mu(x+\hat{\nu}) U^\dagger_\nu(x).
+\end{equation}
+
+\subsection{Baker-Campbell-Hausdorff展开}
+
+利用BCH公式展开plaquette：
+\begin{align}
+    P_{\mu\nu} &= \exp\bigg[ i a A_\mu(x) + i a A_\nu(x+\hat{\mu}) - i a A_\mu(x+\hat{\nu}) - i a A_\nu(x) \nonumber\\
+    &\quad -\frac{a^2}{2}[A_\mu(x), A_\nu(x+\hat{\mu})] - \frac{a^2}{2}[A_\mu(x+\hat{\nu}), A_\nu(x)] \nonumber\\
+    &\quad +\frac{a^2}{2}[A_\mu(x), A_\mu(x+\hat{\nu})] + \frac{a^2}{2}[A_\mu(x), A_\nu(x)] \nonumber\\
+    &\quad +\frac{a^2}{2}[A_\nu(x+\hat{\mu}), A_\mu(x+\hat{\nu})] + \frac{a^2}{2}[A_\nu(x+\hat{\mu}), A_\nu(x)] + \mathcal{O}(a^3) \bigg],
+\end{align}
+其中 $A_\mu(x+\hat{\nu}) = A_\mu(x) + a \partial_\nu A_\mu(x) + \mathcal{O}(a^2)$。
+
+利用Taylor展开，可以得到：
+\begin{align}
+    P_{\mu\nu} &= \exp\qty[i a^2 \qty(\partial_\mu A_\nu(x) - \partial_\nu A_\mu(x) + i [A_\mu(x), A_\nu(x)]) + \mathcal{O}(a^3)] \nonumber\\
+    &= 1 + i a^2 F_{\mu\nu}(x) + \cdots,
+\end{align}
+其中场强张量 $F_{\mu\nu}(x) = -i [D_\mu(x), D_\nu(x)]$ 且 $D_\mu(x) = \partial_\mu + i A_\mu(x)$。
+
+\subsection{Clover项}
+
+为减小统计涨落，取通过改变 $\mu$ 和 $\nu$ 的符号可以构造的四个可能plaquette的平均值。这一项通常称为clover项，场强张量可表示为：
+\begin{equation}\label{eq:Qmunu}
+    Q_{\mu\nu}(x) = P_{\mu\nu}(x) - P_{\nu,-\mu}(x) + P_{-\nu,\mu}(x) + P_{-\mu,-\nu}(x),
+\end{equation}
+\begin{equation}\label{eq:F_clover}
+    F_{\mu\nu} = -\frac{i}{8a^2} (Q_{\mu\nu} - Q_{\nu\mu}).
+\end{equation}
+
+\subsection{Minkowski空间与Euclidean空间的关系}
+
+在Minkowski空间中，协变和逆变场强张量可写为：
+\begin{equation}
+    F^{(M)}_{\mu\nu} = \begin{pmatrix}
+        0 & F_{tx} & F_{ty} & F_{tz} \\
+        F_{xt} & 0 & F_{xy} & F_{xz} \\
+        F_{yt} & F_{yx} & 0 & F_{yz} \\
+        F_{zt} & F_{zx} & F_{zy} & 0
+    \end{pmatrix}, \quad
+    F^{\mu\nu,(M)} = \begin{pmatrix}
+        0 & -F_{tx} & -F_{ty} & -F_{tz} \\
+        -F_{xt} & 0 & F_{xy} & F_{xz} \\
+        -F_{yt} & F_{yx} & 0 & F_{yz} \\
+        -F_{zt} & F_{zx} & F_{zy} & 0
+    \end{pmatrix}.
+\end{equation}
+
+Minkowski量和Euclidean量之间的关系为：
+\begin{equation}\label{eq:ME_relation}
+    F^{(M)}_{tx} F^{(M)}_{tx} = -F^{(E)}_{tx} F^{(E)}_{tx}, \qquad
+    F^{(M)}_{xy} F^{(M)}_{xy} = F^{(E)}_{xy} F^{(E)}_{xy}.
+\end{equation}
+
+%=============================================================================
+\section{非极化胶子算符和矩阵元}
+%=============================================================================
+
+\subsection{矩阵元的一般形式}
+
+基础表示下非极化胶子PDF的矩阵元可以写为：
+\begin{equation}\label{eq:M_general}
+    \mathcal{M}^{\mu\alpha;\lambda\beta}(z,p) = \langle p | F^{\mu\alpha}(z) W[z,0] F^{\lambda\beta}(0) W[0,z] | p \rangle,
+\end{equation}
+其中 $z^\mu = \{0, 0, 0, z^3\}$ 是胶子场之间的分离。
+
+矩阵元可以分解为不变振幅 $M_{pp}$, $M_{pz}$, $M_{zz}$, $M_{zp}$, $M_{ppzz}$ 和 $M_{gg}$\cite{Balitsky:2019krj}。
+
+\subsection{非极化胶子流算符}
+
+在基础表示下，使用Eq.(\ref{eq:Mpp_extract})中矩阵元定义的胶子流可以写为：
+\begin{align}
+    \mathcal{O}^{(0)}_g(z, t_i) &= \qty[F^{0i}(z, t_i) W[z,0] F^{0i}(0, t_i) W[0,z] + 2F^{12}(z, t_i) W[z,0] F^{12}(0, t_i) W[0,z] ]_{\text{Mink}} \nonumber\\
+    &= \qty[-F^{0i}(z, t_i) W[z,0] F^{0i}(0, t_i) W[0,z] + 2F^{12}(z, t_i) W[z,0] F^{12}(0, t_i) W[0,z] ]_{\text{Eucl}}.
+\end{align}
+
+$F^{0i}(z) W[z,0] F^{i0}(0) W[0,z]$ 项的 ``$-$'' 号来源于公式(\ref{eq:ME_relation})中Minkowski量和Euclidean量之间的关系。
+
+为研究 $\mathcal{M}^{ti;it}$ 的单独贡献，还定义了Euclidean空间中的另一个算符：
+\begin{equation}
+    \mathcal{O}^{(1)}_g(z, t_i) = F^{0i}(z, t_i) W[z,0] F^{0i}(0, t_i) W[0,z].
+\end{equation}
+
+核子插值算符采用\cite{Egerer:2020xma}：
+\begin{equation}\label{eq:N_operator}
+    N(\vec{P}; t) = \sum_{\vec{x}} e^{-i\vec{x}\cdot\vec{P}} P_+ (u^T C \gamma_5 \gamma_t d) u(\vec{x}; t),
+\end{equation}
+其中 $C$ 是电荷共轭算符，$P_+ = \frac{1}{2}(1+\gamma_t)$ 是正宇称投影算符。
+
+%=============================================================================
+\section{胶子螺旋度算符}
+%=============================================================================
+
+\subsection{螺旋度矩阵元}
+
+在基础表示下，胶子螺旋度矩阵元可以写为：
+\begin{equation}\label{eq:m_helicity}
+    \tilde{m}^{\mu\alpha;\lambda\beta}(z,p) = \langle p s | F^{\mu\alpha}(z) W[z,0] \tilde{F}^{\lambda\beta}(0) W[0,z] | p s \rangle,
+\end{equation}
+其中 $z^\mu = \{0, 0, 0, z^3\}$。
+
+矩阵元的 $z$-奇组合定义为\cite{Egerer:2022rfj}：
+\begin{equation}\label{eq:M_tilde}
+    \tilde{\mathcal{M}}^{\mu\alpha;\lambda\beta}(z,p) = \tilde{m}^{\mu\alpha;\lambda\beta}(z,p) - \tilde{m}^{\mu\alpha;\lambda\beta}(-z,p).
+\end{equation}
+
+\subsection{螺旋度PDF的Ioffe时间分布}
+
+极化胶子PDF可以通过Ioffe时间分布确定\cite{Egerer:2022rfj}：
+\begin{equation}\label{eq:helicity_Ioffe}
+    \Delta G = \int_0^\infty d\nu \, \tilde{I}_p(\nu) = \int_0^1 dx \, \Delta g(x), \qquad -i \tilde{I}_p(\nu) \equiv \tilde{\mathcal{M}}^{(+)}_{(ps)}(\nu) - \nu \tilde{\mathcal{M}}_{(pp)}(\nu).
+\end{equation}
+
+\subsection{不变振幅分解}
+
+矩阵元 $\tilde{\mathcal{M}}^{0i;0i}$ 和 $\tilde{\mathcal{M}}^{ij;ij}$ 的组合可以用不变振幅写为：
+\begin{align}
+    \tilde{\mathcal{M}}^{0i;0i}(z,p) + \tilde{\mathcal{M}}^{ij;ij}(z,p) &= -2p^3 p^0 \tilde{\mathcal{M}}^{(+)}_{(ps)}(\nu, z^2) + 2p_0^3 z \tilde{\mathcal{M}}_{(pp)}(\nu, z^2) \nonumber\\
+    &= -2p^3 p^0 \qty[\tilde{\mathcal{M}}^{(+)}_{(ps)}(\nu, z^2) - \nu \tilde{\mathcal{M}}_{(pp)}(\nu, z^2) + \frac{m^2}{p_3^2} \nu \tilde{\mathcal{M}}_{(pp)}(\nu, z^2)].
+\end{align}
+
+对于大的 $p^3$，该组合与所需的振幅 $\tilde{\mathcal{M}}^{(+)}_{(ps)}(\nu) - \nu \tilde{\mathcal{M}}_{(pp)}(\nu)$ 成正比，其中与质量相关的项被 $m^2/p_3^2$ 压低。
+
+\subsection{螺旋度胶子流算符}
+
+在Euclidean空间中，螺旋度胶子流算符为：
+\begin{align}
+    \mathcal{O}^{(0)}_g(z, t_i) &= \big\{ \{F^{0i}(z) W[z,0] \tilde{F}^{0i}(0) W[0,z] + F^{ij}(z) W[z,0] \tilde{F}^{ij}(0) W[0,z]\} \nonumber\\
+    &\quad - \{ (z \leftrightarrow -z) \} \big\}_{\text{Mink}} \nonumber\\
+    &= -\big\{ \{F^{01} W F^{23} - F^{02} W F^{13} + 2F^{12} W F^{03}\} - \{ (z \leftrightarrow -z) \} \big\}_{\text{Eucl}},
+\end{align}
+其中 $\tilde{F}_{\mu\nu} = \frac{1}{2}\epsilon_{\mu\nu\rho\sigma} F^{\rho\sigma}$ 且 $\epsilon_{0123} = 1$。
+
+单独 $\tilde{\mathcal{M}}^{0i;0i}$ 贡献的算符：
+\begin{align}
+    \mathcal{O}^{(1)}_g(z, t_i) &= \{F^{0i}(z) W[z,0] \tilde{F}^{0i}(0) W[0,z]\} - \{ (z \leftrightarrow -z) \} \nonumber\\
+    &= \{F^{01} W F^{23} + F^{02} W F^{13}\} - \{ (z \leftrightarrow -z) \}.
+\end{align}
+
+%=============================================================================
+\section{关联函数与裸矩阵元}
+%=============================================================================
+
+\subsection{两点关联函数}
+
+核子的两点关联函数（2pt）定义为：
+\begin{equation}\label{eq:C2pt}
+    C_{2\text{pt}}(\Pz; \tsep) = \sum_{t_0} \langle 0 | N(\Pz; t_0 + \tsep) N^\dagger(\Pz; t_0) | 0 \rangle,
+\end{equation}
+对于非极化两点函数，投影算符 $P = (1 \pm \gamma_0)/2$；对于螺旋度情况，Euclidean空间中的投影算符 $P = i\gamma_3\gamma_5(1 \pm \gamma_0)/2$。
+
+\subsection{三点关联函数}
+
+三点关联函数（3pt）定义为：
+\begin{equation}\label{eq:C3pt}
+    C_{3\text{pt}}(\Pz; z; \tsep, t) = \sum_{t_0} \langle 0 | N(\Pz; t_0 + \tsep) \mathcal{O}(z; t_0 + t) N^\dagger(\Pz; t_0) | 0 \rangle.
+\end{equation}
+
+在格点上，三点关联函数通过计算非连通插入来获得：
+\begin{equation}\label{eq:C3pt_disconnected}
+    C_{3\text{pt}}(\Pz; z; \tsep, t) = \sum_{t_0} (\mathcal{O}(z; t_0 + t) - \langle \mathcal{O}(z; t_0 + t) \rangle) \times (C_{2\text{pt}}(\Pz; t_0 + \tsep, t_0) - \langle C_{2\text{pt}}(\Pz; t_0 + \tsep, t_0) \rangle).
+\end{equation}
+
+\subsection{裸矩阵元的拟合}
+
+考虑基态和第一激发态的主要贡献，关联函数可以分解为：
+\begin{align}
+    C_{2\text{pt}}(\Pz; \tsep) &= |A_0|^2 e^{-E_0 \tsep} + |A_1|^2 e^{-E_1 \tsep}, \label{eq:C2pt_decomp}\\
+    C_{3\text{pt}}(\Pz; z; t, \tsep) &= |A_0|^2 \langle 0 | \mathcal{O}(z;t) | 0 \rangle e^{-E_0 \tsep} + |A_1|^2 \langle 1 | \mathcal{O}(z;t) | 1 \rangle e^{-E_1 \tsep} \nonumber\\
+    &\quad + A_1 A_0^* \langle 1 | \mathcal{O}(z;t) | 0 \rangle e^{-E_1(\tsep - t)} e^{-E_0 t} \nonumber\\
+    &\quad + A_0 A_1^* \langle 0 | \mathcal{O}(z;t) | 1 \rangle e^{-E_0(\tsep - t)} e^{-E_1 t}, \label{eq:C3pt_decomp}
+\end{align}
+其中 $\langle 0 | \mathcal{O}(z;t) | 0 \rangle$ 是所需的基态准矩阵元，$|n\rangle$ 表示第 $n$ 个激发态，$A_{0,1}$ 是依赖于涂抹参数的振幅，$E_{0,1}$ 是基态和激发态能量。
+
+\subsection{比值拟合}
+
+三点与两点关联函数的比值可以分解为以下拟合形式：
+\begin{equation}\label{eq:ratio_fit}
+    R_{3\text{pt}}(\Pz; \tsep, t) = \frac{C_{3\text{pt}}(\Pz; \tsep, t)}{C_{2\text{pt}}(\Pz; \tsep)} \approx c_0 + c_1 e^{-\Delta E(\tsep - t)} + c_1 e^{-\Delta E t} + c_2 e^{-\Delta E \tsep},
+\end{equation}
+其中 $c_0$ 对应于裸准矩阵元，$\Delta E = E_1 - E_0$ 表示基态和第一激发态之间的能隙。
+
+跃迁项 $c_1 e^{-\Delta E(\tsep - t)} + c_1 e^{-\Delta E t}$ 在大 $\tsep$ 下主导散射项 $c_2 e^{-\Delta E \tsep}$。因此最终的拟合形式简化为：
+\begin{equation}\label{eq:ratio_fit_simple}
+    R_{3\text{pt}}(\Pz; \tsep, t) \approx c_0 + c_1 e^{-\Delta E(\tsep - t)} + c_1 e^{-\Delta E t}.
+\end{equation}
+
+拟合在计算3000个bootstrap重采样后取比值。执行包含 $z = n_z a$ 和 $z = 0$ 数据的联合拟合以更好地约束 $\Delta E$。对于每个 $\tsep$，排除源点和汇点附近的 $n_{\text{ex}}$ 个点以减少较高激发态的污染。
+
+%=============================================================================
+\section{混合方案重整化}
+%=============================================================================
+
+\subsection{自重整化因子}
+
+裸矩阵元 $\hB(z, \Pz, 1/a)$ 包含UV发散，包括来自Wilson线自能的线性发散。采用混合重整化方案\cite{Ji:2020brr}，定义自重整化因子 $Z_R$ 使得：
+\begin{equation}\label{eq:ZR}
+    \hR(z, \Pz, \mu) = Z_R^{-1}(z, 1/a, \mu) \, \hB(z, \Pz, 1/a).
+\end{equation}
+
+在短距离（$z \ll 1/\QCD$），重整化矩阵元应与微扰 $\MS$ 方案的结果一致。胶子准PDF的NLO微扰结果为：
+\begin{equation}\label{eq:hpert}
+    \hpert_{\MS}(z, \mu) = 1 + \frac{\alphas(\mu) \CA}{4\pi} \qty[\frac{5}{3} \ln\frac{z^2\mu^2}{4e^{-2\gamma_E}} + 3],
+\end{equation}
+其中 $\gamma_E$ 是Euler-Mascheroni常数。重整化标度取 $\mu = 2$ GeV，对应的跑动耦合常数 $\alphas(\mu) = 0.296$。
+
+\subsection{零动量拟合}
+
+$Z_R$ 中的参数通过拟合零动量下的裸矩阵元确定：
+\begin{equation}\label{eq:ZR_fit}
+    \ln \hB(z, \Pz = 0, 1/a) = \ln[Z_R(z, 1/a, \mu; k, \QCD, m_0, d)] + \begin{cases}
+        \ln\qty[\hpert_{\MS}(z, \mu)], & z_0 \leq z \leq z_1,\\[4pt]
+        g(z) - m_0 z, & z_1 < z,
+    \end{cases}
+\end{equation}
+其中 $k$, $\QCD$, $m_0$, $d$ 和 $g(z)$ 是自由参数。取 $z_0 = 0.15$ fm, $z_1 = 0.3$ fm，$z$ 的最大值为 $1$ fm。
+
+注意这里 $k$ 的值与夸克准PDF的值相差一个领头阶因子 $\CA/\CF$，因此可以显著更大。虽然某些参数的不确定度看起来很大，但它们是强相关的并且相互补偿，导致计算的自重整化因子 $Z_R$ 的不确定度减小。
+
+%=============================================================================
+\section{微扰匹配}
+%=============================================================================
+
+\subsection{Ratio方案匹配核}
+
+动量空间中的微扰匹配核到NLO在ratio方案下为\cite{Balitsky:2021mfb,Yao:2022skw}：
+\begin{equation}\label{eq:Cratio}
+    C^{\text{ratio}}\qty(\xi, \frac{\mu}{y\Pz}) = \delta(1-\xi) + \frac{\alphas(\mu) \CA}{2\pi} \times
+    \begin{cases}
+        \displaystyle \qty[\frac{2(1-\xi+\xi^2)^2}{1-\xi} \frac{\ln\xi}{\xi-1} + \frac{11-28\xi+18\xi^2-12\xi^3}{6(1-\xi)}]_+, & \xi > 1,\\[12pt]
+        \displaystyle \left[\frac{2(1-\xi+\xi^2)^2}{1-\xi} \qty(-\ln\frac{\mu^2}{4y^2\Pz^2} + \ln(\xi(1-\xi))) \right. \\
+        \displaystyle \qquad \left. - \frac{15-56\xi+102\xi^2-96\xi^3+48\xi^4}{6(1-\xi)}\right]_+, & 0 < \xi < 1,\\[12pt]
+        \displaystyle \qty[-\frac{2(1-\xi+\xi^2)^2}{1-\xi} \frac{\ln\xi}{\xi-1} - \frac{11-28\xi+18\xi^2-12\xi^3}{6(1-\xi)}]_+, & \xi < 0,
+    \end{cases}
+\end{equation}
+其中 $\xi = x/y$。
+
+\subsection{混合方案匹配核}
+
+混合方案下的匹配核为：
+\begin{equation}\label{eq:Chybrid}
+    C^{\text{hybrid}}\qty(\xi, \lambda_s, \frac{\mu}{y\Pz}) = C^{\text{ratio}}\qty(\xi, \frac{\mu}{y\Pz}) + \frac{\alphas(\mu) \CA}{2\pi} \frac{5}{6} \qty[-\frac{1}{|1-\xi|} + \frac{2\,\text{Si}((1-\xi)|y|\lambda_s)}{\pi(1-\xi)}]_+,
+\end{equation}
+其中 $\text{Si}(x) = \int_0^x dt \frac{\sin t}{t}$ 是正弦积分函数，$\lambda_s \sim 1/z_s$ 是混合方案中分离短距离和长距离物理的标度。
+
+$[\cdots]_+$ 表示加分布（plus distribution），其定义为：
+\begin{equation}
+    \int_{-\infty}^{\infty} d\xi \, [f(\xi)]_+ \, g(\xi) = \int_{-\infty}^{\infty} d\xi \, f(\xi) [g(\xi) - g(1)].
+\end{equation}
+
+\subsection{完整的匹配步骤}
+
+从重整化矩阵元到光锥PDF的完整步骤为：
+\begin{enumerate}
+    \item 通过Fourier变换从 $\hR(z, \Pz)$ 计算准PDF $x\tilde{g}(x, \Pz)$：
+    \begin{equation}
+        x\tilde{g}(x, \Pz) = \frac{1}{\mathcal{N}} \int \frac{dz}{2\pi\Pz} e^{-ixz\Pz} \hR(z, \Pz)
+    \end{equation}
+    \item 通过匹配公式从准PDF提取光锥PDF $x g(x, \mu)$：
+    \begin{equation}
+        x\tilde{g}(x, \Pz) = \int_{-\infty}^{\infty} \frac{dy}{|y|} C^{\text{hybrid}}\qty(\frac{x}{y}, \lambda_s, \frac{\mu}{y\Pz}) \, y g(y, \mu)
+    \end{equation}
+\end{enumerate}
+
+%=============================================================================
+\section{大-$\lambda$ 外推}
+%=============================================================================
+
+\subsection{外推的必要性}
+
+将重整化矩阵元Fourier变换到动量空间需要在全部坐标空间中的矩阵元。直接截断会在动量空间结果中引入振荡。为解决此问题，在大-$\lambda$（$\lambda = z\Pz$）区域使用以下形式进行外推\cite{Ji:2020brr}：
+\begin{equation}\label{eq:lambda_extrap}
+    \hR(\lambda) = l_1 \lambda^{-a_1} e^{-\lambda/\lambda_0},
+\end{equation}
+其中 $\lambda^{-a_1}$ 与非极化PDF在端点区域的幂律行为相关，$e^{-\lambda/\lambda_0}$ 项描述了在非常大距离处的指数衰减。
+
+外推结果在拟合范围内与格点数据吻合良好，从拟合范围的终点开始用外推结果替换格点数据。
+
+%=============================================================================
+\section{连续极限和无穷动量外推}
+%=============================================================================
+
+为了获得真正的光锥PDF，需要同时进行连续极限（$a \to 0$）和无穷动量（$\Pz \to \infty$）的外推。外推采用以下参数化形式：
+\begin{equation}\label{eq:cont_extrap}
+    x g(x, \Pz, a) = x g(x) + \frac{b_1}{\Pz^2} + b_2 a^2 + b_3 a^2 \Pz^2 + \cdots,
+\end{equation}
+其中：
+\begin{itemize}
+    \item $b_1/\Pz^2$ 项来自于 $\mathcal{O}(1/\Pz^2)$ 的幂次修正
+    \item $b_2 a^2$ 项来自于格点离散化误差
+    \item $b_3 a^2 \Pz^2$ 项来自于格点离散化与有限动量效应的交叉项
+\end{itemize}
+
+外推过程利用三个格点间距（$a = \{0.105, 0.0897, 0.0775\}$ fm）和每个系综上的多个动量的数据来进行。拟合中忽略了PDF $d(x)$ 的格距依赖性，因为在统计上没有显著意义。也忽略了 $\pi$ 质量依赖性，因为其效应预期很弱。
+
+%=============================================================================
+\section{系统误差分析}
+%=============================================================================
+
+最终结果的系统误差来自四个主要来源：
+
+\begin{enumerate}[label=(\arabic*), leftmargin=*]
+    \item \textbf{$\lambda$ 外推误差}：通过选择不同的拟合范围进行外推来估计。
+    \item \textbf{重整化标度依赖性}：将 $\mu$ 从 $2$ GeV变化到 $4$ GeV（对应 $\alphas(\mu)$ 从 $0.296$ 到 $0.23$），取中心值的差异。
+    \item \textbf{无穷动量和连续极限外推}：取联合外推结果与最小格距（$a = 0.0775$ fm）和动量（$\Pz = 1.5$ GeV）下的结果之间的差异。
+    \item \textbf{混合方案 $z_s$ 选择}：取 $z_s = 0.3$ fm 和 $z_s = 0.2$ fm 下的结果之间的差异。
+\end{enumerate}
+
+这些误差以平方和方式相加，然后取平方根以获得完整的不确定度：
+\begin{equation}
+    \sigma_{\text{total}} = \sqrt{\sigma_{\lambda}^2 + \sigma_{\mu}^2 + \sigma_{\text{extrap}}^2 + \sigma_{z_s}^2 + \sigma_{\text{stat}}^2}.
+\end{equation}
+
+%=============================================================================
+\section{完整计算流程总结}
+%=============================================================================
+
+从格点QCD计算胶子PDF的完整流程可总结如下：
+
+\begin{enumerate}[label=\textbf{步骤 \arabic*}:, leftmargin=*]
+    \item \textbf{生成规范组态}：使用 $N_f = 2+1$ Wilson Clover夸克作用，在三个格距上进行计算
+    \item \textbf{蒸馏夸克涂抹}：使用 $N_{\text{ev}} = 100$ 个本征矢计算蒸馏算符
+    \item \textbf{计算两点关联函数}：使用 $P_+ = \frac{1}{2}(1+\gamma_t)$ 投影算符
+    \item \textbf{计算三点关联函数}：通过非连通插入计算，应用HYP涂抹抑制线性发散
+    \item \textbf{提取裸矩阵元}：联合拟合三点与两点关联函数的比值，公式(\ref{eq:ratio_fit_simple})
+    \item \textbf{混合方案重整化}：使用零动量矩阵元确定自重整化因子，公式(\ref{eq:ZR_fit})
+    \item \textbf{大-$\lambda$ 外推}：使用公式(\ref{eq:lambda_extrap})外推到全部坐标空间
+    \item \textbf{Fourier变换}：通过公式(\ref{eq:quasi-pdf})计算准PDF
+    \item \textbf{微扰匹配}：使用NLO混合方案匹配核，公式(\ref{eq:Chybrid})
+    \item \textbf{连续极限和无穷动量外推}：使用公式(\ref{eq:cont_extrap})联合外推
+    \item \textbf{系统误差估计}：综合评估所有误差来源
+\end{enumerate}
+
+%=============================================================================
+\section*{附录：关键公式汇总}
+%=============================================================================
+
+以下汇总本推导过程中的核心公式（按出现顺序编号）：
+
+\begin{enumerate}[label=(\arabic*), leftmargin=*]
+    \item \textbf{光锥胶子PDF定义}（Eq.\ref{eq:lightcone_pdf}）：
+    $x g(x, \mu) = \int \frac{dz^-}{2\pi P^+} e^{-ixP^+z^-} \langle P | F^{+\mu}_a(z^-) U_{ab}(z^-,0) F^{b\mu}_{+}(0) | P \rangle$
+
+    \item \textbf{场强张量}（Eq.\ref{eq:F_def}）：
+    $F^a_{\mu\nu} = \partial_\mu A^a_\nu - \partial_\nu A^a_\mu - g f^{abc} A^b_\mu A^c_\nu$
+
+    \item \textbf{\LaMET 匹配公式}（Eq.\ref{eq:matching}）：
+    $x\tilde{g}(x, \Pz) = \int_{-\infty}^{\infty} \frac{dy}{|y|} C^{\text{hybrid}}(\frac{x}{y}, \lambda_s, \frac{\mu}{y\Pz}) \, y g(y, \mu) + \mathcal{O}(\QCD^2/\Pz^2)$
+
+    \item \textbf{准PDF定义}（Eq.\ref{eq:quasi-pdf}）：
+    $x\tilde{g}(x, \Pz) = \frac{1}{\mathcal{N}} \int \frac{dz}{2\pi\Pz} e^{-ixz\Pz} \hR(z, \Pz)$
+
+    \item \textbf{乘法可重整化胶子算符}（Eq.\ref{eq:O_mult}）：
+    $\mathcal{O}(z) = \mathcal{M}^{tx;tx}(z) + \mathcal{M}^{ty;ty}(z) - 2\mathcal{M}^{xy;xy}(z)$
+
+    \item \textbf{基础表示胶子算符}（Eq.\ref{eq:M_fund}）：
+    $\mathcal{M}^{\mu\lambda,\nu\rho}(z) = \sum_{\vec{x}} \Tr[F^{\mu\lambda}(\vec{x}+z\hat{z}) U(\vec{x}+z\hat{z}, \vec{x}) F^{\nu\rho}(\vec{x}) U(\vec{x}, \vec{x}+z\hat{z})]$
+
+    \item \textbf{$M_{pp}$ 振幅与PDF的关系}（Eq.\ref{eq:Mpp_PDF}）：
+    $-M_{pp} = \frac{1}{2} \int_{-1}^{1} dx \, e^{-ix\nu} \, x g(x)$
+
+    \item \textbf{$M_{pp}$ 振幅的提取}（Eq.\ref{eq:Mpp_extract}）：
+    $\mathcal{M}^{ti;it} + \mathcal{M}^{ji;ij} = 2p_0^2 M_{pp}$
+
+    \item \textbf{格点Laplace算符}（Eq.\ref{eq:laplacian}）：
+    $-\nabla^2_{xy}(t) = 6\delta_{xy} - \sum_{j=1}^{3} [U_j(x,t)\delta_{x+\hat{j},y} + U^\dagger_j(x-\hat{j},t)\delta_{x-\hat{j},y}]$
+
+    \item \textbf{本征值问题}（Eq.\ref{eq:eigenvalue}）：
+    $-\nabla^2(t) v^{(i)} = \lambda_i v^{(i)}$, $v^{(i)} v^{(j)\dagger} = \delta_{ij}$
+
+    \item \textbf{Jacobi涂抹核}（Eq.\ref{eq:jacobi}）：
+    $J_{\sigma, n_\sigma}(t) = (1 + \frac{\sigma \nabla^2(t)}{n_\sigma})^{n_\sigma}$
+
+    \item \textbf{蒸馏算符}（Eq.\ref{eq:distillation}）：
+    $\Box_{xy}(t) = \sum_{k=1}^{N_{\text{ev}}} v^{(k)}_x(t) v^{(k)\dagger}_y(t) \equiv V(t) V^\dagger(t)$
+
+    \item \textbf{Perambulator}（Eq.\ref{eq:perambulator}）：
+    $\tau^{(p,\bar{p})}_{\alpha,\beta} = V^{(p)\dagger} M^{-1,p,\bar{p}}_{\alpha,\beta} V^{(\bar{p})}$
+
+    \item \textbf{动量涂抹}（Eq.\ref{eq:momentum_smearing}）：
+    $\tilde{v}^k_x(\vec{z},t) = e^{i\vec{\zeta}\cdot\vec{z}} v^k_x(\vec{z},t)$, $\vec{\zeta} = 2 \times 2\pi/L \hat{z}$
+
+    \item \textbf{Plaquette展开}：
+    $P_{\mu\nu} = 1 + i a^2 F_{\mu\nu}(x) + \cdots$
+
+    \item \textbf{场强张量（clover项）}（Eq.\ref{eq:F_clover}）：
+    $F_{\mu\nu} = -\frac{i}{8a^2} (Q_{\mu\nu} - Q_{\nu\mu})$
+
+    \item \textbf{Minkowski-Euclidean关系}（Eq.\ref{eq:ME_relation}）：
+    $F^{(M)}_{tx} F^{(M)}_{tx} = -F^{(E)}_{tx} F^{(E)}_{tx}$, $F^{(M)}_{xy} F^{(M)}_{xy} = F^{(E)}_{xy} F^{(E)}_{xy}$
+
+    \item \textbf{非极化胶子流算符（Euclidean）}：
+    $\mathcal{O}^{(0)}_g = -F^{0i} W F^{0i} W^\dagger + 2F^{12} W F^{12} W^\dagger$
+
+    \item \textbf{螺旋度胶子流算符（Euclidean）}：
+    $\mathcal{O}^{(0)}_g = -\{F^{01} W F^{23} - F^{02} W F^{13} + 2F^{12} W F^{03}\} - \{z \leftrightarrow -z\}$
+
+    \item \textbf{核子插值算符}（Eq.\ref{eq:N_operator}）：
+    $N(\vec{P}; t) = \sum_{\vec{x}} e^{-i\vec{x}\cdot\vec{P}} P_+ (u^T C \gamma_5 \gamma_t d) u(\vec{x}; t)$
+
+    \item \textbf{三点关联函数（非连通）}（Eq.\ref{eq:C3pt_disconnected}）：
+    $C_{3\text{pt}} = \sum_{t_0} (\mathcal{O}_g - \langle \mathcal{O}_g \rangle) \times (C_{2\text{pt}} - \langle C_{2\text{pt}} \rangle)$
+
+    \item \textbf{比值拟合}（Eq.\ref{eq:ratio_fit_simple}）：
+    $R_{3\text{pt}} \approx c_0 + c_1 e^{-\Delta E(\tsep - t)} + c_1 e^{-\Delta E t}$
+
+    \item \textbf{NLO $\MS$ 微扰结果}（Eq.\ref{eq:hpert}）：
+    $\hpert_{\MS}(z, \mu) = 1 + \frac{\alphas \CA}{4\pi} [\frac{5}{3} \ln\frac{z^2\mu^2}{4e^{-2\gamma_E}} + 3]$
+
+    \item \textbf{零动量拟合}（Eq.\ref{eq:ZR_fit}）：
+    $\ln \hB(z, 0, 1/a) = \ln Z_R + \ln \hpert_{\MS}$ 或 $\ln Z_R + g(z) - m_0 z$
+
+    \item \textbf{Ratio方案匹配核}（Eq.\ref{eq:Cratio}）：分段函数，包含 $\xi > 1$, $0 < \xi < 1$, $\xi < 0$ 三个区域
+
+    \item \textbf{混合方案匹配核}（Eq.\ref{eq:Chybrid}）：
+    $C^{\text{hybrid}} = C^{\text{ratio}} + \frac{\alphas \CA}{2\pi} \frac{5}{6} [-\frac{1}{|1-\xi|} + \frac{2\text{Si}((1-\xi)|y|\lambda_s)}{\pi(1-\xi)}]_+$
+
+    \item \textbf{大-$\lambda$ 外推}（Eq.\ref{eq:lambda_extrap}）：
+    $\hR(\lambda) = l_1 \lambda^{-a_1} e^{-\lambda/\lambda_0}$
+
+    \item \textbf{连续极限和无穷动量外推}（Eq.\ref{eq:cont_extrap}）：
+    $x g(x, \Pz, a) = x g(x) + b_1/\Pz^2 + b_2 a^2 + b_3 a^2 \Pz^2$
+
+    \item \textbf{螺旋度Ioffe时间分布}（Eq.\ref{eq:helicity_Ioffe}）：
+    $\Delta G = \int_0^\infty d\nu \tilde{I}_p(\nu)$, $-i \tilde{I}_p(\nu) \equiv \tilde{\mathcal{M}}^{(+)}_{(ps)}(\nu) - \nu \tilde{\mathcal{M}}_{(pp)}(\nu)$
+\end{enumerate}
+
+%=============================================================================
+
+\begin{thebibliography}{99}
+
+\bibitem{Jaffe:1989jz}
+R.~L.~Jaffe and A.~Manohar,
+Nucl.\ Phys.\ B \textbf{337}, 509 (1990).
+
+\bibitem{Balitsky:2019krj}
+I.~Balitsky, W.~Morris, and A.~Radyushkin,
+Phys.\ Lett.\ B \textbf{808}, 135621 (2020),
+[arXiv:1910.13963].
+
+\bibitem{Ji:2013dva}
+X.~Ji,
+Phys.\ Rev.\ Lett.\ \textbf{110}, 262002 (2013),
+[arXiv:1305.1539].
+
+\bibitem{Ji:2014gla}
+X.~Ji,
+Sci.\ China Phys.\ Mech.\ Astron.\ \textbf{57}, 1407 (2014),
+[arXiv:1404.6680].
+
+\bibitem{Ji:2017oey}
+X.~Ji, J.-H.~Zhang, and Y.~Zhao,
+Nucl.\ Phys.\ B \textbf{924}, 366 (2017),
+[arXiv:1706.07416].
+
+\bibitem{Li:2018uif}
+Z.-Y.~Li, Y.-Q.~Ma, and J.-W.~Qiu,
+Phys.\ Rev.\ Lett.\ \textbf{122}, 062002 (2019),
+[arXiv:1809.01836].
+
+\bibitem{Zhang:2018diw}
+J.-H.~Zhang, X.~Ji, A.~Sch\"afer, W.~Wang, and S.~Zhao,
+Phys.\ Rev.\ Lett.\ \textbf{122}, 142001 (2019),
+[arXiv:1808.10824].
+
+\bibitem{Peardon:2009gh}
+M.~Peardon \textit{et al.} (Hadron Spectrum),
+Phys.\ Rev.\ D \textbf{80}, 054506 (2009),
+[arXiv:0905.2160].
+
+\bibitem{Egerer:2020xma}
+C.~Egerer, R.~G.~Edwards, K.~Orginos, and D.~G.~Richards,
+Phys.\ Rev.\ D \textbf{103}, 034502 (2021),
+[arXiv:2009.10691].
+
+\bibitem{Egerer:2022rfj}
+C.~Egerer \textit{et al.} (HadStruc),
+Phys.\ Rev.\ D \textbf{106}, 094511 (2022),
+[arXiv:2207.08733].
+
+\bibitem{Ji:2020brr}
+X.~Ji, Y.~Liu, Y.-S.~Liu, J.-H.~Zhang, and Y.~Zhao,
+Phys.\ Rev.\ D \textbf{104}, 034504 (2021),
+[arXiv:2004.03543].
+
+\bibitem{Balitsky:2021mfb}
+I.~Balitsky, W.~Morris, and A.~Radyushkin,
+Phys.\ Rev.\ D \textbf{105}, 014008 (2022),
+[arXiv:2111.06797].
+
+\bibitem{Yao:2022skw}
+F.~Yao, Y.~Ji, and J.-H.~Zhang,
+JHEP \textbf{11}, 021 (2023),
+[arXiv:2212.14415].
+
+\bibitem{Izubuchi:2018srq}
+T.~Izubuchi, X.~Ji, L.~Jin, I.~W.~Stewart, and Y.~Zhao,
+Phys.\ Rev.\ D \textbf{98}, 056004 (2018),
+[arXiv:1801.03917].
+
+\bibitem{Allton:1993ei}
+C.~R.~Allton \textit{et al.} (UKQCD),
+Phys.\ Rev.\ D \textbf{47}, 5128 (1993),
+[arXiv:hep-lat/9303009].
+
+\end{thebibliography}
+
+\end{document}

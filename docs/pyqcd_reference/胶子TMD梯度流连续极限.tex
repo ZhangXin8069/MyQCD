@@ -1,0 +1,1481 @@
+\documentclass[12pt,a4paper]{ctexart}
+
+% === 页面设置 ===
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+
+% === 数学和物理 ===
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{bm}
+\usepackage{physics}
+\usepackage{slashed}
+\usepackage{braket}
+\usepackage{mathtools}
+
+% === 图形和表格 ===
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{longtable}
+
+% === 引用 ===
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{url}
+
+% === 其他 ===
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tikz}
+\usepackage{framed}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+}
+
+% === 定理环境 ===
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{remark}{注记}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{proposition}{命题}[section]
+
+% === 自定义命令 ===
+\newcommand{\LaMET}{\text{LaMET}}
+\newcommand{\MS}{\overline{\text{MS}}}
+\newcommand{\Fmunu}{F_{\mu\nu}}
+\newcommand{\Wab}{W^{ab}}
+\newcommand{\hB}{\tilde{h}_B}
+\newcommand{\hR}{\tilde{h}_R}
+\newcommand{\hpert}{\tilde{h}^{\text{pert}}}
+\newcommand{\tsep}{t_{\text{sep}}}
+\newcommand{\Pz}{P_z}
+\newcommand{\QCD}{\Lambda_{\text{QCD}}}
+\newcommand{\alphas}{\alpha_s}
+\newcommand{\CA}{C_A}
+\newcommand{\CF}{C_F}
+\newcommand{\GF}{梯度流}
+\newcommand{\WF}{Wilson流}
+\newcommand{\bperp}{b_\perp}
+\newcommand{\kperp}{k_\perp}
+\newcommand{\SFTX}{小流时展开}
+
+% === 页眉页脚 ===
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small 核子非极化胶子TMD-PDF的格点QCD计算}
+\fancyhead[R]{\small \thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\title{\heiti 使用梯度流重整化方案的连续极限下\\核子非极化胶子TMD部分子分布函数的格点QCD计算}
+\author{
+    \begin{tabular}{c}
+        基于本库全部文档与代码的综合解析 \\
+        \small 中国科学院近代物理研究所 (IMP, CAS) \\
+        \small 格点QCD合作组 (CLQCD / LPC)
+    \end{tabular}
+}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+本文给出使用梯度流（gradient flow）重整化方案在连续极限下计算核子非极化胶子横动量依赖部分子分布函数（TMD-PDF）的完整理论推导、格点计算流程和数据分析方法。理论框架基于大动量有效理论（LaMET），将Minkowski时空中的光锥胶子TMD-PDF通过因子化定理与Euclidean格点上可计算的准TMD-PDF联系起来。胶子准TMD算符由场强张量$F_{\mu\nu}$通过空间Wilson线连接构成，其可乘性重整化组合为$\mathcal{O}(z,\vec{b}_\perp) = \mathcal{M}^{tx;tx} + \mathcal{M}^{ty;ty} - 2\mathcal{M}^{xy;xy}$。采用梯度流（Wilson flow）作为规范不变的UV正规化框架，消除了Wilson线的幂次发散，使得连续极限下的矩阵元保持有限。在格点计算层面，使用CLQCD合作组的$N_f=2+1$味动力学组态（三个格点间距$a = \{0.105, 0.0897, 0.0775\}$~fm，$m_\pi \approx 300$~MeV），采用蒸馏（distillation）夸克涂抹方法和动量涂抹技术，通过非连通图分解计算三点关联函数。数据分析涵盖裸矩阵元提取、梯度流重整化、大$\lambda$外推、Fourier变换、NLO微扰匹配以及联合连续极限和无穷大动量外推。本文综合参考了本库中的核心文献（包括L\"uscher的梯度流理论、Monahan-Orginos的准PDF梯度流方案、LPC合作组的胶子PDF和TMD-PDF计算、以及CLQCD合作组的胶子PDF连续极限计算），并给出了可直接编译的完整LaTeX源码。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ===========================================================================
+% 第一部分：引言与物理背景
+% ===========================================================================
+
+\section{引言：质子自旋危机与胶子TMD-PDF的物理意义}
+
+\subsection{质子自旋与胶子的角色}
+
+自从EMC合作组在1988年发现夸克自旋仅贡献质子总自旋的一小部分以来，``质子自旋危机''一直是强子物理的核心问题之一。Jaffe-Manohar自旋求和规则给出了质子的完整自旋分解~\cite{Jaffe:1989jz}：
+\begin{equation}
+    J = \frac{1}{2}\Delta\Sigma + L_q + L_G + \Delta G,
+    \label{eq:jaffe_manohar}
+\end{equation}
+其中$\frac{1}{2}\Delta\Sigma$是夸克自旋贡献，$L_q$和$L_G$分别是夸克和胶子的轨道角动量，而$\Delta G$是胶子自旋贡献。胶子螺旋度贡献$\Delta G$可以通过胶子螺旋度分布$\Delta g(x)$的一阶矩来获取：
+\begin{equation}
+    \Delta G = \int_0^1 dx \, \Delta g(x).
+    \label{eq:delta_G}
+\end{equation}
+
+在标准共线部分子分布函数（PDF）的图像中，胶子PDF $g(x,\mu)$描述了在核子中发现携带纵向动量份额$x$的胶子的概率密度。然而，这一维图像不足以完整描述强子的三维内部结构。
+
+\subsection{从共线PDF到TMD-PDF}
+
+横动量依赖部分子分布函数（TMD-PDFs）将标准的一维共线PDF推广到三维，同时描述部分子在纵向动量份额$x$和横向动量$\vec{k}_\perp$上的联合分布~\cite{Collins2011foundations}。TMD-PDFs是理解强子三维结构的核心可观测量，也是描述Drell-Yan过程、半单举深度非弹性散射（SIDIS）等具有小横向动量观测量的QCD因子化的关键输入。
+
+\begin{definition}[胶子TMD-PDF的物理含义]
+胶子TMD-PDF $g(x, \vec{k}_\perp, \mu, \zeta)$描述在强子中找到携带纵向动量份额$x$、横向动量$\vec{k}_\perp$的胶子的\textbf{联合概率密度}。其中$\mu$是重整化标度（来自UV正规化），$\zeta$是\textbf{快度标度}（rapidity scale，来自快度发散的正规化）。在b-空间（$\vec{k}_\perp$的Fourier共轭变量$\vec{b}_\perp$）中，TMD-PDF记为$g(x, b_\perp, \mu, \zeta)$，其中$b_\perp \equiv |\vec{b}_\perp|$。
+\end{definition}
+
+胶子TMD-PDF的格点计算具有极高的物理意义：在小$x$区域，胶子TMD主导了Drell-Yan和Higgs产生过程的横向动量分布；大$x$区域的胶子TMD则为理解核子中胶子的空间分布提供了独特窗口。
+
+\subsection{格点QCD计算胶子TMD面临的挑战}
+
+胶子TMD-PDF的格点QCD计算面临多重独特挑战：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{光锥关联函数无法直接在Euclidean格点上模拟}：TMD-PDF的标准定义涉及光锥方向$n_\pm = (1, \vec{0}_\perp, \pm 1)/\sqrt{2}$上的胶子场强张量关联函数，包含实时依赖性；
+    \item \textbf{胶子算符的高噪声}：胶子算符在格点模拟中以其高噪声而闻名，需要使用复杂技术（如蒸馏、动量涂抹）来提取清晰的信号；
+    \item \textbf{Wilson线的幂次发散}：胶子准TMD算符涉及staple型Wilson线，在格点正规化下产生与格距$a$的逆幂成比例的线性发散和pinch-pole奇点；
+    \item \textbf{快度发散}：TMD算符涉及两个相反光锥方向上的Wilson线，它们之间的软胶子交换产生快度发散，需要Collins-Soper演化核$K(b_\perp,\mu)$来描述；
+    \item \textbf{连续极限和无穷大动量外推}：需要在多个格点间距和多个核子动量上进行计算，并联合外推以获得物理结果。
+\end{enumerate}
+
+\textbf{本文的目标}是系统阐述使用梯度流重整化方案克服上述困难，在连续极限下计算核子非极化胶子TMD-PDF的完整理论框架和计算方法。本文综合参考了本库中的全部核心文档与代码，包括：
+\begin{itemize}
+    \item \textbf{理论文献}：L\"uscher的梯度流理论~\cite{Luscher2010,LuscherWeisz2011,Luscher2013,Luscher2014}、Monahan-Orginos的准PDF梯度流方案~\cite{MonahanOrginos2017,Monahan2018}、季向东的LaMET框架~\cite{Ji:2013dva,Ji:2014gla,Ji:2017oey}；
+    \item \textbf{胶子PDF/TMD计算}：Balitsky等人的胶子准PDF算符~\cite{Balitsky:2019krj,Balitsky:2021mfb}、Zhang等人的乘法可重整性证明~\cite{Zhang:2018diw}、LPC合作组的TMD-PDF计算~\cite{He2024unpolTMD,Ma2025BoerMulders,Zhang2022renormTMD}；
+    \item \textbf{连续极限计算}：Chen等人（CLQCD/LPC）的胶子PDF连续极限计算~\cite{Chen2025gluon}、MSULat合作组的自重整化胶子PDF~\cite{NieMiera2025}；
+    \item \textbf{格点方法}：Peardon等人的蒸馏方法~\cite{Peardon:2009gh}、Egerer等人的动量涂抹~\cite{Egerer:2020xma}；
+    \item \textbf{内部文档}：胶子PDF理论推导~\cite{NoteGluonPDFs}、梯度流重整化解析~\cite{GFnote}、TMD-PDF解析~\cite{TMDnote}、LaMET解析~\cite{LaMETnote}、场强张量推导~\cite{Fmununote}。
+\end{itemize}
+
+% ===========================================================================
+% 第二部分：理论基础
+% ===========================================================================
+
+\section{理论基础：从光锥胶子TMD到梯度流重整化}
+
+\subsection{光锥胶子TMD-PDF的定义}
+
+\subsubsection{伴随表示下的定义}
+
+在伴随表示下，光锥胶子TMD-PDF定义为~\cite{Balitsky:2019krj,Chen2025gluon}：
+\begin{equation}\label{eq:lightcone_tmd}
+    x g(x, \bperp, \mu, \zeta) = \int \frac{dz^-}{2\pi P^+} e^{-ixP^+z^-} \int \frac{d^2\vec{b}_\perp}{(2\pi)^2} e^{i\vec{k}_\perp\cdot\vec{b}_\perp} \langle P | F^{+\mu}_a(z^-, \vec{b}_\perp) \, \mathcal{U}_{ab}(z^-, \vec{b}_\perp; 0, \vec{0}_\perp) \, F^{b\mu}_{+}(0, \vec{0}_\perp)(\mu, \zeta) | P \rangle,
+\end{equation}
+其中$z^\pm = \frac{1}{\sqrt{2}}(z^0 \pm z^3)$是光锥坐标，$\mathcal{U}_{ab}$是伴随表示中的staple型规范链，由沿光锥方向和横向方向的Wilson线组成。
+
+\subsubsection{胶子场强张量}
+
+胶子场强张量在连续QCD中定义为：
+\begin{equation}\label{eq:F_def}
+    F^a_{\mu\nu} = \partial_\mu A^a_\nu - \partial_\nu A^a_\mu - g f^{abc} A^b_\mu A^c_\nu,
+\end{equation}
+其中$f^{abc}$是SU(3)结构常数。协变导数$D_\mu = \partial_\mu + i g A_\mu$，场强张量也可写为$F_{\mu\nu} = -i [D_\mu, D_\nu]$。
+
+对偶场强张量为：
+\begin{equation}\label{eq:F_dual}
+    \tilde{F}_{\mu\nu} = \frac{1}{2} \epsilon_{\mu\nu\rho\sigma} F^{\rho\sigma},
+\end{equation}
+其中约定$\epsilon_{0123} = 1$。在Minkowski时空中，度规为$g^{\mu\nu} = \text{diag}(1,-1,-1,-1)$。
+
+\subsubsection{光锥胶子PDF的共线极限}
+
+在横向动量积分后，胶子TMD-PDF约化为标准的共线胶子PDF：
+\begin{equation}\label{eq:tmd_to_collinear}
+    x g(x, \mu) = \int d^2\vec{k}_\perp \, x g(x, \vec{k}_\perp, \mu, \zeta),
+\end{equation}
+其中共线PDF由光锥关联函数定义：
+\begin{equation}\label{eq:lightcone_collinear}
+    x g(x, \mu) = \int \frac{dz^-}{2\pi P^+} e^{-ixP^+z^-} \langle P | F^{+\mu}_a(z^-) \, U_{ab}(z^-,0) \, F^{b\mu}_{+}(0)(\mu) | P \rangle.
+\end{equation}
+
+\subsection{大动量有效理论（LaMET）框架}
+
+\subsubsection{基本思想}
+
+大动量有效理论（\LaMET{}）的基本思想由季向东于2013年提出~\cite{Ji:2013dva,Ji:2014gla}：在一个以大动量$P_z$运动的核子态中，类空分离的Euclidean关联函数的矩阵元可以通过因子化公式与标准的光锥PDF联系起来。LaMET的物理根源可以追溯到Feynman在1969年提出的部分子模型的原始定义——在无穷大动量系（IMF）中，一个以接近光速运动的强子可以被视为一束互不相互作用的部分子。
+
+LaMET最核心的物理图像是\textbf{Lorentz boost}~\cite{Ji:2013dva}：考虑连接$(0,0,0,z)$与坐标原点的空间线段。当boost速度趋近光速时，这条类空线段被倾斜到光锥方向。由于LaMET中的探针算符是\textbf{静态的}（等时的、Euclidean的），所有的部分子物理都可以从大动量强子态中的等时关联函数来获取，而后者正是格点Monte Carlo模拟可以计算的。
+
+\subsubsection{准TMD-PDF的定义}
+
+在LaMET框架下，准胶子TMD-PDF可以直接在格点上计算：
+\begin{equation}\label{eq:quasi_tmd}
+    x\tilde{g}(x, \bperp, \Pz) = \frac{1}{\mathcal{N}} \int \frac{dz}{2\pi\Pz} e^{-ixz\Pz} \hR(z, \bperp, \Pz),
+\end{equation}
+其中$\hR(z, \bperp, \Pz) = \langle P | \mathcal{O}(z, \vec{b}_\perp) | P \rangle_R$是重整化后的准TMD矩阵元，$\mathcal{N} = (\Pz)^2/(P^t)^2$是归一化因子。
+
+\subsubsection{因子化定理}
+
+根据\LaMET{}，光锥胶子TMD-PDF $y g(y, \bperp, \mu, \zeta)$可以通过匹配公式从准TMD-PDF $x\tilde{g}(x, \bperp, \Pz)$中提取~\cite{Ji:2017oey,Izubuchi:2018srq}：
+\begin{equation}\label{eq:matching_tmd}
+    x\tilde{g}(x, \bperp, \Pz) = \int_{-\infty}^{\infty} \frac{dy}{|y|} \, C^{\text{hybrid}}\!\left(\frac{x}{y}, \lambda_s, \frac{\mu}{y\Pz}\right) \frac{y g(y, \bperp, \mu, \zeta)}{\sqrt{S_I(\bperp, \mu)}} \, \exp\!\left[\frac{1}{2}\ln\!\left(\frac{\zeta_z}{\zeta}\right)K(\bperp, \mu)\right] + \mathcal{O}\!\left(\frac{\QCD^2}{(x\Pz)^2}, \frac{\QCD^2}{((1-x)\Pz)^2}\right),
+\end{equation}
+其中：
+\begin{itemize}
+    \item $C^{\text{hybrid}}$表示动量空间中的微扰匹配核（混合方案）；
+    \item $S_I(\bperp, \mu)$是内禀软函数，编码与快度无关的非微扰软胶子贡献；
+    \item $K(\bperp, \mu)$是Collins-Soper演化核，描述TMD分布在快度标度变化下的演化；
+    \item $\zeta_z = (2x\Pz)^2$是准TMD-PDF的快度标度；
+    \item $\zeta$是光锥TMD-PDF的参考快度标度。
+\end{itemize}
+
+\subsection{胶子准TMD算符的构造}
+
+\subsubsection{伴随表示下的胶子算符}
+
+伴随表示下，胶子准TMD算符为~\cite{Balitsky:2019krj}：
+\begin{equation}\label{eq:M_adj_tmd}
+    \mathcal{M}^{\mu\lambda,\nu\rho}(z, \vec{b}_\perp) = F^{\mu\lambda}_a(z, \vec{b}_\perp) \, U_{ab}(z, \vec{b}_\perp; 0, \vec{0}_\perp) \, F^{\nu\rho}_b(0, \vec{0}_\perp),
+\end{equation}
+其中$U_{ab}(z, \vec{b}_\perp; 0, \vec{0}_\perp)$是伴随表示中的staple型规范链。
+
+\subsubsection{基础表示下的格点实现}
+
+在格点上，计算在基础表示下进行，此时staple型Wilson线的表达式为~\cite{Zhang2022renormTMD}：
+\begin{equation}\label{eq:staple_wilson}
+\begin{aligned}
+W_{\sqsubset}(z, \vec{b}_\perp) &\equiv U_z^\dagger((z+L)\hat{n}_z + \vec{b}_\perp, \vec{b}_\perp) \\
+&\quad \times U_\perp((z+L)\hat{n}_z + \vec{b}_\perp, (z+L)\hat{n}_z) \\
+&\quad \times U_z((z+L)\hat{n}_z, z\hat{n}_z),
+\end{aligned}
+\end{equation}
+其中$L$是staple沿纵向的臂长。基础表示下的矩阵元为：
+\begin{equation}\label{eq:M_fund_tmd}
+    \mathcal{M}^{\mu\lambda,\nu\rho}(z, \vec{b}_\perp) = \sum_{\vec{x}} \Tr\!\left[F^{\mu\lambda}(\vec{x}+z\hat{z}+\vec{b}_\perp) \, W_{\sqsubset}(z, \vec{b}_\perp) \, F^{\nu\rho}(\vec{x}) \, W_{\sqsubset}^\dagger(z, \vec{b}_\perp)\right].
+\end{equation}
+
+\subsubsection{可乘性重整化的胶子算符组合}
+
+文献~\cite{Li:2018uif,Zhang:2018diw}证明了准胶子算符的乘法可重整性。在基础表示中，可乘性重整化的胶子算符为~\cite{Balitsky:2019krj,Chen2025gluon}：
+\begin{equation}\label{eq:O_mult_tmd}
+    \mathcal{O}(z, \vec{b}_\perp) = \mathcal{M}^{tx;tx}(z, \vec{b}_\perp) + \mathcal{M}^{ty;ty}(z, \vec{b}_\perp) - 2\mathcal{M}^{xy;xy}(z, \vec{b}_\perp).
+\end{equation}
+
+这一特定组合的关键性质是：$\mathcal{M}^{ti;it}$和$\mathcal{M}^{ij;ij}$具有相同的一圈UV反常量纲，使得整个组合在一圈水平上（至少）是乘法可重整化的。对于共线极限（$\bperp \to 0$），该算符约化为共线胶子准PDF算符。
+
+\subsubsection{从不变振幅到胶子TMD-PDF}
+
+矩阵元组合$\mathcal{M}^{ti;it} + \mathcal{M}^{ji;ij}$可以用来提取twist-2不变振幅$M_{pp}$~\cite{Balitsky:2019krj}：
+\begin{equation}\label{eq:Mpp_extract_tmd}
+    \mathcal{M}^{ti;it}(z, \bperp) + \mathcal{M}^{ji;ij}(z, \bperp) = 2p_0^2 M_{pp}(\nu, \bperp),
+\end{equation}
+其中Ioffe时间$\nu = p^3 z^3$。胶子PDF由$M_{pp}$振幅确定：
+\begin{equation}\label{eq:Mpp_PDF_tmd}
+    -M_{pp}(\nu, \bperp) = \frac{1}{2} \int_{-1}^{1} dx \, e^{-ix\nu} \, x g(x, \bperp).
+\end{equation}
+
+\subsection{梯度流重整化方案}
+
+\subsubsection{梯度流（Wilson Flow）的定义}
+
+梯度流（gradient flow）是近年格点QCD中最重要的理论工具之一~\cite{Luscher2010,LuscherWeisz2011}。考虑$D$维Euclidean空间中的SU($N$)规范理论，基本规范场$B_\mu(t,x)$在流时间$t=0$的初始条件下按照以下方程演化：
+\begin{equation}\label{eq:flow_gauge}
+    \partial_t B_\mu(t,x) = D_\nu G_{\nu\mu}(t,x), \qquad B_\mu(0,x) = A_\mu(x),
+\end{equation}
+其中$D+1$维的场强张量和协变导数定义为：
+\begin{equation}
+    G_{\mu\nu}(t,x) = \partial_\mu B_\nu(t,x) - \partial_\nu B_\mu(t,x) + [B_\mu(t,x), B_\nu(t,x)],
+\end{equation}
+\begin{equation}
+    D_\mu = \partial_\mu + [B_\mu, \cdot].
+\end{equation}
+
+在格点上使用Wilson规范作用量$S_W(U)$时，流方程变为\textbf{Wilson flow}~\cite{Luscher2010}：
+\begin{equation}\label{eq:wilson_flow}
+    \dot{V}_t(x,\mu) = -g_0^2 \{\partial_{x,\mu} S_W(V_t)\} V_t(x,\mu), \qquad V_t(x,\mu)|_{t=0} = U(x,\mu).
+\end{equation}
+
+\subsubsection{梯度流的UV有限性}
+
+梯度流最根本的理论结果是L\"uscher和Weisz在2011年严格证明的~\cite{LuscherWeisz2011}：
+
+\begin{theorem}[L\"uscher--Weisz, 2011]
+对于由梯度流在流时间$t>0$产生的规范场$B_\mu(t,x)$，其任意规范不变局域乘积的关联函数在标准QCD参数（耦合常数和质量）重整化后是UV有限的。流场$B_\mu(t,x)$本身\textbf{不需要任何波函数重整化}。
+\end{theorem}
+
+这一结论对纯规范场和包含夸克场的情况都成立。对于流夸克场，只需要一个不依赖于流时间的乘性重整化因子$Z_\chi$~\cite{Luscher2013}：
+\begin{equation}\label{eq:chi_renorm}
+    \chi_R = Z_\chi^{-1/2} \chi, \qquad Z_\chi = 1 + \frac{3C_F}{16\pi^2} \frac{g^2}{\epsilon} + O(g^4).
+\end{equation}
+
+\subsubsection{梯度流在准PDF/TMD中的应用}
+
+Monahan和Orginos在2017年提出了关键思想~\cite{MonahanOrginos2017}：利用梯度流来正规化准PDF算符中的Wilson线。其核心洞见是：
+
+\begin{quote}
+\textbf{如果对夸克场和规范场同时施加梯度流，并将流时间$\tau$固定在物理单位中，那么所有涉及涂抹后Wilson线的矩阵元在连续极限下都是有限的。}
+\end{quote}
+
+具体地，定义涂抹后的准TMD矩阵元~\cite{Monahan2018}：
+\begin{equation}\label{eq:smeared_quasi}
+    h^{(s)}\!\left( \frac{z}{\sqrt{\tau}}, \frac{\bperp}{\sqrt{\tau}}, \sqrt{\tau}\Pz, \sqrt{\tau}\QCD, \sqrt{\tau}M_N \right),
+\end{equation}
+其中流时间$\tau$以物理单位固定。关键的观察是：
+\begin{enumerate}
+    \item 梯度流作为规范不变的UV正规化手段，替代了格点间距$a$的角色；
+    \item 涂抹后的矩阵元在连续极限$a \to 0$（保持$\sqrt{\tau}$固定）下是有限的；
+    \item 在连续理论中，由于梯度流保持转动对称性，twist-2算符之间的混合被约化为普通的对数混合，而非幂次混合；
+    \item 涂抹后准TMD与光前TMD之间的匹配可以在连续理论中独立于格点计算的细节进行。
+\end{enumerate}
+
+\subsubsection{梯度流方案与混合方案的关系}
+
+在胶子PDF的实际计算中，梯度流可以与其他重整化方案结合使用。本库中的主要计算采用了混合方案（hybrid scheme）~\cite{Ji:2020brr}，其中：
+\begin{itemize}
+    \item 在短距离（$z \leq z_s$），使用比值方案消除发散；
+    \item 在长距离（$z > z_s$），使用自重整化方案。
+\end{itemize}
+
+同时，对胶子算符施加HYP（超立方）涂抹以抑制线性紫外发散。内部笔记中~\cite{NoteGluonPDFs}对HYP5涂抹和Wilson flow（$\tau=1.4$）的结果进行了系统对比，发现两种方法给出了定性一致的结果。
+
+MSULat合作组的计算~\cite{NieMiera2025}使用梯度流涂抹（$\tau = 3a^2$）处理胶子算符，并发现在梯度流下自重整化保持稳定，得到了参数$k = 0.61(27)$，$\QCD = 0.286(85)$~GeV, $m_0 = 0.13(30)$~GeV。
+
+\subsubsection{小流时展开（SFTX）}
+
+梯度流的另一个核心理论工具是小流时展开（SFTX）~\cite{Luscher2014,Suzuki2013}。对于与流时间$t$处流场相关的任意规范不变的局域算符$O(t,x)$，存在如下展开：
+\begin{equation}\label{eq:sftx_general}
+    O(t,x) \overset{t \to 0}{\sim} \sum_k c_k(t) \, \mathcal{O}_{R,k}(x),
+\end{equation}
+其中$\mathcal{O}_{R,k}(x)$是$t=0$处重整化的局域算符，$c_k(t)$是有限的展开系数（Wilson系数）。
+
+对于规范作用量密度$E(t,x) = \frac{1}{4} G_{\mu\nu}^a G_{\mu\nu}^a$，其SFTX为~\cite{Suzuki2013}：
+\begin{equation}\label{eq:sftx_E}
+    E(t,x) \sim \langle E(t,x) \rangle + c_E(t) \left[ \frac{1}{4} F_{\rho\sigma}^a F_{\rho\sigma}^a \right]_R(x) + O(t).
+\end{equation}
+
+% ===========================================================================
+% 第三部分：格点计算
+% ===========================================================================
+
+\section{格点计算：组态、算符与关联函数}
+
+\subsection{格点系综与规范组态}
+
+\subsubsection{CLQCD合作组组态}
+
+本计算使用CLQCD合作组生成的$N_f = 2+1$味QCD组态~\cite{CLQCD-2024,CLQCD-2025}，其规范作用量为tadpole改进树级Symanzik（TITLS）作用量，费米子作用量为tadpole改进树级Clover（TITLC）作用量。计算在具有三个格点间距的三个系综上进行，$\pi$介子质量相近，约为300~MeV。具体参数见表~\ref{tab:ensembles}。
+
+\begin{table}[H]
+\centering
+\caption{模拟使用的三个格点系综。$\beta$为裸耦合常数，$a$为格点间距，$L^3 \times T$为格点体积，$m_\pi$为$\pi$介子质量，$m_\pi L$为有限体积参数，$N_{\text{conf}}$为使用的组态数目。}
+\label{tab:ensembles}
+\begin{tabular}{ccccccc}
+\toprule
+系综 & $\beta$ & $a$ (fm) & $L^3 \times T$ & $m_\pi$ (MeV) & $m_\pi L$ & $N_{\text{conf}}$ \\
+\midrule
+C24P29 & 6.20 & 0.105  & $24^3 \times 72$ & 292.3(1.0) & 3.746(13) & 879 \\
+E32P29 & 6.41 & 0.0897 & $32^3 \times 64$ & 287.3(2.5) & 4.179(36) & 900 \\
+F32P30 & 6.72 & 0.0775 & $32^3 \times 96$ & 300.4(1.2) & 3.780(15) & 777 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{核子动量设置}
+
+为进行无穷大动量外推，需要在每个系综上计算多个核子动量。表~\ref{tab:momenta}列出了各系综上使用的核子动量。
+
+\begin{table}[H]
+\centering
+\caption{各系综上使用的核子动量$P_z$（以GeV为单位）和相应的boost因子$\gamma = E/M$。}
+\label{tab:momenta}
+\begin{tabular}{ccc}
+\toprule
+系综 & $P_z$ (GeV) & $n_z$ (以$2\pi/L$为单位) \\
+\midrule
+C24P29 & 0, 0.98, 1.48, 1.97 & 0, 2, 3, 4 \\
+E32P29 & 0, 0.86, 1.30, 1.73 & 0, 2, 3, 4 \\
+F32P30 & 0, 1.00, 1.50       & 0, 2, 3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{格点上的场强张量构造}
+
+\subsubsection{Plaquette与Wilson圈}
+
+在格点上，场强张量$F_{\mu\nu}$通过链接变量$U_\mu$构造。以链接变量为起点，它们与规范场$A_\mu$的关系为$U_\mu(n) = \exp(i a A_\mu(n))$。基础的规范不变量是plaquette（最小的Wilson圈）：
+\begin{equation}\label{eq:plaquette}
+    P_{\mu\nu}(x) = U_\mu(x) U_\nu(x+\hat{\mu}) U^\dagger_\mu(x+\hat{\nu}) U^\dagger_\nu(x).
+\end{equation}
+
+\subsubsection{Baker-Campbell-Hausdorff展开}
+
+利用BCH公式展开plaquette~\cite{Fmununote}：
+\begin{align}
+    P_{\mu\nu} &= \exp\bigg[ i a A_\mu(x) + i a A_\nu(x+\hat{\mu}) - i a A_\mu(x+\hat{\nu}) - i a A_\nu(x) \nonumber\\
+    &\quad -\frac{a^2}{2}[A_\mu(x), A_\nu(x+\hat{\mu})] - \frac{a^2}{2}[A_\mu(x+\hat{\nu}), A_\nu(x)] \nonumber\\
+    &\quad +\frac{a^2}{2}[A_\mu(x), A_\mu(x+\hat{\nu})] + \frac{a^2}{2}[A_\mu(x), A_\nu(x)] \nonumber\\
+    &\quad +\frac{a^2}{2}[A_\nu(x+\hat{\mu}), A_\mu(x+\hat{\nu})] + \frac{a^2}{2}[A_\nu(x+\hat{\mu}), A_\nu(x)] + \mathcal{O}(a^3) \bigg].
+\end{align}
+
+利用Taylor展开$A_\mu(x+\hat{\nu}) = A_\mu(x) + a \partial_\nu A_\mu(x) + \mathcal{O}(a^2)$，得到：
+\begin{align}
+    P_{\mu\nu} &= \exp\!\left[i a^2 \left(\partial_\mu A_\nu(x) - \partial_\nu A_\mu(x) + i [A_\mu(x), A_\nu(x)]\right) + \mathcal{O}(a^3)\right] \nonumber\\
+    &= 1 + i a^2 F_{\mu\nu}(x) + \cdots.
+\end{align}
+
+\subsubsection{Clover项与场强张量的格点公式}
+
+为减小统计涨落，使用clover项——四个可能plaquette的平均值：
+\begin{equation}\label{eq:Qmunu}
+    Q_{\mu\nu}(x) = P_{\mu\nu}(x) - P_{\nu,-\mu}(x) + P_{-\nu,\mu}(x) + P_{-\mu,-\nu}(x),
+\end{equation}
+\begin{equation}\label{eq:F_clover}
+    F_{\mu\nu}(x) = -\frac{i}{8a^2} (Q_{\mu\nu}(x) - Q_{\nu\mu}(x)).
+\end{equation}
+
+在代码实现中（\texttt{refer/donghx/Operator.py}和\texttt{refer/zhangxin/gluon\_pdf\_full\_workflow.py}），这一构造通过以下步骤完成：
+\begin{enumerate}
+    \item 计算所有6个平面（$\mu<\nu$）上的plaquette；
+    \item 通过适当的平移构造clover项$Q_{\mu\nu}$；
+    \item 利用反对称化得到场强张量$F_{\mu\nu} = -\frac{i}{8a^2}(Q_{\mu\nu} - Q_{\nu\mu})$。
+\end{enumerate}
+
+\subsubsection{Minkowski空间与Euclidean空间的关系}
+
+Minkowski量和Euclidean量之间的转换关系为~\cite{Balitsky:2019krj}：
+\begin{equation}\label{eq:ME_relation}
+    F^{(M)}_{ti} F^{(M)}_{ti} = -F^{(E)}_{ti} F^{(E)}_{ti}, \qquad
+    F^{(M)}_{ij} F^{(M)}_{ij} = F^{(E)}_{ij} F^{(E)}_{ij}.
+\end{equation}
+
+这一符号差异在构造Euclidean胶子流算符时至关重要。
+
+\subsection{蒸馏（Distillation）夸克涂抹方法}
+
+\subsubsection{格点Laplace算符与Jacobi涂抹}
+
+蒸馏方法~\cite{Peardon:2009gh}通过Jacobi涂抹算符的低秩近似提供了一种优化的夸克涂抹方法。格点上的三维规范协变Laplace算符为：
+\begin{equation}\label{eq:laplacian}
+    -\nabla^2_{xy}(t) = 6\delta_{xy} - \sum_{j=1}^{3} \left[U_j(x,t)\delta_{x+\hat{j},y} + U^\dagger_j(x-\hat{j},t)\delta_{x-\hat{j},y}\right].
+\end{equation}
+
+Jacobi涂抹核可以写为：
+\begin{equation}\label{eq:jacobi}
+    J_{\sigma, n_\sigma}(t) = \left(1 + \frac{\sigma \nabla^2(t)}{n_\sigma}\right)^{n_\sigma}, \qquad \lim_{n_\sigma \to \infty} J_{\sigma, n_\sigma}(t) = \exp(\sigma \nabla^2(t)).
+\end{equation}
+
+较高的本征模被指数级压低，表明主要贡献仅来自最低幅度本征模的一个小子集。
+
+\subsubsection{本征值问题与蒸馏算符}
+
+对于给定的时间切片$t$，构造并求解Laplace算符的本征值问题：
+\begin{equation}\label{eq:eigenvalue}
+    -\nabla^2(t) \, v^{(i)} = \lambda_i \, v^{(i)}, \qquad v^{(i)} v^{(j)\dagger} = \delta_{ij},
+\end{equation}
+
+蒸馏算符定义为~\cite{Peardon:2009gh}：
+\begin{equation}\label{eq:distillation}
+    \Box_{xy}(t) = \sum_{k=1}^{N_{\text{ev}}} v^{(k)}_x(t) v^{(k)\dagger}_y(t) \equiv V(t) V^\dagger(t),
+\end{equation}
+其中$N_{\text{ev}}$是蒸馏空间的维度。在本计算中，三个系综均使用$N_{\text{ev}} = 100$个本征矢。
+
+\subsubsection{核子插值算符}
+
+蒸馏后的核子湮灭算符可写为：
+\begin{equation}\label{eq:nucleon_dist}
+    \mathcal{O}(t) = \epsilon^{abc} (P_+)_\alpha (\Box u)^a_\alpha \left[(\Box u)^b_\beta (C\gamma_5)_{\beta\rho} (\Box d)^c_\rho\right],
+\end{equation}
+其中$a,b,c$是颜色指标，$P_+ = \frac{1}{2}(1+\gamma_t)$是正宇称投影算符。
+
+核子插值算符采用动量投影形式~\cite{Egerer:2020xma,Zhang2025}：
+\begin{equation}\label{eq:N_operator}
+    N(\vec{P}; t) = \sum_{\vec{x}} e^{-i\vec{x}\cdot\vec{P}} P_+ (u^T C \gamma_5 \gamma_t d) u(\vec{x}; t),
+\end{equation}
+其中$C$是电荷共轭算符。该算符在大动量下与基态有运动学增强的重叠~\cite{Zhang2025}。
+
+\subsubsection{动量涂抹}
+
+对于更高动量的态，需要向蒸馏本征矢中添加相位以保持平移不变性~\cite{Egerer:2020xma}：
+\begin{equation}\label{eq:momentum_smearing}
+    \tilde{v}^k_x(\vec{z},t) = e^{i\vec{\zeta}\cdot\vec{z}} \, v^k_x(\vec{z},t), \qquad \vec{\zeta} = 2 \times \frac{2\pi}{L} \hat{z},
+\end{equation}
+这提供了直到$P = 6 \times 2\pi/(aL)$的boost所需的动量涂抹。
+
+\subsubsection{两点关联函数与Perambulator}
+
+积分掉夸克场后，两点关联函数变为：
+\begin{multline}\label{eq:C2pt_dist}
+    \langle \mathcal{O}(t) \bar{\mathcal{O}}(t_0) \rangle = (P_+)_{\alpha,\bar{\alpha}} (C\gamma_5)_{\beta\rho} (C\gamma_5)_{\bar{\beta}\bar{\rho}} \\
+    \times \epsilon^{abc} \left(V^{(p)}_a V^{(q)}_b V^{(r)}_c(t)\right)
+    \times \tau^{(r,\bar{r})}_{\rho,\bar{\rho}} \left(\tau^{(p,\bar{p})}_{\alpha,\bar{\alpha}} \tau^{(q,\bar{q})}_{\beta,\bar{\beta}} - \tau^{(p,\bar{q})}_{\alpha,\bar{\beta}} \tau^{(q,\bar{p})}_{\beta,\bar{\alpha}}\right) \\
+    \times \left(V^{(\bar{p})\dagger}_{\bar{a}} V^{(\bar{q})\dagger}_{\bar{b}} V^{(\bar{r})\dagger}_{\bar{c}}(t_0)\right) \epsilon^{\bar{a}\bar{b}\bar{c}},
+\end{multline}
+其中Perambulator定义为：
+\begin{equation}\label{eq:perambulator}
+    \tau^{(p,\bar{p})}_{\alpha,\beta} = V^{(p)\dagger} M^{-1,p,\bar{p}}_{\alpha,\beta} V^{(\bar{p})}.
+\end{equation}
+
+Perambulator仅依赖于规范场构型而不依赖于插值算符的选择，这一关键性质使得它们可以为每个规范场系综仅计算一次，然后可以在扩展的插值算符基上高效地重复使用。
+
+\subsection{三点关联函数与非连通图}
+
+\subsubsection{两点和三点关联函数}
+
+核子的两点关联函数（2pt）定义为：
+\begin{equation}\label{eq:C2pt}
+    C_{2\text{pt}}(\Pz; \tsep) = \sum_{t_0} \langle 0 | N(\Pz; t_0 + \tsep) N^\dagger(\Pz; t_0) | 0 \rangle.
+\end{equation}
+
+三点关联函数（3pt）定义为：
+\begin{equation}\label{eq:C3pt}
+    C_{3\text{pt}}(\Pz; z, \bperp; \tsep, t) = \sum_{t_0} \langle 0 | N(\Pz; t_0 + \tsep) \, \mathcal{O}(z, \bperp; t_0 + t) \, N^\dagger(\Pz; t_0) | 0 \rangle.
+\end{equation}
+
+\subsubsection{非连通图分解}
+
+胶子TMD-PDF涉及\textbf{非连通图}（disconnected diagrams），其中胶子算符的插入通过真空胶子场与核子的夸克线解耦。在格点上，三点关联函数通过计算非连通插入来获得~\cite{Chen2025gluon}：
+\begin{equation}\label{eq:C3pt_disconnected}
+    C_{3\text{pt}}(\Pz; z, \bperp; \tsep, t) = \sum_{t_0} \left(\mathcal{O}(z, \bperp; t_0 + t) - \langle \mathcal{O}(z, \bperp; t_0 + t) \rangle\right) \times \left(C_{2\text{pt}}(\Pz; t_0 + \tsep, t_0) - \langle C_{2\text{pt}}(\Pz; t_0 + \tsep, t_0) \rangle\right).
+\end{equation}
+
+这一分解的物理含义是：胶子算符的期望值减除真空期望值后，与核子两点关联函数的涨落部分相关联。在代码实现中（\texttt{refer/zhangxin/gluon\_pdf\_full\_workflow.py}），非连通图的计算通过以下步骤完成：
+\begin{enumerate}
+    \item 对每个时间片$t_0$计算胶子算符$\mathcal{O}(z, \bperp; t_0 + t)$；
+    \item 计算所有时间片上胶子算符的平均值$\langle \mathcal{O} \rangle$；
+    \item 对每个时间片计算两点关联函数$C_{2\text{pt}}(\Pz; t_0 + \tsep, t_0)$；
+    \item 计算所有时间片上两点关联函数的平均值$\langle C_{2\text{pt}} \rangle$；
+    \item 按公式(\ref{eq:C3pt_disconnected})求和。
+\end{enumerate}
+
+% ===========================================================================
+% 第四部分：数据分析
+% ===========================================================================
+
+\section{数据分析：从裸矩阵元到光锥胶子TMD-PDF}
+
+\subsection{裸矩阵元的提取}
+
+\subsubsection{关联函数的谱分解}
+
+考虑到基态和第一激发态的主导贡献，两点和三点关联函数可以分解为：
+\begin{align}
+    C_{2\text{pt}}(\Pz; \tsep) &= |A_0|^2 e^{-E_0 \tsep} + |A_1|^2 e^{-E_1 \tsep}, \label{eq:C2pt_decomp}\\
+    C_{3\text{pt}}(\Pz; z, \bperp; t, \tsep) &= |A_0|^2 \langle 0 | \mathcal{O}(z, \bperp) | 0 \rangle e^{-E_0 \tsep} + |A_1|^2 \langle 1 | \mathcal{O}(z, \bperp) | 1 \rangle e^{-E_1 \tsep} \nonumber\\
+    &\quad + A_1 A_0^* \langle 1 | \mathcal{O}(z, \bperp) | 0 \rangle e^{-E_1(\tsep - t)} e^{-E_0 t} \nonumber\\
+    &\quad + A_0 A_1^* \langle 0 | \mathcal{O}(z, \bperp) | 1 \rangle e^{-E_0(\tsep - t)} e^{-E_1 t}, \label{eq:C3pt_decomp}
+\end{align}
+其中$\langle 0 | \mathcal{O}(z, \bperp) | 0 \rangle$是所需的基态准矩阵元，$|n\rangle$表示第$n$个激发态，$A_{0,1}$是依赖于涂抹参数的振幅，$E_{0,1}$是基态和激发态能量。
+
+\subsubsection{比值拟合}
+
+三点与两点关联函数的比值可以分解为以下拟合形式~\cite{Chen2025gluon}：
+\begin{equation}\label{eq:ratio_fit}
+    R_{3\text{pt}}(\Pz; \tsep, t) = \frac{C_{3\text{pt}}(\Pz; \tsep, t)}{C_{2\text{pt}}(\Pz; \tsep)} \approx c_0 + c_1 e^{-\Delta E(\tsep - t)} + c_1 e^{-\Delta E t} + c_2 e^{-\Delta E \tsep},
+\end{equation}
+其中$c_0$对应于裸准矩阵元，$\Delta E = E_1 - E_0$表示基态和第一激发态之间的能隙。
+
+跃迁项$c_1 e^{-\Delta E(\tsep - t)} + c_1 e^{-\Delta E t}$在大$\tsep$下主导散射项$c_2 e^{-\Delta E \tsep}$。因此最终的拟合形式简化为：
+\begin{equation}\label{eq:ratio_fit_simple}
+    R_{3\text{pt}}(\Pz; \tsep, t) \approx c_0 + c_1 e^{-\Delta E(\tsep - t)} + c_1 e^{-\Delta E t}.
+\end{equation}
+
+拟合在计算3000个bootstrap重采样后取比值。执行包含$z = n_z a$和$z = 0$数据的联合拟合以更好地约束$\Delta E$。对于每个$\tsep$，排除源点和汇点附近的$n_{\text{ex}}$个点以减少较高激发态的污染。
+
+\begin{table}[H]
+\centering
+\caption{不同动量的最优拟合范围。$P_z$为核子动量，$\tsep/a$为源-汇间隔范围，$n_{\text{ex}}$为每侧排除的点数。}
+\label{tab:fitting_ranges}
+\begin{tabular}{cccc}
+\toprule
+系综 & $P_z$ (GeV) & $\tsep/a$ & $n_{\text{ex}}$ \\
+\midrule
+C24P29 & 0     & [7, 18] & 3 \\
+        & 0.98  & [7, 14] & 3 \\
+        & 1.48  & [7, 11] & 3 \\
+        & 1.97  & [6, 10] & 2 \\
+\midrule
+E32P29 & 0     & [8, 16] & 3 \\
+        & 0.86  & [8, 16] & 3 \\
+        & 1.3   & [8, 14] & 3 \\
+        & 1.73  & [8, 12] & 3 \\
+\midrule
+F32P30 & 0     & [9, 16] & 3 \\
+        & 1.00  & [9, 16] & 3 \\
+        & 1.50  & [9, 14] & 3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{梯度流重整化的具体实现}
+
+\subsubsection{混合方案的重整化公式}
+
+裸矩阵元$\hB(z, \bperp, \Pz, 1/a)$包含UV发散，包括来自Wilson线自能的线性发散。采用混合重整化方案~\cite{Ji:2020brr}，重整化矩阵元定义为~\cite{Chen2025gluon}：
+\begin{equation}\label{eq:hybrid_renorm}
+    \hR(z, \bperp, \Pz) = \frac{\hB^n(z, \bperp, \Pz, 1/a)}{\hB^n(z, \bperp, \Pz=0, 1/a)} \theta(z_s - |z|) + \eta_s \frac{\hB^n(z, \bperp, \Pz, 1/a)}{Z_R(z, 1/a)} \theta(|z| - z_s),
+\end{equation}
+其中$\hB^n$是归一化的裸矩阵元，$z_s$的引入用于区分短距离和长距离物理，$\eta_s$是方案转换因子，确保重整化准光前关联函数在$z = z_s$处的连续性。
+
+\subsubsection{自重整化因子}
+
+自重整化因子$Z_R(z, 1/a)$采用以下参数化形式，包含线性发散、对数紫外发散~\cite{Chen2025gluon}：
+\begin{equation}\label{eq:ZR}
+\begin{aligned}
+Z_R(z, 1/a, \mu; k, \QCD, m_0, d) = \exp\Bigg\{&\frac{kz}{a}\ln[a\QCD] + m_0 z \\
+&+ \frac{5\CA}{3b_0} \ln\!\left[\frac{\ln(1/a\QCD)}{\ln(\mu/\QCD)}\right] \\
+&+ \frac{1}{2}\ln\!\left[\left(1 + \frac{d}{\ln[a\QCD]}\right)^2\right]\Bigg\},
+\end{aligned}
+\end{equation}
+其中第一项是线性发散，$m_0 z$表示重整化模糊性带来的有限质量贡献，最后两项来自领头阶和次领头阶对数发散的重求和。
+
+在$\MS$方案中，NLO的短距离微扰结果为~\cite{Balitsky:2019krj}：
+\begin{equation}\label{eq:MSbar}
+    \hpert_{\MS}(z, \mu) = 1 + \frac{\alphas(\mu) \CA}{4\pi}\left[\frac{5}{3}\ln\frac{z^2\mu^2}{4e^{-2\gamma_E}} + 3\right],
+\end{equation}
+其中$\gamma_E$是Euler-Mascheroni常数。重整化标度取$\mu = 2$~GeV，对应的跑动耦合常数$\alphas(\mu) = 0.296$。
+
+\subsubsection{零动量拟合确定$Z_R$参数}
+
+$Z_R$中的参数通过拟合零动量下的裸矩阵元确定：
+\begin{equation}\label{eq:ZR_fit}
+\begin{aligned}
+\ln \hB^n(z, \Pz=0, 1/a) = &\ln[Z_R(z, 1/a, \mu; k, \QCD, m_0, d)] \\
+&+ \begin{cases}
+\ln\!\left[\hpert_{\MS}(z, \mu)\right] & \text{若 } z_0 \leq z \leq z_1 \\[5pt]
+g(z) - m_0 z & \text{若 } z_1 < z
+\end{cases},
+\end{aligned}
+\end{equation}
+其中$k$, $\QCD$, $m_0$, $d$和$g(z)$作为自由参数处理。选择$z_0 = 0.15$~fm，$z_1 = 0.3$~fm，$z$的最大值为1~fm。
+
+注意此处$k$的值与夸克准PDF的$k$值相差一个领头阶因子$\CA/\CF$，因此可以显著更大。虽然某些参数的不确定度看起来很大，但它们是强相关的并且相互补偿，导致计算的自重整化因子$Z_R$的不确定度减小。
+
+表~\ref{tab:ZRparams}列出了自重整化因子参数的拟合结果。
+
+\begin{table}[H]
+\centering
+\caption{通过将零动量矩阵元拟合到公式(\ref{eq:ZR_fit})确定的自重整化因子参数。同时给出了拟合的$\chi^2$/d.o.f.。}
+\label{tab:ZRparams}
+\begin{tabular}{cc}
+\toprule
+参数 & 值 \\
+\midrule
+$k$ & 1.92(1.18) \\
+$\QCD$ (GeV) & 0.59(0.15) \\
+$m_0$ (GeV) & 2.78(1.51) \\
+$d$ & $-0.079(0.403)$ \\
+$\chi^2$/d.o.f. & 0.09 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{梯度流下的自重整化}
+
+当使用梯度流涂抹时，自重整化方案同样适用。MSULat合作组的计算~\cite{NieMiera2025}使用梯度流涂抹（$\tau = 3a^2$），得到的自重整化参数为$k = 0.61(27)$，$\QCD = 0.286(85)$~GeV, $m_0 = 0.13(30)$~GeV。与HYP涂抹的结果相比，梯度流下的$k$值更小，表明梯度流更有效地抑制了线性发散。
+
+\subsection{大-$\lambda$外推}
+
+\subsubsection{外推的必要性}
+
+将重整化矩阵元Fourier变换到动量空间需要在全部坐标空间中的矩阵元。由于信噪比随$\lambda = z\Pz$的增大而指数衰减，直接截断会在动量空间结果中引入振荡。为解决此问题，在大-$\lambda$区域使用以下形式进行外推~\cite{Ji:2020brr,Chen2025gluon}：
+\begin{equation}\label{eq:lambda_extrap}
+    \hR(\lambda, \bperp) = l_1 \lambda^{-a_1} e^{-\lambda/\lambda_0},
+\end{equation}
+其中$\lambda^{-a_1}$与非极化PDF在端点区域的幂律行为相关，$e^{-\lambda/\lambda_0}$项描述了在非常大距离处的指数衰减。对于TMD情况，外推形式需要同时考虑$\lambda$和$\bperp$的依赖性。
+
+外推结果在拟合范围内与格点数据吻合良好，从拟合范围的终点开始用外推结果替换格点数据。
+
+\begin{table}[H]
+\centering
+\caption{$\lambda$外推的默认拟合范围和新拟合范围。$\lambda$外推带来的系统不确定度通过取默认外推范围与新外推范围得到的结果之差来估计。}
+\label{tab:lambda_fit}
+\begin{tabular}{cccc}
+\toprule
+系综 & $P_z$ (GeV) & 默认范围 ($aP_z$) & 新范围 ($aP_z$) \\
+\midrule
+C24P29 & 0.98 & [10, 14] & [8, 14] \\
+        & 1.48 & [7, 11]  & [5, 11] \\
+        & 1.97 & [6, 10]  & [4, 10] \\
+\midrule
+E32P29 & 0.86 & [12, 16] & [10, 16] \\
+        & 1.3  & [9, 13]  & [7, 13] \\
+        & 1.73 & [7, 11]  & [5, 11] \\
+\midrule
+F32P30 & 1.00 & [10, 15] & [8, 15] \\
+        & 1.50 & [8, 15]  & [7, 15] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Fourier变换与准TMD-PDF}
+
+完成$\lambda$外推后，通过Fourier变换得到动量空间中的准TMD-PDF：
+\begin{equation}\label{eq:quasi_tmd_fourier}
+    x\tilde{g}(x, \bperp, \Pz) = \frac{1}{\mathcal{N}} \int \frac{dz}{2\pi\Pz} e^{-ixz\Pz} \hR(z, \bperp, \Pz).
+\end{equation}
+
+在数值实现中，Fourier变换通过离散Fourier变换（DFT）完成。对于有限的$z$范围和离散的$z$取值，需要仔细处理截断效应。
+
+\subsection{微扰匹配}
+
+\subsubsection{Ratio方案匹配核}
+
+动量空间中的微扰匹配核到NLO在ratio方案下为~\cite{Balitsky:2021mfb,Yao:2022skw}：
+\begin{equation}\label{eq:Cratio}
+    C^{\text{ratio}}\!\left(\xi, \frac{\mu}{y\Pz}\right) = \delta(1-\xi) + \frac{\alphas(\mu) \CA}{2\pi} \times
+    \begin{cases}
+        \displaystyle \left[\frac{2(1-\xi+\xi^2)^2}{1-\xi} \frac{\ln\xi}{\xi-1} + \frac{11-28\xi+18\xi^2-12\xi^3}{6(1-\xi)}\right]_+, & \xi > 1,\\[12pt]
+        \displaystyle \left[\frac{2(1-\xi+\xi^2)^2}{1-\xi} \left(-\ln\frac{\mu^2}{4y^2\Pz^2} + \ln(\xi(1-\xi))\right) \right. \\
+        \displaystyle \qquad \left. - \frac{15-56\xi+102\xi^2-96\xi^3+48\xi^4}{6(1-\xi)}\right]_+, & 0 < \xi < 1,\\[12pt]
+        \displaystyle \left[-\frac{2(1-\xi+\xi^2)^2}{1-\xi} \frac{\ln\xi}{\xi-1} - \frac{11-28\xi+18\xi^2-12\xi^3}{6(1-\xi)}\right]_+, & \xi < 0,
+    \end{cases}
+\end{equation}
+其中$\xi = x/y$。
+
+\subsubsection{混合方案匹配核}
+
+混合方案下的匹配核为~\cite{Ji:2020brr,Balitsky:2021mfb}：
+\begin{equation}\label{eq:Chybrid}
+    C^{\text{hybrid}}\!\left(\xi, \lambda_s, \frac{\mu}{y\Pz}\right) = C^{\text{ratio}}\!\left(\xi, \frac{\mu}{y\Pz}\right) + \frac{\alphas(\mu) \CA}{2\pi} \frac{5}{6} \left[-\frac{1}{|1-\xi|} + \frac{2\,\text{Si}((1-\xi)|y|\lambda_s)}{\pi(1-\xi)}\right]_+,
+\end{equation}
+其中$\text{Si}(x) = \int_0^x dt \frac{\sin t}{t}$是正弦积分函数，$\lambda_s \sim 1/z_s$是混合方案中分离短距离和长距离物理的标度。
+
+$[\cdots]_+$表示加分布（plus distribution），其定义为：
+\begin{equation}
+    \int_{-\infty}^{\infty} d\xi \, [f(\xi)]_+ \, g(\xi) = \int_{-\infty}^{\infty} d\xi \, f(\xi) [g(\xi) - g(1)].
+\end{equation}
+
+\subsubsection{TMD情况下的完整匹配步骤}
+
+从重整化矩阵元到光锥TMD-PDF的完整步骤为：
+\begin{enumerate}
+    \item 通过Fourier变换从$\hR(z, \bperp, \Pz)$计算准TMD-PDF $x\tilde{g}(x, \bperp, \Pz)$：
+    \begin{equation}
+        x\tilde{g}(x, \bperp, \Pz) = \frac{1}{\mathcal{N}} \int \frac{dz}{2\pi\Pz} e^{-ixz\Pz} \hR(z, \bperp, \Pz)
+    \end{equation}
+    \item 通过匹配公式从准TMD-PDF提取光锥TMD-PDF $x g(x, \bperp, \mu, \zeta)$：
+    \begin{equation}
+        x\tilde{g}(x, \bperp, \Pz) = \frac{1}{\sqrt{S_I(\bperp, \mu)}} \int_{-\infty}^{\infty} \frac{dy}{|y|} C^{\text{hybrid}}\!\left(\frac{x}{y}, \lambda_s, \frac{\mu}{y\Pz}\right) \exp\!\left[\frac{1}{2}\ln\!\left(\frac{\zeta_z}{\zeta}\right)K(\bperp, \mu)\right] y g(y, \bperp, \mu, \zeta)
+    \end{equation}
+\end{enumerate}
+
+\subsection{连续极限和无穷大动量外推}
+
+\subsubsection{外推的参数化}
+
+为了获得真正的光锥TMD-PDF，需要同时进行连续极限（$a \to 0$）和无穷大动量（$\Pz \to \infty$）的外推。外推采用以下参数化形式~\cite{Chen2025gluon}：
+\begin{equation}\label{eq:cont_extrap}
+    x g(x, \bperp, \Pz, a) = x g_0(x, \bperp) + a^2 f(x, \bperp) + a^2 \Pz^2 h(x, \bperp) + \frac{d(x, \bperp)}{\Pz^2},
+\end{equation}
+其中：
+\begin{itemize}
+    \item $x g_0(x, \bperp)$表示外推至连续极限和无穷大动量极限的光锥胶子TMD-PDF；
+    \item $a^2 f(x, \bperp)$项代表离散化误差；
+    \item $a^2 \Pz^2 h(x, \bperp)$项表示依赖于动量的离散化误差；
+    \item $d(x, \bperp)/\Pz^2$项对应领头高阶twist贡献。
+\end{itemize}
+
+外推过程利用三个格点间距（$a = \{0.105, 0.0897, 0.0775\}$~fm）和每个系综上的多个动量的数据来进行。可能的高阶修正（如$d(x, \bperp)$的格点间距依赖性）在统计上不显著，因此为保证稳定的拟合而被省略。
+
+\subsubsection{外推的数值实现}
+
+在数值实现中，外推通过以下步骤完成：
+\begin{enumerate}
+    \item 对每个$(x, \bperp)$点，收集所有系综和所有动量下的PDF值；
+    \item 使用最小二乘法拟合公式(\ref{eq:cont_extrap})中的参数；
+    \item 取拟合结果中$xg_0(x, \bperp)$作为外推后的物理PDF；
+    \item 通过协方差矩阵传播统计误差。
+\end{enumerate}
+
+\subsection{系统误差分析}
+
+最终结果的系统误差来自以下主要来源~\cite{Chen2025gluon}：
+
+\begin{enumerate}[label=(\arabic*), leftmargin=*]
+    \item \textbf{$\lambda$外推误差}：通过选择不同的拟合范围进行外推来估计。取表~\ref{tab:lambda_fit}中所示两个拟合范围得到的结果之差。
+    \item \textbf{重整化标度依赖性}：将$\mu$从$2$~GeV变化到$4$~GeV（对应$\alphas(\mu)$从$0.296$到$0.23$），取中心值的差异。
+    \item \textbf{无穷大动量和连续极限外推}：取联合外推结果与最小格距（$a = 0.0775$~fm）和动量（$\Pz = 1.5$~GeV）下的结果之间的差异。
+    \item \textbf{混合方案$z_s$选择}：取$z_s = 0.3$~fm和$z_s = 0.2$~fm下的结果之间的差异。
+    \item \textbf{TMD软函数的不确定性}：来自内禀软函数$S_I(\bperp)$和CS核$K(\bperp)$的提取误差。
+    \item \textbf{统计误差}：通过bootstrap/jackknife重采样方法估计。
+\end{enumerate}
+
+这些误差以平方和方式相加，然后取平方根以获得完整的不确定度：
+\begin{equation}\label{eq:total_error}
+    \sigma_{\text{total}} = \sqrt{\sigma_{\lambda}^2 + \sigma_{\mu}^2 + \sigma_{\text{extrap}}^2 + \sigma_{z_s}^2 + \sigma_{\text{TMD}}^2 + \sigma_{\text{stat}}^2}.
+\end{equation}
+
+% ===========================================================================
+% 第五部分：代码实现
+% ===========================================================================
+
+\section{格点计算的代码实现}
+
+\subsection{代码架构概览}
+
+本库中包含两套独立的胶子PDF工作流实现（\texttt{refer/zhangxin/}目录），以及64个质子两点关联函数脚本（\texttt{refer/donghx/}目录）。表~\ref{tab:code_structure}给出了代码架构的概览。
+
+\begin{table}[H]
+\centering
+\caption{本库中胶子PDF/TMD计算相关代码概览}
+\label{tab:code_structure}
+\begin{tabular}{lp{7cm}p{4cm}}
+\toprule
+文件 & 功能 & 关键特性 \\
+\midrule
+\texttt{refer/zhangxin/gluon\_pdf\_full\_workflow.py} & 完整的10步单脚本工作流（$\sim$1900行） & dataclass配置，自包含实现 \\
+\texttt{refer/zhangxin/gluon\_pdf\_workflow.py} & 子命令式工作流（$\sim$1580行） & MPI支持，系综预设 \\
+\texttt{refer/donghx/Operator.py} & Plaquette和场强张量构造 & CuPy GPU加速 \\
+\texttt{refer/donghx/gamma\_matrix\_cupy\_DR.py} & DeGrand-Rossi基Dirac矩阵 & CuPy实现 \\
+\texttt{refer/donghx/input\_output\_4\_cupy.py} & 规范组态和关联函数的I/O & HDF5/npy格式 \\
+\texttt{refer/donghx/2pt\_proton\_Cg5gmu\_*.py} & 64个质子2pt关联函数脚本 & 6系综$\times$3动量方向$\times$2后端 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{场强张量的GPU实现}
+
+在\texttt{refer/donghx/Operator.py}中，场强张量的计算通过CuPy在GPU上实现：
+
+\begin{verbatim}
+def compute_field_strength_tensor(U):
+    """
+    从规范链接变量 U[mu] 计算场强张量 F_{mu,nu}。
+
+    步骤:
+    1. 对所有 mu<nu 计算 plaquette P_{mu,nu}
+    2. 构造 clover 项 Q_{mu,nu}
+    3. 反对称化得到 F_{mu,nu} = -i/(8a^2) * (Q_{mu,nu} - Q_{nu,mu})
+    """
+    # 计算 6 个平面上的 plaquette
+    # 通过平移构造 clover 项
+    # 返回反对称化的场强张量
+\end{verbatim}
+
+张量约定遵循：
+\begin{itemize}
+    \item \texttt{refer/donghx/}中的OPE代码：规范场形状 $[N_t, N_z, N_y, N_x, \text{dir}, \text{color}, \text{color}]$
+    \item \texttt{refer/zhangxin/}中的工作流：规范场形状 $[\text{color}, \text{color}, \text{direction}, x, y, z, t]$
+\end{itemize}
+
+\subsection{胶子算符的构造}
+
+在\texttt{refer/zhangxin/gluon\_pdf\_full\_workflow.py}中，非极化胶子算符通过以下步骤构造：
+
+\begin{enumerate}
+    \item 使用\texttt{compute\_field\_strength\_tensor}计算所有格点上的$F_{\mu\nu}$；
+    \item 构造空间Wilson线$U(\vec{x}+z\hat{z}, \vec{x})$：
+    \begin{equation}
+        U(\vec{x}+z\hat{z}, \vec{x}) = \prod_{k=0}^{z-1} U_z(\vec{x}+k\hat{z})
+    \end{equation}
+    \item 计算矩阵元组合$\mathcal{M}^{tx;tx} + \mathcal{M}^{ty;ty} - 2\mathcal{M}^{xy;xy}$；
+    \item 在空间求和以获得平动不变的结果。
+\end{enumerate}
+
+\subsection{蒸馏与两点关联函数}
+
+蒸馏计算的核心步骤在\texttt{refer/zhangxin/gluon\_pdf\_workflow.py}中实现：
+
+\begin{enumerate}
+    \item 使用QUDA/PyQUDA计算三维Laplace算符的本征值和本征矢；
+    \item 构造蒸馏算符$V(t) V^\dagger(t)$（$N_{\text{ev}} \times M$矩阵）；
+    \item 计算所有时间片上夸克传播子的Perambulator；
+    \item 通过张量缩并构造两点关联函数（公式~\ref{eq:C2pt_dist}）；
+    \item 应用动量涂抹相位因子（公式~\ref{eq:momentum_smearing}）。
+\end{enumerate}
+
+\subsection{GPU后端抽象}
+
+本库中的代码支持多种GPU后端：
+\begin{itemize}
+    \item \textbf{NVIDIA CUDA}：通过CuPy（\texttt{refer/donghx/*\_gpu.py}）；
+    \item \textbf{AMD/Hygon DCU}：通过PyTorch兼容层（\texttt{refer/donghx/*\_dcu.py}）；
+    \item \textbf{CPU fallback}：当GPU库不可用时自动回退到NumPy。
+\end{itemize}
+
+通用的后端抽象模式为：
+\begin{verbatim}
+try:
+    import cupy as cp
+    HAS_CUPY = True
+except ImportError:
+    cp = np
+    HAS_CUPY = False
+\end{verbatim}
+
+类似地，张量缩并也有优化回退：
+\begin{verbatim}
+try:
+    from opt_einsum import contract
+except ImportError:
+    contract = np.einsum
+\end{verbatim}
+
+% ===========================================================================
+% 第六部分：完整计算流程
+% ===========================================================================
+
+\section{完整计算流程总结}
+
+\subsection{从规范组态到光锥胶子TMD-PDF的十大步骤}
+
+从格点QCD计算胶子TMD-PDF的完整流程可总结为以下十个步骤~\cite{Chen2025gluon,NoteGluonPDFs}：
+
+\begin{enumerate}[label=\textbf{步骤 \arabic*}:, leftmargin=*]
+    \item \textbf{生成规范组态}：使用$N_f = 2+1$ Wilson Clover夸克作用量，在三个格距（$a = \{0.105, 0.0897, 0.0775\}$~fm）上进行HMC模拟。
+
+    \item \textbf{梯度流/Wilson流涂抹}：对规范组态施加梯度流（流时间$\tau$以物理单位固定），或使用HYP涂抹，以抑制紫外涨落。在连续极限$a \to 0$下保持$\sqrt{\tau}$固定。
+
+    \item \textbf{蒸馏夸克涂抹}：计算三维Laplace算符的本征值和本征矢，使用$N_{\text{ev}} = 100$个本征矢构造蒸馏算符。对所有时间片计算Perambulator。
+
+    \item \textbf{构造场强张量}：通过clover plaquette方法在格点上构造$F_{\mu\nu}$：
+    \begin{equation}
+        F_{\mu\nu}(x) = -\frac{i}{8a^2} (Q_{\mu\nu}(x) - Q_{\nu\mu}(x)).
+    \end{equation}
+
+    \item \textbf{构造胶子准TMD算符}：通过空间Wilson线连接场强张量，构造可乘性重整化的算符组合：
+    \begin{equation}
+        \mathcal{O}(z, \vec{b}_\perp) = \mathcal{M}^{tx;tx}(z, \vec{b}_\perp) + \mathcal{M}^{ty;ty}(z, \vec{b}_\perp) - 2\mathcal{M}^{xy;xy}(z, \vec{b}_\perp).
+    \end{equation}
+
+    \item \textbf{计算两点关联函数}：使用$P_+ = \frac{1}{2}(1+\gamma_t)$投影算符和动量涂抹技术。
+
+    \item \textbf{计算三点关联函数（非连通图）}：
+    \begin{equation}
+        C_{3\text{pt}} = \sum_{t_0} (\mathcal{O}_g - \langle \mathcal{O}_g \rangle) \times (C_{2\text{pt}} - \langle C_{2\text{pt}} \rangle).
+    \end{equation}
+
+    \item \textbf{提取裸矩阵元}：联合拟合三点与两点关联函数的比值：
+    \begin{equation}
+        R_{3\text{pt}} \approx c_0 + c_1 e^{-\Delta E(\tsep - t)} + c_1 e^{-\Delta E t}.
+    \end{equation}
+
+    \item \textbf{梯度流/混合方案重整化}：
+    \begin{itemize}
+        \item 使用零动量矩阵元确定自重整化因子$Z_R$；
+        \item 在短距离处使用微扰$\MS$匹配，在长距离处使用$g(z) - m_0 z$形式。
+    \end{itemize}
+
+    \item \textbf{数据分析链}：
+    \begin{enumerate}
+        \item 大-$\lambda$外推：$\hR(\lambda, \bperp) = l_1 \lambda^{-a_1} e^{-\lambda/\lambda_0}$
+        \item Fourier变换：$x\tilde{g}(x, \bperp, \Pz) = \frac{1}{\mathcal{N}} \int \frac{dz}{2\pi\Pz} e^{-ixz\Pz} \hR(z, \bperp, \Pz)$
+        \item NLO微扰匹配：混合方案匹配核$C^{\text{hybrid}}$
+        \item 联合连续极限和无穷大动量外推：$x g(x, \bperp, \Pz, a) = x g_0(x, \bperp) + a^2 f + a^2 \Pz^2 h + d/\Pz^2$
+        \item 系统误差综合估计
+    \end{enumerate}
+\end{enumerate}
+
+\subsection{算法流程图}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.5cm, auto,
+    block/.style={rectangle, draw, fill=blue!10, text width=8cm, text centered, rounded corners, minimum height=1cm},
+    arrow/.style={->, thick}]
+
+    \node [block] (gauge) {1. 规范组态生成\\$N_f=2+1$ Clover, $a=\{0.105,0.0897,0.0775\}$ fm};
+    \node [block, below of=gauge] (flow) {2. 梯度流/Wilson流涂抹\\流时间$\tau$以物理单位固定};
+    \node [block, below of=flow] (dist) {3. 蒸馏方法\\$N_{\text{ev}}=100$本征矢, Perambulator};
+    \node [block, below of=dist] (ft) {4. 场强张量构造\\$F_{\mu\nu} = -\frac{i}{8a^2}(Q_{\mu\nu}-Q_{\nu\mu})$};
+    \node [block, below of=ft] (op) {5. 胶子准TMD算符\\$\mathcal{O} = \mathcal{M}^{tx;tx}+\mathcal{M}^{ty;ty}-2\mathcal{M}^{xy;xy}$};
+    \node [block, below of=op] (corr) {6--7. 两点/三点关联函数\\非连通图分解};
+    \node [block, below of=corr] (bare) {8. 裸矩阵元提取\\联合拟合 $R_{3\text{pt}}$};
+    \node [block, below of=bare] (renorm) {9. 梯度流/混合方案重整化\\$Z_R$参数化, 零动量拟合};
+    \node [block, below of=renorm] (analysis) {10. 数据分析链\\$\lambda$外推 $\to$ FT $\to$ NLO匹配 $\to$ 外推};
+
+    \draw [arrow] (gauge) -- (flow);
+    \draw [arrow] (flow) -- (dist);
+    \draw [arrow] (dist) -- (ft);
+    \draw [arrow] (ft) -- (op);
+    \draw [arrow] (op) -- (corr);
+    \draw [arrow] (corr) -- (bare);
+    \draw [arrow] (bare) -- (renorm);
+    \draw [arrow] (renorm) -- (analysis);
+\end{tikzpicture}
+\caption{从规范组态到光锥胶子TMD-PDF的完整计算流程}
+\label{fig:flowchart}
+\end{figure}
+
+% ===========================================================================
+% 第七部分：讨论与展望
+% ===========================================================================
+
+\section{讨论与展望}
+
+\subsection{梯度流方案的优势与局限}
+
+梯度流重整化方案在胶子TMD-PDF计算中的核心优势可以总结为：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{严格的UV有限性}：L\"uscher和Weisz的全阶证明~\cite{LuscherWeisz2011}保证了在$t>0$处规范不变算符的关联函数在标准QCD参数重整化后是UV有限的——这为连续极限外推提供了坚实的理论基础。
+    \item \textbf{规范不变性}：梯度流保持规范对称性，避免了规范固定带来的系统误差~\cite{Zhang2024gauge_fixing}。
+    \item \textbf{Wilson线发散的自动正规化}：梯度流通过扩散型演化自动抑制了高频涨落，使得Wilson线的线性发散在连续极限下被消除~\cite{MonahanOrginos2017}。
+    \item \textbf{算符混合的简化}：在梯度流方案中，由于连续转动对称性被保持，算符混合被约化为普通的对数混合~\cite{Monahan2018}。
+\end{enumerate}
+
+同时，梯度流方案也存在以下需要关注的局限：
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{流时间的选择}：$\sqrt{8t}$必须同时满足$\sqrt{8t} \gg a$（避免格距效应）和$\sqrt{8t} \ll$物理尺度（避免抹除关心的物理信号）——这一``窗口问题''在精细格点上更加突出。
+    \item \textbf{系统误差}：流时间依赖性、SFTX截断误差等需要仔细估计。
+    \item \textbf{TMD的复杂性}：对于TMD算符中的staple型Wilson线，梯度流的正规化效果需要进一步的数值验证。
+\end{enumerate}
+
+\subsection{与已有结果的比较}
+
+本计算框架与已有胶子PDF计算结果的关系：
+
+\begin{itemize}
+    \item \textbf{CLQCD/LPC共线胶子PDF}~\cite{Chen2025gluon}：本工作可以视为共线胶子PDF向TMD的推广。共线PDF的计算在三个格点间距上使用了混合方案重整化，并进行了连续极限和无穷大动量外推。TMD情况需要在共线框架上增加横向分离$\bperp$的依赖性和软函数处理。
+    \item \textbf{MSULat自重整化胶子PDF}~\cite{NieMiera2025}：该工作使用梯度流涂抹（$\tau=3a^2$），证实了梯度流下自重整化的稳定性。本工作将这一方案推广到TMD。
+    \item \textbf{LPC核子非极化TMD-PDF}~\cite{He2024unpolTMD}：该工作完成了核子\textbf{夸克}非极化TMD-PDF的首次格点计算（NNLO+RGR匹配）。本工作将其方法推广到\textbf{胶子}TMD-PDF。
+    \item \textbf{胶子螺旋度TMD}~\cite{Egerer:2022rfj}：HadStruc合作组的初步胶子螺旋度计算为胶子TMD方向提供了早期探索。
+\end{itemize}
+
+\subsection{未来发展方向}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{更细格点间距和更大动量}：在更细的格点（$a < 0.05$~fm）和更大的核子动量（$P_z > 2.5$~GeV）上进行计算，以改善连续极限和无穷大动量外推的精度。
+    \item \textbf{物理$\pi$质量}：当前计算使用$m_\pi \approx 300$~MeV。需要在物理$\pi$质量（$m_\pi \approx 135$~MeV）的系综上重复计算，并进行手征外推。
+    \item \textbf{NNLO匹配和RGR重求和}：将NLO匹配升级到NNLO精度，并实施重整化群重求和（RGR）以控制大对数~\cite{He2024unpolTMD}。
+    \item \textbf{胶子TMD软函数的直接格点计算}：通过大动量转移的赝标量介子形状因子的因子化~\cite{LPC2020soft,Chu2023soft}，从格点QCD直接提取胶子TMD的内禀软函数和CS核。
+    \item \textbf{完整八种胶子leading-twist TMD的系统计算}：将当前仅关注非极化分布的计算扩展到螺旋度、线偏振度等胶子TMD分布。
+    \item \textbf{与EIC实验的协同}：为EIC的胶子TMD测量提供格点QCD的理论输入，实现``理论-实验闭环''的精度验证。
+\end{enumerate}
+
+% ===========================================================================
+% 附录：关键公式汇总
+% ===========================================================================
+
+\section*{附录A：关键公式汇总}
+
+以下按照出现顺序汇总本推导过程中的核心公式：
+
+\begin{enumerate}[label=(A\arabic*), leftmargin=*]
+    \item \textbf{Jaffe-Manohar自旋分解}（Eq.\ref{eq:jaffe_manohar}）：
+    $J = \frac{1}{2}\Delta\Sigma + L_q + L_G + \Delta G$
+
+    \item \textbf{光锥胶子TMD-PDF}（Eq.\ref{eq:lightcone_tmd}）：
+    $x g(x, \bperp, \mu, \zeta) = \int \frac{dz^-}{2\pi P^+} e^{-ixP^+z^-} \int \frac{d^2\vec{b}_\perp}{(2\pi)^2} e^{i\vec{k}_\perp\cdot\vec{b}_\perp} \langle P | F^{+\mu}_a \mathcal{U}_{ab} F^{b\mu}_{+} | P \rangle$
+
+    \item \textbf{场强张量}（Eq.\ref{eq:F_def}）：
+    $F^a_{\mu\nu} = \partial_\mu A^a_\nu - \partial_\nu A^a_\mu - g f^{abc} A^b_\mu A^c_\nu$
+
+    \item \textbf{TMD到共线的积分}（Eq.\ref{eq:tmd_to_collinear}）：
+    $x g(x, \mu) = \int d^2\vec{k}_\perp \, x g(x, \vec{k}_\perp, \mu, \zeta)$
+
+    \item \textbf{准TMD-PDF}（Eq.\ref{eq:quasi_tmd}）：
+    $x\tilde{g}(x, \bperp, \Pz) = \frac{1}{\mathcal{N}} \int \frac{dz}{2\pi\Pz} e^{-ixz\Pz} \hR(z, \bperp, \Pz)$
+
+    \item \textbf{TMD因子化定理}（Eq.\ref{eq:matching_tmd}）：
+    $x\tilde{g}(x, \bperp, \Pz) = \int \frac{dy}{|y|} C^{\text{hybrid}} \frac{y g(y, \bperp)}{\sqrt{S_I}} \exp[\frac{1}{2}\ln(\frac{\zeta_z}{\zeta})K]$
+
+    \item \textbf{可乘性重整化胶子算符}（Eq.\ref{eq:O_mult_tmd}）：
+    $\mathcal{O}(z, \vec{b}_\perp) = \mathcal{M}^{tx;tx} + \mathcal{M}^{ty;ty} - 2\mathcal{M}^{xy;xy}$
+
+    \item \textbf{$M_{pp}$振幅与PDF的关系}（Eq.\ref{eq:Mpp_PDF_tmd}）：
+    $-M_{pp}(\nu, \bperp) = \frac{1}{2} \int_{-1}^{1} dx \, e^{-ix\nu} \, x g(x, \bperp)$
+
+    \item \textbf{梯度流方程}（Eq.\ref{eq:flow_gauge}）：
+    $\partial_t B_\mu(t,x) = D_\nu G_{\nu\mu}(t,x)$
+
+    \item \textbf{Wilson流方程}（Eq.\ref{eq:wilson_flow}）：
+    $\dot{V}_t(x,\mu) = -g_0^2 \{\partial_{x,\mu} S_W(V_t)\} V_t(x,\mu)$
+
+    \item \textbf{Plaquette}（Eq.\ref{eq:plaquette}）：
+    $P_{\mu\nu}(x) = U_\mu(x) U_\nu(x+\hat{\mu}) U^\dagger_\mu(x+\hat{\nu}) U^\dagger_\nu(x)$
+
+    \item \textbf{Clover场强张量}（Eq.\ref{eq:F_clover}）：
+    $F_{\mu\nu} = -\frac{i}{8a^2} (Q_{\mu\nu} - Q_{\nu\mu})$
+
+    \item \textbf{Minkowski-Euclidean关系}（Eq.\ref{eq:ME_relation}）：
+    $F^{(M)}_{ti} F^{(M)}_{ti} = -F^{(E)}_{ti} F^{(E)}_{ti}$
+
+    \item \textbf{格点Laplace算符}（Eq.\ref{eq:laplacian}）：
+    $-\nabla^2_{xy}(t) = 6\delta_{xy} - \sum_{j=1}^{3} [U_j(x,t)\delta_{x+\hat{j},y} + U^\dagger_j(x-\hat{j},t)\delta_{x-\hat{j},y}]$
+
+    \item \textbf{蒸馏算符}（Eq.\ref{eq:distillation}）：
+    $\Box_{xy}(t) = \sum_{k=1}^{N_{\text{ev}}} v^{(k)}_x(t) v^{(k)\dagger}_y(t)$
+
+    \item \textbf{Perambulator}（Eq.\ref{eq:perambulator}）：
+    $\tau^{(p,\bar{p})}_{\alpha,\beta} = V^{(p)\dagger} M^{-1,p,\bar{p}}_{\alpha,\beta} V^{(\bar{p})}$
+
+    \item \textbf{动量涂抹}（Eq.\ref{eq:momentum_smearing}）：
+    $\tilde{v}^k_x(\vec{z},t) = e^{i\vec{\zeta}\cdot\vec{z}} v^k_x(\vec{z},t)$
+
+    \item \textbf{核子插值算符}（Eq.\ref{eq:N_operator}）：
+    $N(\vec{P}; t) = \sum_{\vec{x}} e^{-i\vec{x}\cdot\vec{P}} P_+ (u^T C \gamma_5 \gamma_t d) u$
+
+    \item \textbf{三点关联函数（非连通）}（Eq.\ref{eq:C3pt_disconnected}）：
+    $C_{3\text{pt}} = \sum_{t_0} (\mathcal{O}_g - \langle \mathcal{O}_g \rangle) \times (C_{2\text{pt}} - \langle C_{2\text{pt}} \rangle)$
+
+    \item \textbf{比值拟合}（Eq.\ref{eq:ratio_fit_simple}）：
+    $R_{3\text{pt}} \approx c_0 + c_1 e^{-\Delta E(\tsep - t)} + c_1 e^{-\Delta E t}$
+
+    \item \textbf{NLO $\MS$微扰结果}（Eq.\ref{eq:MSbar}）：
+    $\hpert_{\MS}(z, \mu) = 1 + \frac{\alphas \CA}{4\pi} [\frac{5}{3} \ln\frac{z^2\mu^2}{4e^{-2\gamma_E}} + 3]$
+
+    \item \textbf{自重整化因子}（Eq.\ref{eq:ZR}）：
+    $Z_R = \exp\{\frac{kz}{a}\ln[a\QCD] + m_0 z + \frac{5\CA}{3b_0} \ln[\frac{\ln(1/a\QCD)}{\ln(\mu/\QCD)}] + \frac{1}{2}\ln[(1+\frac{d}{\ln[a\QCD]})^2]\}$
+
+    \item \textbf{零动量拟合}（Eq.\ref{eq:ZR_fit}）：
+    $\ln \hB^n(z, 0, 1/a) = \ln Z_R + \ln \hpert_{\MS}$ 或 $\ln Z_R + g(z) - m_0 z$
+
+    \item \textbf{大-$\lambda$外推}（Eq.\ref{eq:lambda_extrap}）：
+    $\hR(\lambda, \bperp) = l_1 \lambda^{-a_1} e^{-\lambda/\lambda_0}$
+
+    \item \textbf{混合方案匹配核}（Eq.\ref{eq:Chybrid}）：
+    $C^{\text{hybrid}} = C^{\text{ratio}} + \frac{\alphas \CA}{2\pi} \frac{5}{6} [-\frac{1}{|1-\xi|} + \frac{2\text{Si}((1-\xi)|y|\lambda_s)}{\pi(1-\xi)}]_+$
+
+    \item \textbf{连续极限和无穷大动量外推}（Eq.\ref{eq:cont_extrap}）：
+    $x g(x, \bperp, \Pz, a) = x g_0(x, \bperp) + a^2 f + a^2 \Pz^2 h + d/\Pz^2$
+\end{enumerate}
+
+% ===========================================================================
+% 附录：参考源列表
+% ===========================================================================
+
+\section*{附录B：本库参考源列表}
+
+以下列出本文引用的所有参考源及其在本库中的路径：
+
+\begin{longtable}{lp{6cm}p{5cm}}
+\toprule
+编号 & 文献 & 本库路径 \\
+\midrule
+\endfirsthead
+\multicolumn{3}{c}{（续前表）} \\
+\toprule
+编号 & 文献 & 本库路径 \\
+\midrule
+\endhead
+\midrule
+\multicolumn{3}{r}{续下页} \\
+\endfoot
+\bottomrule
+\endlastfoot
+
+[1] & L\"uscher (2010), ``Properties and uses of the Wilson flow'' & \texttt{docs/Properties\_and\_uses\_of\_the\_Wilson\_flow\_in\_lattice\_QCD\_Luscher\_2010.pdf} \\
+
+[2] & L\"uscher \& Weisz (2011), ``Perturbative analysis of the gradient flow'' & \texttt{docs/Perturbative\_analysis\_of\_the\_gradient\_flow\_in\_non-abelian\_gauge\_theories\_Luscher\_Weisz\_2011.pdf} \\
+
+[3] & L\"uscher (2013), ``Chiral symmetry and the Yang--Mills gradient flow'' & \texttt{docs/Chiral\_symmetry\_and\_the\_Yang-Mills\_gradient\_flow\_Luscher\_2013.pdf} \\
+
+[4] & L\"uscher (2014), ``Future applications of the Yang--Mills gradient flow'' & \texttt{docs/Future\_applications\_of\_the\_Yang-Mills\_gradient\_flow\_in\_lattice\_QCD\_Luscher\_2014.pdf} \\
+
+[5] & Suzuki (2013), ``Energy-momentum tensor from the Yang--Mills gradient flow'' & \texttt{docs/Energy-momentum\_tensor\_from\_the\_Yang-Mills\_gradient\_flow\_Suzuki\_2013.pdf} \\
+
+[6] & Monahan \& Orginos (2017), ``Quasi parton distributions and the gradient flow'' & \texttt{docs/Quasi\_parton\_distributions\_and\_the\_gradient\_flow\_Monahan\_Orginos\_2017.pdf} \\
+
+[7] & Monahan (2018), ``Smeared quasidistributions in perturbation theory'' & \texttt{docs/Smeared\_quasidistributions\_in\_perturbation\_theory\_Monahan\_2018.pdf} \\
+
+[8] & Ji (2013), ``Parton physics on a Euclidean lattice'' & \texttt{docs/Parton\_Physics\_on\_Euclidean\_Lattice.pdf} \\
+
+[9] & Ji (2014), ``Parton physics from large-momentum effective field theory'' & \texttt{docs/Parton\_Physics\_from\_Large-Momentum\_Effective\_Field\_Theory.pdf} \\
+
+[10] & Ji, Zhang \& Zhao (2017), Nucl. Phys. B & \texttt{refer/papers/}相关文件 \\
+
+[11] & Balitsky, Morris \& Radyushkin (2020), Phys. Lett. B & \texttt{refer/papers/}相关文件 \\
+
+[12] & Balitsky, Morris \& Radyushkin (2022), Phys. Rev. D & \texttt{refer/papers/}相关文件 \\
+
+[13] & Zhang et al. (2019), ``Multiplicative renormalizability of gluon quasi-PDF'' & \texttt{refer/papers/}相关文件 \\
+
+[14] & Chen et al. (CLQCD/LPC, 2025), ``Unpolarized gluon PDF in the continuum limit'' & \texttt{docs/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf} \\
+
+[15] & NieMiera et al. (MSULat, 2025), ``First Self-Renormalized Gluon PDF'' & \texttt{docs/First\_Self-Renormalized\_Gluon\_PDF\_of\_Nucleon\_from\_Large-Momentum\_Effective\_Theory\_in\_the\_Continuum\_Limit.pdf} \\
+
+[16] & He et al. (LPC, 2024), ``Unpolarized TMD parton distributions of the nucleon'' & \texttt{docs/Unpolarized Transverse-Momentum-Dependent Parton Distributions of the Nucleon from Lattice QCD.pdf} \\
+
+[17] & Zhang et al. (LPC, 2022), ``Renormalization of TMD parton distribution on the lattice'' & \texttt{docs/Renormalization of transverse-momentum-dependent parton distribution on the lattice.pdf} \\
+
+[18] & Zhang et al. (LPC, 2020), ``Lattice-QCD Calculations of TMD Soft Function Through LaMET'' & \texttt{docs/Lattice-QCD Calculations of TMD Soft Function Through Large-Momentum Effective Theory.pdf} \\
+
+[19] & Chu et al. (LPC, 2022), ``Nonperturbative Determination of CS Kernel from Quasi TMDWFs'' & \texttt{docs/Nonperturbative Determination of Collins-Soper Kernel from Quasi Transverse-Momentum Dependent Wave Functions.pdf} \\
+
+[20] & Chu et al. (LPC, 2023), ``Lattice Calculation of the Intrinsic Soft Function'' & \texttt{docs/Lattice Calculation of the Intrinsic Soft Function and the Collins-Soper Kernel.pdf} \\
+
+[21] & Chu et al. (LPC, 2023), ``TMD Wave Functions of Pion from Lattice QCD'' & \texttt{docs/Transverse-Momentum-Dependent Wave Functions of Pion from Lattice QCD.pdf} \\
+
+[22] & Ma et al. (LPC, 2025), ``Quark Transverse Spin-Momentum Correlation: The Boer-Mulders Function'' & \texttt{docs/Quark Transverse Spin-Momentum Correlation of the Nucleon from Lattice QCD The Boer-Mulders Function.pdf} \\
+
+[23] & Peardon et al. (HadSpec, 2009), ``Distillation method'' & \texttt{refer/papers/}相关文件 \\
+
+[24] & Egerer et al. (2021), ``Momentum smearing'' & \texttt{refer/papers/}相关文件 \\
+
+[25] & Egerer et al. (HadStruc, 2022), ``Towards the determination of the gluon helicity distribution'' & \texttt{docs/Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics.pdf} \\
+
+[26] & Ji et al. (2021), ``Hybrid renormalization scheme'' & \texttt{refer/papers/}相关文件 \\
+
+[27] & Yao, Ji \& Zhang (2023), ``Matching kernel for gluon quasi-PDF'' & \texttt{refer/papers/}相关文件 \\
+
+[28] & 内部笔记, ``Note of gluon PDFs'' & \texttt{docs/Note of gluon PDFs.pdf} \\
+    & & \texttt{docs/胶子PDF笔记.tex} \\
+
+[29] & 梯度流重整化解析 & \texttt{docs/格点QCD中的梯度流重整化.tex} \\
+
+[30] & TMD-PDF解析 & \texttt{docs/格点QCD中的TMD\_PDF.tex} \\
+
+[31] & LaMET解析 & \texttt{docs/格点QCD中的大动量有效理论.tex} \\
+
+[32] & 场强张量推导 & \texttt{docs/格点QCD中的场强张量.tex} \\
+
+[33] & 胶子算符构造 & \texttt{docs/格点QCD中的胶子算符.tex} \\
+
+[34] & 胶子PDF理论推导 & \texttt{docs/胶子PDF完整推导.tex} \\
+
+[35] & 胶子PDF连续极限计算 & \texttt{docs/胶子PDF连续极限.tex} \\
+
+[36] & 理论解析与工作流 & \texttt{docs/理论解析与工作流.tex} \\
+
+[37] & 连续极限胶子PDF Beamer & \texttt{docs/胶子PDF连续极限幻灯片.tex} \\
+
+[38] & 代码：完整工作流 & \texttt{refer/zhangxin/gluon\_pdf\_full\_workflow.py} \\
+
+[39] & 代码：子命令式工作流 & \texttt{refer/zhangxin/gluon\_pdf\_workflow.py} \\
+
+[40] & 代码：Operator.py & \texttt{refer/donghx/Operator.py} \\
+
+[41] & 代码：gamma\_matrix\_cupy\_DR.py & \texttt{refer/donghx/gamma\_matrix\_cupy\_DR.py} \\
+
+[42] & 代码：input\_output\_4\_cupy.py & \texttt{refer/donghx/input\_output\_4\_cupy.py} \\
+
+[43] & 外推方法 & \texttt{docs/格点QCD中的外推.tex} \\
+
+[44] & 重整化方法 & \texttt{docs/格点QCD中的重整化.tex} \\
+
+[45] & 关联函数 & \texttt{docs/格点QCD中的关联函数.tex} \\
+
+[46] & 误差统计方法 & \texttt{docs/格点QCD中的误差统计.tex} \\
+
+[47] & 重采样方法 & \texttt{docs/格点QCD中的重采样方法.tex} \\
+
+[48] & CLQCD (2024), Phys. Rev. D & \texttt{refer/papers/}相关文件 \\
+
+[49] & CLQCD (2025), Phys. Rev. D & \texttt{refer/papers/}相关文件 \\
+
+[50] & Francis et al. (2025), ``Gradient flow for PDFs'' & \texttt{docs/Gradient\_Flow\_for\_Parton\_Distribution\_Functions\_First\_Application\_to\_the\_Pion.pdf} \\
+\end{longtable}
+
+% ===========================================================================
+% 参考文献
+% ===========================================================================
+
+\begin{thebibliography}{99}
+
+\bibitem{Jaffe:1989jz}
+R.~L.~Jaffe and A.~Manohar,
+Nucl.\ Phys.\ B \textbf{337}, 509 (1990).
+
+\bibitem{Collins2011foundations}
+J.~Collins,
+\textit{Foundations of Perturbative QCD},
+Cambridge University Press (2011).
+
+\bibitem{Luscher2010}
+M.~L\"uscher,
+``Properties and uses of the Wilson flow in lattice QCD,''
+JHEP \textbf{08}, 071 (2010), [arXiv:1006.4518].
+
+\bibitem{LuscherWeisz2011}
+M.~L\"uscher and P.~Weisz,
+``Perturbative analysis of the gradient flow in non-abelian gauge theories,''
+JHEP \textbf{02}, 051 (2011), [arXiv:1101.0963].
+
+\bibitem{Luscher2013}
+M.~L\"uscher,
+``Chiral symmetry and the Yang--Mills gradient flow,''
+JHEP \textbf{04}, 123 (2013), [arXiv:1302.5246].
+
+\bibitem{Luscher2014}
+M.~L\"uscher,
+``Future applications of the Yang--Mills gradient flow in lattice QCD,''
+PoS \textbf{LATTICE2013}, 016 (2014), [arXiv:1308.5598].
+
+\bibitem{Suzuki2013}
+H.~Suzuki,
+``Energy-momentum tensor from the Yang--Mills gradient flow,''
+PTEP \textbf{2013}, 083B03 (2013), [arXiv:1304.0533].
+
+\bibitem{MonahanOrginos2017}
+C.~Monahan and K.~Orginos,
+``Quasi parton distributions and the gradient flow,''
+JHEP \textbf{03}, 116 (2017), [arXiv:1612.01584].
+
+\bibitem{Monahan2018}
+C.~Monahan,
+``Smeared quasidistributions in perturbation theory,''
+Phys.\ Rev.\ D \textbf{97}, 054507 (2018), [arXiv:1710.04607].
+
+\bibitem{Ji:2013dva}
+X.~Ji,
+``Parton physics on a Euclidean lattice,''
+Phys.\ Rev.\ Lett.\ \textbf{110}, 262002 (2013), [arXiv:1305.1539].
+
+\bibitem{Ji:2014gla}
+X.~Ji,
+``Parton physics from large-momentum effective field theory,''
+Sci.\ China Phys.\ Mech.\ Astron.\ \textbf{57}, 1407 (2014), [arXiv:1404.6680].
+
+\bibitem{Ji:2017oey}
+X.~Ji, J.-H.~Zhang, and Y.~Zhao,
+Nucl.\ Phys.\ B \textbf{924}, 366 (2017), [arXiv:1706.07416].
+
+\bibitem{Izubuchi:2018srq}
+T.~Izubuchi, X.~Ji, L.~Jin, I.~W.~Stewart, and Y.~Zhao,
+Phys.\ Rev.\ D \textbf{98}, 056004 (2018), [arXiv:1801.03917].
+
+\bibitem{Balitsky:2019krj}
+I.~Balitsky, W.~Morris, and A.~Radyushkin,
+Phys.\ Lett.\ B \textbf{808}, 135621 (2020), [arXiv:1910.13963].
+
+\bibitem{Balitsky:2021mfb}
+I.~Balitsky, W.~Morris, and A.~Radyushkin,
+Phys.\ Rev.\ D \textbf{105}, 014008 (2022), [arXiv:2111.06797].
+
+\bibitem{Zhang:2018diw}
+J.-H.~Zhang, X.~Ji, A.~Sch\"afer, W.~Wang, and S.~Zhao,
+Phys.\ Rev.\ Lett.\ \textbf{122}, 142001 (2019), [arXiv:1808.10824].
+
+\bibitem{Li:2018uif}
+Z.-Y.~Li, Y.-Q.~Ma, and J.-W.~Qiu,
+Phys.\ Rev.\ Lett.\ \textbf{122}, 062002 (2019), [arXiv:1809.01836].
+
+\bibitem{Chen2025gluon}
+C.~Chen, H.~Dong, L.~Liu, P.~Sun, X.~Xiong, Y.-B.~Yang, F.~Yao, J.-H.~Zhang, C.~Zeng, and S.~Zhong,
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), [arXiv:2510.26425].
+
+\bibitem{NieMiera2025}
+A.~NieMiera, W.~Good, H.-W.~Lin, and F.~Yao,
+``First Self-Renormalized Gluon PDF of Nucleon from Large-Momentum Effective Theory in the Continuum Limit,''
+(2025), [arXiv:2510.17758].
+
+\bibitem{He2024unpolTMD}
+J.-C.~He \textit{et al.} (Lattice Parton Collaboration (LPC)),
+``Unpolarized transverse-momentum-dependent parton distributions of the nucleon from lattice QCD,''
+Phys.\ Rev.\ D \textbf{109}, 114513 (2024), [arXiv:2211.02340].
+
+\bibitem{Ma2025BoerMulders}
+L.~Ma \textit{et al.} (LPC),
+``Quark transverse spin-momentum correlation of the nucleon from lattice QCD: The Boer-Mulders function,''
+(2025), [arXiv:2502.11807].
+
+\bibitem{Zhang2022renormTMD}
+K.~Zhang \textit{et al.} (LPC),
+``Renormalization of transverse-momentum-dependent parton distribution on the lattice,''
+Phys.\ Rev.\ D \textbf{106}, 094510 (2022), [arXiv:2205.13402].
+
+\bibitem{LPC2020soft}
+Q.-A.~Zhang \textit{et al.} (LPC),
+``Lattice-QCD calculations of TMD soft function through large-momentum effective theory,''
+Phys.\ Rev.\ Lett.\ \textbf{125}, 192001 (2020), [arXiv:2005.14572].
+
+\bibitem{Chu2022CSkernel}
+M.-H.~Chu \textit{et al.} (LPC),
+``Nonperturbative determination of Collins-Soper kernel from quasi transverse-momentum dependent wave functions,''
+Phys.\ Rev.\ D \textbf{106}, 034509 (2022), [arXiv:2204.00200].
+
+\bibitem{Chu2023soft}
+M.-H.~Chu \textit{et al.} (LPC),
+``Lattice calculation of the intrinsic soft function and the Collins-Soper kernel,''
+JHEP \textbf{08}, 172 (2023), [arXiv:2306.06488].
+
+\bibitem{Chu2023TMDWF}
+M.-H.~Chu \textit{et al.} (LPC),
+``Transverse-momentum-dependent wave functions of pion from lattice QCD,''
+Phys.\ Rev.\ D \textbf{108}, 094513 (2023), [arXiv:2302.09961].
+
+\bibitem{Peardon:2009gh}
+M.~Peardon \textit{et al.} (Hadron Spectrum),
+Phys.\ Rev.\ D \textbf{80}, 054506 (2009), [arXiv:0905.2160].
+
+\bibitem{Egerer:2020xma}
+C.~Egerer, R.~G.~Edwards, K.~Orginos, and D.~G.~Richards,
+Phys.\ Rev.\ D \textbf{103}, 034502 (2021), [arXiv:2009.10691].
+
+\bibitem{Egerer:2022rfj}
+C.~Egerer \textit{et al.} (HadStruc),
+Phys.\ Rev.\ D \textbf{106}, 094511 (2022), [arXiv:2207.08733].
+
+\bibitem{Ji:2020brr}
+X.~Ji, Y.~Liu, Y.-S.~Liu, J.-H.~Zhang, and Y.~Zhao,
+Nucl.\ Phys.\ B \textbf{964}, 115311 (2021), [arXiv:2008.03886].
+
+\bibitem{Yao:2022skw}
+F.~Yao, Y.~Ji, and J.-H.~Zhang,
+JHEP \textbf{11}, 021 (2023), [arXiv:2212.14415].
+
+\bibitem{Zhang2024gauge_fixing}
+K.~Zhang \textit{et al.} (LPC),
+``Impact of gauge fixing precision on the continuum limit of non-local quark-bilinear lattice operators,''
+Phys.\ Rev.\ D \textbf{110}, 074505 (2024), [arXiv:2405.14097].
+
+\bibitem{Zhang2025}
+R.~Zhang, A.~V.~Grebe, D.~C.~Hackett, M.~L.~Wagman, and Y.~Zhao,
+(2025), [arXiv:2501.00729].
+
+\bibitem{CLQCD-2024}
+Z.-C.~Hu \textit{et al.} (CLQCD),
+Phys.\ Rev.\ D \textbf{109}, 054507 (2024), [arXiv:2310.00814].
+
+\bibitem{CLQCD-2025}
+H.-Y.~Du \textit{et al.} (CLQCD),
+Phys.\ Rev.\ D \textbf{111}, 054504 (2025), [arXiv:2408.03548].
+
+\bibitem{Francis2025}
+A.~Francis, P.~Fritzsch, R.~V.~Harlander \textit{et al.},
+``Gradient flow for parton distribution functions: first application to the pion,''
+(2025), [arXiv:2509.02472].
+
+% === 内部文档引用 ===
+
+\bibitem{NoteGluonPDFs}
+内部笔记, ``Note of gluon PDFs,''
+\texttt{docs/Note of gluon PDFs.pdf} 和 \texttt{docs/胶子PDF笔记.tex}.
+
+\bibitem{GFnote}
+梯度流重整化解析,
+\texttt{docs/格点QCD中的梯度流重整化.tex}.
+
+\bibitem{TMDnote}
+TMD-PDF解析,
+\texttt{docs/格点QCD中的TMD\_PDF.tex}.
+
+\bibitem{LaMETnote}
+大动量有效理论解析,
+\texttt{docs/格点QCD中的大动量有效理论.tex}.
+
+\bibitem{Fmununote}
+场强张量推导,
+\texttt{docs/格点QCD中的场强张量.tex}.
+
+\bibitem{GluonOpNote}
+胶子算符构造,
+\texttt{docs/格点QCD中的胶子算符.tex}.
+
+\bibitem{DerivationNote}
+胶子PDF理论推导,
+\texttt{docs/胶子PDF完整推导.tex}.
+
+\bibitem{ContinuumNote}
+胶子PDF连续极限计算,
+\texttt{docs/胶子PDF连续极限.tex}.
+
+\bibitem{WorkflowCode}
+代码：完整工作流,
+\texttt{refer/zhangxin/gluon\_pdf\_full\_workflow.py}.
+
+\bibitem{WorkflowCodeMPI}
+代码：子命令式工作流,
+\texttt{refer/zhangxin/gluon\_pdf\_workflow.py}.
+
+\bibitem{OperatorCode}
+代码：场强张量构造,
+\texttt{refer/donghx/Operator.py}.
+
+\bibitem{GammaCode}
+代码：Dirac矩阵,
+\texttt{refer/donghx/gamma\_matrix\_cupy\_DR.py}.
+
+\bibitem{IOcode}
+代码：I/O工具,
+\texttt{refer/donghx/input\_output\_4\_cupy.py}.
+
+\end{thebibliography}
+
+\end{document}

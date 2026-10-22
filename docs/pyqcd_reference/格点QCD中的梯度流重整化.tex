@@ -1,0 +1,626 @@
+\documentclass[12pt,a4paper]{ctexart}
+
+% === 页面设置 ===
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+
+% === 数学和物理 ===
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{slashed}
+\usepackage{braket}
+
+% === 图形和表格 ===
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+
+% === 引用 ===
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+
+% === 其他 ===
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{multirow}
+\usepackage{tikz}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+}
+
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{remark}{注记}[section]
+\newtheorem{theorem}{定理}[section]
+
+\title{\heiti 格点QCD中的梯度流重整化：\\
+从Wilson Flow到小流时展开的完整理论框架}
+\author{基于本库文献的综合解析}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+梯度流（gradient flow，亦称Yang--Mills梯度流或Wilson flow）是近年格点QCD中最重要的理论工具之一。其核心特性在于：对于正流时$t > 0$，由流方程演化得到的规范场和夸克场的任意局域乘积都是紫外有限的——在标准QCD参数重整化之后，不需要任何额外的减除。这一性质为格点QCD中的非微扰重整化、能标设定、手征凝聚体和强子结构计算提供了全新的系统化框架。本文从流方程的定义出发，系统阐述梯度流的平滑性质、UV有限性的严格微扰证明、小流时展开（short flow-time expansion, SFTX）、能动张量的梯度流构造、以及梯度流在部分子分布函数（PDFs）和手征凝聚体等物理应用中的重整化方案。所有推导和论述均基于本库中L\"uscher、Suzuki、Monahan--Orginos等核心文献。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{引言：梯度流的基本思想与历史渊源}
+% ============================================================
+
+在量子场论中，复合算符的定义和重整化是一个核心而复杂的问题。在连续量子色动力学（QCD）中，复合算符的乘积在重合点处存在奇异性，需要经过正规化和重整化才能获得有限的物理结果。在格点QCD中，由于离散化破坏了连续时空的转动对称性，算符混合问题更加严重——特别是对于涉及Wilson线的扩展算符，会出现与格点间距$a$的逆幂成比例的``幂次发散''（power divergence）。
+
+梯度流（gradient flow）为解决这些问题提供了一个优雅而强大的框架。其基本思想是将原始的规范场$A_\mu(x)$和夸克场$\psi(x)$沿一个虚拟的``流时间''（flow time）$t$按照特定的扩散型方程进行演化，得到流时间依赖的场$B_\mu(t,x)$和$\chi(t,x)$。对于正的流时间$t > 0$，流场是平滑的：高频涨落被指数级抑制，复合算符不再有重合点奇异性。更关键的是，L\"uscher和Weisz在2011年严格证明\cite{LuscherWeisz2011}：\textbf{在流时间$t > 0$处构造的规范不变算符的关联函数是UV有限的——在标准QCD参数重整化之后，不需要任何额外的流场重整化}。
+
+梯度流的数学根源可以追溯到Atiyah和Bott在1982年关于二维流形上规范场空间的Morse理论的经典工作\cite{Luscher2014}。在格点QCD中，场平滑技术已经被使用了数十年——反复的``stout link smearing''步骤实际上等价于用Euler格式数值积分流方程。但直到2010年前后，L\"uscher才系统地揭示了梯度流的深层理论结构，并证明了其重整化性质\cite{Luscher2010,LuscherWeisz2011}。
+
+本文的目标是基于本库中收集的核心文献，系统解析梯度流重整化的完整理论框架。第\ref{sec:definition}节给出流方程的定义；第\ref{sec:smoothing}节讨论平滑性质；第\ref{sec:renormalization}节是核心，阐述梯度流的UV有限性及其严格证明；第\ref{sec:sftx}节介绍小流时展开；第\ref{sec:emt}节讨论能动张量的梯度流构造；第\ref{sec:applications}节综述梯度流在格点QCD中的主要应用；最后在第\ref{sec:summary}节给出总结。
+
+% ============================================================
+\section{梯度流的定义}\label{sec:definition}
+% ============================================================
+
+\subsection{纯规范场的梯度流}
+
+考虑$D$维Euclidean空间中的SU($N$)规范理论。基本规范场$A_\mu(x)$在流时间$t=0$的初始条件下，按照以下方程演化\cite{Luscher2010,LuscherWeisz2011}：
+
+\begin{equation}
+\partial_t B_\mu(t,x) = D_\nu G_{\nu\mu}(t,x), \qquad B_\mu(0,x) = A_\mu(x),
+\label{eq:flow_gauge}
+\end{equation}
+
+其中$D+1$维的场强张量和协变导数定义为：
+\begin{equation}
+G_{\mu\nu}(t,x) = \partial_\mu B_\nu(t,x) - \partial_\nu B_\mu(t,x) + [B_\mu(t,x), B_\nu(t,x)],
+\label{eq:G_munu}
+\end{equation}
+\begin{equation}
+D_\mu = \partial_\mu + [B_\mu, \cdot].
+\label{eq:D_mu}
+\end{equation}
+
+方程(\ref{eq:flow_gauge})的右边恰好正比于Yang--Mills作用量沿流方向的梯度，因此得名``梯度流''。在格点上使用Wilson规范作用量$S_W(U)$时，流方程变为\cite{Luscher2010}：
+\begin{equation}
+\dot{V}_t(x,\mu) = -g_0^2 \{\partial_{x,\mu} S_W(V_t)\} V_t(x,\mu), \qquad V_t(x,\mu)|_{t=0} = U(x,\mu),
+\label{eq:wilson_flow}
+\end{equation}
+此时称为\textbf{Wilson flow}。格点流方程的解在所有正负流时间下都严格存在且光滑。
+
+在微扰论中，为方便处理规范自由度，通常在流方程中添加规范参数$\alpha_0$项\cite{LuscherWeisz2011}：
+\begin{equation}
+\partial_t B_\mu = D_\nu G_{\nu\mu} + \alpha_0 D_\mu \partial_\nu B_\nu.
+\label{eq:flow_gauge_fixed}
+\end{equation}
+这一附加项可以通过一个时间依赖的规范变换消除，因此不会影响规范不变算符的演化\cite{Luscher2010}。在$\alpha_0=1$的Feynman规范下，线性化的流方程可以通过热核求解，得到领头阶解：
+\begin{equation}
+B_{\mu,1}(t,x) = \int d^D y \, K_t(x-y) A_\mu(y), \qquad
+K_t(z) = \frac{e^{-z^2/4t}}{(4\pi t)^{D/2}},
+\label{eq:leading_order_B}
+\end{equation}
+这明确地展示了流的平滑性质：规范势被高斯核在空间范围内平均，其均方根半径在四维中为$\sqrt{8t}$。
+
+\subsection{夸克场的梯度流}
+
+L\"uscher在2013年将梯度流扩展到夸克场\cite{Luscher2013}。夸克场和反夸克场按照规范协变的热方程演化：
+\begin{equation}
+\partial_t \chi(t,x) = \Delta \chi(t,x), \qquad
+\partial_t \bar{\chi}(t,x) = \bar{\chi}(t,x) \overleftarrow{\Delta},
+\label{eq:flow_quark}
+\end{equation}
+\begin{equation}
+\Delta = D_\mu D_\mu, \qquad D_\mu = \partial_\mu + B_\mu,
+\label{eq:laplacian}
+\end{equation}
+
+初始条件为$\chi(0,x) = \psi(x)$，$\bar{\chi}(0,x) = \bar{\psi}(x)$。需要注意的是，夸克流的演化方程保持手征对称性——流时间依赖的夸克场在手征转动下的变换方式与基本夸克场完全相同。这一性质对于手征凝聚体等应用至关重要。
+
+可以在流方程中引入规范参数项以抑制规范模式\cite{Luscher2013}：
+\begin{equation}
+\partial_t \chi = \Delta \chi - \alpha_0 \partial_\nu B_\nu \chi, \qquad
+\partial_t \bar{\chi} = \bar{\chi} \overleftarrow{\Delta} + \alpha_0 \bar{\chi} \partial_\nu B_\nu.
+\label{eq:flow_quark_fixed}
+\end{equation}
+
+\subsection{流时间依赖的局域复合场}
+
+在正流时间$t$处，可以构造规范不变的局域复合场，例如\cite{Luscher2010,Luscher2013}：
+\begin{equation}
+E_t(x) = -\frac{1}{2}\tr{G_{\mu\nu}(t,x) G_{\mu\nu}(t,x)},
+\label{eq:Et}
+\end{equation}
+\begin{equation}
+S_t^{rs}(x) = \bar{\chi}^r(t,x) \chi^s(t,x), \qquad
+P_t^{rs}(x) = \bar{\chi}^r(t,x) \gamma_5 \chi^s(t,x),
+\label{eq:St_Pt}
+\end{equation}
+其中$r,s$为味道指标。这些复合场的关联函数——即任意流时间处局域场乘积的QCD期望值——是梯度流重整化理论研究的核心对象。
+
+% ============================================================
+\section{梯度流的平滑性质与UV有限性}\label{sec:smoothing}
+% ============================================================
+
+\subsection{平滑性质}
+
+梯度流本质上是一种扩散过程。从领头阶解(\ref{eq:leading_order_B})可以看到，流方程将规范场与一个宽度为$\sqrt{8t}$的高斯核进行卷积。这一平滑效应在微扰论的所有阶都成立，也在数值模拟中被广泛验证\cite{Luscher2014}。
+
+对于夸克场，领头阶的两点函数为\cite{Luscher2013}：
+\begin{equation}
+\langle \chi(t,x) \bar{\chi}(s,y) \rangle = \int \frac{d^D p}{(2\pi)^D} e^{ip(x-y)} \frac{e^{-(t+s)p^2}}{M_0 + i\slashed{p}} + O(g_0^2),
+\label{eq:quark_prop}
+\end{equation}
+其中的指数因子$e^{-(t+s)p^2}$明确显示了高动量模式的指数级抑制。对于$t>0$，即使$(t,x) \to (s,y)$，夸克传播子也没有奇异性。
+
+\subsection{纯规范场情况的UV有限性}
+
+梯度流最根本的理论结果可以表述为\cite{Luscher2010,LuscherWeisz2011}：
+
+\begin{theorem}[L\"uscher--Weisz, 2011]
+对于由梯度流在流时间$t>0$产生的规范场$B_\mu(t,x)$，其任意规范不变局域乘积的关联函数在标准QCD参数（耦合常数和质量）重整化后是UV有限的。流场$B_\mu(t,x)$本身\textbf{不需要任何波函数重整化}。
+\end{theorem}
+
+L\"uscher在2010年的开创性工作中通过一阶微扰计算验证了这一结论\cite{Luscher2010}。以$E = \frac{1}{4}G_{\mu\nu}^a G_{\mu\nu}^a$为例，在$\overline{\text{MS}}$方案中计算到$O(g_0^4)$，得到：
+\begin{equation}
+\langle E \rangle = \frac{3(N^2-1)g^2}{128\pi^2 t^2} \left[ 1 + \bar{c}_1 g^2 + O(g^4) \right],
+\label{eq:Ev}
+\end{equation}
+其中$g$是重整化耦合常数，$\bar{c}_1$为有限常数。关键的观察是：$1/\epsilon$极点项在用重整化耦合$g$表达时完全抵消，说明不需要除标准耦合重整化之外的额外减除。
+
+这一计算在2011年被L\"uscher和Weisz推广到了所有阶\cite{LuscherWeisz2011}。他们证明了梯度流关联函数的Feynman规则等价于一个$D+1$维局域场论的Feynman规则——额外维度就是流时间——并且通过幂次计数和BRS对称性，证明了在正流时间处该理论不需要除标准四维QCD重整化之外的任何抵消项。
+
+\subsection{包含夸克场的情况}
+
+当夸克场也被包含在流方程中时，情况略有不同\cite{Luscher2013}。时间依赖的夸克场$\chi(t,x)$需要\textbf{乘性的波函数重整化}：
+\begin{equation}
+\chi_R = Z_\chi^{-1/2} \chi, \qquad \bar{\chi}_R = \bar{\chi} Z_\chi^{-1/2},
+\label{eq:chi_renorm}
+\end{equation}
+
+在$\overline{\text{MS}}$方案中，单圈计算给出\cite{Luscher2013}：
+\begin{equation}
+Z_\chi = 1 + \frac{3C_F}{16\pi^2} \frac{g^2}{\epsilon} + O(g^4), \qquad C_F = \frac{N^2-1}{2N}.
+\label{eq:Zchi}
+\end{equation}
+
+这一重整化因子的关键特征是它\textbf{不依赖于流时间$t$}：同一个$Z_\chi$适用于所有$t>0$处的流夸克场。因此，如果一个规范不变的局域复合场$O_t(x)$在流时间$t>0$处包含$n$个夸克场和$\bar{n}$个反夸克场，其重整化形式为\cite{Luscher2014}：
+\begin{equation}
+O_{R,t} = (Z_\chi)^{\frac{1}{2}(n+\bar{n})} O_t.
+\label{eq:general_renorm}
+\end{equation}
+
+作为一个重要的特殊情况，纯胶子算符$E_t(x)$（$n=\bar{n}=0$）根本不需要重整化。
+
+为了消除$Z_\chi$对微扰计算的依赖，Makino和Suzuki引入了\textbf{环标记夸克场}（ringed fermion fields）\cite{MakinoSuzuki2014}，通过树图层次的夸克动能算符的真空期望值来固定$Z_\chi$，从而实现完全的非微扰定义。
+
+% ============================================================
+\section{严格的微扰证明：$D+1$维场论表示}\label{sec:renormalization}
+% ============================================================
+
+\subsection{$D+1$维局域场论的构造}
+
+梯度流关联函数的UV有限性的严格证明依赖于一个精妙的观察，这一观察最早由Zinn-Justin和Zwanziger在Langevin方程的重整化研究中引入\cite{Luscher2013,Luscher2014}：\textbf{流时间依赖的场的关联函数等价于一个$D+1$维局域场论的关联函数}，其中额外维度是流时间$t \in [0, \infty)$。
+
+该$D+1$维理论包含以下场：
+\begin{itemize}
+    \item 基本场：$A_\mu(x)$，$\psi(x)$，$\bar{\psi}(x)$（定义在$t=0$边界）
+    \item 流场：$B_\mu(t,x)$，$\chi(t,x)$，$\bar{\chi}(t,x)$（在体$t>0$中）
+    \item Lagrange乘子场：$L_\mu(t,x)$，$\lambda(t,x)$，$\bar{\lambda}(t,x)$（对偶场）
+\end{itemize}
+
+总作用量为\cite{Luscher2013}：
+\begin{equation}
+S_{\text{tot}} = S_{\text{QCD}} + S_{G,\text{fl}} + S_{\text{FP},\text{fl}} + S_{F,\text{fl}},
+\label{eq:Stot}
+\end{equation}
+
+其中体作用量部分为：
+\begin{align}
+S_{G,\text{fl}} &= -2 \int_0^\infty dt \int d^D x \, \tr \left[ L_\mu(t,x) (\partial_t B_\mu - D_\nu G_{\nu\mu} - \alpha_0 D_\mu \partial_\nu B_\nu) \right], \\
+S_{F,\text{fl}} &= \int_0^\infty dt \int d^D x \, \left[ \bar{\lambda}(\partial_t - \Delta + \alpha_0 \partial_\nu B_\nu)\chi + \bar{\chi}(\overleftarrow{\partial_t} - \overleftarrow{\Delta} - \alpha_0 \partial_\nu B_\nu)\lambda \right].
+\end{align}
+
+对Lagrange乘子场的泛函积分产生功能性$\delta$函数，精确地强制了流方程的成立。因此，在这个$D+1$维理论中计算的基本场的关联函数与直接通过求解流方程计算的结果完全一致。
+
+\subsection{幂次计数与可重整性}
+
+在$D+1$维理论中，流时间$t$具有质量量纲$[t] = -2$。体传播子在大动量下的行为与流时间相关：
+\begin{equation}
+\tilde{K}_t(p)_{\mu\nu} \sim \frac{e^{-tp^2}}{p^2},
+\label{eq:propagator_behavior}
+\end{equation}
+
+指数因子$e^{-tp^2}$提供了对高动量模式的极强抑制。这意味着\textbf{当$t>0$时，所有涉及体传播子的Feynman图都是UV收敛的}。唯一的发散只能来自$t=0$边界——即标准的四维QCD发散。
+
+利用BRS对称性和幂次计数，L\"uscher和Weisz证明了\cite{LuscherWeisz2011}：在$D+1$维理论中，局部抵消项只能是$t=0$边界上$A_\mu(x)$、$\psi(x)$、$\bar{\psi}(x)$的标准QCD抵消项。体的部分——即涉及$t>0$处的场的相互作用——\textbf{不接受任何无穷大量纲的抵消项}。
+
+这一结论对纯规范场和包含夸克场的情况都成立（在夸克场的情况下，只有夸克场自身的乘性重整化因子$Z_\chi$是需要的，且它来自边界发散）\cite{Luscher2013}。因此：
+\begin{itemize}
+    \item \textbf{胶子流场不需要重整化}：$B_{\mu,R} = B_\mu$
+    \item \textbf{流夸克场需要简单的乘性重整化}：$\chi_R = Z_\chi^{-1/2}\chi$
+    \item $Z_\chi$\textbf{不依赖于流时间}，只依赖于四维理论的参数
+\end{itemize}
+
+% ============================================================
+\section{小流时展开（Short Flow-Time Expansion）}\label{sec:sftx}
+% ============================================================
+
+\subsection{SFTX的基本思想}
+
+梯度流的另一个核心理论工具是小流时展开（SFTX）\cite{Luscher2014,Suzuki2013}。由于流方程本质上是扩散方程，扩散长度约为$\sqrt{8t}$，因此在$t \to 0$的极限下，流时间$t$处的一个局域复合场可以看作原始$D$维意义上的局域场。这意味着它可以被展开为$t=0$处重整化局域算符的渐近级数，其展开系数是流时间$t$的有限函数。
+
+对于与流时间$t$处流场相关的任意规范不变的局域算符$O(t,x)$，存在如下的小流时展开\cite{Luscher2014,Suzuki2013}：
+\begin{equation}
+O(t,x) \overset{t \to 0}{\sim} \sum_k c_k(t) \, \mathcal{O}_{R,k}(x),
+\label{eq:sftx_general}
+\end{equation}
+其中$\mathcal{O}_{R,k}(x)$是$t=0$处重整化的局域算符，$c_k(t)$是有限的展开系数（Wilson系数）。求和按算符的质量量纲递增排列。
+
+\subsection{规范作用量密度的SFTX}
+
+作为最重要的例子，考虑流时间$t$处的规范作用量密度\cite{Suzuki2013}：
+\begin{equation}
+E(t,x) = \frac{1}{4} G_{\mu\nu}^a(t,x) G_{\mu\nu}^a(t,x).
+\label{eq:Et_def}
+\end{equation}
+
+其小流时展开为：
+\begin{equation}
+E(t,x) \sim \langle E(t,x) \rangle + c_E(t) \left[ \frac{1}{4} F_{\rho\sigma}^a F_{\rho\sigma}^a \right]_R(x) + O(t),
+\label{eq:sftx_E}
+\end{equation}
+
+其中真空期望值$\langle E(t,x) \rangle$和系数$c_E(t)$满足重整化群方程。利用渐近自由，可以解析地得到$t \to 0$极限下系数的行为\cite{Suzuki2013}。
+
+\subsection{能动张量的梯度流表示}
+
+SFTX的一个里程碑式的应用是Suzuki在2013年提出的能动张量（EMT）的梯度流表示\cite{Suzuki2013}。定义$D+1$维的类能动张量：
+\begin{equation}
+U_{\mu\nu}(t,x) \equiv G_{\mu\rho}^a(t,x) G_{\nu\rho}^a(t,x) - \frac{1}{4} \delta_{\mu\nu} G_{\rho\sigma}^a(t,x) G_{\rho\sigma}^a(t,x).
+\label{eq:U_munu}
+\end{equation}
+
+$U_{\mu\nu}(t,x)$的自洽小流时展开为\cite{Suzuki2013}：
+\begin{equation}
+U_{\mu\nu}(t,x) = c_T(t) \{T_{\mu\nu}\}_R(x) + c_S(t) \delta_{\mu\nu} \left[ \frac{1}{4} F_{\rho\sigma}^a F_{\rho\sigma}^a \right]_R(x) + O(t),
+\label{eq:U_sftx}
+\end{equation}
+
+其中$\{T_{\mu\nu}\}_R$是正确归一化的守恒能动张量。展开系数$c_T(t)$和$c_S(t)$不是独立的，它们通过迹反常（trace anomaly）相互关联：
+\begin{equation}
+\delta_{\mu\nu} U_{\mu\nu}(t,x) \overset{\epsilon \to 0}{\longrightarrow} 0, \qquad
+c_S(t) = \frac{\beta}{2g^3} c_T(t).
+\label{eq:trace_anomaly_relation}
+\end{equation}
+
+通过消去重整化作用量密度，得到能动张量的梯度流公式\cite{Suzuki2013}：
+\begin{equation}
+\{T_{\mu\nu}\}_R(x) = \lim_{t \to 0} \left[ \frac{1}{c_T(t)} U_{\mu\nu}(t,x) - \frac{c_S(t)}{c_T(t)c_E(t)} \delta_{\mu\nu} [E(t,x) - \langle E(t,x) \rangle] \right].
+\label{eq:emt_flow_formula}
+\end{equation}
+
+利用重整化群方程，可以得到$t \to 0$极限下系数的渐近行为\cite{Suzuki2013}：
+\begin{equation}
+\frac{1}{c_T(t)} \overset{t \to 0^+}{\sim} -2b_0 \ln(\sqrt{8t}\Lambda) + c_1,
+\label{eq:cT_asymptotic}
+\end{equation}
+\begin{equation}
+\frac{c_S(t)}{c_T(t)c_E(t)} \overset{t \to 0^+}{\sim} -\frac{b_0}{2} \left[ 1 - \frac{c_1 - c_2}{-\ln(\sqrt{8t}\Lambda)} \right].
+\label{eq:cS_ct_cE_asymptotic}
+\end{equation}
+
+因此，通过在格点上计算$U_{\mu\nu}(t,x)$和$E(t,x)$在不同流时间$t$处的期望值，并取$t \to 0$的连续极限，就可以得到正确归一化的能动张量的关联函数。Makino和Suzuki在2014年进一步将这一构造推广到了包含夸克场的情况\cite{MakinoSuzuki2014}。
+
+\subsection{SFTX的更高阶计算}
+
+在最近几年，SFTX的微扰系数已经被计算到了令人瞩目的精度。Borgulat等人在2024年将五个夸克双线性算符（标量、赝标量、矢量、轴矢量、张量流）的SFTX匹配系数计算到了NNLO精度\cite{Borgulat2024}。这些结果对于利用梯度流形式计算介子bag参数等物理量至关重要。
+
+Harlander、Kluth和Lange在2018年完成了梯度流框架下能动张量的双圈计算\cite{Harlander2018}。Artz等人系统总结了梯度流中高阶计算的方法和技术\cite{Artz2019}。
+
+% ============================================================
+\section{梯度流在格点QCD中的物理应用}\label{sec:applications}
+% ============================================================
+
+\subsection{能标设定（Scale Setting）}
+
+梯度流最广泛的应用之一是格点QCD中的能标设定\cite{Luscher2010,Luscher2014}。定义量纲为质量平方的量：
+\begin{equation}
+t^2 \langle E(t,x) \rangle = \frac{3(N^2-1)}{128\pi^2} g^2(\mu) \left[ 1 + O(g^2) \right].
+\label{eq:t2E}
+\end{equation}
+
+通过条件$t^2 \langle E(t) \rangle = \text{const}$来定义参考流时间$t_0$或$w_0$：
+\begin{equation}
+t_0: \quad t^2 \langle E(t) \rangle \big|_{t=t_0} = 0.3, \qquad
+w_0: \quad t \frac{d}{dt} t^2 \langle E(t) \rangle \big|_{t=w_0^2} = 0.3.
+\label{eq:t0_w0}
+\end{equation}
+
+这些参考尺度在数值计算中具有极高的统计精度（亚百分比级别），且对格点间距不敏感，因此成为现代格点QCD合作组（包括CLQCD）的标准能标设定方法。
+
+\subsection{手征凝聚体的无减除计算}
+
+手征凝聚体$\langle \bar{u}u + \bar{d}d \rangle$在传统的格点QCD计算中面临严重的减除问题：其期望值在连续极限下发散如$a^{-2}$或$a^{-3}$。即使手征对称性在格点上被保持，发散项也正比于轻夸克质量，其减除会导致显著的显著性损失。
+
+梯度流提供了一个优雅的解决方案\cite{Luscher2013,Luscher2014}。定义流时间依赖的凝聚体：
+\begin{equation}
+\Sigma_{R,t}^{rr} = -Z_\chi \langle S_t^{rr}(x) \rangle.
+\label{eq:Sigma_flow}
+\end{equation}
+
+由于流方程保持手征对称性，且对于$t>0$不需要加法重整化，$\Sigma_{R,t}^{rr}$在手征极限下是有限的。通过SFTX，可以将流时间依赖的凝聚体与物理的（$t=0$处且手征极限下的）凝聚体联系起来。L\"uscher在2014年指出\cite{Luscher2014}，这一方法可以以高精度计算手征凝聚体，且完全避免了加法减除问题。
+
+\subsection{梯度流在部分子分布函数（PDFs）中的应用}
+
+梯度流在部分子分布函数的格点计算中发挥着越来越重要的作用。Monahan和Orginos在2017年提出了一个关键思想\cite{MonahanOrginos2017}：利用梯度流来正规化准PDF算符中的Wilson线。
+
+准PDF方法面临的一个核心困难是Wilson线算符在格点正规化下的幂次发散——发散程度指数地依赖于Wilson线的长度除以格点间距。传统的解决方案包括RI/MOM方案中的非微扰减除，但这些方案的可靠性尚未在所有阶得到验证。
+
+Monahan和Orginos的洞见是\cite{MonahanOrginos2017}：\textbf{如果对夸克场和规范场同时施加梯度流，并将流时间$\tau$固定在物理单位中，那么所有涉及涂抹后Wilson线的矩阵元在连续极限下都是有限的}。具体地，定义涂抹后的准PDF矩阵元：
+\begin{equation}
+h^{(s)}\left( \frac{z}{\sqrt{\tau}}, \sqrt{\tau}P_z, \sqrt{\tau}\Lambda_{\text{QCD}}, \sqrt{\tau}M_N \right),
+\label{eq:smeared_quasi}
+\end{equation}
+
+其中环标记夸克场消除了波函数重整化因子$Z_\chi$的依赖。关键的观察是\cite{MonahanOrginos2017}：
+\begin{enumerate}
+    \item 梯度流作为规范不变的UV正规化手段，替代了格点间距$a$的角色
+    \item 涂抹后的矩阵元在连续极限$a \to 0$（保持$\sqrt{\tau}$固定）下是有限的
+    \item 在连续理论中，由于梯度流保持转动对称性，twist-2算符之间的混合被约化为普通的对数混合，而非幂次混合
+    \item 涂抹后准PDF与光前PDF之间的匹配可以在连续理论中独立于格点计算的细节进行
+\end{enumerate}
+
+Monahan在2018年进一步完成了涂抹准分布的微扰单圈计算\cite{Monahan2018}，验证了：
+\begin{itemize}
+    \item $z \equiv z/\sqrt{\tau} \gg 1$时，矩阵元中线性发散于$z$的贡献可以被识别并减除
+    \item 减除后的矩阵元在$z \to 0$极限下是有限的
+    \item 小流时区间内，矩阵元仅对数地依赖于$z$，满足重整化群方程
+\end{itemize}
+
+2025年，Francis等人发表了梯度流应用于PDFs的第一个数值实现\cite{Francis2025}：在四个格点间距上计算了$\pi$介子的味道非单态PDF矩的比值直至$\langle x^5 \rangle$。其核心公式为：
+\begin{equation}
+\frac{\langle x^{n-1} \rangle^{\overline{\text{MS}}}(\mu)}{\langle x^{m-1} \rangle^{\overline{\text{MS}}}(\mu)} =
+\frac{\zeta_m(t,\mu)}{\zeta_n(t,\mu)} \frac{\langle x^{n-1} \rangle(t)}{\langle x^{m-1} \rangle(t)} + O(t),
+\label{eq:moment_ratio}
+\end{equation}
+其中匹配系数$\zeta_n(t,\mu)$已被计算到NNLO精度。他们的结果在定量上与最新的唯象学抽取一致，验证了该方法的实用性和有效性。
+
+\subsection{胶子PDF计算中的梯度流应用}
+
+在本库中，Chen等人\cite{Chen2025gluon}和MSULat合作组\cite{NieMiera2025}的胶子PDF计算中都使用了梯度流作为规范场涂抹方法。在内部笔记\cite{NoteGluonPDFs}中，对HYP5涂抹和Wilson flow（$\tau=1.4$）的结果进行了系统对比，发现两种方法给出了定性一致的结果。
+
+特别值得注意的是MSULat合作组的自重整化胶子PDF计算\cite{NieMiera2025}：他们使用梯度流涂抹（$\tau = 3a^2$）处理胶子算符，并发现在梯度流下自重整化保持稳定，得到了参数$k = 0.61(27)$，$\Lambda_{\text{QCD}} = 0.286(85)$~GeV, $m_0 = 0.13(30)$~GeV。
+
+\subsection{离光锥Wilson线算符与梯度流}
+
+Shindler等人在2018年系统研究了离光锥Wilson线算符在梯度流下的行为\cite{OffLightcone2018}。他们证明了梯度流可以有效地正规化涉及非局域Wilson线的算符，为赝PDF（pseudo-PDF）方法提供了重要的理论支撑。
+
+\subsection{夸克偶极算符与有效弱哈密顿量}
+
+梯度流在味物理中也有重要应用。Mereghetti等人计算了夸克偶极算符在梯度流方案中的单圈匹配系数\cite{Mereghetti2022}。Borgulat等人利用梯度流框架将有效弱$|\Delta F|=2$哈密顿量的计算推进到了NNLO精度\cite{Borgulat2024}。这些计算展示了梯度流作为正规化和重整化方案在精密味物理中的巨大潜力。
+
+% ============================================================
+\section{格点上的梯度流：Wilson Flow的数值实现}
+% ============================================================
+
+在格点上，梯度流（Wilson flow）通过数值积分流方程(\ref{eq:wilson_flow})来实现。最常用的是三阶Runge-Kutta格式，其单步离散化误差为$O(\epsilon^3)$（$\epsilon$为流时间的步长）。在数值上，重复应用stout link smearing步骤在$\epsilon \to 0$极限下等价于精确的Wilson flow\cite{Luscher2010}。
+
+格点梯度流的一个重要优势是其在数值实现上的简便性——流方程的每一步只需要局域的规范场更新操作，可以利用现有的高性能GPU代码高效地实现。在HPC集群上，梯度流通常作为规范组态预处理的一部分，在测量之前对组态进行平滑。
+
+流时间$t$的选择是一个需要仔细考虑的物理问题：
+\begin{itemize}
+    \item $t$必须足够大，使得$\sqrt{8t}$显著大于格点间距$a$，以保证连续极限的良好行为（典型的经验条件是$\sqrt{8t} \gtrsim 2a$）
+    \item $t$必须足够小，使得$\sqrt{8t}$远小于所关心的物理尺度（如强子尺寸、关联长度等）
+    \item 在实际计算中，通常取$t$的范围为几个格点间距的平方到物理尺度的几分之一
+\end{itemize}
+
+在连续极限$a \to 0$下，流时间$t$必须以物理单位固定，即$\sqrt{t}/a \to \infty$。在这个极限下，格点间距效应按$a^2/t$的幂次消失，因为梯度流（作为连续理论中的构造）本身不引入格点离散化误差。
+
+% ============================================================
+\section{梯度流与其他场平滑方法的比较}
+% ============================================================
+
+格点QCD中有多种场平滑方法，梯度流在其中占据特殊的位置。表\ref{tab:comparison}给出了主要方法之间的比较。
+
+\begin{table}[H]
+\centering
+\caption{格点QCD中场平滑方法的比较}
+\label{tab:comparison}
+\begin{tabular}{p{2.5cm}p{3cm}p{3cm}p{3cm}p{3cm}}
+\toprule
+特性 & HYP涂抹 & Stout涂抹 & Wilson Flow (梯度流) & APE涂抹 \\
+\midrule
+平滑方式 & 离散步骤 & 离散步骤 & 连续演化 & 离散步骤 \\
+可微性 & 否 & 是 & 是 & 是 \\
+连续极限 & 不明确 & 积分极限等价于WF & 严格定义 & 不明确 \\
+重整化性质 & 无系统证明 & 积分极限下继承WF & 有严格全阶证明 & 无系统证明 \\
+微扰计算 & 困难 & 困难 & 系统可行 & 困难 \\
+算符混合 & 复杂 & 复杂 & 仅对数混合 & 复杂 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+梯度流最核心的优势是其\textbf{严格的重整化理论}：对于任何涉及流场的算符，其重整化性质都有严格的微扰全阶证明。这使得梯度流不仅仅是数值上的平滑技巧，更是理论上可靠的重整化框架。
+
+% ============================================================
+\section{总结与展望}\label{sec:summary}
+% ============================================================
+
+本文系统综述了格点QCD中梯度流重整化的完整理论框架。核心要点总结如下：
+
+\begin{enumerate}
+    \item \textbf{梯度流定义}：规范场沿Yang--Mills作用量梯度方向的扩散型演化，夸克场沿规范协变热方程的演化。流时间$t$具有质量量纲$-2$，流场的平滑范围为$\sqrt{8t}$。
+
+    \item \textbf{UV有限性}：L\"uscher和Weisz给出了严格的全阶证明——在$t>0$处，规范不变算符的关联函数在标准QCD参数重整化后是UV有限的。流规范场不需要波函数重整化；流夸克场只需要一个不依赖于$t$的乘性重整化因子$Z_\chi$。
+
+    \item \textbf{$D+1$维场论表示}：梯度流关联函数等价于一个$D+1$维局域场论（额外维度=流时间）的关联函数。该理论中唯一的抵消项来自$t=0$边界——即标准QCD抵消项。
+
+    \item \textbf{小流时展开（SFTX）}：$t \to 0$时，流时间依赖的复合场可以展开为$t=0$处重整化算符的渐近级数。SFTX提供了从梯度流观测量抽取物理量的系统方法，最突出的例子是能动张量的梯度流公式。
+
+    \item \textbf{物理应用}：梯度流在能标设定、手征凝聚体计算、PDFs（准PDF和赝PDF）的正规化、能动张量计算、味物理等多个领域都有成功应用。在PDFs的应用中，梯度流通过规避免除Wilson线的幂次发散来提供有限的连续极限矩阵元。
+
+    \item \textbf{数值优势}：梯度流在格点上的实现（Wilson flow）简单且具有高精度。参考流时间$t_0$和$w_0$已经成为现代格点QCD能标设定的标准工具。
+\end{enumerate}
+
+展望未来，梯度流重整化框架在以下几个方向具有重要的发展前景：
+\begin{itemize}
+    \item 在更大统计量和更细格点间距上验证SFTX的适用范围和系统误差
+    \item 将梯度流PDF方法推广到广义部分子分布（GPDs）和横动量依赖分布（TMDs）
+    \item 发展梯度流框架下的非微扰重整化群方法
+    \item 探索梯度流与机器学习（特别是flow-based sampling）的结合
+    \item 将梯度流应用于有限温度QCD和有限密度QCD
+\end{itemize}
+
+梯度流从一个数学上的优雅构造，已经成长为格点QCD中不可或缺的理论和计算工具。它统一了场平滑、正规化、重整化和物理观测量抽取等多个层面，为从第一原理出发精确计算强子结构开辟了新的道路。
+
+% ============================================================
+% 参考文献
+% ============================================================
+
+\begin{thebibliography}{99}
+
+\bibitem{Luscher2010}
+M.~L\"uscher,
+``Properties and uses of the Wilson flow in lattice QCD,''
+JHEP \textbf{08}, 071 (2010).
+[arXiv:1006.4518 [hep-lat]].
+\textbf{本库路径：}\texttt{refer/papers/Properties\_and\_uses\_of\_the\_Wilson\_flow\_in\_lattice\_QCD\_Luscher\_2010.pdf}
+
+\bibitem{LuscherWeisz2011}
+M.~L\"uscher and P.~Weisz,
+``Perturbative analysis of the gradient flow in non-abelian gauge theories,''
+JHEP \textbf{02}, 051 (2011).
+[arXiv:1101.0963 [hep-th]].
+\textbf{本库路径：}\texttt{refer/papers/Perturbative\_analysis\_of\_the\_gradient\_flow\_in\_non-abelian\_gauge\_theories\_Luscher\_Weisz\_2011.pdf}
+
+\bibitem{Luscher2013}
+M.~L\"uscher,
+``Chiral symmetry and the Yang--Mills gradient flow,''
+JHEP \textbf{04}, 123 (2013).
+[arXiv:1302.5246 [hep-lat]].
+\textbf{本库路径：}\texttt{refer/papers/Chiral\_symmetry\_and\_the\_Yang-Mills\_gradient\_flow\_Luscher\_2013.pdf}
+
+\bibitem{Luscher2014}
+M.~L\"uscher,
+``Future applications of the Yang--Mills gradient flow in lattice QCD,''
+PoS \textbf{LATTICE2013}, 016 (2014).
+[arXiv:1308.5598 [hep-lat]].
+\textbf{本库路径：}\texttt{refer/papers/Future\_applications\_of\_the\_Yang-Mills\_gradient\_flow\_in\_lattice\_QCD\_Luscher\_2014.pdf}
+
+\bibitem{Luscher2010b}
+M.~L\"uscher,
+``Trivializing maps, the Wilson flow and the HMC algorithm,''
+Commun. Math. Phys. \textbf{293}, 899--919 (2010).
+[arXiv:0907.5491 [hep-lat]].
+\textbf{本库路径：}\texttt{refer/papers/Trivializing\_maps\_the\_Wilson\_flow\_and\_the\_HMC\_algorithm\_Luscher\_2010.pdf}
+
+\bibitem{Suzuki2013}
+H.~Suzuki,
+``Energy-momentum tensor from the Yang--Mills gradient flow,''
+PTEP \textbf{2013}, 083B03 (2013).
+[arXiv:1304.0533 [hep-lat]].
+\textbf{本库路径：}\texttt{refer/papers/Energy-momentum\_tensor\_from\_the\_Yang-Mills\_gradient\_flow\_Suzuki\_2013.pdf}
+
+\bibitem{MakinoSuzuki2014}
+H.~Makino and H.~Suzuki,
+``Lattice energy-momentum tensor from the Yang--Mills gradient flow---inclusion of fermion fields,''
+PTEP \textbf{2014}, 063B02 (2014).
+[arXiv:1403.4772 [hep-lat]].
+\textbf{本库路径：}\texttt{refer/papers/Lattice\_energy-momentum\_tensor\_from\_gradient\_flow\_inclusion\_of\_fermion\_fields\_Makino\_Suzuki\_2014.pdf}
+
+\bibitem{MonahanOrginos2017}
+C.~Monahan and K.~Orginos,
+``Quasi parton distributions and the gradient flow,''
+JHEP \textbf{03}, 116 (2017).
+[arXiv:1612.01584 [hep-lat]].
+\textbf{本库路径：}\texttt{refer/papers/Quasi\_parton\_distributions\_and\_the\_gradient\_flow\_Monahan\_Orginos\_2017.pdf}
+
+\bibitem{Monahan2018}
+C.~Monahan,
+``Smeared quasidistributions in perturbation theory,''
+Phys. Rev. D \textbf{97}, 054507 (2018).
+[arXiv:1710.04607 [hep-lat]].
+\textbf{本库路径：}\texttt{refer/papers/Smeared\_quasidistributions\_in\_perturbation\_theory\_Monahan\_2018.pdf}
+
+\bibitem{MonahanOrginos2015}
+C.~Monahan and K.~Orginos,
+``Locally smeared operator product expansions in scalar field theory,''
+Phys. Rev. D \textbf{91}, 074513 (2015).
+[arXiv:1501.05348 [hep-lat]].
+\textbf{本库路径：}\texttt{refer/papers/Locally\_smeared\_operator\_product\_expansions\_in\_scalar\_field\_theory\_Monahan\_Orginos\_2015.pdf}
+
+\bibitem{Francis2025}
+A.~Francis, P.~Fritzsch, R.~V.~Harlander \textit{et al.},
+``Gradient flow for parton distribution functions: first application to the pion,''
+arXiv:2509.02472 [hep-lat] (2025).
+\textbf{本库路径：}\texttt{refer/papers/Gradient\_Flow\_for\_Parton\_Distribution\_Functions\_First\_Application\_to\_the\_Pion.pdf}
+
+\bibitem{Borgulat2024}
+J.~Borgulat, R.~V.~Harlander, J.~T.~Kohnen and F.~Lange,
+``Short-flow-time expansion of quark bilinears through next-to-next-to-leading order QCD,''
+JHEP \textbf{02}, 098 (2024).
+[arXiv:2311.16799 [hep-lat]].
+\textbf{本库路径：}\texttt{refer/papers/Short-flow-time\_expansion\_of\_quark\_bilinears\_through\_NNLO\_Borgulat\_et\_al\_2024.pdf}
+
+\bibitem{Harlander2018}
+R.~V.~Harlander, F.~Kluth and F.~Lange,
+``Two-loop energy-momentum tensor within the gradient-flow formalism,''
+Eur. Phys. J. C \textbf{78}, 944 (2018).
+[arXiv:1808.09837 [hep-lat]].
+\textbf{本库路径：}\texttt{refer/papers/Two-loop\_energy-momentum\_tensor\_within\_gradient-flow\_formalism\_Harlander\_Kluth\_Lange\_2018.pdf}
+
+\bibitem{Artz2019}
+J.~Artz \textit{et al.},
+``Results and techniques for higher order calculations within the gradient flow,''
+JHEP \textbf{06}, 121 (2019).
+[arXiv:1905.00882 [hep-lat]].
+\textbf{本库路径：}\texttt{refer/papers/Results\_and\_techniques\_for\_higher\_order\_calculations\_within\_gradient-flow\_Artz\_et\_al\_2019.pdf}
+
+\bibitem{Mereghetti2022}
+E.~Mereghetti, C.~J.~Monahan, M.~D.~Rizik, A.~Shindler and P.~Stoffer,
+``One-loop matching for quark dipole operators in a gradient-flow scheme,''
+JHEP \textbf{04}, 050 (2022).
+[arXiv:2111.11449 [hep-lat]].
+\textbf{本库路径：}\texttt{refer/papers/One-loop\_matching\_for\_quark\_dipole\_operators\_in\_gradient-flow\_scheme\_Mereghetti\_et\_al\_2022.pdf}
+
+\bibitem{OffLightcone2018}
+A.~Shindler,
+``Off-lightcone Wilson-line operators in gradient flow,''
+(2018).
+\textbf{本库路径：}\texttt{refer/papers/Off-lightcone\_Wilson-line\_operators\_in\_gradient\_flow.pdf}
+
+\bibitem{Chen2025gluon}
+陈旭等,
+``胶子PDF的格点QCD计算,''
+(2025).
+\textbf{本库路径：}\texttt{refer/papers/}相关文件。
+
+\bibitem{NieMiera2025}
+MSULat合作组,
+``First Self-Renormalized Gluon PDF of Nucleon from Large-Momentum Effective Theory in the Continuum Limit,''
+(2025).
+\textbf{本库路径：}\texttt{refer/papers/First\_Self-Renormalized\_Gluon\_PDF\_of\_Nucleon\_from\_Large-Momentum\_Effective\_Theory\_in\_the\_Continuum\_Limit.pdf}
+
+\bibitem{NoteGluonPDFs}
+内部笔记,
+``Note of gluon PDFs,''
+\textbf{本库路径：}\texttt{refer/papers/Note of gluon PDFs.pdf}。
+
+\bibitem{场强张量笔记}
+格点QCD中的场强张量笔记,
+``从Wilson圈到Clover项的完整推导与应用,''
+\textbf{本库路径：}\texttt{docs/格点QCD中的场强张量.tex}。
+
+\end{thebibliography}
+
+\end{document}

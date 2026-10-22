@@ -1,0 +1,347 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.2cm,bottom=2.2cm,left=2.2cm,right=2.2cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption,multirow}
+\usepackage{hyperref,xcolor,enumitem,mathtools}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的蒙卡方法：\\
+从Metropolis算法到Hybrid Monte Carlo的完整解析}
+\author{基于本库全部相关文献与教材的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+格点QCD的核心计算范式——对规范场组态的路径积分进行Monte Carlo重要性抽样——定义了整个领域的可能性边界。不同于解析的微扰展开，格点QCD通过\textbf{在$SU(3)$流形上生成按Boltzmann分布加权的规范场组态Markov链}，将路径积分转化为有限维度的数值积分问题。当动力学费米子被纳入（即考虑$\det[D]$因子）时，这一看似简单的范式面临着计算复杂度的指数级增长——$12|\Lambda|$维的费米子行列式与每个规范组态相互作用，使得更新步的计算成本从$\mathcal{O}(V)$（纯规范）跃迁至$\mathcal{O}(V^2)$（全局Metropolis）乃至更优的$\mathcal{O}(V^{5/4})$（HMC算法）。
+
+本文基于本库中的核心教材（Gattringer与Lang的\textit{Quantum Chromodynamics on the Lattice}——第4.1-4.5节和第8.1-8.4节提供了从简单Metropolis到全HMC的完整推导；Gupta的\textit{Introduction to Lattice QCD}——第14章提供了统计力学的视角）以及相关研究论文，从以下六个层次系统解析格点QCD中的Monte Carlo方法：
+
+\textbf{第一层——Monte Carlo积分与重要性抽样（§2）：}
+从高维路径积分的基本悖论出发——均匀抽样在$10^4-10^7$维空间中完全失效——阐述重要性抽样的核心原理：将积分$\int \mathcal{D}U e^{-S[U]} O[U]$转化为按分布$P(U) \propto e^{-S[U]}$抽取的$N$个组态上$O$的样本均值。给出误差的$1/\sqrt{N}$标度律。
+
+\textbf{第二层——Markov链与Metropolis算法（§3）：}
+系统阐述Gattringer与Lang第4.1节的Markov链理论：转移概率$T(U'|U)$、强遍历性（ergodicity）、细致平衡条件$P(U) T(U'|U) = P(U') T(U|U')$。详述Metropolis算法的完整流程：候选组态生成（$T_0$）$\to$接受/拒绝（$T_A = \min[1, P(U')/P(U)]$）。给出纯规范理论中的单链接Metropolis更新实例。
+
+\textbf{第三层——热浴算法与过松弛（§4）：}
+阐述Gattringer与Lang第4.3节的热浴（Heat Bath）算法——直接从Boltzmann分布$P(U) \propto \exp[-S(U)]$中抽取SU(2)链接——作为多击Metropolis的等价迭代。详述Creutz的热浴算法和Kennedy-Pendleton的SU(2)实现。介绍过松弛（Overrelaxation）的加速原理——在保持能量的同时大步跳跃以加速Markov链的去相关。
+
+\textbf{第四层——赝费米子与费米子行列式（§5）：}
+阐述如何将Grassmann费米子场的高斯积分转化为玻色赝费米子（pseudofermion）的路径积分：$\det[D] = \int \mathcal{D}\phi^\dagger\mathcal{D}\phi e^{-\phi^\dagger D^{-1} \phi}$（单味）和$\det[DD^\dagger] = \int \mathcal{D}\phi e^{-\phi^\dagger (DD^\dagger)^{-1}\phi}$（偶数简并味）。讨论伪费米子场的生成和海夸克行列式对规范组态的回馈（effective fermion action $S_F^{\text{eff}} = -\operatorname{tr}\ln D$）。
+
+\textbf{第五层——Hybrid Monte Carlo (HMC)（§6）：}
+这是格点QCD中动力学费米子的\textbf{首选算法}。详细推导HMC的五个组成步骤：(i) 赝费米子场的Gaussian生成（$\phi = D \chi$, $\chi \sim e^{-\chi^\dagger \chi}$）；(ii) 共轭动量的Gaussian生成（$e^{-P^2/2}$）；(iii) 分子动力学演化——蛙跳（leapfrog）积分器，保持相空间体积和可逆性；(iv) Metropolis接受/拒绝步骤——由$e^{-\Delta H}$控制，修正MD积分的$\mathcal{O}(\epsilon^2)$离散化误差；(v) 规范场与赝费米子的交替更新。阐明确保SU(3)群流形上演化的指数映射$\exp(i\epsilon P) U$和driving force $F[U,\phi]$的计算。
+
+\textbf{第六层——高级算法与现代策略（§7）：}
+简介R-algorithm（对交错费米子的非精确算法）、Polynomial HMC和Rational HMC（PHMC/RHMC——适用于单味夸克和Overlap费米子）、多伪费米子与UV过滤（降低力涨落以提高接受率）、多时间尺度（multiple time scale）积分器（对规范和费米子力分量使用不同MD步长）、以及HISQ和Twisted Mass费米子的专用预条件策略。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==========================================================================
+\section{引言：Monte Carlo方法——格点QCD的引擎}
+%==========================================================================
+
+\subsection{格点QCD的计算范式}
+
+格点QCD将连续路径积分——形式上的无限维积分——转化为在四维格点上的有限维（但极高维数：$\sim 4 \times 8 \times |\Lambda|$个$SU(3)$矩阵变量）积分~\cite{GattringerLang2010}：
+\begin{equation}
+\langle \mathcal{O} \rangle = \frac{1}{Z} \int \prod_{n,\mu} dU_\mu(n) \; \int \mathcal{D}\bar\psi\mathcal{D}\psi \; \mathcal{O}[U,\bar\psi,\psi] \; e^{-S_G[U] - \bar\psi D[U] \psi}.
+\label{eq:path_integral}
+\end{equation}
+
+在纯规范理论（淬火QCD）中，$\det[D]$被设为1——仅需在$SU(3)$链接变量的空间中进行Monte Carlo抽样。在full QCD（动力学QCD）中，费米子行列式$\det[D]$是一个\textbf{高度非局域}的泛函——它耦合了全格点上的所有规范链接，使得简单Metropolis更新步的计算成本从$\mathcal{O}(V)$（纯规范）跃迁至$\mathcal{O}(V^2)$（需要计算全行列式对单个链接的导数）。
+
+Gupta对此有生动的总结~\cite{Gupta1997intro}：
+\begin{quote}
+``Numerical simulations of LQCD are based on a Monte Carlo integration of the Euclidean path integral... The results, therefore, have statistical errors.''
+\end{quote}
+
+\subsection{本库中的核心文献}
+
+\begin{table}[H]
+\centering
+\caption{本库中Monte Carlo方法相关的核心文献}
+\label{tab:mc_papers}
+\small
+\begin{tabular}{lp{9cm}}
+\toprule
+文献 & 核心贡献 \\
+\midrule
+\texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}~\cite{GattringerLang2010} &
+\textbf{Ch.4: Monte Carlo方法完整推导}——重要性抽样（§4.1.1）、Markov链（§4.1.2）、Metropolis算法（§4.1.3-4.1.4）、SU(2)/SU(3)更新技术（§4.2）、热浴与过松弛（§4.3）、自相关与统计误差（§4.5）\\
+& \textbf{Ch.8: 动力学费米子}——赝费米子与有效费米子作用（§8.1）、HMC完整推导（§8.2.1-8.2.3）、R-algorithm（§8.3.1）、P/RHMC（§8.3.3）、多伪费米子与UV过滤（§8.3.4）\\
+\texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf}~\cite{Gupta1997intro} &
+Ch.4（Monte Carlo方法的一般理论）、Ch.8（作用量、改进与MC方法的关联）、Ch.16（统计误差与控制）\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%==========================================================================
+\section{Monte Carlo积分与重要性抽样}
+%==========================================================================
+
+\subsection{均匀抽样的失败与重要性抽样的原理}
+
+在$D$维空间中，均匀划分下的积分需要$\mathcal{O}(M^D)$个抽样点——当$D$是格点QCD的典型维数（$\sim 10^6-10^8$）时，均匀抽样完全无法实现。\textbf{重要性抽样}通过将抽样集中在被积函数的主要贡献区域来绕过这一维度灾难~\cite{GattringerLang2010}。将物理观测量重写为：
+\begin{equation}
+\langle O \rangle = \int \mathcal{D}U \, P(U) \, O[U], \qquad P(U) = \frac{e^{-S_G[U]} \det[D_U]}{\int \mathcal{D}U' e^{-S_G[U']} \det[D_{U'}]},
+\label{eq:importance_sampling}
+\end{equation}
+其中$P(U)$可被解释为一个\textbf{概率测度}（在保证$\det[D]\ge 0$的条件下）。从$P(U)$中独立抽取$N$个组态$\{U^{(1)},\dots,U^{(N)}\}$，则期望值的无偏估计量为：
+\begin{equation}
+\bar O = \frac{1}{N} \sum_{i=1}^N O[U^{(i)}], \qquad \sigma_{\bar O} = \frac{\sigma_O}{\sqrt{N}}.
+\label{eq:MC_estimator}
+\end{equation}
+
+\subsection{从独立抽样到Markov链}
+
+在实际中，从高维概率分布$P(U)$中独立抽样是不可能的——必须通过\textbf{Markov链}来生成一系列（不独立的）样本。Gattringer与Lang在§4.1.2中给出了Markov链在规范场构型空间中的严格定义~\cite{GattringerLang2010}：转移概率$T(U_{n-1} \to U_n)$定义了链的动力学。在适当条件下（强遍历性和细致平衡），链的平稳分布收敛到目标分布$P(U)$。
+
+%==========================================================================
+\section{Markov链与Metropolis算法}
+%==========================================================================
+
+\subsection{细致平衡条件}
+
+Gattringer与Lang第4.1.3节给出了Metropolis算法的理论基础~\cite{GattringerLang2010}。对于两个组态$U$和$U'$，转移概率$T(U'|U)$须满足\textbf{细致平衡条件}：
+\begin{equation}
+\boxed{P(U) \, T(U'|U) = P(U') \, T(U|U')},
+\label{eq:detailed_balance}
+\end{equation}
+其中$P(U) = Z^{-1} \exp[-S(U)]$。这一条件保证了$P(U)$是Markov链的平稳分布——当链达到平稳后，每步产生的组态均按$P(U)$分布。
+
+\subsection{Metropolis算法的两步结构}
+
+\begin{definition}[Metropolis算法的两步结构~\cite{GattringerLang2010}]
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{候选组态生成（$T_0(U'|U)$）：}从当前组态$U$出发，通过某种\textbf{对称}的提议分布生成一个候选新组态$U'$。提议分布的对称性——$T_0(U'|U) = T_0(U|U')$——是标准Metropolis版本的简化假设。
+    \item \textbf{接受/拒绝（$T_A(U'|U)$）：}以概率
+    \begin{equation}
+    \boxed{T_A(U'|U) = \min\!\left[1, \frac{P(U')}{P(U)}\right] = \min\!\left[1, e^{-(S(U')-S(U))}\right]}
+    \label{eq:metropolis_accept}
+    \end{equation}
+    接受候选$U'$。若拒绝，保留当前组态$U$作为Markov链的下一个元素。
+\end{enumerate}
+\end{definition}
+
+\textbf{证明：}将$T(U'|U) = T_0(U'|U) \, T_A(U'|U)$代入细致平衡条件(\ref{eq:detailed_balance})，利用$T_0$的对称性和$T_A$的定义，可直接验证条件成立~\cite{GattringerLang2010}。
+
+\subsection{纯规范理论中的单链接Metropolis}
+
+Gattringer与Lang第4.1.4节以$SU(3)$纯规范理论中的单链接更新为例~\cite{GattringerLang2010}：仅改变一个链接$U_\mu(n)$，候选$U'$从$U$附近的$SU(3)$流形中对称地抽取。链接更新仅影响与该链接交界的6个plaquette——作用量的变化$\Delta S$可极快地（$\mathcal{O}(1)$）计算，无需遍历全格点。这使得单链接Metropolis步的计算成本为$\mathcal{O}(V^0)$。对全格点的一次``扫描''（sweep）——逐一更新所有$4|\Lambda|$个链接——成本为$\mathcal{O}(V)$。
+
+\textbf{多击Metropolis（Multi-hit Metropolis）：}在读取和测量之前，多次尝试更新同一链接（每次使用新鲜的随机候选），提高该链接在单个遍历中的更新效率。在无限多击极限下，此等价于\textbf{热浴算法}~\cite{GattringerLang2010}。
+
+\subsection{选择概率与接受率的平衡}
+
+候选的``大小''（$U'$偏离$U$的程度）是Metropolis算法中最关键的调优参数：
+\begin{itemize}[nosep]
+    \item \textbf{若步长太小：}每个候选的$\Delta S$微小——接受率高（接近1），但Markov链在组态空间中移动极慢——自相关时间$\tau_{\text{int}}$大。
+    \item \textbf{若步长太大：}候选组态``跳跃''太远——$\Delta S$通常巨大且为正值——接受率极低，链长时间``卡''在相同组态。
+\end{itemize}
+\textbf{经验最优接受率：}约50--70\%——这是Metropolis更新中探索效率与接受效率之间权衡的典型最优区域。
+
+%==========================================================================
+\section{热浴算法与过松弛}
+%==========================================================================
+
+\subsection{热浴算法——直接从Boltzmann分布抽样}
+
+热浴算法的核心思想是绕过Metropolis的候选-接受两步法，\textbf{直接从条件分布中抽样}新链接变量~\cite{GattringerLang2010}。对于SU(2)规范群，Creutz和Kennedy-Pendleton给出了完整的热浴算法实现。
+
+\textbf{算法原理：}链接$U_\mu(n)$的局部作用量为$S[U] = -\frac{\beta}{3} \operatorname{Re} \operatorname{tr}[U A] + \text{常数}$，其中$A$是该链接所有相邻的``staple''之和。热浴算法将$U$的分布$P(U) \propto \exp[\frac{\beta}{3}\operatorname{Re}\operatorname{tr}(UA)]$转化为可抽样的参数形式——在SU(2)中通过对$A$进行极分解，将抽样问题约化为简单分布的随机变量生成。
+
+\textbf{SU(3)中的伪热浴（Pseudo-Heat Bath）：}SU(3)没有闭合形式的热浴解——通过\textbf{Cabbibo-Marinari方法}迭代应用于SU(3)的SU(2)子群来实现。在三个SU(2)子群上轮流执行热浴更新（每个子群覆盖SU(3)流形的一个二维截面），等价于在完整SU(3)上的有效热浴~\cite{GattringerLang2010}。
+
+\subsection{过松弛——加速度的确定性更新}
+
+过松弛（Overrelaxation）是一种确定性更新——不依赖随机数——通过\textbf{在保持作用量不变的同时最大化新链接与旧链接的``距离''}来加速Markov链的探索~\cite{GattringerLang2010}。对$U$做反射变换$U \to U_0 U^\dagger U_0$（其中$U_0$是使作用量极小的``经典解''），新的$U$对应的作用量与旧$U$的完全相同——因此该变换被确定性接受。
+
+\textbf{组合策略：}热浴（产生不可约性）+ 过松弛（加速遍历）——每执行几次过松弛步后穿插一次热浴步以确保强遍历性。
+
+%==========================================================================
+\section{赝费米子与费米子行列式}
+%==========================================================================
+
+\subsection{费米子行列式作为高维积分——赝费米子表示}
+
+费米子变量的路径积分$\int \mathcal{D}\bar\psi\mathcal{D}\psi e^{-\bar\psi D\psi} = \det[D]$无法直接在计算机上计算——Grassmann变量没有直接的数值表示。\textbf{赝费米子}通过将费米子行列式转化为玻色子场的高斯积分来回避这一困难~\cite{GattringerLang2010}：
+
+\begin{definition}[赝费米子表示]
+对于两个质量简并的夸克味（$\det[D]^2 = \det[DD^\dagger]$），行列式表示为：
+\begin{equation}
+\boxed{\det[DD^\dagger] = \int \mathcal{D}\phi_R \mathcal{D}\phi_I \; e^{-\phi^\dagger (DD^\dagger)^{-1} \phi}},
+\label{eq:pseudofermion}
+\end{equation}
+其中$\phi = \phi_R + i\phi_I$是\textbf{具有与费米子场相同自由度数的复玻色场}（颜色、Dirac、时空指标各一）。
+\end{definition}
+
+\textbf{物理诠释：}赝费米子方法将原先的费米场积分的逆结果倒转为分母上的积分的逆——即$1/\det[D]$变成了玻色场的高斯积分。正是这一``反转''使得Monte Carlo权重因子从$e^{-S_G}\det[D]$变为$e^{-S_G - \phi^\dagger(DD^\dagger)^{-1}\phi}$——两个因子现在\textbf{都是正的}，从而可被解释为概率测度。
+
+\subsection{伪费米子场的生成}
+
+伪费米子场$\phi$的生成需要满足分布$e^{-\phi^\dagger (DD^\dagger)^{-1} \phi}$——一个由$D$的逆控制的高斯分布。生成步骤为：
+\begin{enumerate}[nosep]
+    \item 生成复Gaussian随机场$\chi$满足概率$e^{-\chi^\dagger \chi}$；
+    \item 计算$\phi = D \chi$——则$\phi$自动满足所需的分布，因为$\langle \phi^\dagger (DD^\dagger)^{-1} \phi \rangle = \langle \chi^\dagger D^\dagger (DD^\dagger)^{-1} D \chi \rangle = \langle \chi^\dagger \chi \rangle$。
+\end{enumerate}
+这一生成过程的Jacobian不涉及规范场——因此不引入额外的力修正。
+
+\subsection{有效费米子作用与力}
+
+在HMC中，伪费米子被当作\textbf{冻结的外部场}——规范场在MD演化中更新，而$\phi$保持在初始时刻的值。作用于规范链接的\textbf{力}来自两部分~\cite{GattringerLang2010}：规范作用量$S_G$的力（由plaquette的导数给出——$\propto \frac{\beta}{12}(UA - A^\dagger U^\dagger)$）和伪费米子项的力（由$\pdv{}{\omega^{(i)}} \phi^\dagger (DD^\dagger)^{-1} \phi$给出——需要额外群Dirac求逆）。
+\begin{equation}
+F[U,\phi] = \sum_i T_i \nabla^{(i)} \big[ S_G[U] + \phi^\dagger (DD^\dagger)^{-1} \phi \big] \in \mathfrak{su}(3).
+\label{eq:force}
+\end{equation}
+
+%==========================================================================
+\section{Hybrid Monte Carlo (HMC)——动力学费米子的标准算法}
+%==========================================================================
+
+\subsection{从纯规范到含费米子的跃迁——HMC的必要性}
+
+在纯规范理论中，单链接Metropolis或热浴更新均可行——因为仅需计算相邻plaquette的贡献（$\mathcal{O}(1)$计算成本）。但当$\det[D]$存在时，任何一个链接的改变都会\textbf{影响全格点的费米子行列式}。对每个候选组态重新精确计算$D$和$\det[D]$的计算成本$\sim \mathcal{O}(V)$——且需对每个更新的链接重复——全局更新成本为$\mathcal{O}(V^2)$。
+
+HMC通过\textbf{分子动力学演化+全局Metropolis接受/拒绝}的策略解决了这一困境~\cite{GattringerLang2010}：在MD演化中，所有链接被\textbf{同时}更新——成本$\mathcal{O}(V \times n_{\text{steps}})$而非$\mathcal{O}(V^2)$。终端组态的单次接受/拒绝概率由Hamiltonian变化控制——而非每个小步的逐一检验。
+
+\subsection{HMC的完整五步流程}
+
+\begin{definition}[HMC的完整流程（Gattringer \& Lang §8.2.3）~\cite{GattringerLang2010}]
+对于含$N_f=2$简并动力学费米子和规范场$U$的系统，HMC步包括：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{赝费米子场生成：}从Gaussian分布$e^{-\chi^\dagger \chi}$中抽取随机向量$\chi$，计算冻结的赝费米子场$\phi = D[U] \chi$。
+    \item \textbf{共轭动量的Gaussian生成：}对每个链接$U_\mu(n)$的8个实参数，从$e^{-\operatorname{tr}[P_\mu(n)^2]}$中独立抽取共轭动量$P_\mu(n)$——$P_\mu(n)$是$\mathfrak{su}(3)$代数中的无迹厄米矩阵。
+    \item \textbf{初始半步——动量的半更新：}
+    由初始力$F[U,\phi]$驱动MD轨迹的开端：
+    \begin{equation*}
+    P_{1/2} = P_0 - \frac{\epsilon}{2} F[U_0, \phi].
+    \end{equation*}
+    \item \textbf{中间全步——蛙跳积分器：}对$k = 1,\dots,n$：
+    \begin{itemize}[nosep]
+        \item 用半步后的动量更新规范链接：$U_k = \exp(i\epsilon P_{k-1/2}) U_{k-1}$；
+        \item 用新组态处的力更新动量：$P_{k+1/2} = P_{k-1/2} - \epsilon F[U_k, \phi]$。
+    \end{itemize}
+    \item \textbf{末端Metropolis接受/拒绝：}
+    接受候选$U_n$的概率为：
+    \begin{equation}
+    T_A = \min\!\left[1, e^{-\Delta H}\right], \qquad \Delta H = H[U_n, P_n] - H[U_0, P_0],
+    \end{equation}
+    其中$H = P^2/2 + S_G[U] + \phi^\dagger (DD^\dagger)^{-1}\phi$为MD Hamiltonian。
+\end{enumerate}
+\end{definition}
+
+\subsection{蛙跳积分器——辛结构、体积保持与可逆性}
+
+HMC精度的核心在于\textbf{蛙跳积分器}——这是一个\textbf{二阶辛积分器}~\cite{GattringerLang2010}，其关键性质为：
+\begin{enumerate}[nosep]
+    \item \textbf{相空间体积保持（Area Preservation）：}蛙跳映射的Jacobian行列式恒为1——保证了MD演化在$(U,P)$相空间中的测度不变（Liouville定理的离散对应物）；
+    \item \textbf{可逆性（Reversibility）：}$(U_n, P_n) \xrightarrow{-\epsilon} (U_0, -P_0)$——向后积分精确回到起点（在精确算术中）。可逆性是Metropolis接受/拒绝证明的必需条件。
+    \item \textbf{哈密顿量守恒的$\mathcal{O}(\epsilon^2)$误差：}对步长$\epsilon$，每MD步的离散化误差为$\mathcal{O}(\epsilon^3)$——对含$n \sim 1/\epsilon$步的完整轨迹，能量的累积偏移为$\mathcal{O}(\epsilon^2)$。这意味着接受概率$1 - \mathcal{O}(\epsilon^2)$——在复现的微正则演化中接近1。
+\end{enumerate}
+
+\subsection{SU(3)上的指数映射与力计算}
+
+HMC中规范链接的更新涉及将$\mathfrak{su}(3)$代数值$F$通过\textbf{指数映射}$\exp(i\epsilon P)$转换为$SU(3)$群元素。实际可通过Cayley--Hamilton关系、级数展开或谱分解来实现这一映射。力$F[U,\phi]$中伪费米子项的导数计算是HMC步的主要计算成本——需要对每个MD子步求解Dirac方程以获得$(DD^\dagger)^{-1} \phi$。
+
+\subsection{SU(3)算法的实践考量}
+
+Gattringer与Lang在第8.2.3节中详述了SU(3)的特殊处理。每个链接变量有8个实参数，因此有8个对应的共轭动量——组合为$\mathfrak{su}(3)$中的无迹厄米矩阵$P_\mu(n) = \sum_{i=1}^8 P_\mu^{(i)}(n) T_i$（$T_i$为Gell-Mann矩阵）。规范场上对代数值的导数定义为$\nabla^{(i)} f(U) = \frac{\partial}{\partial \omega^{(i)}} f(e^{i\omega T_i}U)|_{\omega=0}$。
+
+%==========================================================================
+\section{高级算法与现代变体}
+%==========================================================================
+
+\subsection{R算法——非精确但简易的变体}
+
+Gottlieb等人提出的R算法是为交错（Staggered）费米子发展的一种非精确HMC变体~\cite{GattringerLang2010}。在R算法中，伪费米子场在每个MD子步被\textbf{重新生成}（而非冻结），避免了终端Metropolis接受/拒绝步骤。代价是产生了$\mathcal{O}(\epsilon^2)$的\textbf{系统偏差}——结果须对MD步长$\epsilon \to 0$外推。在HMC和RHMC出现前，R算法是动力学费米子模拟的主要工具，现在已被精确算法取代。
+
+\subsection{多项式与有理HMC（PHMC/RHMC）}
+
+对于\textbf{单味夸克}（如粲夸克），$\det[D]$不能简单地写为$\det[DD^\dagger]$（因为仅有一个味而非两个简并味）。PHMC通过\textbf{多项式逼近}$\det[D] \approx \det[P_n(D)]$将单味行列式转化为多个赝费米子项的和。RHMC通过\textbf{有理函数逼近}$D^{-1/2} \approx R(D)$（最优的有理Chebyshev逼近）实现同样的目标——由于有理逼近的收敛远快于多项式逼近，RHMC是当前单味模拟的\textbf{首选算法}~\cite{GattringerLang2010}。
+
+\subsection{多伪费米子与UV过滤}
+
+Dirac算符的条件数$\kappa(D) \sim 1/(a m_q)$在物理轻夸克质量处可达$\sim 10^5-10^6$——导致MD演化中的力涨落巨大，接受率崩溃。\textbf{多伪费米子}方法将单一行列式分解为两个（或多个）伪费米子项~\cite{GattringerLang2010}：
+\begin{equation}
+\det[DD^\dagger] = \det[D D^\dagger + \sigma_1] \cdot \det[(DD^\dagger)/(DD^\dagger + \sigma_1)],
+\label{eq:multi_pseudo}
+\end{equation}
+其中$\sigma_1$作为``红外截断''过滤掉低本征模的大涨落。\textbf{UV过滤}同样原理——但应用于高本征模区域。
+
+\subsection{多时间尺度积分器}
+
+利用规范力和费米子力在\textbf{典型尺度的数量级差异}：规范力（局部，$\mathcal{O}(1)$更新频率需要）远强于费米子力（由全局行列式平滑化，变化缓慢）。\textbf{多时间尺度积分器}对规范力使用小步长$\epsilon_g$，对费米子力使用大步长$\epsilon_f > \epsilon_g$——显著减少费米子力计算的Dirac求逆次数，将总成本降低数倍。
+
+%==========================================================================
+\section{总结}
+%==========================================================================
+
+基于本库核心教材（Gattringer与Lang~\cite{GattringerLang2010}——第4章和第8章的Monte Carlo方法完整理论）和Gupta的讲义~\cite{Gupta1997intro}，本文系统解析了格点QCD中Monte Carlo方法的完整体系：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Metropolis算法是Monte Carlo积分的基石：}通过细致平衡条件$P(U)T(U'|U)=P(U')T(U|U')$保证链收敛到目标分布。单链接Metropolis在纯规范理论中计算成本为$\mathcal{O}(V)$扫描。
+    \item \textbf{热浴与过松弛提供加速：}热浴直接从条件分布抽样规避接受/拒绝低效；过松弛通过保持作用量的确定性反射步加速遍历。
+    \item \textbf{赝费米子将Grassmann积分转化为玻色高斯积分：}$\det[DD^\dagger] = \int \mathcal{D}\phi e^{-\phi^\dagger (DD^\dagger)^{-1}\phi}$——这是使HMC可行的核心洞察。
+    \item \textbf{HMC是动力学费米子的``黄金标准'':}蛙跳积分器的辛结构+全局Metropolis接受/拒绝——同时解决了费米子行列式的全局非局域性和数值积分的精确性。
+    \item \textbf{RHMC和多伪费米子将HMC扩展到全QCD参数空间：}有理函数逼近处理单味夸克，多伪费米子分解和UV过滤控制物理轻夸克质量处的力涨落。
+\end{enumerate}
+
+%==========================================================================
+\begin{thebibliography}{99}
+
+\bibitem{GattringerLang2010}
+C.~Gattringer and C.~B.~Lang,
+\textit{Quantum Chromodynamics on the Lattice: An Introductory Presentation},
+Lect.\ Notes Phys.\ \textbf{788}, Springer (2010).
+\\\textbf{[来源:} \texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}\textbf{]}.
+\textbf{Ch.4:} §4.1（重要性抽样、Markov链、Metropolis两步骤与细致平衡）、§4.1.4（纯规范中的单链接Metropolis更新）、§4.2（SU(2)/SU(3)链接更新的技术细节）、§4.3（热浴与过松弛）、§4.5（自相关与统计误差分析）。
+\textbf{Ch.8:} §8.1（赝费米子与有效费米子作用）、§8.2.1（MD与蛙跳积分器）、§8.2.2（Metropolis接受/拒绝与HMC的详细平衡证明）、§8.2.3（SU(3)规范群上的MD演化与力计算）、§8.3.1（R算法）、§8.3.3（P/RHMC）、§8.3.4（多伪费米子与UV过滤）。
+
+\bibitem{Gupta1997intro}
+R.~Gupta,
+``Introduction to Lattice QCD,''
+arXiv:hep-lat/9807028 (1997).
+\\\textbf{[来源:} \texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf}\textbf{]}.
+Ch.4: Monte Carlo方法的一般理论；Ch.14: HMC与动力学费米子；Ch.16: 统计误差与自相关时间控制。
+
+\bibitem{PeskinSchroeder1995}
+M.~E.~Peskin and D.~V.~Schroeder,
+\textit{An Introduction to Quantum Field Theory}, Westview Press (1995).
+\\\textbf{[来源:} \texttt{refer/books/An Introduction to Quantum Field Theory.pdf}\textbf{]}。
+
+\bibitem{CharmedClover}
+(CLQCD),
+``Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles,''
+\\\textbf{[来源:} \texttt{refer/papers/Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+——HISQ海夸克上HMC轨迹长度与拓扑冻结的实际案例。
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,'' 内部笔记。
+\\\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}和\texttt{refer/papers/Note of gluon PDFs.pdf}
+
+\end{thebibliography}
+
+\vspace{0.5cm}
+\noindent\rule{\textwidth}{0.5pt}
+\small
+\textbf{交叉参考建议：}本报告应结合同一\texttt{docs/}目录下的以下文件阅读：
+\begin{itemize}[nosep]
+    \item \texttt{格点QCD中的重采样方法.pdf}——Bootstrap/Jackknife与Monte Carlo误差传播
+    \item \texttt{格点QCD中的误差统计.pdf}——统计误差与自相关分析
+    \item \texttt{格点QCD中的传播子求解.pdf}——Dirac求逆（HMC的核心成本）
+    \item \texttt{格点QCD中的费米子方案.pdf}——不同费米子方案的HMC/算法影响
+    \item \texttt{格点QCD中的连通图与非连通图.pdf}——费米子行列式与海夸克的缩并
+\end{itemize}
+
+\end{document}

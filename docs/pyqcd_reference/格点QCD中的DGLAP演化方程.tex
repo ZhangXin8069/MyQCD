@@ -1,0 +1,688 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption,multirow}
+\usepackage{hyperref,xcolor,enumitem,mathtools}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的DGLAP演化方程：\\
+部分子分布的标度依赖性}
+\author{基于本库全部相关文献与教材的综合解析}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+Dokshitzer--Gribov--Lipatov--Altarelli--Parisi（DGLAP）演化方程是量子色动力学（QCD）中描述部分子分布函数（PDFs）随动量标度$Q^2$演化的核心动力学方程。在QCD因子化框架中，硬散射过程的因子化标度$\mu_F^2$与PDF的重整化标度之间的``大对数''$\ln(Q^2/\mu^2)$威胁着微扰展开的收敛性；DGLAP方程通过将这些大对数重求和到PDF的标度依赖性中，使固定阶微扰论在宽广的$Q^2$范围内保持预言能力。
+
+然而，DGLAP方程本身是一个\textbf{初始条件依赖的微分积分方程}——它在给定某个参考标度$Q_0^2$处的PDF形状后，预言所有更高$Q^2$处的PDF。因此，DGLAP演化的\textbf{初始条件}（即非微扰的PDF形状）必须从实验数据中拟合，或从第一性原理（格点QCD）中计算。格点QCD在LaMET（大动量有效理论）和OPE（算符乘积展开）框架下提供了从第一性原理确定DGLAP初始条件的独特能力，而DGLAP演化本身则构成了连接格点计算的低标度结果与高能实验观测量之间的理论桥梁。
+
+本文基于本库中的核心教材（Peskin与Schroeder的\textit{An Introduction to Quantum Field Theory}——第17.5节完整推导了从共线辐射的QED类比重求和到QCD的Altarelli-Parisi方程；Gattringer与Lang的\textit{Quantum Chromodynamics on the Lattice}——重整化群与跑动耦合的基础）和约15篇相关研究论文，从以下五个层次系统解析格点QCD中的DGLAP演化：
+
+\textbf{第一层——共线辐射与演化方程的起源：}从QED中电子辐射共线光子的Weizs\"acker--Williams等效光子近似出发，推导电子分布函数$f_e(x,Q)$的Gribov--Lipatov演化方程。阐述``强排序''（strong ordering）条件$p_{1\perp} \gg p_{2\perp} \gg \cdots$如何自然导致对数增强项$(\alpha\ln(Q^2/m^2))^n$的重求和。
+
+\textbf{第二层——QCD的Altarelli-Parisi方程：}将QED的推导推广到QCD，引入三个基本顶点（$q\to qg$、$g\to q\bar q$、$g\to gg$）和颜色因子，导出完整的耦合微分积分方程组：
+\begin{equation*}
+\frac{d}{d\ln Q^2}
+\begin{pmatrix} f_{q_i}(x,Q) \\ f_g(x,Q) \end{pmatrix}
+= \frac{\alpha_s(Q^2)}{2\pi} \sum_j \int_x^1 \frac{dy}{y}
+\begin{pmatrix} P_{q_i\leftarrow q_j}(y) & P_{q_i\leftarrow g}(y) \\ P_{g\leftarrow q_j}(y) & P_{g\leftarrow g}(y) \end{pmatrix}
+\begin{pmatrix} f_{q_j}(x/y,Q) \\ f_g(x/y,Q) \end{pmatrix}.
+\end{equation*}
+详细列出四类劈裂函数$P_{i\leftarrow j}(z)$的显式形式及其在$x\to 1$处的``正量分布''（plus distribution）正规化。
+
+\textbf{第三层——DGLAP与OPE的等价性：}利用Peskin与Schroeder第18章的算符乘积展开（OPE）分析，证明DGLAP方程的$n$次矩解与leading-twist算符的反常维数矩阵$\gamma^{(n)}$精确对应。演示$\int_0^1 dz\,z^{n-1}P_{q\leftarrow q}(z)$的计算过程，揭示DGLAP劈裂函数的矩$\leftrightarrow$算符反常维数这一深刻关系。
+
+\textbf{第四层——格点QCD中DGLAP初始条件的计算：}阐述LaMET框架和准PDF方法如何从格点QCD的等时空间关联函数中提取PDF。重点分析Su等人（2023）的重整化群重求和（RGR）方案——揭示准PDF匹配核中大对数$\ln(\mu^2/(2xP_z)^2)$的起源及其与DGLAP对数的精确对应关系：准PDF的\textbf{内禀物理标度}为$Q_{\text{eff}} = 2xP_z$，通过DGLAP演化从$Q_{\text{eff}}$到参考标度$\mu = 2$~GeV实现RGR匹配。阐述小$x$处$\alpha_s(2xP_z)$进入非微扰区域导致的匹配失效。
+
+\textbf{第五层——格点PDF的唯象学影响：}以NNPDF4.0的全局分析为背景，展示格点QCD提供的DGLAP初始条件如何可能打破唯象学拟合中$(x,Q^2)$简并，从而提升大$x$区域和小$x$区域的PDF精度。讨论格点PDF与实验DGLAP演化的协同——``理论先验+实验演化''的闭环。
+
+全篇以统一的数学语言（劈裂函数、反常维数、重求和群）将微扰QCD的经典DGLAP理论与格点QCD的前沿计算编织成一个有机整体。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%==========================================================================
+\section{引言：部分子分布的标度演化——从Bjorken标度到对数破坏}
+%==========================================================================
+
+\subsection{部分子模型的成功与局限}
+
+Feynman部分子模型将深度非弹性散射（DIS）的强子结构函数$F_2(x_B, Q^2)$预言为Bjorken标度变量$x_B = Q^2/(2P\cdot q)$的函数，与光子虚度$Q^2$无关——这就是\textbf{Bjorken标度性}。在领头阶（LO），结构函数被表达为部分子分布函数（PDF）的简单求和：
+\begin{equation}
+F_2(x_B) = \sum_f e_f^2\, x_B f_f(x_B),
+\label{eq:bjorken_scaling}
+\end{equation}
+其中$f_f(x)$是味$f$的夸克在质子中找到动量份额$x$的\textbf{标度不变}概率密度。
+
+然而，在次领头阶（NLO），QCD的辐射修正破坏了这一简单的标度行为。来自共线胶子辐射（或夸克对产生）的Feynman图产生被$\ln(Q^2/m^2)$增强的项——当$Q^2 \gg m^2$时，这些对数可任意大，使得微扰展开参数由$\alpha_s$变为$\alpha_s \ln(Q^2/\mu^2)$。为了恢复微扰论的有效性，必须将这些大对数\textbf{重求和}到PDF的标度依赖性中~\cite{PeskinSchroeder1995}。
+
+\subsection{DGLAP演化的物理图像}
+
+DGLAP演化方程提供了一个直观的物理图像~\cite{PeskinSchroeder1995,Su2023RGR}：当质子被具有高分辨率$1/Q$的虚光子探测时，质子内部的夸克和胶子表现为一个\textbf{不断分化}的级联系统：
+
+\begin{center}
+\fbox{\begin{minipage}{0.92\textwidth}
+\small
+\textbf{DGLAP演化的级联图像}
+
+\medskip
+在标度$Q_0$处，质子由少数``价''部分子（大$x$的夸克）组成。
+当分辨率提高到$Q > Q_0$时：
+\begin{itemize}[nosep]
+  \item 大$x$的夸克辐射共线胶子，损失纵向动量$\to$向小$x$迁移；
+  \item 辐射的胶子进一步分裂为$q\bar q$对（海夸克）或更多胶子；
+  \item 胶子之间通过三胶子顶点自相互作用，产生丰富的低$x$胶子海。
+\end{itemize}
+\textbf{结果：}随$Q^2$增大，PDF在大$x$处被压低、在小$x$处急剧增长——这是DGLAP方程的核心预言，已被大量DIS实验数据精确验证。
+\end{minipage}}
+\end{center}
+
+\subsection{DGLAP方程的理论地位与格点QCD的连接}
+
+DGLAP方程在QCD理论体系中占据一个独特的\textbf{枢纽位置}：
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{向上的连接——微扰QCD：}DGLAP劈裂函数$P_{i\leftarrow j}(z)$是微扰可计算的——已知到三圈（NNLO）精度~\cite{Moch2004splitting,Vogt2004splitting}。演化核的微扰性质使DGLAP成为QCD中最精确检验的理论工具之一。
+    \item \textbf{向下的连接——非微扰初始条件：}DGLAP方程是一阶微分积分方程，需要\textbf{初始条件}$f_i(x, Q_0^2)$。这些初始条件编码了质子波函数的非微扰结构，不能从微扰QCD中计算——它们必须从实验数据中拟合，或从格点QCD中第一性原理计算。
+    \item \textbf{水平的连接——因子化定理：}DGLAP演化核$P_{i\leftarrow j}$与DIS系数函数$C_i$中的对数重求和通过因子化标度$\mu_F$的独立性条件相互协调——这是共线因子化定理的核心自洽性要求。
+\end{itemize}
+
+\textbf{格点QCD的角色：}格点QCD在LaMET或OPE框架下可以直接计算$Q_0^2 \sim 1-4$~GeV$^2$处的PDF~\cite{Ji2013Euclidean,Ji2014LaMET,Radyushkin2018oneLoop}。通过DGLAP演化将这些格点结果联系到更高$Q^2$处的实验数据，为从第一性原理出发的全局PDF分析提供了不可替代的非微扰输入。Su等人~\cite{Su2023RGR}进一步揭示了在LaMET匹配中，准PDF的内禀标度$Q_{\text{eff}} = 2xP_z$与DGLAP对数之间的精确对应关系——这是格点QCD与DGLAP演化深度交融的最新例证。
+
+\subsection{本库中的相关文献}
+
+\begin{table}[H]
+\centering
+\caption{本库中DGLAP演化方程相关的核心文献}
+\label{tab:DGLAP_papers}
+\small
+\begin{tabular}{lp{7cm}}
+\toprule
+文献 & 核心贡献 \\
+\midrule
+\texttt{refer/books/An Introduction to Quantum Field Theory.pdf} & Ch.17.5: AP方程的完整推导（QED$\to$QCD）；Ch.18.5: DGLAP矩与OPE反常维数的等价性证明 \\
+\texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf} & Ch.3.5: 重整化群与跑动耦合；Ch.7: 手征对称性 \\
+\texttt{refer/papers/Resumming Quark's...in LaMET...pdf}~\cite{Su2023RGR} &
+RGR重求和、准PDF内禀标度$2xP_z$、DGLAP对数与LaMET匹配的对应 \\
+\texttt{refer/papers/One-loop evolution of parton pseudo-distribution functions...pdf}~\cite{Radyushkin2018oneLoop} &
+伪PDF的单圈演化、Ioffe-time分布、领头对数分析 \\
+\texttt{refer/papers/The Path to Proton Structure at One-Percent Accuracy.pdf} &
+NNPDF4.0全局分析、DGLAP演化在唯象学中的最新应用 \\
+\texttt{refer/papers/New CTEQ global analysis...pdf}、\texttt{...MSHT20 PDFs.pdf} &
+全局PDF拟合中的DGLAP演化实践 \\
+\texttt{refer/papers/Leading Power Accuracy in Lattice Calculations of Parton Distributions.pdf} &
+LaMET匹配中的幂次修正与标度依赖性 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%==========================================================================
+\section{共线辐射与演化方程的起源：从QED到QCD}
+%==========================================================================
+
+\subsection{QED中电子结构函数的Gribov--Lipatov方程}
+
+DGLAP演化的物理本质在QED中已有清晰的体现~\cite{PeskinSchroeder1995}。考虑一个高能电子，当它被具有大动量转移$Q^2$的光子探测时，初态电子可以\textbf{预先辐射}共线光子。这些共线辐射在Feynman图中产生因子$\alpha \ln(Q^2/m_e^2)$，当$Q^2 \gg m_e^2$时可以任意大。
+
+设电子的四动量为$p = (E, 0, 0, E)$，辐射的光子带走了纵向份额$z$。在共线极限下，光子和剩余电子的四动量可参数化为：
+\begin{equation}
+\begin{aligned}
+q &\approx (zp, p_\perp, 0, zp - \tfrac{p_\perp^2}{2zp}), \\
+k &\approx ((1-z)p, -p_\perp, 0, (1-z)p + \tfrac{p_\perp^2}{2(1-z)p}).
+\end{aligned}
+\label{eq:collinear_kinematics}
+\end{equation}
+虚电子的离壳度由横向动量决定：
+\begin{equation}
+k^2 = -\frac{p_\perp^2}{1-z} \quad (\text{光子为实在}), \qquad
+q^2 = -\frac{p_\perp^2}{z} \quad (\text{电子为实在}).
+\label{eq:virtuality}
+\end{equation}
+
+\subsection{电子$\to$电子+光子的劈裂函数}
+
+对QED顶点在质量为零的螺旋度本征态之间求矩阵元，Peskin与Schroeder~\cite{PeskinSchroeder1995}推导出光子辐射过程的自旋平均平方矩阵元：
+\begin{equation}
+\frac{1}{2}\sum_{\text{pols}} |\mathcal{M}|^2 = z^2 e^2 p_\perp^2 \left[ \frac{1+(1-z)^2}{z(1-z)} \right].
+\label{eq:electron_splitting_sq}
+\end{equation}
+
+第一项$1/z$来自光子自旋平行于电子自旋的过程，第二项$(1-z)^2/z$来自反平行为。将此插入相空间积分，得到电子辐射共线光子的微分概率：
+\begin{equation}
+d\mathcal{P}(e \to e\gamma) = \frac{\alpha}{2\pi} \frac{dp_\perp^2}{p_\perp^2} dz\, \frac{1+(1-z)^2}{z}.
+\label{eq:collinear_prob}
+\end{equation}
+
+因子$dp_\perp^2/p_\perp^2$在积分$\int_{m_e^2}^{Q^2} dp_\perp^2/p_\perp^2 = \ln(Q^2/m_e^2)$时产生\textbf{共线对数增强}。
+
+\subsection{强排序条件与多重辐射的重求和}
+
+当考虑多个共线光子的发射时，仅当横向动量满足\textbf{强排序}条件
+\begin{equation}
+p_{1\perp} \gg p_{2\perp} \gg p_{3\perp} \gg \cdots,
+\label{eq:strong_ordering}
+\end{equation}
+时，每个额外的光子才贡献一个完整的$\alpha\ln(Q^2/m_e^2)$因子。任何其他排序至少少一个对数。这自然导致将横向动量$p_\perp$解释为\textbf{分辨率标度}——$p_\perp$越大的光子探测到越``裸露''的电子组分。
+
+引入依赖于$Q$的电子和光子分布函数$f_e(x, Q)$和$f_\gamma(x, Q)$——定义为包含所有$p_\perp < Q$辐射的组分概率。当$Q \to Q + \Delta Q$时，辐射概率的变化由式(\ref{eq:collinear_prob})主导，导出Gribov--Lipatov演化方程~\cite{PeskinSchroeder1995}：
+
+\begin{definition}[QED的Gribov--Lipatov演化方程]
+\begin{equation}
+\begin{aligned}
+\frac{d}{d\ln Q} f_\gamma(x, Q) &= \frac{\alpha}{\pi} \int_x^1 \frac{dz}{z} \frac{1+(1-z)^2}{z} f_e\!\left(\frac{x}{z}, Q\right), \\[4pt]
+\frac{d}{d\ln Q} f_e(x, Q) &= \frac{\alpha}{\pi} \int_x^1 \frac{dz}{z} \left[ \frac{1+z^2}{(1-z)_+} + \frac{3}{2}\delta(1-z) \right] f_e\!\left(\frac{x}{z}, Q\right).
+\end{aligned}
+\label{eq:GL_equations}
+\end{equation}
+\end{definition}
+
+其中\textbf{正量分布}$1/(1-z)_+$的定义为：
+\begin{equation}
+\int_0^1 dz \frac{f(z)}{(1-z)_+} \equiv \int_0^1 dz \frac{f(z) - f(1)}{1-z},
+\label{eq:plus_distribution}
+\end{equation}
+它编码了实辐射（$z<1$）和虚修正（$\delta(1-z)$项）之间的红外抵消。系数$3/2$来自电子数守恒条件$\int_0^1 dx\, f_e(x, Q) = 1$~\cite{PeskinSchroeder1995}。
+
+\subsection{光子$\to$电子-正电子对的劈裂}
+
+光子分裂为$e^+e^-$对的贡献通过类似计算得到。设正电子携带份额$z$，Peskin与Schroeder~\cite{PeskinSchroeder1995}给出平方矩阵元：
+\begin{equation}
+\frac{1}{2}\sum_{\text{pols}} |\mathcal{M}|^2 = 2e^2 p_\perp^2 \left[ z^2 + (1-z)^2 \right],
+\label{eq:photon_splitting_sq}
+\end{equation}
+对应的劈裂概率$\propto z^2 + (1-z)^2$。
+
+计入光子分裂和动量守恒后，完整的QED演化方程系统包含耦合的$f_e$、$f_{\bar e}$、$f_\gamma$三个分布函数，它们的演化核由\textbf{劈裂函数矩阵}$P_{i\leftarrow j}(z)$描述。
+
+%==========================================================================
+\section{QCD的Altarelli--Parisi方程}
+%==========================================================================
+
+\subsection{从QED到QCD：颜色因子与三胶子顶点}
+
+将QED的推导推广到QCD需要三个修改~\cite{PeskinSchroeder1995}：
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{耦合常数替换：}$\alpha \to \alpha_s(Q^2)$，其中跑动耦合反映了QCD的渐近自由性质：
+    \begin{equation}
+    \alpha_s(Q^2) = \frac{4\pi}{\beta_0 \ln(Q^2/\Lambda_{\text{QCD}}^2)}, \quad \beta_0 = 11 - \frac{2}{3}n_f.
+    \label{eq:running_alpha}
+    \end{equation}
+
+    \item \textbf{颜色因子：}夸克辐射胶子（$q\to qg$）的颜色因子为$C_F = (N_c^2-1)/(2N_c) = 4/3$（对$SU(3)$）；胶子分裂为$q\bar q$对的为$T_F = 1/2$；胶子辐射胶子（$g\to gg$）的为$C_A = N_c = 3$。
+
+    \item \textbf{三胶子顶点：}非Abel理论特有的$g\to gg$劈裂过程，其螺旋度矩阵元的计算涉及三胶子顶点的Lorentz和颜色结构。
+\end{enumerate}
+
+\subsection{完整的耦合微分积分方程组}
+
+\begin{definition}[Altarelli--Parisi（DGLAP）演化方程~\cite{AltarelliParisi1977,PeskinSchroeder1995}]
+对于$n_f$味轻夸克和胶子，PDFs随因子化标度$Q^2$的演化为：
+\begin{equation}
+\boxed{\frac{d}{d\ln Q^2}
+\begin{pmatrix} f_{q_i}(x, Q) \\ f_{\bar q_i}(x, Q) \\ f_g(x, Q) \end{pmatrix}
+= \frac{\alpha_s(Q^2)}{2\pi} \sum_j \int_x^1 \frac{dy}{y}
+\begin{pmatrix}
+P_{q_i\leftarrow q_j}(\frac{x}{y}) & P_{q_i\leftarrow \bar q_j}(\frac{x}{y}) & P_{q_i\leftarrow g}(\frac{x}{y}) \\[3pt]
+P_{\bar q_i\leftarrow q_j}(\frac{x}{y}) & P_{\bar q_i\leftarrow \bar q_j}(\frac{x}{y}) & P_{\bar q_i\leftarrow g}(\frac{x}{y}) \\[3pt]
+P_{g\leftarrow q_j}(\frac{x}{y}) & P_{g\leftarrow \bar q_j}(\frac{x}{y}) & P_{g\leftarrow g}(\frac{x}{y})
+\end{pmatrix}
+\begin{pmatrix} f_{q_j}(y, Q) \\ f_{\bar q_j}(y, Q) \\ f_g(y, Q) \end{pmatrix}}.
+\label{eq:DGLAP_full}
+\end{equation}
+\end{definition}
+
+利用味道对称性，矩阵大大简化。引入味单态（$\Sigma = \sum_i (f_{q_i}+f_{\bar q_i})$）和非单态（$f_{q_i}^{(-)} = f_{q_i} - f_{\bar q_i}$）组合，非单态分布满足不耦合胶子的简单方程：
+\begin{equation}
+\frac{d}{d\ln Q^2} f_{q_i}^{(-)}(x, Q) = \frac{\alpha_s(Q^2)}{2\pi} \int_x^1 \frac{dy}{y} P_{qq}\!\left(\frac{x}{y}\right) f_{q_i}^{(-)}(y, Q).
+\label{eq:DGLAP_nonsinglet}
+\end{equation}
+
+而味单态与胶子耦合：
+\begin{equation}
+\frac{d}{d\ln Q^2} \begin{pmatrix} \Sigma(x, Q) \\ f_g(x, Q) \end{pmatrix}
+= \frac{\alpha_s(Q^2)}{2\pi} \int_x^1 \frac{dy}{y}
+\begin{pmatrix} P_{qq}(x/y) & 2n_f P_{qg}(x/y) \\ P_{gq}(x/y) & P_{gg}(x/y) \end{pmatrix}
+\begin{pmatrix} \Sigma(y, Q) \\ f_g(y, Q) \end{pmatrix}.
+\label{eq:DGLAP_singlet}
+\end{equation}
+
+\subsection{领头阶劈裂函数}
+
+从QED结果乘以相应的颜色因子，并计算三胶子顶点的贡献，得到领头阶（LO）劈裂函数~\cite{PeskinSchroeder1995,AltarelliParisi1977}：
+
+\begin{align}
+P_{qq}(z) &= C_F \left[ \frac{1+z^2}{(1-z)_+} + \frac{3}{2}\delta(1-z) \right], \label{eq:Pqq} \\[4pt]
+P_{qg}(z) &= T_F \left[ z^2 + (1-z)^2 \right], \label{eq:Pqg} \\[4pt]
+P_{gq}(z) &= C_F \left[ \frac{1+(1-z)^2}{z} \right], \label{eq:Pgq} \\[4pt]
+P_{gg}(z) &= 2C_A \left[ \frac{z}{(1-z)_+} + \frac{1-z}{z} + z(1-z) \right] + \frac{\beta_0}{2}\delta(1-z), \label{eq:Pgg}
+\end{align}
+其中$\beta_0 = \frac{11}{3}C_A - \frac{4}{3}n_f T_F$。$P_{gg}$中的$\beta_0/2$项来自胶子自能的贡献，保证动量守恒规则$\int_0^1 dz\,z[P_{qq}(z)+P_{gq}(z)] = 0$和$\int_0^1 dz\,z[2n_f P_{qg}(z)+P_{gg}(z)] = 0$。
+
+\subsection{物理诠释：劈裂函数的概率含义}
+
+劈裂函数$P_{i\leftarrow j}(z)$具有直接的\textbf{概率诠释}：$(\alpha_s/2\pi)P_{i\leftarrow j}(z)\,dz\,d\ln Q^2$是部分子$j$在标度$Q^2\to Q^2+dQ^2$的演化中``分裂''出部分子$i$（携带纵向动量份额$z$）的微分概率。领头阶的$P_{qq}$、$P_{gq}$、$P_{qg}$分别对应图17.20中的三个基本QCD顶点。
+
+\textbf{DGLAP方程的卷积结构}$\int_x^1 (dy/y) P(x/y) f(y)$反映了：在标度$Q^2$处观察到的动量份额$x$的部分子，源于更高标度处具有更大动量份额$y > x$的``母''部分子通过辐射损失了份额$(y-x)$。
+
+%==========================================================================
+\section{DGLAP方程与算符乘积展开的等价性}
+%==========================================================================
+
+\subsection{矩空间中的DGLAP方程：从卷积到乘积}
+
+DGLAP方程在动量空间中是卷积型微分积分方程，但在\textbf{Mellin矩空间}中退化为简单的乘积形式。定义$f(x, Q^2)$的第$n$次矩：
+\begin{equation}
+M_n(Q^2) \equiv \int_0^1 dx\, x^{n-1} f(x, Q^2).
+\label{eq:mellin_moment}
+\end{equation}
+
+对非单态DGLAP方程(\ref{eq:DGLAP_nonsinglet})取第$n$次矩，利用卷积的Mellin变换性质：
+\begin{equation}
+\frac{d}{d\ln Q^2} M_n^{(-)}(Q^2) = \frac{\alpha_s(Q^2)}{2\pi} \gamma_{qq}^{(n)} M_n^{(-)}(Q^2),
+\label{eq:moment_DGLAP}
+\end{equation}
+其中\textbf{反常维数}$\gamma_{qq}^{(n)}$是劈裂函数的Mellin矩：
+\begin{equation}
+\gamma_{qq}^{(n)} \equiv \int_0^1 dz\, z^{n-1} P_{qq}(z).
+\label{eq:anomalous_dim_P}
+\end{equation}
+
+\subsection{从劈裂函数到反常维数：显式计算}
+
+以$P_{qq}(z)$为例~\cite{PeskinSchroeder1995}：
+\begin{equation}
+\begin{aligned}
+\gamma_{qq}^{(n)} &= C_F \int_0^1 dz\, z^{n-1} \left[ \frac{1+z^2}{(1-z)_+} + \frac{3}{2}\delta(1-z) \right] \\
+&= C_F \left[ \int_0^1 dz\, \frac{z^{n-1}(1+z^2) - 2}{1-z} + \frac{3}{2} \right] \\
+&= C_F \left[ \frac{3}{2} + \frac{1}{n(n+1)} - 2\sum_{k=2}^n \frac{1}{k} \right].
+\end{aligned}
+\label{eq:gamma_qq_explicit}
+\end{equation}
+
+\textbf{关键的对应关系：}通过算符乘积展开（OPE），DIS结构函数$F_2$的$n$次矩在leading-twist精度下为~\cite{PeskinSchroeder1995}：
+\begin{equation}
+\int_0^1 dx\, x^{n-2} F_2(x, Q^2) = \sum_i C_i^{(n)}(Q^2/\mu^2, \alpha_s) \langle p | \mathcal{O}_i^{(n)}(\mu^2) | p \rangle,
+\label{eq:OPE_moment}
+\end{equation}
+其中$\mathcal{O}_i^{(n)}$是twist-2的定域算符（如$\bar\psi\gamma^{\{\mu_1}D^{\mu_2}\cdots D^{\mu_n\}}\psi$），其重整化群演化由反常维数矩阵$\gamma_{ij}^{(n)}$控制。Peskin与Schroeder的经典结果~\cite{PeskinSchroeder1995}证明：
+\begin{equation}
+\boxed{\gamma_{qq}^{(n),\text{OPE}} = \int_0^1 dz\, z^{n-1} P_{qq}(z) = \gamma_{qq}^{(n),\text{DGLAP}}},
+\label{eq:OPE_DGLAP_equivalence}
+\end{equation}
+即\textbf{DGLAP劈裂函数的Mellin矩精确等于对应twist-2算符的反常维数}。这一等价性确立了DGLAP演化与QCD定域算符乘积展开之间的深刻联系，也是格点QCD可以通过计算定域算符矩阵元的标度依赖性来提取PDF演化信息的理论基础。
+
+\subsection{单态-胶子的$2\times2$混合}
+
+对于单态-胶子扇区，$2\times2$反常维数矩阵为：
+\begin{equation}
+\hat\gamma^{(n)} = \begin{pmatrix}
+\gamma_{qq}^{(n)} & 2n_f \gamma_{qg}^{(n)} \\
+\gamma_{gq}^{(n)} & \gamma_{gg}^{(n)}
+\end{pmatrix},
+\label{eq:singlet_anomalous}
+\end{equation}
+
+其中$\gamma_{qg}^{(n)} = \int_0^1 dz\, z^{n-1} P_{qg}(z)$等。此矩阵的本征值控制单态和胶子分布在标度演化下的渐近行为。对于$n=1$（动量守恒），最大的本征值为零——反映总动量守恒：$\int_0^1 dx\, x[\Sigma(x, Q^2) + f_g(x, Q^2)] = 1$。对于$n=2$（夸克数守恒，非单态），$\gamma_{qq}^{(2)} = 0$——反映价夸克数守恒。
+
+\subsection{DGLAP解的解析形式}
+
+利用跑动耦合的显式形式$\alpha_s(Q^2) = 4\pi/[\beta_0 \ln(Q^2/\Lambda^2)]$，非单态DGLAP方程的积分解为~\cite{PeskinSchroeder1995}：
+\begin{equation}
+M_n^{(-)}(Q^2) = M_n^{(-)}(Q_0^2) \left( \frac{\ln(Q_0^2/\Lambda^2)}{\ln(Q^2/\Lambda^2)} \right)^{\gamma_{qq}^{(n)}/(2\beta_0)}.
+\label{eq:DGLAP_solution}
+\end{equation}
+
+这一形式展示了\textbf{DGLAP演化如何以对数速率压低大$n$（对应大$x$）的矩}——$\gamma_{qq}^{(n)}$随$n$增大为负且绝对值增长，导致大$x$处的PDF随$Q^2$增大而\textbf{对数衰减}。这是Bjorken标度破坏的精确微扰QCD预言。
+
+%==========================================================================
+\section{格点QCD中DGLAP初始条件的计算}
+%==========================================================================
+
+\subsection{LaMET框架：准PDF方法与匹配}
+
+在共线因子化中，DGLAP方程本身是微扰可计算的，但其初始条件——参考标度$Q_0^2$处的PDF形状——是\textbf{非微扰}的。格点QCD在LaMET（大动量有效理论）框架下提供从第一性原理计算这一初始条件的途径~\cite{Ji2013Euclidean,Ji2014LaMET}。
+
+LaMET的核心思想是：在大动量$P_z$下，等时空间关联函数（准PDF）可以通过微扰匹配与光锥PDF联系：
+\begin{equation}
+\tilde f(x, P_z) = \int_{-1}^1 \frac{dy}{|y|} C\!\left(\frac{x}{y}, \frac{\mu}{|x|P_z}\right) f(y, \mu) + \mathcal{O}\!\left(\frac{\Lambda_{\text{QCD}}^2}{x^2 P_z^2}, \frac{\Lambda_{\text{QCD}}^2}{(1-x)^2 P_z^2}\right).
+\label{eq:LaMET_factorization}
+\end{equation}
+
+其中$C(x/y, \mu/|x|P_z)$是微扰匹配核，已知到NNLO精度。准PDF从格点QCD的等时矩阵元中计算~\cite{Ji2013Euclidean}：
+\begin{equation}
+\tilde f(x, P_z) \equiv P_z \int \frac{dz}{2\pi} e^{-i x P_z z} \langle P_z | \bar\psi(z\hat n_z) \gamma^t U(z, 0) \psi(0) | P_z \rangle.
+\label{eq:quasi_PDF_lattice}
+\end{equation}
+
+\subsection{准PDF匹配核中的大对数与DGLAP对数的对应}
+
+Su等人~\cite{Su2023RGR}揭示了准PDF匹配过程中一个关键的物理洞察。准PDF匹配核$C$在NLO包含对数项：
+\begin{equation}
+C^{(1)}(x, \mu, P_z) \sim \frac{\alpha_s C_F}{2\pi} \ln\!\left(\frac{4x^2 P_z^2}{\mu^2}\right) + \cdots.
+\label{eq:matching_log}
+\end{equation}
+
+\textbf{内禀物理标度的识别：}对数参数中$2xP_z$的组合具有深刻的物理含义——它对应于Bjorken标度变量$x_B$与强子动量$P_z$的乘积：在DIS的Bjorken坐标系中，虚光子的虚度为$Q^2 = (2x_B P_z)^2$。因此，准PDF的\textbf{内禀物理标度}是：
+\begin{equation}
+\boxed{Q_{\text{eff}} = 2xP_z}.
+\label{eq:intrinsic_scale}
+\end{equation}
+
+这意味着\textbf{准PDF自然地对应于在标度$Q_{\text{eff}} = 2xP_z$处被探针的物理PDF}。不同$x$处的准PDF对应于在不同标度处被探测的部分子分布——这与DGLAP演化中不同$x$的PDF在不同$Q^2$处有不同的演化速率的物理图像完全一致。
+
+\subsection{重整化群重求和（RGR）：从固定阶到重求和匹配}
+
+当$2xP_z$与$\mu$（通常取2~GeV）差别很大时，式(\ref{eq:matching_log})中的对数$\ln(4x^2 P_z^2/\mu^2)$变得很大，固定阶微扰论失效。Su等人~\cite{Su2023RGR}提出了\textbf{重整化群重求和（RGR）}方案来解决此问题。
+
+\begin{definition}[RGR匹配策略~\cite{Su2023RGR}]
+\begin{enumerate}[nosep]
+    \item 首先在\textbf{内禀标度}$\mu_0 = 2xP_z c_0$（$c_0 \sim 1$）处进行固定阶匹配：
+    \begin{equation}
+    f(x, 2xP_z c_0) = C^{-1}\!\left(\frac{x}{y}, \frac{2xP_z c_0}{|x|P_z}\right) \otimes \tilde f(y, P_z).
+    \label{eq:fixed_order_match}
+    \end{equation}
+    在此标度处，大对数$\ln(2xP_z c_0/2xP_z) = \ln c_0 \approx 0$自动消失——匹配核的微扰展开具有最优收敛性。
+
+    \item 然后利用\textbf{DGLAP方程}将PDF从$Q_{\text{eff}} = 2xP_z c_0$演化到参考标度$\mu = 2$~GeV：
+    \begin{equation}
+    f(x, \mu = 2\,\text{GeV}) = \text{DGLAP}_{\text{evol}}\!\left[ f(x, 2xP_z c_0),\; 2xP_z c_0 \to 2\,\text{GeV} \right].
+    \label{eq:DGLAP_evolve}
+    \end{equation}
+\end{enumerate}
+\end{definition}
+
+\textbf{RGR的物理意义：}这个两步过程揭示了LaMET与DGLAP之间的深度交融——LaMEM匹配中的对数重求和\textbf{等价于}从准PDF内禀标度$2xP_z$到参考标度$\mu$的DGLAP演化。Su等人证明了：LaMET匹配核$C^{-1}$的重整化群方程(\ref{eq:C_RGE})与DGLAP方程(\ref{eq:DGLAP_full})具有\textbf{相同的演化核}$P[w, \alpha_s]$~\cite{Su2023RGR}。
+
+\begin{theorem}[LaMET匹配核的RGE~\cite{Su2023RGR}]
+匹配核$C^{-1}$的重整化群方程为：
+\begin{equation}
+\mu \frac{d C^{-1}}{d\mu}\!\left(\frac{x}{y}, \frac{\mu}{|x|P_z}\right)
+= \int_{x/y}^1 \frac{dw}{w} P[w, \alpha_s(\mu)] \, C^{-1}\!\left(\frac{x/y}{w}, \frac{\mu}{|x/w|P_z}\right),
+\label{eq:C_RGE}
+\end{equation}
+其中$P[w, \alpha_s]$正是DGLAP演化核。
+\end{theorem}
+
+\subsection{小$x$区域的匹配失效与DGLAP的局限性}
+
+RGR方案也暴露了DGLAP-格点协同的根本限制。当$x$很小时，内禀标度$Q_{\text{eff}} = 2xP_z$落入非微扰区域：
+\begin{equation}
+\alpha_s(2xP_z) \xrightarrow{x\to 0} \text{大}, \quad \text{Landau极点}.
+\label{eq:small_x_breakdown}
+\end{equation}
+
+在此时，不仅LaMET匹配的微扰论失效，DGLAP演化本身也变得不可靠——因为劈裂函数的微扰展开在$\alpha_s \sim 1$时失去意义。这定义了格点QCD在有限$P_z$下可计算的\textbf{最小$x$}：
+\begin{equation}
+x_{\min} \sim \frac{\Lambda_{\text{QCD}}}{2P_z} \sim \frac{0.3\,\text{GeV}}{2 \times 2.5\,\text{GeV}} \approx 0.06.
+\label{eq:xmin}
+\end{equation}
+
+Su等人建议，对于$x < 0.1$的区域，需要$P_z > 3$~GeV才能保持微扰匹配的有效性~\cite{Su2023RGR}。这一定量限制与高扭度幂次修正$\Lambda_{\text{QCD}}^2/(x^2 P_z^2)$的大小估计一致。
+
+\subsection{伪PDF方法与Ioffe-time分布演化}
+
+Radyushkin提出的\textbf{伪PDF方法}~\cite{Radyushkin2018oneLoop}提供了格点QCD计算PDF的另一路径。其基本可观测量是\textbf{约化Ioffe-time分布}（reduced ITD）：
+\begin{equation}
+\mathfrak{M}(\nu, z_3^2) \equiv \frac{\langle P_z | \bar\psi(z_3)\gamma^t U(z_3,0)\psi(0) | P_z \rangle}{\langle 0 | \bar\psi(z_3)\gamma^t U(z_3,0)\psi(0) | 0 \rangle},
+\label{eq:reduced_ITD}
+\end{equation}
+其中$\nu = z_3 P_z$是Ioffe时间。约化ITD通过除去真空矩阵元部分消除了$z_3^2$依赖性的非微扰领头效应。
+
+\textbf{单圈演化效应：}Radyushkin~\cite{Radyushkin2018oneLoop}发现，单圈修正包含一个由``等价距离''远小于名义距离$z_3$的图贡献的大项。这一大修正可被吸收到\textbf{演化项}中——与DGLAP方程中的$P_{qq}$劈裂函数直接相关。在约化ITD的框架下，演化来自：
+\begin{equation}
+\mathfrak{M}(\nu, z_3^2) \xrightarrow{\text{微扰演化}} I(\nu, \mu^2) = \int_{-1}^1 dx\, e^{i x \nu} f(x, \mu^2).
+\label{eq:ITD_evolution}
+\end{equation}
+
+\textbf{与DGLAP的联系：}Ioffe-time分布$I(\nu, \mu^2)$的$\mu^2$依赖性同样由DGLAP方程控制——因为它是PDF的Fourier变换。伪PDF和准PDF方法均依赖DGLAP演化来将格点计算的低标度（或类空标度）结果连接到唯象学标度。
+
+%==========================================================================
+\section{DGLAP演化在全局PDF分析中的应用}
+%==========================================================================
+
+\subsection{唯象学全局拟合的基本策略}
+
+现代全局PDF分析（如NNPDF4.0~\cite{NNPDF2021}、CT18~\cite{Hou2021CT18}、MSHT20~\cite{Bailey2021MSHT20}）均以DGLAP演化作为核心理论工具：
+
+\begin{enumerate}[leftmargin=*]
+    \item 在某个\textbf{初始标度}$Q_0 \sim 1-2$~GeV处，用一个灵活的\textbf{参数化函数}（如神经网络）表示各味PDF的形状；
+    \item 使用DGLAP方程（通常在NNLO精度下）将PDF演化到每个实验数据点对应的$(x, Q^2)$；
+    \item 利用因子化定理计算理论预言并与实验数据比较，通过$\chi^2$最小化来约束初始参数化；
+    \item 迭代至收敛，得到``全局最优''的PDF集合。
+\end{enumerate}
+
+\textbf{本库中的相关论文：}NNPDF4.0~\cite{NNPDF2021}、CT18~\cite{Hou2021CT18}和MSHT20~\cite{Bailey2021MSHT20}的PDF集合均在本库中可用，它们代表了当前实验约束下DGLAP演化的最佳实现。
+
+\subsection{DGLAP方程的检验：Bjorken标度破坏的实验证据}
+
+DGLAP方程的核心预言——大$x$处PDF随$Q^2$减小而小$x$处PDF随$Q^2$增大——已被DIS、Drell-Yan和喷注数据精确验证。Peskin与Schroeder~\cite{PeskinSchroeder1995}展示了$F_2(x, Q^2)$从固定靶实验到HERA数据跨越四个数量级$Q^2$范围内的标度破坏行为，与DGLAP预言的定性一致性构成了QCD作为强相互作用理论的\textbf{最有力验证}之一。
+
+\subsection{DGLAP演化的高阶修正：NLO、NNLO与N$^3$LO}
+
+DGLAP劈裂函数已知到三圈精度（NNLO）~\cite{Moch2004splitting,Vogt2004splitting}，且N$^3$LO的部分结果也已出现。高阶劈裂函数使演化在$Q^2 \gtrsim 2$~GeV$^2$处的理论误差降至1\%以下——这正是NNPDF4.0实现``百分之一精度''目标的理论基础~\cite{NNPDF2021}。当前主要的精度限制来自：
+\begin{itemize}
+    \item 大$x$区域——因$P_{qq}$中$(1-z)_+^{-1}$分布导致大对数重求和的需求；
+    \item 小$x$区域——$\ln(1/x)$项需Balitsky--Fadin--Kuraev--Lipatov（BFKL）重求和补充DGLAP；
+    \item 重夸克质量阈值——需在可变味数方案（VFNS）中匹配$n_f=3,4,5$之间的PDF集合。
+\end{itemize}
+
+%==========================================================================
+\section{格点QCD$\leftrightarrow$DGLAP演化的协同：前沿与展望}
+%==========================================================================
+
+\subsection{格点PDF作为DGLAP初始条件的先验约束}
+
+全局PDF拟合面临的一个根本困难是\textbf{参数简并}——在缺乏足够实验数据的运动学区域（如大$x$的$d/u$比、奇异夸克分布、高$x$胶子），不同的参数化形式可以给出同等的拟合优度。格点QCD可以在这些区域提供\textbf{与实验数据互补}的第一性原理约束。
+
+\textbf{当前进展与限制：}
+\begin{itemize}
+    \item LPC合作组~\cite{He2024unpolTMD}和BNL/ANL合作组已在MILC HISQ系综上计算了价夸克和胶子PDF的格点矩阵元，可覆盖$x \in [0.1, 0.8]$、$Q^2 \sim 2-4$~GeV$^2$的运动学范围；
+    \item 通过LaMET匹配+RGR重求和，格点PDF在$\mu=2$~GeV处的系统误差已可与唯象学拟合较粗糙的PDF（如$d/u$比在大$x$处）的误差带比拟；
+    \item 小$x$仍然受到$P_z$有限的根本限制——需要更大的强子动量（$P_z \gtrsim 3$~GeV）和更小的格距来突破。
+\end{itemize}
+
+\subsection{``格点+DGLAP+实验''的三方协同}
+
+未来精确的PDF确定将采用\textbf{三方协同}的策略：
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{格点QCD}提供$Q_0^2 \sim 2$~GeV$^2$处的PDF形状（特别是实验约束较弱的味和$x$区域）作为DGLAP的初始条件和理论先验；
+    \item \textbf{DGLAP演化}将格点初始条件从$Q_0^2$演化到实验数据的$Q^2$——这一步骤的理论误差已控制到1\%以下（NNLO精度）；
+    \item \textbf{实验数据}（特别是EIC的未来数据）不仅进一步约束PDF，也可通过比较$Q^2$依赖性与DGLAP预言来检验QCD演化本身——从而形成``理论-演化的闭环验证''。
+\end{enumerate}
+
+\subsection{TMD演化与共线DGLAP演化的互补}
+
+DGLAP方程描述共线PDF在纵向标度$Q^2$下的演化，而TMD因子化中的Collins--Soper方程~\cite{Collins2011foundations}描述TMD分布在快度标度$\zeta$下的演化。两种演化之间的互补性体现在：
+\begin{itemize}
+    \item DGLAP演化的初始条件（1D PDF）可以通过$k_\perp$积分从3D TMD得到：$f(x, \mu) = \int d^2 k_\perp f(x, k_\perp, \mu, \zeta)$~\cite{He2024unpolTMD}；
+    \item LaMET重求和中既涉及DGLAP型的$\ln(Q^2)$重求和，又涉及CS型的快度对数重求和——两者的联合处理是TMD因子化精度的关键~\cite{Su2023RGR}。
+\end{itemize}
+
+%==========================================================================
+\section{总结与展望}
+%==========================================================================
+
+基于本库中核心教材（Peskin与Schroeder~\cite{PeskinSchroeder1995}——DGLAP方程的完整推导；Gattringer与Lang~\cite{GattringerLang2010}——重整化群基础）和约15篇相关研究论文的综合分析，本文的核心结论如下：
+
+\begin{enumerate}[leftmargin=*]
+
+    \item \textbf{DGLAP方程是共线因子化的动力学骨架：}从QED中电子结构函数的共线辐射出发，通过引入颜色因子和三胶子顶点，自然导出QCD的Altarelli--Parisi方程。劈裂函数$P_{i\leftarrow j}(z)$在物理上对应部分子分裂的概率分布，其Mellin矩精确等于twist-2算符的反常维数——这一等价性~\cite{PeskinSchroeder1995}连接了微扰演化与OPE的非微扰矩阵元，为格点QCD计算PDF演化信息提供了理论基础。
+
+    \item \textbf{格点QCD通过LaMET为DGLAP提供第一性原理的初始条件：}准PDF和伪PDF方法可以在格点上计算等时空间关联函数，通过微扰匹配得到光锥PDF。DGLAP演化是实现从格点标度（$\sim 2$~GeV）到实验标度（$\sim m_Z$）之间连接的不可替代的工具。
+
+    \item \textbf{RGR重求和揭示了LaMET匹配与DGLAP对数的精确对应：}Su等人~\cite{Su2023RGR}证明，LaMET匹配核的重整化群方程由\textbf{相同的DGLAP核}控制，准PDF的内禀物理标度为$Q_{\text{eff}} = 2xP_z$——与Bjorken坐标系中虚光子虚度的表达式完全一致。将固定阶匹配核从内禀标度演化到参考标度的过程\textbf{等价于}DGLAP演化。
+
+    \item \textbf{小$x$处$\alpha_s(2xP_z) \to \infty$的根本限制：}Landau极点使准PDF匹配在小$x$区域失效——这一定量限制（$x_{\min} \sim 0.06$对$P_z = 2.5$~GeV）是格点QCD计算PDF的下限，需通过更大的强子动量或与OPE的混合方案来突破。
+
+    \item \textbf{DGLAP演化在``格点+实验''协同中的枢纽角色：}格点QCD提供DGLAP的初始条件，DGLAP演化将其连接到实验——这一闭环中的每一步骤都具有可控的理论误差。未来EIC的精确数据将进一步检验这一图景的自洽性。
+
+\end{enumerate}
+
+\textbf{开放问题：}
+\begin{itemize}
+    \item DGLAP劈裂函数的N$^3$LO结果如何影响格点PDF的匹配精度？
+    \item 在$x < 0.01$的区域，DGLAP、BFKL和非线性饱和效应的分界线在哪里？格点QCD能否提供区分这些机制的``实验''？
+    \item 如何将RGR方案推广到单态-胶子扇区（需处理$2\times2$反常维数矩阵的演化）？
+\end{itemize}
+
+%==========================================================================
+\begin{thebibliography}{99}
+
+\bibitem{PeskinSchroeder1995}
+M.~E.~Peskin and D.~V.~Schroeder,
+\textit{An Introduction to Quantum Field Theory},
+Westview Press (1995).
+\\\textbf{[来源:} \texttt{refer/books/An Introduction to Quantum Field Theory.pdf}\textbf{]}
+\\Ch.~17.5: DGLAP/Altarelli--Parisi方程的完整推导——从QED的共线辐射到QCD的劈裂函数；
+Ch.~18.5: DGLAP矩与OPE反常维数的等价性证明。
+本报告的第2--4节核心依赖此文献。
+
+\bibitem{GattringerLang2010}
+C.~Gattringer and C.~B.~Lang,
+\textit{Quantum Chromodynamics on the Lattice},
+Lect.\ Notes Phys.\ \textbf{788}, Springer (2010).
+\\\textbf{[来源:} \texttt{refer/books/Quantum Chromodynamics on the Lattice.pdf}\textbf{]}
+\\Ch.~3.5: 重整化群、跑动耦合、$\beta$函数；Ch.~7: 手征对称性与Ginsparg--Wilson关系。
+
+\bibitem{Gupta1997intro}
+R.~Gupta,
+``Introduction to Lattice QCD,''
+arXiv:hep-lat/9807028 (1997).
+\\\textbf{[来源:} \texttt{refer/books/INTRODUCTION TO LATTICE QCD.pdf}\textbf{]}
+
+\bibitem{AltarelliParisi1977}
+G.~Altarelli and G.~Parisi,
+``Asymptotic freedom in parton language,''
+Nucl.\ Phys.\ B \textbf{126}, 298 (1977).
+——Altarelli--Parisi（DGLAP）方程的原始论文。
+
+\bibitem{DGLAP_GL}
+V.~N.~Gribov and L.~N.~Lipatov,
+``Deep inelastic $ep$ scattering in perturbation theory,''
+Sov.\ J.\ Nucl.\ Phys.\ \textbf{15}, 438 (1972).
+——Gribov--Lipatov演化方程的原始论文（QED部分子演化）。
+
+\bibitem{DGLAP_D}
+Y.~L.~Dokshitzer,
+``Calculation of the structure functions for deep inelastic scattering and $e^+e^-$ annihilation by perturbation theory in quantum chromodynamics,''
+Sov.\ Phys.\ JETP \textbf{46}, 641 (1977).
+——Dokshitzer对DGLAP方程的独立推导。
+
+\bibitem{Moch2004splitting}
+S.~Moch, J.~A.~M.~Vermaseren, and A.~Vogt,
+``The three-loop splitting functions in QCD,''
+Nucl.\ Phys.\ B \textbf{688}, 101 (2004), arXiv:hep-ph/0403192.
+——三圈（NNLO）DGLAP劈裂函数的计算。
+
+\bibitem{Vogt2004splitting}
+A.~Vogt, S.~Moch, and J.~A.~M.~Vermaseren,
+``The three-loop splitting functions in QCD: The singlet case,''
+Nucl.\ Phys.\ B \textbf{691}, 129 (2004), arXiv:hep-ph/0404111.
+——三圈劈裂函数的单态扇区。
+
+\bibitem{Su2023RGR}
+Y.~Su, J.~Holligan, X.~Ji, F.~Yao, J.-H.~Zhang, and R.~Zhang,
+``Resumming quark's longitudinal momentum logarithms in LaMET expansion of lattice PDFs,''
+Phys.\ Rev.\ D \textbf{107}, 074507 (2023), arXiv:2209.01236.
+\\\textbf{[来源:} \texttt{refer/papers/Resumming Quark's Longitudinal Momentum Logarithms in LaMET Expansion of Lattice PDFs.pdf}\textbf{]}
+——RGR重求和方案、准PDF内禀标度$2xP_z$与DGLAP对数的精确对应、LaMET匹配核的RGE与DGLAP核等价性。
+本报告的第5节核心依赖此文献。
+
+\bibitem{Radyushkin2018oneLoop}
+A.~Radyushkin,
+``One-loop evolution of parton pseudo-distribution functions on the lattice,''
+Phys.\ Rev.\ D \textbf{98}, 014019 (2018), arXiv:1801.02427.
+\\\textbf{[来源:} \texttt{refer/papers/One-loop evolution of parton pseudo-distribution functions on the lattice.pdf}\textbf{]}
+——伪PDF的单圈演化、约化Ioffe-time分布、领头对数近似与超越LLA的分析。
+
+\bibitem{Ji2013Euclidean}
+X.~Ji,
+``Parton physics on a Euclidean lattice,''
+Phys.\ Rev.\ Lett.\ \textbf{110}, 262002 (2013), arXiv:1305.1539.
+\\\textbf{[来源:} \texttt{refer/papers/Parton Physics on Euclidean Lattice.pdf}\textbf{]}
+——LaMET的奠基性论文：准PDF和准TMD-PDF算符的定义，等时关联函数到大动量光锥物理的LaMET展开。
+
+\bibitem{Ji2014LaMET}
+X.~Ji,
+``Parton physics from large-momentum effective field theory,''
+Sci.\ China Phys.\ Mech.\ Astron.\ \textbf{57}, 1407 (2014), arXiv:1404.6680.
+\\\textbf{[来源:} \texttt{refer/papers/Parton Physics from Large-Momentum Effective Field Theory.pdf}\textbf{]}
+——LaMET框架的系统阐述：准PDF、准TMD-PDF、幂次修正计数和匹配策略。
+
+\bibitem{Collins2011foundations}
+J.~Collins,
+\textit{Foundations of Perturbative QCD},
+Cambridge University Press (2011).
+——TMD因子化定理和Collins--Soper方程的教科书级阐述。
+
+\bibitem{NNPDF2021}
+R.~D.~Ball \textit{et al.} (NNPDF Collaboration),
+``The path to proton structure at 1\% accuracy,''
+Eur.\ Phys.\ J.\ C \textbf{82}, 428 (2022), arXiv:2109.02653.
+\\\textbf{[来源:} \texttt{refer/papers/The Path to Proton Structure at One-Percent Accuracy.pdf}\textbf{]}
+——NNPDF4.0全局PDF分析，展示了DGLAP演化在当代唯象学中的最先进应用。
+
+\bibitem{Hou2021CT18}
+T.-J.~Hou \textit{et al.},
+``New CTEQ global analysis of quantum chromodynamics with high-precision data from the LHC,''
+Phys.\ Rev.\ D \textbf{103}, 014013 (2021), arXiv:1912.10053.
+\\\textbf{[来源:} \texttt{refer/papers/New CTEQ global analysis of quantum chromodynamics with high-precision data from the LHC.pdf}\textbf{]}
+
+\bibitem{Bailey2021MSHT20}
+S.~Bailey \textit{et al.},
+``Parton distributions from LHC, HERA, Tevatron and fixed target data: MSHT20 PDFs,''
+Eur.\ Phys.\ J.\ C \textbf{81}, 341 (2021), arXiv:2012.04684.
+\\\textbf{[来源:} \texttt{refer/papers/Parton distributions from LHC, HERA, Tevatron and fixed target data MSHT20 PDFs.pdf}\textbf{]}
+
+\bibitem{He2024unpolTMD}
+J.-C.~He \textit{et al.} (LPC),
+``Unpolarized TMD parton distributions of the nucleon from lattice QCD,''
+Phys.\ Rev.\ D \textbf{109}, 114513 (2024), arXiv:2211.02340.
+\\\textbf{[来源:} \texttt{refer/papers/Unpolarized Transverse-Momentum-Dependent Parton Distributions of the Nucleon from Lattice QCD.pdf}\textbf{]}
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, LPC),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\\\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{LPCleadingPower}
+``Leading Power Accuracy in Lattice Calculations of Parton Distributions,''
+\\\textbf{[来源:} \texttt{refer/papers/Leading Power Accuracy in Lattice Calculations of Parton Distributions.pdf}\textbf{]}
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,'' 内部笔记。
+\\\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}和\texttt{refer/papers/Note of gluon PDFs.pdf}
+
+\bibitem{GluonPseudoShort}
+``Gluon Pseudo-Distributions at Short Distances: Forward Case,''
+\\\textbf{[来源:} \texttt{refer/papers/Gluon Pseudo-Distributions at Short Distances Forward Case.pdf}\textbf{]}
+
+\end{thebibliography}
+
+\vspace{0.5cm}
+\noindent\rule{\textwidth}{0.5pt}
+\small
+\textbf{交叉参考建议：}本报告应结合同一\texttt{docs/}目录下的以下文件阅读：
+\begin{itemize}[nosep]
+    \item \texttt{格点QCD中的部分子分布函数.pdf}——共线PDF格点计算的总览
+    \item \texttt{格点QCD中的大动量有效理论.pdf}——LaMET框架的详细介绍
+    \item \texttt{格点QCD中的光锥PDF与quasi\_PDF.pdf}——准PDF算符与光锥PDF的关系
+    \item \texttt{格点QCD中的TMD\_PDF.pdf}——TMD-PDF中的Collins--Soper演化（与DGLAP互补）
+    \item \texttt{格点QCD中的OPE算符.pdf}——OPE矩分析与DGLAP反常维数的对应
+    \item \texttt{格点QCD中的Wilson线.pdf}——准PDF和准TMD-PDF算符中Wilson线的角色
+    \item \texttt{格点QCD中的费米子方案.pdf}——费米子方案对PDF计算的影响
+    \item \texttt{格点QCD中的标度参数.pdf}——格距标定与跑动耦合
+\end{itemize}
+
+\end{document}

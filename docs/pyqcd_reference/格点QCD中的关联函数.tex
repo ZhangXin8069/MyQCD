@@ -1,0 +1,604 @@
+\documentclass[12pt,a4paper]{ctexart}
+
+% === 页面设置 ===
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{multirow}
+\usepackage{tikz}
+
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+
+\theoremstyle{definition}
+\newtheorem{definition}{定义}[section]
+\newtheorem{remark}{注记}[section]
+
+\title{\heiti 格点QCD中的关联函数：\\
+谱分解、激发态控制与拟合策略}
+\author{基于本库文献的综合解析}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+关联函数是格点QCD中提取所有强子物理观测量的核心工具。其基本思想是在Euclidean时空中构造具有特定量子数的插值算符，通过计算两点关联函数提取强子质量和谱学信息，通过三点关联函数提取矩阵元和形状因子。然而，关联函数中的物理信号随Euclidean时间指数衰减，迅速被统计噪声淹没；同时，插值算符与激发态的非零重叠使得基态信号的纯净提取成为格点计算中最核心的技术挑战之一。本文系统梳理了格点QCD中关联函数的完整理论框架和实践策略：从谱分解的基本原理出发，详细讨论有效质量、信噪比问题和源-汇涂抹技术；阐述三点关联函数的构造、比值法和激发态污染的多种控制方案——多态拟合、求和法和广义本征值问题（GEVP）变分法；系统分析bootstrap重采样、联合拟合和拟合范围优化等统计方法。重点以CLQCD/LPC合作组的非极化胶子PDF计算为实例，展示了这些技术在真实格点计算中的应用全貌。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{关联函数的基本原理}
+
+\subsection{谱分解}
+
+格点QCD中，一个具有特定量子数的强子态的能量可以通过计算产生算符$\chi^\dagger$和湮灭算符$\chi$在Euclidean时间$t$和$t'$处的关联函数来确定\cite{Peardon2009}：
+
+\begin{equation}
+C(t', t) = \langle \chi(t') \chi^\dagger(t) \rangle。
+\label{eq:correlator_basic}
+\end{equation}
+
+插入哈密顿量的完备本征态集合$\hat{H}|k\rangle = E_k|k\rangle$，关联函数分解为谱中所有具有相同量子数的态的贡献之和\cite{Peardon2009}：
+
+\begin{equation}
+\boxed{C(t', t) = \sum_k |\langle \chi|k\rangle|^2 e^{-E_k(t'-t)}}。
+\label{eq:spectral_decomposition}
+\end{equation}
+
+这里$|\langle \chi|k\rangle|^2$是插值算符$\chi$与第$k$个能量本征态$|k\rangle$之间的重叠因子。在大时间间隔$t' - t \to \infty$下，基态贡献主导：
+
+\begin{equation}
+C(t', t) \xrightarrow{t'-t \to \infty} |\langle \chi|0\rangle|^2 e^{-E_0(t'-t)} \left[1 + \mathcal{O}(e^{-(E_1-E_0)(t'-t)})\right]。
+\label{eq:ground_state_dominance}
+\end{equation}
+
+\textbf{因此，在格点上提取物理观测量的核心挑战是：在统计噪声尚可接受的尽可能早的Euclidean时间处，使关联函数饱和其基态行为。}
+
+\subsection{有效质量}
+
+有效质量（effective mass）是监控关联函数是否达到基态饱和的最常用诊断量\cite{UKQCD1993}。它定义为相邻时间片上关联函数比值的对数：
+
+\begin{equation}
+\boxed{m_{\text{eff}}(t) = -\frac{1}{\delta t} \ln\frac{C(t + \delta t)}{C(t)}}。
+\label{eq:effective_mass}
+\end{equation}
+
+其中$\delta t$通常取为1（或更大的值以进一步平滑）。当$t$足够大，使得基态成为唯一贡献时，$m_{\text{eff}}(t)$趋近于常数$E_0$，形成所谓的``平台''（plateau）。平台的到达时间越早，意味着插值算符与基态的重叠越好。
+
+UKQCD合作组的开创性工作中\cite{UKQCD1993}，通过比较不同源-汇涂抹组合（LL, LS, SL, SS）下的有效质量，展示了涂抹技术在使平台``更早到达''和``更稳定''方面的关键作用（原文图1, 3, 4）。有效质量的定义可以推广为：
+
+\begin{equation}
+m_{\text{eff}}(t) = -\frac{1}{\delta t} \ln\frac{C(t + \delta t)}{C(t)},
+\label{eq:eff_mass_delta}
+\end{equation}
+
+对于介子关联函数，在Peardon等人的蒸馏方法测试中\cite{Peardon2009}，取$\delta t = 5 a_t$以平滑逐时间片的涨落。
+
+\subsection{信噪比问题}
+
+除了基态与激发态的质量间隙$\Delta E = E_1 - E_0$外，格点关联函数还面临一个根本性的限制：信噪比（signal-to-noise ratio, SNR）随Euclidean时间指数恶化。对于核子关联函数，信噪比的行为为：
+
+\begin{equation}
+\frac{\text{信号}}{\text{噪声}} \sim e^{-(m_N - \frac{3}{2}m_\pi)t},
+\label{eq:SNR_nucleon}
+\end{equation}
+
+这意味着核子关联函数的SNR比介子（$\sim e^{-(m_\pi - m_\pi)t} \sim \text{const}$）差得多。对于boosted核子，这个问题更加严重。
+
+\textbf{解决SNR问题的两大策略}\cite{Peardon2009,Egerer2021a,UKQCD1993}：
+\begin{enumerate}
+    \item \textbf{涂抹（Smearing）：}在构造插值算符之前，先对夸克场应用平滑算符，抑制短距离（高动量）模式——这些模式对长程关联函数几乎没有贡献，但主导了统计噪声。
+    \item \textbf{优化插值算符：}使用变分法从扩展算符基中构造与基态具有最大重叠的最优算符。
+\end{enumerate}
+
+\section{两点关联函数}
+
+\subsection{核子两点关联函数的标准形式}
+
+核子（自旋-1/2重子）的两点关联函数在格点上的标准定义为\cite{Chen2025gluon}：
+
+\begin{equation}
+\boxed{C_{\text{2pt}}(P^z; t_{\text{sep}}) = \sum_{t_0} \langle 0| N(P^z; t_0 + t_{\text{sep}}) N^\dagger(P^z; t_0) |0\rangle},
+\label{eq:2pt_nucleon}
+\end{equation}
+
+其中核子插值算符为\cite{Chen2025gluon,Zhang2025kinematic}：
+
+\begin{equation}
+N(\vec{P}; t) = \sum_{\vec{x}} e^{-i\vec{x}\cdot\vec{P}} P^+ (u^T C\gamma_5\gamma_t d) u(\vec{x}; t),
+\label{eq:nucleon_interpolator}
+\end{equation}
+
+$C$是电荷共轭算符，$P^+ = \frac{1}{2}(1+\gamma_t)$是正宇称投影算符，$\epsilon^{abc}$对颜色指标进行反对称收缩。对于极化（螺旋度）情形，投影算符变为$P = i\gamma_3\gamma_5(1 \pm \gamma_0)/2$（Euclidean空间）\cite{NoteGluonPDFs}。
+
+\textbf{两点关联函数的双态分解}\cite{Chen2025gluon}：
+
+\begin{equation}
+C_{\text{2pt}}(P^z; t_{\text{sep}}) = |A_0|^2 e^{-E_0 t_{\text{sep}}} + |A_1|^2 e^{-E_1 t_{\text{sep}}},
+\label{eq:2pt_two_state}
+\end{equation}
+
+其中$|A_0|^2$, $|A_1|^2$分别是基态和第一激发态的振幅（依赖于涂抹参数），$E_0$, $E_1$是相应态的能量。这一截断假定更高激发态的贡献在考虑的$t_{\text{sep}}$范围内可以忽略。
+
+\subsection{源和汇的涂抹组合}
+
+关联函数的精度高度依赖于源（source）和汇（sink）处插值场的涂抹。四种可能的组合为\cite{UKQCD1993}：
+
+\begin{itemize}
+    \item \textbf{LL（Local-Local）：}源和汇都使用未经涂抹的点源——激发态污染最大；
+    \item \textbf{LS（Local-Smeared）：}汇处涂抹，源处为点源——在源时间片处关联函数的统计噪声较小，但基态重叠不佳；
+    \item \textbf{SL（Smeared-Local）：}源处涂抹，汇处为点源——基态重叠改善，但统计噪声比LS大（因为汇时间片的规范场涨落）；
+    \item \textbf{SS（Smeared-Smeared）：}源和汇都涂抹——最优的基态重叠，噪声抑制最好，但需要汇处的涂抹操作。
+\end{itemize}
+
+UKQCD合作组\cite{UKQCD1993}的系统研究表明：SS组合给出最小的统计误差和最优的基态质量确定。在蒸馏方法中\cite{Peardon2009}，源和汇处的涂抹等价地通过蒸馏算符$\Box_{xy}(t)$实现，且对称性自动保持。
+
+\subsection{蒸馏框架中的因子化两点函数}
+
+在蒸馏框架中，两点关联函数具有优雅的因子化形式\cite{Peardon2009,NoteGluonPDFs}。以核子为例：
+
+\begin{equation}
+\begin{aligned}
+C^{(2)}_B[\tau_d, \tau_u, \tau_u](t', t) &= \Phi^{(i,j,k)}(t') \tau^{(i,\bar{i})}_d(t',t) \tau^{(j,\bar{j})}_u(t',t) \tau^{(k,\bar{k})}_u(t',t) \Phi^{(\bar{i},\bar{j},\bar{k})*}(t) \\
+&\quad - \Phi^{(i,j,k)}(t') \tau^{(i,\bar{i})}_d(t',t) \tau^{(j,\bar{k})}_u(t',t) \tau^{(k,\bar{j})}_u(t',t) \Phi^{(\bar{i},\bar{j},\bar{k})*}(t),
+\end{aligned}
+\label{eq:distilled_2pt}
+\end{equation}
+
+其中$\Phi$是elemental（编码算符构造），$\tau$是perambulator（编码夸克传播），两者完全独立。这种因子化使得任意复杂的插值算符都可以在perambulator预计算完成后\textbf{后验地}进行评估。
+
+\textbf{介质两点关联函数}\cite{Peardon2009}同样因子化为：
+
+\begin{equation}
+C^{(2)}_M(t', t) = \operatorname{Tr}\left[ \Phi_B(t') \tau(t', t) \Phi_A(t) \tau(t, t') \right]。
+\label{eq:distilled_meson_2pt}
+\end{equation}
+
+\subsection{动量投影}
+
+在格点上，动量为$\vec{p}$的态通过Fourier变换来投影。蒸馏方法的一个独特优势是可以在\textbf{源和汇同时}进行明确的动量投影\cite{Peardon2009,Egerer2021a}：
+
+\begin{equation}
+\chi^\dagger_M(\vec{p}, t) = \bar{u}_x(t) \Box_{xy}(t) \cdot e^{-i\vec{p}\cdot\vec{y}} \Gamma^A_{yz}(t) \cdot \Box_{zw}(t) d_w(t)。
+\label{eq:momentum_projection}
+\end{equation}
+
+双边的动量投影（源+汇）大大增强了动量态的统计精度，这是传统point-to-all方法无法实现的。
+
+\section{三点关联函数与矩阵元提取}
+
+\subsection{标准三点关联函数}
+
+核子的三点关联函数用于提取特定流算符$\mathcal{O}(z; t)$（如胶子流或夸克流）的基态矩阵元\cite{Chen2025gluon}：
+
+\begin{equation}
+\boxed{C_{\text{3pt}}(P^z; z; t_{\text{sep}}, t) = \sum_{t_0} \langle 0| N(P^z; t_0 + t_{\text{sep}}) \mathcal{O}(z; t_0 + t) N^\dagger(P^z; t_0) |0\rangle},
+\label{eq:3pt_standard}
+\end{equation}
+
+其中$t_{\text{sep}}$是源-汇时间间隔，$t$是流算符插入时间（相对于源），$t_0$是源时间片。三点关联函数的谱分解涉及四个贡献\cite{Chen2025gluon}：
+
+\begin{equation}
+\begin{aligned}
+C_{\text{3pt}}(P^z; z; t, t_{\text{sep}}) &= |A_0|^2 \langle 0|\mathcal{O}(z;t)|0\rangle e^{-E_0 t_{\text{sep}}} \\
+&\quad + |A_1|^2 \langle 1|\mathcal{O}(z;t)|1\rangle e^{-E_1 t_{\text{sep}}} \\
+&\quad + A_1 A^*_0 \langle 1|\mathcal{O}(z;t)|0\rangle e^{-E_1(t_{\text{sep}}-t)} e^{-E_0 t} \\
+&\quad + A_0 A^*_1 \langle 0|\mathcal{O}(z;t)|1\rangle e^{-E_0(t_{\text{sep}}-t)} e^{-E_1 t}。
+\end{aligned}
+\label{eq:3pt_spectral}
+\end{equation}
+
+\textbf{各项的物理意义}\cite{Chen2025gluon}：
+\begin{itemize}
+    \item \textbf{第一项：}基态到基态的矩阵元——所需的物理信号，记作$c_0 = \langle 0|\mathcal{O}(z;t)|0\rangle$；
+    \item \textbf{第二项：}激发态到激发态的矩阵元——在大$t_{\text{sep}}$下被$e^{-E_1 t_{\text{sep}}}$双重压制；
+    \item \textbf{第三、四项：}基态与激发态之间的\textbf{跃迁矩阵元}（transition terms）——在大$t_{\text{sep}}$下它们被$e^{-E_1(t_{\text{sep}}-t)}$和$e^{-E_1 t}$压制，但\textbf{比第二项衰减得更慢}，因此是主要的激发态污染来源。
+\end{itemize}
+
+\subsection{比值法}
+
+为消除$|A_0|^2$因子和$e^{-E_0 t_{\text{sep}}}$的指数衰减，标准做法是取三点与两点关联函数的比值\cite{Chen2025gluon}：
+
+\begin{equation}
+\boxed{R_{\text{3pt}}(P^z; t_{\text{sep}}, t) = \frac{C_{\text{3pt}}(P^z; t_{\text{sep}}, t)}{C_{\text{2pt}}(P^z; t_{\text{sep}})}}。
+\label{eq:ratio_3pt_2pt}
+\end{equation}
+
+在大$t_{\text{sep}}$和$0 \ll t \ll t_{\text{sep}}$的极限下，比值趋近于裸基态矩阵元：
+
+\begin{equation}
+R_{\text{3pt}} \xrightarrow{t_{\text{sep}} \to \infty,\; 0 \ll t \ll t_{\text{sep}}} \langle 0|\mathcal{O}|0\rangle。
+\label{eq:ratio_limit}
+\end{equation}
+
+\subsection{双态拟合：跃迁项主导}
+
+将两点和三点关联函数的双态分解代入比值，得到用于拟合的解析形式\cite{Chen2025gluon}：
+
+\begin{equation}
+\boxed{R_{\text{3pt}}(P^z; t_{\text{sep}}, t) \approx c_0 + c_1 e^{-\Delta E(t_{\text{sep}}-t)} + c_1 e^{-\Delta E t} + c_2 e^{-\Delta E t_{\text{sep}}}},
+\label{eq:two_state_fit_full}
+\end{equation}
+
+其中$c_0$对应于所需的裸准矩阵元，$\Delta E = E_1 - E_0$是能隙。
+
+\textbf{跃迁项主导的简化}\cite{Chen2025gluon}：在大$t_{\text{sep}}$下，$c_1 e^{-\Delta E(t_{\text{sep}}-t)} + c_1 e^{-\Delta E t}$（跃迁项）主导了$c_2 e^{-\Delta E t_{\text{sep}}}$（散射项）。因此可以忽略散射项，将拟合形式简化为：
+
+\begin{equation}
+\boxed{R_{\text{3pt}}(P^z; t_{\text{sep}}, t) \approx c_0 + c_1 e^{-\Delta E(t_{\text{sep}}-t)} + c_1 e^{-\Delta E t}}。
+\label{eq:two_state_fit_simple}
+\end{equation}
+
+\textbf{拟合实践中的关键技术要点}\cite{Chen2025gluon}：
+
+\begin{enumerate}
+    \item \textbf{联合拟合（joint fit）：}将$z = n_z a$和$z = 0$的数据同时纳入拟合，以更好地约束$\Delta E$。这是因为$z = 0$的矩阵元对应于局域算符，通常具有更好的信噪比。
+
+    \item \textbf{Bootstrap重采样：}在计算3000个bootstrap重采样后的三点和两点关联函数后取比值，以正确传播统计相关性。
+
+    \item \textbf{源-汇附近点的排除（$n_{\text{ex}}$）：}对于每个$t_{\text{sep}}$，排除源和汇附近的$n_{\text{ex}}$个时间片的数据——这些区域被更高激发态严重污染。
+
+    \item \textbf{拟合范围的优化：}通过改变$n_{\text{ex}}$和$t_{\text{sep}}^{\text{min}}$来测试拟合的稳定性。CLQCD/LPC合作组的分析表明\cite{Chen2025gluon}：$n_{\text{ex}} = 2$的结果与$n_{\text{ex}} = 3$不一致，说明$n_{\text{ex}} = 2$时仍有不可忽略的更高激发态污染。当$t_{\text{sep}}^{\text{min}} \geq 7a$且$n_{\text{ex}} \geq 3$时，拟合结果趋于稳定。
+\end{enumerate}
+
+\subsection{比值法的高效替代方案：$\tilde{R}$方法}
+
+Fan等人在胶子准PDF计算中引入了一种替代性的信号提取方法\cite{Fan2018gluon}，称为$\tilde{R}$方法：
+
+\begin{equation}
+\tilde{R}(z, P^z; t_{\text{sep}}) = \sum_{0 < t < t_{\text{sep}}} R(z, P^z; t_{\text{sep}}, t) - \sum_{0 < t < t_{\text{sep}}-1} R(z, P^z; t_{\text{sep}}-1, t)。
+\label{eq:Rtilde_method}
+\end{equation}
+
+当$t_{\text{sep}} \gg t \gg 0$时，$\tilde{R}$和$R$都饱和到相同的基态矩阵元，但$\tilde{R}$在\textbf{较小的$t_{\text{sep}}$}下就能达到平台——这是因为连续$t_{\text{sep}}$之间的差分消去了部分激发态贡献。该方法在实际计算中的有效性已经得到验证\cite{Fan2018gluon}。
+
+\subsection{非连通三点关联函数}
+
+胶子流算符的一个本质特点是：插入的胶子流与核子态之间\textbf{没有夸克线连接}\cite{Chen2025gluon,NoteGluonPDFs}。三点关联函数因此是\textbf{非连通的}（disconnected）：
+
+\begin{equation}
+\boxed{C_{\text{3pt}}(z, P^z, t, t_i, t_0) = \langle (O_g(z, t_i) - \langle O_g(z, t_i) \rangle)(C^N_{\text{2pt}}(P^z, t, t_0) - \langle C^N_{\text{2pt}}(P^z, t, t_0) \rangle) \rangle}。
+\label{eq:disconnected_3pt}
+\end{equation}
+
+真空期望值的减除是关键——$O_g$和$C^N_{\text{2pt}}$各自的真空期望值必须被单独减去，以消除与物理信号无关的常数背景。胶子流和核子两点关联函数的计算可以\textbf{完全分离}，这既是优势（灵活性），也是SNR挑战的来源\cite{NoteGluonPDFs}。
+
+\section{插值算符的构造与优化}
+
+\subsection{从局域算符到涂抹算符}
+
+直接从格点拉氏量中的场构造的强子产生算符与大量态的塔有显著重叠\cite{Peardon2009}。涂抹通过首先对夸克自由度应用线性算符来解决这个问题。涂抹的目标是\textbf{大幅减少场在格点截断附近的模式分量}。
+
+UKQCD合作组\cite{UKQCD1993}的开创性工作系统比较了点源（PP）、Wuppertal涂抹源和Jacobi涂抹源的效果。他们的主要发现包括：
+
+\begin{itemize}
+    \item 涂抹使有效质量平台显著提前到达，且统计误差大幅减小；
+    \item 在SS（源涂抹+汇涂抹）配置下效果最优；
+    \item 通过不同涂抹方案的关联函数矩阵，可以使用变分法提取激发态质量。
+\end{itemize}
+
+\subsection{运动学增强的插值算符}
+
+Zhang等人\cite{Zhang2025kinematic}系统研究了高boost强子的插值算符优化问题。在光锥极限下，Dirac旋量可以分解为$\psi = \psi_+ + \psi_-$，其中$\psi_\pm = \frac{1}{\sqrt{2}}\gamma^\mp\gamma^\pm\psi$。``加''分量$\psi_+$主导动力学。
+
+对于核子，标准的静态插值算符使用自旋-0的双夸克（$\Gamma = \gamma_5$）。但在光锥极限下，由$\psi_+$分量构造的领头Fock分量具有\textbf{自旋-1的双夸克}。因此，$\Gamma = \gamma_5\gamma_\mu$和$\Gamma = \gamma_\mu$类型的算符在大动量下具有\textbf{运动学增强}的基态重叠\cite{Zhang2025kinematic}。
+
+CLQCD/LPC合作组在胶子PDF计算中使用的核子算符$N = P^+(u^T C\gamma_5\gamma_t d)u$正是基于这一考虑\cite{Chen2025gluon}。
+
+\subsection{蒸馏框架中的扩展算符基}
+
+在蒸馏框架下，Egerer等人\cite{Egerer2021a}构建了系统性的核子插值算符基。对于静止核子（$G_{1g}$不可约表示）：
+
+\begin{equation}
+\mathcal{B}_{\vec{p}=\vec{0}} = \{N\,^2S_S\tfrac{1}{2}^+, N\,^2S_M\tfrac{1}{2}^+, \ldots, N\,^4D_M\tfrac{1}{2}^+\} \quad \text{（7个算符）}。
+\label{eq:basis_rest}
+\end{equation}
+
+对于沿空间轴boost的核子（$Dic_4$小群），算符基扩展到16个，包括更高自旋和负宇称的态：
+
+\begin{equation}
+\mathcal{B}_{\vec{p}\neq\vec{0}} = \{\ldots, N\,^4S_M\tfrac{3}{2}^+, \ldots, N\,^2P_M\tfrac{1}{2}^-, \ldots\} \quad \text{（16个算符）}。
+\label{eq:basis_boosted}
+\end{equation}
+
+每个算符由谱学记号$N\,^{2S+1}L_P J^P$来分类\cite{Egerer2021a}，其中$S$是Dirac自旋，$L$是由协变导数引入的轨道角动量，$P$是这些导数的置换对称性，$J^P$是总角动量和宇称。
+
+\section{激发态污染的系统控制}
+
+\subsection{多态拟合策略}
+
+在LaMET框架的PDF计算中，控制激发态污染的最常用策略是基于式(\ref{eq:two_state_fit_simple})的双态拟合。LP$^3$合作组在其质子同位旋矢量螺旋度分布计算中\cite{LP3helicity}，系统地比较了四种拟合策略：
+
+\begin{itemize}
+    \item \textbf{Fit-1（two-simRR，所有$t_{\text{sep}}$）：}使用包括较小$t_{\text{sep}}$（如$t_{\text{sep}}^{\text{min}} = 0.54$~fm）在内的所有数据，同时拟合两点和三点关联函数；
+    \item \textbf{Fit-2（two-simRR，最大5个$t_{\text{sep}}$）：}仅使用最大的5个$t_{\text{sep}}$；
+    \item \textbf{Fit-3（two-sim，最大4个$t_{\text{sep}}$）：}仅使用最大的4个$t_{\text{sep}}$，但不同时拟合两点函数；
+    \item \textbf{Fit-4（two-sim，最大3个$t_{\text{sep}}$）：}最保守的选择。
+\end{itemize}
+
+关键结论\cite{LP3helicity}：所有四种拟合给出了\textbf{一致的结果}——这是双态模型充分描述激发态污染的有力证据。最终的物理分析采用了\textbf{Fit-2}（two-simRR，$t_{\text{sep}}^{\text{min}} = 0.72$~fm），因为它在排除激发态污染和保持统计精度之间取得了最优平衡。
+
+\subsection{求和法}
+
+求和法（summation method）是另一种消除激发态污染的常用技术。其核心思想是对流算符插入时间$t$求和，使得跃迁项在求和后被压制。
+
+然而，在实际的胶子PDF计算中\cite{Chen2025gluon}，求和法由于胶子非连通图的巨大统计噪声而很少使用。双态拟合（联合拟合$z$和$z=0$数据）成为主流选择。
+
+\subsection{广义本征值问题（GEVP）变分法}
+
+对于使用扩展算符基的计算（如蒸馏框架中的强子谱学研究），变分法（variational method）是金标准\cite{Egerer2021a,UKQCD1993}。从关联函数的矩阵出发：
+
+\begin{equation}
+C_{ij}(T, \vec{p}) = \langle 0| O_i(T, -\vec{p}) O^\dagger_j(0, \vec{p}) |0\rangle,
+\label{eq:corr_matrix}
+\end{equation}
+
+求解广义本征值问题（GEVP）：
+
+\begin{equation}
+\boxed{C(T, \vec{p}) v_n(T, T_0) = \lambda_n(T, T_0) C(T_0, \vec{p}) v_n(T, T_0)}。
+\label{eq:GEVP}
+\end{equation}
+
+最优算符（变分意义下）$\sum_i v^i_n O^\dagger_i$对应的\textbf{主关联函数}（principal correlator）$\lambda_n(T, T_0)$以单指数行为衰退：
+
+\begin{equation}
+\lambda_n(T, T_0) = (1 - A_n) e^{-E_n(T-T_0)} + A_n e^{-E'_n(T-T_0)},
+\label{eq:principal_correlator}
+\end{equation}
+
+其中第二项量化了主关联函数偏离纯单态行为的程度。当变分法成功分离出本征态时，$A_n \ll 1$。
+
+UKQCD合作组的早期工作\cite{UKQCD1993}通过两种等价方法论证了变分法的有效性：
+\begin{enumerate}
+    \item \textbf{转移矩阵对角化：}求解$C(t_0)^{-1}C(t)$的本征值，在大$t_0$下实现态的精确分离；
+    \item \textbf{$C(t)$直接对角化：}在足够大的$t$下，本征值由单个态主导，但对激发态的剩余修正仍然存在。
+\end{enumerate}
+
+\section{统计方法与拟合策略}
+
+\subsection{Bootstrap重采样}
+
+格点QCD中的统计误差估计几乎全部采用bootstrap方法\cite{Chen2025gluon,UKQCD1993}。其步骤如下：
+
+\begin{enumerate}
+    \item 从$N_{\text{cfg}}$个原始组态中有放回地抽取$N_{\text{cfg}}$个组态，形成一个bootstrap样本；
+    \item 对每个bootstrap样本独立地计算所有中间量（关联函数、比值、拟合参数）；
+    \item 重复$N_{\text{boot}}$次（典型值为500--3000），得到每个物理量的分布；
+    \item 分布的68\%置信区间给出统计误差。
+\end{enumerate}
+
+在CLQCD/LPC的计算中\cite{Chen2025gluon}，bootstrap重采样在拟合之前进行（``先bootstrap，后拟合''），以正确传播关联函数之间的统计相关性。
+
+\subsection{拟合范围的选择与系统误差}
+
+拟合范围的系统性选择是格点分析中最关键的决策之一。CLQCD/LPC合作组的策略\cite{Chen2025gluon}提供了一个范例：
+
+\begin{enumerate}
+    \item \textbf{默认范围：}通过改变$n_{\text{ex}}$（每侧排除点数）和$t_{\text{sep}}^{\text{min}}$，寻找一个``稳定窗口''——在此窗口内，拟合得到的参数$c_0$（裸矩阵元）对窗口边界的微调不敏感。
+    \item \textbf{拟合质量监测：}通过$\chi^2/\text{d.o.f.}$来量化拟合质量。对于CLQCD/LPC的联合拟合，$\chi^2/\text{d.o.f.} \approx 1$，表明双态模型对数据有充分描述能力。
+    \item \textbf{系统误差估计：}通过改变拟合范围（如从默认的$[10,14]$变为$[8,14]$或$[7,11]$变为$[5,11]$），取结果之差作为系统不确定度。
+\end{enumerate}
+
+\textbf{具体示例}\cite{Chen2025gluon}（原文表III）：对于C24P29系综，$P^z = 0$时使用$t_{\text{sep}}/a \in [7,18]$、$n_{\text{ex}} = 3$；$P^z = 1.97$~GeV时，由于信噪比限制，使用$t_{\text{sep}}/a \in [6,10]$、$n_{\text{ex}} = 2$。
+
+\subsection{$\chi^2$与拟合质量的物理解释}
+
+UKQCD合作组\cite{UKQCD1993}采用``拟合稳定性''作为质量判据：一个可信的拟合对拟合范围内最靠近源的时间片的移除不敏感。他们使用全协方差矩阵进行关联拟合，误差通过bootstrap分析提取。
+
+在Egerer等人的蒸馏变分分析中\cite{Egerer2021a}，主关联函数被拟合为双指数形式（式\ref{eq:principal_correlator}），仅包含$T/a > 1$的时间间隔以排除Wilson-clover作用量可能的接触项。prior约束被引入以保证重叠参数$\{a, b\}$的正定性。
+
+\subsection{不同拟合策略的交叉检验}
+
+CLQCD/LPC合作组对$n_{\text{ex}}$和$t_{\text{sep}}^{\text{min}}$的系统扫描（原文图9）展示了典型的交叉检验模式\cite{Chen2025gluon}：
+
+\begin{itemize}
+    \item $n_{\text{ex}} = 2$的结果与$n_{\text{ex}} = 3$的\textbf{不一致}，表明$n_{\text{ex}} = 2$的数据仍受到更高激发态的显著污染；
+    \item 一旦$n_{\text{ex}} \geq 3$且$t_{\text{sep}}^{\text{min}} \geq 7a$，拟合结果达到\textbf{平台}——进一步增加排除点或提高$t_{\text{sep}}$最小值不再改变中心值（仅增大误差）；
+    \item $\chi^2$随$n_{\text{ex}}$和$t_{\text{sep}}^{\text{min}}$的系统变化为选择最优拟合范围提供了定量指导。
+\end{itemize}
+
+\section{格点实践中的综合应用}
+
+\subsection{CLQCD/LPC胶子PDF计算的拟合全流程}
+
+以Chen等人\cite{Chen2025gluon}的非极化胶子PDF连续极限计算为例，完整的关联函数分析和拟合流程包括：
+
+\begin{enumerate}
+    \item \textbf{蒸馏perambulator计算：}对每个系综的所有时间片计算$N_{\text{ev}} = 100$个本征矢的perambulator，HYP5涂抹规范链。
+
+    \item \textbf{两点关联函数：}在$t_{\text{sep}}$的广泛范围内计算$C_{\text{2pt}}(P^z; t_{\text{sep}})$。对C24P29系综的$P^z = 0$，使用了$t_{\text{sep}}/a \in [7,18]$的12个分离。
+
+    \item \textbf{非连通三点关联函数：}按式(\ref{eq:disconnected_3pt})计算，减除真空期望值。
+
+    \item \textbf{Bootstrap + 比值：}对3000个bootstrap样本计算$R_{\text{3pt}} = C_{\text{3pt}}/C_{\text{2pt}}$。
+
+    \item \textbf{联合双态拟合：}$z$和$z=0$数据联合拟合到式(\ref{eq:two_state_fit_simple})，提取$c_0$（裸矩阵元）和$\Delta E$。
+
+    \item \textbf{拟合范围优化：}通过$n_{\text{ex}}$和$t_{\text{sep}}^{\text{min}}$扫描确定最优范围并估计系统误差。
+
+    \item \textbf{重整化 + 匹配 + 外推：}裸矩阵元$\to$混合重整化$\to$准PDF$\to$微扰匹配$\to$连续极限+无穷大动量外推。
+\end{enumerate}
+
+\subsection{不同动量下的拟合参数}
+
+CLQCD/LPC合作组的拟合参数表\cite{Chen2025gluon}展示了动量和系综依赖性：
+
+\begin{table}[H]
+\centering
+\caption{CLQCD/LPC胶子PDF计算中不同系综和动量的拟合参数\cite{Chen2025gluon}}
+\label{tab:fitting_params}
+\begin{tabular}{lccc}
+\toprule
+系综 & $P^z$ (GeV) & $t_{\text{sep}}/a$ 范围 & $n_{\text{ex}}$ \\
+\midrule
+C24P29 & 0     & $[7, 18]$ & 3 \\
+        & 0.98  & $[7, 14]$ & 3 \\
+        & 1.48  & $[7, 11]$ & 3 \\
+        & 1.97  & $[6, 10]$ & 2 \\
+\midrule
+E32P29 & 0     & $[8, 16]$ & 3 \\
+        & 0.86  & $[8, 16]$ & 3 \\
+        & 1.3   & $[8, 14]$ & 3 \\
+        & 1.73  & $[8, 12]$ & 3 \\
+\midrule
+F32P30 & 0     & $[9, 16]$ & 3 \\
+        & 1.00  & $[9, 16]$ & 3 \\
+        & 1.50  & $[9, 14]$ & 3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{趋势分析：}
+\begin{itemize}
+    \item 随着动量增大，可用的$t_{\text{sep}}$范围缩小——这是大动量下SNR恶化的直接表现；
+    \item $a$越小（更细的格点间距），需要更大的$t_{\text{sep}}/a$才能达到物理上相同的源-汇间隔；
+    \item 在最高动量$P^z = 1.97$~GeV（C24P29），$n_{\text{ex}}$被迫减少到2，反映了信号质量的极限。
+\end{itemize}
+
+\subsection{与LP$^3$螺旋度计算的对比}
+
+LP$^3$合作组的质子螺旋度计算\cite{LP3helicity}提供了另一种策略的范例。他们使用RI/MOM非微扰重整化，在物理$\pi$介子质量和$P^z$高达3.0~GeV的条件下，通过two-simRR方法同时拟合两点和三点关联函数。
+
+LP$^3$的关键优势在于\textbf{同位旋矢量组合}$\Delta u - \Delta d$——非连通图贡献自动抵消，使得SNR远优于胶子情形。这也是为什么夸克同位旋矢量PDF的格点精度远高于胶子PDF的原因之一。
+
+\section{总结}
+
+关联函数是格点QCD中连接数值数据与物理观测量的核心桥梁。本文系统梳理了从基本原理到实际应用的完整知识链：
+
+\begin{enumerate}
+    \item \textbf{谱分解}（$C = \sum_k |\langle\chi|k\rangle|^2 e^{-E_k t}$）是理解所有关联函数行为的出发点。有效质量$m_{\text{eff}}(t) = -\ln[C(t+1)/C(t)]$是诊断基态饱和的最基本工具。
+
+    \item \textbf{三点关联函数与比值法}构成矩阵元提取的标准流程。双态拟合$R \approx c_0 + c_1 e^{-\Delta E(t_{\text{sep}}-t)} + c_1 e^{-\Delta E t}$中跃迁项（而非散射项）是激发态污染的主要来源。
+
+    \item \textbf{激发态控制}的策略层次为：涂抹（改善基态重叠）$\to$ 多态拟合（参数化污染）$\to$ 变分法/GEVP（系统分离本征态）。三种策略可组合使用。
+
+    \item \textbf{非连通图}（胶子流与核子无夸克线连接）是胶子物理计算的独特挑战，需要真空期望值减除和增强的统计量。
+
+    \item \textbf{拟合策略（bootstrap + 联合拟合 + 范围优化）}的正确实施对最终结果的可靠性至关重要。CLQCD/LPC和LP$^3$合作组的系统方法提供了可供借鉴的范例。
+\end{enumerate}
+
+\begin{thebibliography}{99}
+
+\bibitem{Peardon2009}
+M.~Peardon \textit{et al.} (Hadron Spectrum),
+``A novel quark-field creation operator construction for hadronic physics in lattice QCD,''
+Phys.\ Rev.\ D \textbf{80}, 054506 (2009), arXiv:0905.2160.
+\quad\textbf{[来源:} \texttt{refer/papers/A novel quark-field creation operator construction for hadronic physics in lattice QCD.pdf}\textbf{]}
+
+\bibitem{UKQCD1993}
+C.~R.~Allton \textit{et al.} (UKQCD),
+``Gauge-invariant smearing and matrix correlators using Wilson fermions at $\beta=6.2$,''
+Phys.\ Rev.\ D \textbf{47}, 5128 (1993), arXiv:hep-lat/9303009.
+\quad\textbf{[来源:} \texttt{refer/papers/Gauge-Invariant Smearing and Matrix Correlators using Wilson Fermions at beta=6.2.pdf}\textbf{]}
+
+\bibitem{Chen2025gluon}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit,''
+(2025), arXiv:2510.26425.
+\quad\textbf{[来源:} \texttt{refer/papers/Unpolarized gluon PDF of the nucleon from lattice QCD in the continuum limit.pdf}\textbf{]}
+
+\bibitem{Egerer2021a}
+C.~Egerer, R.~G.~Edwards, K.~Orginos, and D.~G.~Richards,
+``Distillation at high-momentum,''
+Phys.\ Rev.\ D \textbf{103}, 034502 (2021), arXiv:2009.10691.
+\quad\textbf{[来源:} \texttt{refer/papers/Distillation at High-Momentum.pdf}\textbf{]}
+
+\bibitem{Zhang2025kinematic}
+R.~Zhang, A.~V.~Grebe, D.~C.~Hackett, M.~L.~Wagman, and Y.~Zhao,
+``Kinematically-enhanced interpolating operators for boosted hadrons,''
+(2025), arXiv:2501.00729.
+\quad\textbf{[来源:} \texttt{refer/papers/Kinematically-enhanced interpolating operators for boosted hadrons.pdf}\textbf{]}
+
+\bibitem{LP3helicity}
+H.-W.~Lin \textit{et al.} (LP$^3$ Collaboration),
+``Proton isovector helicity distribution on the lattice at physical pion mass,''
+Phys.\ Rev.\ Lett.\ \textbf{121}, 242003 (2018), arXiv:1807.07431.
+\quad\textbf{[来源:} \texttt{refer/papers/Proton Isovector Helicity Distribution on the Lattice at Physical Pion Mass.pdf}\textbf{]}
+
+\bibitem{NoteGluonPDFs}
+``Note of gluon PDFs,''
+内部笔记。
+\quad\textbf{[来源:} \texttt{refer/papers/Note of gluon PDFs.pdf}\textbf{]}
+
+\bibitem{Fan2018gluon}
+Z.-Y.~Fan, Y.-B.~Yang, A.~Anthony, H.-W.~Lin, and K.-F.~Liu,
+``Gluon quasi-PDF from lattice QCD,''
+Phys.\ Rev.\ Lett.\ \textbf{121}, 242001 (2018), arXiv:1808.02077.
+\quad\textbf{[来源:} \texttt{refer/papers/Gluon Quasi-PDF From Lattice QCD.pdf}\textbf{]}
+
+\bibitem{Chen2025first}
+C.~Chen \textit{et al.} (CLQCD, Lattice Parton),
+``First self-renormalized gluon PDF of nucleon from large-momentum effective theory in the continuum limit,''
+Phys.\ Rev.\ D \textbf{111}, 074506 (2025), arXiv:2408.12819.
+\quad\textbf{[来源:} \texttt{refer/papers/First Self-Renormalized Gluon PDF of Nucleon from Large-Momentum Effective Theory in the Continuum Limit.pdf}\textbf{]}
+
+\bibitem{Egerer2022}
+C.~Egerer \textit{et al.} (HadStruc),
+``Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics,''
+Phys.\ Rev.\ D \textbf{106}, 094511 (2022), arXiv:2207.08733.
+\quad\textbf{[来源:} \texttt{refer/papers/Towards the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics.pdf}\textbf{]}
+
+\bibitem{Good2025a}
+W.~Good, F.~Yao, and H.-W.~Lin,
+``First nucleon gluon PDF from large momentum effective theory,''
+(2025), arXiv:2505.13321.
+\quad\textbf{[来源:} \texttt{refer/papers/First Nucleon Gluon PDF from Large Momentum Effective Theory.pdf}\textbf{]}
+
+\bibitem{Lin2025gluon}
+W.~Good, K.~Hasan, and H.-W.~Lin,
+``Gluon parton distribution of the nucleon from $2+1+1$-flavor lattice QCD in the physical-continuum limit,''
+J.\ Phys.\ G \textbf{52}, 035105 (2025), arXiv:2409.02750.
+\quad\textbf{[来源:} \texttt{refer/papers/Gluon Parton Distribution of the Nucleon from 2+1+1-Flavor Lattice QCD in the Physical-Continuum Limit.pdf}\textbf{]}
+
+\bibitem{Fan2023}
+Z.~Fan, W.~Good, and H.-W.~Lin,
+``Physical-continuum limit of the nucleon gluon parton distribution from lattice QCD,''
+Phys.\ Rev.\ D \textbf{108}, 014508 (2023), arXiv:2210.09985.
+\quad\textbf{[来源:} \texttt{refer/papers/Physical-Continuum Limit of the Nucleon Gluon Parton Distribution from Lattice QCD.pdf}\textbf{]}
+
+\bibitem{CLQCD2024}
+Z.-C.~Hu \textit{et al.} (CLQCD),
+``Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{109}, 054507 (2024), arXiv:2310.00814.
+\quad\textbf{[来源:} \texttt{refer/papers/Charmed meson masses and decay constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\bibitem{CLQCD2025}
+H.-Y.~Du \textit{et al.} (CLQCD),
+``Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles,''
+Phys.\ Rev.\ D \textbf{111}, 054504 (2025), arXiv:2408.03548.
+\quad\textbf{[来源:} \texttt{refer/papers/Quark masses and low energy constants in the continuum from the tadpole improved clover ensembles.pdf}\textbf{]}
+
+\bibitem{Izubuchi2018}
+T.~Izubuchi, X.~Ji, L.~Jin, I.~W.~Stewart, and Y.~Zhao,
+``Factorization theorem relating Euclidean and light-cone parton distributions,''
+Phys.\ Rev.\ D \textbf{98}, 056004 (2018), arXiv:1801.03917.
+\quad\textbf{[来源:} \texttt{refer/papers/Factorization Theorem Relating Euclidean and Light-Cone Parton Distributions.pdf}\textbf{]}
+
+\bibitem{NieMiera2025}
+A.~NieMiera, W.~Good, H.-W.~Lin, and F.~Yao,
+``First self-renormalized gluon PDF of nucleon from large-momentum effective theory in the continuum limit,''
+(2025), arXiv:2510.17758.
+
+\bibitem{Chu2024}
+M.-H.~Chu \textit{et al.} (Lattice Parton),
+``Nucleon transversity distribution in the continuum and physical mass limit from lattice QCD,''
+Phys.\ Rev.\ D \textbf{109}, L091503 (2024), arXiv:2302.09961.
+\quad\textbf{[来源:} \texttt{refer/papers/Nucleon Transversity Distribution in the Continuum and Physical Mass Limit from Lattice QCD.pdf}\textbf{]}
+
+\end{thebibliography}
+
+\end{document}

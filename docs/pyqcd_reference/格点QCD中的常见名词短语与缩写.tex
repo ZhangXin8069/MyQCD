@@ -1,0 +1,414 @@
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,physics}
+\usepackage{graphicx,float,booktabs,array,caption,multirow,longtable}
+\usepackage{hyperref,xcolor,enumitem,mathtools}
+\usepackage[numbers,sort&compress]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+
+\title{\heiti 格点QCD中的常见名词短语与缩写}
+\author{基于本库全部相关文献与教材的综合整理}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+本文档是对本库（\texttt{/root/PyQCD/}）中全部PDF文献所涉及的核心名词、短语与缩写的系统整理。覆盖范围包括三本教材（Gattringer \& Lang的\textit{Quantum Chromodynamics on the Lattice}、Gupta的\textit{Introduction to Lattice QCD}、Peskin \& Schroeder的\textit{An Introduction to Quantum Field Theory}）和约60篇研究论文。条目按以下十大主题分类编排：
+
+(1) 格点QCD基础概念；(2) 费米子方案；(3) 对称性与定理；(4) 重整化；(5) 部分子物理与因子化；(6) 演化方程；(7) 算法与数值方法；(8) 合作组、系综与软件；(9) 可观测量与物理量；(10) 规范场论与数学工具。
+
+每个条目包含：英文全称/缩写、中文译名、定义或解释，并附上本库中主要参考来源的提示。本文档可作为阅读本库文献和\texttt{docs/}目录下各专题解析报告的术语速查手册。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%=====================================================================
+\section{格点QCD基础概念}
+%=====================================================================
+
+\subsection*{格点与规范场}
+
+\begin{longtable}{p{3.5cm}p{9cm}}
+\toprule
+\textbf{术语/缩写} & \textbf{定义与解释} \\
+\midrule
+\endhead
+\textbf{Lattice QCD}（格点QCD）& 将连续时空替换为四维超立方格点$\Lambda = \{n_\mu = 0,\dots,N_\mu-1\}$的量子色动力学非微扰正则化方案。格距$a$提供自然的UV截断$\sim\pi/a$。\textbf{来源：}Gattringer \& Lang；Gupta。\\
+\textbf{Lattice spacing}（格距）$a$& 相邻格点之间的物理距离。连续极限对应$a\to 0$（同时$\beta\to\infty$）。典型值：$a = 0.03\text{--}0.12$~fm。可通过Sommer参数$r_0$或强子质量标定。\\
+\textbf{Link variable}（链接变量）$U_\mu(n)$& $SU(3)$群元素，定义在从格点$n$沿$\mu$方向延伸一个格距的有向链接上。其连续极限为$U_\mu(n) = \exp[igaA_\mu(n) + \mathcal{O}(a^2)]$。是格点QCD的基本动力学变量。\\
+\textbf{Plaquette}（平面圈）$U_{\mu\nu}(n)$& 最小的闭合Wilson圈——由四个链接变量组成：$U_{\mu\nu}(n) = U_\mu(n)U_\nu(n+\hat\mu)U_\mu^\dagger(n+\hat\nu)U_\nu^\dagger(n)$。是Wilson规范作用量的基本构建块。\\
+\textbf{Wilson gauge action}（Wilson规范作用）& 格点上最基础的纯规范场作用量：$S_G[U] = \frac{\beta}{N_c}\sum_{n,\mu<\nu}\operatorname{Re}\operatorname{tr}[1-U_{\mu\nu}(n)]$，其中$\beta = 2N_c/g_0^2$为逆规范耦合。离散化误差为$\mathcal{O}(a^2)$。\\
+\textbf{Improved gauge action}（改进规范作用）& 添加更大Wilson圈（如$1\times 2$矩形）的贡献以消除$\mathcal{O}(a^2)$离散化误差。常见的有Symanzik改进、Iwasaki作用、DBW2作用等。\\
+\textbf{Na\"ive fermion action}（朴素费米子作用）& 将连续Dirac作用直接离散化，使用对称差分$\partial_\mu \to (U_\mu\psi_{n+\hat\mu} - U_{-\mu}\psi_{n-\hat\mu})/(2a)$。产生16个加倍子（doublers）——15个非物理的费米子极点。\\
+\textbf{Doubler}（加倍子）& 朴素费米子作用在Brillouin区边缘$p_\mu = \pi/a$处产生的非物理费米子极点。四维中共$2^4=16$个——仅有$p_\mu=0$处的一个是物理的。\\
+\textbf{Gauge fixing}（规范固定）& 在格点上选取特定规范以使某些计算可行（如RI/MOM重整化需用Landau规范）。常用方法为迭代最小化规范泛函。存在Gribov拷贝问题。\\
+\textbf{Haar measure}（Haar测度）$\dd U$& $SU(N)$群流形上唯一的不变积分测度。在格点QCD的路径积分中用于对所有规范链接的积分。\\
+\textbf{Landau gauge}（Landau规范）$\partial_\mu A_\mu = 0$& 格点上通过最小化$\sum_{n,\mu}\operatorname{Re}\operatorname{tr}[U_\mu(n)]$实现。RI/MOM重整化在此规范下定义。\\
+\textbf{Temporal gauge}（时间规范）$A_4 = 0$& 格点上等价于将所有时间方向的链接规范变换为单位矩阵。用于Wilson圈和Polyakov圈的物理诠释推导。\\
+\textbf{Fermion contraction}（费米子缩并）& 对费米子反对易Grassmann变量的路径积分导致Wick定理——费米子传播子$D^{-1}(n|m)$的乘积。夸克双线型的关联函数通过缩并规则构建。\\
+\bottomrule
+\end{longtable}
+
+\subsection*{Wilson圈与禁闭}
+
+\begin{longtable}{p{3.5cm}p{9cm}}
+\toprule
+\textbf{术语/缩写} & \textbf{定义与解释} \\
+\midrule
+\endhead
+\textbf{Wilson line}（Wilson线）& 规范场沿路径$\Gamma$的路径编序指数积分：$U_\Gamma = \mathcal{P}\exp[ig\int_\Gamma dx^\mu A_\mu]$。是规范理论中最基本的非定域客体——充当颜色空间中的平行传输子。\\
+\textbf{Wilson loop}（Wilson圈）& 由两个空间Wilson线和两个时间传输子构成的矩形闭合回路——取迹后为规范不变量。其大$t$行为$\langle W_{\mathcal{C}}\rangle \propto e^{-tV(r)}$定义了静态夸克-反夸克势。\\
+\textbf{Polyakov loop}（Polyakov圈）$P(\mathbf{m})$& 纯时间方向的闭合Wilson线，在周期边界条件下自动闭合：$P(\mathbf{m}) = \operatorname{tr}[\prod_{j=0}^{N_T-1} U_4(\mathbf{m}, j)]$。是有限温度下$Z_3$中心对称性破缺的有序参量。也称热力学Wilson线。\\
+\textbf{Area law}（面积律）& 在强耦合展开下，Wilson圈的期望值随其包围的面积指数衰减：$\langle W_{\mathcal{C}}\rangle \propto \exp(-\sigma \cdot \text{Area})$。这给出线性禁闭势$V(r) \sim \sigma r$的格点证明。\\
+\textbf{String tension}（弦张力）$\sigma$& 静态夸克-反夸克势中线性项的系数：$V(r) = A + B/r + \sigma r$。在强耦合展开的领头阶为$\sigma = -a^{-2}\ln(\beta/18)$。物理值$\sigma \approx 900$~MeV/fm（$\approx 4.5$~MeV/fm$^2$）。\\
+\textbf{Sommer parameter}（Sommer参数）$r_0$& 通过静态势的力定义的标度尺：$F(r_0)r_0^2 = 1.65$，$r_0 \simeq 0.5$~fm。用于非微扰标定格距$a$。\\
+\textbf{Static quark potential}（静态夸克势）$V(r)$& 在无穷大夸克质量极限下的夸克-反夸克相互作用势：$V(r) = A + B/r + \sigma r$。Coulomb项$B/r$来自单胶子交换，线性项$\sigma r$来自色禁闭。\\
+\textbf{String breaking}（弦断裂）& 在动力学费米子存在时，当夸克-反夸克间距足够大，从真空中产生的$q\bar{q}$对与原夸克对重组为两个介子——静态势在远距离处趋于平坦。\\
+\textbf{Color confinement}（色禁闭）& QCD中只有色中性的组合（强子）可作为渐近态被观测到的现象。格点QCD中通过Wilson圈的面积律和线性势给出了禁闭的第一性原理证明。\\
+\textbf{Deconfinement transition}（退禁闭相变）& 当温度$T > T_c$（纯规范理论中$T_c \approx 270$~MeV），禁闭相转变为退禁闭相。Polyakov圈从$\langle P\rangle = 0$变为$\langle P\rangle \neq 0$。在动力学费米子存在时转变为平滑的crossover。\\
+\textbf{Center symmetry}（中心对称性）$Z_3$& $SU(3)$规范理论中，将所有时间片上的时间方向链接乘以$z\in Z_3$的变换保持规范作用不变。Polyakov圈获得因子$z$。禁闭相中此对称性保持，退禁闭相中自发破缺。\\
+\textbf{Hopping parameter}（hopping参数）$\kappa$& Wilson Dirac算符中的参数：$\kappa = 1/[2(am+4r)]$。控制费米子的``跳跃''概率。临界值$\kappa_c$对应手征极限$m_q=0$。$\kappa$展开（hopping expansion）给出费米子传播子和行列式作为规范链接路径之和的解释。\\
+\textbf{Hopping matrix}（跳跃矩阵）$H$& Wilson Dirac算符中的最近邻项：$D_W = C(1-\kappa H)$。$H$的幂次$\kappa^j H^j$对应连接初末态的$j$步非回溯路径。\\
+\textbf{Confining flux tube}（禁闭流管）& 在夸克-反夸克之间形成的色电场线束——受胶子自相互作用挤压为一维管状结构，导致线性势和禁闭。\\
+\bottomrule
+\end{longtable}
+
+\subsection*{重整化群与标度}
+
+\begin{longtable}{p{3.5cm}p{9cm}}
+\toprule
+\textbf{术语/缩写} & \textbf{定义与解释} \\
+\midrule
+\endhead
+\textbf{Renormalization group}（重整化群）RG& 描述物理系统在标度变化下耦合常数演化的理论框架。在格点QCD中，通过积分掉（blocking）短距离自由度改变格距，产生``重整化轨迹''。\\
+\textbf{Beta function}（$\beta$函数）$\beta(g)$& 控制跑动耦合随标度演化的函数：$\beta(g) = \partial g / \partial\ln a$（格点方案）或$\beta(\alpha_s) = d\alpha_s / d\ln\mu^2$（$\overline{\text{MS}}$方案）。QCD的前两阶系数$\beta_0 = 11 - 2n_f/3$、$\beta_1 = 102 - 38n_f/3$是方案无关的。\\
+\textbf{Asymptotic freedom}（渐近自由）& QCD的耦合常数$\alpha_s(Q^2)$在$Q^2\to\infty$时对数衰减为零的现象。由Gross、Politzer和Wilczek在1973年发现。$\beta_0>0$（只要$n_f \le 16$）是其数学根源。\\
+\textbf{Running coupling}（跑动耦合）$\alpha_s(Q^2)$& 依赖于标度$Q^2$的有效耦合常数：$\alpha_s(Q^2) = 4\pi/[\beta_0 \ln(Q^2/\Lambda_{\text{QCD}}^2)] + \cdots$。在$M_Z$处$\alpha_s(M_Z^2) \approx 0.118$。\\
+\textbf{QCD scale parameter}（QCD标度参数）$\Lambda_{\text{QCD}}$& 通过跑动耦合定义的QCD内禀质量标度。$\Lambda_{\text{QCD}} \approx 200\text{--}300$~MeV（$\overline{\text{MS}}$方案，$n_f=4$）。在标度$Q < \Lambda_{\text{QCD}}$处微扰论失效。\\
+\textbf{Renormalized trajectory}（重整化轨迹）RT& 在理论空间中，从紫外不动点流向红外的一维``流线''——理想的格点作用量应位于其附近。Wilson的实空间重整化群概念。\\
+\textbf{Continuum limit}（连续极限）$a\to 0$& 在固定物理条件下（如保持强子质量不变），取格距趋于零的极限。需要通过至少三个格点间距的$a^2$外推实现。\\
+\textbf{Scaling}（标度行为/标度性）& 在$a\to 0$连续极限下，所有物理量以与$a$无关的方式关联的行为。标度性成立是连续极限正确恢复的检验标准。\\
+\textbf{Scaling violation}（标度破坏）& 在有限$a$下，由离散化效应导致的标度性的偏移。$\mathcal{O}(a)$或$\mathcal{O}(a^2)$的修正需在连续极限外推中消除。\\
+\bottomrule
+\end{longtable}
+
+\subsection*{强子谱与关联函数}
+
+\begin{longtable}{p{3.5cm}p{9cm}}
+\toprule
+\textbf{术语/缩写} & \textbf{定义与解释} \\
+\midrule
+\endhead
+\textbf{Correlation function}（关联函数）& 两个（或多个）算符在格点QCD真空中的期望值。两点关联函数$C(t) = \langle 0| \mathcal{O}(t) \mathcal{O}^\dagger(0) |0 \rangle$的指数衰减率给出对应态的质量。\\
+\textbf{Two-point function}（两点函数）& 产生子（在时间$t=0$）和湮灭子（在时间$t$）之间的关联函数。大$t$行为的指数衰减率$E_0$给出基态能量。\\
+\textbf{Three-point function}（三点函数）& 在$\tau$处插入算符（如PDF算符）的二态关联函数。用于提取矩阵元$\langle P|\mathcal{O}|P\rangle$。\\
+\textbf{Effective mass}（有效质量）$m_{\text{eff}}(t)$& 从关联函数的相邻时间片比值中提取：$m_{\text{eff}}(t) = \ln[C(t)/C(t+1)]$。在$t$很大时趋于基态质量。用于检验激发态污染的消退。\\
+\textbf{Hadron interpolator}（强子内插算符）& 具有特定量子数（$J^{PC}$、味等）的夸克和胶子场的乘积，用于从QCD真空中创建（湮灭）特定强子态。$\bar\psi\gamma_5\psi$为$\pi$介子内插子，$\epsilon^{abc}(u^a C\gamma_5 d^b) u^c$为质子内插子。\\
+\textbf{Smearing}（涂抹）& 将夸克场$\psi(x)$替换为其周围场的加权平均，增强与基态（而非激发态）的耦合——改善信噪比。常见的有Gaussian/Wuppertal涂抹（夸克场）和APE/HYP/stout涂抹（规范链接）。\\
+\textbf{HYP smearing}（HYP涂抹）& Hypercubic Smearing：在hypercubic的三组正交平面内分别对规范链接进行平滑，然后将结果投影回$SU(3)$。在保持局域性的同时显著降低UV涨落——常用于PDF/TMD计算。\\
+\textbf{Stout smearing}（stout涂抹）& 一种可微分的规范链接涂抹方案——涂抹后的链接对原始链接有解析的依赖关系，可用于HMC力计算。\\
+\textbf{Momentum smearing}（动量涂抹）& 将夸克场的涂抹与动量注入结合，增强与高动量强子态的耦合——在LaMET计算中至关重要。\\
+\textbf{Distillation}（蒸馏）& Peardon等人提出的夸克场涂抹方法：通过Laplacian算符的低模本征向量空间投影夸克场，显著降低计算成本。在激发态谱学和散射计算中广泛应用。\\
+\textbf{Variational method}（变分法）& 求解广义本征值问题$C(t)v_n = \lambda_n(t,t_0) C(t_0) v_n$，通过大基组的内插算符同时提取多个能级——基态+激发态的高精度谱学工具。\\
+\textbf{Excited state contamination}（激发态污染）& 三点函数中，中间态的核子激发态（如$N(1440)$、$\pi N$连续谱）对基态矩阵元的污染。通过多态拟合来控制。\\
+\bottomrule
+\end{longtable}
+
+%=====================================================================
+\section{费米子方案}
+%=====================================================================
+
+\begin{longtable}{p{3.5cm}p{9cm}}
+\toprule
+\textbf{术语/缩写} & \textbf{定义与解释} \\
+\midrule
+\endhead
+\textbf{Nielsen--Ninomiya theorem}（Nielsen--Ninomiya定理）& 1981年证明的禁止定理：在保持平移不变性、局域性、厄米性和$\{D,\gamma_5\}=0$的格点上，无法同时实现无加倍子和手征对称性。所有费米子方案必须放弃至少一个条件。\\
+\textbf{Fermion doubling problem}（费米子加倍问题）& 朴素Dirac算符在Brillouin区边缘$p_\mu = \pi/a$处产生$2^d = 16$个非物理极点。这些``加倍子''在$a\to 0$下不消失，破坏理论的味计数。\\
+\textbf{Wilson fermion}（Wilson费米子）WF& 通过添加维度5的Wilson项（不可重整化算符）$\propto a\bar\psi\Box\psi$赋予加倍子质量$2n r/a$。代价：$\mathcal{O}(a)$的显式手征对称性破缺，夸克质量获得加法重整化。Wilson参数通常取$r=1$。\textbf{来源：}Gattringer \& Lang Ch.5；Gupta Ch.10。\\
+\textbf{Wilson term}（Wilson项）& 离散化的负Laplace算符：$\frac{r}{a}\sum_\mu(1-\cos(p_\mu a)) \to -\frac{ar}{2}\partial^2$。在坐标空间中为规范链接的二阶差分。使加倍子质量发散为$\sim 1/a$。\\
+\textbf{Critical hopping parameter}（临界hopping参数）$\kappa_c$& 手征极限（$m_\pi=0$）对应的$\kappa$值。对Wilson费米子为$\kappa_c = 1/(8r)$（自由场），在相互作用理论中需通过$m_\pi^2 \propto 1/\kappa$外推确定。\\
+\textbf{Additive mass renormalization}（加法质量重整化）& Wilson费米子中夸克裸质量获得与截断$a^{-1}$成正比的加法修正：$m_q^{\text{bare}} = m_q^{\text{ren}} + m_{\text{crit}}$。是手征对称性破缺的直接后果。\\
+\textbf{Exceptional configuration}（例外组态）& 在Wilson费米子中，即使$\kappa<\kappa_c$，个别规范组态上的Dirac算符可能出现近零本征模（近零模），导致传播子在这些组态上奇异。限制轻夸克质量模拟。\\
+\textbf{$\gamma_5$-hermiticity}（$\gamma_5$-厄米性）& Dirac算符满足$\gamma_5 D \gamma_5 = D^\dagger$的性质。保证行列式在无化学势和$\theta$项时的实性，是HMC算法的基础。\\
+\textbf{Sheikholeslami--Wohlert action}（Sheikholeslami--Wohlert作用）/ \textbf{Clover fermion}（Clover费米子）& 在Wilson作用基础上添加``clover项''（Pauli项）$\propto c_{\text{sw}}\sigma_{\mu\nu}F_{\mu\nu}$，实现$\mathcal{O}(a)$改进。命名源于$F_{\mu\nu}$的格点离散化像三叶草的四个叶片。\textbf{来源：}Gattringer \& Lang Ch.9；Gupta Ch.12。\\
+\textbf{Clover term}（Clover项）& 夸克自旋-胶子场强耦合项$\frac{i}{4}c_{\text{sw}}\bar\psi\sigma_{\mu\nu}\hat F_{\mu\nu}\psi$。消除Wilson项在$\mathcal{O}(a)$尺度引入的依赖于自旋的离散化效应。\\
+\textbf{Sheikholeslami--Wohlert coefficient}（SW系数）$c_{\text{sw}}$& Clover项的系数。树图值为$c_{\text{sw}}=1$（无改进时）或$c_{\text{sw}}=u_0^{-3}$（Tadpole改进后）。非微扰值可通过Schr\"odinger泛函方法确定。\\
+\textbf{Tadpole improvement}（Tadpole改进/平均场改进）& Lepage--Mackenzie (1993)提出的方案：通过重标定$U_\mu \to U_\mu/u_0$消除蝌蚪图的主要贡献，显著加速格点微扰论的收敛。$u_0 = \langle \frac{1}{3}\operatorname{tr}U_{\mu\nu}\rangle^{1/4}$非微扰测定。\textbf{来源：}Gupta Ch.12.2。\\
+\textbf{Symanzik improvement}（Symanzik改进）& Symanzik (1983)的系统性改进程序：在作用量中添加维度更高的不可重整化算符以逐阶消除离散化误差。$\mathcal{O}(a^n)$可通过添加足够多的算符来实现。\\
+\textbf{Staggered fermion}（staggered费米子）SF / \textbf{Kogut--Susskind fermion}& 通过spinspin对角化将16个加倍子重新解释为4个``taste''（味），每个taste在连续极限下对应一个Dirac费米子。保留$U(1)$手征子群，天然$\mathcal{O}(a^2)$改进。第四根技巧将4个taste约化为1个物理味。\textbf{来源：}Gattringer \& Lang Ch.10.1；Gupta Ch.11。\\
+\textbf{Taste}（taste/味）& Staggered费米子中的额外味自由度——16个格点被组合为4个等价Dirac费米子的4个自旋分量。在有限$a$下taste对称性被破缺，导致介子质量的``taste分裂''。\\
+\textbf{Taste symmetry breaking}（taste对称性破缺）& 在有限格距下，$SU(4)$ taste对称性被破缺，导致16个$\pi$介子态不再简并。Goldstone $\pi$保持无质量，其他态获得$\mathcal{O}(a^2)$的分裂。HISQ改进大幅压制这一破缺。\\
+\textbf{Fourth-root trick}（第四根技巧）& 对staggered费米子行列式取四次根：$\det[D_{\text{stag}}] \to (\det[D_{\text{stag}}])^{N_f/4}$，将4个taste约化为所需味数。其合法性问题曾是理论争议焦点，但在数值实践中已被广泛接受。\\
+\textbf{HISQ}（Highly Improved Staggered Quarks，高度改进staggered夸克）& HPQCD/MILC合作组发展的三重改进staggered费米子：Fat7涂抹 + Naik项（三跳项，$\mathcal{O}(a^2)$消除）+ Lepage项（色散关系校正）。Taste破缺极小，可在较粗格距上模拟$c$夸克。\textbf{来源：}Follana et al. (2007)。\\
+\textbf{Domain-Wall fermion}（Domain-Wall费米子）DWF& Kaplan (1992)提出的五维构造：在第五维$s\in[0,L_s-1]$上引入符号翻转的质量参数$M_5(s)$，在四维边界$s=0$和$s=L_s-1$上局域化手征零模。$L_s\to\infty$时满足Ginsparg--Wilson关系。\textbf{来源：}Gattringer \& Lang Ch.10.2。\\
+\textbf{Residual mass}（残余质量）$m_{\text{res}}$& Domain-Wall费米子中，有限$L_s$导致两个边界之间的手征模式产生指数级 suppressed 的耦合，等价于一个加法质量重整化$m_{\text{res}} \sim e^{-\alpha L_s}/a$。\\
+\textbf{Twisted Mass fermion}（扭曲质量费米子）tmQCD& Frezzotti等人(2001)提出：在Wilson作用的质量项中引入同位旋空间的手征旋转$m_q \to m_q + i\mu_q\gamma_5\tau_3$。在``最大扭曲''$\kappa=\kappa_c$条件下自动实现$\mathcal{O}(a)$改进。$\mu_q$项保护Dirac算符免受例外组态影响。\textbf{来源：}Gattringer \& Lang Ch.10.3。\\
+\textbf{Maximal twist}（最大扭曲）& 扭曲角$\omega=\pi/2$，即$m_0=0$（$\kappa=\kappa_c$）的条件。此时扭曲质量项的保护和自动改进同时生效。\\
+\textbf{Ginsparg--Wilson relation}（Ginsparg--Wilson关系）GW& $D\gamma_5 + \gamma_5 D = a D\gamma_5 D$。格点手征对称性的精确表述。在$a\to 0$极限下还原为连续的$\{D,\gamma_5\}=0$。1982年由Ginsparg和Wilson提出，1998年被L\"uscher重新发现。\\
+\textbf{Overlap fermion}（Overlap费米子）& Neuberger (1998)给出的Ginsparg--Wilson关系的精确解：$D_{\text{ov}} = \frac{1}{a}[1 - \gamma_5\operatorname{sign}(\gamma_5 D_W)]$。精确保持格点手征对称性，具有正确的指标准则和零模结构。计算成本极高（是Wilson的50--100倍）。\textbf{来源：}Gattringer \& Lang Ch.7.4。\\
+\textbf{Ginsparg--Wilson circle}（Ginsparg--Wilson圆）& $\gamma_5$-厄米且满足Ginsparg--Wilson关系的Dirac算符，其所有本征值被限制在复平面上以$1/a$为中心、$1/a$为半径的圆上：$|\lambda - 1/a| = 1/a$。\\
+\textbf{Lattice index theorem}（格点指标定理）& Ginsparg--Wilson Dirac算符上，拓扑荷$Q_{\text{top}} = \frac{1}{2}\operatorname{tr}[\gamma_5 D] = n_- - n_+$——零模的手征性计数精确等于连续Atiyah--Singer指标定理的结果。\\
+\textbf{Topological charge}（拓扑荷）$Q_{\text{top}}$& 规范场组态的拓扑不变量：$Q_{\text{top}} = \frac{1}{32\pi^2}\int d^4x\, \epsilon^{\mu\nu\rho\sigma}\operatorname{tr}[F_{\mu\nu}F_{\rho\sigma}]$。在格点上通过Ginsparg--Wilson Dirac算符的零模计数定义。\\
+\textbf{Topological freezing/susceptibility}（拓扑冻结/拓扑磁化率）& HMC演化中拓扑荷的变化极慢（``冻结''）——在细格距和手征费米子中尤为严重。拓扑磁化率$\chi_{\text{top}} = \langle Q_{\text{top}}^2 \rangle / V$与$\eta'$介子质量相关。\\
+\textbf{Valence quark}（价夸克）& 在格点计算中，仅出现在夸克传播子（内线）而不参与海夸克行列式的夸克。可选用与海夸克不同的费米子作用量（混合作用量方法）。\\
+\textbf{Sea quark}（海夸克）& 通过费米子行列式$\det[D]$贡献于规范组态生成的动力学夸克。在full QCD（非淬火）中不可或缺。\\
+\textbf{Partially quenched QCD}（部分淬火QCD）& 在full QCD海夸克背景下，使用不同于海夸克质量的价夸克进行计算的理论框架。手征微扰论可推广到部分淬火情况。\\
+\bottomrule
+\end{longtable}
+
+%=====================================================================
+\section{对称性与定理}
+%=====================================================================
+
+\begin{longtable}{p{3.5cm}p{9cm}}
+\toprule
+\textbf{术语/缩写} & \textbf{定义与解释} \\
+\midrule
+\endhead
+\textbf{Chiral symmetry}（手征对称性）& 无质量QCD拉氏量在独立左右手征$SU(N_f)_L \times SU(N_f)_R$旋转下的不变性。其自发破缺$\to SU(N_f)_V$产生$\pi$介子作为Goldstone玻色子。对质量产生的理解至关重要。\\
+\textbf{Spontaneous chiral symmetry breaking}（手征对称性自发破缺）S$\chi$SB& QCD真空的手征凝聚$\langle \bar\psi\psi \rangle \neq 0$——$\pi$介子为``似-Goldstone玻色子''。解释了$\pi$介子的异常轻质量和核子-$N^*$质量非简并。\\
+\textbf{Chiral condensate}（手征凝聚）$\langle \bar\psi\psi \rangle$& 手征对称性自发破缺的有序参量。在Ginsparg--Wilson费米子上可通过Banks--Casher关系$\langle \bar\psi\psi \rangle = -\pi\rho(0)$与Dirac算符的本征值谱密度联系。\\
+\textbf{PCAC}（Partially Conserved Axial Current，部分守恒轴矢流）& 手征对称性的Ward恒等式：$\partial_\mu A_\mu^a = 2m_q P^a$（连续）或$\partial_\mu A_\mu^a = 2m_{\text{PCAC}} P^a + \mathcal{O}(a)$（格点Wilson/Clover）。PCAC质量$m_{\text{PCAC}}$是非微扰确定$c_{\text{sw}}$和手征极限的关键。\\
+\textbf{Axial anomaly}（轴反常）$U(1)_A$& 量子效应导致的$U(1)_A$手征对称性的显式破缺——$\eta'$介子因此获得大质量。在格点上，Ginsparg--Wilson费米子提供了轴反常的精确格点表述。\\
+\textbf{GMOR relation}（GMOR关系）& Gell-Mann--Oakes--Renner关系：$M_\pi^2 F_\pi^2 = -2m_q \langle \bar\psi\psi \rangle + \cdots$。将$\pi$介子质量与夸克质量和手征凝聚联系起来。\\
+\textbf{Ward--Takahashi identity}（Ward--Takahashi恒等式）WTI& 连续对称性在量子层次的表现——关联函数之间由于对称性导致的精确关系。在格点上，手征WTI被Wilson项修改为$\mathcal{O}(a)$的额外项。\\
+\textbf{Banks--Casher relation}（Banks--Casher关系）& 手征凝聚与Dirac算符在零本征值附近的谱密度$\rho(0)$之间的关系：$\langle \bar\psi\psi \rangle = -\pi\rho(0)$。连接了手征对称性破缺与Dirac算符的谱。\\
+\bottomrule
+\end{longtable}
+
+%=====================================================================
+\section{重整化}
+%=====================================================================
+
+\begin{longtable}{p{3.5cm}p{9cm}}
+\toprule
+\textbf{术语/缩写} & \textbf{定义与解释} \\
+\midrule
+\endhead
+\textbf{MS/$\,\overline{\text{MS}}$ scheme}（MS/$\,\overline{\text{MS}}$方案）& 维数正规化（$d=4-2\epsilon$）下的最小减除（MS）和修正最小减除（$\overline{\text{MS}}$）重整化方案。$\overline{\text{MS}}$还减除了伴生的$\ln 4\pi - \gamma_E$项。量子色动力学和部分子物理的标准连续方案。\\
+\textbf{RI/MOM scheme}（Regularization-Independent Momentum Subtraction，正则化无关动量减除方案）& Martinelli等(1995)提出的非微扰重整化方案（又称Rome--Southampton方法）：在Landau规范下，利用离壳夸克态的Green函数在动量空间$p^2=\mu^2$处定义重整化条件。通过微扰转换因子可连接到$\overline{\text{MS}}$方案。\textbf{来源：}Gattringer \& Lang Ch.11.2。\\
+\textbf{RI$'$/MOM scheme}（RI$'$/MOM方案）& RI/MOM的变体——夸克场重整化常数$Z_q$的定义使用Dirac算符的标量和矢量分量，与RI方案有所不同。转换因子到$\overline{\text{MS}}$已计算到三圈精度。\\
+\textbf{Hybrid renormalization scheme}（混合重整化方案）& Ji等(2021)提出的准PDF重整化方案：$|z|\le z_s$短距离处使用ratio方案，$|z|>z_s$长距离处使用显式重整化因子$Z_R(z,a,\mu)$。结合了两者的优势，避免了长距离处的非微扰污染。\textbf{来源：}Ji et al. (2021)。\\
+\textbf{Self-renormalization}（自重整化）& Huo等(2021)提出的纯非微扰方案：通过比值$h_R(z,P_z) = h_B(z,P_z)/[h_B(z_0,0)]^{z/z_0}$消除线性发散。不需Wilson圈测量和微扰匹配。\textbf{来源：}Huo et al. (2021)。\\
+\textbf{Short-Distance Ratio}（短距离比率方案）SDR& 准TMD-PDF专用的对数发散重整化方案：利用零动量（$P_z=0$）和微扰短距离处的矩阵元形成比率，匹配到$\overline{\text{MS}}$方案。与Wilson圈减除组合使用。\\
+\textbf{Wilson loop subtraction}（Wilson圈减除）& Zhang等(2022)提出的准TMD-PDF重整化：除以$\sqrt{Z_E}$——矩形Wilson圈的平方根——同时消除线性发散、pinch-pole奇点和cusp发散。在五种格距上经系统验证。\textbf{来源：}Zhang et al. (2022)。\\
+\textbf{Linear divergence}（线性发散）& Wilson线自能产生的发散$\sim e^{-\delta\bar m L/a}$——与Wilson线长度$L$成正比、与格距$a$成反比。来自自能蝌蚪图，在连续极限下发散。须通过非微扰减除消除，RI/MOM无效。\\
+\textbf{Pinch-pole singularity}（pinch-pole奇点）& Staple型Wilson线中两条平行$z$方向Wilson线之间通过胶子交换产生的奇异性：$e^{-V(b_\perp)L}$。物理上等价于重夸克有效势。通过Wilson圈减除消除。\\
+\textbf{Cusp divergence}（Cusp发散）& Wilson线转角处（尖角）的对数发散。在staple中有三个cusp，在矩形Wilson圈中有四个——通过比值消除。由cusp反常维数$\Gamma_{\text{cusp}}(\alpha_s)$控制。\\
+\textbf{Power divergence}（幂次发散）& 与截断的负幂次成正比的发散：$\sim 1/a^n$。格点正规化所特有——在维数正规化中不出现。Wilson线自能的一阶线性发散（$n=1$）是典型例子。\\
+\textbf{Logarithmic divergence}（对数发散）& 与截断的对数成正比的发散：$\sim \ln(1/a)$。是标准UV发散类型——在格点重整化中通过反常维数控制。\\
+\textbf{Renormalization constant}（重整化常数）$Z_\Gamma$& 将裸算符$\mathcal{O}_\Gamma^{\text{bare}}$转化为重整化算符$\mathcal{O}_\Gamma^{\text{ren}} = Z_\Gamma \mathcal{O}_\Gamma^{\text{bare}}$的因子。对非手征费米子还需加法重整化（对质量）。\\
+\textbf{Anomalous dimension}（反常维数）$\gamma$& 重整化常数$Z$的对数导数：$\gamma = d\ln Z / d\ln\mu$。控制算符（或场）的标度依赖行为。在OPE中通过重整化群方程与可观测量的标度演化联系。\\
+\textbf{Cusp anomalous dimension}（Cusp反常维数）$\Gamma_{\text{cusp}}(\alpha_s)$& 控制Wilson线cusp发散标度依赖性的反常维数。已知到四圈精度。在Collins--Soper核的重整化群方程中出现：$\mu^2 dK/d\mu^2 = -\Gamma_{\text{cusp}}$。\\
+\textbf{Renormalon}（重整子）IRR& 微扰级数$\sum_n c_n \alpha_s^n$中系数$c_n$在$n$大时的阶乘发散行为——来自Feynman图的IR区域的Borel极点。领头重整子（$u=1/\beta_0$）对应$\mathcal{O}(\Lambda_{\text{QCD}}/Q)$的幂次修正。\textbf{来源：}Beneke (1999); Braun et al. (2019)。\\
+\textbf{Borel resummation}（Borel重求和）& 处理重整子导致的高阶发散级数的方法——对微扰级数的Borel变换进行解析延拓，再通过Borel积分恢复物理值。不同积分的正规化方式（主值PV等）引入幂次模糊性。\\
+\textbf{Leading Renormalon Resummation}（领头重整子重求和）LRR& Zhang等(2023)提出：通过Borel变换+PV处方法将准PDF匹配系数的领头IR重整子重求和，并结合重整化中的$m_0$参数统一处理——匹配精度提高3--5倍。\\
+\textbf{Mass counterterm}（质量抵消项）$\delta m$& 辅助$z$场形式中吸收Wilson线线性发散的抵消项：$\mathcal{L}_{\text{ct}} = \delta m\,\bar Z Z$。等价于HQET中的重夸克质量重整化。\\
+\textbf{Field strength renormalization}（场强重整化）$Z_q,\sqrt{Z_2}$& 外部粒子（夸克或胶子）波函数的相乘重整化常数——在LSZ约化公式和散射振幅中出现。\\
+\textbf{Schr\"odinger functional}（Schr\"odinger泛函方法）SF& ALPHA合作组发展：在有限体积内通过Dirichlet边界条件外加标度$L$，在不引入微扰假设的情况下非微扰确定跑动耦合和重整化常数。可在手征极限下操作——对非手征费米子尤为重要。\\
+\textbf{Counterterm}（抵消项）CT& 拉氏量中添加的、用于吸收圈图中UV发散的额外项。在可重整化理论中只需有限个抵消项。格点上``抵消项''还用于消除$\mathcal{O}(a^n)$离散化误差（Symanzik改进）。\\
+\bottomrule
+\end{longtable}
+
+%=====================================================================
+\section{部分子物理与因子化}
+%=====================================================================
+
+\begin{longtable}{p{3.5cm}p{9cm}}
+\toprule
+\textbf{术语/缩写} & \textbf{定义与解释} \\
+\midrule
+\endhead
+\textbf{Parton Distribution Function}（部分子分布函数）PDF& 在无穷大动量强子中找到携带纵向动量份额$x$的部分子的概率密度$f(x,\mu^2)$。是QCD因子化定理中连接非微扰强子结构与微扰硬散射截面的核心量。也被称为共线PDF。\\
+\textbf{Light-cone PDF}（光锥PDF）LC-PDF& PDF的标准定义——由Minkowski时空中沿光锥方向分离的夸克场的关联函数给出。Lorentz不变的、具有概率诠释、定义域$x\in[-1,1]$。但无法在欧几里得格点上直接计算。\\
+\textbf{Transverse-Momentum-Dependent PDF}（横向动量依赖部分子分布函数）TMD-PDF& 将一维共线PDF推广到三维：$f(x,\vec k_\perp,\mu,\zeta)$同时描述纵向动量份额$x$和横向动量$\vec k_\perp$的联合分布。涉及两个相反光锥方向的Wilson线和软函数因子化。共有八种leading-twist夸克TMD-PDF。\\
+\textbf{Generalized Parton Distribution}（广义部分子分布）GPD& 在非对角（off-forward）强子矩阵元中定义的推广部分子分布：$H(x,\xi,t), E(x,\xi,t), \tilde H, \tilde E$。同时依赖于$x$（纵向）、$\xi$（斜度）和$t$（动量转移）。与横向位置分布（层析）和角动量分解密切相关。\\
+\textbf{Distribution Amplitude}（分布振幅）DA& 强子-真空矩阵元中的夸克-反夸克（或胶子）动量分布振幅$\phi(x,\mu)$。在遍举过程的因子化中类似PDF的角色，但描述的是强子内部的价Fock态波函数。\\
+\textbf{Ioffe time}（Ioffe时间）$\nu$& Lorentz不变的标量$\nu = -p\cdot z$。在赝PDF方案中，格点矩阵元表示为$\mathfrak{M}(\nu,z_3^2)$。光锥极限$z^2\to 0$下，$\mathfrak{M}(\nu,0)$的Fourier变换给出PDF。\\
+\textbf{Ioffe-time distribution}（Ioffe时间分布）ITD& PDF的Fourier变换：$\mathcal{I}(\nu,\mu^2) = \int_{-1}^1 dx\, e^{i x \nu} f(x,\mu^2)$。赝PDF/伪分布方案的核心可观测量。\\
+\textbf{Reduced Ioffe-time distribution}（约化Ioffe时间分布）& Radyushkin (2018)引入：分母为$P_z=0$的真空/静止矩阵元——消除$z_3^2$依赖性的非微扰领头效应：$\mathfrak{M}(\nu,z_3^2) = \langle P_z|\cdots|P_z\rangle / \langle 0|\cdots|0\rangle$。\\
+\textbf{Quasi-PDF}（准PDF）& Ji (2013)提出：由Euclidean时空中空间方向的等时关联函数定义：$\tilde q(x,P_z) = \int \frac{dz}{4\pi} e^{ixP_z z} \langle P_z|\bar\psi(z)\gamma^t U(z,0)\psi(0)|P_z\rangle$。通过LaMET匹配与光锥PDF联系。\\
+\textbf{Pseudo-PDF}（赝PDF）& Radyushkin (2018)提出：保持在坐标空间（Ioffe-time空间）中，通过短距离OPE极限$z_3\to 0$与光锥PDF联系。避免了准PDF中Fourier变换的端点增强效应。\\
+\textbf{Large-Momentum Effective Theory}（大动量有效理论）LaMET& Ji (2013, 2014)建立的框架：通过将空间方向的等时关联函数在大动量$P_z$下展开，系统地将格点可计算量与光锥物理联系起来。修正以$\mathcal{O}(1/(P_z)^2)$和$\mathcal{O}(\Lambda_{\text{QCD}}^2/(x P_z)^2)$的形式被控制。\\
+\textbf{Matching kernel/coefficient}（匹配核/匹配系数）$C(x/y,\mu/P_z)$& 在LaMET和赝PDF因子化公式中，将准/伪分布转换为光锥分布的微扰可计算函数。已知到NNLO精度。\\
+\textbf{Hard matching}（硬匹配）& 准PDF/TMD与光锥PDF/TMD之间通过微扰匹配核$C$的转换。涉及硬标度$P_z$（或$1/z_3$）与重整化标度$\mu$之间的对数重求和（RGR）。\\
+\textbf{Factorization theorem}（因子化定理）& 将高能散射截面分解为：非微扰PDF/TMD（长距离）$\otimes$微扰硬散射截面（短距离）的卷积。在准PDF语境中，连接欧几里得准关联函数与Minkowski光锥关联函数。\\
+\textbf{Collinear factorization}（共线因子化）& 将硬散射过程的截面按leading-twist共线算符展开——PDF进入共线（纵向动量）因子化。高扭度（higher-twist）修正由$\Lambda_{\text{QCD}}^2/Q^2$的幂次压低。\\
+\textbf{TMD factorization}（TMD因子化）& 包含横向动量依赖性的推广——需要软函数$S(b_\perp,\mu,Y+Y')$来编码两个光锥方向之间的软胶子关联。Collins--Soper演化替代了共线因子化的DGLAP演化。\\
+\textbf{Soft function}（软函数）$S(b_\perp,\mu,Y+Y')$& TMD因子化的核心要素：描述来自两个相反光锥方向的软胶子辐射的关联。分为内禀部分$S_I(b_\perp,\mu)$（快度无关）和演化部分$K(b_\perp,\mu)$（Collins--Soper核）。\\
+\textbf{Intrinsic soft function}（内禀软函数）$S_I(b_\perp,\mu)$& 软函数中与快度无关的部分，仅依赖于横向分离$b_\perp$和重整化标度$\mu$。可通过大动量转移赝标量介子形状因子的因子化从格点提取。\\
+\textbf{Collins--Soper kernel}（Collins--Soper核/演化核）$K(b_\perp,\mu)$& TMD分布的``快度反常维数''：$\frac{d}{d\ln\zeta} f(x,b_\perp,\mu,\zeta) = K(b_\perp,\mu) f$。在微扰区域（小$b_\perp$）可微扰计算到四圈精度；在非微扰区域（大$b_\perp$）是格点QCD不可替代的独特输入。\\
+\textbf{Collins--Soper equation}（Collins--Soper方程）& 控制TMD分布在快度标度$\zeta$变化下的演化方程。\\
+\textbf{Staple-shaped Wilson line}（staple型/订书钉形Wilson线）& TMD-PDF算符中的规范链接：由三段Wilson线组成——纵向$U_z$+横向$U_\perp$+反向纵向$U_z^\dagger$。$L\to\infty$极限模拟光锥方向上的无穷长Wilson线。\\
+\textbf{Na\"ive T-odd}（na\"ive T-odd）& 在时间反演变换下改变符号的TMD-PDF——Sivers函数$f_{1T}^\perp$和Boer-Mulders函数$h_1^\perp$。其时间反演奇数性来源于TMD算符定义中Wilson线的方向依赖性，而非QCD拉氏量的非不变性。\\
+\textbf{Sivers function}（Sivers函数）$f_{1T}^\perp$& 描述横向极化核子中非极化夸克的方位角不对称分布。na\"ive T-odd。在SIDIS和Drell-Yan过程中符号反转——非Abel理论的独特预言。\\
+\textbf{Boer-Mulders function}（Boer-Mulders函数）$h_1^\perp$& 描述非极化核子中横向极化夸克与横向动量之间的关联。na\"ive T-odd，手征奇数。\\
+\textbf{Transversity}（横向性分布）$h_1(x)$& 横向极化核子中横向极化夸克的分布——手征奇数。在非相对论极限下与螺旋度分布$g_1$等价，但在相对论下——由于夸克自旋的Melosh旋转——两者可以有显著差异。\\
+\textbf{Helicity distribution}（螺旋度分布）$g_{1L}(x)$& 纵向极化核子中纵向极化夸克的螺旋度分布——$\Delta q(x) = q^\uparrow(x) - q^\downarrow(x)$。手征偶数。\\
+\textbf{Bjorken variable}（Bjorken变量）$x_B$& DIS中的标度变量：$x_B = Q^2/(2P\cdot q)$。在部分子模型中等于被散射部分子的纵向动量份额$x$。\\
+\textbf{Bjorken scaling}（Bjorken标度性）& 在$Q^2\to\infty$和固定$x_B$的极限下，DIS结构函数仅依赖于$x_B$而不依赖于$Q^2$——这是自由无相互作用部分子模型的预言。QCD中以对数形式被破坏（标度破坏）。\\
+\textbf{Structure function}（结构函数）$F_1(x,Q^2), F_2(x,Q^2)$& 深度非弹性散射的双微分截面的无量纲参数化函数。在部分子模型中$F_2(x) = \sum_f e_f^2 x q_f(x)$（LO）。\\
+\textbf{Sum rule}（求和规则）& PDF的积分约束——例如：动量求和规则$\sum_f\int_0^1 dx\,x[q_f(x)+\bar q_f(x)+g(x)] = 1$；夸克数求和规则$\int_0^1 dx\,[q(x)-\bar q(x)] = N_q$。在$\overline{\text{MS}}$方案下精确成立。\\
+\textbf{Mellin moment}（Mellin矩）& PDF的第$n$次$x$加权积分：$\int_0^1 dx\,x^{n-1}f(x)$。在矩空间中，DGLAP方程的卷积退化为乘积，与OPE的反常维数矩阵精确对应。\\
+\textbf{Operator Product Expansion}（算符乘积展开）OPE& 将两个算符在短距离$x\to 0$处的乘积展开为定域算符的线性组合：$\mathcal{O}_1(x)\mathcal{O}_2(0) = \sum_n C_n(x^2\mu^2) \mathcal{O}_n(0)$。是DIS和赝PDF因子化的理论基础。\\
+\textbf{Twist}（扭度）& 算符的质量维度减去其Lorentz自旋：$\tau = d - j$。Leading-twist（扭度-2）算符主导了高能散射的标度行为。高扭度算符贡献幂次压低$\mathcal{O}(\Lambda_{\text{QCD}}^2/Q^2)$的修正。\\
+\bottomrule
+\end{longtable}
+
+%=====================================================================
+\section{演化方程}
+%=====================================================================
+
+\begin{longtable}{p{3.5cm}p{9cm}}
+\toprule
+\textbf{术语/缩写} & \textbf{定义与解释} \\
+\midrule
+\endhead
+\textbf{DGLAP equation}（DGLAP/Dokshitzer--Gribov--Lipatov--Altarelli--Parisi演化方程）& 支配共线PDF随因子化标度$\mu^2$演化的微分积分方程：$\frac{d}{d\ln\mu^2} f(x,\mu) = \frac{\alpha_s}{2\pi}\int_x^1 \frac{dy}{y} P(x/y) f(y,\mu)$。劈裂函数$P_{i\leftarrow j}(z)$已知到NNLO（三圈）精度。\\
+\textbf{Altarelli--Parisi kernel}（Altarelli--Parisi核/劈裂函数）$P_{i\leftarrow j}(z)$& DGLAP方程中描述部分子$j$分裂为部分子$i$（携带份额$z$）的概率分布的微扰函数。LO的四类劈裂函数为$P_{qq}, P_{qg}, P_{gq}, P_{gg}$。\\
+\textbf{Plus distribution}（正量分布）$[f(z)]_+$& 对在$z=1$处发散的分布函数的正规化：$\int_0^1 dz\, [f(z)]_+ g(z) \equiv \int_0^1 dz f(z)[g(z)-g(1)]$。软胶子发射的红外发散通过``正量分布''与虚修正的$\delta(1-z)$抵消。\\
+\textbf{Renormalization Group Resummation}（重整化群重求和）RGR& Su等(2023)提出：将LaMET匹配核中的大对数$\ln(\mu^2/(2xP_z)^2)$通过以$2xP_z$为内禀标度的RG演化重求和。等价于从内禀标度到参考标度的DGLAP演化。\\
+\textbf{BFKL evolution}（BFKL/Balitsky--Fadin--Kuraev--Lipatov演化）& 小$x$区域的演化方程，重求和$(\alpha_s \ln 1/x)^n$型的大对数——补充了DGLAP对大$Q^2$对数$\ln Q^2$的重求和。在小$x$极限下可能趋于非线性饱和。\\
+\textbf{Landau pole}（Landau极点）& 跑动耦合$\alpha_s(Q^2)$在$Q^2 \to \Lambda_{\text{QCD}}^2$时的发散——微扰论在此标度以下失效。在LaMET中，$2xP_z$在$x$足够小时抵达Landau极点，定义了$P_z$有限时格点可计算的最小$x$。\\
+\bottomrule
+\end{longtable}
+
+%=====================================================================
+\section{算法与数值方法}
+%=====================================================================
+
+\begin{longtable}{p{3.5cm}p{9cm}}
+\toprule
+\textbf{术语/缩写} & \textbf{定义与解释} \\
+\midrule
+\endhead
+\textbf{Hybrid Monte Carlo}（混合Monte Carlo）HMC& 格点QCD中动力学费米子的标准算法。通过引入共轭动量和分子动力学演化（leapfrog积分），在相空间中产生规范场候选组态，再用Metropolis接受/拒绝步骤确保细致平衡。\\
+\textbf{Leapfrog integrator}（蛙跳积分器）& HMC中使用的二阶辛积分算法——保持相空间体积和可逆性。半步+全步+半步的能量和动量更新序列。\\
+\textbf{Molecular dynamics}（分子动力学）MD& 在HMC中，将规范场通过共轭动量演化为假想的``经典体系''（微正则系综）的轨迹。轨迹长度和步长需要优化以平衡接受率和自相关时间。\\
+\textbf{Pseudofermion}（赝费米子）& 具有与Grassmann费米子相同自由度数的玻色场——通过Gaussian积分$\det[D D^\dagger] = \int \mathcal{D}\varphi \exp[-\varphi^\dagger (D D^\dagger)^{-1}\varphi]$在HMC中表示费米子行列式。\\
+\textbf{Fermion determinant}（费米子行列式）$\det[D]$& 对费米子场的路径积分产生：$\int\mathcal{D}\psi\mathcal{D}\bar\psi e^{-\bar\psi D \psi} = \det[D]$。是动力学费米子在规范组态生成中的权重因子。需确保正定性。\\
+\textbf{Conjugate gradient}（共轭梯度法）CG& 求解大型稀疏线性系统$D x = b$的迭代算法。是格点QCD中夸克传播子计算的核心数值工具。收敛速率受Dirac算符的条件数$\kappa(D) \sim 1/(a m_q)$限制。\\
+\textbf{Multigrid solver}（多重网格求解器）& 加速CG收敛的分级预条件技术：在不同格点粗化水平上消除平滑和振荡误差模式。对物理$\pi$质量的Dirac算符求逆至关重要。\\
+\textbf{Markov chain}（Markov链）& 通过转移概率$T(U'|U)$生成规范场组态序列的随机过程。需满足细致平衡条件$P(U)T(U'|U) = P(U')T(U|U')$。\\
+\textbf{Metropolis step}（Metropolis步骤）& 在Markov链中接受/拒绝候选新组态的步骤——接受概率为$\min[1, P(U')/P(U)]$。是HMC中的最终检验步骤。\\
+\textbf{Autocorrelation time}（自相关时间）$\tau_{\text{int}}$& 衡量Markov链中连续组态之间统计独立性的标度。计算效率由$\tau_{\text{int}} \times (\text{每步成本})$决定。在细格距和轻夸克质量下可能出现严重的长程自相关（临界减速）。\\
+\textbf{Jackknife/Bootstrap}（刀切法/自助法）& 从有限统计样本中估计误差的统计方法——通过系统删除或重抽样数据子集来评估统计量的方差。在格点数据分析中标准使用。\\
+\textbf{Quenched approximation}（淬火近似）& 忽略费米子行列式的近似——即忽略海夸克的真空极化效应。计算成本远低于full QCD，但系统误差不可控。现已被非淬火计算取代。\\
+\textbf{Full QCD/dynamical QCD}（全QCD/动力学QCD）& 完整计入费米子行列式对规范组态的反作用——即包含海夸克循环的QCD模拟。现代格点QCD的标准。\\
+\bottomrule
+\end{longtable}
+
+%=====================================================================
+\section{合作组、系综与软件}
+%=====================================================================
+
+\begin{longtable}{p{3.5cm}p{9cm}}
+\toprule
+\textbf{术语/缩写} & \textbf{定义与解释} \\
+\midrule
+\endhead
+\textbf{LPC}（Lattice Parton Collaboration，格点部分子合作组）& 以部分子分布函数的格点QCD计算为主要目标的国际合作组。成员来自中国（上海交大、北师大、中科院等）、美国（Maryland）、德国（Regensburg）等。本库中大量TMD-PDF和准PDF论文的作者。\\
+\textbf{CLQCD}（Chinese Lattice QCD Collaboration，中国格点QCD合作组）& 中国的格点QCD合作组。与LPC合作完成了胶子PDF的连续极限计算。\\
+\textbf{CLS}（Coordinated Lattice Simulations，协调格点模拟）& 欧洲合作组，生产$N_f=2+1$ Clover费米子+tree-level Symanzik改进规范作用的系综。格距范围$a = 0.039\text{--}0.098$~fm。LPC合作组在多篇TMD/PDF计算中使用。\\
+\textbf{MILC}（MIMD Lattice Computation）& 美国合作组，以$N_f=2+1+1$ HISQ系综闻名。格距$a=0.03\text{--}0.15$~fm，物理海夸克质量。本库中LPC的核子TMD-PDF计算基于MILC系综。\\
+\textbf{ETMC}（European Twisted Mass Collaboration，欧洲扭曲质量合作组）& 使用Twisted Mass费米子进行格点QCD计算的合作组。$N_f=2$和$N_f=2+1+1$系综。本库中包含其胶子PDF计算。\\
+\textbf{RBC/UKQCD}（RBC-UKQCD合作组）& 以Domain-Wall费米子为主要工具的合作组。$K\to\pi\pi$、$\epsilon'/\epsilon$和核子结构计算。\\
+\textbf{HadStruc/Hadron Spectrum}（强子谱合作组）& 强子谱学和结构的格点计算合作组。蒸馏（distillation）方法的开发者和使用者。\\
+\textbf{HPQCD}（High Precision QCD）& 以HISQ费米子的发展和高精度味物理计算闻名的合作组。\\
+\textbf{NNPDF}（Neural Network PDF）& 以神经网络方法进行PDF全局拟合的合作组。NNPDF4.0系其最新集合。\textbf{来源：}Ball et al. (2022)。\\
+\textbf{CT/CTEQ}（Coordinated Theoretical-Experimental project on QCD）& PDF全局拟合的经典合作组。CT18系其最新集合。\\
+\textbf{MSHT}（Martin--Stirling--Harland-Lang--Thorne）& PDF全局拟合的英国合作组。MSHT20系其最新集合。\\
+\textbf{ALPHA Collaboration}& 以Schr\"odinger泛函方法进行非微扰重整化的欧洲合作组。对$c_{\text{sw}}$的非微扰确定和强耦合常数的格点计算做出了核心贡献。\\
+\textbf{ANL/BNL lattice collaboration}& 在Argonne和Brookhaven国家实验室的格点QCD合作组，贡献了$\pi$介子PDF的格点数据。\\
+\textbf{\textit{Gauge ensemble}（规范系综，简称系综）}& 在固定裸参数（$\beta$、夸克质量等）下生成的一组规范场组态。每个系综的特征由$(a, L, m_\pi)$等参数表征。\\
+\textbf{Quark action}（夸克作用量）& 费米子场的格点离散化。海夸克（动力学）和价夸克（传播子）可选用不同的作用量——例如MILC HISQ海夸克+Clover价夸克。\\
+\bottomrule
+\end{longtable}
+
+%=====================================================================
+\section{可观测量与物理量}
+%=====================================================================
+
+\begin{longtable}{p{3.5cm}p{9cm}}
+\toprule
+\textbf{术语/缩写} & \textbf{定义与解释} \\
+\midrule
+\endhead
+\textbf{DIS}（Deep Inelastic Scattering，深度非弹性散射）& 高能轻子-核子散射，虚光子具有大虚度$Q^2$。是获取PDF的标准实验方法。结构函数$F_2(x_B,Q^2)$通过因子化定理与PDF联系。\\
+\textbf{SIDIS}（Semi-Inclusive Deep Inelastic Scattering，半单举深度非弹性散射）& 在DIS末态中额外识别一个强子$h$。其方位角分布对TMD-PDF（特别是Sivers和Boer-Mulders函数）敏感。\\
+\textbf{Drell-Yan process}（Drell-Yan过程）& $h_A + h_B \to \gamma^*/Z/W + X \to \ell^+\ell^- + X$。轻子对的横向动量分布对初态TMD-PDF敏感。Sivers函数在DY和SIDIS中符号反转是QCD的独特预言。\\
+\textbf{EIC}（Electron-Ion Collider，电子-离子对撞机）& 美国在建的新一代对撞机——将以前所未有的精度（$\sim 1\%$级系统误差）测量SIDIS中的TMD和GPD。格点QCD提供的理论输入将是EIC物理计划的关键。\\
+\textbf{LHC}（Large Hadron Collider，大型强子对撞机）& 位于CERN的14~TeV质子-质子对撞机。精确的PDF输入对$W/Z$玻色子产生、Higgs产生和顶夸克对产生的理论预言至关重要。\\
+\textbf{Glueball}（胶球）& 纯胶子构成的强子态。Wilson圈算符可用于创建胶球态。格点QCD预言最轻的标量胶球质量约为$1.5\text{--}1.7$~GeV，但实验确认仍存争议。\\
+\textbf{Flavor non-singlet}（味非单态）& 在味空间中非单态的夸克组合——例如同位旋矢量$u-d$。在DGLAP演化中不与胶子耦合，演化方程大大简化。\\
+\textbf{Flavor singlet}（味单态）& 所有味等权重的夸克组合$\Sigma = \sum_f(q_f + \bar q_f)$。在DGLAP演化中通过$2\times2$反常维数矩阵与胶子$g$耦合。\\
+\textbf{Isovector}（同位旋矢量）$u-d$& $u$夸克分布与$d$夸克分布之差。是格点准PDF计算中最干净、最简单的味组合——不涉及非连通收缩。\\
+\textbf{Pion decay constant}（$\pi$介子衰变常数）$F_\pi$& 通过轴矢流矩阵元$\langle 0|\bar u\gamma^\mu\gamma_5 d(0)|\pi^+(P)\rangle = i\sqrt{2}F_\pi P^\mu$定义的低能常数。$F_\pi \approx 92.2$~MeV（实验值）。用于标定格点模拟和定义手征微扰论展开。\\
+\textbf{Kaon decay constant}（$K$介子衰变常数）$F_K$& 类似$F_\pi$但对奇异夸克。比值$F_K/F_\pi$是精确检验格点QCD风味物理的基准。\\
+\textbf{Quark mass}（夸克质量）$m_q$& 在格点上为裸参数——对手征非对称费米子有加法+乘法重整化。PCAC质量$m_{\text{PCAC}}$是常用的非微扰定义。$\overline{\text{MS}}$质量$m^{\overline{\text{MS}}}(\mu=2\,\text{GeV})$为唯象学标准。\\
+\bottomrule
+\end{longtable}
+
+%=====================================================================
+\section{规范场论与数学工具}
+%=====================================================================
+
+\begin{longtable}{p{3.5cm}p{9cm}}
+\toprule
+\textbf{术语/缩写} & \textbf{定义与解释} \\
+\midrule
+\endhead
+\textbf{Path ordering}（路径编序）$\mathcal{P}$& 非Abel规范理论中Wilson线指数积分的必需算符——沿路径方向，越早出现的因子越靠右。保证Wilson线在规范变换下具有正确的协变性。\\
+\textbf{Gauge transporter/parallel transporter}（规范传输子/平行传输子）& Wilson线的物理诠释——将颜色空间中的矢量从一点平行传输到另一点。使$\bar\psi(y)U_\Gamma(y,x)\psi(x)$成为规范不变量。\\
+\textbf{Gauge invariance}（规范不变性）& 物理可观测量在定域规范变换下保持不变的要求。在格点上通过规范链接$U_\mu$的特定变换性质和迹运算实现。\\
+\textbf{Imaginary time formalism}（虚时间形式）$t \to -i\tau$& 从Minkowski到场论过渡到Euclidean场论的Wick旋转——使路径积分测度变为正定的Boltzmann因子$\exp(-S_E)$，从而是格点QCD可计算的基础。\\
+\textbf{Grassmann variables}（Grassmann变量）& 反对易的费米子场在路径积分中必须用反对易$c$数（Grassmann数）表示。其积分规则为$\int d\theta = 0$和$\int d\theta\,\theta = 1$。\\
+\textbf{Fourier transform on lattice}（格点Fourier变换）& 在有限体积格点上，动量是离散的：$p_\mu = 2\pi k_\mu/(N_\mu a)$，$k_\mu = -N_\mu/2+1,\dots,N_\mu/2$。Brillouin区边界在$p_\mu = \pi/a$处。\\
+\textbf{Wick contraction}（Wick缩并）& 在自由场论（或相互作用的微扰论）中，费米子场的乘积由传播子对替换的规则。费米子行列式和矩阵元通过Wick定理与传播子联系。\\
+\textbf{Bare parameter}（裸参数）& 在正规化截断（如格距$a$或动量截断$\Lambda$）下进入拉氏量的未重整化参数——裸质量$m_0$、裸耦合$g_0$。不直接对应物理可观测量。\\
+\textbf{Renormalized parameter}（重整化参数）& 通过与物理可观测量或重整化条件的联系定义的参数——在正规化被移除后保持有限。$\overline{\text{MS}}$质量和耦合是标准选择。\\
+\bottomrule
+\end{longtable}
+
+%=====================================================================
+\section{交叉参考索引}
+%=====================================================================
+
+\subsection*{本库\texttt{docs/}目录下各专题报告与本术语表的对应关系}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lp{10cm}}
+\toprule
+\textbf{专题报告} & \textbf{关联的术语类别（节号）} \\
+\midrule
+\texttt{格点QCD中的费米子方案.pdf} & §2（费米子方案）、§3（对称性与定理） \\
+\texttt{格点QCD中的Wilson线.pdf} & §1（Wilson圈与禁闭）、§4（Wilson线重整化） \\
+\texttt{格点QCD中的重整化.pdf} & §4（重整化）、§5（演化方程） \\
+\texttt{格点QCD中的部分子分布函数.pdf} & §5（部分子物理）、§8（可观测量） \\
+\texttt{格点QCD中的光锥PDF、准PDF、赝PDF.pdf} & §5（部分子物理）、§6（演化方程） \\
+\texttt{格点QCD中的TMD\_PDF.pdf} & §5（部分子物理）、§4（软函数） \\
+\texttt{格点QCD中的DGLAP演化方程.pdf} & §6（演化方程）、§5（DGLAP匹配） \\
+\texttt{格点QCD中的大动量有效理论.pdf} & §5（LaMET）、§6（RGR） \\
+\texttt{格点QCD中的OPE算符.pdf} & §5（Twist）、§6（反常维数） \\
+\texttt{格点QCD中的Symanzik有效理论.pdf} & §2（改进）、§4（Tadpole改进） \\
+\texttt{格点QCD中的场强张量.pdf} & §1（格点基本概念） \\
+\texttt{格点QCD中的标度参数.pdf} & §1（重整化群与标度） \\
+\texttt{格点QCD中的关联函数.pdf} & §1（强子谱与关联函数）、§7（算法） \\
+\texttt{格点QCD中的胶子算符/夸克算符.pdf} & §5（算符定义） \\
+\texttt{格点QCD中的重夸克有效理论.pdf} & §4（质量抵消项） \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{1cm}
+\noindent\rule{\textwidth}{0.5pt}
+\small
+\textbf{说明：}本术语表覆盖了本库约60篇PDF文献和\texttt{docs/}目录下全部专题解析报告中的核心术语。每个术语的释义综合了多篇文献的定义，力求准确。由于篇幅限制，部分高度专业化的子领域术语（如具体算符的Dirac结构选择、HISQ的精确参数化、RI/MOM的三圈解析表达式等）未收入本文，读者可查阅对应的专题报告获取详细讨论。建议将本文档作为阅读上述专题报告时的速查参考。
+
+\end{document}
