@@ -123,3 +123,11 @@
 - 关键内容: 新增 1 个单页 Unpreconditioned BiCGSTAB 算法、2 个求解器/传播子物理子节、4 幅原生 TikZ 图，并把求解误差纳入预算、验收和复现清单；论文扩至 49 页且通过编译、引用、图形与格式验证
 - 验证: path, size, required sections, conflict markers
 - 批次状态: complete
+## gluon-tmd-formulas-visual-20261023 - final - 2026-10-23 01:00:29 +0800
+- 主任务: 增强核子胶子 TMD-PDF 理论综述的公式密度与版面层次
+- 日志文件: logs/v2026102301.txt
+- 文件大小: 6395 bytes
+- 触发原因: 任务完成
+- 关键内容: 新增 16 个编号关系、4 个关键公式卡、1 个物理判据框和 1 个尺度审计框；重构摘要框、章节标题规则与图题样式；论文扩至 50 页并通过编译、公式、引用、图形和格式验证
+- 验证: path, size, required sections, conflict markers
+- 批次状态: complete
