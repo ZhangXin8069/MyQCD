@@ -1,0 +1,71 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-10-22 14:19:51 +0800
+批次: tag-dev7-20261022
+主任务: ~tag:dev
+触发原因: 任务完成
+摘要: 在 HEAD 创建并验证本地附注标签 dev7，完成测试、历史链与格式审计
+Git 根目录: /root/MyQCD
+
+## 关键日志
+
+### S1 — 范围与基线审计
+- 目标: 明确 dev 类型下一编号、最新标签链尾、标签目标和变更范围。
+- 命令/操作: `git status --short --branch`; `git for-each-ref refs/tags --sort=-taggerdate`; `git log --decorate`; `git diff dev6..HEAD --stat`.
+- 关键输出: 工作区无改动；实际链尾为 dev6；HEAD=43352d06c062c809db45cbb64158803b71d10b9b；dev6..HEAD 有 2 个提交、9 个文件、+283/-67。
+- 退出码: 0
+- 证据与判断: 跨类型 `v:refname` 排序会把 stab6 排在 dev6 前，但标签时间和提交拓扑均确认 dev6 是实际最新标签；变更基线采用 dev6。
+
+### S2 — 历史链、功能与格式基线
+- 目标: 在打标前核验全历史标签链、当前提交功能和仓库格式。
+- 命令/操作: `tag-chain.sh --check --remote origin`; `python -m pytest`; SymPy `--check-only`; course examples `--quiet`; form-audit `--strict --quiet`; `git diff --check`.
+- 关键输出: 远端历史链 15 个标签 PASS；pytest 120 passed（338.02s）；SymPy 175/175；课程样例 26/26；form-audit、git diff --check 均退出 0。
+- 退出码: 0
+- 证据与判断: 当前 HEAD 可建立开发快照，未发现测试、格式或标签链阻塞。
+
+### S3 — init 只读审计
+- 目标: 判断是否需要在打标前同步 AGENTS.md 或归档 agent 初始化文件。
+- 命令/操作: 枚举主仓库跟踪的 AGENTS/历史 agent 文件与 agent 配置目录；检查 `.gitmodules` 和 `git submodule status`。
+- 关键输出: 主仓库无 CLAUDE.md、CODEX.md、AGENT.md 或 agent 配置目录；4 个外部参考目录以子模块管理，其中 PyQCD/PyQCU 已初始化，另 2 个未初始化。
+- 退出码: 0
+- 证据与判断: 无主仓库配置漂移；外部子模块不属于 init 改写范围，本批次无需文件写入。
+
+### S4 — 创建与验证 dev7
+- 目标: 创建紧接 dev6 的本地附注标签并验证格式、目标和链关系。
+- 命令/操作: `git tag -a dev7 -m '<约定消息>'`; `git cat-file -t dev7`; `git tag -n99 -l dev7`; peeled commit 与 HEAD 比较；`tag-chain.sh --check`。
+- 关键输出: dev7 为 tag 对象，peeled commit=43352d06c062c809db45cbb64158803b71d10b9b；消息以 `follow dev6,` 开头并以 `[codex].` 结尾；本地 16 个受管标签 PASS。
+- 退出码: 0
+- 证据与判断: dev7 已正确指向当前 HEAD，follow 链、祖先关系和消息格式均有效。
+
+## 验证与证据
+- 测试/检查: pytest、SymPy 课程验证、课程样例、严格格式审计、git diff --check、标签类型与 peeled commit、全历史 tag-chain。
+- 结果: pytest 120 passed；SymPy 175/175；课程样例 26/26；form-audit 退出 0；dev7 指向 HEAD；16 个标签链 PASS。
+- 未验证项: 未执行远程同步；origin 上尚无 dev7；引用子模块 LQCD_Wickcontraction_reduce 与 feyncalc 仍处于未初始化状态。
+
+## 变更与产物
+- 文件: 本任务仅新增日志和更新 logs/AGENTS.md 索引；未修改源码或测试。
+- 产物: 本地附注标签 dev7。
+- 未改动范围: 未暂存、提交或推送任何改动；未改写已有标签；未改动外部子模块内容。
+
+## 风险、限制与下一步
+- 风险: dev7 仅存在本地；未同步远程前其他协作者不可见。
+- 阻塞: 无。
+- 下一步: 如需同步，先由用户明确授权，再普通推送 main 与 dev7。
+
+## 用户输入指令
+~tag:dev
+
+## Agent 全文报告
+--- report begin ---
+**finished**
+
+已创建本地附注标签 `dev7`，未推送。
+
+- 标签目标：`43352d06c062c809db45cbb64158803b71d10b9b`（当前 `HEAD`）。
+- 基线：实际链尾 `dev6`；`dev6..HEAD` 共 2 个提交、9 个文件，`+283/-67`。
+- 标签消息：`follow dev6, 1. 修正 refer 文档与索引边界，补全导读文选和外部子模块状态说明; 2. 归档 refer 整理与 dev6 打标日志并更新日志索引; 3. 精简根 README 为项目署名，维护说明回归 AGENTS.md; 4. 当前 HEAD 通过 pytest 120 项、SymPy 175/175、课程样例 26/26 与严格格式审计; [codex].`
+- 标签校验：附注对象类型正确，peeled commit 与 `HEAD` 一致；本地全历史链 16 个标签通过。
+- 功能验证：pytest 120 passed（338.02s）；SymPy 175/175；课程样例 26/26；form-audit `--strict --quiet` 退出 0；`git diff --check` 通过。
+- 初始化审计：主仓库无散落 agent 初始化文件或配置目录；外部参考目录均为子模块，未做 init 写入。
+- 未同步：未获远程同步授权，未执行 push，`origin` 上尚无 `dev7`。
+--- report end ---
