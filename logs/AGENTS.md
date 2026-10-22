@@ -115,3 +115,11 @@
 - 关键内容: 恢复会话 01a16448-8ccb-7f82-8652-5cfaafcbdeae；完成 43 页综述的文献修订、编译、公式/引用/格式与根测试验证；严格格式审计仅有 21 条既有只读快照路径告警
 - 验证: path, size, required sections, conflict markers
 - 批次状态: complete
+## gluon-tmd-algorithm-figures-20261023 - final - 2026-10-23 00:50:47 +0800
+- 主任务: 为核子胶子 TMD-PDF 综述补充 BiCGSTAB 算法、详细物理解释与图形化表达
+- 日志文件: logs/v2026102300-2.txt
+- 文件大小: 6992 bytes
+- 触发原因: 任务完成
+- 关键内容: 新增 1 个单页 Unpreconditioned BiCGSTAB 算法、2 个求解器/传播子物理子节、4 幅原生 TikZ 图，并把求解误差纳入预算、验收和复现清单；论文扩至 49 页且通过编译、引用、图形与格式验证
+- 验证: path, size, required sections, conflict markers
+- 批次状态: complete

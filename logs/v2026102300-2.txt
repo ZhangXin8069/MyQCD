@@ -1,0 +1,87 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-10-23 00:50:47 +0800
+批次: gluon-tmd-algorithm-figures-20261023
+主任务: 为核子胶子 TMD-PDF 综述补充 BiCGSTAB 算法、详细物理解释与图形化表达
+触发原因: 任务完成
+摘要: 新增 1 个单页 Unpreconditioned BiCGSTAB 算法、2 个求解器/传播子物理子节、4 幅原生 TikZ 图，并把求解误差纳入预算、验收和复现清单；论文扩至 49 页且通过编译、引用、图形与格式验证
+Git 根目录: /root/MyQCD
+
+## 关键日志
+
+### S1 — 恢复上下文与目标界定
+- 目标: 按用户给定 `Unpreconditioned BiCGSTAB` 展示风格补足算法格式，并显著细化物理解释；随后满足“图形结合”要求。
+- 命令/操作: 读取论文传播子章节、LaTeX 宏包环境、现有图形和验收表；确认本任务属于 `{物理+代码}`。
+- 关键输出: 原稿已有公式和表格，但 Dirac 求逆只有概述，缺少算法控制流、近零模/条件数/残差物理解释，全文仅 1 幅图。
+- 退出码: 0。
+- 证据与判断: 可在不改动既有物理结论的前提下，新增算法、物理说明和矢量图，并把它们接入误差预算。
+
+### S2 — 算法与物理內容扩写
+- 目标: 解释 \(D_q[U]\psi=\eta\) 的规范背景传播含义，并给出可审计的 BiCGSTAB 流程。
+- 命令/操作: 增加 `algorithm`/`algpseudocode` 环境；写入 `Algorithm 1`；新增规范协变、\(\gamma_5\)-Hermiticity、Krylov、局部残差极小化、breakdown、预条件、真残差和观测量敏感度说明。
+- 关键输出: 新增“Dirac 方程的物理内容与规范协变性”和“BiCGSTAB、谱条件与收敛验收”两节；补充 2 篇算法参考文献；把 Dirac 求逆加入误差矩阵、L1 验收和复现清单。
+- 退出码: 0。
+- 证据与判断: 算法中的 \(r_i,\hat r_0,p_i,s,\omega_i,\rho_i^{\rm true}\) 均与格点传播子和物理验收建立了明确对应。
+
+### S3 — 图形化整合
+- 目标: 让物理链、算法链、尺度链与验收链由图承载，而不是仅增加文字。
+- 命令/操作: 使用原生 TikZ 新增 4 幅矢量图，并在正文中逐图引用。
+- 关键输出: 新增图 2“格点 Dirac 求逆双重图像”、图 3“BiCGSTAB 控制流”、图 4“共同尺度窗口”、图 5“图形化验收链”；论文总图数由 1 增至 5。
+- 退出码: 0。
+- 证据与判断: 所有图均为可检索、可重编译的 TikZ，不使用不可审计位图；5 幅图均有正文引用、图题和标签。
+
+### S4 — 编译与交付验证
+- 目标: 验证算法、图形、引用和 PDF 版式。
+- 命令/操作: 两遍 XeLaTeX；引用/图形键集合检查；`pdfinfo`、`pdffonts`、`pdftotext -layout`；`python -m myqcd`；`form-audit --strict`；`form-snapshot-verify`；`git diff --check`。
+- 关键输出: 两遍编译退出码 0；49 页；0 个编译/引用错误；0 个 Overfull/Float too large；5/5 图被引用；36/36 引用键闭合；算法完整落在第 25 页；图 1/2/3/4/5 分别位于第 7/23/26/36/39 页；公式审计 94 项核心推导 0 失败。
+- 退出码: 编译 0；公式审计 0；快照校验 0；严格格式审计 1（仅既有只读快照告警）。
+- 证据与判断: 复杂算法流和验收链页面进行了低分辨率人工检查，未见可见遮挡；其余图通过文本边界、页数和编译检查。
+
+## 验证与证据
+- 测试/检查: XeLaTeX 两遍、引用/图形交叉引用、PDF 页数与字体、算法/图题页码、`python -m myqcd`、严格格式审计、快照校验、Git 空白检查。
+- 结果: 49 页；0 编译错误；0 Overfull/Float too large；2 条既有非致命 `Underfull`；36 个 cite key 与 36 个 bibitem 完全匹配；5 幅图均被引用；94 项核心公式检查无失败。
+- 未验证项: 未重跑约 6 分钟的根 `pytest`，因为本轮只修改 Markdown、TeX 和 PDF，未改 Python；严格格式审计仍有 21 条 `docs/pyqcd_reference/` 只读历史快照告警；`python -m myqcd` 仍报告 2263 条库存公式未解析。
+
+## 变更与产物
+- 文件: `docs/pyqcd_physics/report_gluon_tmd_lattice_qcd_review_20261023.tex`
+- 文件: `docs/pyqcd_physics/report_gluon_tmd_lattice_qcd_review_20261023.pdf`
+- 文件: `docs/pyqcd_physics/README.md`
+- 产物 SHA-256: TeX `d718a662f89a5d891e9e3eaec9623b114e6068c8c2a35bccf307e47d53b14fbe`; PDF `cbb6a24dba1d436e8ae3085d9fe4c7c7847b6b7aca2cc9b0d44bff703e6989bc`。
+- 未改动范围: Python 实现、测试代码、`refer/` 上游与 `docs/pyqcd_reference/` 只读快照均未修改。
+
+## 风险、限制与下一步
+- 风险: 2 条 `Underfull` 为非致命排版提示；全库严格格式门禁仍受只读历史快照路径告警限制。
+- 阻塞: 无任务级阻塞。
+- 下一步: 审阅后按文档批次提交 TeX、PDF 与 README 修改；未经明确授权未暂存、提交或推送。
+
+## 用户输入指令
+1. 算法展示格式参考 `===Unpreconditioned BiCGSTAB===` 的编号式伪代码格式，并指出“物理解释部分不够详细”。
+2. 此论文需要图形结合。
+
+## Agent 全文报告
+--- report begin ---
+状态：**finished**
+
+### 改动内容
+- 新增算法 1：`Unpreconditioned BiCGSTAB for the lattice Dirac equation D[U]ψ=η`，含初始化、双正交 shadow、局部稳定化、收敛与 breakdown 分支。
+- 新增两节物理说明：Dirac 方程在规范背景中的传播含义，以及 BiCGSTAB 的条件数、近零模、搜索方向、真残差与观测量误差。
+- 新增 4 幅原生 TikZ 图：Dirac 求逆双重图像、BiCGSTAB 控制流、共同尺度窗口、图形化验收链；全文现共 5 幅图。
+- 将 Dirac 求逆接入系统误差矩阵、L1 验收清单、必须报告约定和最小复现清单。
+- 论文由 43 页扩展为 49 页。
+
+### 推理依据
+- BiCGSTAB 不是独立性能细节，而是在固定规范背景中构造 \(S_q=D_q^{-1}\) 的方式；其近零模、条件数和停止容差会进入传播子及胶子矩阵元的物理误差。
+- 图形使用 TikZ 而非位图，保持可检索、可版本控制和可重编译；每幅图都对应正文中的一条物理或验收逻辑链。
+
+### 验证结果
+- 两遍 XeLaTeX 成功，49 页，零编译/引用错误。
+- 0 个 `Overfull` 或 `Float too large`；2 条既有非致命 `Underfull`。
+- 36 个引用键与 36 个 `bibitem` 完全匹配；5 幅图全部被正文引用。
+- 算法完整位于第 25 页；5 幅图分别位于第 7、23、26、36、39 页。
+- `python -m myqcd`：94 项核心推导无失败；2263 条库存公式未解析。
+- 严格格式审计仅因 21 条既有只读快照路径告警而退出 1；快照校验与 `git diff --check` 通过。
+- 未重跑根 `pytest`，因为本轮未修改 Python；复杂算法流和验收链页面已做低分辨率人工检查。
+
+### 后续步骤
+- 审阅通过后，将 TeX、PDF 和 README 修改作为同一文档批次提交。本轮未暂存、提交或推送。
+--- report end ---

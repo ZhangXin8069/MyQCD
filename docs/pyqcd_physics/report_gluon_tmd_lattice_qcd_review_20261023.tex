@@ -7,10 +7,12 @@
 \usepackage{enumitem}
 \usepackage{graphicx}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathmorphing}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathmorphing,shapes.geometric}
 \usepackage{xcolor}
 \usepackage{microtype}
 \usepackage[numbers,sort&compress]{natbib}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \usepackage{hyperref}
 
 \hypersetup{
@@ -39,6 +41,10 @@
 \newcommand{\fone}{f_{1}^{g/N}}
 \newcommand{\Oq}{\widetilde{\mathcal O}_{g}}
 
+\floatname{algorithm}{算法}
+\renewcommand{\algorithmicrequire}{\textbf{输入：}}
+\renewcommand{\algorithmicensure}{\textbf{输出：}}
+
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 
@@ -52,14 +58,14 @@
 
 \begin{abstract}
 \noindent
-胶子的横动量依赖部分子分布函数（transverse-momentum-dependent parton distribution function，TMD-PDF）同时描述核子内胶子的纵向动量份额 \(x\)、横向动量 \(\kT\)、自旋关联以及非微扰软胶子效应，是理解质子三维结构、小 \(x\) 动力学和未来电子离子对撞机（EIC）物理的重要输入。本文综述使用格点 QCD 从第一性原理计算核子非极化胶子 TMD-PDF 的理论框架。讨论从光锥胶子关联函数及其规范链定义出发，说明快度（rapidity）发散、软函数、Collins--Soper 演化、准 TMD 算符、LaMET 因子化、Wilson 圈减除、短距比率与混合重正化、梯度流以及连续极限之间的逻辑关系。特别强调，梯度流提供的是受控的 UV 正规化与短流时匹配工具，而不是 rapidity 发散、表示相关软因子或完整单态混合的替代品。本文进一步给出格点两点与三点关联函数、Clover 场强、核子激发态、Fourier 反演和外推的系统误差矩阵，并以库内文献和实现审计为证据，区分共线胶子 PDF 的已发表先例、TMD 软函数与 CS 核的格点结果、夸克 TMD 的方法学基准，以及尚待闭合的直接核子胶子 TMD 计算。结论是：完整计算必须同时满足算符几何、表示、软因子、重正化、匹配和大动量尺度窗口的一致性；缺少任一环节时，只能报告诊断量或中间矩阵元，不能称为物理胶子 TMD-PDF。
+胶子的横动量依赖部分子分布函数（transverse-momentum-dependent parton distribution function，TMD-PDF）同时描述核子内胶子的纵向动量份额 \(x\)、横向动量 \(\kT\)、自旋关联以及非微扰软胶子效应，是理解质子三维结构、小 \(x\) 动力学和未来电子离子对撞机（EIC）物理的重要输入。本文综述使用格点 QCD 从第一性原理计算核子非极化胶子 TMD-PDF 的理论框架。讨论从光锥胶子关联函数及其规范链定义出发，说明快度（rapidity）发散、软函数、Collins--Soper 演化、准 TMD 算符、LaMET 因子化、Wilson 圈减除、短距比率与混合重正化、梯度流以及连续极限之间的逻辑关系。特别强调，梯度流提供的是受控的 UV 正规化与短流时匹配工具，而不是 rapidity 发散、表示相关软因子或完整单态混合的替代品。本文进一步给出格点两点与三点关联函数、Clover 场强、核子激发态、Dirac 传播子求逆、Fourier 反演和外推的系统误差矩阵，并以库内文献和实现审计为证据，区分共线胶子 PDF 的已发表先例、TMD 软函数与 CS 核的格点结果、夸克 TMD 的方法学基准，以及尚待闭合的直接核子胶子 TMD 计算。文中还把 BiCGSTAB 从“线性求解器”还原为规范背景中的传播子构造，说明近零模、条件数、breakdown、残差和求解容差如何进入物理误差预算。结论是：完整计算必须同时满足算符几何、表示、软因子、重正化、匹配和大动量尺度窗口的一致性；缺少任一环节时，只能报告诊断量或中间矩阵元，不能称为物理胶子 TMD-PDF。
 
 \vspace{0.7em}
 \noindent\textbf{关键词：}格点 QCD；胶子 TMD-PDF；大动量有效理论；Collins--Soper 核；梯度流；重正化；核子结构
 
 \vspace{1.2em}
 \noindent\textbf{Abstract.}
-We review the theoretical framework for calculating the gluon transverse-momentum-dependent parton distribution function (TMD-PDF) of the nucleon in lattice QCD. Starting from the light-cone gluon correlator and its gauge link, we discuss rapidity divergences, the soft function, Collins--Soper evolution, quasi-TMD operators, LaMET matching, Wilson-loop subtraction, short-distance ratio and hybrid renormalization, gradient flow, and continuum extrapolation. Gradient flow is presented as a controlled ultraviolet regulator and short-flow-time matching tool, not as a replacement for the representation-dependent soft factor, rapidity renormalization, or complete singlet mixing. We distinguish published lattice calculations of collinear gluon PDFs, determinations of the soft function and Collins--Soper kernel, methodological benchmarks from quark TMDs, and the remaining requirements for a physical nucleon gluon TMD. A calculation is physically complete only when operator geometry, color representation, soft and rapidity factors, renormalization, matching, and the large-momentum scale hierarchy are mutually consistent.
+We review the theoretical framework for calculating the gluon transverse-momentum-dependent parton distribution function (TMD-PDF) of the nucleon in lattice QCD. Starting from the light-cone gluon correlator and its gauge link, we discuss rapidity divergences, the soft function, Collins--Soper evolution, quasi-TMD operators, LaMET matching, Wilson-loop subtraction, short-distance ratio and hybrid renormalization, gradient flow, Dirac inversions, and continuum extrapolation. Gradient flow is presented as a controlled ultraviolet regulator and short-flow-time matching tool, not as a replacement for the representation-dependent soft factor, rapidity renormalization, or complete singlet mixing. We distinguish published lattice calculations of collinear gluon PDFs, determinations of the soft function and Collins--Soper kernel, methodological benchmarks from quark TMDs, and the remaining requirements for a physical nucleon gluon TMD. A calculation is physically complete only when operator geometry, color representation, soft and rapidity factors, renormalization, matching, and the large-momentum scale hierarchy are mutually consistent. We also explain how near-zero modes, conditioning, iterative-solver breakdown, true residuals, and tolerance choices enter the physical error budget rather than remaining hidden implementation details.
 
 \vspace{0.7em}
 \noindent\textbf{Keywords:} lattice QCD; gluon TMD; LaMET; Collins--Soper kernel; gradient flow; renormalization; nucleon structure
@@ -232,6 +238,8 @@ QCD 场强张量取为
 \caption{胶子 TMD 的三个理论层次。光锥算符给出物理定义；Euclidean staple 算符使格点 QCD 可以直接计算；因子化、软/rapidity 减除和多尺度极限把格点矩阵元连接到光锥分布。}
 \label{fig:three-levels}
 \end{figure}
+
+图~\ref{fig:three-levels} 概括了本文反复使用的三层结构：光锥算符提供定义，Euclidean staple 提供可计算对象，soft/rapidity、重正化、匹配和极限把两者连接起来。后续所有公式和流程都应能放回图中的某一条边，不能把不同层次的对象直接等同。
 
 \subsection{非极化投影与共线极限}
 
@@ -1013,6 +1021,227 @@ Wilson 线应由同一套格点链接逐段相乘。对伴随表示，可先构�
 \end{itemize}
 如果两点函数先对源做平均，再把它当作完整时间序列参与比值，可能引入不可恢复的归一化错误。源分辨缓存应保留源轴和每个源的规范组态信息，统计重采样也应在同一组 replica 内完成。
 
+\subsection{Dirac 方程的物理内容与规范协变性}
+
+核子两点和三点函数的每一个 Wick 收缩最终都归结为在固定规范背景中求夸克传播子。把格点 Dirac 算符记为 \(D_q[U]\)，对给定源 \(\eta\) 求解
+\begin{equation}
+  \bigl[D_q[U]\psi_\eta\bigr](x,\alpha,a)=\eta(x,\alpha,a),
+  \qquad
+  S_q(x,y;U)=\bigl[D_q[U]^{-1}\bigr]_{x,y},
+  \qquad
+  \psi_\eta=D_q[U]^{-1}\eta ,
+  \label{eq:diracsolve}
+\end{equation}
+其中 \(x\) 标记格点位置，\(\alpha\) 与 \(a\) 分别标记 Dirac 和颜色指标。源 \(\eta\) 不是一个与 QCD 无关的任意向量：它编码源的位置、动量投影、自旋-颜色结构、涂抹算子以及可能的 sequential-source 顶点。解 \(\psi_\eta\) 因而不是“某个经典轨迹”，而是该组态下所有满足协变 Dirac 方程的夸克传播振幅之和。单组态的 \(\psi_\eta\) 只是路径积分中的一个条件样本，只有对规范组态平均并按 Wick 收缩组合后，才形成可解释为强子矩阵元的非微扰传播。
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[>=Stealth,font=\small]
+  \tikzset{
+    panel/.style={draw=blue!35!black,rounded corners,fill=blue!3,minimum width=6.25cm,minimum height=4.4cm},
+    vec/.style={draw=blue!60!black,rounded corners,fill=blue!9,align=center,inner sep=4pt},
+    op/.style={draw=orange!70!black,rounded corners,fill=orange!12,align=center,inner sep=4pt},
+    check/.style={draw=red!65!black,rounded corners,fill=red!7,align=center,inner sep=3pt}
+  }
+  \node[panel] (left) at (-3.35,0) {};
+  \node[panel] (right) at (3.35,0) {};
+  \node[font=\bfseries] at (-3.35,1.78) {(a) 规范背景中的传播子};
+  \node[font=\bfseries] at (3.35,1.78) {(b) 求解器所见的问题};
+
+  \node[vec] (source) at (-5.15,0.55) {源 \(\eta\)\\[-1mm]{\scriptsize 位置、自旋、颜色}};
+  \node[vec] (sink) at (-1.55,0.55) {汇 \(\mathcal O[\psi_\eta]\)\\[-1mm]{\scriptsize 两点/三点收缩}};
+  \draw[->,line width=1.2pt,blue!65!black] (source.east) to[bend left=18] node[above] {\(D_q[U]^{-1}\)} (sink.west);
+  \draw[->,line width=1.0pt,orange!75!black] (source.east) to[bend right=22] node[below,align=center] {协变传播路径\\{\scriptsize 由 \(U_\mu(x)\) 决定}} (sink.west);
+  \draw[->,line width=1.0pt,teal!70!black] (source.east) to[bend left=36] (sink.west);
+  \node[op,text width=5.3cm] at (-3.35,-1.15) {不同组态给出不同背景 \(U\)；平均后才形成强子矩阵元};
+
+  \node[vec] (eta) at (1.05,1.05) {\(\eta\)};
+  \node[op] (inv) at (3.35,1.05) {\(D_q[U]^{-1}\)};
+  \node[vec] (psi) at (5.45,1.05) {\(\psi_i\)};
+  \node[vec] (obs) at (5.45,-0.55) {\(\mathcal O[\psi_i]\)};
+  \node[check,text width=2.65cm] (res) at (2.75,-0.55) {\(r_i\)、\(r_i^{\rm true}\)\\容差扫描};
+  \draw[->] (eta)--(inv); \draw[->] (inv)--(psi); \draw[->] (psi)--(obs);
+  \draw[->,dashed,red!65!black] (obs.west)--(res.east);
+  \draw[->,dashed,red!65!black] (res.north)--(inv.south);
+  \node[align=center,font=\scriptsize] at (4.15,-1.35) {求解失败或容差不足时\\回到 Krylov/预条件分支};
+\end{tikzpicture}
+\caption{格点 Dirac 求逆的双重图像。左图：源、传播子和汇都生活在同一规范背景中，不同路径由链接变量相干叠加；右图：数值求解只看到非 Hermitian 线性系统、Krylov 近似和残差验收。只有把两幅图对应起来，才能把“解出传播子”与“得到物理矩阵元”区分开。}
+\label{fig:dirac-solver}
+\end{figure}
+
+图~\ref{fig:dirac-solver} 把这一层物理内容与求解器视角并列展示。左图强调源、链接和汇属于同一个规范场样本；右图强调算法只负责近似逆矩阵的一列。若把右图的小残差直接等同于左图的物理正确性，就会遗漏规范协变、谱条件和观测量敏感度三类问题。
+
+规范变换 \(\Omega(x)\) 同时作用于算符、源和解：
+\begin{equation}
+  D_q[U^\Omega]=\Omega D_q[U]\Omega^\dagger,
+  \qquad
+  \eta^\Omega=\Omega\eta,
+  \qquad
+  \psi_\eta^\Omega=\Omega\psi_\eta .
+  \label{eq:diracgaugecov}
+\end{equation}
+因此迭代求解必须保持颜色协变；如果把源颜色、链接方向和求解器内积的约定混用，残差可以形式上很小，却对应一个改变了规范链或顶点结构的物理量。对 Wilson 型算符，实质量下还满足 \(\gamma_5\)-Hermiticity：
+\begin{equation}
+  D_q^\dagger=\gamma_5D_q\gamma_5,
+  \qquad
+  (\gamma_5D_q)^\dagger=\gamma_5D_q .
+  \label{eq:gamma5hermiticity}
+\end{equation}
+这保证 \(D_q\) 与 \(D_q^\dagger\) 通过 \(\gamma_5\) 相似，非实本征值成共轭对出现；但 \(D_q\) 本身通常仍不是 Hermitian 正定矩阵，不能直接套用共轭梯度法。更重要的是，\(D_q\) 的小本征值会放大源和舍入误差；近零模既可能与拓扑背景和近手征模式相关，也会使高动量、大体积传播子的迭代数急剧增加。数值收敛因此不是单纯性能指标，而是传播子谱条件是否足以支撑当前物理误差目标的组成部分。
+
+\subsection{BiCGSTAB、谱条件与收敛验收}
+
+BiCGSTAB 用非对称 Krylov 子空间处理一般非 Hermitian 的 \(D_q\)，以短递推同时构造双正交残差和局部残差极小化\cite{VanDerVorst1992}。对共轭梯度法可以直接处理的 Hermitian 正定系统，当前 \(D_q\) 并不满足前提；若改用正规方程 \(D_q^\dagger D_q\)，条件数会被平方，因此它不是一个默认更安全的替代。理解 BiCGSTAB 的关键不是记住系数，而是看清每一步在物理传播问题中承担的角色。搜索方向满足
+\begin{equation}
+  v_{i-1}=D_qp_{i-1},
+  \qquad
+  \alpha_i=\frac{(\hat r_0,r_{i-1})}{(\hat r_0,v_{i-1})},
+  \qquad
+  s=r_{i-1}-\alpha_i v_{i-1},
+  \label{eq:bicg-alpha}
+\end{equation}
+其中 \(\alpha_i\) 由双正交约束 \((\hat r_0,s)=0\) 确定。随后令 \(t=Ds\)，局部稳定化系数由
+\begin{equation}
+  \omega_i
+  =\arg\min_{\omega\in\mathbb C}\|s-\omega t\|_2^2
+  =\frac{(t,s)}{(t,t)}
+  \label{eq:bicg-omega}
+\end{equation}
+给出，并更新
+\begin{equation}
+  \psi_i=h+\omega_i s,
+  \qquad
+  r_i=s-\omega_i t,
+  \qquad
+  h=\psi_{i-1}+\alpha_i p_{i-1}.
+  \label{eq:bicg-update}
+\end{equation}
+式~\eqref{eq:bicg-omega} 是一个局部最小二乘投影，不是物理时间演化，也不保证每一步都使全局残差单调下降；它只压低当前 \(s\) 在 \(D_qs\) 方向上的剩余分量。把这一点误读为“残差必然下降”，会导致只看迭代曲线而忽略真实矩阵元偏差。
+
+\begin{algorithm}[htbp]
+\small
+\caption{Unpreconditioned BiCGSTAB for the lattice Dirac equation \(D[U]\psi=\eta\)}
+\label{alg:bicgstab}
+\begin{algorithmic}[1]
+\Require \(D\equiv D_q[U]\); source \(\eta\); initial guess \(\psi_0\)
+\Require relative tolerance \(\epsilon_{\rm rel}>0\); breakdown tolerance \(\epsilon_{\rm br}>0\); \(i_{\max}\)
+\Ensure approximate solution \(\psi_i\); residual \(r_i\); convergence status
+\State \(r_0\gets \eta-D\psi_0\)
+\State choose \(\hat r_0\) with \((\hat r_0,r_0)\ne0\); default \(\hat r_0\gets r_0\)
+\State optionally randomize \(\hat r_0\) when the default shadow is unlucky
+\State \(\rho_0\gets(\hat r_0,r_0)\); \(p_0\gets r_0\)
+\State \(\texttt{status}\gets\texttt{max\_iterations}\)
+\If{\(|\rho_0|\le\epsilon_{\rm br}\)}
+  \State \(\texttt{status}\gets\texttt{breakdown}\); \textbf{break}
+\EndIf
+\For{\(i=1,2,\ldots,i_{\max}\)}
+  \State \(v\gets Dp_{i-1}\)
+  \If{\(|(\hat r_0,v)|\le\epsilon_{\rm br}\)}
+    \State \(\texttt{status}\gets\texttt{breakdown}\); \textbf{break}
+  \EndIf
+  \State \(\alpha\gets\rho_{i-1}/(\hat r_0,v)\)
+  \State \(h\gets\psi_{i-1}+\alpha p_{i-1}\)
+  \State \(s\gets r_{i-1}-\alpha v\)
+  \If{\(\|s\|_2/\|\eta\|_2\le\epsilon_{\rm rel}\)}
+    \State \(\psi_i\gets h\); \(r_i\gets s\)
+    \State \(\texttt{status}\gets\texttt{converged}\); \textbf{break}
+  \EndIf
+  \State \(t\gets Ds\)
+  \If{\(|(t,t)|\le\epsilon_{\rm br}\)}
+    \State \(\texttt{status}\gets\texttt{breakdown}\); \textbf{break}
+  \EndIf
+  \State \(\omega\gets(t,s)/(t,t)\)
+  \State \(\psi_i\gets h+\omega s\)
+  \State \(r_i\gets s-\omega t\)
+  \If{\(\|r_i\|_2/\|\eta\|_2\le\epsilon_{\rm rel}\)}
+    \State \(\texttt{status}\gets\texttt{converged}\); \textbf{break}
+  \EndIf
+  \State \(\rho_i\gets(\hat r_0,r_i)\)
+  \If{\(|\rho_i|\le\epsilon_{\rm br}\) or \(|\omega|\le\epsilon_{\rm br}\)}
+    \State \(\texttt{status}\gets\texttt{breakdown}\); \textbf{break}
+  \EndIf
+  \State \(\beta\gets(\rho_i/\rho_{i-1})(\alpha/\omega)\)
+  \State \(p_i\gets r_i+\beta(p_{i-1}-\omega v)\)
+\EndFor
+\State \textbf{return} \(\psi_i,r_i,\) status
+\end{algorithmic}
+\end{algorithm}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,font=\small,node distance=0.55cm,
+  block/.style={draw=blue!60!black,rounded corners,fill=blue!8,align=center,text width=3.6cm,inner sep=4pt},
+  decision/.style={draw=orange!75!black,fill=orange!12,diamond,aspect=1.75,align=center,inner sep=1pt,text width=2.75cm},
+  output/.style={draw=green!55!black,rounded corners,fill=green!10,align=center,text width=2.1cm,inner sep=4pt},
+  fail/.style={draw=red!65!black,rounded corners,fill=red!7,align=center,text width=2.5cm,inner sep=3pt}
+]
+  \node[block] (init) at (0,5.9) {初始化 \(r_0,\hat r_0,p_0,\rho_0\)};
+  \node[block] (matvec) at (0,4.45) {计算 \(v=Dp_{i-1}\)};
+  \node[block] (alpha) at (0,3.0) {计算 \(\alpha,h,s\)};
+  \node[decision] (sconv) at (0,1.35) {\(\|s\|/\|\eta\|\)\\\(\le\epsilon_{\rm rel}\)?};
+  \node[block] (tvec) at (0,-0.25) {计算 \(t=Ds\) 与 \(\omega\)};
+  \node[block] (update) at (0,-1.9) {更新 \(\psi_i,r_i\)};
+  \node[decision] (rconv) at (0,-3.55) {\(\|r_i\|/\|\eta\|\)\\\(\le\epsilon_{\rm rel}\)?};
+  \node[block] (next) at (0,-5.2) {更新 \(\rho_i,\beta,p_i\)};
+  \node[output] (ok) at (5.0,1.35) {输出 \(\psi_i,r_i\)\\状态：收敛};
+  \node[fail] (bad) at (4.0,-5.1) {输出最后迭代\\状态：breakdown\\或达到 \(i_{\max}\)};
+
+  \draw[->] (init)--(matvec);
+  \draw[->] (matvec)--(alpha);
+  \draw[->] (alpha)--(sconv);
+  \draw[->] (sconv)--node[above]{是}(ok);
+  \draw[->] (sconv)--node[right]{否}(tvec);
+  \draw[->] (tvec)--(update);
+  \draw[->] (update)--(rconv);
+  \draw[->] (rconv.east) -| node[pos=0.25,above]{是} (ok.south);
+  \draw[->] (rconv)--node[right]{否}(next);
+  \draw[->,dashed,blue!65!black] (next.west) -- ++(-2.15,0) |- node[pos=0.72,left]{\(i\gets i+1\)} (matvec.west);
+  \draw[->,dashed,red!65!black] (matvec.east) -| node[pos=0.18,above]{任一分母/\(\rho_i\)/\(\omega\) 触界} (bad.north);
+\end{tikzpicture}
+\caption{Unpreconditioned BiCGSTAB 的控制流。蓝色为主迭代路径，橙色菱形为收敛判据，红色虚线为 breakdown 与最大迭代数出口。图与算法~\ref{alg:bicgstab} 一一对应；生产实现可在 \(D\) 两侧加入预条件，但收敛与失败状态的含义不变。}
+\label{fig:bicgstab-flow}
+\end{figure}
+
+算法~\ref{alg:bicgstab} 刻意写成 unpreconditioned 形式，图~\ref{fig:bicgstab-flow} 则把其中的收敛、回代和失败分支展开为控制流；二者共同保证“迭代步骤”与“物理验收出口”一一对应。生产计算通常还会使用 even-odd、低模 deflation、multigrid 或混合精度预条件。预条件只改变求解路径，不改变方程本身：若 \(D_qM^{-1}y=\eta\)，则必须先得到 \(y\)，再用 \(\psi=M^{-1}y\) 恢复同一物理传播子。伪代码中的 \(\epsilon_{\rm br}\) 只是概念性阈值；实际实现应把它换算成类似 \(|\rho_i|\le\epsilon_{\rm br}\|\hat r_0\|\|r_i\|\) 和 \(\|t\|\le\epsilon_{\rm br}\|s\|\) 的尺度化判据，否则算法会随源归一化或格点体积改变 breakdown 行为。选择 \(\hat r_0\) 的方式会改变双正交投影；默认 \(\hat r_0=r_0\) 简单且可复现，而在正交性偶然失效时随机化 shadow 可降低特定 breakdown 的风险\cite{Schoutrop2022}，但它不能修复病态谱，也不能替代真残差检查。
+
+算法中有三类“小量”不能混为一谈。第一类是递归残差 \(r_i\) 的范数，它决定当前迭代是否满足内部停止条件；第二类是重启后重新计算的真实残差
+\begin{equation}
+  r_i^{\rm true}=\eta-D_q\psi_i,
+  \qquad
+  \rho_i^{\rm true}=\frac{\|r_i^{\rm true}\|_2}{\|\eta\|_2},
+  \label{eq:trueresidual}
+\end{equation}
+它用于发现递推关系在长迭代和混合精度下积累的偏差；第三类是物理可观测量的偏差。对观测量 \(O[\psi]\)，在局部线性化意义上可写成
+\begin{equation}
+  |\Delta O_{\rm solve}|
+  \lesssim \kappa_O\,\rho_i^{\rm true}\|\eta\|_2,
+  \label{eq:observableerror}
+\end{equation}
+其中 \(\kappa_O\) 概括该观测量对传播子扰动的敏感度。式~\eqref{eq:observableerror} 说明，固定一个跨项目通用的“容差 \(10^{-n}\)”并不充分：小信号、大时间间隔和高动量三点函数的 \(\kappa_O\) 可以远大于两点函数。合格做法是在目标物理点对 \(\epsilon_{\rm rel}\) 做收敛扫描，并要求求解引起的中心值移动明显小于统计误差；同时比较 BiCGSTAB、预条件 BiCGSTAB 或其他独立求解器的结果。
+
+近零模会使迭代数增加，也使不同源之间看似无关的残差在物理上表现为长程传播。此时应通过低模投影、deflation、multigrid、规范等变预条件或增加迭代预算控制，而不是简单放宽容差。对于单态胶子矩阵元，非连通拓扑对传播子和真空减除都敏感，求解偏差可能与统计涨落同量级；因此求解器状态必须随源、动量、smearing、流时和组态一起进入缓存与误差表。表~\ref{tab:solver-map} 汇总算法变量与物理验收之间的对应关系。
+
+\begin{table}[htbp]
+\centering
+\caption{BiCGSTAB 变量与格点传播子物理含义、验收证据的对应。}
+\label{tab:solver-map}
+\small
+\begin{tabularx}{\textwidth}{L{2.1cm}L{4.0cm}Y}
+\toprule
+量 & 数值含义 & 物理/验收解释 \\
+\midrule
+\(D[U]\), \(\eta\) & 固定背景 Dirac 算符与物理源 & 必须固定作用量、边界条件、Gamma/颜色结构、动量与 smearing \\
+\(r_i\) & 当前源残差 & 内部停止量；不能单独证明传播子或矩阵元准确 \\
+\(\hat r_0\) & 双正交 shadow 残差 & 影响 Krylov 投影与 breakdown；随机化需记录 seed 和复现策略 \\
+\(p_i\) & 搜索方向 & 在规范背景中组合已有传播信息；不具独立物理意义 \\
+\(s,\omega_i\) & 稳定化前残差与局部最优系数 & 局部残差压低不等于全局单调收敛；需检查 \(\omega\approx0\) 等 breakdown \\
+\(\rho_i^{\rm true}\) & 重启后的真实相对残差 & 必报诊断；与内部 \(r_i\) 一起用于判断递推漂移 \\
+求解容差扫描 & 对 \(\epsilon_{\rm rel}\)、预条件和求解器变体重复计算 & 通过可观测量稳定性而非迭代次数宣布质量门 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 \subsection{Distillation、perambulator 与顺序源}
 
 高动量核子的胶子三点函数需要对多个源、多个动量、多个 Wilson 线长度和多个流时重复计算，直接求解传播子的成本很高。Distillation 通过低模投影降低有效自由度。先在每个时间片求解协变 Laplace 算符的低本征模 \(v_x^{(k)}\)，定义蒸馏算符
@@ -1298,6 +1527,7 @@ rapidity/soft & \(S_R\), \(K_R\), 方案 & 同一表示和几何的软因子、�
 匹配核 & \(C_{gg},C_{gq}\), \(\alpha_s\) & 阶数变化、标度变化、单态混合误差 \\
 高扭度 & \(P_z\), \(M_N\), \(b_T\) & 多个大动量，报告 \(1/P_z^2,1/(b_T^2P_z^2)\) 拟合 \\
 Fourier 反演 & \(z_{\max}\), 尾部模型 & 多截断、多模型、正定性/端点检查 \\
+Dirac 求逆 & \(\epsilon_{\rm rel}\), \(i_{\max}\), restart, 预条件 & 递归/真实残差、容差扫描、不同求解器与目标可观测量的稳定性 \\
 统计 & 组态数、源数、bootstrap & 源分辨、相关性、不同 replica 的稳定性 \\
 \bottomrule
 \end{tabularx}
@@ -1337,6 +1567,35 @@ Fourier 反演 & \(z_{\max}\), 尾部模型 & 多截断、多模型、正定性/
   &\text{体积：} & b_T,L_\parallel&\ll L_s/2 &&\text{且 }t_s\gg1/\Delta E.
   \label{eq:window-volume}
 \end{align}
+图~\ref{fig:scale-windows} 把这些不等式组织成“几何长度”和“能量/动量”两条尺度轨道。它们必须同时成立，而不是分别选取各自最好看的参数点。
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[>=Stealth,font=\small]
+  \tikzset{
+    lenbox/.style={draw=blue!55!black,rounded corners,fill=blue!8,minimum width=2.15cm,minimum height=0.72cm,align=center},
+    ir/.style={draw=orange!65!black,rounded corners,fill=orange!10,minimum width=2.25cm,minimum height=0.72cm,align=center}
+  }
+  \node[font=\bfseries] at (-5.4,2.55) {几何尺度};
+  \draw[->,line width=1.1pt,blue!60!black] (-6.1,2.0)--(6.1,2.0) node[right]{IR};
+  \node[lenbox] at (-5.0,2.55) {格距 \(a\)};
+  \node[lenbox] at (-2.0,2.55) {流半径 \(r_f\)};
+  \node[lenbox] at (1.1,2.55) {\(b_T,z\)};
+  \node[ir] at (4.6,2.55) {体积边界 \(L_s/2\)};
+  \draw[<->,dashed,teal!70!black] (-2.9,3.25)--(2.25,3.25) node[midway,above] {可用的 \(r_f\ll b_T,z\) 窗口};
+
+  \node[font=\bfseries] at (-5.4,-0.8) {能标/动量};
+  \draw[->,line width=1.1pt,orange!65!black] (-6.1,-1.35)--(6.1,-1.35) node[right]{IR};
+  \node[lenbox] at (-5.0,-0.8) {紫外截断 \(a^{-1}\)};
+  \node[lenbox] at (-1.8,-0.8) {\(\mu,\ P_z\)};
+  \node[lenbox] at (1.5,-0.8) {\(1/b_T\)};
+  \node[ir] at (4.6,-0.8) {\(\Lambda_{\rm QCD}\)};
+  \draw[<->,dashed,red!65!black] (-0.45,0.1)--(3.5,0.1) node[midway,above] {OPE/匹配窗口};
+\end{tikzpicture}
+\caption{胶子 TMD 的共同尺度窗口示意，不对应某组具体数值。上方为长度尺度，下方为能标或动量；只有两条轨道上的不等式同时成立，流化、短距匹配、大动量展开和有限体积控制才属于同一物理论述。}
+\label{fig:scale-windows}
+\end{figure}
+
 这些窗口不是装饰性不等式。若 \(P_z r_f\sim1\)，流化会改变 boost 相关结构；若 \(1/b_T\lesssim\Lambda_{\rm QCD}\)，微扰匹配已进入非微扰区；若 \(b_T\gtrsim L_s/2\)，周期图像和核子波函数绕回会污染矩阵元；若 \(aP_z\) 接近 \(1\)，格点色散关系和 \(a^2P_z^2\) 误差不可控。
 
 表~\ref{tab:failure-modes} 汇总常见失败模式。每一项都应触发明确的“失败关闭”，而不是用更大的误差棒继续报结果。
@@ -1370,7 +1629,7 @@ Fourier 端点外推过强 & \(x\) 端点出现振铃/负值 & 多 \(z_{\max}\)�
 建议把胶子 TMD 结果分为四级，禁止跨级宣称：
 \begin{enumerate}
   \item \textbf{L0：算符与代数。} 场强、伴随链接、staple 路径、投影、归一化和 Fourier 约定均有可执行检查；
-  \item \textbf{L1：受控矩阵元。} 源分辨两点函数、三点比值、真空减除、谱学拟合和统计误差通过质量门；
+  \item \textbf{L1：受控矩阵元。} 源分辨两点函数、Dirac 求逆的双残差门、三点比值、真空减除、谱学拟合和统计误差通过质量门；
   \item \textbf{L2：方案一致性。} 同几何 Wilson 圈、伴随软函数、CS 核、重正化矩阵和硬匹配核属于同一方案；
   \item \textbf{L3：物理极限。} 多个 \(a\)、多个 \(\tau\)、多个 \(P_z\) 和至少一个物理或可控手征点支持下，连续、手征和大动量极限同时闭合。
 \end{enumerate}
@@ -1386,6 +1645,7 @@ Fourier 端点外推过强 & \(x\) 端点出现振铃/负值 & 多 \(z_{\max}\)�
   \item 横向指标的缩并和无迹投影；
   \item Wilson 圈长度、参考点 \(z_0,\boldsymbol b_{T,0}\) 和短距窗口；
   \item 单态混合的保留或忽略方式及误差；
+  \item Dirac 算符、初值、预条件、求解器、重启策略、递归残差与真实残差；
   \item 所有外推函数、数据截断、bootstrap seed 和来源哈希。
 \end{itemize}
 
@@ -1420,6 +1680,33 @@ Fourier 端点外推过强 & \(x\) 端点出现振铃/负值 & 多 \(z_{\max}\)�
 \subsection{建议的分阶段研究计划}
 
 一个可审计的胶子 TMD 项目可以按以下顺序推进。每一阶段都以可复现证据作为进入下一阶段的条件。
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  >=Stealth,font=\small,
+  stage/.style={draw=blue!55!black,rounded corners,fill=blue!8,align=center,text width=2.45cm,minimum height=0.9cm,inner sep=3pt},
+  gate/.style={draw=orange!70!black,rounded corners,fill=orange!10,align=center,text width=2.45cm,minimum height=0.75cm,inner sep=2pt}
+]
+  \node[stage] (s1) at (-4.8,2.0) {规范组态\\\(U_\mu(x)\)};
+  \node[stage] (s2) at (-1.6,2.0) {物理源\\\(\eta\)、smearing};
+  \node[stage] (s3) at (1.6,2.0) {Dirac 求逆\\\(D_q[U]\psi=\eta\)};
+  \node[stage] (s4) at (4.8,2.0) {两点/三点\\关联函数};
+  \node[stage] (s5) at (4.8,-1.25) {重正化\\Wilson 圈/flow};
+  \node[stage] (s6) at (1.6,-1.25) {soft/rapidity\\\(S_I^g,K_g\)};
+  \node[stage] (s7) at (-1.6,-1.25) {硬匹配\\\(C_{gg},C_{gq}\)};
+  \node[gate] (s8) at (-4.8,-1.25) {极限与外推\\L3 物理结果};
+  \draw[->,line width=1pt] (s1)--(s2); \draw[->,line width=1pt] (s2)--(s3); \draw[->,line width=1pt] (s3)--(s4);
+  \draw[->,line width=1pt] (s4)--(s5); \draw[->,line width=1pt] (s5)--(s6); \draw[->,line width=1pt] (s6)--(s7); \draw[->,line width=1pt] (s7)--(s8);
+  \draw[->,dashed,red!65!black] (s3.south) -- ++(0,-0.55) node[below,align=center,font=\scriptsize]{双残差/容差扫描};
+  \draw[->,dashed,teal!70!black] (s5.north) -- ++(0,0.45) node[above,align=center,font=\scriptsize]{方案一致性};
+  \draw[->,dashed,orange!75!black] (s8.north) -- ++(0,0.5) node[above,align=center,font=\scriptsize]{失败关闭};
+\end{tikzpicture}
+\caption{从规范组态到 L3 胶子 TMD 结果的图形化验收链。算法求解、矩阵元、重正化、soft/rapidity、匹配和物理极限是串联门，不是可以独立宣称完成的平行任务；任一门的证据缺失都应回到对应阶段。}
+\label{fig:acceptance-chain}
+\end{figure}
+
+图~\ref{fig:acceptance-chain} 把后文步骤组织成一条串行验收链。生产规模扩大不能越过失败门；相反，只有前一阶段的状态、方案和误差证据都可复现，才有资格进入下一阶段。
 \begin{enumerate}
   \item \textbf{算符与几何阶段：}固定场强符号、生成元、伴随链接、staple 方向、横向投影和 Fourier 约定；建立小矩阵/自由场/恒等链接测试。
   \item \textbf{两点与三点原型：}在单系综上验证 source-resolved 两点函数、三点比值、真空减除、色散关系和激发态拟合；先以 \(b_T=0\) 或小 \(b_T\) 做闭环。
@@ -1457,6 +1744,8 @@ Fourier 端点外推过强 & \(x\) 端点出现振铃/负值 & 多 \(z_{\max}\)�
   \label{eq:chain}
 \end{equation}
 在这条链上，胶子场强、伴随规范链、Wilson 圈减除、CS 核、硬匹配、单态混合和大动量极限缺一不可。梯度流和短流时展开可以显著改善 UV 控制，但它们只解决链中的一个尺度问题；rapidity、表示相关软因子和连续极限必须独立验证。
+
+最底层的格点矩阵元也不是“由代码直接给出”的黑箱。每个夸克传播子都是固定规范背景中 \(D_q[U]\psi_\eta=\eta\) 的解；BiCGSTAB 的搜索方向、shadow 残差和局部稳定化系数只是构造这个逆矩阵列的方式。近零模和条件数会放大源、舍入与停止容差的影响，非连通胶子拓扑又会把求解偏差传播到真空减除和统计相关中。因此，合格的 TMD 报告不仅应说明用了哪一种 Krylov 算法，还应证明递归残差与真实残差、容差扫描、预条件选择和目标矩阵元对求解误差均处于统计误差之内。传播子求逆是物理链的一部分，不是可以隐藏在性能附录中的数值细节。
 
 结合库内文献与实现审计，本文的结论是：共线胶子 PDF、TMD 软函数和 CS 核已经有重要格点先例；夸克 TMD 提供了完整算法模板；但本文所核查的库内证据尚不足以支持经过完整 soft/rapidity、混合、多格距和多流时验收的直接核子胶子 TMD-PDF 数值结果。现阶段最稳健的表述是“理论框架已建立，关键构件已有格点验证，直接胶子 TMD 物理计算仍在闭合中”。这一证据边界本身就是后续计算的出发点。
 
@@ -1687,6 +1976,7 @@ rapidity/soft & \(S_{I,g}\)、\(K_g\)、表示、方案定义、\(P_1/P_2\) 和 
 匹配 & \(C_{gg},C_{gq}\)、\(\alpha_s\) 阶数、标度、RGR、是否忽略混合及误差 \\
 统计 & 源分辨策略、binning、bootstrap seed、replica 数、协方差和 fallback 率 \\
 谱学 & \(t_{\rm sep}\) 范围、拟合态数、GEVP 基、残差和模型平均 \\
+Dirac 求逆 & \(D\) 的作用量与边界条件、\(\gamma_5\)-Hermiticity、初值、预条件、\(\epsilon_{\rm rel}\)、\(i_{\max}\)、重启、递归/真实残差和求解器交叉检查 \\
 Fourier & 相位约定、\(z_{\max}\)、尾部模型、\(x\) 支撑、端点和正定性处理 \\
 外推 & \(a\to0\)、\(m_\pi\to m_\pi^{\rm phys}\)、\(P_z\to\infty\)、\(\tau\to0\) 的函数和窗口 \\
 状态 & 每个 \(x,b_T\) 点的可信区、系统误差、失败点和最终 evidence level \\
@@ -1919,6 +2209,18 @@ C. Egerer \textit{et al.} (HadStruc Collaboration),
 \newblock ``Toward the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics,''
 \newblock Phys. Rev. D \textbf{106}, 094511 (2022).
 \newblock DOI: 10.1103/PhysRevD.106.094511; arXiv:2207.08733.
+
+\bibitem{VanDerVorst1992}
+H. A. van der Vorst,
+\newblock ``Bi-CGSTAB: A fast and smoothly converging variant of Bi-CG for the solution of nonsymmetric linear systems,''
+\newblock SIAM J. Sci. Stat. Comput. \textbf{13}, 631--644 (1992).
+\newblock DOI: 10.1137/0913035.
+
+\bibitem{Schoutrop2022}
+C. Schoutrop, J. ten Thije Boonkkamp, and J. van Dijk,
+\newblock ``Reliability investigation of BiCGStab and IDR solvers for the advection-diffusion-reaction equation,''
+\newblock Commun. Comput. Phys. \textbf{32}, 156--188 (2022).
+\newblock DOI: 10.4208/cicp.OA-2021-0182.
 
 \end{thebibliography}
 

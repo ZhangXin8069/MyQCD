@@ -18,7 +18,7 @@
 ## 建议阅读顺序
 
 1. [`report_gluon_tmd_lattice_qcd_review_20261023.pdf`](report_gluon_tmd_lattice_qcd_review_20261023.pdf)
-   给出核子胶子 TMD-PDF 的定义、格点算符、软/rapidity、重正化、梯度流、匹配、误差预算与分级验收协议。
+   给出核子胶子 TMD-PDF 的定义、格点算符、Dirac/BiCGSTAB 求逆、软/rapidity、重正化、梯度流、匹配，以及图形化的尺度窗口、误差预算与分级验收链。
 2. [`report_pyqcd_lattice_qcd_theory_20260906.pdf`](report_pyqcd_lattice_qcd_theory_20260906.pdf)
    给出全链物理结构和源码入口。
 3. [`report_gluon_tmd_gradient_flow_20260828.pdf`](report_gluon_tmd_gradient_flow_20260828.pdf)
