@@ -1,0 +1,91 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-10-22 19:30:13 +0800
+批次: pyqcd-physics-refocus-20261022
+主任务: 重构 MyQCD 为 PyQCD 格点 QCD 物理说明库
+触发原因: 任务完成
+摘要: 定位、目录、参考路径和子模块已重构；根测试与公式审计通过，课程 PDF 全量视觉验收保留为后续步骤
+Git 根目录: /root/MyQCD
+
+## 关键日志
+### S1 — 只读审计与边界确认
+- 目标: 将 MyQCD 重构为以解释 refer/git-rep/PyQCD 的 QCD/格点 QCD 物理为主的资料库。
+- 命令/操作: 盘点顶层目录、文档、子模块、论文/书籍、课程、myqcd 和日志；并行派发 PyQCD/refer 参考地图与内容分类审计；主代理串行补做依赖与删除影响检查。
+- 关键输出: 两个子代理成功返回；第三个依赖审计长时间无返回后按 dispatch 降级规则终止并由主代理串行完成。确认 A 类内容为 PyQCD 理论报告、TMD 报告、myqcd 与课程 V16-V20；旧过程文档、全论文派生报告和非 PyQCD 子模块不服务新定位。
+- 退出码: 0（成功支路）；第三个派发因超时被终止，exit=130。
+- 证据与判断: 原 README 只有两行；现行代码和课程仍大量指向仓库外同级 PyQCD，需统一到仓库内只读子模块。
+
+### S2 — 定位、参考与目录重组
+- 目标: 建立新的主入口并移除旧定位内容。
+- 命令/操作: 重写 README.md、AGENTS.md、refer/AGENTS.md、refer/git-rep/README.md、myqcd/README.md；新增 docs/pyqcd_physics/README.md 和 refer/git-rep/docs/pyqcd-physics-reference.md；移动两份核心报告到 docs/pyqcd_physics/。
+- 关键输出: 主入口明确“解释 PyQCD 物理”；参考索引映射 books/papers/donghx/zhangxin/huangcl/sush；删除 form/过程文档、全论文派生报告、旧重复报告、零字节遗留文件和 skills/refer。
+- 退出码: 0
+- 证据与判断: 本地 refer/papers、refer/books 保留为可检索 LaTeX 辅助；PyQCD 子模块及其 refer/ 保持只读。
+
+### S3 — 路径迁移与子模块收缩
+- 目标: 消除仓库外 PyQCD 依赖，并只保留 PyQCD 源码子模块。
+- 命令/操作: 批量迁移现行代码、课程来源表、论文映射和报告中的 PyQCD 根；git submodule deinit/git rm 删除 PyQCU、FeynCalc、LQCD_Wickcontraction_reduce。
+- 关键输出: .gitmodules 仅保留 refer/git-rep/PyQCD；现行文件中的 ../PyQCD、/root/PyQCD、/Users/zhangxin 搜索为零。
+- 退出码: 0
+- 证据与判断: PyQCD 工作树检出 0a2f85d30881fc8ead60972c0afb9c028abc348f；myqcd 理论审计默认解析仓库内路径，9 项结构审计无缺失来源。
+
+### S4 — 课程生成与参考补缺
+- 目标: 验证 50 篇论文映射在仓库内闭合。
+- 命令/操作: 运行 build_course.py generate；发现 P31 在本地 PyQCD/refer 缺失，下载 arXiv:1912.10053 v3 官方 PDF，使用 Ghostscript /ebook 压缩到 7,243,233 bytes，并记录 SHA-256。
+- 关键输出: generated: volumes=35, lessons=175, papers=50, paper_pages=1115；P31 保持 116 页，SHA-256=d519058e67f6c4d3751095b5d95bb8372a52446eec44ae260cfaf634b3f62751。
+- 退出码: 0
+- 证据与判断: 论文来源计数更新为 PyQCD 39 + course-cache 11；P31 是压缩派生件，已在 paper_cache/README 明确标注。
+
+### S5 — 最终验证
+- 目标: 证明重组后代码、公式、报告和格式边界可用。
+- 命令/操作: 运行 python -m pytest、python -m myqcd、pyqcd_theory_audit、课程 SymPy、course_examples、XeLaTeX 两遍、form-audit --strict、snapshot verify、旧引用搜索和 diff --check。
+- 关键输出: pytest 120 passed；myqcd 94 项核心推导通过、50 篇论文、402 源文件、2263 条公式索引；PyQCD 审计 9 项、0 缺失来源；课程 175/175、26/26；两份报告均为 Overfull=0、Float=0、Missing=0、Undefined=0；form strict 与 snapshot verify 退出码 0。
+- 退出码: 0
+- 证据与判断: 两份报告分别为 68 页和 26 页。完整 43 份课程 PDF 重编译与逐页视觉审计本轮未执行，现有课程 PDF 仍只保留 41 份，不能沿用旧严格视觉验收结论。
+
+## 验证与证据
+- 测试/检查: 根测试、myqcd 核心与来源审计、课程双层公式检查、生成链、报告编译、严格格式审计、快照验证、旧路径搜索和 Git 空白检查。
+- 结果: 所有已执行检查通过；P31 哈希和 116 页身份匹配；现行路径全部指向仓库内 PyQCD。
+- 未验证项: 43 份课程 PDF 的完整重编译、3489 页全量渲染和逐页视觉复核未在本轮执行；真实系综、GPU 数值和完整 TMD 物理闭环不在本轮范围。
+
+## 变更与产物
+- 文件: README.md、AGENTS.md、myqcd/**、skills/lqcd-course/**、refer/AGENTS.md、refer/git-rep/README.md、docs/lattice_qcd_gluon_tmd_course/**、logs/docs/lattice_qcd_gluon_tmd_course/**。
+- 新增: docs/pyqcd_physics/README.md、两份重编报告、refer/git-rep/docs/pyqcd-physics-reference.md、docs/lattice_qcd_gluon_tmd_course/paper_cache/P31.pdf。
+- 删除: 旧 form/计划/全论文报告、旧重复报告、零字节遗留件、skills/refer，以及 PyQCU/FeynCalc/LQCD_Wickcontraction_reduce 子模块。
+- 未改动范围: refer/git-rep/PyQCD 子模块内容只读；本地论文/书籍主体和 logs 历史快照保留。
+
+## 风险、限制与下一步
+- 风险: 当前改动跨 staged 与 unstaged 状态，尚未提交或推送；课程生成源码已更新但 43 份 PDF 未全量重编译。
+- 阻塞: 无。
+- 下一步: 审查改动并决定是否提交；若需要课程 PDF 当前指纹，运行完整课程编译和逐页视觉审计。
+
+## 用户输入指令
+大幅修改本库定位为{主要解释refer/git-rep/PyQCD中的物理,专注于QCD,尤其是格点QCD},删去与此无关的内容,附加参考{refer/git-rep/PyQCD/refer}
+
+## Agent 全文报告
+--- report begin ---
+finished
+
+**改动内容**
+- 根入口 [README.md](/root/MyQCD/README.md) 已改为“面向 PyQCD 的 QCD/格点 QCD 物理说明库”，新增 [PyQCD 物理导航](/root/MyQCD/docs/pyqcd_physics/README.md) 和 [PyQCD/refer 参考索引](/root/MyQCD/refer/git-rep/docs/pyqcd-physics-reference.md)。
+- 两份核心报告已迁入 `docs/pyqcd_physics/` 并重编：理论审计 68 页，梯度流 TMD 报告 26 页；均通过两遍 XeLaTeX，`Overfull=0`、`Float too large=0`、`Missing character=0`、未定义引用为 0。
+- `myqcd/` 与课程脚本中的 PyQCD 根已统一指向仓库内 `refer/git-rep/PyQCD/`；旧外部路径搜索为零。
+- 删除旧 form/过程文档、全论文库派生报告、重复旧报告、零字节遗留件和 `skills/refer`。
+- `.gitmodules` 仅保留 PyQCD；PyQCU、FeynCalc、LQCD_Wickcontraction_reduce 子模块已移除。
+- 课程生成链已重建：35 卷、175 单元、50 篇论文、1115 个原文页。P31 从 arXiv 官方 PDF 生成 7.24 MB、116 页的压缩缓存并固定 SHA-256。
+- 未提交、未推送；现有课程 43 份 PDF 的完整重编译和逐页视觉审计未执行，当前仍保留 41 份历史 PDF。
+
+**推理依据**
+PyQCD 是唯一源码事实源，`PyQCD/refer` 提供书籍、论文和历史代码；MyQCD 应解释这些实现和物理，而不是继续维护泛论文报告或平行后端。`refer/papers`、`refer/books` 仍作为可检索 LaTeX 辅助保留，但不再主导项目定位。
+
+**验证结果**
+- `python -m pytest`：`120 passed`。
+- `python -m myqcd`：94 项核心推导通过，50 篇论文、402 个源文件、2263 条公式索引完成。
+- PyQCD 理论审计：9 项结构审计、0 个本机失败、0 个缺失来源，状态为 `verified_with_unverified_boundaries`。
+- 课程 SymPy：`175/175`；教学模块：`26/26`。
+- `form-audit --strict`、快照校验、`git diff --check` 均通过。
+- 第三个并行依赖审计长时间无返回，已按降级规则终止；其余两个子代理成功返回，主代理串行完成依赖核对。
+
+**后续步骤**
+审查当前 staged/unstaged 改动并决定是否提交。若需要让课程 PDF 与迁移后的源码指纹一致，再执行完整 43 份编译和逐页视觉审计。
+--- report end ---

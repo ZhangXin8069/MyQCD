@@ -2,7 +2,7 @@
 
 底稿来源：arXiv 官方源 1404.6680（e-print gzip，内含 newparton.tex 与
 spacetime.pdf），未动用本地 PDF。调度方给出的库内 PDF 路径
-（/root/PyQCD/...）在本机不存在，亦无需使用。
+（历史外部 PyQCD 路径）在本机不存在，亦无需使用。
 
 归一化说明：
 - revtex4（aps,prd,preprint）→ article 11pt + geometry(a4paper,2.5cm)；

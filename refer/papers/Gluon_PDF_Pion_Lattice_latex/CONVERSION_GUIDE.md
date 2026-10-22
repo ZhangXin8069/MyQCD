@@ -1,6 +1,6 @@
 # CONVERSION_GUIDE.md
 
-- 底稿来源：arXiv:2104.06372（v1, 2021-04-13）官方 LaTeX 源 `arxiv.org/e-print/2104.06372`，本地库内 PDF（/root/PyQCD/refer/papers/）仅用于首页书目核对。
+- 底稿来源：arXiv:2104.06372（v1, 2021-04-13）官方 LaTeX 源 `arxiv.org/e-print/2104.06372`；历史外部 PDF 仅用于首页书目核对。
 - 归一化：revtex4-1（twocolumn、superscriptaddress 等）→ `\documentclass[11pt]{article}` + geometry 2.5cm；宏包统一为 amsmath/amssymb/mathtools/graphicx/microtype/enumitem/url/hidelinks-hyperref。`mathrsfs`（\mathscr）存在则加载，否则回退 \mathcal。
 - 正文逐字保留（摘要、脚注、致谢、附录无）；参考文献 = 源 `output.bbl`（apsrev4-1）原样并入 backmatter.tex，未删改条目。
 - 图：源包内 11 个 PDF 图全部复制到 `images/`，路径 `figs/`→`images/`；`figure*`（跨栏）改为单栏 `figure`。

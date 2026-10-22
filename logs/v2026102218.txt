@@ -1,0 +1,73 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-10-22 18:39:10 +0800
+批次: refer-git-rep-sync-20261022-final
+主任务: 同步 refer/git-rep 四个子模块到最新远端版本
+触发原因: 任务完成
+摘要: 四个子模块均已初始化并与各自上游最新提交同步；LQCD 最小相关测试通过，FeynCalc 因缺少 Wolfram 运行时未测试
+Git 根目录: /root/MyQCD
+
+## 关键日志
+### S1 — 已初始化子模块同步
+- 目标: 更新当时已初始化的 PyQCD 与 PyQCU。
+- 命令/操作: 检查工作树后执行 git fetch --prune origin 与 git pull --ff-only --no-rebase。
+- 关键输出: PyQCD 05f9080464fed7732e649fc7e5d1ca9cc869556e -> 0a2f85d30881fc8ead60972c0afb9c028abc348f；PyQCU 57f40fa1a89a9596ac885e39346f51115ac7383e -> ed19695db997fa668e8febf5d8c87fb4b830ee0c。
+- 退出码: 0
+- 证据与判断: 两次更新均为 Fast-forward，更新后分支均与 origin/main 对齐且工作树干净。
+
+### S2 — GitHub 网络恢复与剩余子模块初始化
+- 目标: 完成 LQCD_Wickcontraction_reduce 与 feyncalc 的同步。
+- 命令/操作: 重试 git ls-remote；执行 git submodule update --init --jobs 2；审查远端提交和差异后切换跟踪分支并执行 git pull --ff-only。
+- 关键输出: GitHub 恢复可达；LQCD_Wickcontraction_reduce 远端 main 为 033d607cdb753e98ddc6c26dff594f319d8406f2；feyncalc 远端 master 保持 1ee480093293a01a82b3e365d026808f1d4e1c17。
+- 退出码: 0
+- 证据与判断: LQCD_Wickcontraction_reduce 从 1c996a86b778b33d6fd670f025b8074bd6798093 快进到 033d607cdb753e98ddc6c26dff594f319d8406f2，共 3 个新提交；feyncalc 已是最新。两个子模块现均已在跟踪分支上。
+
+### S3 — 最终验证
+- 目标: 证明四个子模块均处于其当前跟踪远端分支最新版本。
+- 命令/操作: 对每个子模块执行 git status --short --branch 和 git rev-parse HEAD @{upstream}；运行 LQCD 线性组合测试；父仓库执行 git submodule status 与 git diff --check。
+- 关键输出: 四个 HEAD 与 upstream SHA 分别完全一致；LQCD 测试 Ran 9 tests in 0.180s, OK；父仓库 diff --check 无输出。
+- 退出码: 0
+- 证据与判断: 同步目标完成。feyncalc 因本机缺少 WolframKernel、wolframscript 与 math，未执行其 Mathematica 测试。
+
+## 验证与证据
+- 测试/检查: 四子模块 HEAD/upstream 比较与工作树状态；LQCD 更新代码的最小相关单元测试；父仓库 gitlink 状态和格式检查。
+- 结果: 4/4 子模块与上游同步且工作树干净；LQCD 9/9 测试通过；父仓库 git diff --check 通过。
+- 未验证项: FeynCalc 测试未运行，当前环境没有 Mathematica/Wolfram Engine。LQCD_Wickcontraction_reduce 仍无可识别的 LICENSE/COPYING 文件，只能维持只读参考和算法思想独立重写边界。
+
+## 变更与产物
+- 文件: refer/git-rep/LQCD_Wickcontraction_reduce、refer/git-rep/PyQCD、refer/git-rep/PyQCU 的父仓库 gitlink 发生变更；refer/git-rep/feyncalc 已初始化但 gitlink 未变化。
+- 产物: 四个外部参考子模块均已初始化并位于各自跟踪分支最新提交。
+- 未改动范围: MyQCD 主包和 refer/papers、refer/books 未改动；未暂存、提交或推送。
+
+## 风险、限制与下一步
+- 风险: 三个变化的 gitlink 和本次日志目前均未提交，父仓库工作树有意保留这些变更。
+- 阻塞: 无。
+- 下一步: 由用户决定是否审查并提交三个 gitlink 及日志；若需 FeynCalc 测试，需提供 Mathematica/Wolfram Engine 运行时。
+
+## 用户输入指令
+pull最新的refer/git-rep
+
+## Agent 全文报告
+--- report begin ---
+finished
+
+**改动内容**
+- [LQCD_Wickcontraction_reduce](/root/MyQCD/refer/git-rep/LQCD_Wickcontraction_reduce) 已初始化，并从 `1c996a86b778` 快进到远端 `main` 最新提交 `033d607cdb75`，共 3 个新提交。
+- [feyncalc](/root/MyQCD/refer/git-rep/feyncalc) 已初始化并切换到远端 `master`；远端最新提交仍为 `1ee480093293`，因此 gitlink 无需变化。
+- [PyQCD](/root/MyQCD/refer/git-rep/PyQCD) 已从 `05f9080464fe` 更新到 `0a2f85d30881`。
+- [PyQCU](/root/MyQCD/refer/git-rep/PyQCU) 已从 `57f40fa1a89a` 更新到 `ed19695db997`。
+- 父仓库保留上述 gitlink 变更；未暂存、提交或推送。
+
+**推理依据**
+`refer/git-rep` 是父仓库的子模块容器。四个仓库均在确认工作树干净后使用跟踪分支和 `git pull --ff-only`，避免生成合并提交或覆盖本地改动。
+
+**验证结果**
+- 四个子模块的 `HEAD` 与各自 `@{upstream}` 完全一致，且工作树均干净。
+- `LQCD_Wickcontraction_reduce` 更新后的线性组合测试通过：9 个测试，`OK`。
+- 父仓库 `git diff --check` 通过。
+- `LQCD_Wickcontraction_reduce` 仍未提供许可证文件；保持只读参考边界。
+- FeynCalc 测试未运行，本机缺少 `WolframKernel`、`wolframscript` 和 `math`。
+
+**后续步骤**
+三个变化的 gitlink 和本次日志尚未提交，是否提交由用户决定。若需验证 FeynCalc，需先提供 Mathematica/Wolfram Engine 运行时。
+--- report end ---

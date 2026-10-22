@@ -68,3 +68,35 @@
 - 关键内容: 在 HEAD 创建并验证本地附注标签 dev7，完成测试、历史链与格式审计
 - 验证: path, size, required sections, conflict markers
 - 批次状态: complete
+## refer-git-rep-sync-20261022 - stage - 2026-10-22 18:35:26 +0800
+- 主任务: 同步 refer/git-rep 子模块到最新远端版本
+- 日志文件: logs/v202610221835.txt
+- 文件大小: 4064 bytes
+- 触发原因: 阶段成果
+- 关键内容: PyQCD 与 PyQCU 已快进到 origin/main；两个 GitHub 子模块因连接拒绝未更新
+- 验证: path, size, required sections, conflict markers
+- 批次状态: in-progress
+## refer-git-rep-sync-20261022-final - final - 2026-10-22 18:39:10 +0800
+- 主任务: 同步 refer/git-rep 四个子模块到最新远端版本
+- 日志文件: logs/v2026102218.txt
+- 文件大小: 5122 bytes
+- 触发原因: 任务完成
+- 关键内容: 四个子模块均已初始化并与各自上游最新提交同步；LQCD 最小相关测试通过，FeynCalc 因缺少 Wolfram 运行时未测试
+- 验证: path, size, required sections, conflict markers
+- 批次状态: complete
+## pyqcd-physics-refocus-20261022 - final - 2026-10-22 19:30:13 +0800
+- 主任务: 重构 MyQCD 为 PyQCD 格点 QCD 物理说明库
+- 日志文件: logs/v2026102219.txt
+- 文件大小: 8147 bytes
+- 触发原因: 任务完成
+- 关键内容: 定位、目录、参考路径和子模块已重构；根测试与公式审计通过，课程 PDF 全量视觉验收保留为后续步骤
+- 验证: path, size, required sections, conflict markers
+- 批次状态: complete
+## remove-deprecated-lqcd-course-20261022 - final - 2026-10-22 19:45:27 +0800
+- 主任务: 删除 MyQCD 已弃用的课程内容
+- 日志文件: logs/v2026102219-2.txt
+- 文件大小: 6621 bytes
+- 触发原因: 任务完成
+- 关键内容: 课程文档、技能、生成/验证代码、日志和缓存已删除；现行引用清零，测试、报告编译和严格格式审计通过
+- 验证: path, size, required sections, conflict markers
+- 批次状态: complete

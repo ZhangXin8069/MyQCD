@@ -1,9 +1,11 @@
 # AGENTS.md — MyQCD skills
 
-本目录存放 MyQCD 项目（格点 QCD 部分子物理，ZhangXin）的 agent 技能库，`{~skill-name}` 触发。
+本目录存放 MyQCD 项目的 agent 技能库。MyQCD 以解释
+`refer/git-rep/PyQCD` 中的格点 QCD 物理为核心，`{~skill-name}` 触发。
 
 | 技能 | 用途 |
 |---|---|
 | `form` | MyQCD 命名、目录、数据/日志边界、测试布局与 Git 交付格式治理 |
-| `lqcd-course` | 千页级格点 QCD 课程工程：结构化内容、双层 SymPy、同源 PDF/索引/论文图谱与全页视觉审计 |
-| `refer` | 文献工作目录生成与维护：精选论文（引文网络）、英文 LaTeX 转排、中文翻译、编译验证、索引（对应 `../refer/`） |
+
+对外部 PyQCD 内容的说明写入 `refer/git-rep/docs/`；不修改
+`refer/git-rep/PyQCD/` 子模块工作树。

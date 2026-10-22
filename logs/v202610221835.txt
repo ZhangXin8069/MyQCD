@@ -1,0 +1,64 @@
+[日志元数据]
+日志类型: stage
+生成时间: 2026-10-22 18:35:26 +0800
+批次: refer-git-rep-sync-20261022
+主任务: 同步 refer/git-rep 子模块到最新远端版本
+触发原因: 阶段成果
+摘要: PyQCD 与 PyQCU 已快进到 origin/main；两个 GitHub 子模块因连接拒绝未更新
+Git 根目录: /root/MyQCD
+
+## 关键日志
+### S1 — 基线与远端核对
+- 目标: 将 refer/git-rep 下的上游子模块更新到最新远端提交。
+- 命令/操作: 检查父仓库与子模块状态；执行 git fetch 和 git pull --ff-only。
+- 关键输出: PyQCD 从 05f9080464fed7732e649fc7e5d1ca9cc869556e 快进至 0a2f85d30881fc8ead60972c0afb9c028abc348f；PyQCU 从 57f40fa1a89a9596ac885e39346f51115ac7383e 快进至 ed19695db997fa668e8febf5d8c87fb4b830ee0c。
+- 退出码: 0
+- 证据与判断: 两个子模块均报告 Fast-forward，父仓库只显示对应 gitlink 修改。
+
+### S2 — GitHub 上游访问
+- 目标: 核对尚未初始化的 LQCD_Wickcontraction_reduce 与 feyncalc 最新远端状态。
+- 命令/操作: git ls-remote --symref 访问两个 GitHub 地址。
+- 关键输出: fatal: unable to access https://github.com/...: Failed to connect to github.com port 443 after about 21 seconds: Connection refused。
+- 退出码: 128
+- 证据与判断: GitHub HTTPS 不可达，两个空子模块无法拉取或更新；本次未初始化它们。
+
+## 验证与证据
+- 测试/检查: PyQCD/PyQCU 的 git rev-parse HEAD @{upstream}、git status --short --branch；父仓库 git submodule status、git diff --check。
+- 结果: 两个已初始化子模块的 HEAD 均与 upstream SHA 完全一致，工作树干净；父仓库 diff --check 通过。
+- 未验证项: LQCD_Wickcontraction_reduce 与 feyncalc 的最新提交和差异因网络拒绝未验证；未运行上游项目测试套件，因为本次仅更新外部只读参考检出，未修改 MyQCD 源码。
+
+## 变更与产物
+- 文件: refer/git-rep/PyQCD、refer/git-rep/PyQCU（父仓库 gitlink 未暂存）。
+- 产物: 两个子模块工作树已更新到各自 origin/main 最新提交。
+- 未改动范围: MyQCD 主包、refer/papers、refer/books、两个未初始化 GitHub 子模块。
+
+## 风险、限制与下一步
+- 风险: 父仓库 gitlink 变更尚未提交，后续需要时由用户决定是否纳入提交。
+- 阻塞: GitHub HTTPS 连接被拒绝，两个未初始化子模块未更新。
+- 下一步: GitHub 可达后，分别初始化并拉取 LQCD_Wickcontraction_reduce 与 feyncalc，再复核许可证、差异和测试。
+
+## 用户输入指令
+pull最新的refer/git-rep
+
+## Agent 全文报告
+--- report begin ---
+blocked
+
+**改动内容**
+- `refer/git-rep/PyQCD` 已从 `05f9080464fed7732e649fc7e5d1ca9cc869556e` 快进到 `0a2f85d30881fc8ead60972c0afb9c028abc348f`。
+- `refer/git-rep/PyQCU` 已从 `57f40fa1a89a9596ac885e39346f51115ac7383e` 快进到 `ed19695db997fa668e8febf5d8c87fb4b830ee0c`。
+- 父仓库仅出现上述两个子模块 gitlink 变更；没有暂存、提交或推送。
+
+**推理依据**
+两个已初始化子模块操作前工作树干净且均有 `origin/main` 上游，因此使用 `git pull --ff-only`，避免产生本地合并提交或覆盖未知改动。`refer/git-rep` 本身不是独立仓库，而是父仓库中的子模块容器。
+
+**验证结果**
+- `PyQCD` 的 `HEAD` 与 `@{upstream}` 均为 `0a2f85d30881fc8ead60972c0afb9c028abc348f`，工作树干净。
+- `PyQCU` 的 `HEAD` 与 `@{upstream}` 均为 `ed19695db997fa668e8febf5d8c87fb4b830ee0c`，工作树干净。
+- 父仓库 `git diff --check` 通过。
+- `LQCD_Wickcontraction_reduce`、`feyncalc` 仍未初始化；访问其 GitHub HTTPS 地址均返回 `Connection refused`，因此未能更新或核对最新提交。
+- 未运行上游测试套件；本次只更新外部只读参考检出，未修改 MyQCD 源码。
+
+**后续步骤**
+GitHub 网络恢复后，再初始化并拉取 `LQCD_Wickcontraction_reduce` 和 `feyncalc`，同时复核许可证与上游差异。是否提交本次两个 gitlink 变更尚未处理。
+--- report end ---

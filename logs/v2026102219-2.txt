@@ -1,0 +1,84 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-10-22 19:45:27 +0800
+批次: remove-deprecated-lqcd-course-20261022
+主任务: 删除 MyQCD 已弃用的课程内容
+触发原因: 任务完成
+摘要: 课程文档、技能、生成/验证代码、日志和缓存已删除；现行引用清零，测试、报告编译和严格格式审计通过
+Git 根目录: /root/MyQCD
+
+## 关键日志
+### S1 — 课程范围与引用审计
+- 目标: 删除已经事实弃用的课程内容并同步清理现行引用。
+- 命令/操作: 盘点课程文档、课程技能、课程日志和课程数据；搜索 README、AGENTS、form、refer、物理导航、data 说明及 PyQCD 理论报告中的全部课程引用。
+- 关键输出: 课程内容位于 docs/lattice_qcd_gluon_tmd_course（53 MB）、skills/lqcd-course（1.4 MB）、logs/docs/lattice_qcd_gluon_tmd_course（11 MB）；data 下无课程目录。
+- 退出码: 0
+- 证据与判断: 课程已不再承担 MyQCD 主定位，但被 README、测试入口、form 规则、data 说明和理论报告继续引用，需要作为同一批次删除和迁移。
+
+### S2 — 删除课程实体
+- 目标: 移除全部现行课程目录和未跟踪残留。
+- 命令/操作: 对三个课程目录执行 git rm -r -f；对 git rm 未处理的未跟踪 P31 缓存和 __pycache__ 使用 find -depth -delete。
+- 关键输出: 共删除 329 个已跟踪文件、303772 行；docs/lattice_qcd_gluon_tmd_course、skills/lqcd-course、logs/docs/lattice_qcd_gluon_tmd_course 均确认不存在。
+- 退出码: 0
+- 证据与判断: 课程 PDF、生成 TeX、论文缓存、SymPy 验证、视觉审计日志和课程技能全部从工作树移除。
+
+### S3 — 清理现行引用与报告
+- 目标: 删除课程入口和依赖，同时保留非课程内容。
+- 命令/操作: 更新 README、根 AGENTS、skills/AGENTS、skills/form、refer/AGENTS、refer/git-rep/README、docs/pyqcd_physics/README、data/AGENTS、data/README；重写理论报告中的课程证据章节和来源引用。
+- 关键输出: 现行文件中的 lqcd-course、lattice_qcd_gluon_tmd_course、course_examples 和“课程”搜索为零。
+- 退出码: 0
+- 证据与判断: PyQCD 理论报告保留为课程无关的公式链、SymPy 与参考源说明；历史任务日志保留为既往证据，不作为现行入口。
+
+### S4 — 最终验证
+- 目标: 证明删除后仓库可测试、可审计且报告一致。
+- 命令/操作: 重编 PyQCD 理论报告；运行 python -m pytest、python -m myqcd、pyqcd_theory_audit、compileall、form-audit --strict、snapshot verify 和 git diff --check。
+- 关键输出: 报告 68 页，Overfull=0、Float too large=0、Missing character=0、Undefined=0；pytest 120 passed；myqcd 94 项核心推导、50 篇论文、402 源文件、2263 条公式索引；PyQCD 审计 9 项、0 缺失来源；form strict 和 snapshot verify 退出码 0。
+- 退出码: 0
+- 证据与判断: 删除没有破坏非课程 Python 测试、公式注册表、PyQCD 参考索引或理论报告编译。
+
+## 验证与证据
+- 测试/检查: 根测试、myqcd 核心与论文索引、PyQCD 理论审计、Python 编译、报告两遍 XeLaTeX、严格格式审计、快照校验、旧引用搜索和 Git 空白检查。
+- 结果: 全部通过；课程路径不存在，现行课程引用为零。
+- 未验证项: 无课程相关验证需要执行，因为课程源码、生成器、验证器和数据均已删除；历史日志中的课程文字仅作既往证据保留。
+
+## 变更与产物
+- 文件: README.md、AGENTS.md、data/AGENTS.md、data/README.md、skills/AGENTS.md、skills/form/SKILL.md、refer/AGENTS.md、refer/git-rep/README.md、docs/pyqcd_physics/README.md、docs/pyqcd_physics/report_pyqcd_lattice_qcd_theory_20260906.tex/.pdf。
+- 删除: docs/lattice_qcd_gluon_tmd_course/**、skills/lqcd-course/**、logs/docs/lattice_qcd_gluon_tmd_course/**。
+- 保留: PyQCD 子模块、myqcd、PyQCD 物理报告、TMD 报告、refer/papers、refer/books、PyQCD 参考索引和格式技能。
+- 未改动范围: 非课程论文、教材、PyQCD 子模块内容和其他历史日志。
+
+## 风险、限制与下一步
+- 风险: 改动尚未提交或推送；部分课程删除和此前重命名处于暂存区，其他文档修改尚未暂存。
+- 阻塞: 无。
+- 下一步: 审查并提交当前改动；历史日志中保留的课程提及可用于回溯，不再维护任何现行课程入口。
+
+## 用户输入指令
+删去已经事实弃用的"课程"内容
+
+## Agent 全文报告
+--- report begin ---
+finished
+
+**改动内容**
+- 删除 `docs/lattice_qcd_gluon_tmd_course/`：课程成品、生成 TeX、41 份 PDF 和论文缓存。
+- 删除 `skills/lqcd-course/`：课程内容、生成器、验证器、SymPy 检查和教学模块。
+- 删除 `logs/docs/lattice_qcd_gluon_tmd_course/`：课程构建、严格验证和视觉审计记录。
+- 清理课程专属未跟踪 P31 缓存和 `__pycache__` 残留；三个课程路径均确认不存在。
+- 更新 [README.md](/root/MyQCD/README.md)、[AGENTS.md](/root/MyQCD/AGENTS.md)、[skills/form/SKILL.md](/root/MyQCD/skills/form/SKILL.md)、[refer/AGENTS.md](/root/MyQCD/refer/AGENTS.md)、[PyQCD 物理导航](/root/MyQCD/docs/pyqcd_physics/README.md) 和 data 说明。
+- 重写并重编 [PyQCD 理论报告](/root/MyQCD/docs/pyqcd_physics/report_pyqcd_lattice_qcd_theory_20260906.tex)，移除课程证据章节和全部课程来源。
+- 共删除 329 个已跟踪文件、303772 行；课程相关现行引用搜索为零。
+
+**推理依据**
+课程已不再承担 MyQCD“解释 PyQCD 物理”的主定位，且其生成链、验证器、日志和 PDF 形成独立维护负担。删除课程实体并同步清理入口，可让仓库只剩 PyQCD 源码、物理报告、公式审计和文献参考。
+
+**验证结果**
+- `python -m pytest`：`120 passed`。
+- `python -m myqcd`：94 项核心推导通过，50 篇论文、402 个源文件、2263 条公式索引完成。
+- PyQCD 理论审计：9 项结构审计、0 个失败、0 个缺失来源。
+- 重编报告：68 页，`Overfull=0`、`Float too large=0`、`Missing character=0`、未定义引用为 0。
+- `form-audit --strict`、快照校验、`compileall` 和 `git diff --check` 均通过。
+- 当前工作树中 `docs/` 为 1.5 MB、`skills/` 为 100 KB、`logs/` 为 1.3 MB；课程路径全部不存在。
+
+**后续步骤**
+改动尚未提交或推送，且当前包含已暂存删除和未暂存文档修改。历史任务日志中的课程提及保留为既往证据，但不再有现行课程入口或可执行课程代码。
+--- report end ---
