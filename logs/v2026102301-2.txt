@@ -1,0 +1,83 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-10-23 01:13:47 +0800
+批次: gluon-tmd-review-supplement
+主任务: 充实核子胶子 TMD-PDF 综述并完成 PDF 与审计验证
+触发原因: 任务完成
+摘要: 综合 PyQCD docs 的实现层材料，扩充综述公式、表格、物理解释和验收门控，并完成编译、格式、公式与 Git 验证。
+Git 根目录: /root/MyQCD
+
+## 关键日志
+### S1 — 文档证据选择与正文增补
+- 目标: 将 refer/git-rep/PyQCD/docs 中与核子胶子 TMD-PDF 直接相关的材料作为二次综合证据，扩充既有综述。
+- 命令/操作: 只读核查大动量有效理论、胶子算符、Wilson 线、3pt 构造、外推、误差统计、梯度流连续极限和 dev20 审计文档；未复制上游正文，未修改 refer/**。
+- 关键输出: 综述新增“PyQCD 文档中的实现层增补”，覆盖文档映射、LaMET 极限交换与普适类、36 分量与三角混合、UV 与匹配层两类混合、Wilson 线策略、顺序源成本、广义 perambulator、大 lambda/derivative/RGR、协方差误差传播和实现门控。
+- 退出码: 0
+- 证据与判断: 新增内容落在可检验公式、尺度窗口、成本关系或验收门上；诊断运行仍明确限定为 diagnostic_only，不升级为物理结果。
+
+### S2 — LaTeX 排版修正与构建
+- 目标: 保持中文文件名、数学标题和 PDF 图表可正确显示。
+- 命令/操作: 将含中文的 \path 文件名改为正文文本；用 \texorpdfstring 提供含数学符号小节标题的 PDF 书签；连续两遍执行 XeLaTeX。
+- 关键输出: docs-supp-pass9.stdout 与 docs-supp-pass10.stdout 均成功；最终 PDF 57 页；无缺字、未定义引用/引文、重复标签、Overfull 或 Float too large；仅保留 2 条非致命 Underfull。
+- 退出码: 0
+- 证据与判断: 最终 PDF 字体全部嵌入，A4 页面，页面视觉抽查通过；正文含 115 个 equation、10 个 align、5 个 figure、14 个 table 和 1 个 algorithm。
+
+### S3 — 仓库级验证
+- 目标: 验证文档格式、公式审计、快照完整性、PDF 与 Git 边界。
+- 命令/操作: form-snapshot-verify --quiet；python -m myqcd；git diff --check；pdfinfo；sha256sum；form-audit --strict --quiet。
+- 关键输出: 快照校验退出码 0；公式核心审计 derivation_count=94，failed_checks=[]；Git 空白检查退出码 0；PDF 57 页、879811 bytes；TeX SHA-256 8a45349ac3d33ba35a9f7886a1856f969d73361d12f23dfa07c5af344d95cfdb；PDF SHA-256 a8967fefe6c908f1bdd8ec9c5ce34060bd1130bf08e94aa589ff3f85afaa6d4a。
+- 退出码: form-audit 为 1，其余为 0。
+- 证据与判断: form-audit 的 21 条告警全部来自 docs/pyqcd_reference/ 只读历史快照，未命中本次三个改动文件；不修改上游快照。myqcd 库存层记录 2263 个未解析公式条目，但核心 94 项推导全部通过。
+
+## 验证与证据
+- 测试/检查: XeLaTeX 两遍、编译日志错误扫描、PDF 信息与字体、视觉抽查、form-snapshot-verify、python -m myqcd、form-audit --strict、git diff --check。
+- 结果: 文档构建与核心公式审计通过；严格格式审计仅报告 21 条既存只读快照告警。
+- 未验证项: 本次只改 TeX/Markdown/PDF，未重复运行约 6 分钟的根 pytest；未执行真实系综或 GPU 物理验证，论文中的诊断状态仍为 diagnostic_only/physical_acceptance=false。
+
+## 变更与产物
+- 文件: docs/pyqcd_physics/report_gluon_tmd_lattice_qcd_review_20261023.tex（新增 256 行）；docs/pyqcd_physics/report_gluon_tmd_lattice_qcd_review_20261023.pdf（57 页）；docs/pyqcd_physics/README.md（阅读说明更新）。
+- 产物: data/build/gluon_tmd_review/ 下保留编译日志、审计输出和低分辨率页面抽查图。
+- 未改动范围: refer/** 上游内容、Python 源码和测试代码均未改动；未暂存、提交或推送。
+
+## 风险、限制与下一步
+- 风险: 严格格式审计的既存快照告警仍会使全库 strict 命令非零；如果需要全绿，应由独立只读快照治理任务处理。
+- 阻塞: 无。
+- 下一步: 审阅新增 8 页物理内容与版式；如准备交付，再按仓库授权范围显式暂存、提交并普通推送。
+
+## 用户输入指令
+- “算法展示格式参考 ===Unpreconditioned BiCGSTAB=== ...，物理解释部分不够详细”
+- “此论文需要图形结合”
+- “公式过少,观感过于单调”
+- “将{refer/git-rep/PyQCD/docs}的相关内容作为补充,充实此文章的内容,展开更多的关键点”
+- 同时要求避免上游上下文长度溢出错误。
+
+## Agent 全文报告
+--- report begin ---
+状态：finished
+
+### 改动内容
+- 在 docs/pyqcd_physics/report_gluon_tmd_lattice_qcd_review_20261023.tex 第 1600–1857 行新增约 8 页“PyQCD 文档中的实现层增补”。
+- 新增内容包括：文档证据映射；LaMET 极限不可交换性与普适类；36 分量、三角混合、UV 重正化与匹配层味混合的区别；Wilson 线策略决策表；顺序源成本和广义 perambulator；大 lambda 尾部、derivative 方法与 RGR 小 x 限制；协方差误差传播；当前实现门控与证据层级。
+- 同步更新 docs/pyqcd_physics/README.md 第 21 行的阅读说明，并重新生成 57 页 PDF。
+- 未修改 refer/** 上游内容，未暂存、提交或推送。
+
+### 推理依据
+- PyQCD 文档仅作为二次综合、实现审计和约定核对证据，不替代原始论文或格点数据。
+- 将“实现可运行”“有限矩阵元”和“物理 TMD-PDF 成立”严格分层；当前 11 组态结果保持 diagnostic_only 与 physical_acceptance=false。
+- 新增公式均落在大动量窗口、混合结构、Fourier 尾部、成本估计或误差传播等可验证环节；新增表格用于降低复杂实现路径的阅读成本并强化图形化表达。
+
+### 验证结果
+- XeLaTeX 连续两遍退出码 0；最终 57 页，无缺字、未定义引用/引文、重复标签、Overfull 或 Float too large；仅 2 条非致命 Underfull。
+- PDF 字体全部嵌入，A4 页面；视觉抽查未发现表格挤压或版面越界。
+- form-snapshot-verify --quiet 退出码 0。
+- python -m myqcd 核心审计 94 项推导全部通过，failed_checks=[]；库存层 2263 个公式条目仍为 unparsed，属于现有审计层级。
+- form-audit --strict --quiet 返回 21 条告警，全部来自 docs/pyqcd_reference/ 只读历史快照；本次改动文件无新增格式告警。
+- git diff --check 通过。
+- TeX SHA-256：8a45349ac3d33ba35a9f7886a1856f969d73361d12f23dfa07c5af344d95cfdb。
+- PDF SHA-256：a8967fefe6c908f1bdd8ec9c5ce34060bd1130bf08e94aa589ff3f85afaa6d4a。
+- 因仅修改文档，未重复运行根 pytest；未执行真实系综或 GPU 验证。
+
+### 后续步骤
+- 审阅新增 8 页的物理取舍与版式。
+- 若需要交付到远端，再按授权范围显式暂存、提交并普通推送。
+--- report end ---

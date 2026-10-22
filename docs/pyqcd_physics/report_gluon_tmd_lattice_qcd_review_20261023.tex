@@ -1597,6 +1597,262 @@ BiCGSTAB 用非对称 Krylov 子空间处理一般非 Hermitian 的 \(D_q\)，�
 
 \section{当前理论进展与证据边界}
 
+\subsection{PyQCD 文档中的实现层增补}
+
+本节把 \path{refer/git-rep/PyQCD/docs/} 中的方法性笔记压缩成若干可检验的增量点。这些文档是二次综合与实现审计，不是新的实验测量；涉及具体物理结论时仍回到原始论文和格点数据。表~\ref{tab:pyqcd-docs-map} 给出选用文档与本文新增内容的对应关系，正文只保留经交叉核对后能够落到公式、窗口或状态门上的部分。
+
+\begin{table}[htbp]
+\centering
+\caption{PyQCD 文档中与本文直接相关的增量材料及其使用边界。}
+\label{tab:pyqcd-docs-map}
+\small
+\begin{tabularx}{\textwidth}{L{3.4cm}L{4.0cm}Y}
+\toprule
+文档主题 & 增量要点 & 本文中的落点与边界 \\
+\midrule
+\textit{大动量有效理论} & 极限交换、解析延拓、普适性类 & 补充 LaMET 的有效场论图像；不把类比当成证明 \\
+\textit{胶子算符} & 36 分量、辅助场、三角混合、\(2\times2\) 匹配 & 区分 UV 可乘性重正化与匹配层味混合 \\
+\textit{Wilson 线} & 线性/交叉/pinch-pole 结构与四类方案 & 形成重正化策略决策表 \\
+\textit{3pt 构造} & 顺序源、广义 perambulator、多态拟合 & 补充成本、缓存和激发态控制 \\
+\textit{外推} & 大 \(\lambda\) 外推、derivative 方法与联合外推 & 补充 Fourier 尾部与极限顺序 \\
+\textit{误差统计} & 全协方差链与独立误差平方和 & 明确两条误差传播路径的适用域 \\
+\textit{胶子 TMD 梯度流} & 从组态到 TMD 的十步流程与 SFTX & 用于实现层验收，不作为数值结果 \\
+\textit{dev20 审计} & 当前 11 组态诊断链、fail-closed 状态 & 用于给出实现门控与未闭合项 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+{\small\raggedright
+表中完整文件名依次为
+格点QCD中的大动量有效理论.tex、
+格点QCD中的胶子算符.tex、
+格点QCD中的Wilson线.tex、
+格点QCD中的3pt构造.tex、
+格点QCD中的外推.tex、
+格点QCD中的误差统计.tex、
+胶子TMD梯度流连续极限.tex 和
+absorb\_dev20\_gluon\_tmd\_audit\_20261022.md，
+均位于 \path{refer/git-rep/PyQCD/docs/}。\par}
+
+\subsubsection{LaMET 的极限结构、普适类与准算符选择}
+
+LaMET 可以在形式上类比为强子版本的重夸克有效理论：HQET 以 \(m_Q\to\infty\) 组织 \(1/m_Q\) 展开，LaMET 以 \(P_z\to\infty\) 组织 \(1/P_z\) 展开。最低阶匹配写成
+\begin{equation}
+  F(P_z/\Lambda)
+  =Z\!\left(\frac{P_z}{\Lambda},\frac{\Lambda}{\mu}\right)f(\mu)
+  +\mathcal O\!\left(\frac{\Lambda^2}{P_z^2}\right),
+  \label{eq:lamet-eft}
+\end{equation}
+其中 \(F\) 是格点准观测量，\(f\) 是光锥有效理论中的物理量，\(Z\) 吸收两种极限顺序造成的 UV 差异。关键点是
+\begin{equation}
+  \lim_{P_z\to\infty}\lim_{a\to0}
+  \;\neq\;
+  \lim_{a\to0}\lim_{P_z\to\infty}.
+  \label{eq:lamet-noncommute}
+\end{equation}
+格点计算必须先有 UV 截断再进行大动量外推，而光锥定义在概念上先取无穷动量再完成重整化。两种顺序的 IR 物理应相同，差别由匹配核和幂修正组织；因此必须同时满足
+\begin{equation}
+  \Lambda_{\rm QCD},M_N\ll P_z\ll a^{-1}.
+  \label{eq:lamet-scales}
+\end{equation}
+
+同一光锥算符可以由多个 Euclidean 准算符逼近。把在 \(P_z\to\infty\) 下落到同一光锥极限的准算符集合称为普适类：
+\begin{equation}
+  \mathcal U_{\rm LC}
+  =\left\{\mathcal O_i^{(E)}:
+  \lim_{P_z\to\infty}Z_i^{-1}\mathcal O_i^{(E)}
+  =\mathcal O^{\rm LC}\right\}.
+  \label{eq:universalityclass}
+\end{equation}
+实际选择准算符时，应优先比较各成员在有限 \(P_z,a\) 下的幂修正、统计噪声和算符混合，而不是只选形式上最简单的一个。另一个常被忽视的要点是解析延拓：不能把 Minkowski 外动量直接代入 Euclidean 积分后宣布等于光锥结果；必须保留 Euclidean 极点结构，完成积分后再解析延拓。
+
+\subsubsection{36 分量、三角混合与两类“混合”}
+
+纯胶子准算符的 UV 结构可按四个 Lorentz 指标中 \(z\) 分量的个数 \(s\) 分类。令 \(C_g\) 表示线性自能，\(Z_{wg}\) 表示 Wilson 线端点因子，\(Z_{vg1},Z_{vg2}\) 表示两类 \(z\) 指标因子，则最小结构可写成
+\begin{table}[htbp]
+\centering
+\caption{胶子准算符按 \(z\) 指标数的重正化因子结构。}
+\label{tab:z-index-classes}
+\small
+\begin{tabularx}{\textwidth}{L{1.5cm}L{4.0cm}Y}
+\toprule
+\(s\) & 代表结构 & 必要的重正化因子 \\
+\midrule
+0 & 纯横向组合，如 \(F^{ti}F^{ti}\)、\(F^{ij}F^{ij}\) & \(e^{-C_g|z|}\)、\(Z_{wg}\) \\
+1 & 一个纵向指标，如 \(F^{ti}F^{zi}\) & 另有 \(Z_{vg1}^{1/2}\) \\
+2 & 两个纵向指标，如 \(F^{zi}F^{zi}\)、\(F^{z\mu}F^z_\mu\) & 另有 \(Z_{vg2}\) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+辅助伴随重夸克场方法进一步表明，场强端点、Wilson 线和可能的辅助场算符可形成三角混合：
+\begin{equation}
+  \begin{pmatrix}J_{1,R}\\J_{2,R}\\J_{3,R}\end{pmatrix}
+  =
+  \begin{pmatrix}
+    Z_{11} & Z_{12} & Z_{13}\\
+    0 & Z_{22} & Z_{23}\\
+    0 & 0 & Z_{33}
+  \end{pmatrix}
+  \begin{pmatrix}J_1\\J_2\\J_3\end{pmatrix},
+  \label{eq:triangularmixing}
+\end{equation}
+其中 \(J_3\) 与辅助场运动方程相关，在物理矩阵元中可以消失。更重要的工程结论是：尽管全部 Lorentz 分量很多，真正需要独立追踪的可乘性构建块并不多；错误地用一个标量 \(Z\) 吸收所有端点结构，会把不同 \(s\) 分量的反常量纲混在一起\cite{LiMaQiu2019,ZhangGluonLaMET2019}。
+
+UV 重正化阶段与匹配阶段的“混合”必须严格区分。前者的可乘性结构不要求胶子准算符与夸克准算符混合；后者在把准分布匹配到光锥单态 PDF 时出现味混合矩阵：
+\begin{keyformula}{UV 可乘性与匹配层味混合}
+\begin{align}
+  \begin{pmatrix}\widetilde g(x,\mu)\\ \widetilde q_S(x,\mu)\end{pmatrix}
+  &=\int_x^1\frac{\dd y}{y}
+  \begin{pmatrix}
+    C_{gg}\!\left(\frac{x}{y},\frac{\mu}{P_z}\right) &
+    C_{gq}\!\left(\frac{x}{y},\frac{\mu}{P_z}\right)\\[2pt]
+    C_{qg}\!\left(\frac{x}{y},\frac{\mu}{P_z}\right) &
+    C_{qq}\!\left(\frac{x}{y},\frac{\mu}{P_z}\right)
+  \end{pmatrix}
+  \begin{pmatrix}g(y,\mu)\\ q_S(y,\mu)\end{pmatrix}
+  \nonumber\\
+  &\quad+\mathcal O\!\left(\frac{\Lambda_{\rm QCD}^2}{P_z^2}\right),
+  \label{eq:matching2x2}\\
+  \mathcal O_i^{R}(\mu)&=Z_{ij}^{\rm UV}(\mu,\mu_0)\mathcal O_j^{R}(\mu_0),
+  \qquad
+  \begin{pmatrix}\widetilde g\\ \widetilde q_S\end{pmatrix}
+  \neq Z^{\rm UV}\begin{pmatrix}\widetilde g\\ \widetilde q_S\end{pmatrix}.
+  \label{eq:uv-vs-matchingmixing}
+\end{align}
+\end{keyformula}
+式~\eqref{eq:uv-vs-matchingmixing} 的第二行不是矩阵等式，而是强调不能把 \(Z^{\rm UV}_{gq}\) 与 \(C_{gq}\) 混成同一个对象。前者属于格点算符的 UV 重正化，后者属于光锥因子化的硬匹配。
+
+\subsubsection{Wilson 线策略的决策边界}
+
+库内文档把 Wilson 线发散的处理归纳为质量抵消、Wilson 圈、白重整化和 hybrid 四类。它们并非可以任意互换的“四种写法”，而是分别针对不同的发散组合。表~\ref{tab:wilson-strategies} 给出决策边界。
+
+\begin{table}[htbp]
+\centering
+\caption{Wilson 线重正化策略的适用条件与失败信号。}
+\label{tab:wilson-strategies}
+\small
+\begin{tabularx}{\textwidth}{L{2.5cm}L{4.1cm}L{3.2cm}Y}
+\toprule
+方案 & 主要消除对象 & 成立条件 & 失败信号 \\
+\midrule
+质量抵消/辅助 \(z\) 场 & 开放 Wilson 线的线性自能 & 同一路径长度与表示；残余对数另行处理 & 只看到线性项消失，但 \(L_\parallel\) 或 \(z\) 仍无平台 \\
+Wilson 圈平方根 & 线性自能、pinch-pole、部分 cusp & 圈与 staple 同几何、同端点、同表示 & \(L_\parallel\) 扫描无平台或不同转角结果不一致 \\
+白重整化 & 多格距的线性项与重整子模糊 & 至少多个 \(a\)、可控短距参考点 & 单格距时 \(z_0\) 和参数化不可辨识 \\
+Hybrid & 短距 ratio 与长距质量减除 & \(z_s\) 窗口稳定，短距匹配与长距参数分离 & \(z_s\) 或 \(\delta m+m_0\) 变化超过目标误差 \\
+RI/MOM & 局域反常量纲与有限混合 & 仅用于局域端点结构，需规范与投影固定 & 小 \(a\) 或大 \(z\) 的格距依赖反而增强 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+一个直接可审计的 Wilson 圈比值为
+\begin{equation}
+  h_R(z,\bT;P_z)
+  =\lim_{L_\parallel\to\infty}
+  \frac{\tilde h(z,\bT,L_\parallel;P_z;1/a)}
+  {\sqrt{Z_{E,R}(\bT;2L_\parallel+z;1/a)}} .
+  \label{eq:wl-subtractionratio}
+\end{equation}
+文档中的五格距验证、Clover/Overlap 交叉检查和 \(L_\parallel\) 平台共同说明该减除可以同时组织线性、pinch-pole 与 cusp 结构；但残余对数仍需短距 ratio、hybrid 或自重整化处理。RI/MOM 的失败并不等于动量减除无意义，而是说明普通局域减除无法替代针对非局域 Wilson 线的同几何结构\cite{Zhang2022TMD,Huo2021,ZhangGauge2024}。
+
+\subsubsection{顺序源、广义 perambulator 与真实成本}
+
+三点函数的标准顺序源不是“少做一次求逆”的纯技巧，而是把汇点核子、算符插入和源端传播子重组为同一个协变对象。若 \(S=D^{-1}\eta\) 是源传播子，则辅助顺序传播子满足
+\begin{equation}
+  D\Sigma=e^{-i\mathbf p_f\cdot x}\gamma_5S,
+  \label{eq:sequentialdirac}
+\end{equation}
+其中右手边只在汇点时间片非零。对每个末态动量 \(\mathbf p_f\) 通常需要一个新的顺序源，而改变初态动量 \(\mathbf p_i\) 往往只需改变投影相因子。因此三点谱学的成本近似由
+\begin{equation}
+  N_{\rm solve}^{3\rm pt}\simeq N_{\rm base}+N_{\mathbf p_f},
+  \label{eq:sequentialcost}
+\end{equation}
+控制，不能把“顺序源减少求逆”误解为对所有动量同时免费。
+
+蒸馏框架把传播子压缩到低模空间。广义 perambulator 写成
+\begin{equation}
+  J_{\alpha\beta}(t_f,t,t_i)
+  =\left[V^\dagger(t_f)M^{-1}(t_f,t)\Gamma(t)
+  M^{-1}(t,t_i)V(t_i)\right]_{\alpha\beta},
+  \label{eq:generalizedperambulator}
+\end{equation}
+从而把源侧传播、流插入和汇侧传播编码成一个 \(N_v\times N_v\) 矩阵。其代价并不只是“\(N_v\) 很小”：传播子本身约按 \(N_v\) 增长，介子/重子连接两点函数可分别出现 \(N_v^3\) 和 \(N_v^4\) 的组合，非连通环通常按 \(N_v^3\) 组织。实际报告应给出 \(N_v\)、基算符数、源数、动量数和缓存命中，而不只给总 GPU 时间\cite{Peardon2009,Bali2016}。
+
+\subsubsection{\texorpdfstring{大 \(\lambda\) 尾部、derivative 方法与 RGR 小 \(x\) 限制}{大 lambda 尾部、derivative 方法与 RGR 小 x 限制}}
+
+坐标空间数据只能覆盖有限 \(z\)。为了做全区间 Fourier 变换，需要对 \(\lambda=zP_z\) 的大距离尾部建模。一个常用的结构是
+\begin{equation}
+  h_R(z,P_z)
+  \sim c_1z^{-d_1}e^{-z/\lambda_0}
+  +c_2z^{-d_2}e^{-z/\lambda_0}+\cdots ,
+  \label{eq:large-lambda-tail}
+\end{equation}
+其中指数因子来自非微扰能隙，幂次来自高阶 twist 与端点行为。拟合窗口 \(\lambda>\lambda_L\)、尾部函数形式和 \(z_{\max}\) 的差异都必须进入系统误差。自重整化时通常先对每个格距做大 \(\lambda\) 外推，再做 \(a\to0\) 联合外推；顺序反过来会让大 \(z\) 噪声通过连续极限污染尾部参数。
+
+derivative 方法用局域导数压制尾部截断：
+\begin{equation}
+  \widetilde q(x,P_z)
+  =\frac{i}{x}\int\dd z\,e^{ixP_zz}
+  \frac{\dd h_R(z,P_z)}{\dd z},
+  \qquad x\neq0.
+  \label{eq:derivativemethod}
+\end{equation}
+它在中等 \(x\) 可以减小截断振铃，但 \(x\to0\) 时出现 \(1/x\) 增强，且无法直接给出 \(x=0\) 的值；因此不能把 derivative 方法当成所有 \(x\) 区间的统一替代。
+
+当 \(\zeta_z=(2xP_z)^2\) 与 \(\mu^2\) 相差很大时，固定阶硬核含大对数。重整化群重求和把硬核从自然标度 \(\mu_0=2xP_z\) 演化到参考标度：
+\begin{equation}
+  H\!\left(\frac{\zeta_z}{\mu^2}\right)
+  =H\!\left(\frac{\zeta_z}{\mu_0^2}\right)
+  \exp\left[
+  \int_{\mu_0^2}^{\mu^2}\frac{\dd\bar\mu^2}{\bar\mu^2}
+  \gamma_H(\alpha_s(\bar\mu))
+  \right].
+  \label{eq:rgr-hardkernel}
+\end{equation}
+这条链也解释了小 \(x\) 的根本限制：当
+\begin{equation}
+  x\lesssim x_{\min}\sim\frac{\Lambda_{\rm QCD}}{2P_z}
+  \label{eq:xmin-lamet}
+\end{equation}
+时，\(\mu_0\) 进入非微扰区，固定阶匹配失去控制。大 \(P_z\) 不是单纯提高信噪比，而是扩大小 \(x\) 的微扰匹配窗口\cite{HeTMD2024,JiReview2021}。
+
+\subsubsection{误差传播的两条路径与当前实现门控}
+
+格点误差不能只用一个 bootstrap 标准差概括。文档给出了两条互补路径。路径 A 在每个 replica 内重跑完整分析链，自动保留拟合、重正化、匹配和外推之间的相关性；路径 B 先给中心值，再分别变化窗口、标度、拟合形式和尾部模型，最后按平方和组合：
+\begin{equation}
+  \sigma_{\rm quad}
+  =\sqrt{\sigma_{\rm stat}^2+\sum_x\sigma_x^2}.
+  \label{eq:quadratureerror}
+\end{equation}
+路径 B 透明、便宜，但假设各系统分量不相关；对于有限体积与手征外推、\(z_s\) 与匹配标度等明显相关的量，必须改用全协方差或直接扫描联合变化。合格报告应明确哪些误差来自同一 replica 相关样本，哪些来自“硬选择”的变化。
+
+当前 PyQCD 诊断链实现层的关键状态可概括为表~\ref{tab:implementation-gates}。它补充的是“实现到底闭合到哪一步”，不是重复发表结果的证据矩阵。
+
+\begin{table}[htbp]
+\centering
+\caption{由 PyQCD 文档审计整理出的实现层门控。}
+\label{tab:implementation-gates}
+\small
+\begin{tabularx}{\textwidth}{L{3.2cm}L{4.4cm}Y}
+\toprule
+门控 & 当前证据 & 判定与后果 \\
+\midrule
+源分辨两点函数 & 保存 source 轴与 \((source,dt)\) shape；拒绝源平均缓存 & 通过；禁止把源间差异当重复测量 \\
+非连通归一化 & 修正 \(corr3=None\) 路径的 \(N_{\rm source}N_{\rm conf}\) 归一化 & 通过；旧 ratio/c0/Sumratio 数值不得复用 \\
+Fourier 约定 & quasi-TMD 与局域 spin-2 Ioffe-time 变换分离 & 通过；不能混用 \(1/(2\pi)\) 与 \(1/\pi\) 约定 \\
+匹配支撑 & 输出 \(x\) 与卷积 \(y\) 支撑分开，端点区不发布 & 通过；\(x\to0,1\) 仍需额外误差 \\
+流窗口 & \(\tau=3a^2\) 时 \(r_f\approx4.90a\)，非零 \(b_T/a\le4\) & 失败；只能作诊断，不能进入物理 \(b_T\) 结果 \\
+流窗口扫描 & \(\tau=0.5a^2,1.0a^2\) 改善窗口，但部分动量仍有 fallback & 部分通过；两点不是 \(\tau\to0\) 外推 \\
+流步长与单位 & 运行用步长 \(0.05\)，参考口径为 \(0.01\)；两套 fm-to-GeV 常数相差约 \(0.17\%\) & 未闭合；需步长收敛与统一常数 \\
+soft/rapidity 与混合 & 无同几何、同伴随表示软因子和完整 \(Z_{ij}\) & 未闭合；禁止发布物理胶子 TMD-PDF \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{physicalbox}{文档证据的正确层级}
+库内文档可以提供约定、实现路径、已知失败模式和可复现诊断，但不能把“代码能运行”升级为“物理结果已成立”。只有原始论文与独立格点数据支持的主张进入物理结论层；当前 11 组态诊断链即使给出有限的 ratio、c0 或 Sumratio，只要流窗口、soft/rapidity、混合或多参数极限未闭合，仍应保持 \texttt{diagnostic\_only} 和 \texttt{physical\_acceptance=false}。
+\end{physicalbox}
+
 \subsection{关键工作的证据矩阵}
 
 表~\ref{tab:publication-matrix} 按“算符/理论、共线胶子、软结构、完整 TMD”四类整理库内最相关的格点工作。最后两列尤其重要：一个工作验证了方法，不等于它已经得到核子胶子 TMD。把“首次”“连续极限”“第一性原理”等措辞放回具体观测量和参数范围，是综述写作的基本要求。
