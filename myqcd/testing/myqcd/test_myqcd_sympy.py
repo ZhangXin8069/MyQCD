@@ -47,6 +47,9 @@ from myqcd.derivations import (
 from myqcd.formula_registry import CORE_FORMULAS
 from myqcd.audit import build_audit_report, scan_refer_papers as audit_scan_refer_papers
 from myqcd.latex_inventory import extract_display_formulas, scan_refer_papers
+from myqcd.pyqcd_theory_audit import (
+    build_audit_report as build_pyqcd_theory_audit_report,
+)
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -999,6 +1002,14 @@ def test_formula_registry_covers_report_level_structural_formulas() -> None:
     assert expected <= set(CORE_FORMULAS)
     assert all(CORE_FORMULAS[key].source for key in expected)
     assert all(CORE_FORMULAS[key].status in {"verified", "structural"} for key in expected)
+
+
+def test_pyqcd_theory_audit_defaults_to_repository_submodule() -> None:
+    report = build_pyqcd_theory_audit_report(ROOT, include_core=False)
+
+    expected_root = ROOT / "refer" / "git-rep" / "PyQCD"
+    assert Path(report["pyqcd_root"]) == expected_root.resolve()
+    assert report["source_inventory"]["missing_files"] == []
 
 
 def test_new_derivations_are_exposed_by_the_package() -> None:

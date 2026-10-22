@@ -652,7 +652,7 @@ def audit_gradient_flow_dimensions() -> AuditRecord:
         (
             "refer/git-rep/PyQCD/pyqcd/renorm/_gradient_flow.py:139-180",
             "refer/git-rep/PyQCD/pyqcd/renorm/_gradient_flow.py:219-267",
-            "refer/git-rep/PyQCD/pyqcd/renorm/_tmdextract.py:318-367",
+            "refer/git-rep/PyQCD/pyqcd/renorm/_tmdextract.py:620-669",
         ),
         (
             "refer/papers/Properties_Uses_Wilson_Flow_latex/chapters/section02.tex",

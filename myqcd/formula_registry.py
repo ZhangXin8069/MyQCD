@@ -25,7 +25,7 @@ CORE_FORMULAS: Dict[str, FormulaSpec] = {
     "generating_functional": FormulaSpec(
         "generating_functional",
         r"Z[J]=\int\mathcal D\phi\,\exp[-S_E[\phi]+J\phi]",
-        f"{_REPORT}:67-74",
+        f"{_REPORT}:3794-3803",
         "structural",
         "derive_generating_functional",
         "SymPy 精确验证有限维高斯自由场类比及源导数关系；一般相互作用泛函不作形式积分假设。",
@@ -33,7 +33,7 @@ CORE_FORMULAS: Dict[str, FormulaSpec] = {
     "lattice_link": FormulaSpec(
         "lattice_link",
         r"U_\mu(x)=\exp[iagA_\mu(x+a\hat\mu/2)]",
-        f"{_REPORT}:67-74",
+        f"{_REPORT}:3798-3804",
         "verified",
         "derive_lattice_link",
         "在可交换单色分量中验证幺正性与 a^2 连续展开；非阿贝尔情形保留矩阵指数解释。",
@@ -241,7 +241,7 @@ CORE_FORMULAS: Dict[str, FormulaSpec] = {
     "gradient_flow": FormulaSpec(
         "gradient_flow",
         r"\partial_tB_\mu=D_\nu G_{\nu\mu},\quad t\sim L_{\rm sm}^2",
-        f"{_REPORT}:67-74,251-253",
+        f"{_REPORT}:2543-2560",
         "verified",
         "derive_gradient_flow",
         "在自由/阿贝尔横向规范下验证热方程、Fourier 衰减、高斯核和二阶矩。",
@@ -385,7 +385,7 @@ CORE_FORMULAS: Dict[str, FormulaSpec] = {
     "renormalization": FormulaSpec(
         "renormalization",
         r"O^R(z,\mu)=Z(z,\mu,a)O^{\rm bare}(z,a)",
-        f"{_REPORT}:67-74,905-907",
+        f"{_REPORT}:1536-1560",
         "verified",
         "derive_renormalization",
         "验证乘法逆关系、重正化因子复合律及一个可因子化截止项的抵消。",
@@ -393,7 +393,7 @@ CORE_FORMULAS: Dict[str, FormulaSpec] = {
     "lamet_matching": FormulaSpec(
         "lamet_matching",
         r"\widetilde q=\int dy\,Cq+\mathcal O(\Lambda_{\rm QCD}^2/P_z^2)",
-        f"{_REPORT}:67-74,730-732",
+        f"{_REPORT}:1694-1700",
         "verified",
         "derive_lamet_matching",
         "验证幂修正的无量纲缩放与 P_z→∞ 极限；不伪造论文特定匹配核。",
@@ -729,7 +729,7 @@ CORE_FORMULAS: Dict[str, FormulaSpec] = {
     "euclidean_to_tmd": FormulaSpec(
         "euclidean_to_tmd",
         r"\mathcal O_{\rm Euclid}\xrightarrow{\rm matching/evolution}F_{\rm TMD}",
-        f"{_REPORT}:67-74,1650-1652",
+        f"{_REPORT}:3889-3900",
         "structural",
         "derive_tmd_fourier",
         "用归一化二维高斯例子验证 Fourier 结构；软因子、CS 核和方案转换不在此自动推出。",
@@ -737,7 +737,7 @@ CORE_FORMULAS: Dict[str, FormulaSpec] = {
     "normalizing_flow": FormulaSpec(
         "normalizing_flow",
         r"z\sim p(z),\quad U=f_\theta(z),\quad p_\theta(U)\ {与目标系统比较}",
-        f"{_REPORT}:2015-2017",
+        "refer/papers/基于流的格点MCMC生成模型_latex/chapters/section02.tex:86-132",
         "verified",
         "derive_normalizing_flow",
         "验证二维仿射 coupling layer 的 Jacobian、对数行列式和密度变换；不等同于规范等变性证明。",
@@ -745,7 +745,7 @@ CORE_FORMULAS: Dict[str, FormulaSpec] = {
     "wilson_area_law": FormulaSpec(
         "wilson_area_law",
         r"\langle W(C)\rangle\sim\exp[-\sigma A(C)]",
-        f"{_REPORT}:114-116",
+        "refer/books/INTRODUCTION_TO_LATTICE_QCD_latex/chapters/sec14_confinement.tex:270-284",
         "verified",
         "derive_wilson_area_law",
         "由矩形面积律和 T→∞ 定义推出 V(R)=σR，忽略周长项。",
