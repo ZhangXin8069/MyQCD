@@ -1,0 +1,318 @@
+\chapter{历史工作流、审计与验证演进}
+\label{sec:b08-history}
+
+本节不把不同年代、不同输入和不同验收层级的报告压成一条“成功链”。相反，我们
+按证据来源重建五种对象：蒸馏基线、分析脚本实战、梯度流 TMD 原型、逐层复现矩阵
+以及最终失败关闭判定。贯穿全节的问题是：一项检查究竟证明了公式、文件格式、输出
+投影、局部矩阵元，还是已经足以支持物理分布。只有最后一类需要同时满足算符、方案、
+尺度窗口、统计和极限条件。
+
+\section{证据对象与主张边界}
+
+表~\ref{tab:b08-evidence-objects} 概括本批次材料的证据类型。表中的“历史结论”
+表示当时报告中的解释，不表示本专著接受其物理有效性；尤其在源分辨归一化修复后，
+早期 ratio、\(c_0\) 与 Sumratio 数值已经不能继续引用。
+
+\begin{table}[htbp]
+\centering
+\caption{B08 历史材料的证据对象、允许提取的内容与不可升级的结论。}
+\label{tab:b08-evidence-objects}
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}X}
+\toprule
+材料 & 主要证据对象 & 主张边界 \\
+\midrule
+stab0 & 3/3/10 组态、\(N_{\rm ev}=50/100\)、VdV/VVV、连通与不相连比值 &
+可用于说明管线演进和统计失败；不能把 10 组态的不相连拟合当作矩阵元测量 \\
+stab1 & 真实数据上的 ratio、能量、FH、三方向分析及产物清单 &
+45/45 是流程断言；没有闭合流时、混合、soft/rapidity 和连续极限 \\
+dev5 系列 & Wilson flow、staple 算符、ratio、自重整化、Fourier、NLO/CS &
+公式链与历史输出可审计；2026-10-22 审计后，旧的归一化数值必须撤回 \\
+4150 矩阵 & 低层公式、HYP OPE、费米子收缩、momsmear 输出投影、effmass &
+每一项只证明其明确列出的比较层；3pt/ratio/barematrix 仍无配对证据 \\
+dev20 审计 & 源分辨真空减除、归一化反例、流窗口、严格质量门 &
+当前只能支持诊断链和 fail-closed 状态，不能发布物理胶子 TMD-PDF \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{stab0：蒸馏管线从可用计算到可检验统计}
+
+\paragraph{蒸馏定义。}
+蒸馏把三维协变 Laplace 算符的低本征模 \(v^{(k)}\) 作为夸克源与汇的压缩基。
+传播子在低模空间中的矩阵元称为 perambulator，而介子和重子空间结构分别由
+\begin{equation}
+  V^{\rm meson}_{mn}(\mathbf p;t)
+  =\sum_{\mathbf x}e^{-i\mathbf p\cdot\mathbf x}
+  v_m^\dagger(\mathbf x;t)v_n(\mathbf x;t),
+  \qquad
+  V^{\rm baryon}_{mnl}(\mathbf p;t)
+  =\sum_{\mathbf x}e^{-i\mathbf p\cdot\mathbf x}\,
+  \varepsilon_{abc}v_m^a v_n^b v_l^c
+  \label{eq:b08-vertices}
+\end{equation}
+给出。重子 VVV 的显式尺度为 \(N_{\rm ev}^3\)，这解释了为什么早期版本首先在
+\(N_{\rm ev}\)、组态数和分析闭环之间做取舍。
+
+\paragraph{谱学和不相连比值。}
+源时间平均后的两点函数用有效质量平台提取能量：
+\begin{equation}
+  m_{\rm eff}^{\log}(t)=\frac1a\ln\frac{C(t)}{C(t+1)},
+  \qquad
+  m_{\rm eff}^{\cosh}(t)=\frac1a\operatorname{arccosh}
+  \left[\frac{C(t-1)+C(t+1)}{2C(t)}\right].
+  \label{eq:b08-meff}
+\end{equation}
+对不相连胶子贡献，历史报告采用
+\begin{equation}
+  C_3(t,\tau,z)=C_2(t)O(z,\tau),
+  \qquad
+  R(t,\tau,z)=\frac{C_3-C_2\langle O\rangle}{C_2},
+  \label{eq:b08-disconnected-ratio}
+\end{equation}
+再逐 \(z\) 拟合两态模型
+\begin{equation}
+  R(\tau)=c_0+c_1e^{-dE\,\tau}+c_1e^{-dE\,(t-\tau)}.
+  \label{eq:b08-two-state}
+\end{equation}
+式~\eqref{eq:b08-disconnected-ratio} 的关键风险不在代数形式，而在
+\(C_2\)、\(O\) 与真空项如何按 source 和 configuration 归一化；这一点在
+第~\ref{sec:b08-dev20} 小节会被后续审计重新定义。
+
+\begin{table}[htbp]
+\centering
+\caption{stab0 三个历史版本的输入与功能面。所有数值均来自历史报告，不表示当前验收状态。}
+\label{tab:b08-stab0-versions}
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{2.2cm}ccc>{\raggedright\arraybackslash}p{7.0cm}}
+\toprule
+版本 & \(N_{\rm conf}\) & \(N_{\rm ev}\) & 胶子 OPE & 当时新增/不足 \\
+\midrule
+v20260803 & 3 & 50 & 否 &
+建立集中配置、低模库和 LaTeX 报告；高动量统计不足 \\
+v20260804 & 3 & 100 & 否 &
+增加功能面，但质子无平台，pion \(P_2\) 与 \(P_0\) 退化 \\
+v20260805 & 10 & 100 & 是 &
+增加 \(pn\)、3pt/4pt 和自动报告；不相连拟合仍完全不受约束 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+历史报告把 v20260805 称为三者中唯一具有“计算--统计--报告”闭环的版本，但
+这不等于完成了物理测量。10 组态下不相连参数出现
+\(c_1\sim-9.8\times10^8\)、\(dE\sim8.9\times10^6\) 一类失控尺度，说明
+中心值有限并不能证明参数可辨识。更严格的做法是同时报告协方差秩、通过质量门的
+点数和失败 replica 比例，而不是只给出拟合曲线。
+
+\paragraph{尺度元数据的版本分支。}
+stab0 记录的格距为 \(a\simeq0.1053\,\mathrm{fm}\)，而 dev5 历史报告使用
+\(a=0.0938\,\mathrm{fm}\)。本批次没有找到把两者统一到同一标定分支的原始元数据。
+因此，后续章节必须把它们当作两个历史来源分支；质量、动量和流半径的数值不能
+跨分支自动比较。类似地，stab0 中质量差异同时伴随 \(N_{\rm conf}\)、\(N_{\rm ev}\)
+和拟合窗变化，不能把单一差异归因于某一个算法参数。
+
+\section{stab1：流程断言与物理断言的分离}
+
+stab1 把早期基线接上多个分析模块：02 比值、03 比值画图、04 两点能量、05
+三方向相关、06 FH 变换。它记录了 10 组态、166 个文件、106 张图和
+\(15\,\mathrm{MB}\) 产物，并在流程层执行 45/45 项检查。流程检查覆盖产物存在性、
+有效质量偏差、拟合有限性和日志完整性，适合作为回归基线，但不检验 TMD 因子化
+或软/快度结构。
+
+其能量与聚合检查可写成
+\begin{equation}
+  E_0(\mathbf P)=\operatorname*{arg\,min}_{c_i,E_i}
+  \chi^2\!\left[C_2;\sum_i c_i e^{-E_i t}\right],
+  \qquad
+  \mathrm{FH}(t)=\sum_\tau R(t+1,\tau)-\sum_\tau R(t,\tau),
+  \label{eq:b08-energy-fh}
+\end{equation}
+其中前一项检验基态平台，后一项把 ratio 的常数部分与非零 \(dE\) 项的差异投影
+出来。历史快照报告 \(m_P=1.097\,\mathrm{GeV}\)、
+\(E(P_2)=1.533\,\mathrm{GeV}\)、\(E_0(P_2)=1.525\,\mathrm{GeV}\)，
+但三方向/六方向平均因数据可得性退化为单一 \(z\)，10 组态下 \(c_0\)
+仍有约 \(0.1\) 的窗口波动。\texttt{rank 6/33} 也说明协方差正则化参与了结果，而不是
+所有方向都独立可辨识。
+
+报告表中把 \(c_0(z=4)=0.36\) 列在 GeV 标题下。裸矩阵元在相邻材料中通常以
+无量纲或代码单位记录，当前材料无法确认其量纲；专著只能报告数值与单位冲突，
+不能擅自补上物理单位。
+
+\section{dev5：一条可执行链路如何被重新验收}
+\label{sec:b08-dev5}
+
+\paragraph{流与场强。}
+Wilson flow 通过热核型演化压低紫外模式：
+\begin{equation}
+  \partial_t B_\mu(t,x)=D_\nu G_{\nu\mu}(t,x),
+  \qquad B_\mu(0,x)=A_\mu(x),
+  \qquad r_f=\sqrt{8t}.
+  \label{eq:b08-flow}
+\end{equation}
+历史实现采用六-staple 的 Wilson 作用量梯度、\(\mathfrak{su}(3)\) 反厄米投影
+和截断指数 RK3；Clover 场强由四个 plaquette 的对称平均构造到
+\(\mathcal O(a^2)\)。流半径不是“步数”，而是与 \(a,z,b_T\) 直接比较的物理长度。
+因此，\(t=3a^2\) 带来的 \(r_f=\sqrt{24}\,a\simeq4.899a\) 必须与所有非零
+\(b/a\le4\) 逐点比较，而不能只用平均值或最大 \(b\) 概括。
+
+\paragraph{算符与比值。}
+dev5 用 \(F W F W^\dagger\) 的色迹表示非局域胶子关联，并定义牵引表示组合
+\begin{equation}
+  O(z,b_T)=M^{tx;tx}(z,b_T)+M^{ty;ty}(z,b_T)-2M^{xy;xy}(z,b_T).
+  \label{eq:b08-operator}
+\end{equation}
+其物理意图是消去不需要的局域混合并保留与胶子分布相关的张量结构；但“单圈可乘”
+不是“任意 \(b_T\) 和任意几何均已重正化”。两态比值、傅里叶反演和 NLO/CS
+匹配仍需独立的源、几何和流时一致性。
+
+\begin{equation}
+  \begin{aligned}
+    C_3&=C_2O,\\
+    R&=c_0+c_1e^{-dE\,\tau}+c_1e^{-dE\,(t-\tau)},\\
+    h_R(z,b_T)&=\frac{h_B(z,b_T)}{h_B(0,b_T)},\\
+    x\tilde g(x,b_T,P_z)&=\frac{1}{\mathcal N}
+      \int\frac{dz}{2\pi P_z}e^{-ixzP_z}h_R(z,b_T,P_z).
+  \end{aligned}
+  \label{eq:b08-dev5-chain}
+\end{equation}
+这组公式是历史报告的主要可审计内容。其物理解释应停留在“给出准分布和中间
+矩阵元的计算路径”；在 soft/rapidity、完整混合和多尺度极限缺失时，
+\(xg(x,b_T)\) 与 \(K(b_T)\) 不能直接称为物理结果。
+
+\paragraph{三次快照的差异。}
+U009 是基线；U010 增加流协变、对偶张量、staple 规范和两态展开等推导框；
+U011 再增加因果总览和图表的三段式解释。三者没有独立的新系综、新统计或新
+重正化数据，故不能把页数增长计为证据增长。U011 中关于 \(N(1440)\)、CT18、
+胶子半径和 \(b^*\) 饱和的具体叙述，本批次没有相应的原始计算，只能作为历史
+解释保留。
+
+\paragraph{后续审计改变了结论。}
+U002 的 \texttt{corr3=None} 归一化修复使“归一化正确但数值很小”不再成立：在缺少
+\(N_{\rm conf}\) 因子时，源和组态的乘积被多乘，旧 ratio、\(c_0\) 和
+Sumratio 数值必须整体撤回。由此，dev5 的价值从“已经得到物理 PDF”转为
+“保留了可重跑、可对照的实现链和失败样本”。这正是本章采用历史-only 解释的
+原因。
+
+\section{4150：逐层复现矩阵}
+\label{sec:b08-4150}
+
+4150 材料的优势是把“复现”拆成互不等价的层。表~\ref{tab:b08-4150-layers}
+给出本批次能够支持的逐层陈述。表中所有相对差均为历史检查器输出，不能外推到
+未检查的动量、时间片或算符几何。
+
+{\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{3.5cm}>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{2.0cm}}
+\caption{4150 逐层对照矩阵。}\label{tab:b08-4150-layers}\\
+\toprule
+检查层 & 比较对象 & 基准 & 结果 & 允许主张 \\
+\midrule
+\endfirsthead
+\toprule
+检查层 & 比较对象 & 基准 & 结果 & 允许主张 \\
+\midrule
+\endhead
+低层公式 & eigvec、phase、VdV、VVV、Clover、dual、OPE &
+同场独立重写 & 最大 \(1.36\times10^{-15}\) & 公式/接口一致 \\
+4D HYP OPE & x/y/z 三方向 9 通道 & 同场参考成品 & 9/9 PASS & 受控非极化通道一致 \\
+3D HYP & 1/3/5 次、z 向 3 通道 & 无配对成品 & 运行成功，状态 unverified & 不可宣称通过 \\
+费米子两点 & contract、nopol & 参考投影公式 & 多数动量 PASS & 中间/投影对象一致 \\
+逐时间 VVV & 原始中间文件 & 缺失 & unverified & 不可替代为完整收缩 \\
+momsmear & contract 到 \(P_+\)、边界、nopol & 输出投影关系 & 58/58 PASS & 输出关系自洽 \\
+独立 smeared peram & 独立传播子重算 & 不存在 & unverified & 不可由普通 peram 推断 \\
+极化输出 & 标准 \texttt{li} 与旧 \texttt{il} & 成品数组 & 74 PASS；41 仅旧轴序；1 diff；58 缺失 & 轴序未解决 \\
+effmass & 7 个聚合资产、25 行 & raw/twoptall & 7/7 PASS & 4150 索引为 \(k=2\) \\
+3pt, ratio,\newline barematrix & 同动量/同几何成品 & 缺失 & unverified & 暂不建立下游主张 \\
+\bottomrule
+\end{longtable}
+}
+
+低层和 4D HYP 的通过值得保留，但必须同时保留其基准说明：低层比较是同一规范场
+上的独立重写公式，不是外部 raw VVV；momsmear 检查只复算输出关系，不重建
+smearing 传播子。一个正确的“输出投影”不能证明输入 perambulator、动量相位和
+核子收缩同时独立正确。最有信息量的反而是未验证项：3D HYP、逐时间 VVV、独立
+smeared perambulator 和 3pt/ratio 下游均没有可配对基准。
+
+\section{dev20：从可运行到失败关闭}
+\label{sec:b08-dev20}
+
+\paragraph{源分辨两点函数。}
+正确的 ensemble ratio 不能在分析层丢掉 source 轴。令
+\(C_{2,s}(t)\) 为 source \(s\) 的两点函数、\(O_s(t,\tau,z,b_T)\) 为同 source
+的胶子结构，并在每个 replica 内取配置与 source 的平均，则可写成
+\begin{equation}
+  R_{\rm rep}(t,\tau)
+  =\frac{\left\langle \overline{C_2O}
+  -\overline{C_2}\,\overline{O}\right\rangle_{\rm conf}}
+  {\left\langle \overline{\mathrm{Re}\,C_2}\right\rangle_{\rm conf}},
+  \qquad
+  \overline{X}=\frac{1}{N_s}\sum_{s=1}^{N_s}X_s.
+  \label{eq:b08-source-ratio}
+\end{equation}
+分母和乘积项都必须保留两层归一化；先算源平均、再把一维时间序列当作绝对时间
+中心二次平移，会产生不可恢复的相位和归一化误差。
+
+\paragraph{解析反例。}
+旧 \texttt{corr3=None} 路径在 \(N_{\rm conf}\) 维已经求和后只除了 \(N_s\)，随后又对
+配置和 source 做双重平均。取 \(C_2=[1,3]\)、\(O=[2,6]\) 时，正确平均为
+\begin{equation}
+  \frac{\overline{C_2O}}{\overline{C_2}}=1,
+  \label{eq:b08-correct-example}
+\end{equation}
+而缺少 \(N_{\rm conf}\) 的旧实现给出一与六的比值，即 6。这个反例不是数值
+噪声，而是归一化错误；它直接解释了为什么旧 ratio、\(c_0\) 与 Sumratio 不能
+通过“看起来有限”保留下来。
+
+\paragraph{流窗口与诊断。}
+在本批次数据中，\(\tau=3a^2\) 给出 \(r_f/a=\sqrt{24}=4.899\)，而非零
+横向扫描为 \(b/a=0,\ldots,4\)。因此所有非零 \(b\) 点都不满足
+\(r_f<b\)，小 \(z\) 点也不满足 \(r_f<z\)。这使流化算符的场强和 Wilson 线
+可能抹去待测横向结构，故所有相关点只能是诊断点。受控扫描在
+\(\tau=0.5a^2\) 与 \(1.0a^2\) 下观察到 \(P_{400}\) 中心质量较稳定，
+但 P000/P200 仍存在质量或 flow-time 敏感性，且 replica fallback 非零。
+两点扫描不构成 \(\tau\to0\) 外推。
+
+\begin{table}[htbp]
+\centering
+\caption{dev20 诊断链的代表状态。表中仅复述历史审计记录，不是新测量。}
+\label{tab:b08-dev20-status}
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash}p{4.1cm}>{\raggedright\arraybackslash}X}
+\toprule
+项目 & 记录值/状态 & 验收含义 \\
+\midrule
+系综 & \(\beta=6.20\)，\(24^3\times72\)，11 组态 & 单格距、小样本；不是生产系综 \\
+源轴 & shape \((72,72)\)，轴语义 source,dt & source 信息保留；禁止静默源平均 \\
+Sumratio 质量 & P000 \(52/65\)，P200 \(51/65\)，P400 \(65/65\) & 严格 loader 要求 65/65 且无 replica fallback \\
+fallback & 1.46\%、1.23\%、0.12\% & 即使 P400 全通过中心质量，仍不能忽略 replica 失败 \\
+flow & \(\tau=3a^2\)，\(r_f=4.899a\) & 所有非零 \(b/a\le4\) 违反流窗口 \\
+soft/mixing & 无同几何 soft/rapidity，无完整 \(Z_{ij}\) & TMD 因子化链未闭合 \\
+链条状态 & diagnostic\_only；physical\_acceptance=false & 只能报告诊断量 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{未解决项。}
+当前数据没有同流时、同 staple 几何、同伴随表示的 soft/rapidity；没有完整
+胶子-夸克单态混合矩阵；没有多个格距、多个流时的受控极限；Fourier 大
+\(\lambda\) 尾部、端点 \(x\to0,1\)、流步长 \(0.05\) 与参考 \(0.01\) 的收敛，
+以及统一 fm-to-GeV 常数仍未闭合。任何一项缺失都足以阻止“物理胶子 TMD-PDF”
+的发布级主张。
+
+\section{第16章应采用的综合判据}
+
+把上述材料压缩成可写作的判据，可表示为
+\begin{equation}
+  \text{物理主张}
+  \Longleftarrow
+  \text{源分辨归一化}
+  \wedge\text{流/尺度窗口}
+  \wedge\text{soft/rapidity}
+  \wedge\text{混合}
+  \wedge\text{多尺度极限}.
+  \label{eq:b08-claim-gate}
+\end{equation}
+式~\eqref{eq:b08-claim-gate} 中右侧每一个因子都必须有独立来源和独立失败模式。
+历史报告的顺序大体是“先让整条链跑通，再补物理门”；当前专著应把顺序反过来：
+定义验收对象、建立每层的 oracle 或对照、再决定哪些数值允许进入物理论述。
+这样既保留了 dev5/stab1 的工程价值，也不会让早期有限结果重新获得已经撤回的
+物理地位。

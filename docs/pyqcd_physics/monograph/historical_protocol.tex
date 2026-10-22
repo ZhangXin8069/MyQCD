@@ -1,0 +1,148 @@
+\chapter{历史证据与验证协议}\label{sec:b08-appendix-evidence}
+本附录把历史日志转换为可复用的验证协议。协议不依赖某个版本的报告排版，也不
+以“程序退出 0”代替物理正确性。每个阶段都必须同时记录输入身份、输出形状、数值
+oracle、失败状态和证据等级。
+
+\section{证据等级与允许措辞}
+
+\begin{table}[htbp]
+\centering
+\caption{B08 使用的证据等级。}
+\label{tab:b08-evidence-levels}
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{1.4cm}>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}X}
+\toprule
+等级 & 已证明的对象 & 允许措辞与禁止升级 \\
+\midrule
+E0 & 来源可定位、文件可读取 & “有历史材料”；不能据此发表物理结论 \\
+E1 & 两遍编译、页框、缺字、渲染与安全区通过 & “报告可编译/可渲染”；不证明公式或算法 \\
+E2 & 解析反例、低层公式 oracle、形状/归一化检查 & “该公式/接口在测试域内一致” \\
+E3 & 中间对象的输出投影或文件关系一致 & “该输出关系通过”；不证明上游独立重算 \\
+E4 & 真实数据的拟合、谱学、ratio 或矩阵元通过质量门 & “受控中间量”；仍缺 proof of physical TMD \\
+E5 & 多格距、多流时、多动量、soft/rapidity、混合和极限闭合 & 才可使用“物理胶子 TMD-PDF 结果” \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+E1 到 E4 不可相互替代。一个 45/45 的流程检查、一个 58/58 的输出投影检查或
+一个单组态有限矩阵元，都不能越过 E4 进入 E5。报告正文应把等级放在表格单元
+或状态字段中，而不是只在附录文字中说明。
+
+\section{数值 oracle、归一化与输出投影}
+
+\paragraph{解析反例优先。}
+任何 source/configuration 归一化都应有小数组反例。至少固定
+\(C_2=[1,3]\)、\(O=[2,6]\)，分别验证 source 平均、组态平均、真空乘积减除和
+最终 ratio；预期值、实际值和失败原因必须并排保存。只检查输出有限（NaN/Inf）
+不足以发现因子 \(N_{\rm conf}\)、\(N_s\) 或重复平均。
+
+\paragraph{低层公式对照。}
+对 eigvec、phase、VdV、VVV、Clover、dual 和 OPE，可定义相对的截断误差
+\begin{equation}
+  \epsilon_{L2}(a,b)=\frac{\lVert a-b\rVert_2}
+  {\max\{\lVert b\rVert_2,\epsilon_0\}},
+  \label{eq:b08-relative-l2}
+\end{equation}
+其中 \(\epsilon_0\) 用于避免近零分母。报告必须同时给出最大绝对差和使用的
+\(dtype\) 容差；若基准是同一规范场上的独立公式重写，证据等级只能记为 E2，
+不能写成外部 raw 文件复现。4150 的 7 个低层对象、4D HYP 的 9/9 通道和
+effmass 的 7 个聚合资产分别属于不同测试域，不能合并成单个“全部通过”。
+
+\paragraph{输出投影。}
+对 momentum-smear 文件，可检查
+\begin{equation}
+  \text{contract}\longrightarrow P_+\longrightarrow
+  \text{anti-periodic boundary}\longrightarrow \text{nopol},
+  \label{eq:b08-output-projection}
+\end{equation}
+并分别报告根目录、动量组、数组数、相对 L2 与缺失槽位。该检查证明输出文件
+遵守投影和边界关系，不证明独立 smeared perambulator、相位生成或原始
+VVV 一致。极化检查必须把标准 \texttt{li}、旧 \texttt{il}、两者均 diff 和文件缺失分成四个
+互斥状态；近零分母导致的巨大相对误差应附绝对差，不能单独作为物理失败。
+
+\section{真实数据与失败关闭}
+
+真实数据链的最小状态集合为
+\begin{equation}
+  \mathcal S=
+  (\text{success fraction},\text{coverage},\text{rank},
+  \text{fallback},\text{window},\text{physical acceptance}).
+  \label{eq:b08-state-vector}
+\end{equation}
+每个分量都必须有机器可读值。一个候选拟合成功不代表它可进入下一层；中心样本
+通过也不代表 replica 无 fallback。对 dev20 诊断链，合法的状态是
+\texttt{diagnostic\_only}，而不是用更大的误差棒掩盖流窗口或 soft/mixing 缺口。
+
+协议至少执行以下检查：
+\begin{enumerate}
+  \item 严格读取 source 轴，拒绝一维源平均缓存；检查 shape、dtype 与 finite；
+  \item 在每个 replica 内生成共享指数并重算真空协方差，保存 index SHA-256；
+  \item 对每个 \(t,\tau,z,b_T\) 记录可辨识性、拟合质量、平台平坦度和支持状态；
+  \item 逐点检查 \(a\ll r_f\ll b_T,z\) 与 \(P_zr_f\ll1\)，窗口外点只记诊断；
+  \item 对 soft/rapidity、gluon-quark mixing、多格距和多流时缺失设置硬失败；
+  \item 在最终 artifact 中同时保存 gauge/flow/OPE contract 链和 fallback 率。
+\end{enumerate}
+
+失败关闭不是把程序改成“总是报错”，而是把“缺少必要输入”和“数值计算失败”分开。
+例如单组态下统计不可辨识，应输出 \texttt{statistically\_unidentifiable} 并停止 PDF
+导出；这比生成一个任意中心值更符合物理验收。
+
+\section{LaTeX/PDF 输出验收}
+
+对每份报告至少运行两遍 XeLaTeX，并使用独立输出目录。通过条件包括：两遍均
+退出 0；交叉引用稳定；\texttt{Overfull}、\texttt{Float too large}、
+\texttt{Missing character} 和 \texttt{Underfull} 的适用计数为 0；页框数与实际页数相等。
+
+随后用 \texttt{pdftoppm} 渲染每一页，检查
+\begin{equation}
+  N_{\rm frames}=N_{\rm pages}=N_{\rm rendered}
+  \quad\wedge\quad
+  N_{\rm occlusion}=N_{\rm clipped}=N_{\rm outside}=0.
+  \label{eq:b08-render-acceptance}
+\end{equation}
+历史 pdfcheck 已给出 23 页和 27 页两个实例：前者两遍退出 0、无 overfull、
+无 float-too-large、无缺字；后者进一步把交叉引用、underfull、纵横向 overfull
+及安全区纳入检查。该协议只能给出 E1，报告中的算法和数值仍需各自的 E2--E4。
+
+\section{历史时间线与交接点}
+
+{\footnotesize
+\begin{longtable}{>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{2.8cm}>{\raggedright\arraybackslash}p{3.8cm}>{\raggedright\arraybackslash}p{4.6cm}}
+\caption{从蒸馏基线到 fail-closed 审计的证据演进。}\label{tab:b08-timeline}\\
+\toprule
+时间/批次 & 输入规模 & 新增能力 & 未闭合点 \\
+\midrule
+\endfirsthead
+\toprule
+时间/批次 & 输入规模 & 新增能力 & 未闭合点 \\
+\midrule
+\endhead
+stab0 v0803 & 3 组态，\(N_{\rm ev}=50\) & 蒸馏、2pt、3pt 原型 & 高动量统计、胶子 OPE \\
+stab0 v0804 & 3 组态，\(N_{\rm ev}=100\) & 更大低模空间与更多关联目标 & 质子平台缺失、pion 动量退化 \\
+stab0 v0805 & 10 组态，\(N_{\rm ev}=100\) & OPE、3pt/4pt、自动报告 & 不相连拟合不可辨识、无连续极限 \\
+stab1 & 10 组态真实基线 & ratio、能量、FH、三方向模块 & 单 z、低秩协方差、无 soft/mixing \\
+dev5 & 10 组态；\(a=0.0938\,\mathrm{fm}\) & flow、staple、ratio、hybrid、NLO/CS & 历史归一化、单格距/单流时、无 soft/mixing \\
+4150 & 单组态逐层资产 & HYP、费米子、momsmear、effmass 对照 & 3D HYP、raw VVV、3pt/ratio 等未验证 \\
+dev20 & 11 组态、1000 bootstrap & 源分辨归一化、严格质量门、fail-closed & 流窗口、soft/rapidity、混合、多尺度极限 \\
+\bottomrule
+\end{longtable}
+}
+
+\section{可复用的最小验收清单}
+
+\begin{enumerate}
+  \item 输入是否有稳定 ID、哈希、shape、dtype、边界条件和轴语义？
+  \item 每个公式是否有解析反例或小矩阵 oracle，且误差阈值与 dtype 相符？
+  \item 每个文件名是否与其实际投影、极化、源和动量语义一致？
+  \item 每个 ratio 是否在 replica 内完成归一化，而不是先平均或后置覆盖？
+  \item 每个 \((z,b_T)\) 点是否满足流窗口和 Fourier 支撑，不满足时是否标记诊断？
+  \item 是否分开报告中心质量、replica fallback、协方差秩和物理状态？
+  \item 是否把同几何 soft/rapidity、完整 mixing 和多格距列为硬门？
+  \item 报告是否完成两遍编译、全页渲染、页框和安全区检查？
+  \item 最终结论的措辞是否与证据等级表一致，未把 E1--E4 写成 E5？
+\end{enumerate}
+
+以上清单把历史工作流转化为专著可复核的最小规范。它既解释了
+stab0、stab1 与 dev5
+为何仍有方法学价值，也解释了 4150 的逐层对照为何不能外推，以及 dev20 为何在
+真实数据可运行后仍必须保持失败关闭。

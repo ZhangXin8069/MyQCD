@@ -1,0 +1,311 @@
+\chapter{真实数据复现与数值对照证据}
+\label{sec:b09-real-data}
+
+本节把 test6 至 test9 以及组态 4150 的运行记录压缩为一条可审计的证据链。这里的“复现”有三种不同强度：同一输入上的逐位回归、参考公式与 PyQCD 实现的数组级对照、以及在真实组态上完整跑通物理链。三者不能相互替代。一个有限矩阵元、一个合格形状或一次成功退出，只证明对应层级的契约成立；只有当算符几何、重正化、谱学投影、统计误差、软/快度减除、匹配和物理极限同时闭合时，才能把中间量升级为物理 TMD-PDF。
+
+\section{证据分级与案例谱系}
+
+本批次最重要的结论不是某个单一数值，而是证据随输入规模、链长和几何覆盖逐级增强，同时在几何与统计上仍保留明确断点。表~\ref{tab:b09-case-lineage} 给出各单元在专著中的位置。test7 和 test8 只有 1 个与 2 个组态，且报告存在缺图或内部矛盾，只作为失败关闭和流程演进的历史材料；test6 有 879 个组态，但目标是质子有效能量而非完整 TMD；test9 才把梯度流、胶子 OPE、不相连比值、自重整化和准 TMD 诊断连接起来；4150 对照则把重点放在真实输入、轴序、复数语义和逐层输出。
+
+\begin{longtable}{@{}p{0.10\textwidth}p{0.22\textwidth}p{0.26\textwidth}p{0.32\textwidth}@{}}
+\caption{B09 案例谱系与可支持的主张}\label{tab:b09-case-lineage}\\
+\hline
+单元 & 输入与目的 & 最强证据 & 专著中的结论等级 \\
+\hline
+\endfirsthead
+\hline
+单元 & 输入与目的 & 最强证据 & 专著中的结论等级 \\
+\hline
+\endhead
+U017 & 879 组态，\(24^3\times72\)，\(P=(0,0,6)\)，提取质子 \(E_0\) & 四组 \texttt{corr2} 与参考数组最大绝对差为 0；平均方向 \(E_0=3.069(9)\) GeV & 真实统计链的数值回归，可用于验证实现等价性，不是新的能谱测量 \\
+\hline
+U018 & 1 组态 test7 冒烟测试 & 断链与缺图被记录；P0/P2 均错误写成 0.000 GeV & 历史失败案例，只进入限制说明 \\
+\hline
+U019 & 2 组态 test8 冒烟测试 & P0/P2 图与输出投影出现；无数值误差与拟合窗 & 流程升级证据，不采用其中心值 \\
+\hline
+U020 & 10 组态 test9 全链 & flow、OPE、ratio、self-renorm、quasi TMD、匹配和 CS 核全部落地 & 全链诊断，统计与几何不足以形成物理 TMD \\
+\hline
+U025 & 单组态 4150 功能对照 & 52 项中 51 项直接通过、1 项白名单；复 GEVP 残差约 \(10^{-15}\) & 实现语义和真实输入验收 \\
+\hline
+U027 & 4150 donghx 扩展现 & 低层 7/7、HYP 直线通道 9/9、正宇称投影 58/58、effmass 25/25 & 低层与 2pt 输出级的定量复现；完整 TMD 未闭环 \\
+\hline
+\bottomrule
+\end{longtable}
+
+表中的“通过”必须带对象和范围。例如，单组态功能对照通过，不等于多组态物理结果成立；直线 Wilson 线的 OPE 通过，不等于带横向 staple 的 TMD 算符通过；准 TMD 与匹配后曲线的数量级接近，也不等于匹配核、标度和误差预算已经闭合。
+
+\section{test6：质子有效能量的逐位回归}
+
+\paragraph{定义与算法。}
+test6 读取每个组态、每个动量方向上的 \(72\times72\) 复数两点函数切片。实现先做平移不变的相对时间移位，再对源时间 \(t_i\) 平均，最后使用 delete-one jackknife 形成统计样本；输出数组形状为 \(879\times20\)。在固定平台窗 \(t=3,\ldots,7\) 内，对每个 jackknife 样本拟合双指数形式
+\begin{equation}
+  C(t)=c_0e^{-E_0t}\left(1+c_1e^{-dE\,t}\right).
+  \label{eq:b09-test6-fit}
+\end{equation}
+这里 \(E_0\) 是拟合得到的有效能量参数，\(dE\) 概括第一激发态间隙。式~\eqref{eq:b09-test6-fit} 不是谱函数反演，不能据此声称已经分离全部激发态。有效质量
+\begin{equation}
+  m_{\mathrm{eff}}(t)=\log\left|\frac{C(t)}{C(t+1)}\right|
+  \label{eq:b09-test6-meff}
+\end{equation}
+用于检查平台，但不能替代相关拟合与窗口稳定性分析。
+
+\paragraph{结果与尺度。}
+输入格距为 \(a=0.1053\) fm，动量 \(P=(0,0,6)\)。平均方向的中心结果为
+\begin{equation}
+  E_0^{\mathrm{ave}}=1.640(5)\,a^{-1}=3.069(9)\ \mathrm{GeV},
+  \qquad \chi^2/\mathrm{dof}=2.4.
+  \label{eq:b09-test6-result}
+\end{equation}
+x、y、z 三个方向分别给出 3.084(15)、3.138(32)、3.063(11) GeV。报告还用约 3.14 GeV 的色散预期作宽泛检查，但该比较没有给出独立的连续极限或体积外推，因此只能视为自洽性检查。
+
+\paragraph{验证断言与失败边界。}
+四个 \texttt{corr2} 数组与参考运行结果的形状、dtype 和 NaN 掩码一致，最大绝对差为零。这说明 PyQCD 的切片读取、相对时间、源平均、jackknife 索引和数组布局在该固定输入上与参考链等价。它不说明 879 个组态已经覆盖自相关、拓扑扇区或连续极限。报告还记录了两个必须保留的边界：前两个时间列因周期边界卷绕和零值除法退化；y 方向条件数约 \(1.3\times10^8\)，拟合最弱。源报告把 \(1.677(17)\) 的误差误写成“17\%”，专著采用括号中的绝对误差，不采用该百分比。
+
+\section{test7 与 test8：从冒烟测试到可审计失败}
+\label{subsec:b09-smoke}
+
+test7 只有 1 个组态，test8 增至 2 个组态。它们覆盖了蒸馏两点函数、三点/两点比值、质子能量、FH 变换和三方向差异等入口，但没有形成可辨识的统计测量。test7 的多幅关键图缺失，并把 P0 质量与 P2 能量都写成 0.000 GeV，同时声称 P0 与 1.12 GeV 的已知结果一致；这是内部矛盾。test8 给出了约 1.060 GeV 的 P0 平台和 1.517 GeV 的 P2 平台，但没有报告平台窗、拟合函数、误差或重采样，两个组态也不足以估计系综误差。test8 的 PDF 还没有包含 TeX 末尾的结论段，说明构建产物与源文件不同步。
+
+因此，这两个单元在专著中只承担两个作用。第一，它们展示了从 1 个到 2 个组态可以修复“图完全缺失”的运行问题，却没有修复统计问题。第二，它们提供了失败关闭规则：零信号、内部矛盾和缺图必须标为未验证，不能用“与基线一致”一句话覆盖。test7/test8 的具体中心值不进入第 16 章的匹配或 TMD 结论。
+
+\section{test9：10 组态下的完整诊断链}
+\label{subsec:b09-test9}
+
+\paragraph{物理链。}
+test9 使用 \(\beta=6.20\)、\(m_\mu=0.2770\)、\(m_s=0.2400\)、\(24^3\times72\) 的 10 个组态，流时取 \(\tau=3a^2\)。链为：蒸馏两点函数，Wilson flow，flowed gauge 上的胶子 TMD 矩阵元，不相连三点函数与真空扣除，逐 \((z,b_\perp)\) 拟合裸 \(c_0\)，用 \(h_R=c_0(z,b)/c_0(0,b)\) 自重整化，得到准 TMD，最后尝试 NLO 匹配和 Collins--Soper 演化。这个顺序不可交换：如果先对最终曲线做归一化，会掩盖 \(z,b_\perp\) 依赖；如果匹配前没有同一几何的软/快度减除，匹配核就没有与其配套的算符矩阵元。
+
+\paragraph{Wilson flow。}
+报告采用 RK3 积分
+\begin{equation}
+  \partial_t V(t,x)=-g_0^2\left[\partial_x S(V)\right]V(t,x),
+  \qquad \varepsilon=0.05,\quad 60\ \text{steps},\quad \tau=3a^2.
+  \label{eq:b09-flow}
+\end{equation}
+对 10 个组态，作用量密度从约 \(0.1495\)--\(0.1499\) 单调降到 \(0.0544\)--\(0.0548\)，最大非酉度约 \(5.7\times10^{-6}\)。这是流方程方向和数值近似保持 SU(3) 的强检查，但不是短流时匹配的证据。\(\tau=3a^2\) 对应
+\begin{equation}
+  r_f=\sqrt{8\tau}=\sqrt{24}\,a\approx4.90a.
+  \label{eq:b09-flow-radius}
+\end{equation}
+若目标横向分离满足 \(b_\perp\lesssim r_f\)，流化会直接抹平待测结构；若只算一个流时，也无法做 \(\tau\to0\) 外推。故式~\eqref{eq:b09-flow} 的实现正确性不能替代流窗口。
+
+\paragraph{胶子算符与矩阵元。}
+报告使用的组合为
+\begin{equation}
+  O(z,b_\perp)=M^{tx;tx}+M^{ty;ty}-2M^{xy;xy},
+  \qquad
+  M^{\mu\lambda;\nu\rho}=\left\langle
+  \operatorname{tr}\left(F_{\mu\lambda}WF_{\nu\rho}W^\dagger\right)
+  \right\rangle,
+  \label{eq:b09-tmd-operator}
+\end{equation}
+其中 \(F\) 为 Clover 场强，\(W\) 为 Wilson 线。该式是报告所采用的特定 Lorentz 投影，不能在没有证明的情况下替换为其他胶子 TMD 投影。单组态 \(O(0,0)\) 的时间平均约 9.9 而标准差约 31.7，已经显示矩阵元被大时间片涨落主导；这说明只看一个中心值不足以判断信号质量。
+
+\paragraph{不相连比值。}
+对两点函数 \(C_2(dt)\) 和胶子 OPE，报告构造
+\begin{equation}
+  C_3(dt,d\tau)=C_2(dt)\,\mathrm{OPE}(d\tau),
+  \qquad
+  R=\left\langle
+  \frac{C_3-C_2\langle\mathrm{OPE}\rangle}{C_2}
+  \right\rangle_{t_i},
+  \label{eq:b09-ratio}
+\end{equation}
+并拟合
+\begin{equation}
+  R=c_0+c_1e^{-dE\,d\tau}+c_1e^{-dE(dt-d\tau)},
+  \qquad t_{\mathrm{sep}}\in[7,10],\quad \mathrm{cut}=6.
+  \label{eq:b09-ratio-fit}
+\end{equation}
+式~\eqref{eq:b09-ratio-fit} 中的两个指数使用同一个 \(c_1,dE\) 是报告采用的受限模型；专著应把它作为模型选择，而不是从第一性原理唯一推出的形式。报告得到 \(c_0=O(1)\)--\(O(10)\)、误差 \(O(\text{几})\)，统计噪声与信号同量级。
+
+\paragraph{统计秩的关键纠正。}
+报告称 10 组态不足以形成 14 个数据点的满秩 jackknife 协方差，因此改用 200 次 bootstrap 获得“满秩”协方差。这个措辞必须纠正。令中心化数据矩阵为 \(X\in\mathbb C^{N\times p}\)，其中 \(N=10\) 是独立组态数，则样本协方差
+\begin{equation}
+  \widehat C=\frac{1}{N-1}X^\dagger X
+  \label{eq:b09-sample-cov}
+\end{equation}
+满足
+\begin{equation}
+  \operatorname{rank}\widehat C=\operatorname{rank}X\le \min(N-1,p)=9.
+  \label{eq:b09-rank-bound}
+\end{equation}
+从 \(N\) 个样本有放回抽取 \(N_b\) 次只改变 replica 的数量，不改变由原始样本张成的空间。即使 \(N_b=200\)，未正则化的样本协方差秩仍至多 9；使矩阵可逆的 SVD 截断、shrinkage 或对角加载属于正则化，必须报告阈值及其偏差。正确表述是“200 次重采样配合正则化后数值可逆”，而不是“200 次 bootstrap 提供了满秩统计”。
+
+\paragraph{准 TMD、匹配与 CS 核。}
+报告采用的准 TMD 提取为
+\begin{equation}
+  x\widetilde g(x,b_\perp)
+  =\frac{1}{2\pi P_z}\frac{P_z^2}{E^2}
+  \int dz\,\cos(xzP_z)\,h_R(z,b_\perp),
+  \qquad
+  h_R(z,b)=\frac{c_0(z,b)}{c_0(0,b)}.
+  \label{eq:b09-quasi}
+\end{equation}
+在 \(b_\perp=0\) 处得到 \(\langle x\rangle_{\mathrm{quasi}}\approx0.57\)，报告称匹配后约 0.59。该量级与胶子动量分数的常见范围相容，但报告没有给出所乘匹配核、UV 与快度标度、匹配阶数、尺度变化、误差传播或 Fourier 尾部模型。因此式~\eqref{eq:b09-quasi} 的结果只能标为量级诊断。
+
+Collins--Soper 核采用两动量比值法，在 \(b=0.105\) fm 给出 \(K=1.6\)，并称 \(b\gtrsim0.2\) fm 后因噪声触发 clamp。clamp 是数值稳定装置，不是物理饱和。没有软函数、同几何 Wilson 圈、多个 \(P_z\) 的一致性和误差带时，不能把这一条数值写成核的确定测量。
+
+\section{组态 4150：从功能对照到复 GEVP}
+\label{subsec:b09-4150}
+
+\paragraph{真实输入与张量契约。}
+4150 的原始 Clover 规范场、本征矢量、light perambulator、HYP 场和若干两点函数成品均可读。规范场采用
+\begin{equation}
+  U\in\mathbb C^{N_t\times N_z\times N_y\times N_x\times4\times3\times3},
+  \label{eq:b09-gauge-layout}
+\end{equation}
+方向 \(0,1,2,3\) 对应空间 \(x,y,z\) 与时间。真实链接的最大非酉度约 \(1.33\times10^{-15}\)。这个契约必须固定，否则后续的 \(z\) 位移、横向位移和时间投影会静默交换轴。
+
+\paragraph{复 GEVP。}
+PyQCD 与参考实现在 L20 用例上出现一个系统性差异。双方先构造 Hermitian 矩阵
+\begin{equation}
+  C_H(t)=\frac{C(t)+C^\dagger(t)}{2},
+  \label{eq:b09-hermitize}
+\end{equation}
+再求解广义本征值问题
+\begin{equation}
+  C_H(t)v_n(t,t_0)=\lambda_n(t,t_0)C_H(t_0)v_n(t,t_0).
+  \label{eq:b09-complex-gevp}
+\end{equation}
+参考路径进一步把 \(C_H\) 投影为 \(\operatorname{Re}C_H\)，而 PyQCD 保留复矩阵。Hermitian 矩阵的本征值是实数，但本征矢仍可为复向量；丢掉虚部会改变原方程。在随机复正定输入上，PyQCD 与参考对原复 GEVP 的残差分别约 \(1.02\times10^{-15}\) 和 \(1.17\times10^{-1}\)；纯实投影后两者逐位一致。另一个解析谱 \(C=Ue^{-Et}U^\dagger\) 上，本征值最大误差分别约 \(6.66\times10^{-16}\) 和 \(8.89\times10^{-2}\)。
+
+据此，52 个功能用例中 51 个直接通过，L20 作为参考语义差异进入白名单，硬失败为零。白名单只改变验收分类，不改变 JSON 中的差异值。专著应明确：在实数子空间上逐位一致，并不能证明参考实现了原复问题。
+
+\paragraph{低层与两点函数证据。}
+4150 的 eigvec、phase、VdV、VVV、Clover、dual 和直线 OPE 共 7 个对象通过，最大相对误差约 \(1.36\times10^{-15}\)。4D10 HYP 的 \(x/y/z\) 三个方向共 9 个非极化直线通道通过，最大相对差约 \(3.31\times10^{-15}\)。两点函数输出包含 7 个根目录、58 个动量组，正宇称投影 58/58 通过；全体最大相对 \(L_2\) 误差约 \(8.29\times10^{-7}\)，最大绝对差约 \(1.98\times10^{-9}\)。effmass 聚合把 4150 定位为序列 \(4050+50k\) 的 \(k=2\)，7 个资产、25 个动量行通过，时间汇总最大相对误差约 \(2.58\times10^{-16}\)。
+
+极化输出给出更细的异常清单：116 个实际存在的极化数组中，74 个与标准 \(li\) 投影一致，58 个文件缺失；41 个只与旧 \(il\) 转置轴序一致，1 个 `momsmear2x`、\(P=(0,0,6)\) 的 `Cg5g4/pol15` 对两种轴序都不一致。该异常槽位范数约 \(3.30\times10^{-9}\)，接近零，说明相对误差会因分母极小而失真；此时应同时报告绝对值、范数和上游 `contract` 状态。不能把 41 个轴序命中算作标准通过，也不能把 58 个缺失文件算作失败。
+
+\paragraph{实现的证据等级。}
+4150 证明了真实 HYP/LIME 读取、Clover/对偶张量、直线 Wilson-line OPE、蒸馏顶点、两点函数缩并、正宇称投影、momentum-smear 输出关系和 effmass 聚合的逐层一致性。它没有证明独立 smeared perambulator、逐时间 VVV、完整 3pt/ratio/barematrix 输入链或非零横向 staple。因此 4150 是 L0/L1 级实现证据，而不是 L2/L3 的完整 TMD 结果。
+
+\section{本批次可接受的结论边界}
+
+综合上述单元，可以把结果归纳为四条判据。第一，固定输入上的逐位一致是最强的实现等价性证据，但不自动说明统计或物理极限。第二，真实组态上的数组级对照必须同时报告容差、dtype、形状和状态语义；缺失文件既不是通过也不是失败。第三，少量组态只能验证流程与稳定性，协方差的秩由独立组态数限制，重采样次数不能制造信息。第四，低层直线 OPE 和两点函数通过后，仍需独立验证横向 staple、soft/rapidity、匹配和连续极限。
+
+\chapter{准 TMD、匹配与真实组态上的几何边界}
+\label{sec:b09-quasi-to-lightcone}
+
+本节把第 14 章的案例转成第 16 章可用的物理接口。重点是说明“代码跑通”“准矩阵元可提取”“匹配到光锥”和“得到可发表的胶子 TMD-PDF”不是同一个命题。test9 与 4150 的证据足以支持前两层的部分内容，却不足以支持最后一层。
+
+\section{从关联函数到准 TMD}
+
+\paragraph{定义。}
+设核子动量为 \(P=(0,0,P_z)\)，胶子算符沿空间方向分离 \(z\)，横向分离为 \(b_\perp\)。test9 使用式~\eqref{eq:b09-tmd-operator} 的特定 Lorentz 组合，先从三点/两点比值拟合裸矩阵元 \(c_0(z,b_\perp)\)，再构造自重整化矩阵元
+\begin{equation}
+  h_R(z,b_\perp)=
+  \frac{c_0(z,b_\perp)}{c_0(0,b_\perp)}.
+  \label{eq:b09-self-renorm}
+\end{equation}
+式~\eqref{eq:b09-self-renorm} 的物理依据是：若固定 \(b_\perp\) 下存在一个与 \(z\) 无关、可乘的 UV 因子，那么分子分母共同因子相消。它并不证明所有 \(z\) 依赖的 Wilson-line 自能、端点发散、算符混合和快度结构都被同一个因子吸收。因此，自重整化是一个需要独立 residual fitting 和方案比较的假设，不是“除以零分离就自动有限”的定理。
+
+报告用式~\eqref{eq:b09-quasi} 的余弦变换得到准 TMD。这里 \(h_R\) 仍是 Euclidean 矩阵元，不是光锥分布函数。余弦变换把 \(z\) 空间映射到 \(xP_z\) 空间；有限 \(z_{\max}\)、离散 \(z/a\)、周期边界和大 \(z\) 噪声会产生振铃与尾部模型依赖。一个合理的提取至少要报告 \(z_{\max}\)、尾部截断、不同 \(P_z\) 的一致性和变换后的支持区间。
+
+\paragraph{算法。}
+本批次可以确认的最小算法链是：
+\begin{enumerate}
+  \item 用同一规范场构造 Clover 场强和 Wilson 线，计算 \(O(z,b_\perp)\)；
+  \item 由同一源、汇和插入时间形成 \(C_2,C_3\)，在每个源时间上做真空扣除和比值；
+  \item 在固定拟合窗内提取 \(c_0(z,b_\perp)\)，并保留每个组态的 replica；
+  \item 在固定 \(b_\perp\) 上做式~\eqref{eq:b09-self-renorm}；
+  \item 对 \(z\) 做式~\eqref{eq:b09-quasi} 的变换，得到准 TMD；
+  \item 在同一几何和同一表示下接入 soft/rapidity 因子、CS 核和硬匹配；
+  \item 对 \(a,\tau,P_z,b_\perp,z_{\max},L\) 做联合误差与极限分析。
+\end{enumerate}
+第 6 步不是可选的后处理。没有它，前面的曲线只能叫准矩阵元的 Fourier 像。第 7 步也不能由“单点看起来合理”替代；必须给出变化范围和误差传播。
+
+\section{匹配与 Collins--Soper 演化的证据要求}
+
+\paragraph{物理结构。}
+准 TMD 到光锥 TMD 的匹配不是把一个函数整体乘以常数。它包含硬系数、卷积变量、可能的味混合和 soft/rapidity 方案转换。可以把结构写成
+\begin{equation}
+  \widetilde f_g(x,b_\perp;P_z,\mu,\zeta_z)
+  =\int_x^1\frac{dy}{y}\,
+  C_{g/g}\!\left(\frac{x}{y},b_\perp;\mu,P_z,\zeta_z\right)
+  f_g(y,b_\perp;\mu,\zeta)
+  +\text{更高扭度与混合项},
+  \label{eq:b09-match-structure}
+\end{equation}
+其中 \(\widetilde f_g\) 是 Euclidean 准对象，\(f_g\) 是光锥 TMD，\(C_{g/g}\) 和混合项必须与算符表示、Path 几何和快度方案一致。式~\eqref{eq:b09-match-structure} 只表达接口结构，不提供未在源报告中给出的显式 NLO 系数。专著若使用具体核，必须另引相应文献并核对约定。
+
+\paragraph{CS 核。}
+Collins--Soper 核控制 TMD 对快度标度的演化。报告选择两动量比值法和 \(K(b_\perp)\) 记号，在 \(b=0.105\) fm 给出 \(K=1.6\)，并称 \(b\gtrsim0.2\) fm 后 clamp 饱和。这个结果的可支持表述是“在该输入、该流时、该几何下，两动量比值给出一个量级为 1 的核，并在高 \(b\) 被数值保护截断”。不支持“CS 核已非微扰确定”或“所有 \(b\) 上演化正确”。合格的 CS 证据需要：
+\begin{itemize}
+  \item 同一表示、同一 Wilson-line 几何和同一 soft/rapidity 方案；
+  \item 至少两个 \(P_z\) 或两个动量组合，检验比值和平台；
+  \item 去掉 clamp 前后的中心值、误差和失败率；
+  \item 小 \(b\) 与微扰极限、大 \(b\) 与非微扰模型之间的连续接口；
+  \item 将核的不确定度传播到最终 TMD，而不是只在核图上画误差带。
+\end{itemize}
+
+\paragraph{test9 的匹配诊断。}
+test9 的 \(\langle x\rangle_{\mathrm{quasi}}\approx0.57\) 与“匹配后”约 0.59 可以用于检查数量级和代码路径，但源报告没有提供匹配核的显式参数、标度、阶数、卷积实现、误差或不同 \(P_z\) 的一致性。因此这两个数不能写入“已测得胶子 TMD 动量分数”的结论。它们最多说明匹配模块被调用、输出落在物理上不荒谬的范围内，以及后续需要用完整误差预算替换单点比较。
+
+\section{Wilson 几何：直线 OPE 与横向 staple}
+
+\paragraph{两种对象。}
+4150 的低层对照主要是沿单个空间方向 $\hat d$ 的直线 OPE：
+\begin{equation}
+  O^{FF}_{\mu\nu}(z)=
+  \sum_{\boldsymbol x}\operatorname{tr}\left[
+  F_{\mu\nu}(x+z\hat d)W^\dagger(0\to z)F_{\mu\nu}(x)W(0\to z)
+  \right].
+  \label{eq:b09-straight-ope}
+\end{equation}
+test9 的目标对象则包含横向位移 \(b_\perp\) 和相应 staple 路径。两者共享场强与 Wilson-line 技术，但不是同一几何。直线零横向截面的通过只锁定了端点、方向、颜色缩并和场强归一化；它没有检验横向连接、转角、横向端点或非零 \(b_\perp\) 的 UV 结构。
+
+\paragraph{几何判据。}
+在把任何结果送入 ratio 之前，至少要满足：
+\begin{equation}
+  \begin{aligned}
+  &\text{same gauge}\quad\land\quad
+  \text{same path}\\
+  &\quad\land\quad
+  \text{same representation}\quad\land\quad
+  \text{same soft/rapidity scheme}.
+  \end{aligned}
+  \label{eq:b09-geometry-gate}
+\end{equation}
+“same gauge”不仅指组态编号相同，还要求使用的 HYP/flow/stout 链接相同；“same path”包括正负方向、起点、纵向长度和横向端点；“same representation”包括端点场强与 Wilson line 的伴随表示；“same soft/rapidity scheme”包括软函数、Wilson 圈减除和快度标度。缺少任一项时，数值差异可能来自方案而不是物理。
+
+\section{尺度窗口与失效条件}
+
+\paragraph{必须同时满足的窗口。}
+对本批次可用的最低限度，应报告
+\begin{align}
+  a&\ll r_f,\;1/\mu, \label{eq:b09-window-a}\\
+  \Lambda_{\mathrm{QCD}}&\ll 1/b_\perp,\;P_z\ll 1/a, \label{eq:b09-window-ope}\\
+  M_N,\Lambda_{\mathrm{QCD}}&\ll P_z\ll \pi/a, \label{eq:b09-window-lamet}\\
+  a&\ll r_f\ll b_\perp,z,\qquad P_zr_f\ll1, \label{eq:b09-window-flow}\\
+  b_\perp,L_\parallel&\ll L_s/2. \label{eq:b09-window-volume}
+\end{align}
+这些不是可任意挑选的“最优参数”，而是一个交集。test9 的 \(\tau=3a^2\) 给出 \(r_f\approx4.90a\)；如果某个目标的 \(b_\perp\) 小于或接近该值，式~\eqref{eq:b09-window-flow} 不成立。报告还应给出流时扫描；只有一个流时无法区分短流时匹配、离散效应和大 \(z\) 噪声。
+
+\paragraph{几何与统计的空交集。}
+如果 \(b_\perp\lesssim r_f\) 且统计量只有 10 个组态，那么即使中心曲线平滑，也没有同时满足流窗口和统计误差的物理点。此时正确的状态是“该参数点给出诊断上界”，而不是选择一个看起来稳定的 bin 拟合。若 \(b_\perp\gtrsim L_s/2\)，周期镜像又会污染矩阵元；若 \(P_zr_f\) 接近 1，boost 与流化尺度不可分离。专著应把这类点从物理结果表中明确剔除，并保留失败率。
+
+\section{验收矩阵}
+
+表~\ref{tab:b09-tmd-acceptance} 给出从已有证据到最终物理量的最小门控。它能帮助读者把第 14 章的“通过”转换为第 16 章的允许表述。
+
+\begin{table}[htbp]
+\centering
+\caption{从已有证据到最终物理量的验收矩阵。}
+\label{tab:b09-tmd-acceptance}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.17\textwidth}>{\raggedright\arraybackslash}p{0.25\textwidth}>{\raggedright\arraybackslash}X@{}}
+\hline
+层级 & 已有证据 & 允许的最强表述 \\
+\hline
+L0 算符与几何 & 4150 Clover/dual/直线 OPE；test9 的 \(O(z,b)\) 代码路径 & 场强、端点、轴序和一个特定直线投影已实现并做过数组级检查 \\
+\hline
+L1 矩阵元 & 4150 两点函数 58/58；test9 的 10 组态 ratio 与自重整化 & 固定输入下可生成中间矩阵元和诊断曲线，统计不确定度可能很大 \\
+\hline
+L2 方案一致性 & test9 尝试 CS 核与匹配；缺少同几何 soft\newline rapidity、显式匹配参数和误差链 & 只能称为方案接口原型，不能称为完整光锥 TMD \\
+\hline
+L3 物理极限 & 单一格距、单一流时、少量组态；无联合连续、手征和大动量外推 & 不支持“已测得物理核子胶子 TMD-PDF” \\
+\hline
+\end{tabularx}
+\end{table}
+
+\section{本章结论}
+L0/L1 证据值得保留，因为它们排除了许多实现错误：真实 HYP 读取、复数 GEVP、两点函数轴序、正宇称投影、直线 OPE、Fourier 前的矩阵元形状都可以被逐项复核。L2/L3 仍为空，因为本批次没有给出同几何 soft/rapidity、完整匹配核、尺度扫描和多格距极限。第 16 章应把 test9 的准 TMD 和 CS 图作为“可复现的全链诊断”，而不是作为物理 TMD 的最终数值。

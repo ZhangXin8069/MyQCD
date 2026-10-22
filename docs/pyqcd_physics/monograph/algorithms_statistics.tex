@@ -1,0 +1,678 @@
+\chapter{涂抹、传播子与源构造}
+\label{sec:b03-smearing-source}
+
+涂抹不是物理算符定义之外的“美化步骤”，而是对插值场、规范连接或两者施加一个
+明确、可重复且参数化的线性或非线性变换。它主要改变源与目标强子态的 overlap、
+短程噪声和有效算符的紫外结构；它不会因为关联函数误差变小就自动给出更接近物理
+极限的结果。因此，任何涂抹都必须和源、汇、动量投影、规范链接、重整化以及误差
+传播一起记录。本节把夸克场涂抹、动量涂抹、蒸馏和规范场平滑放入同一框架，并在
+节末给出选择与失效条件。
+
+\section{协变 Laplace 核与夸克场涂抹}
+
+设 \(\Delta_3(t)\) 为固定时间片上的三维规范协变 Laplace 算符。对空间格点
+\(\boldsymbol{x},\boldsymbol{y}\)，可用连接变量
+\(\widetilde U_j(\boldsymbol{x},t)\) 写成
+\begin{equation}
+  -\Delta_3(\boldsymbol{x},\boldsymbol{y};t)
+  =6\delta_{\boldsymbol{x}\boldsymbol{y}}
+  -\sum_{j=1}^{3}\Bigl[
+  \widetilde U_j(\boldsymbol{x},t)\delta_{\boldsymbol{x}+\hat j,\boldsymbol{y}}
+  +\widetilde U_j^\dagger(\boldsymbol{x}-\hat j,t)
+  \delta_{\boldsymbol{x}-\hat j,\boldsymbol{y}}\Bigr].
+  \label{eq:b03-laplace}
+\end{equation}
+在规范变换 \(V(\boldsymbol{x},t)\) 下，连接变量作协变平移，故
+\(-\Delta_3\) 的谱和由低模张成的投影均有明确规范含义。低本征模是空间缓变模，
+高本征模是短波模；涂抹的作用正是重新加权这两类模。
+
+Wuppertal/Jacobi 涂抹由反复作用
+\begin{equation}
+  J_{\sigma,n_\sigma}(t)
+  =\left(1+\frac{\sigma\Delta_3(t)}{n_\sigma}\right)^{n_\sigma},
+  \qquad \sigma>0,
+  \label{eq:b03-jacobi}
+\end{equation}
+定义。若 \(-\Delta_3\) 的非负本征值为 \(\lambda_k\)，自由场中
+\(\lambda(\boldsymbol p)=(4/a^2)\sum_j\sin^2(ap_j/2)\)，则该核的本征值为
+\begin{equation}
+  J_k=\left(1-\frac{\sigma\lambda_k}{n_\sigma}\right)^{n_\sigma}.
+  \label{eq:b03-jacobi-spectrum}
+\end{equation}
+固定 \(n_\sigma\) 且 \(\sigma\to0\) 时，一阶展开给出扩散型权重；固定物理
+\(\sigma\) 而 \(n_\sigma\to\infty\) 时
+\(J_{\sigma,n_\sigma}\to e^{\sigma\Delta_3}\)。在自由场中其坐标空间宽度约为
+\(\sqrt{2\sigma}\)。这个极限说明 Jacobi 与 Gaussian 涂抹的关系，也说明
+“涂抹半径”不是严格的紧支撑截断：大本征模只是被压得更强，而不是严格置零。
+数值实现必须保证 \(1-\sigma\lambda_{\max}/n_\sigma\ge0\) 或明确记录高模符号
+翻转的风险；否则核的谱权重可能失去正性。
+
+对源和汇分别使用 \(J_s\)、\(J_{\mathrm{snk}}\) 后，两点函数的有效源结构变成
+\(J_s^\dagger J_s\) 与 \(J_{\mathrm{snk}}^\dagger J_{\mathrm{snk}}\) 的组合。
+只涂抹源而不涂抹汇，或在不同分析阶段混用不同参数，都会改变 overlap 和接触项，
+不能把由此产生的曲线差异解释为统计涨落。
+
+\section{动量涂抹：相位中心与平移不变性}
+
+对目标纵向动量 \(P_z\)，普通零动量涂抹核在高 boost 下与强子波函数的重叠迅速
+下降。动量涂抹在源上加入空间相位，使涂抹核的动量中心从零移到参考动量
+\(\boldsymbol{\zeta}\)。一种定义是
+\begin{equation}
+  q_{\boldsymbol{\zeta}}(\boldsymbol{x},t)
+  =e^{i\boldsymbol{\zeta}\cdot\boldsymbol{x}}\phi(\boldsymbol{x},t),
+  \qquad
+  \Phi_{\boldsymbol p}
+  =\sum_{\boldsymbol{x}} e^{-i(\boldsymbol p-\boldsymbol{\zeta})\cdot\boldsymbol{x}}
+  q_{\boldsymbol{\zeta}}(\boldsymbol{x},t),
+  \label{eq:b03-momentum-smear}
+\end{equation}
+其中第二个等号把相位吸收到投影动量中。直接以相位源执行的涂抹核不是严格的
+平移不变核；在插值算符的源端取 \(e^{i\boldsymbol{\zeta}\cdot\boldsymbol{x}}\)、
+汇端取相共轭 \(e^{-i\boldsymbol{\zeta}\cdot\boldsymbol{x}}\) 后，整体关联函数在
+平移下保持不变。U045 所述四种构造中，只有这种单相位配对在源汇相消的意义上保持
+平移不变；这是一项应在具体 perambulator 定义中复核的结构性质，而不是说其他
+相位组合一定不能用于任何计算。
+
+动量涂抹不改变 TMD 算符的 Wilson 线方向、横向分离或软函数，也不替代大动量外推。
+它的作用是提高目标动量附近的 overlap。若 \(e^{i\zeta x}\) 与格点动量量子化、
+Fourier 相位或源汇方向不一致，关联函数的实部/虚部关系会被破坏。典型的失败模式
+包括：相位符号反置、只在一端加相位、把物理外动量与涂抹参考动量重复相加，以及
+在复共轭传播子上漏掉相位共轭。
+
+\section{蒸馏：低模投影与 perambulator}
+
+蒸馏把 Jacobi 核的低模特征显式化。解每个时间片的本征值问题
+\begin{equation}
+  -\Delta_3(t)v^{(k)}(t)=\lambda_k v^{(k)}(t),
+  \qquad k=1,\ldots,N_v,
+  \label{eq:b03-distill-eigen}
+\end{equation}
+并定义秩为 \(N_v\) 的投影
+\begin{equation}
+  \Box(t)=\sum_{k=1}^{N_v}v^{(k)}(t)v^{(k)\dagger}(t),
+  \qquad
+  \Box^2=\Box,\qquad \Box\xrightarrow{N_v\to N_s}\mathbb 1 ,
+  \label{eq:b03-distill-projector}
+\end{equation}
+其中 \(N_s\) 是单时间片的空间-颜色维数。它在给定截断下保留长波模，但会丢弃高模。
+传播子在低模空间中的表示为
+\begin{equation}
+  \tau_{\alpha\beta}^{(p_f,p_i)}(t_f,t_i)
+  =V^{(p_f)\dagger}(t_f)D_{\alpha\beta}^{-1}(t_f,t_i)V^{(p_i)}(t_i).
+  \label{eq:b03-perambulator}
+\end{equation}
+动量涂抹可把相位附加到本征矢，而不必为每个目标动量重新求逆；这是
+distillation 与顺序源在成本结构上的关键区别。
+
+蒸馏的截断误差不能仅由“曲线变平滑”判断。可靠检验至少包括：增加 \(N_v\) 后
+矩阵元是否稳定；与直接传播子或较大基计算比较；目标算符的量子数与低模基是否匹配；
+perambulator 的缓存是否绑定同一组态、同一 Laplace 算符和同一规范链接。若基中
+缺少与目标态耦合的重要模式，增大统计量不会修复由此产生的系统偏差。
+
+\section{规范场平滑：APE、HYP、stout 与 Wilson flow}
+
+规范场平滑把 link 的短程涨落替换为局域 staple 平均。APE 型更新为
+\begin{equation}
+  U'_\mu(x)=\mathcal P_{SU(3)}\left[
+  (1-\alpha)U_\mu(x)+\frac{\alpha}{6}\sum_{\nu\ne\mu}C_{\mu\nu}(x)\right],
+  \label{eq:b03-ape}
+\end{equation}
+其中
+\(C_{\mu\nu}(x)=U_\nu(x)U_\mu(x+\hat\nu)U_\nu^\dagger(x+\hat\mu)\)，
+\(\mathcal P_{SU(3)}\) 为群投影。APE 的投影使更新对 link 不再处处解析，因而不能
+直接作为需要保持可微性的 HMC 变换。
+
+HYP 平滑在超立方体内部递归构造更局域的 staple。可抽象写成
+\begin{equation}
+  V^{(r+1)}_\mu(x)=\mathcal P_{SU(3)}\left[
+  (1-\alpha_r)V^{(r)}_\mu(x)+\alpha_r\mathcal S^{(r)}_\mu(x)\right],
+  \qquad r=1,2,3,
+  \label{eq:b03-hyp}
+\end{equation}
+其中 \(\mathcal S^{(r)}_\mu\) 是第 \(r\) 层超立方体 staple 的归一化平均，
+\(V^{(0)}=U\)。U045 给出的标准权重 \((0.75,0.6,0.3)\) 是历史实现参数，不是
+物理常数。HYP 的平滑范围较局域，常用于胶子场强和 Wilson 线算符短程噪声控制；
+但层数、权重和归一化必须由具体实现定义，不能把不同权重的裸矩阵元直接比较。
+
+stout 平滑用解析指数保持 \(SU(3)\)，避免显式群投影的非解析性：
+\begin{equation}
+  U'_\mu(x)=e^{iQ_\mu(x)}U_\mu(x),
+  \qquad
+  Q_\mu=\frac{i}{2}\left(\Omega_\mu^\dagger-\Omega_\mu\right)
+  -\frac{i}{2N_c}\operatorname{Tr}
+  \left(\Omega_\mu^\dagger-\Omega_\mu\right),
+  \label{eq:b03-stout}
+\end{equation}
+其中 \(\Omega_\mu\) 由与 \(U_\mu\) 共面的 staple 加权构成。\(Q_\mu\) 是
+反厄米无迹矩阵，故 \(e^{iQ_\mu}\in SU(3)\) 且对 link 解析可微。stout 可直接
+用于 HMC 或作为 Laplace 本征矢前的规范场预处理。
+
+Wilson flow 把离散平滑推广为连续演化：
+\begin{equation}
+  \frac{dB_\mu(x,t_f)}{dt_f}
+  =-g_0^2\frac{\delta S_{\rm YM}[B]}{\delta B_\mu(x,t_f)},
+  \qquad B_\mu(x,0)=U_\mu(x).
+  \label{eq:b03-flow}
+\end{equation}
+在 plaquette 作用量下以 Runge--Kutta 步进；平滑半径通常取
+\(r_f=\sqrt{8t_f}\)。小步 stout 与 flow 在连续极限下有对应关系，但 flow 的关键
+性质是：在标准 QCD 参数重整化后，\(t_f>0\) 的流场具有受控的紫外有限性。这个
+性质首先属于流场及其定义良好的复合量，不应无条件推广到任意裸非局域算符。
+
+\begin{longtable}{@{}p{0.14\textwidth}p{0.25\textwidth}p{0.25\textwidth}p{0.26\textwidth}@{}}
+\caption{涂抹与平滑方案的可审计比较}\label{tab:b03-smearing-comparison}\\
+\toprule
+方案 & 作用对象与核心变换 & 保持的性质 & 主要窗口与失效条件 \\
+\midrule
+\endfirsthead
+\toprule
+方案 & 作用对象与核心变换 & 保持的性质 & 主要窗口与失效条件 \\
+\midrule
+\endhead
+Jacobi--Gaussian & 夸克场；Laplace 多项式核 & 规范协变；参数小时连续可微 & 过强时压掉物理短程；高模符号/归一化错误 \\
+动量涂抹 & 夸克源；空间相位与投影 & 正确源汇配对下平移不变 & 相位符号或端点配对错误；不能替代大动量外推 \\
+蒸馏 & 低 Laplace 模投影 & 规范协变；秩截断明确 & \(N_v\) 未收敛；基态模式遗漏；缓存键不一致 \\
+APE & 规范 link；staple 平均后投影 & 保持 \(SU(3)\) 与规范协变 & 显式投影非解析；平滑过强；不能嵌入可微 HMC 更新 \\
+HYP & 超立方体分层 staple & 保持 \(SU(3)\) 与局域性 & 权重/归一化依赖实现；平滑改变算符 UV 结构 \\
+stout & 解析指数链接更新 & 保持 \(SU(3)\)、规范协变、可微性 & 步数和权重未收敛；与匹配方案混用 \\
+Wilson flow & 连续规范场演化 & 规范协变；\(t_f>0\) 的受控 UV 性质 & 流窗口为空；\(r_f\) 与目标距离/格距不分离 \\
+\bottomrule
+\end{longtable}
+
+涂抹参数属于分析定义。选择时应同时检查基态 overlap、目标算符的几何和矩阵元的
+连续极限，而不应只最小化某一时间片的统计误差。若不同涂抹参数给出的中心值差异
+大于统计误差，必须把它并入系统误差或明确判定窗口失败。
+
+\chapter{传播子求解：从 Dirac 逆到可验证矩阵元}
+\label{sec:b03-propagator-solver}
+
+\section{Dirac 逆、传播子与 hopping 图像}
+
+在固定规范背景 \(U\) 中，夸克传播子满足
+\begin{equation}
+  \sum_{y,\beta,b}D_{\alpha a;\beta b}(x,y;U)
+  S_{\beta b;\gamma c}(y,z;U)
+  =\delta_{\alpha\gamma}\delta_{ac}\delta_{xz}.
+  \label{eq:b03-dirac-inverse}
+\end{equation}
+Dirac 算符 \(D\) 是稀疏矩阵，但 \(D^{-1}\) 通常稠密；因此实际计算是求一列或
+少数几列 \(D\chi=\eta\)，而不是显式形成逆矩阵。这里的 \(\eta\) 是源向量，
+携带位置、颜色、Dirac 结构、动量投影和涂抹信息。单个组态上的 \(\chi\) 只是该
+规范背景下的条件样本，只有在规范组态平均并按 Wick 收缩组合后才有强子矩阵元的
+意义。
+
+对 Wilson 型算符，可把质量与对角项吸收到归一化后写成
+\begin{equation}
+  D=C(1-\kappa H),
+  \qquad
+  S=D^{-1}=C^{-1}\sum_{j=0}^{\infty}\kappa^jH^j .
+  \label{eq:b03-hopping}
+\end{equation}
+\(H^j(x,y)\) 是长度为 \(j\) 的格点路径和，路径权重包含规范 link 乘积及 Dirac
+因子。因子 \((1-\gamma_\mu)(1+\gamma_\mu)=0\) 排除了立即折返的路径，因此
+hopping 展开给出“非回溯路径求和”的物理图像。大夸克质量使 \(\kappa\) 小、短路径
+主导；趋近临界质量时 \(\kappa\) 接近 \(\kappa_c\)，级数收敛极慢。该展开用于理解
+传播子的路径结构，不能替代轻夸克情形下的数值迭代。
+
+实质量 Wilson 型算符满足
+\begin{equation}
+  \gamma_5D\gamma_5=D^\dagger,
+  \qquad
+  S(y,x)=\gamma_5S(x,y)^\dagger\gamma_5 .
+  \label{eq:b03-gamma5}
+\end{equation}
+这可用于反向传播子和求解复用，但要求 Dirac 表示、颜色索引、源汇时间顺序和
+复共轭约定完全一致。若实现使用不同的 \(\gamma_5\)-Hermiticity 定义，先在
+小矩阵上验证式~\eqref{eq:b03-gamma5}，再进入生产分析。
+
+\section{源的选择与成本}
+
+源决定传播子投影到哪些动量、位置、自旋和颜色结构。点源只在一个格点注入一个
+Dirac-颜色分量，若需形成该点的完整 \(4\times3\) 传播子，需要 12 次独立求逆；
+它提供全动量信息，但基态 overlap 可能较差。Gaussian/Jacobi 源通过空间 Laplace
+核扩展源，动量源在点源上乘 \(e^{i\boldsymbol p\cdot\boldsymbol x}\)。随机源以
+满足 \(\langle\eta_i^*\eta_j\rangle=\delta_{ij}\) 的 \(Z_2/Z_4\) 向量估计迹：
+\begin{equation}
+  \operatorname{Tr}\!\left[\Gamma D^{-1}(x,x)\right]
+  \simeq\frac{1}{N_r}\sum_{r=1}^{N_r}
+  \eta^{(r)\dagger}(x)\Gamma[D^{-1}\eta^{(r)}](x).
+  \label{eq:b03-stochastic-trace}
+\end{equation}
+随机误差按 \(1/\sqrt{N_r}\) 降低，低模噪声、源间相关和真空减除必须与统计误差
+一起报告。
+
+顺序源用于三点函数。若 \(S(z;0)\) 是已算好的源传播子，可将汇点结构、插入时间和
+投影组合成辅助源
+\begin{equation}
+  \eta_{\rm seq}(z)=e^{-i\boldsymbol p_f\cdot\boldsymbol z}
+  P_{\rm sink}(z)\gamma_5S(z;0)\,\delta_{z_0,t_s},
+  \label{eq:b03-sequential-source}
+\end{equation}
+再求解一次 \(D\chi_{\rm seq}=\eta_{\rm seq}\)。通常每个新的末态动量、汇点投影
+或插入结构都需要新的辅助源；改变初始动量则可能通过重新投影已有传播子复用。
+因此成本不是“顺序源只多一次求逆”，而是与末态动量数和汇点算符数成线性关系的
+额外求解。
+
+\begin{table}[htbp]
+\centering
+\caption{常用夸克源的结构与主要风险}
+\label{tab:b03-source-types}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.17\textwidth}X X@{}}
+\toprule
+源类型 & 主要用途与成本 & 失效模式 \\
+\midrule
+点源 & 12 次求逆得到单点完整传播子；全动量信息 & 基态 overlap 小；大体积统计噪声高 \\
+Gaussian--Jacobi & 预处理空间低模，提高基态 overlap & 涂抹参数与 sink 不一致；过度平滑改变接触项 \\
+动量源 & 注入确定空间动量，服务 RI/MOM 或投影 & 相位符号/归一化错误；高 boost overlap 仍可能差 \\
+随机源 & 估计迹、all-to-all 或非连通贡献 & 低模未精确处理；源相关和真空减除误差 \\
+顺序源 & 组合汇点与插入，减少三点收缩的独立求逆 & 每个末态动量/投影增加一次求解；中间态污染 \\
+distillation 源 & 低秩 perambulator，支持多算符复用 & \(N_v\) 截断、基失配、缓存键错误 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Krylov 求解与谱条件}
+
+对 \(\gamma_5\)-Hermitian 的可逆 \(D\)，可求解 Hermitian 正定法方程
+\begin{equation}
+  A\chi=D^\dagger\eta,
+  \qquad A=D^\dagger D.
+  \label{eq:b03-normal-equation}
+\end{equation}
+若 \(\kappa(A)=\lambda_{\max}(A)/\lambda_{\min}(A)\)，CG 的理想误差界为
+\begin{equation}
+  \frac{\|e_k\|_A}{\|e_0\|_A}
+  \leq 2\left(\frac{\sqrt{\kappa(A)}-1}{\sqrt{\kappa(A)}+1}\right)^k .
+  \label{eq:b03-cg-bound}
+\end{equation}
+法方程会把原 Dirac 谱的条件数平方，因此轻夸克和近零模使收敛显著变慢。只有当
+求解矩阵确实是 Hermitian 正定时才可直接使用 CG；\(\gamma_5\)-Hermitian 并不
+等于 Hermitian，非 Hermitian 的 \(D\) 应使用适当的非对称 Krylov 方法或经过
+明确谱分析的等价变换。
+
+奇偶预条件把 Wilson 型 Dirac 矩阵分块为
+\begin{equation}
+  D=\begin{pmatrix}D_{ee}&D_{eo}\\D_{oe}&D_{oo}\end{pmatrix},
+  \qquad
+  S_{ee}=D_{ee}^{-1}+D_{ee}^{-1}D_{eo}
+  \left(D_{oo}-D_{oe}D_{ee}^{-1}D_{eo}\right)^{-1}
+  D_{oe}D_{ee}^{-1},
+  \label{eq:b03-even-odd}
+\end{equation}
+实际常先消去一个宇称，再对约化算符迭代；对角块求逆只有在作用量结构和边界条件
+允许时才应视为低成本操作。多移位 CG 利用同一 Krylov 空间同时求
+\((D+\sigma_i)\chi_i=\eta\)，复用矩阵-向量乘法；对近似奇异移位仍需检查数值稳定
+和停止条件。deflation 把低模基底 \(V_k\) 从残差中投影掉，
+\begin{equation}
+  r_0^{\perp}=r_0-V_kV_k^\dagger r_0,
+  \label{eq:b03-deflation}
+\end{equation}
+但基底必须来自同一组态、同一 Dirac 算符、同一质量和同一边界条件。借用不匹配的
+低模会加速一个错误的系统。
+
+\section{多重网格与进阶求解}
+
+多重网格把低频误差限制到粗层，在粗层求修正，再延拓回细层：
+\begin{equation}
+  x\leftarrow x+P\,A_c^{-1}R(b-Ax),
+  \label{eq:b03-multigrid}
+\end{equation}
+其中 \(R\) 是 restriction、\(P\) 是 prolongation、\(A_c\) 是粗层算符。粗化必须
+保持规范协变和拓扑结构；简单平均链接可能产生非物理零模。Domain-wall/overlap
+算符需要专门的五维或符号函数预条件，overlap 的
+\(\operatorname{sign}(\gamma_5D_W)\) 通常通过有理或 Chebyshev 近似实现，每次
+近似都嵌套内层求逆，不能用普通 Wilson-CG 的成本模型估计。
+
+\section{残差认证与失败条件}
+
+求解器打印的递归残差可能因有限精度和重启动偏离真实残差。每次生产求解至少应保存
+\begin{equation}
+  r_{\rm rec}=b-Ax_k,
+  \qquad
+  \epsilon_{\rm true}=\frac{\|b-Ax_k\|_2}{\|b\|_2},
+  \label{eq:b03-true-residual}
+\end{equation}
+并周期性用原算符重算 \(r_{\rm true}\)。停止容差应通过目标矩阵元的容差扫描确定：
+把 \(\epsilon_{\rm true}\) 缩小一个数量级，若中心值和误差带不变，才能认为求解
+误差低于统计误差。若不同求解器、预条件或重启策略给出不一致结果，应保留失败状态，
+不得把失败 replica 静默替换为中心值。
+
+\begin{table}[htbp]
+\centering
+\caption{传播子求解的常见失效模式与验收证据}
+\label{tab:b03-solver-failures}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.17\textwidth}X X@{}}
+\toprule
+现象 & 物理/数值来源 & 验收证据 \\
+\midrule
+残差很小但矩阵元漂移 & 递归残差假收敛、近零模放大 & 真实残差、不同初值/求解器交叉检查 \\
+迭代数随夸克变轻爆炸 & 谱条件数、近零模、拓扑背景 & 残差历史、条件数、deflation/multigrid 对照 \\
+顺序源结果依赖末态动量 & 每个动量新辅助源未复用/归一化错误 & 源汇投影、额外求逆计数、动量扫描 \\
+随机迹误差不随 \(N_r\) 下降 & 源间相关、低模未精确处理、真空减除偏置 & 不同噪声族、低模分解、块 bootstrap \\
+涂抹后平台提前出现但极限不稳定 & 过强平滑压掉激发态和物理短程结构 & 多涂抹参数、sink 一致性、连续极限 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\chapter{Monte Carlo 数据的统计误差与重采样}
+\label{sec:b03-monte-carlo-errors}
+
+\section{从组态样本到估计量}
+
+格点 Monte Carlo 给出的是按路径积分权重抽取的有限规范组态。一个物理结果是组态
+样本上的估计量 \(\hat O\)，本身具有统计分布。分析开始前必须固定可重采样的底层
+单位：组态、轨迹、block、源、replica，还是多个系综的联合样本。若同一组态内的
+源、时间片或噪声源高度相关，先把它们独立平均会丢失交叉协方差；若不同的组态已经
+按轨迹分组，重采样应在组态/block 层进行，而不是在单个时间片层进行。
+
+若 \(X_1,\ldots,X_N\) 是独立同分布样本，则
+\begin{equation}
+  \bar X=\frac1N\sum_{i=1}^NX_i,
+  \qquad
+  \widehat\sigma_X^2=\frac{1}{N-1}\sum_{i=1}^N(X_i-\bar X)^2,
+  \qquad
+  \operatorname{Var}(\bar X)=\frac{\sigma_X^2}{N}.
+  \label{eq:b03-iid-mean}
+\end{equation}
+这是 \(\sigma/\sqrt N\) 规则的来源，也是其适用边界。对 HMC 轨迹序列，相邻组态
+通常不独立；将每个时间片或每个源都当作独立样本，会系统性地低估误差。
+
+\section{自相关与有效样本数}
+
+对平稳序列 \(X_t\)，定义归一化自相关函数
+\begin{equation}
+  \rho_X(t)=\frac{C_X(t)}{C_X(0)},
+  \qquad
+  C_X(t)=\left\langle (X_s-\langle X\rangle)(X_{s+t}-\langle X\rangle)\right\rangle .
+  \label{eq:b03-autocorr}
+\end{equation}
+当自相关长度远小于样本长度时，
+\begin{equation}
+  \tau_{\rm int}=\frac12+\sum_{t=1}^{\infty}\rho_X(t),
+  \qquad
+  \operatorname{Var}(\bar X)\simeq\frac{\sigma_X^2}{N}\,2\tau_{\rm int},
+  \qquad
+  N_{\rm eff}=\frac{N}{2\tau_{\rm int}}.
+  \label{eq:b03-tau-int}
+\end{equation}
+式~\eqref{eq:b03-tau-int} 的 \(N_{\rm eff}\) 定义必须与 \(\tau_{\rm int}\) 的
+\(1/2\) 约定配套；若换用另一种积分时间约定，公式中的因子 2 会移位。有限长度
+序列中，不能无界地向大 \(t\) 求和：应比较多个积分窗口、自相关函数的首次负值、
+block 长度和 jackknife 方差，报告平台及窗口系统误差。
+
+binning 是更直接的自相关诊断。把连续 \(K\) 个原始测量平均成
+\(X_m^{(K)}=K^{-1}\sum_{i=(m-1)K+1}^{mK}X_i\)。若原始测量独立，
+\begin{equation}
+  \operatorname{Var}\!\left(X_m^{(K)}\right)=\frac{\sigma_X^2}{K}.
+  \label{eq:b03-binning}
+\end{equation}
+因此可画 \(K\widehat\sigma^2_{(K)}\) 对 \(K\)，寻找平台。平台未出现时，block
+仍未覆盖主要自相关；平台出现后继续增大 \(K\) 会使 block 数减少、方差估计本身
+变差。常用的“先 binning、再 bootstrap/jackknife”只是把相关数据近似成近似
+独立 block，不能自动修复长程相关或拓扑冻结。
+
+\section{Bootstrap：全链重采样}
+
+设有 \(B\) 个近似独立的 block。对第 \(r\) 个 bootstrap replica，从 block 索引中
+有放回抽取 \(B\) 个，形成 \(D_r\)，并在该 replica 内重跑从关联函数、真空减除、
+重正化、Fourier/匹配到拟合和外推的**同一分析链**，得到 \(\theta_r\)。估计方差用
+\begin{equation}
+  \bar\theta_{\rm boot}=\frac1R\sum_{r=1}^R\theta_r,
+  \qquad
+  \widehat{\operatorname{Cov}}(\theta)
+  =\frac{1}{R-1}\sum_{r=1}^R
+  (\theta_r-\bar\theta_{\rm boot})(\theta_r-\bar\theta_{\rm boot})^T .
+  \label{eq:b03-bootstrap-cov}
+\end{equation}
+bootstrap 的中心值原则上仍用全样本估计 \(\hat\theta\)，而 \(\theta_r\) 的散布
+用于误差和区间。若把 \(\bar\theta_{\rm boot}\) 直接替代中心值，应明确这是偏差
+修正；更稳健的做法是报告 \(\bar\theta_{\rm boot}-\hat\theta\) 的偏差、百分位区间和
+BCa 等区间作为敏感性检查。
+
+重采样数量 \(R\) 不能只看“通常取多少”。应检查增加 \(R\)、改变随机种子和改变
+block 长度后中心值、标准误和区间是否稳定。高度非线性或近阈值观测量可能产生重尾
+分布，此时正态近似和偏差修正不一定可靠，需报告分位数、失败率和选择效应。
+每个 replica 的成败状态必须保存；把失败 replica 静默替换成中心值会人为缩小误差。
+
+\section{Jackknife 与 block delete-one}
+
+对 \(B\) 个 block，逐一删除第 \(b\) 个 block 并重跑完整分析，得到
+\(\theta_{-b}\)。标准 delete-one jackknife 方差为
+\begin{equation}
+  \bar\theta_{\rm JK}=\frac1B\sum_{b=1}^B\theta_{-b},
+  \qquad
+  \widehat\sigma_{\rm JK}^2
+  =\frac{B-1}{B}\sum_{b=1}^B
+  (\theta_{-b}-\bar\theta_{\rm JK})^2 .
+  \label{eq:b03-jackknife}
+\end{equation}
+若只用全样本值 \(\hat\theta\) 替代 \(\bar\theta_{\rm JK}\)，得到的只是近似版本，
+并不严格等于 jackknife 方差。Jackknife 偏差修正可写为
+\begin{equation}
+  \hat\theta_{\rm JK,bc}=B\hat\theta-(B-1)\bar\theta_{\rm JK}.
+  \label{eq:b03-jackknife-bias}
+\end{equation}
+Jackknife 对平滑的均值、比值和拟合参数通常有效；对中位数、阈值选择、模型选择或
+不连续统计量可能失效。是否优先使用 jackknife 或 bootstrap 取决于统计量的光滑性、
+block 数和失败模式，而不存在仅由样本量决定的固定偏好。
+
+\section{相关拟合与协方差归一化}
+
+拟合向量 \(d\) 与模型 \(f(\theta)\) 时，广义最小二乘为
+\begin{equation}
+  \chi^2(\theta)=(d-f(\theta))^TC_d^{-1}(d-f(\theta)),
+  \qquad
+  \hat\theta=\arg\min_\theta\chi^2(\theta).
+  \label{eq:b03-gls}
+\end{equation}
+\(C_d\) 必须是**被拟合估计量**的协方差。如果数据向量是 \(N\) 个组态的均值，
+而 \(C_{\rm conf}\) 是单组态协方差，则
+\begin{equation}
+  C_d=\frac{C_{\rm conf}}{N}
+  \label{eq:b03-covariance-of-mean}
+\end{equation}
+在组态独立且协方差估计无偏时成立；更稳妥的做法是从 jackknife/bootstrap 的均值
+分布直接估计 \(C_d\)，这样可同时保留源、时间片、重正化和拟合链的相关性。若把
+单组态协方差当作均值协方差直接求逆，拟合误差的尺度会错误。
+
+对线性模型 \(f=X\theta\)，协方差近似为
+\begin{equation}
+  \operatorname{Cov}(\hat\theta)
+  =\left(X^TC_d^{-1}X\right)^{-1},
+  \qquad
+  J_{i\alpha}=\frac{\partial f_i}{\partial\theta_\alpha},
+  \label{eq:b03-gls-cov}
+\end{equation}
+非线性模型的雅可比 \(J\) 应在 \(\hat\theta\) 处计算；若重正化、Fourier 或匹配
+也依赖参数，导数必须包含这些步骤。协方差秩不足或条件数过大时，SVD、收缩、低秩
+加对角或伪逆可以作为诊断，但每种正则化都要扫描截断阈值并传播到最终结果。
+
+\section{全链传播与系统误差预算}
+
+统计相关可以由 bootstrap 全链传播；模型选择、窗口选择、匹配阶数和重整化方案等
+“硬选择”不服从组态重采样，必须单独扫描。一个可审计的结果至少区分三类误差：
+\begin{enumerate}
+  \item 由组态抽样和源/噪声抽样产生的统计误差；
+  \item 由同一组态内相关的拟合、重正化、匹配和外推传播的协方差；
+  \item 由模型、窗口、截断和方案选择产生、不能由 bootstrap 自动覆盖的系统变化。
+\end{enumerate}
+若系统变化之间近似独立，可报告平方和根
+\(\sigma_{\rm quad}^2=\sigma_{\rm stat}^2+\sum_s\sigma_s^2\)；若变化之间相关，
+应使用
+\begin{equation}
+  \sigma_{\rm sys}^2=\sum_s\sigma_s^2+2\sum_{s<s'}C_{ss'},
+  \label{eq:b03-system-cov}
+\end{equation}
+或直接在每个 bootstrap replica 内联合扫描。把同一个窗口变化重复计入多个误差项
+会低估相关性；反过来，把明显相关的量强行平方相加会给出虚假的小误差。
+
+\begin{table}[htbp]
+\centering
+\caption{误差传播路径及适用边界}
+\label{tab:b03-error-paths}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.18\textwidth}X X@{}}
+\toprule
+路径 & 能传播的相关性 & 不能自动处理的问题 \\
+\midrule
+全链 bootstrap & 组态、源、拟合、重正化、匹配和联合外推的统计相关 & 模型函数、窗口、算符几何等硬选择 \\
+delete-one block jackknife & 近似独立 block、比值和拟合参数 & 非光滑统计量、长程相关未覆盖的 block 长度 \\
+独立变化平方和根 & 各系统扫描的中心值差异 & 扫描项之间的相关、重采样统计相关 \\
+协方差联合拟合 & 已知并可靠估计的完整协方差 & 协方差秩不足、模型误差和非高斯尾部 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\chapter{极限外推、联合拟合与尺度窗口}
+\label{sec:b03-extrapolation-windows}
+
+\section{外推是带物理依据的渐近展开}
+
+格点结果依赖格距 \(a\)、体积 \(L\)、介子质量 \(m_\pi\)、强子动量 \(P_z\)、
+流时 \(t_f\)、Wilson 线长度和涂抹参数。外推的目标不是把最后一个数据点接一条
+最长曲线，而是把有限参数结果嵌入一个可检验的渐近展开：
+\begin{equation}
+  F(x;a,L,m_\pi,P_z,t_f,\ell)
+  =F_0(x)+\sum_j c_j(x)\,\Phi_j(a,L,m_\pi,P_z,t_f,\ell)
+  +\mathcal R(x;\text{window}).
+  \label{eq:b03-general-expansion}
+\end{equation}
+每个基函数 \(\Phi_j\) 应来自离散化、有限体积、手征对称性、因子化或重整化群，
+而不是只在拟合窗口内“形状好看”。\(\mathcal R\) 是未纳入模型的高阶项，必须在
+窗口边界和目标精度上被论证为小量；否则结果只能称为参数点的有效值。
+
+\section{连续极限与联合拟合}
+
+对 \(O(a^2)\) 改进的作用量，标量观测量常写成
+\begin{equation}
+  O(a)=O_0+c_1a^2+c_2a^4+\cdots .
+  \label{eq:b03-continuum-expansion}
+\end{equation}
+只有两个格距时，保留 \(a^2\) 项是模型假设，无法从数据中检验 \(a^4\)；三个格距
+才开始具有识别高阶项的自由度。Clover 改进也不自动保证所有算符都是纯
+\(O(a^2)\)：改进系数、边界项、接触项和算符混合都可能留下线性或交叉误差。
+
+对 LaMET/TMD 矩阵元，离散化误差与 boost 动量耦合。一个常用的联合参数化为
+\begin{align}
+  F(x;a,m_\pi,P_z)
+  &=F_0(x)+c_a(x)a^2+c_{aP}(x)a^2P_z^2
+  +c_P(x)\frac{1}{P_z^2}\notag\\
+  &\quad+c_m(x)m_\pi^2+c_L(x)e^{-m_\pi L}+\cdots .
+  \label{eq:b03-joint-expansion}
+\end{align}
+其中 \(c_{aP}\) 项描述 Wilson 线或准算符离散化与高动量的交叉效应。参数化的
+具体函数形式取决于作用量、算符和投影；式~\eqref{eq:b03-joint-expansion} 是
+组织窗口的工具，不是所有胶子 TMD 的普适定理。若只有单一 \(a\)、单一 \(P_z\)
+或单一 \(m_\pi\)，对应系数和交叉项不可辨识，不能通过增加拟合轮数制造约束。
+
+连续极限、手征极限和无穷动量极限在理论上不交换。格点上必须先有有限 UV 截断，
+再讨论大动量；LaMET 匹配则要求
+\begin{equation}
+  \Lambda_{\rm QCD},M_N\ll P_z\ll a^{-1},
+  \qquad
+  \Lambda_{\rm QCD}\ll \frac1{b_T},
+  \label{eq:b03-lamet-window}
+\end{equation}
+同时成立。若 \(aP_z\) 接近 1，格点色散关系和高扭度/离散 Wilson 线误差都进入
+非微扰区；若 \(b_T\) 接近 \(L/2\)，周期镜像会污染横向结构。此时“多拟合一个
+\(1/P_z^2\) 项”不能修复窗口失败。
+
+\section{大 \(\lambda\) 尾部：模型，而不是定律}
+
+准分布通常由坐标空间矩阵元的 Fourier 变换给出。采用本节统一约定
+\begin{equation}
+  \widetilde q(x,P_z)
+  =\frac{P_z}{2\pi}\int_{-\infty}^{\infty}\mathrm{d}z\,
+  e^{ixP_z z}h_R(z,P_z),
+  \qquad
+  \lambda=zP_z .
+  \label{eq:b03-quasi-fourier}
+\end{equation}
+格点只覆盖有限 \(|z|\)，且大 \(z\) 的信噪比通常快速下降。截断 Fourier 变换会
+把未测尾部转换成振铃和端点畸变。一个常用的尾部参数化是
+\begin{equation}
+  h_R(z,P_z)\simeq\sum_{j=1}^{N_t}c_jz^{-d_j}e^{-z/\lambda_j},
+  \qquad \lambda>\lambda_L,
+  \label{eq:b03-tail-model}
+\end{equation}
+但指数因子、幂次和项数都是待检验的模型选择。拟合时必须记录：使用的
+\(\lambda_L\)、项数、参数相关矩阵、有效点数、不同 \(P_z\) 的交叉约束，以及
+从尾部到目标 \(x\) 区间的积分贡献。若多个模型在数据窗口内拟合质量相近、但目标
+区间外差异很大，模型差异必须进入系统误差，不能只选 \(\chi^2\) 最小者。
+
+derivative 方法可减少截断振铃。对式~\eqref{eq:b03-quasi-fourier} 分部积分，
+假定边界项已减除或在无穷远消失，则
+\begin{equation}
+  \widetilde q(x,P_z)
+  =\frac{P_z}{2\pi}\int\mathrm{d}z\,e^{ixP_z z}h_R(z,P_z)
+  =\frac{i}{2\pi x}\int\mathrm{d}z\,e^{ixP_z z}
+  \frac{\partial h_R(z,P_z)}{\partial z},
+  \qquad x\ne0.
+  \label{eq:b03-derivative-method}
+\end{equation}
+与只写 \(i/x\) 的形式相比，\(1/(2\pi)\) 来自本节固定的 Fourier 归一化；若采用
+另一种准分布定义，前因子会同步改变。导数压低的是常数和慢变边界项，不改变
+\(h_R\) 本身的统计噪声；\(1/x\) 会放大 \(x\to0\) 的误差，\(x=0\) 需单独处理。
+
+\section{无穷动量外推}
+
+若已经对每个 \(P_z\) 完成与动量相关的重正化和匹配，则匹配后的量可写成
+\begin{equation}
+  q(x,P_z)=q_0(x)+\frac{c_1(x)}{P_z^2}
+  +\frac{c_2(x)}{P_z^4}+\cdots .
+  \label{eq:b03-pz-expansion}
+\end{equation}
+\(1/P_z^2\) 的起点由因子化中的幂修正和对称性决定；端点或特定算符可能还有额外
+结构，不能仅凭“看起来像 \(1/P_z\)”改基函数。两个动量点只能拟合一个领先修正，
+且结果高度依赖是否已进入渐近区；三个或更多点才可开始检查高阶项。单 \(P_z\)
+结果最多是在假设修正足够小的情况下的有效值。
+
+当 \(x\) 较小时，匹配核的硬标度可能由 \(2xP_z\) 控制。若该标度接近
+\(\Lambda_{\rm QCD}\)，固定阶匹配和 RGR 都进入非微扰区；这时应缩小报告的
+\(x\) 区间，而不是用大 \(z\) 外推填补。小 \(x\) 的大对数、尾部模型和统计噪声
+往往同时增强，必须分别报告其贡献。
+
+\section{拟合设计、可辨识性与模型误差}
+
+把全部数据点排成向量 \(d\)，把外推基函数排成设计矩阵 \(X\)。即使写成
+\begin{equation}
+  d=X\theta+\varepsilon,
+  \qquad
+  \operatorname{Cov}(d)=C_d,
+  \label{eq:b03-fit-design}
+\end{equation}
+也不表示所有列都可辨识。若两列在可用窗口内近似共线，参数协方差会爆炸；此时应
+删除不可辨识项、合并为有效参数，或扩大 \(a,P_z,m_\pi,L\) 覆盖范围。报告至少
+给出设计矩阵条件数、参数相关矩阵、残差模式、留一数据点或留一块检验。
+
+模型平均可作为系统误差的展示，但不能替代物理判据。若模型 \(m\) 的权重为
+\(w_m\)，则
+\begin{equation}
+  w_m=\frac{e^{-\frac12{\rm IC}_m}}
+  {\sum_{m'}e^{-\frac12{\rm IC}_{m'}}},
+  \label{eq:b03-model-weight}
+\end{equation}
+其中 IC 可为 AIC/BIC 或针对相关数据的推广。权重依赖候选模型集合；若候选集合
+未包含真实渐近形式，权重再精确也不代表物理。建议同时报告“最优模型”“等高线
+模型族”和“目标区间模型包络”，而不是只报单一中心值。
+
+\begin{table}[htbp]
+\centering
+\caption{极限外推的最小验收矩阵}
+\label{tab:b03-extrapolation-checks}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.18\textwidth}X X@{}}
+\toprule
+方向 & 必须扫描的量 & 失败判据 \\
+\midrule
+连续极限 & 多个 \(a\)、\(a^2\) 与 \(a^4\) 项、\(aP_z\)、作用量改进系数 & 单一格距、高阶项改变中心值、窗口外推主导 \\
+无限体积 & 多个 \(m_\pi L\)、\(b_T<L/2\)、长 Wilson 线平台 & \(b_T\) 或 \(L_\parallel\) 与 \(L\) 不分离 \\
+手征极限 & \(m_\pi\) 覆盖、ChPT 项数、价/海夸克质量 & 只有单点或手征模型不可辨识 \\
+大动量 & 多个 \(P_z\)、\(aP_z\)、匹配标度与 RGR & \(P_z\) 接近格点截断；小 \(x\) 进入非微扰区 \\
+大 \(\lambda\) 尾部 & \(\lambda_L\)、项数、尾部函数、\(z_{\max}\) & 模型包络超过目标精度；拟合数据不足 \\
+误差传播 & bootstrap 全链、模型扫描、相关系统项 & 失败 replica 静默丢弃；相关误差平方相加 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+最终报告应明确哪些区间由数据约束、哪些由模型外推、哪些没有通过物理窗口。一个
+通过所有统计拟合但位于 \(P_z\gg a^{-1}\)、\(r_f\gtrsim b_T\) 或
+\(m_\pi L\ll1\) 的结果，不是更强的物理证据，而是更清楚诊断出的窗口失败。

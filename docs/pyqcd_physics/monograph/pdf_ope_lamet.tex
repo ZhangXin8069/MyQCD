@@ -1,0 +1,815 @@
+\chapter{共线部分子分布、OPE与DGLAP演化}
+
+本章把强子内部分子的纵向动量信息放在共线因子化语言中讨论。重点不是把PDF当作
+单一标度上的经验曲线，而是固定三件事：光锥算符的定义、短距离OPE的算符基底，
+以及因子化标度改变时PDF的演化。只有这三件事同时一致，格点矩阵元、微扰匹配和
+实验全局分析才能放在同一条证据链上。
+
+\section{光锥坐标与PDF定义}
+
+取
+\begin{equation}
+  v^\pm=\frac{v^0\pm v^3}{\sqrt2},\qquad
+  v\cdot w=v^+w^-+v^-w^+-v_\perp\cdot w_\perp,
+  \qquad g_{+-}=g_{-+}=1,
+  \label{eq:b04-lightcone-metric}
+\end{equation}
+并令强子沿 $z$ 方向运动。沿纵向的boost只重标度 $v^+$ 与 $v^-$。因此，光锥
+关联天然把大动量极限、纵向动量分数和横向平移分开处理。
+
+非极化夸克与胶子光锥PDF定义为
+\begin{align}
+  q(x,\mu)&=\int\frac{\dd\xi^-}{4\pi}\,
+  e^{-ixP^+\xi^-}
+  \langle P|\bar\psi(\xi^-)\gamma^+
+  W(\xi^-,0)\psi(0)|P\rangle_\mu,
+  \label{eq:b04-lc-quark}
+  \\
+  xg(x,\mu)&=\int\frac{\dd z^-}{2\pi P^+}\,
+  e^{-ixP^+z^-}
+  \langle P|F^{a}_{+\mu}(z^-)W_{\rm adj}^{ab}(z^-,0)
+  F^{b\mu}_{\phantom{b\mu}+}(0)|P\rangle_\mu .
+  \label{eq:b04-lc-gluon}
+\end{align}
+其中Wilson线取路径排序指数，规范链的方向和端点约定必须与矩阵元中的场序一致。
+$\mu$是UV重整化与因子化标度，不是强子动量。胶子定义中的$1/P^+$与左侧的$x$
+共同固定动量求和规则；若改用$g(x)$而非$xg(x)$，所有矩和匹配核的归一化都要
+同步改变。
+
+在光锥规范$A^+=0$下，规范链退化为单位矩阵，正支$q(x)$可解释为夸克动量密度，
+负支给出反夸克分布。物理支撑为$x\in[-1,1]$，胶子采用$x>0$的正支并在前向极限
+写作$H^g(x,0,0)=xg(x)$。横动量已经积掉，故PDF不是三维分布，也不包含TMD软函数。
+
+动量与价数守恒分别给出
+\begin{equation}
+  \int_0^1\dd x\,x\left[\sum_f q_f(x,\mu)+g(x,\mu)\right]=1,
+  \qquad
+  \int_0^1\dd x\left[q_f(x,\mu)-\bar q_f(x,\mu)\right]=N_f,
+  \label{eq:b04-pdf-sumrules}
+\end{equation}
+其中$N_f$是该味的净价夸克数。第一条在微扰演化中不应漂移；第二条只对相应味
+组合成立。数值实现应同时检查局部归一化、端点行为和这些守恒量，而不能只比较
+中心曲线。
+
+\section{DGLAP方程与劈裂核}
+
+共线辐射产生$\alpha_s^n\ln^n(\mu^2/\mu_0^2)$型大对数。把这些对数吸收到PDF后，
+非单态分布满足
+\begin{equation}
+  \frac{\dd f_i^{(-)}(x,\mu)}{\dd\ln\mu^2}
+  =\frac{\alpha_s(\mu)}{2\pi}
+  \int_x^1\frac{\dd y}{y}\,P_{qq}\!\left(\frac{x}{y}\right)
+  f_i^{(-)}(y,\mu),
+  \qquad f_i^{(-)}=f_{q_i}-f_{\bar q_i}.
+  \label{eq:b04-dglap-nonsinglet}
+\end{equation}
+味单态$\Sigma=\sum_i(f_{q_i}+f_{\bar q_i})$与胶子耦合为
+\begin{equation}
+  \frac{\dd}{\dd\ln\mu^2}
+  \begin{pmatrix}\Sigma(x,\mu)\\g(x,\mu)\end{pmatrix}
+  =\frac{\alpha_s(\mu)}{2\pi}
+  \int_x^1\frac{\dd y}{y}
+  \begin{pmatrix}
+    P_{qq}(x/y)&2n_fP_{qg}(x/y)\\
+    P_{gq}(x/y)&P_{gg}(x/y)
+  \end{pmatrix}
+  \begin{pmatrix}\Sigma(y,\mu)\\g(y,\mu)\end{pmatrix}.
+  \label{eq:b04-dglap-singlet}
+\end{equation}
+卷积变量$y>x$表示动量分数为$x$的部分子来自演化前分数更大的母部分子。$2n_f$
+是味求和，不是新的颜色因子。
+
+领头阶劈裂核为
+\begin{align}
+  P_{qq}(z)&=C_F\left[\frac{1+z^2}{(1-z)_+}
+  +\frac32\delta(1-z)\right],\notag\\
+  P_{qg}(z)&=T_F\left[z^2+(1-z)^2\right],\notag\\
+  P_{gq}(z)&=C_F\frac{1+(1-z)^2}{z},\notag\\
+  P_{gg}(z)&=2C_A\left[\frac{z}{(1-z)_+}
+  +\frac{1-z}{z}+z(1-z)\right]
+  +\frac{\beta_0}{2}\delta(1-z),
+  \label{eq:b04-splitting}
+\end{align}
+其中
+\begin{equation}
+  C_F=\frac{N_c^2-1}{2N_c},\qquad T_F=\frac12,\qquad C_A=N_c,
+  \qquad \beta_0=\frac{11}{3}C_A-\frac43T_Fn_f .
+  \label{eq:b04-color}
+\end{equation}
+对$SU(3)$有$C_F=4/3$、$C_A=3$。式\eqref{eq:b04-splitting}中的$+$分布定义为
+\begin{equation}
+  \int_0^1\dd z\,[F(z)]_+\,G(z)
+  =\int_0^1\dd z\,F(z)[G(z)-G(1)].
+  \label{eq:b04-plus}
+\end{equation}
+它实现端点减除，保证劈裂概率在积分意义下有限。把$+$分布当作普通函数逐点相加，
+会在$z=1$产生未减除的假发散。
+
+\paragraph{物理意义.}
+$P_{ab}(z)$不是任意多项式，它编码规范理论中$b\to a$的共线辐射概率密度。
+$P_{qq}$与$P_{gq}$保持费米子线，$P_{qg}$描述胶子产生夸克对，$P_{gg}$包含
+非Abel三胶子顶点。动量求和规则固定若干$\delta(1-z)$系数，并使单态演化矩阵在
+$n=1$矩处具有零本征值。
+
+\section{Mellin矩与OPE等价性}
+
+定义
+\begin{equation}
+  M_n(\mu)=\int_0^1\dd x\,x^{n-1}f(x,\mu),
+  \qquad
+  \gamma_n=\int_0^1\dd z\,z^{n-1}P(z).
+  \label{eq:b04-mellin}
+\end{equation}
+卷积在Mellin空间变成乘法：
+\begin{equation}
+  \frac{\dd M_n^{(-)}(\mu)}{\dd\ln\mu^2}
+  =\frac{\alpha_s(\mu)}{2\pi}\gamma_{qq}^{(n)}M_n^{(-)}(\mu).
+  \label{eq:b04-moment-dglap}
+\end{equation}
+对$P_{qq}$显式计算得到
+\begin{equation}
+  \gamma_{qq}^{(n)}
+  =C_F\left[
+  \frac32+\frac{1}{n(n+1)}
+  -2\sum_{k=2}^{n}\frac1k\right],
+  \qquad n\geq1.
+  \label{eq:b04-gamma-qq}
+\end{equation}
+在固定耦合近似下，矩按幂律演化；在领头阶跑动耦合下，
+\begin{equation}
+  M_n(Q^2)=M_n(Q_0^2)
+  \left[
+  \frac{\ln(Q_0^2/\Lambda_{\rm QCD}^2)}
+       {\ln(Q^2/\Lambda_{\rm QCD}^2)}
+  \right]^{\gamma_n/(2\beta_0)} .
+  \label{eq:b04-moment-solution}
+\end{equation}
+大$n$矩对应大$x$区域。该式说明强子PDF的大$x$部分随$Q^2$发生对数压低，但
+$\Lambda_{\rm QCD}$和非微扰初值不由DGLAP本身产生。
+
+同一个$\gamma_n$也可由twist-2局域算符的重整化得到。对相应的无迹对称化算符，
+\begin{equation}
+  \langle P|\mathcal O_n(\mu)|P\rangle
+  =2a_n(\mu)\left(P^{\mu_1}\cdots P^{\mu_n}-\text{trace}\right),
+  \qquad
+  a_n(\mu)=M_n(\mu).
+  \label{eq:b04-ope-moment}
+\end{equation}
+因此DGLAP劈裂核的Mellin矩等于相应twist-2算符的反常维数：
+\begin{equation}
+  \gamma_{n}^{\rm DGLAP}=\gamma_n^{\rm OPE}.
+  \label{eq:b04-ope-dglap}
+\end{equation}
+这不是形式类比，而是“共线辐射重求和”和“局域算符重整化”描述同一短距离物理的
+两种语言。它也为格点局域矩、准PDF匹配和DGLAP演化之间的对应提供理论基础。
+
+\section{尺度窗口与失效条件}
+
+DGLAP是因子化标度演化方程，不是完整的非微扰求解器。最低限度要求
+\begin{equation}
+  \Lambda_{\rm QCD}\ll\mu,\qquad
+  \alpha_s(\mu)\ll1,\qquad
+  \text{目标$x$处端点对数受控}.
+  \label{eq:b04-dglap-window}
+\end{equation}
+在极小二$x$处，固定阶DGLAP可能遗漏BFKL型或饱和型重求和；在大$x\to1$处，
+阈值修正、软辐射和高阶twist可能同时增强。若把$\mu$降到Landau极点附近，劈裂核
+的微扰展开本身失去意义。任何“由DGLAP推出小$x$上升”或“由DGLAP精确预言端点”
+的陈述，都必须先说明因子化窗口。
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{DGLAP对象与常见误用}
+  \label{tab:b04-dglap-check}
+  \begin{tabularx}{\textwidth}{@{}lXX@{}}
+    \toprule
+    对象 & 正确含义 & 常见误用 \\
+    \midrule
+    $P_{ab}(z)$ & 共线劈裂核，含端点减除 & 当作未减除的逐点概率 \\
+    $\gamma_n$ & 劈裂核或twist-2算符的反常维数 & 与QCD $\beta$函数混同 \\
+    PDF初值 & 非微扰输入，需实验或格点确定 & 声称由DGLAP唯一预言 \\
+    $\mu$依赖 & 方案与标度依赖，可被系数函数补偿 & 与物理强子动量$P_z$混同 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\chapter{OPE、光线展开与幂次修正}
+
+\section{短距离OPE与格点高矩困难}
+
+两个算符在短距离下的乘积可展开为
+\begin{equation}
+  \mathcal O_1(z)\mathcal O_2(0)
+  \xrightarrow[z\to0]{}
+  \sum_n C_n(z;\mu)\mathcal O_n(0),
+  \label{eq:b04-short-ope}
+\end{equation}
+其中Wilson系数$C_n$含短距离奇异性，局域算符$\mathcal O_n$的矩阵元编码非微扰
+物理。量纲递增的算符被$(z\Lambda_{\rm QCD})$的幂次压低。把光锥双线性在
+$z=0$附近Taylor展开，得到
+\begin{equation}
+  \bar\psi(z^-)\gamma^+W(z^-,0)\psi(0)
+  =\sum_{n=0}^{\infty}\frac{(z^-)^n}{n!}
+  \bar\psi(0)\gamma^+(iD^+)^n\psi(0)+\cdots ,
+  \label{eq:b04-taylor}
+\end{equation}
+其核子矩阵元的Fourier变换给出Mellin矩。
+
+传统格点路线直接计算这些局域算符，但在超立方群下高自旋算符会发生复杂混合，
+高维算符还可能与低维算符产生$1/a^{\Delta d}$型幂次发散混合，统计噪声也随导数数
+增加。因此实际可稳定控制的矩数有限，不能仅凭前几个矩无模型重建完整$x$依赖。
+保持非局域形式可绕开高自旋局域算符基底，但不表示非局域算符没有UV发散，Wilson线
+自能仍产生线性项。
+
+\section{光线OPE与twist截断}
+
+有限空间分离$z$不满足$z\Lambda_{\rm QCD}\ll1$的普通短距条件。光线OPE采用
+\begin{equation}
+  z=\mathcal O(\eta),\qquad P=\mathcal O(\eta^{-1}),\qquad
+  zP=\mathcal O(1),\qquad z\Lambda_{\rm QCD}\to0,
+  \label{eq:b04-lightray-counting}
+\end{equation}
+使Ioffe时间$zP$保持有限，但所有twist-2局域算符的贡献必须重求和。其结构为
+\begin{equation}
+  \bar q(zv)\slashed v[zv,0]q(0)
+  =\int_0^1\dd\alpha\,H_\parallel(z,\alpha;\mu_F)
+  \Pi_{\rm l.t.}\!\left[\bar q(\alpha zv)\slashed z q(0)\right]
+  +\text{higher twist}.
+  \label{eq:b04-lightray-ope}
+\end{equation}
+这里$\Pi_{\rm l.t.}$是leading-twist投影，$H_\parallel$是可微扰计算的系数。
+对强子矩阵元取期望值后，hard与collinear部分进入匹配核，软矩阵元进入光锥PDF或
+ITD。这就是准PDF、空间关联和赝PDF服从同一类因子化的OPE依据。
+
+普通短距OPE在$\nu=zP\to0$时截断高维算符；光线OPE保持有限$\nu$而按twist截断。
+“高自旋”与“高twist”不是同一个展开参数。一个算符可以自旋很高但仍是twist-2；
+把所有高自旋项误称为高twist，会完全破坏准PDF的因子化计数。
+
+\section{Wilson系数、重正子与精度层级}
+
+准PDF与光锥PDF有相同的红外共线结构，差别吸收入UV Wilson系数。单圈裸系数同时
+包含UV极点和共线IR极点。UV极点由局域抵消项减除，IR极点与光锥系数中的对应项
+抵消，剩下有限对数与常数构成匹配核。若两边的IR结构不一致，就不能用“减去一个
+微扰核”修补，必须重新检查算符、投影或因子化定理。
+
+在$\overline{\rm MS}$中，匹配系数通常只是渐近级数。其大阶系数可写成
+\begin{equation}
+  h_k\sim k!\left(\frac{\beta_0}{2\pi}\right)^k,
+  \qquad k\to\infty .
+  \label{eq:b04-factorial}
+\end{equation}
+Borel变换
+\begin{equation}
+  \mathcal B[H](w)=\sum_{k}\frac{h_k}{k!}w^k
+  \label{eq:b04-borel}
+\end{equation}
+因此出现极点。Wilson线自能关联的UV重正子在$w=1/2$附近，IR重正子位于整数
+$w=1,2,\ldots$。Borel平面上的IR极点不是数值偶然，而是微扰系数与非微扰幂修正
+共享同一渐近结构的信号。位于积分路径上的极点使Borel和方案依赖；用主值或其他
+正规化时，应把相应模糊性显式吸收到高阶twist参数。
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{准PDF幂次修正的精度层级}
+  \label{tab:b04-power-hierarchy}
+  \begin{tabularx}{\textwidth}{@{}lXXX@{}}
+    \toprule
+    层级 & 典型尺度 & 可控制的物理 & 失配风险 \\
+    \midrule
+    twist-2 & $O(1)$ & PDF与leading-twist匹配 & 把有限$P_z$残差全部归于统计误差 \\
+    包含twist-3 & 通常新增$O(\Lambda/P_z)$ & 领先幂次、线性Wilson线模糊 & 端点增强与重正子处方不统一 \\
+    包含twist-4 & 通常新增$O(\Lambda^2/P_z^2)$ & 靶质量、常规$1/P_z^2$修正 & 仍有更高twist或方案转换遗漏 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+端点增强需要单独说明。重正子分析给出的准PDF紧凑形式可出现
+\begin{equation}
+  Q_\parallel(x,P_z)=q(x)\left\{
+  1+\mathcal O\!\left[
+  \frac{\Lambda_{\rm QCD}^2}{P_z^2}\frac{1}{x^2(1-x)}
+  \right]\right\},
+  \label{eq:b04-qpdf-power}
+\end{equation}
+其$1/P_z^2$不能仅凭幂次反推为twist-4。Fourier变换、端点奇异和重正子重排会把
+twist-3的非微扰信息组织成额外的$x$依赖；判断twist必须回到OPE算符，而不是数
+最终公式中的$P_z$指数。相反，只保留twist-2时，常把剩余项简写为
+$\mathcal O(\Lambda_{\rm QCD}^2/P_z^2,M^2/P_z^2)$。两种陈述对应不同的精度目标，
+必须在同一段文字中先声明“是否显式计入twist-3”。
+
+\chapter{LaMET、准PDF与赝PDF}
+
+\section{Euclidean障碍与准PDF}
+
+光锥关联依赖实时间，而格点Monte Carlo计算Euclidean关联。LaMET不把实时间直接
+解析延拓到格点上，而是先计算空间分离的等时矩阵元，再利用大动量与短距离因子化。
+准夸克PDF定义为
+\begin{equation}
+  \tilde q_\Gamma(x,P_z)
+  =\int_{-\infty}^{\infty}\frac{\dd z}{4\pi}\,
+  e^{ixP_z z}
+  \langle P_z|\bar\psi(z)\Gamma U(z,0)\psi(0)|P_z\rangle_R,
+  \label{eq:b04-quasi}
+\end{equation}
+其中$U$是沿$z$的直空间Wilson线。非极化常用$\Gamma=\gamma^t$或$\gamma^z$，
+螺旋度用$\gamma^z\gamma_5$或$\gamma^t\gamma_5$，横向性用$\sigma^{z\mu}$。
+准PDF可格点计算，但依赖$P_z$、定义域扩展到整个实轴、没有严格概率诠释。$|x|>1$
+的贡献不是新物理自由度，而是有限动量和空间分离造成的非光锥结构，应在$P_z\to\infty$
+与匹配后消失。
+
+\section{因子化、极限次序与有效场论}
+
+在leading-twist因子化成立时，
+\begin{equation}
+  \tilde q(x,P_z)
+  =\int_{-1}^{1}\frac{\dd y}{|y|}\,
+  C\!\left(\frac{x}{y},\frac{\mu}{|y|P_z}\right)q(y,\mu)
+  +\mathcal O\!\left[
+  \frac{\Lambda_{\rm QCD}^2}{x^2P_z^2},
+  \frac{\Lambda_{\rm QCD}^2}{(1-x)^2P_z^2},
+  \frac{M^2}{P_z^2}
+  \right].
+  \label{eq:b04-lamet-factorization}
+\end{equation}
+$C$从$\delta(1-x/y)$开始作微扰展开。hard模式进入$C$，collinear非微扰矩阵元
+进入$q$。若需要显式twist-3精度，式\eqref{eq:b04-lamet-factorization}的剩余项
+必须替换为相应高阶twist贡献，不能继续把误差只写成$1/P_z^2$。
+
+LaMET的有效场论类比以$P_z$承担大标度：
+\begin{equation}
+  F(P_z/\Lambda_{\rm QCD})
+  =Z(P_z/\Lambda_{\rm QCD},\Lambda_{\rm QCD}/\mu)f(\mu)
+  +\text{higher powers}.
+  \label{eq:b04-lamet-eft}
+\end{equation}
+它类似HQET把$m_Q$作为大标度，但相似性是结构性的，不是把胶子质量替换成$P_z$。
+光锥定义先取$P_z\to\infty$再完成UV重整化；格点先有$1/a$截断，再取有限$P_z$。
+两类极限次序的差异进入匹配核。可行的格点窗口至少要求
+\begin{equation}
+  \max(\Lambda_{\rm QCD},M)\ll P_z\ll a^{-1},
+  \qquad \text{且}\qquad \alpha_s(\mu_{\rm match})\ll1 .
+  \label{eq:b04-lamet-window}
+\end{equation}
+不同准算符只要具有同一光锥极限，就属于同一普适类，可选幂修正较小者；普适类
+不意味着有限$P_z$下各算符的数值和系统误差相同。
+
+\section{赝PDF、约化ITD与短距离因子化}
+
+同一空间矩阵元也可保持在坐标空间：
+\begin{equation}
+  \mathcal M(z^2,z\cdot P)
+  =\langle P|\bar\psi(z)\Gamma U(z,0)\psi(0)|P\rangle,
+  \qquad \nu=zP_z .
+  \label{eq:b04-itd}
+\end{equation}
+约化ITD用零动量或真空矩阵元作分母，
+\begin{equation}
+  \mathfrak M_{\rm red}(\nu,z^2)
+  =\frac{\mathcal M(z^2,\nu)}
+  {\mathcal M(z^2,0)},
+  \label{eq:b04-ritd}
+\end{equation}
+以压低只依赖$z^2$的端点与自能结构。赝PDF是$\nu$的Fourier变换，并在$z^2\to0$
+回到光锥PDF。其短距离因子化为
+\begin{equation}
+  \begin{aligned}
+  \mathfrak M_{\rm red}(\nu,z^2)
+  &=\int\dd w\,C(w,z^2\mu^2)
+  I(w\nu,\mu^2)+\mathcal O(z^2\Lambda_{\rm QCD}^2),\\
+  I(\nu,\mu^2)&=\int_{-1}^{1}\dd x\,e^{ix\nu}f(x,\mu^2).
+  \end{aligned}
+  \label{eq:b04-pseudo-factorization}
+\end{equation}
+准PDF与赝PDF的匹配核通过Fourier变换对应，但端点外推与幂修正的组织不同，不能
+把一套数值尾部拟合直接搬到另一套。
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{准PDF与赝PDF的工作对象}
+  \label{tab:b04-quasi-pseudo}
+  \begin{tabularx}{\textwidth}{@{}lXX@{}}
+    \toprule
+    项目 & 准PDF & 赝PDF/ITD \\
+    \midrule
+    基本量 & $x\tilde q(x,P_z)$或$\tilde q$ & $\mathfrak M_{\rm red}(\nu,z^2)$ \\
+    大标度 & $P_z\to\infty$，再做Fourier匹配 & $z\to0$，同时保持$\nu=zP_z$有限 \\
+    端点问题 & 小$x$、$x\to1$及$|x|>1$的Fourier振荡 & 大$z$尾部与短距匹配窗口 \\
+    典型幂修正 & 端点增强的$P_z^{-2}$组织，可含twist-3 & $z^2\Lambda_{\rm QCD}^2(1-x)$组织 \\
+    主要验证 & 匹配核、RGR、端点稳定性 & 短距因子化、$\nu$依赖与$z^2$残差 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{内禀标度与重整化群重求和}
+
+准PDF匹配核的NLO对数可写成
+\begin{equation}
+  C^{(1)}(x,P_z;\mu)
+  \supset \frac{\alpha_sC_F}{2\pi}
+  \ln\!\left(\frac{4x^2P_z^2}{\mu^2}\right),
+  \label{eq:b04-matching-log}
+\end{equation}
+其自然标度为
+\begin{equation}
+  \mu_{\rm eff}\sim Q_{\rm eff}=2|x|P_z .
+  \label{eq:b04-qeff}
+\end{equation}
+当$Q_{\rm eff}$远离参考标度$\mu$时，固定阶匹配含大对数。RGR先在
+$\mu_0\sim Q_{\rm eff}$处做固定阶反匹配，再用DGLAP把PDF演化到统一标度。准PDF
+匹配核的重整化群核与DGLAP劈裂核相同，这不是额外假设，而是二者共同源于共线
+重整化的结果。
+
+小$x$窗口由$2|x|P_z$不能进入非微扰区决定。数量级上
+\begin{equation}
+  x_{\min}\sim\frac{\Lambda_{\rm QCD}}{2P_z}.
+  \label{eq:b04-xmin}
+\end{equation}
+在$P_z=2.5$~GeV、$\Lambda_{\rm QCD}\sim0.3$~GeV时，这个尺度约为$0.06$。这是
+量级估计，不是普适阈值；系数、匹配阶数、方案和$P_z$窗口都会改变可接受范围。
+当$Q_{\rm eff}$接近Landau极点时，继续作固定阶DGLAP或微扰匹配没有理论依据。
+
+\section{端点幂修正与证据等级}
+
+基于重正子分析的赝PDF紧凑形式常写作
+\begin{equation}
+  \mathcal P(x,z)=q(x)\left\{1+\mathcal O[z^2\Lambda_{\rm QCD}^2(1-x)]\right\},
+  \label{eq:b04-ppdf-power}
+\end{equation}
+与式\eqref{eq:b04-qpdf-power}的端点增强结构不同。该差异说明qPDF与pPDF的优劣
+依赖目标$x$区间、$P_z$、$z$窗口和重正化方案，不存在全区间无条件的“某一方案更好”。
+靶质量修正可由$M^2/P_z^2$显式计算，但它没有式\eqref{eq:b04-qpdf-power}的$1/x^2$
+增强，因而不能把运动学靶质量项误当作高阶twist证据。
+
+\chapter{夸克与胶子算符的格点实现}
+
+\section{Dirac分类、连续混合与RI/MOM}
+
+连续夸克双线性按
+\begin{equation}
+  \Gamma\in\{I,\gamma_5,\gamma_\mu,\gamma_\mu\gamma_5,
+  \sigma_{\mu\nu}=\tfrac{i}{2}[\gamma_\mu,\gamma_\nu]\}
+  \label{eq:b04-bilinears}
+\end{equation}
+分为标量、赝标量、矢量、轴矢和张量。Euclidean约定取
+\begin{equation}
+  \{\gamma_\mu,\gamma_\nu\}=2\delta_{\mu\nu},
+  \qquad
+  \gamma_4=\gamma^0_M,\qquad
+  \gamma_i=i\gamma^i_M,\quad i=1,2,3.
+  \label{eq:b04-euclidean-gamma}
+\end{equation}
+因此Minkowski光锥投影不能未经约定检查就与$\gamma^t$或$\gamma^z$等同。
+
+对非极化准PDF，源文献在所述非前行、非极化运动学下指出：$\Gamma=\gamma^z$可在
+连续极限与twist-3标量型双线性发生$O(a^0)$混合，必须以$2\times2$重整化矩阵处理；
+$\Gamma=\gamma^t$不与该标量算符混合，因而简化RI/MOM重整化。螺旋度通道有类似
+结构，$\gamma^z\gamma_5$可能混入twist-3轴矢结构。该结论依赖算符、Wilson线方向、
+投影和运动学，不能推广成“$\gamma^t$对所有GPD/TMD都无混合”的普遍定理。
+
+RI/MOM条件可概括为
+\begin{equation}
+  Z_q^{-1}Z_O(z;\mu_R)
+  \frac1{12}\operatorname{Tr}
+  \!\left[V(p,z)V_{\rm Born}^{-1}(p,z)\right]_{p^2=\mu_R^2}
+  =1,
+  \label{eq:b04-ri-mom}
+\end{equation}
+其中$V$为截肢顶点，$Z_q$由夸克传播子确定。最小投影与$\slashed p$投影在特定
+参考动量下可接近，但其差异随投影和动量增加。该差异必须进入匹配和系统误差，
+不能只在最终图上选取看起来更稳定的投影。
+
+\section{Wilson线与非局域重整化}
+
+携带长Wilson线的矩阵元含有线性UV发散。辅助场表述
+\begin{equation}
+  Z_x=L(x,\infty),\qquad
+  (\partial_x-igA_x)Z_x=0,
+  \qquad L(x,y)=Z_xZ_y^\dagger
+  \label{eq:b04-zfield}
+\end{equation}
+把Wilson线改写为辅助重夸克两点函数，从而得到
+\begin{equation}
+  L_{\rm ren}(x,y)=Z_L^{-1}e^{-\delta m|x-y|}L(x,y).
+  \label{eq:b04-wilson-ren}
+\end{equation}
+$\delta m$吸收线性发散，$Z_L$处理剩余对数。短距ratio、hybrid与
+self-renormalization是组织$\delta m$、端点因子和长距矩阵元的不同方案。普通
+局域RI/MOM顶点不能自动减除整条Wilson线的自能；若$z_s$、参考点或$\delta m+m_0$
+变化大于目标误差，就说明短长距分离尚未受控。
+
+胶子算符有两个场强指标和伴随Wilson线。基础表示中的可乘性组合为
+\begin{equation}
+  \mathcal O_g(z)
+  =M_{tx;tx}(z)+M_{ty;ty}(z)-2M_{xy;xy}(z),
+  \label{eq:b04-gluon-combination}
+\end{equation}
+其中
+\begin{equation}
+  M_{\mu\lambda;\nu\rho}(z)
+  =\sum_{\vec x}\operatorname{Tr}\!\left[
+  F_{\mu\lambda}(\vec x+z\hat z)U(\vec x+z\hat z,\vec x)
+  F_{\nu\rho}(\vec x)U(\vec x,\vec x+z\hat z)\right].
+  \label{eq:b04-gluon-M}
+\end{equation}
+负号来自Minkowski与Euclidean时间-横向分量的转换。该组合使各构建块在单圈水平
+具有匹配的UV反常量纲，但“存在一个可乘性组合”不等于所有Lorentz投影都可乘性化。
+辅助重夸克分析识别出多个独立构建块，并给出不是可乘性组合的反例；实现时必须按
+指标数、交叉结构和端点因子分类。
+
+\section{Clover场强、蒸馏与三点函数}
+
+Plaquette的短距展开为
+\begin{equation}
+  P_{\mu\nu}=1+ia^2F_{\mu\nu}(x)+\mathcal O(a^3),
+  \label{eq:b04-plaquette}
+\end{equation}
+对称Clover组合
+\begin{equation}
+  F_{\mu\nu}(x)=-\frac{i}{8a^2}[Q_{\mu\nu}(x)-Q_{\nu\mu}(x)]
+  \label{eq:b04-clover}
+\end{equation}
+减小统计涨落。Clover系数、场强符号、链接方向和场强指标的缩并必须统一；只检查
+某个局域纯规范极限不足以验证非局域胶子算符。
+
+蒸馏通过三维协变Laplace算符的低模构造投影
+\begin{equation}
+  \Box_{xy}(t)=\sum_{k=1}^{N_{\rm ev}}v_x^{(k)}(t)v_y^{(k)\dagger}(t)
+  =V(t)V^\dagger(t).
+  \label{eq:b04-distillation}
+\end{equation}
+传播子在蒸馏空间中的perambulator为
+\begin{equation}
+  \tau^{(k,\ell)}_{\alpha\beta}
+  =V^{(k)\dagger}D^{-1}_{\alpha\beta}V^{(\ell)}.
+  \label{eq:b04-perambulator}
+\end{equation}
+它只依赖规范组态和Dirac算符，可在插值算符基中复用。高动量必须使用相位蒸馏；
+换相位、源型、场强投影或Wilson线几何时，缓存键必须相应改变。蒸馏降低的是
+传播子与收缩成本，不自动改善算符UV结构或消除激发态污染。
+
+胶子三点函数与核子线不直接连通，必须做算符真空减除和两点函数真空减除。常用的
+基态主导拟合可写成
+\begin{equation}
+  R_{3{\rm pt}}(T,\tau)
+  =\frac{C_{3{\rm pt}}(T,\tau)}{C_{2{\rm pt}}(T)}
+  \simeq c_0+c_1e^{-\Delta E(T-\tau)}
+  +c_1e^{-\Delta E\tau}.
+  \label{eq:b04-gluon-ratio}
+\end{equation}
+当$T$不足、插入点靠近源或汇、或只使用单一$z$时，$c_0$可能仍是污染混合后的
+有效平台。至少需要多个$T$、多个插入窗、正负$z$和独立两态或多态拟合来检验。
+
+\section{匹配核与连续外推}
+
+重整化胶子矩阵元先Fourier变换为准分布，再与光锥胶子PDF作卷积匹配。味单态通道
+还必须在匹配层区分夸克与胶子：
+\begin{equation}
+  \begin{pmatrix}\tilde g\\ \tilde q_S\end{pmatrix}
+  =\int\frac{\dd y}{y}
+  \begin{pmatrix}C_{gg}&C_{gq}\\C_{qg}&C_{qq}\end{pmatrix}
+  \begin{pmatrix}g\\q_S\end{pmatrix}
+  +\text{higher twist}.
+  \label{eq:b04-gluon-matching}
+\end{equation}
+这与UV重整化混合不是同一对象。匹配核阶数、$\mu$选择、RGR和大$\lambda=zP_z$
+外推都会影响最终结果。
+
+连续极限与无穷动量极限不能由单点结果替代。常用的联合拟合物为
+\begin{equation}
+  f(x,P_z,a)
+  =f(x)+b_1(x)a^2+b_2(x)a^2P_z^2
+  +b_3(x)P_z^{-2}+\cdots .
+  \label{eq:b04-joint-extrap}
+\end{equation}
+至少需要多个格距和多个动量才能辨识主要项。若只有单一$a$或单一$P_z$，式
+\eqref{eq:b04-joint-extrap}退化，结果只能称为该参数点的有效结果。
+
+\chapter{广义部分子分布与全局结构}
+
+\section{非前行运动学与定义}
+
+GPD把PDF的同一非局域双线性夹在不同初末强子态之间。固定
+\begin{equation}
+  P=\frac{P_i+P_f}{2},\qquad
+  \Delta=P_f-P_i,\qquad
+  t=\Delta^2,\qquad
+  \xi=\frac{P_i^+-P_f^+}{P_i^++P_f^+}
+  =-\frac{\Delta^+}{2P^+},
+  \label{eq:b04-gpd-kinematics}
+\end{equation}
+于是$P_i=P-\Delta/2$，$P_f=P+\Delta/2$。$x$与平均纵向动量相联系，$\xi$描述
+纵向动量转移，$t$的Fourier共轭与横向位置相联系。定义中必须同时固定$\Delta$的
+方向、Fourier相位、旋量约定和$E$项符号；只改其中一项会造成不可追踪的整体换号。
+
+核子矢量GPD的光锥矩阵元分解为
+\begin{equation}
+  \begin{aligned}
+  &\int\frac{\dd z^-}{4\pi}e^{ixP^+z^-}
+  \langle P_f,S_f|
+  \bar\psi(-z^-/2)\gamma^+
+  W(-z^-/2,z^-/2)\psi(z^-/2)
+  |P_i,S_i\rangle\\
+  &=\bar u(P_f,S_f)\left[
+  \gamma^+H^q(x,\xi,t)
+  +\frac{i\sigma^{+\mu}\Delta_\mu}{2M}E^q(x,\xi,t)
+  \right]u(P_i,S_i).
+  \end{aligned}
+  \label{eq:b04-vector-gpd}
+\end{equation}
+轴矢通道含有$\widetilde H^q$与$\widetilde E^q$，横向极化还给出四个张量GPD。
+核子不可能由一个投影同时读出$H$与$E$；必须选择不同Dirac结构、初末自旋和动量
+方向，构造投影矩阵后解线性方程。自旋零介子的最低阶矢量分解只需一个形状函数。
+
+GPD的DGLAP区与ERBL区由$|x|$和$|\xi|$区分：
+\begin{equation}
+  |x|\geq|\xi|:\ \text{DGLAP区},\qquad
+  |x|\leq|\xi|:\ \text{ERBL区},\qquad
+  x\in[-1,1],\quad |\xi|\leq1.
+  \label{eq:b04-gpd-regions}
+\end{equation}
+前向区可连续退化为概率型PDF或反夸克分布；ERBL区描述夸克-反夸克振幅，不能直接
+称为反夸克概率。演化核也随区域改变，DGLAP核不能原样代入ERBL边界。
+
+\section{前向极限、求和规则与多项式性}
+
+当$\Delta=0$，即$\xi=t=0$时，
+\begin{align}
+  H^q(x,0,0)&=q(x),&
+  H^q(-x,0,0)&=-\bar q(x),&x>0,\notag\\
+  \widetilde H^q(x,0,0)&=\Delta q(x),&
+  \widetilde H^q(-x,0,0)&=\Delta\bar q(x),&x>0,\notag\\
+  H_T^q(x,0,0)&=\delta q(x),&
+  H_T^q(-x,0,0)&=-\delta\bar q(x),&x>0.
+  \label{eq:b04-gpd-forward}
+\end{align}
+胶子通道采用$x$加权约定，前向写作$H^g(x,0,0)=xg(x)$。若改变为未加权的$g(x)$，
+矩、形状因子和匹配核的归一化必须一起改变。
+
+对$x$积分消去部分子动量信息，留下局域流矩阵元：
+\begin{equation}
+  \int_{-1}^{1}\dd x\,H^q(x,\xi,t)=F_1^q(t),\qquad
+  \int_{-1}^{1}\dd x\,E^q(x,\xi,t)=F_2^q(t).
+  \label{eq:b04-gpd-formfactors}
+\end{equation}
+轴矢通道对应$G_A^q(t)$与$G_P^q(t)$。积分结果与$\xi$无关，是leading-twist
+多项式性的约束，不是任意模型自动具有的性质。
+
+定义Mellin矩
+\begin{equation}
+  M_n^q(\xi,t)=\int_{-1}^{1}\dd x\,x^{n-1}H^q(x,\xi,t),
+  \label{eq:b04-gpd-mellin}
+\end{equation}
+leading-twist下应有
+\begin{equation}
+  M_n^q(\xi,t)=\sum_{k=0}^{n-1}\xi^kA_{n,k}^q(t).
+  \label{eq:b04-gpd-polynomiality}
+\end{equation}
+宇称和交叉对称性可使部分系数为零。多项式性是检验格点外推、模型参数化和匹配核
+端点行为的关键约束：一个在每一点都光滑的二维拟合仍可能违反GPD。
+
+双分布表示自动实现多项式性：
+\begin{equation}
+  H^q(x,\xi,t)
+  =\int_{-1}^{1}\dd\beta\int_{-1+|\beta|}^{1-|\beta|}\dd\alpha\,
+  \delta(x-\beta-\xi\alpha)f^q(\beta,\alpha,t)
+  +\theta(|\xi|-|x|)D^q\!\left(\frac{x}{\xi},t\right).
+  \label{eq:b04-double-distribution}
+\end{equation}
+$f$生成普通PDF信息和$\xi$多项式矩，$D$-term只在ERBL区出现。$D$不贡献弹性
+形状因子，却影响最高阶广义形状因子。缺少$D$-term的模型通常能拟合形状因子，
+却不能重现完整多项式结构。
+
+\section{角动量、层析与实验含义}
+
+在$\xi=0,t=0$定义Ji角动量求和规则
+\begin{equation}
+  J_q=\frac12\left[A_{20}^q(0)+B_{20}^q(0)\right]
+  =\frac12\int_{-1}^{1}\dd x\,x[H^q(x,0,0)+E^q(x,0,0)],
+  \qquad
+  \sum_qJ_q+J_g=\frac12 .
+  \label{eq:b04-ji-sumrule}
+\end{equation}
+数值验证至少需要完整$E$分离、足够$x$覆盖和$t\to0$外推。只计算某个$x$窗口或
+单一Dirac投影，不能宣称验证该求和规则。
+
+在$\xi=0$时对横向动量转移作Fourier变换，可定义冲击参数分布
+\begin{equation}
+  q(x,\vec b_\perp)
+  =\int\frac{\dd^2\Delta_\perp}{(2\pi)^2}
+  e^{-i\vec\Delta_\perp\cdot\vec b_\perp}
+  H^q(x,0,-\Delta_\perp^2).
+  \label{eq:b04-impact-parameter}
+\end{equation}
+这里$\vec b_\perp$是部分子相对强子横向中心的共轭变量，不是TMD中的部分子横向
+动量$\vec k_\perp$。两者可通过Wigner型关联联系，但不是同一测量量。
+
+DVCS的Compton振幅是GPD与硬系数的卷积。实验通常先提取Compton Form Factor，
+再结合束流/靶极化、方位角和不同过程分离GPD组合，不会逐点直接测出$H(x,\xi,t)$。
+DVMP、TCS和双DVCS提供互补约束。格点QCD的价值是直接计算非微扰矩阵元，而不是
+绕过因子化、幂修正和模型依赖。
+
+\section{格点三点函数与准GPD}
+
+格点使用空间分离的双局域算符
+\begin{equation}
+  H^\Gamma_{fi}(z,P_i,P_f)
+  =\langle N(P_f,S_f)|\bar q(z_1)\Gamma W(z_1,z_2)q(z_2)
+  |N(P_i,S_i)\rangle,
+  \qquad
+  z_{1,2}=y\mp\frac{z}{2}\hat e_z .
+  \label{eq:b04-euclidean-gpd}
+\end{equation}
+常用投影包括$\gamma^t$、$\gamma^z\gamma_5$和$\gamma^t\gamma_\perp\gamma_5$。
+$\gamma^t$在前向非极化准PDF中可避免某类连续混合，但GPD的非前行投影仍需逐项
+分析，不能直接照搬。
+
+三点函数的谱分解为
+\begin{equation}
+  C_3^{fi}(T,\tau;z)
+  \xrightarrow[T\gg\tau\gg0]{}
+  Z_fH^\Gamma_{fi}(z)e^{-E_f(T-\tau)}e^{-E_i\tau}\overline{Z_i}.
+  \label{eq:b04-gpd-3pt}
+\end{equation}
+当初末态相同时，它退化为前向准PDF型三点函数。非前行GPD还要保留$P_f-P_i$、
+初末自旋、Wilson线端点和非局域方向。胶子插入与核子线不连通时，必须进行算符和
+两点函数的真空减除，信噪比通常更差。
+
+一般比值可写成
+\begin{equation}
+  R(\tau)=\frac{C_3^{fi}(T,\tau)}{C_2^f(T)}
+  \left[
+  \frac{C_2^i(T-\tau)C_2^f(\tau)C_2^f(T)}
+       {C_2^f(T-\tau)C_2^i(\tau)C_2^i(T)}
+  \right]^{1/2},
+  \label{eq:b04-gpd-ratio}
+\end{equation}
+其平台给出运动学因子乘裸矩阵元。若两点函数因周期边界或反向传播带负号，不能
+对每个因子简单取绝对值；应先验证重叠因子的符号约定。至少需要多个$T$、多个
+插入窗、不同动量和正负$z$来约束激发态。
+
+非前行准GPD在坐标空间有两个端点Ioffe变量。伪GPD需要用双Fourier变换
+\begin{equation}
+  \mathcal P(\tau_1,\tau_2,z^2)
+  =\int\frac{\dd\zeta_1}{2\pi}\frac{\dd\zeta_2}{2\pi}\,
+  e^{i\tau_1\zeta_1+i\tau_2\zeta_2}
+  \mathcal H(\zeta_1,\zeta_2,z^2),
+  \qquad \zeta_i=z_iP_z,
+  \label{eq:b04-pseudo-gpd}
+\end{equation}
+再通过非前行匹配得到$x,\xi$分布。只对一个端点作Fourier变换会丢失$\xi$与端点
+相位信息。leading-twist非前行匹配是多变量双卷积；味非单态只有夸克核，味单态和
+螺旋度需要夸克-胶子矩阵，横向性在手征极限不与胶子混合。
+
+匹配实现必须通过以下极限：$\xi\to0$回到前向核；$\Delta\to0$回到前向三点函数；
+$t\to0,\xi=0$同时满足形状因子和PDF归一化；$z\to0$回到局域流；$P_z\to\infty$
+控制幂修正；$x\to\pm1$不产生非物理Fourier尖峰。任何一项失败都应先查符号、
+端点和归一化，而不是提高匹配阶数掩盖低阶错误。
+
+\section{全局拟合、格点输入与证据状态}
+
+PDF全局分析在参考标度参数化非微扰初值，用DGLAP演化到实验标度，再最小化大量
+截面与数据的$\chi^2$。快照资料列出的代表性分析为
+\begin{center}
+  \small
+  \begin{tabularx}{0.95\textwidth}{@{}l l l X@{}}
+    \toprule
+    分析 & 阶数 & 方法 & 主要角色 \\
+    \midrule
+    CT18 & NNLO & Hessian & 多过程全局约束、误差线性化 \\
+    NNPDF4.0 & NNLO & 神经网络+MC & 高灵活参数化与不确定性传播 \\
+    MSHT20 & NNLO & Hessian & 与CT家族交叉检验 \\
+    JAM24 & NLO/NNLO & Monte Carlo & 自旋与专属过程补充 \\
+    \bottomrule
+  \end{tabularx}
+\end{center}
+这些版本是来源文档写作时的历史快照，不应被表述为2026年的最新版本。实验输入覆盖
+DIS、固定靶Drell--Yan、弱玻色子、喷注、顶对、孤立光子和粲产生；不同过程主要约束
+不同味与$x$区间。大$x$、较大$x$胶子、奇异海和味分离仍存在模型与数据缺口。
+
+格点计算可在大$x$、胶子分布和实验约束较弱的方向提供独立输入。但它与全局拟合的
+结合要求：使用同一$\overline{\rm MS}$标度、同一重正化方案、可信的匹配核和完整的
+误差相关矩阵。把一条格点中心曲线直接加入全局拟合，而不传播$P_z,a,\mu,z_s$、
+拟合窗口和重正化方案误差，会人为夸大约束力。
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{来源文档报告的历史格点证据，本批未独立复算}
+  \label{tab:b04-lattice-evidence}
+  \begin{tabularx}{\textwidth}{@{}lXX@{}}
+    \toprule
+    对象 & 参数快照 & 可支持的有限陈述 \\
+    \midrule
+    同位旋矢量夸克PDF & CLS，$a=0.086$~fm，$M_\pi=356$~MeV，$P_z=2.3$~GeV & 匹配显著改变中等$x$形状；重整化和投影差异在最终PDF中减小 \\
+    非极化胶子PDF & 三个间距$0.105,0.0897,0.0775$~fm，$M_\pi\simeq300$~MeV，$P_z\lesssim1.97$~GeV & 在报告误差内与部分全局拟合一致；两端仍有有限$a,P_z$限制 \\
+    胶子试点关联 & `C11P29S`，$a=0.105$~fm，$M_\pi=290$~MeV，317组态 & 短$z$平台较稳定，长$z$噪声增加；属于试点而非连续极限 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+表\ref{tab:b04-lattice-evidence}中的所有数字均来自来源文档的二次汇总。其作用是把
+证据定位到具体系综和方法，而不是替代原始论文、组态检查或独立统计复核。专著若把
+这些结果升级为“已由本库验证”，必须另行审计原始数据与代码。

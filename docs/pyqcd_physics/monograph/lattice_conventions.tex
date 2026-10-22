@@ -1,0 +1,64 @@
+\chapter{约定与公式复核}
+
+\section{链接、场强与 Clover}
+
+\begin{longtable}{L{4.0cm}L{4.0cm}L{5.8cm}}
+\caption{合稿时必须固定的约定及其检查。}\label{tab:conventions}\\
+\toprule
+对象 & 本节约定 & 替换约定时的检查\\
+\midrule
+\endfirsthead
+\toprule
+对象 & 本节约定 & 替换约定时的检查\\
+\midrule
+\endhead
+生成元 & \(\Tr(T^aT^b)=\delta^{ab}/2\) & 若取 \(\Tr=\delta^{ab}\)，场强迹归一化和 \(C_F\) 同步改变\\
+链接 & \(U_\mu=e^{iag_0A_\mu}\) & 若吸收 \(g_0\)，删去式~\eqref{eq:clover-field} 的 \(g_0\)\\
+plaquette & \(P_{\mu\nu}=e^{ia^2g_0F_{\mu\nu}+O(a^3)}\) & 用自由场小 \(a\) 检查符号与指数因子\\
+Clover 和 & 四个定向 plaquette 均给出同一 \(F_{\mu\nu}\) & 改变定向时重新检查 \(Q-Q^\dagger\) 的因子 8\\
+Clover 系数 & \(c_{\rm SW}\) 与式~\eqref{eq:b01-clover-action} 绑定 & 若链接除以 \(u_0\)，使用 \(c_{\rm SW}=u_0^{-3}\) 的对应归一化\\
+Wilson 圈 & 颜色迹按 \(N_c\) 归一化 & 不归一化会改变自能常数 \(A\)，但不改变势差和斜率\\
+Fourier & 明确 \(e^{\pm iP_zz}\) 与 \(1/(2\pi)\) 位置 & \(z\to-z\)、复共轭和正负 \(x\) 同时变换\\
+\bottomrule
+\end{longtable}
+
+\section{色散与 Wilson 费米子}
+
+自由标量色散由式~\eqref{eq:lattice-dispersion} 给出。其小 \(a\) 展开的首个非连续项是 \(\Ord(a^2)\)；若采用改进导数或不同质量归一化，应重新展开传播子。Wilson 项中的 \(r\) 与 Clover 的 \(c_{\rm SW}\) 是两个独立参数：前者控制加倍模质量，后者抵消物理分支的 \(\Ord(a)\) 项。代码中把二者绑定为一个参数会改变手征极限或产生非物理的 doubler 残留。
+
+HQET 和 LaMET 的类比只保留展开结构，不保留相同自由度。Symanzik 的 \(a\) 进入作用量与算符基，HQET 的 \(1/m_Q\) 进入重夸克有效拉氏量，LaMET 的 \(1/P_z\) 进入矩阵元匹配。三者都要求匹配核与目标量处于同一方案；跨框架借用数值前必须转换生成元、耦合和算符归一化。
+
+\chapter{失败模式与最小诊断表}
+
+\begin{longtable}{L{2.7cm}L{3.9cm}L{3.7cm}L{3.0cm}}
+\caption{常见失败模式、可能原因与最小复核。}\label{tab:failures}\\
+\toprule
+现象 & 可能原因 & 最小复核 & 禁止的结论\\
+\midrule
+\endfirsthead
+\toprule
+现象 & 可能原因 & 最小复核 & 禁止的结论\\
+\midrule
+\endhead
+Wilson 线结果随总长度指数衰减 & 未减除线性自能 & 同长度 Wilson 圈平方根；多格距斜率 & 把衰减解释为物理 PDF 尾部\\
+RI/MOM 后小 \(a\) 或大 \(z\) 更不稳定 & 非局域线性项、cusp/pinch、端点混合 & 检查同几何减除、\(L\) 平台和表示 & 宣称 RI/MOM 已完全重正化\\
+色散拟合斜率为 1 但结果仍依赖 \(P_z\) & 激发态、端点或匹配幂修正 & 多源/GEVP、不同 \(aP_z\) 序列 & 把单点斜率当全部误差受控\\
+HMC 接受率正常但拓扑扇区不混合 & 轨迹短、步长/算法或拓扑冻结 & 拓扑历史、不同扇区、自相关 & 用接受率替代采样充分性\\
+Clover 改进后仍有线性 \(a\) 趋势 & 系数/链接归一化不一致、算符未改进 & 自由场、Ward 恒等式、\(c_{\rm SW}\) 约定 & 称为纯统计波动\\
+不同 \(u_0\) 或不同 Clover 符号给出不同连续极限 & 作用量与算符方案混用 & 固定生成元、\(U/u_0\) 和 \(F\) 归一化 & 混合方案中心值\\
+自重整化结果依赖 \(z_0\) & 单格距不可辨识、端点对数未处理 & 多格距联合、不同短距点和 SDR/hybrid 交叉 & 宣称已经消除所有重整子\\
+流化后短距结构被抹平 & \(r_f\) 接近或大于 \(z,b_T,\Lambda^{-1}\) & 扫描多个流时并检查重叠区 & 把流化当成万能量减除\\
+\bottomrule
+\end{longtable}
+
+\section{证据等级}
+
+\begin{enumerate}
+  \item \textbf{定义级：}公式、算符和约定可由代数及规范变换直接检验。
+  \item \textbf{自由场级：}链接、场强、传播子、加倍模和 Clover 系数可在恒等链接上复核。
+  \item \textbf{算法级：}采样、残差、自相关和极限扫描给出可重复日志。
+  \item \textbf{发表数值级：}系综参数与物理数来自来源报告；未重跑时只称“来源报告值”。
+  \item \textbf{物理论述级：}只有定义、算法、重正化、匹配和极限门均通过，才允许把结果称为目标物理量。
+\end{enumerate}
+
+\noindent\textbf{结论.} 格点 QCD 的精度不是由某一个改进项或某一个求解器单独决定，而由以下链条共同决定：规范定义与场强归一化、离散化和对称性、标度设定、采样与谱学、非定域算符的 UV/rapidity 结构、连续与无穷动量极限。任何一环缺失，后续数值都只能作为诊断或中间结果。

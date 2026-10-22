@@ -1,0 +1,511 @@
+\chapter{关联函数、谱学与有限体积}\label{sec:b02-correlators}
+
+本节把强子质量、跃迁矩阵元、激发态控制和有限体积散射组织为同一条可审计链条。核心对象不是某一个拟合函数，而是 Euclidean 关联函数及其在有限体积哈密顿量本征态上的谱表示。不同计算步骤改变的是算符基、源汇结构或统计估计；它们都不改变目标矩阵元的定义。
+
+\section{两点函数、谱表示与有效质量}\label{subsec:b02-two-point}
+
+设源算符 \(O_s\) 在时间 \(0\) 产生指定量子数的态，汇算符 \(O_\Gamma\) 在时间 \(t\) 湮灭该态，并投影到空间动量 \(\mathbf p\)。两点关联函数定义为
+\begin{equation}
+  C_2(t;\mathbf p)
+  =\sum_{\mathbf x}e^{-i\mathbf p\cdot\mathbf x}
+  \left\langle O_\Gamma(\mathbf x,t)O_s^\dagger(\mathbf 0,0)\right\rangle .
+  \label{eq:b02-two-point}
+\end{equation}
+在有限体积中插入哈密顿量本征态完备集并取 \(t>0\)，得到
+\begin{equation}
+  C_2(t;\mathbf p)
+  =\sum_n A_n(\mathbf p)e^{-E_n(\mathbf p)t},
+  \qquad
+  A_n(\mathbf p)
+  =\langle 0|O_\Gamma(\mathbf p)|n,\mathbf p\rangle
+  \langle n,\mathbf p|O_s^\dagger(\mathbf 0)|0\rangle
+  \label{eq:b02-two-point-spectral}
+\end{equation}
+的前提是源和汇使用同一组态、同一动量投影以及彼此相容的归一化。若源汇相同，\(A_n\) 化为正定的模方；若源汇不同，则必须保留两个 overlap 的乘积。最低能级不是“某个算符的质量”，而是该量子数扇区中与所用算符有非零交叠的最低哈密顿量本征态。
+
+当时间方向长度为 \(N_T\) 且采用周期边界条件时，前向与后向传播同时存在。对自共轭通道，基态贡献可写成
+\begin{equation}
+  C_2(t)\simeq A_0\left[
+  e^{-E_0t}+e^{-E_0(N_T-t)}
+  \right],
+  \label{eq:b02-cosh}
+\end{equation}
+其中忽略的是高态和有限体积混合。相应的有效质量不能无条件使用开放边界公式。对周期数据，应在 \(\cosh\) 模型上拟合，或由
+\begin{equation}
+  \frac{C_2(t)}{C_2(t+1)}
+  =
+  \frac{\cosh\!\left[E_{\rm eff}(t-N_T/2)\right]}
+       {\cosh\!\left[E_{\rm eff}(t+1-N_T/2)\right]}
+  \label{eq:b02-periodic-meff}
+\end{equation}
+数值求解 \(E_{\rm eff}\)。在远离时间边界的平台区，开放边界近似
+\begin{equation}
+  E_{\rm eff}(t+\tfrac12)
+  =\frac1a\ln\frac{C_2(t)}{C_2(t+1)}
+  \label{eq:b02-meff}
+\end{equation}
+才可作为诊断，而不是最终拟合的替代品。平台只说明当前模型、当前源汇和当前误差下高态贡献较小；它不证明算符基已经覆盖了整个谱。
+
+信噪比必须与信号衰减分开讨论。对零动量核子型两点函数，渐近信噪比常写成
+\begin{equation}
+  \frac{\text{signal}}{\text{noise}}
+  \sim e^{-(m_N-\tfrac32m_\pi)t}.
+  \label{eq:b02-nucleon-snr}
+\end{equation}
+这是由信号和规范噪声不同的指数行为造成的。对某些同位旋矢量介子道，相对噪声可远弱于式~\eqref{eq:b02-nucleon-snr}；不能仅凭“图是连通的”就断言信噪比按 \(e^{-m_\pi t}\) 衰减。高动量核子还会受到动量投影、源汇 overlap 和 excited-state contamination 的联合限制。
+
+最简单的介子和核子内插算符分别是
+\begin{equation}
+  O_{\pi^+}=\bar d^a\gamma_5u^a,
+  \qquad
+  O_N=\epsilon^{abc}u_a^T C\gamma_5d_b\,P_+u_c,
+  \qquad
+  P_+=\frac{1+\gamma_4}{2}.
+  \label{eq:b02-interpolators}
+\end{equation}
+色指标必须缩并为单态，Dirac 结构决定 \(J^{PC}\)，味组合决定同位旋和味单态性质。更一般的算符基还可包含不同涂抹半径、协变导数和立方群不可约表示投影。算符数量增加可以改善变分覆盖，但也会放大协方差估计误差；不能把“加入更多算符”当作单调改进。
+
+\section{三点函数、Wick 收缩与矩阵元提取}\label{subsec:b02-three-point}
+
+在源、流插入与汇满足 \(0<\tau<t_s\) 时，三点函数写为
+\begin{equation}
+  C_3(t_s,\tau;\mathbf p_f,\mathbf p_i)
+  =
+  \sum_{\mathbf x_f,\mathbf x_J}
+  e^{-i\mathbf p_f\cdot\mathbf x_f}
+  e^{i(\mathbf p_f-\mathbf p_i)\cdot\mathbf x_J}
+  \left\langle
+  O_f(\mathbf x_f,t_s)\,
+  J(\mathbf x_J,\tau)\,
+  O_i^\dagger(\mathbf 0,0)
+  \right\rangle .
+  \label{eq:b02-three-point}
+\end{equation}
+插入完备态后，严格的谱展开为
+\begin{equation}
+  C_3(t_s,\tau)
+  =\sum_{m,n}
+  \langle 0|O_f|m\rangle
+  \langle m|J|n\rangle
+  \langle n|O_i^\dagger|0\rangle
+  e^{-E_m(t_s-\tau)}e^{-E_n\tau}.
+  \label{eq:b02-three-spectral}
+\end{equation}
+当 \(t_s\to\infty\) 且插入点同时远离源和汇时，\(m=n=0\) 项主导。有限 \(t_s\) 下，最先残留的通常是 \(m=0,n>0\) 或 \(m>0,n=0\) 的跃迁项，而非 \(m,n>0\) 的双高态项；因此只把拟合窗口向大 \(t_s\) 平移而不检查插入点位置，不能保证污染受控。
+
+对同位旋矢量介子，交换两个源汇算符后，连接收缩可以写成
+\begin{equation}
+  C_{2,\mathrm{conn}}(t)
+  =-\operatorname{Tr}\!\left[
+  \Gamma_{\rm snk}S_f(t,0)\,
+  \Gamma_{\rm src}S_g(0,t)
+  \right],
+  \label{eq:b02-meson-connected}
+\end{equation}
+其中 \(S_f=D_f^{-1}\)，迹同时作用于颜色、Dirac 与空间指标。负号来自一个闭合费米子环。对味单态或同一味的双线性插入，还必须加入形如
+\begin{equation}
+  C_{2,\mathrm{disc}}(t)
+  =\sum_q\kappa_q
+  \operatorname{Tr}\!\left[\Gamma_{\rm snk}S_q(t,t)\right]
+  \operatorname{Tr}\!\left[\Gamma_{\rm src}S_q(0,0)\right]
+  \label{eq:b02-meson-disconnected}
+\end{equation}
+的断开项；系数 \(\kappa_q\) 由算符的味组合决定。精确 \(SU(2)\) 同位旋极限下，同位旋矢量组合中的 \(u,d\) 断开项相消，因此该类通道主要保留连接收缩。该结论不能自动推广到味单态、奇异夸克或胶子算符。
+
+介子连接三点收缩的骨架为
+\begin{equation}
+  C_{3,\mathrm{conn}}
+  =-\operatorname{Tr}\!\left[
+  \Gamma_{\rm snk}S_q(t_s,\tau)\,
+  \Gamma_JS_q(\tau,0)\,
+  \Gamma_{\rm src}S_q(0,t_s)
+  \right],
+  \label{eq:b02-meson-three-connected}
+\end{equation}
+具体符号和 Gamma 顺序取决于算符、复共轭以及传播子方向。实现审计应通过小矩阵或已知自由场恒等式验证，而不能只凭代码中负号的位置判断。核子三点函数还需对三个夸克线和 \(\epsilon^{abc}\) 配对作完整反对称化；把核子当成三条互不相关的介子线会漏掉交换项。
+
+胶子插入是一个规范算符。其三点函数通常写成连续测量与真空减除的组合：
+\begin{equation}
+  C_{3,g}
+  =\left\langle
+  \mathcal G_g(\tau)\,\mathcal C_N(t_s)
+  \right\rangle
+  -\left\langle\mathcal G_g(\tau)\right\rangle
+  \left\langle\mathcal C_N(t_s)\right\rangle ,
+  \label{eq:b02-glue-vacuum}
+\end{equation}
+其中 \(\mathcal G_g\) 包含场强、Wilson 线和颜色指标，\(\mathcal C_N\) 是核子两点收缩。减除必须与源、时间片和组态结构相容；只减去组态平均全局常数可能留下源相关偏置。
+
+最常用的同动量比值为
+\begin{equation}
+  R(t_s,\tau)
+  =\frac{C_3(t_s,\tau)}{C_2(t_s)}.
+  \label{eq:b02-ratio-simple}
+\end{equation}
+对 \(p_f\neq p_i\) 的形状因子，应改用两端动量匹配的形式
+\begin{equation}
+  R(t_s,\tau;\mathbf p_f,\mathbf p_i)
+  =\frac{C_3(t_s,\tau;\mathbf p_f,\mathbf p_i)}
+  {\sqrt{C_2(t_s;\mathbf p_f)C_2(t_s;\mathbf p_i)}}\,
+  \mathcal K^{-1},
+  \label{eq:b02-ratio-transition}
+\end{equation}
+其中 \(\mathcal K\) 汇集已知的运动学、源汇重叠和算符归一化因子。若忽略 \(\mathcal K\)，平台值可能只差一个常数，却会被误读为物理 \(Q^2\) 依赖。
+
+在基态加一个有效高态的参数化下，源端和汇端跃迁系数一般不同：
+\begin{equation}
+  R(t_s,\tau)
+  =c_0
+  +c_f e^{-\Delta E(t_s-\tau)}
+  +c_i e^{-\Delta E\tau}
+  +c_{ee}e^{-\Delta E t_s}
+  +\cdots .
+  \label{eq:b02-two-state-general}
+\end{equation}
+只有在特定对称性或模型假设下才有 \(c_f=c_i\)。对胶子算符、不同源汇 smear 或不同动量，强制两端共用一个系数会制造模型偏差。拟合应在每个 bootstrap replica 内完成，并扫描 \(\tau\) 排除数、\(t_s^{\min}\) 与高态数目。
+
+顺序源方法把汇端 Dirac 结构与源传播子组织成一个新的汇点源。若 \(D_q\Sigma_q=\eta_{\rm seq}\)，则 \(\eta_{\rm seq}\) 在汇时间片非零，并包含汇动量、自旋投影以及源传播子。把 \(\Sigma_q\) 传回插入时间片后，再与局部流或胶子算符收缩。其成本可概括为
+\begin{equation}
+  N_{\rm solve}^{3{\rm pt}}
+  \simeq N_{\rm source}
+  +N_{\rm sink\;momentum}
+  +N_{\rm extra},
+  \label{eq:b02-sequential-cost}
+\end{equation}
+其中 \(N_{\rm extra}\) 取决于插入结构、算符基和是否需要独立顺序源。改变初态动量通常只改变投影相因子；改变末态动量、汇投影或汇算符通常要求新的顺序源。因而“顺序源把求逆次数从两次降为一次”只描述同一固定源汇结构的局部优化，不是跨所有动量共享的普遍成本公式。
+
+\section{扩展算符基与广义本征值问题}\label{subsec:b02-gevp}
+
+对 \(N\) 个同量子数算符构造交叉关联矩阵
+\begin{equation}
+  C_{ij}(t;\mathbf p)
+  =\left\langle O_i(t,\mathbf p)O_j^\dagger(0,\mathbf p)\right\rangle
+  =\sum_n Z_{in}Z_{jn}^*e^{-E_nt}.
+  \label{eq:b02-correlation-matrix}
+\end{equation}
+GEVP 定义为
+\begin{equation}
+  C(t)v_n(t,t_0)
+  =\lambda_n(t,t_0)C(t_0)v_n(t,t_0),
+  \qquad n=1,\dots,N.
+  \label{eq:b02-gevp}
+\end{equation}
+当 \(C(t_0)\) Hermitian 正定时，可作 Cholesky 分解 \(C(t_0)=LL^\dagger\)，并把问题化为标准 Hermitian 问题
+\begin{equation}
+  \widetilde C(t)
+  =L^{-1}C(t)L^{\dagger\,-1},
+  \qquad
+  \widetilde C(t)u_n=\lambda_nu_n,
+  \qquad
+  v_n=L^{\dagger\,-1}u_n.
+  \label{eq:b02-cholesky}
+\end{equation}
+这比对 \(C(t_0)\) 显式求逆更适合处理接近线性相关的算符基。有限统计下应先取 Hermitian 部分 \(C_H=(C+C^\dagger)/2\)，但若复关联矩阵的虚部具有物理含义，不能进一步丢弃为纯实矩阵。
+
+若算符基恰好覆盖前 \(N\) 个态且 overlap 矩阵可逆，则
+\begin{equation}
+  C(t)=ZD(t)Z^\dagger,
+  \qquad
+  D(t)=\operatorname{diag}(e^{-E_1t},\dots,e^{-E_Nt}),
+  \label{eq:b02-z-factorization}
+\end{equation}
+从而
+\begin{equation}
+  \lambda_n(t,t_0)=e^{-E_n(t-t_0)}
+  \label{eq:b02-gevp-exact}
+\end{equation}
+没有高态修正。真实系统有无穷多个态，所谓“GEVP 误差”主要是算符基未覆盖的态泄漏。对固定 \(t-t_0\)，可以把主关联函数写成基态加残余项：
+\begin{equation}
+  \lambda_n(t,t_0)
+  =(1-A_n)e^{-E_n(t-t_0)}
+  +A_ne^{-E_n'(t-t_0)},
+  \label{eq:b02-principal}
+\end{equation}
+并定义偏离函数
+\begin{equation}
+  \delta_n(t,t_0)
+  =\lambda_n(t,t_0)e^{E_n(t-t_0)}-1
+  =A_n\left[e^{-(E_n'-E_n)(t-t_0)}-1\right].
+  \label{eq:b02-departure}
+\end{equation}
+在最低未表示态主导时，固定 \(t-t_0\) 的修正幅度近似按
+\begin{equation}
+  |\delta_n(t,t_0)|
+  \sim
+  \exp\!\left[-(E_N-E_n)t_0\right]
+  \label{eq:b02-t0-suppression}
+\end{equation}
+压低，其中 \(E_N\) 表示算符基之外最低相关态的能量。该式给出选择 \(t_0\) 的系统误差下界，但更大的 \(t_0\) 会使 \(C(t_0)\) 的信号更小、相对统计噪声更大，并缩短可用于 \(t>t_0\) 的拟合窗口。
+
+在变分意义上，Rayleigh 商
+\begin{equation}
+  R(v;t,t_0)
+  =\frac{v^\dagger C(t)v}{v^\dagger C(t_0)v}
+  \label{eq:b02-rayleigh}
+\end{equation}
+是各 \(e^{-E_k(t-t_0)}\) 的凸组合，因此最大本征值满足
+\begin{equation}
+  E_0^{\rm eff}(t,t_0)
+  \equiv\frac1{t-t_0}\ln\frac1{\lambda_{\max}(t,t_0)}
+  \ge E_0.
+  \label{eq:b02-variational-bound}
+\end{equation}
+有限统计数据不一定显示严格单调下降；平台判据必须与协方差、\(t_0\) 扫描和基大小扫描联合使用。相邻时间片的有效质量采用同一 \(t_0\)：
+\begin{equation}
+  E_n^{\rm eff}(t,t_0)
+  =\frac1a\ln
+  \frac{\lambda_n(t,t_0)}{\lambda_n(t+1,t_0)}.
+  \label{eq:b02-gevp-meff}
+\end{equation}
+不要用 \(t_0+1\) 替换分母中的时间片；否则得到的是混合了参考时间变化的量。
+
+标准数值库返回满足 \(v_m^\dagger C(t_0)v_n=\delta_{mn}\) 的 \(B\)-正交归一本征向量。若下游代码又做欧氏归一化，则非对角性可以保持，但对角元一般不再是 1。把本征向量用于三点投影或态追踪前，应显式恢复
+\begin{equation}
+  \widehat v_n
+  =\frac{v_n}{\sqrt{v_n^\dagger C(t_0)v_n}}.
+  \label{eq:b02-b-normalization}
+\end{equation}
+近简并时，按本征值序号追踪态会跳态；可用跨时间或跨体积的重叠矩阵
+\begin{equation}
+  \mathcal O_{nm}
+  =\left|\widehat v_n^\dagger(t)C(t_0)\widehat v_m(t+\Delta t)\right|
+  \label{eq:b02-state-tracking}
+\end{equation}
+识别态的延续。若对角重叠不显著大于非对角项，应报告简并和追踪失败，而不应强行连线。
+
+\paragraph{GEVP 操作顺序.}
+输入相关矩阵后，先检查每个时间片和每个 replica 的 Hermitian 性、正定性与条件数；再在固定 \(t_0\) 下求解并排序；随后构造有效质量或主关联函数拟合；最后扫描 \(t_0\)、基大小和拟合窗口。条件化必须记录在案。对高条件数的 replica，可做 SVD 截断或正则化并把结果差异纳入系统误差；静默丢弃这些 replica 会引入选择偏差。
+
+\paragraph{方法回归证据的边界.}
+上游固定种子解析谱模型曾比较直接对角化与 GEVP，并得到较大 \(t_0\) 更早收敛的图件；该模型的谱精确性、\(t_0\) 压低和 Cholesky 稳定性可以作为算法回归，但不是真实系综上的物理验证。真实数据的最优 \(t_0\)、大基条件数和带噪态追踪仍需独立研究。
+
+\section{蒸馏、perambulator 与计算结构}\label{subsec:b02-distillation}
+
+蒸馏从三维协变 Laplace 算符的低模开始：
+\begin{equation}
+  -\nabla^2(t)v_k(t)=\lambda_k(t)v_k(t),
+  \qquad
+  v_k^\dagger v_l=\delta_{kl}.
+  \label{eq:b02-laplace}
+\end{equation}
+保留 \(N_v\) 个最低模，定义
+\begin{equation}
+  \Box(t)=V(t)V^\dagger(t),
+  \qquad
+  V=(v_1,\dots,v_{N_v}),
+  \qquad
+  \Box^2=\Box.
+  \label{eq:b02-distillation-projector}
+\end{equation}
+低模截断时 \(\Box\) 是投影而非完整酉变换；只有 \(N_v\) 等于空间—颜色—自旋全维数时，\(V\) 才可作为完整基，\(\Box\) 回到单位算符。因而“蒸馏是酉编码”只能在完整基极限下成立，不能用来暗示截断没有信息损失。
+
+在低模空间中定义 perambulator
+\begin{equation}
+  \tau_{\alpha\beta}^{(p,p')}(t',t)
+  =V^{(p)\dagger}(t')D_{\alpha\beta}^{-1}(t',t)V^{(p')}(t).
+  \label{eq:b02-perambulator}
+\end{equation}
+质量、边界条件或规范组态一旦改变，\(\tau\) 必须重新计算。插值算符的几何信息则被压缩进 elemental \(\Phi\)。介子两端函数是 \(\Phi,\tau\) 的迹组合；核子包含三个 perambulator 与两个交换项；三点函数还需广义 perambulator
+\begin{equation}
+  \mathcal J_{\alpha\beta}(t_f,t,t_i)
+  =\left[
+  V^\dagger(t_f)D^{-1}(t_f,t)\Gamma(t)D^{-1}(t,t_i)V(t_i)
+  \right]_{\alpha\beta}.
+  \label{eq:b02-generalized-perambulator}
+\end{equation}
+它把源侧传播、流顶点和汇侧传播合成一个低模对象。对胶子流，顶点还携带场强、Wilson 线和颜色表示；不能把纯夸克双线性流的 Gamma 结构直接套用。
+
+高动量核子可用带相位的本征矢
+\begin{equation}
+  \widetilde v_k(\mathbf x,t)
+  =e^{i\boldsymbol\zeta\cdot\mathbf x}v_k(\mathbf x,t),
+  \qquad
+  \boldsymbol\zeta\in\frac{2\pi}{L}\mathbb Z^3
+  \label{eq:b02-momentum-smearing}
+\end{equation}
+把低模基集中到目标动量附近。相位必须是格点允许动量的整数倍，并在源汇两端一致使用。只改变汇端相位会使动量投影和 overlap 不再对应同一个平移不变算符。
+
+蒸馏的收益来自复用和因子化，而不是一个普遍成立的复杂度下降。传播子的求解次数随 \(N_v\)、Dirac 分量和源汇需求增长；收缩费用依两点、三点、核子交换图和非连通环拓扑表现为 \(N_v\) 的不同幂次。若 \(N_v\) 接近全空间维数，预计算、存储和收缩可能比直接方法更昂贵。合格报告至少应给出 \(N_v\)、算符基大小、源数、汇动量数、缓存策略以及与完整基或直接传播子的小体积对照。
+
+\section{有限体积散射、共振与衰变}\label{subsec:b02-finite-volume}
+
+单体强子质量在 \(m_\pi L\gg1\) 时的有限体积修正通常指数小；两体相互作用则可在阈值附近产生 \(O(L^{-3})\) 的能级移动。有限体积在这里不是只应被外推掉的误差，而是散射信息的载体。Maiani--Testa 定理说明，大体积 Euclidean 关联函数不能直接替代非零相对动量的 Minkowski 散射振幅；Lüscher 方法改为测量多个体积下的离散能级。
+
+对质心系中的两个相同粒子，令
+\begin{equation}
+  q=\frac{kL}{2\pi},
+  \qquad
+  Z_{00}(s;q^2)
+  =\frac{1}{\sqrt{4\pi}}
+  \sum_{\mathbf n\in\mathbb Z^3}
+  \frac{1}{(|\mathbf n|^2-q^2)^s},
+  \label{eq:b02-zeta}
+\end{equation}
+其中 \(s=1\) 由解析延拓定义。在本文相位约定下，最低 \(A_1^+\) 道的 s 波量子化条件可写为
+\begin{equation}
+  \tan\delta_0(k)
+  =-\frac{\pi^{3/2}q}{Z_{00}(1;q^2)},
+  \qquad
+  W_n=2\sqrt{m^2+k_n^2},
+  \label{eq:b02-luscher-swave}
+\end{equation}
+并对反三角函数分支作连续展开。不同文献可能把负号写在 \(\phi\) 或 \(\delta\) 的定义中；比较相移前必须统一约定。连续展开不是数学装饰，共振附近若选错分支会把 \(\delta\) 的平台误读。
+
+阈值附近，按本批次 \(a_0=\lim_{k\to0}\delta_0(k)/k\) 的约定，
+\begin{equation}
+  W
+  =2M_\pi
+  -\frac{4\pi a_0}{M_\pi L^3}
+  \left[
+  1+c_1\frac{a_0}{L}
+  +c_2\frac{a_0^2}{L^2}
+  +O(L^{-3})
+  \right]
+  +O(L^{-6}),
+  \label{eq:b02-threshold}
+\end{equation}
+其中 \(c_1=-2.837297\)、\(c_2=6.375183\) 是立方几何常数。若采用相反散射长度符号，整项符号也随之改变。该展开要求近阈值、短程相互作用和单道主导；不能用它描述远离阈值的宽共振。
+
+对 \(\rho\to\pi\pi\) 一类的 \(p\) 波共振，需要非零总动量和小群不可约表示来区分分波。典型流程是先用扩展算符基和 GEVP 提取 \(I=1\)、\(J^{PC}=1^{--}\) 道的 \(W_n(L)\)，再由运动框架 Lüscher 关系得到 \(\delta_1(k_n)\)，最后拟合
+\begin{equation}
+  \frac{k^3}{W}\cot\delta_1(k)
+  =\frac{6\pi}{g_{\rho\pi\pi}^2}
+  \left(m_\rho^2-W^2\right),
+  \qquad
+  W=2\sqrt{m_\pi^2+k^2}.
+  \label{eq:b02-rho-bw}
+\end{equation}
+由截距和斜率可提取 \(m_\rho\) 与 \(g_{\rho\pi\pi}\)，再由
+\begin{equation}
+  \Gamma_\rho
+  =\frac{g_{\rho\pi\pi}^2}{6\pi m_\rho^2}k_\rho^3,
+  \qquad
+  k_\rho=\sqrt{m_\rho^2/4-m_\pi^2}
+  \label{eq:b02-rho-width}
+\end{equation}
+得到宽度。这里的 \(W\) 是双粒子不变能量，不是简单的单体有效质量平台。
+
+弱衰变还多一层归一化问题。Lellouch--Lüscher 关系把有限体积矩阵元 \(A_L\) 与无穷体积振幅联系起来：
+\begin{equation}
+  \left|A_\infty(k)\right|^2
+  =\mathcal F(k,L)\left|A_L\right|^2,
+  \label{eq:b02-ll}
+\end{equation}
+其中 \(\mathcal F\) 由同一道的相移与 Lüscher 函数对动量的导数结构确定。精确表达式依赖 \(K\to\pi\pi\) 道、总动量、irrep、相空间和态归一化，不能把某个单道公式当作普适常数。
+
+有限体积分析的主要失效边界是：超过非弹性阈值仍只用单道公式；宽共振使有限体积能级无法分离；\(m_\pi L\) 太小导致指数修正不可忽略；态追踪在 avoided crossing 处断线；以及相移分支或散射长度符号未统一。出现这些情况时，应降级为“有限体积能谱结果”或模型依赖的共振参数，而不是宣称已得到无穷体积振幅。
+
+\section{形状因子、衰变常数与软函数}\label{subsec:b02-form-factors}
+
+强子形状因子是三点函数最直接的物理出口。对 \(\pi^+\) 的电磁流，
+\begin{equation}
+  \left\langle\pi^+(p_f)|V_\mu|\pi^+(p_i)\right\rangle
+  =(p_f+p_i)_\mu F_\pi(Q^2),
+  \qquad
+  Q^2=-(p_f-p_i)^2.
+  \label{eq:b02-pion-ff}
+\end{equation}
+在 \(Q^2\to0\) 附近，
+\begin{equation}
+  F_\pi(Q^2)
+  =1-\frac16\langle r_\pi^2\rangle Q^2+O(Q^4),
+  \label{eq:b02-charge-radius}
+\end{equation}
+因此电荷半径依赖小 \(Q^2\) 端点数据的可靠外推。格点动量只能取离散值，靠近零点的插值必须与连续极限和有限体积误差一起报告。
+
+对自旋 \(1/2\) 核子，电磁矩阵元可分解为
+\begin{equation}
+  \left\langle N(p_f)|V_\mu|N(p_i)\right\rangle
+  =\bar u(p_f)\left[
+  \gamma_\mu F_1(Q^2)
+  +\frac{i\sigma_{\mu\nu}q^\nu}{2m_N}F_2(Q^2)
+  \right]u(p_i),
+  \label{eq:b02-nucleon-ff}
+\end{equation}
+并定义
+\begin{equation}
+  G_E(Q^2)=F_1(Q^2)-\frac{Q^2}{4m_N^2}F_2(Q^2),
+  \qquad
+  G_M(Q^2)=F_1(Q^2)+F_2(Q^2).
+  \label{eq:b02-sachs}
+\end{equation}
+Sachs 公式中的相对符号由 \(q=p_f-p_i\)、\(\sigma_{\mu\nu}\) 和 metric 约定共同决定；换用相反度规时不能只改一个符号。轴矢结构可写为
+\begin{equation}
+  \left\langle N(p_f)|A_\mu^a|N(p_i)\right\rangle
+  =\bar u(p_f)\left[
+  \gamma_\mu\gamma_5G_A(Q^2)
+  +\frac{q_\mu}{2m_N}\gamma_5G_P(Q^2)
+  \right]\frac{\tau^a}{2}u(p_i).
+  \label{eq:b02-axial-ff}
+\end{equation}
+\(G_A(0)\)、诱导赝标量项和 PCAC 关系必须使用同一套流重整化与手征约定。
+
+赝标量介子衰变常数的两种常见归一化为
+\begin{equation}
+  \left\langle0|A_\mu^a(0)|\pi^b(P)\right\rangle
+  =i\delta^{ab}F_\pi P_\mu,
+  \qquad
+  f_\pi=\sqrt2\,F_\pi,
+  \label{eq:b02-decay-constant}
+\end{equation}
+其中 \(F_\pi\simeq92.4\) MeV 与 \(f_\pi\simeq130.4\) MeV 是同一物理量的不同约定。纯轻子宽度在采用 \(F_\pi\) 时写成
+\begin{equation}
+  \Gamma(\pi^+\to\ell^+\nu_\ell)
+  =\frac{G_F^2}{8\pi}|V_{ud}|^2F_\pi^2
+  m_\ell^2m_\pi
+  \left(1-\frac{m_\ell^2}{m_\pi^2}\right)^2.
+  \label{eq:b02-pion-width}
+\end{equation}
+如果不先统一 \(F_\pi/f_\pi\)，由宽度反推 CKM 元会系统性偏差 \(\sqrt2\)。
+
+中性介子混合的 bag 参数可定义为
+\begin{equation}
+  \left\langle\bar K^0|O_{LL}|K^0\right\rangle
+  =\frac83M_K^2F_K^2B_K(\mu),
+  \qquad
+  O_{LL}=(\bar s\gamma_\mu(1-\gamma_5)d)^2.
+  \label{eq:b02-bk}
+\end{equation}
+\(B_K\) 是重整化方案和标度相关的矩阵元参数，不能与 scheme-independent 的物理振幅混写。四夸克算符混合、手征性压低的矩阵元和幂次发散减除都必须显式进入误差预算。
+
+大动量介子形状因子提供另一条 TMD 软函数通道。四夸克连通矩阵元可因子化为
+\begin{equation}
+  F(b_\perp,P^z)
+  =S_I(b_\perp)
+  \int_0^1\!\mathrm dx\,\mathrm dx'\,
+  H(x,x',P^z)
+  \Phi^\dagger(x',b_\perp,-P^z)
+  \Phi(x,b_\perp,P^z)
+  +O\!\left(\frac1{(P^z)^2}\right),
+  \label{eq:b02-soft-factorization}
+\end{equation}
+其中 \(S_I\) 是内禀软函数，\(H\) 是硬核。只有在指定 Fierz 基、波函数归一化和领头阶硬核时，才可写
+\begin{equation}
+  S_I(b_\perp)
+  =2N_c\frac{F(b_\perp,P^z)}
+  {\left|\phi(0,b_\perp,P^z)\right|^2}
+  +O\!\left(\alpha_s,\frac1{(P^z)^2}\right),
+  \qquad
+  \phi(0,b_\perp,P^z)=\int_0^1\!\mathrm dx\,\Phi(x,b_\perp,P^z).
+  \label{eq:b02-soft-lo}
+\end{equation}
+该式要求连通插入、特定算符组合和足够大的 \(P^z\)。把同一比值直接用于胶子软函数、非连通插入或不同 Fierz 结构会产生未控制的匹配误差。
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{B02 形状因子与衰变观测量所需的最小条件。}
+\label{tab:b02-form-factor-conditions}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.7cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{3.7cm}}
+\toprule
+对象 & 物理定义与关键输入 & 主要失效模式 \\
+\midrule
+\(\pi\) 电磁形状因子 & 守恒流、两态归一化、\(Q^2\to0\) 外推 & 源汇动量不匹配、流重整化错误、端点外推偏差 \\
+核子 \(G_E,G_M\) & \(F_1,F_2\)、Sachs 变换、物理 \(m_\pi\) 极限 & 高 \(Q^2\) 信噪比、激发态污染、非连通奇异插入遗漏 \\
+\(G_A,G_P\) & 轴矢流、PCAC、手征与重整化约定 & 流归一化、赝标量极点、基态重叠 \\
+\(F_\pi,F_K\) & 真空—介子矩阵元、\(F_\pi/f_\pi\) 约定 & 约定混用、连续/手征外推、有限体积 \\
+\(B_K\) & 四夸克算符混合、方案相关 bag 参数 & 幂次发散减除、手征性混合、标度混用 \\
+\(S_I(b_\perp)\) & 四夸克连通形状因子、Fierz 基、硬核与波函数归一化 & 非连通插入、高扭度、\(P^z\) 平台不足 \\
+\bottomrule
+\end{tabularx}
+\end{table}

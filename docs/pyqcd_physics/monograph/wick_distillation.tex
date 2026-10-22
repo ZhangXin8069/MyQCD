@@ -1,0 +1,133 @@
+\chapter{Wick 图拓扑、蒸馏与验证清单}\label{sec:b02-appendix}
+本附录把正文用到的“费曼图”还原为 Wick 收缩拓扑。这里的线不是微扰展开中的虚粒子传播线，而是格点组态上的夸克传播子、闭合费米子环和 Wilson 线。图的有用之处在于保证算符、交换符号、闭合环和真空减除没有被遗漏；图本身不能替代代数式。
+
+\section{连接、断开与海夸克}\label{subsec:b02-topology}
+
+连接图在源算符与汇算符之间存在连续的费米子线，或至少存在把两者联系起来的收缩。断开图含有一个不参与该源汇连接的闭合费米子环，但它仍通过规范组态平均与其余部分相关联。这个定义是收缩层面的，不应与规范场的连通性、微扰 QCD 图或“是否出现在淬火近似中”混为一谈。
+
+full QCD 的组态权重为
+\begin{equation}
+  Z=\int\mathcal DU\,e^{-S_G[U]}\prod_f\det D_f[U],
+  \label{eq:b02-qcd-weight}
+\end{equation}
+其中行列式描述海夸克对规范场的反馈。淬火近似令
+\begin{equation}
+  \det D_f[U]\longrightarrow1,
+  \label{eq:b02-quench}
+\end{equation}
+即关闭这种反馈。它是组态分布层面的近似，不是“把所有含闭合环的测量项手动设为零”的同义词。淬火数据中可以形式上计算某些闭合收缩，但该理论缺乏完整 QCD 的海夸克动力学和幺正解释。现代物理论文若仍使用部分淬火设置，应明确区分 \(m_{\rm sea}\) 与 \(m_{\rm val}\)，并说明手征外推方案。
+
+对无法直接存储全部对角元 \(S_q(x,x)\) 的闭合环，可用随机源估计
+\begin{equation}
+  \operatorname{Tr}\!\left[\Gamma S_q\right]
+  \simeq
+  \frac1{N_r}\sum_{r=1}^{N_r}
+  \eta_r^\dagger\Gamma S_q\eta_r,
+  \qquad
+  \left\langle\eta_{r,i}^*\eta_{r',j}\right\rangle
+  =\delta_{rr'}\delta_{ij}.
+  \label{eq:b02-stochastic-trace}
+\end{equation}
+迹包括颜色、Dirac 和空间指标。$Z_2$、$U(1)$、时空稀释和低模 deflation 只能降低方差；它们不改变估计的无偏性，也不消除源、时间片和组态之间的相关性。报告应给出随机源类型、稀释方式、求解容差和逐项方差，而不只是总 CPU/GPU 时间。
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{3.5cm}>{\raggedright\arraybackslash}p{3.5cm}>{\raggedright\arraybackslash}p{3.8cm}}
+\caption{B02 常见 Wick 拓扑及其审计点。}\label{tab:b02-topology-atlas}\\
+\toprule
+拓扑 & 代表对象 & 必须保留的结构 & 主要失败模式 \\
+\midrule
+\endfirsthead
+\multicolumn{4}{l}{\small 续表：B02 常见 Wick 拓扑及其审计点。}\\
+\toprule
+拓扑 & 代表对象 & 必须保留的结构 & 主要失败模式 \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+连接介子 & \(\pi^+\) 两点或电磁三点 & 两条味线的闭合迹、Gamma 顺序、交换符号 & 把同位旋矢量断开项或核子交换项漏掉 \\
+连接重子 & 核子两点/三点 & 三条夸克线、\(\epsilon^{abc}\)、交换项 & 只实现一种线配对、自旋投影错位 \\
+单态断开 & 味单态介子、奇异 PDF & 独立闭合环、味系数、随机迹方差 & 只做全局真空减除、忽略源/时间片结构 \\
+胶子插入 & 胶子 PDF、胶子 TMD & 场强与 Wilson 线同一几何、真空减除 & 链路方向、指标顺序或表示归一化错误 \\
+直接 Wilson 线 & 准 PDF & 端点、路径顺序、线性发散 & 端点链接反向、重整化几何不一致 \\
+Staple Wilson 线 & 准 TMD & 三段路径、cusp/pinch-pole 结构、软函数因子 & 把 Wilson 圈减除当完整 TMD 重正化 \\
+四夸克形状因子 & 介子软函数 & 两类双线型、横向分离、连通投影 & Fierz 基或波函数归一化混用 \\
+蒸馏收缩 & perambulator/广义 perambulator & 源汇投影、流顶点、低模截断 & 视 \(VV^\dagger\) 为酉、缓存键缺项 \\
+\end{longtable}
+
+\section{Fourier、准分布与相位约定}\label{subsec:b02-fourier}
+
+空间动量投影定义为
+\begin{equation}
+  O(\mathbf p,t)
+  =\sum_{\mathbf x}e^{-i\mathbf p\cdot\mathbf x}O(\mathbf x,t),
+  \qquad
+  \mathbf p=\frac{2\pi}{L}\mathbf n.
+  \label{eq:b02-momentum-projection}
+\end{equation}
+对有限区间上的准分布，本文采用
+\begin{equation}
+  \widetilde h_\Gamma(z,P^z)
+  =\left\langle P^z\right|\bar q(z)\Gamma W(z,0)q(0)\left|P^z\right\rangle ,
+  \label{eq:b02-quasi-correlator}
+\end{equation}
+\begin{equation}
+  \widetilde q_\Gamma(x,P^z)
+  =\mathcal N_\Gamma^{-1}
+  \int\frac{\mathrm dz}{2\pi}
+  e^{+ixP^zz}
+  \widetilde h_\Gamma^R(z,P^z),
+  \label{eq:b02-quasi-fourier}
+\end{equation}
+其中 \(\mathcal N_\Gamma\) 由算符和端点归一化固定。某些文献使用 \(e^{-ixP^zz}\)；这等价于把 \(x\) 换成 \(-x\)，或在取复共轭时改变相位。比较不同工作前必须统一这一约定。有限区间截断、离散 \(z\)、大 \(zP^z\) 噪声和尾部模型都属于 Fourier 逆问题的一部分；把截断数据直接做离散变换得到的是带窗函数的对象。
+
+准 PDF 的大距离尾部建模应满足量纲、端点和重正化约束。一个常用的再生模型是
+\begin{equation}
+  \widetilde h^R(z,P^z)
+  \sim c_1\lambda^{-d_1}e^{-\lambda/\lambda_0},
+  \qquad
+  \lambda=zP^z,
+  \label{eq:b02-tail-model}
+\end{equation}
+但参数 \(c_1,d_1,\lambda_0\) 与拟合窗口、重正化方案和更高扭度修正相关。尾部外推应做模型平均或系统误差扫描，不能把外推区域当作直接测量平台。
+
+\section{验证矩阵与可验证断言}\label{subsec:b02-validation}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash}p{3.8cm}>{\raggedright\arraybackslash}p{3.8cm}>{\raggedright\arraybackslash}p{3.1cm}}
+\caption{B02 最小验证矩阵。}\label{tab:b02-validation-matrix}\\
+\toprule
+对象 & 不变量或极限 & 失败信号 & 证据应如何记录 \\
+\midrule
+\endfirsthead
+\multicolumn{4}{l}{\small 续表：B02 最小验证矩阵。}\\
+\toprule
+对象 & 不变量或极限 & 失败信号 & 证据应如何记录 \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+两点谱 & 正谱、复共轭、周期 \(\cosh\) 对称 & 负有效质量、端点反号、平台随源汇消失 & \(t_{\min},t_{\max}\)、协方差、\(\chi^2\)、源汇类型 \\
+Wick 收缩 & 每个算符的交换符号、同位旋极限 & 连通/断开项漏减或重复 & 小矩阵、自由场恒等式、拓扑清单 \\
+三点比值 & \(t_s\to\infty\) 与 \(0\ll\tau\ll t_s\) 的稳定平台 & 接触项、两端污染不对称 & 两端独立系数、窗口扫描、replica 传播 \\
+顺序源 & Dirac 方程真残差与汇点相位 & 动量混叠、汇投影错误 & 每源/动量的 matvec 数和真残差 \\
+GEVP & \(B\)-正交归一、Cholesky 残差、态追踪 & 条件数爆炸、排序跳变、向量归一化漂移 & \(t_0\)、基大小、条件数、本征值与本征向量 \\
+蒸馏 & \(N_v\to N_{\rm full}\) 回到直接传播子 & 低模截断伪平台、缓存串味 & 增加 \(N_v\) 扫描、基对照、缓存键和哈希 \\
+Lüscher & 自由极限回到无相互作用量子化 & 分支选错、阈值外仍用单道式 & \(q\) 范围、分支、体积列表、精度 \\
+形状因子 & \(Q^2\to0\) 的守恒荷与电荷半径 & 端点外推驱动半径、流重整化错误 & 流 \(Z\)、动量转移、连续/手征极限 \\
+Fourier & \(z\to-z\) 的厄米性、归一化与端点 & 相位反号、窗函数未报、尾部主导 & 相位约定、窗函数、尾部模型与系统误差 \\
+\end{longtable}
+
+以下断言可由本批次资料直接转化为测试，而不需要真实系综：
+\begin{enumerate}
+  \item 对任意有限个正能态，两点谱必须为正、实、指数衰减；周期边界下的自共轭通道满足式~\eqref{eq:b02-cosh}。
+  \item 同位旋矢量介子的连接收缩在精确 \(SU(2)\) 极限下不含双闭合环断开项；味单态组合一般含有。
+  \item 当算符基与态空间完全匹配时，GEVP 本征值精确为式~\eqref{eq:b02-gevp-exact}；加入未覆盖高态后，偏差由 \(\delta_n\) 度量。
+  \item Cholesky 化归、显式逆矩阵和标准 Hermitian 求解器在小矩阵上必须给出相同本征值；病态矩阵上应记录数值路径差异，而不是只比较默认容差。
+  \item \(B\)-正交归一本征向量在欧氏归一化后一般不再满足 \(V^\dagger C(t_0)V=I\)；投影三点函数前必须显式修正。
+  \item 蒸馏投影满足 \(\Box^2=\Box\)；当 \(N_v\) 等于完整基维数时，perambulator 收缩必须回到直接传播子结果。
+  \item 自由场 \(Z_{00}\) 极限或已知散射长度玩具模型中，Lüscher 映射必须复现指定相移分支；改变 \(\delta\) 符号约定时整条映射应一致改号。
+  \item 形状因子在零动量转移处必须回到对应守恒荷；\(F_\pi/f_\pi\)、Sachs 和流重整化约定在数值比较前必须统一。
+  \item 准分布 Fourier 变换在 \(x\to-x\) 与复共轭下必须与所选相位约定一致；不同归一化只能通过 \(\mathcal N_\Gamma\) 或明确窗函数联系。
+  \item 所有 bootstrap 重采样必须在组态层面完成，并在每个 replica 内重算关联函数、比值、拟合、重正化和 Fourier；只对最终中心值重采样会丢失相关性。
+\end{enumerate}
+
+\paragraph{合并后的最低验收门.}
+一个 B02 结果只有同时具备以下证据才能进入物理结论：源、汇、插入时间和动量定义闭合；Wick 拓扑与真空减除可复核；拟合窗口、\(t_0\)、基大小或 \(N_v\) 有稳定性扫描；统计误差在 replica 内传播；连续极限、有限体积或有限 \(P^z\) 的误差有明确边界；并且明确区分方法回归、所引文献数值与 MyQCD 自己完成的验证。缺少任一项时，应把结果标记为中间矩阵元、诊断量或待验证项，而不是物理形状因子、散射参数或 TMD 软函数。

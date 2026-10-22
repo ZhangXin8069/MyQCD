@@ -1,0 +1,159 @@
+\chapter{GPD 扩展与旧胶子 PDF 代码}
+\section{GPD 的运动学与算符定义}
+
+广义部分子分布同时依赖纵向动量分数 $x$、偏度 $\xi$、动量转移平方 $t$ 和重正化标度 $\mu$。设初末核子动量为 $P_i,P_f$，采用
+\begin{equation}
+  P=\frac{P_i+P_f}{2},
+  \qquad
+  \Delta=P_f-P_i,
+  \qquad
+  t=\Delta^2,
+  \qquad
+  \xi=\frac{P_i^+-P_f^+}{P_i^++P_f^+}.
+  \label{eq:b07-gpdkin}
+\end{equation}
+若文献采用 $\Delta=P_1-P_2$，必须同步交换初末态标签和旋量顺序，不能只改一个符号。
+
+以夸克通道为例，非局域算符为
+\begin{align}
+  \mathcal O_q(z_1,z_2)
+  &=\bar\psi(z_1)\Gamma[z_1,z_2]\psi(z_2),\nonumber\\
+  [z_1,z_2]&=\mathcal P\exp\!\left[
+  ig\int_0^1\mathrm dt\,(z_2-z_1)\cdot A(z_1+t(z_2-z_1))
+  \right].
+  \label{eq:b07-gpdop}
+\end{align}
+一个常用的自旋 $1/2$ 矢量分解写成
+\begin{align}
+  \frac{1}{2P^+}\langle P_f,S_f|
+  &\bar q(-z^-/2)\gamma^+\nonumber\\
+  &\quad\times W(-z^-/2,z^-/2)q(z^-/2)|P_i,S_i\rangle\nonumber\\
+  &=\bar u(P_f,S_f)\left[
+  \gamma^+H^q(x,\xi,t)
+  +\frac{i\sigma^{+\mu}\Delta_\mu}{2M}E^q(x,\xi,t)\right]\nonumber\\
+  &\quad\times u(P_i,S_i).
+  \label{eq:b07-gpddecomp}
+\end{align}
+轴矢和横向通道分别给出带 tilde 与横向 GPD。换文献时，$E$、$\widetilde E$ 和横向 GPD 的符号约定必须整体换算。
+
+夸克 GPD 的支撑区为 $x\in[-1,1]$。$|x|>|\xi|$ 是 DGLAP 区，在 $\xi=0$ 时退化到普通 PDF；$|x|<|\xi|$ 是 ERBL 区，对应夸克-反夸克振幅，不能直接解释成 PDF 的反夸克尾部。常见极限为
+\begin{equation}
+  \begin{aligned}
+  H^q(x,0,0)=q(x),\quad
+  H^q(-x,0,0)=-\bar q(x),\\
+  \widetilde H^q(x,0,0)=\Delta q(x),\quad
+  H_T^q(x,0,0)=\delta q(x).
+  \end{aligned}
+  \label{eq:b07-gpdlimits}
+\end{equation}
+对 $x$ 积分应回到相应形状因子；twist-2 GPD 的 Mellin 矩还满足多项式性。标准 Ji 关系可写成
+\begin{equation}
+  J_q=\frac12\left[A^q_{20}(0)+B^q_{20}(0)\right]
+  =\frac12\int_{-1}^{1}\mathrm dx\,x
+  \left[H^q(x,\xi,0)+E^q(x,\xi,0)\right].
+  \label{eq:b07-ji}
+\end{equation}
+本批次只确认这是标准关系；没有证据表明 PyQCD 已实现该求和规则的数值提取。
+
+\section{从准 GPD 到 GPD：格点链与匹配}
+
+非前行三点函数需要独立的初末态动量。一个与历史审计一致的离散形式是
+\begin{equation}
+  C_3(t_f,\tau;z,P_f,P_i)
+  =\sum_{\vec x,\vec y}
+  e^{-i\vec P_f\cdot\vec x}
+  e^{i(\vec P_f-\vec P_i)\cdot\vec y}
+  \left\langle
+  \mathcal N(\vec x,t_f)\,
+  \mathcal O_\Gamma(z,\vec y,\tau)\,
+  \bar{\mathcal N}(0,0)
+  \right\rangle.
+  \label{eq:b07-gpd3pt}
+\end{equation}
+源、汇和插入必须有独立轴与动量标签。仅仅把局部流替换成带空间 Wilson 线的 VdV，不会自动产生非前行运动学，也不会给出 GPD 的 Lorentz 分解。
+
+准 GPD 与光锥 GPD 的一般匹配含味混合：
+\begin{equation}
+  \begin{pmatrix}\mathcal O_q\\ \mathcal O_g\end{pmatrix}
+  =\begin{pmatrix}
+  C_{qq}&C_{qg}\\ C_{gq}&C_{gg}
+  \end{pmatrix}
+  \otimes
+  \begin{pmatrix}\mathcal O_q^{\rm LC}\\ \mathcal O_g^{\rm LC}\end{pmatrix}
+  +\text{higher twist}.
+  \label{eq:b07-gpdmatching}
+\end{equation}
+味非单态时只有 $C_{qq}$；核子单态必须保留胶子-夸克混合。非前行情形还涉及双 Ioffe 变量的 Fourier 结构，简单把单一 $z$ 变换套到 GPD 会隐藏 $\xi$ 和端点约定。
+
+历史审计的实现状态可以概括为：胶子双场强、直线 Wilson 线、staple、通用 Wick、VdV/VVV 和允许初末态两点函数分离的比值接口存在；通用夸克双局域算符、独立 $P_i/P_f$ 的三点管线、GPD 自旋/洛伦兹投影、非前行 NLO 匹配和真实 GPD 数据不存在。现有前向 PDF/TMD 测试不能证明 GPD。
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{3.2cm}>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{6.4cm}}
+\caption{GPD 扩展的最低验收矩阵。}\label{tab:b07-gpdgates}\\
+\toprule
+门槛 & 通过条件 & 当前证据边界\\
+\midrule
+\endfirsthead
+\toprule
+门槛 & 通过条件 & 当前证据边界\\
+\midrule
+\endhead
+约定 & 固定 $P_i,P_f,P,\Delta,\xi,t$、Fermi 相位、Wilson 方向和 Euclidean 基 & 理论可写，生产链未绑定\\
+算符 & $z=0$ 回局域流；恒等链接回无链双线性；规范变换协变 & 有几何前驱，通用夸克算符缺失\\
+收缩 & 独立动量标签；新增 GPD 图 oracle & 有通用 Wick/PJN oracle，非前行未见\\
+比值 & $\Delta=0$ 或 $\xi=0$ 时回前向结果 & \texttt{ratio\_3pt} 接口可复用，上游数据缺失\\
+重整化 & 同一 $Z$ 在不同动量态上一致，复相位不丢失 & 乘法重正化有理论依据，未接线\\
+匹配 & $\xi=0$ 回前向核；PDF/DA 极限通过 & 只有前向 NLO 核，非前行核未实现\\
+真实数据 & 组态对齐、平台、协方差和体积/格距误差 & 未发现 GPD 数据或验收\\
+\bottomrule
+\end{longtable}
+
+\section{旧版 donghx 胶子 PDF 代码的结构}
+
+旧代码把质子两点函数与胶子 OPE 分开计算，再用比值提取矩阵元。蒸馏部分用 Laplacian 低模投影压缩传播子：
+\begin{equation}
+  \Box_{xy}(t)=\sum_{k=1}^{N_{\rm ev}}v_x^{(k)}(t)v_y^{(k)\dagger}(t),
+  \label{eq:b07-distillation}
+\end{equation}
+子空间传播子为
+\begin{equation}
+  \tau_{\alpha\beta}^{AB}(t_s,t_i)
+  =v^{(A)\dagger}(t_s)D^{-1}_{\alpha\beta}(t_s,t_i)v^{(B)}(t_i).
+  \label{eq:b07-perambulator}
+\end{equation}
+重子块通过 Levi-Civita 收缩三个本征矢量：
+\begin{equation}
+  \Phi_{abc}(P,t)
+  =\sum_{\mathbf x}e^{-iP\cdot\mathbf x}
+  \epsilon_{ijk}v_i^a(\mathbf x,t)v_j^b(\mathbf x,t)v_k^c(\mathbf x,t).
+  \label{eq:b07-vvv}
+\end{equation}
+旧实现逐源时刻和源位置构造 $\Phi$，再以直接项与交换项收缩 quark perambulator，形成源分辨质子两点函数。该结构适合复用，但代码中的动量轴、相位符号、$C\gamma_5\gamma_\mu$ 型和宇称投影必须与 DR 基一起核对。
+
+胶子算符由 Clover 场强、对偶场强和沿 $z$ 的 Wilson 线组成。历史代码依次把场强平移到 $z$、乘反方向链接回 0、插入对偶场强、再乘正方向链接回 $z$，最后取色迹并对空间求和。旧 TeX 把 disconnected 近似写成
+\begin{equation}
+  C_3(\Delta t,z)\propto C_2(\Delta t)\langle\mathcal O(z)\rangle.
+  \label{eq:b07-legacyfactor}
+\end{equation}
+这只能视为因子化候选。实际提取应使用 \eqref{eq:b07-vacuum} 的真空扣除和同一源汇归一化；把 $\langle\mathcal O\rangle$ 直接当成不含真空结构的“OPE 真空期望”，会在非零真空贡献和有限源汇下出错。
+
+\section{旧版 Fourier 与 LO 匹配的解释边界}
+
+旧工作流把坐标空间矩阵元作 sine 变换：
+\begin{equation}
+  \tilde g(x,P_z)=\frac{2P_z}{x}
+  \int_0^{z_{\max}}\mathrm dz\,
+  h(z,P_z)\sin(xP_zz).
+  \label{eq:b07-legacyfourier}
+\end{equation}
+代码只使用 $h(z,P_z)$ 的实部，并在 $x=0$ 置零。该做法依赖目标通道的实部/反对称性；若矩阵元有物理相位或正负 $z$ 耦合，必须先证明投影。匹配层只实现
+\begin{equation}
+  C_{gg}^{\rm LO}(\xi,\mu/P_z)=\delta(1-\xi),
+  \label{eq:b07-legacyLO}
+\end{equation}
+因此在 LO 下 $\tilde g$ 与 $g$ 相同只是最低阶近似；不能把旧代码的 LO 输出当作 NLO 匹配结果。
+
+旧代码的 Clover 公式与展示代码在 $1/(a^2g_0)$ 归一化上存在口径差异，PDF 中的希腊字母和上下标也有抽取损坏。专著应采用“代码返回的裸组合”与“连续场强定义”分开写的策略，并在唯一一个约定表中固定符号。旧报告的参考文献目录和代码片段是历史资产；它没有提供真实数据平台、连续极限或误差预算，因此只能作为附录中的代码考古，而不是物理结果的独立验证。
+
+\section{本附录的状态总结}
+
+GPD 部分应明确写成“理论定义与扩展蓝图已建立，生产链未启动”。旧胶子 PDF 代码部分应明确写成“前向 LaMET 代码考古，验证级别为历史实现”。两类材料都不能被当前胶子 TMD 综述中的一般理论覆盖，也不能反过来证明当前 PyQCD 已经完成 GPD 或物理胶子 TMD-PDF。

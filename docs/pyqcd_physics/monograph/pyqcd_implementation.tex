@@ -1,0 +1,416 @@
+\chapter{PyQCD 的代码架构与执行模型}
+
+\section{从物理对象到模块边界}
+
+PyQCD 的历史实现不是围绕单一“大程序”组织，而是把格点场、关联函数、重正化和极限外推拆成可替换的数组变换。其主数据流可以概括为
+\begin{equation}
+  U_\mu(x)
+  \longrightarrow V_\mu(\tau;x)
+  \longrightarrow \{F_{\mu\nu},\widetilde F_{\mu\nu},W_{\rm st}\}
+  \longrightarrow O(z,b_\perp)
+  \longrightarrow c_0
+  \longrightarrow h_R
+  \longrightarrow \tilde g
+  \longrightarrow g,
+  \label{eq:b07-dataflow}
+\end{equation}
+其中每一步改变的是物理对象或统计估计量，而不是只改变文件格式。代码层的模块边界应据此理解：格点和线性代数属于基础层，场强、Wilson 线和提升/投影属于算符层，传播子收缩与源分辨两点函数属于关联函数层，比值、重正化、匹配和 Fourier 变换属于提取层。把 \eqref{eq:b07-dataflow} 中的任一箭头省略，都不能由相邻模块“自动补齐”。
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{2.7cm}>{\raggedright\arraybackslash}p{5.3cm}>{\raggedright\arraybackslash}p{6.0cm}}
+\caption{PyQCD 历史包结构与物理职责。}\label{tab:b07-architecture}\\
+\toprule
+模块 & 主要内容 & 物理解释与边界\\
+\midrule
+\endfirsthead
+\toprule
+模块 & 主要内容 & 物理解释与边界\\
+\midrule
+\endhead
+\texttt{lattice} & 常数、格距/单位换算、Dirac 矩阵 & 固定表示与量纲；不替代算符归一化\\
+\texttt{tools} & 后端选择、数组适配、HDF5 与旧格式读取 & 使算法与 numpy/cupy/torch 解耦；不保证物理约定一致\\
+\texttt{vertex} & momentum phase、VdV/VVV、蒸馏顶点 & 提供几何与动量投影；单段 Wilson 线顶点不等于完整非局域算符\\
+\texttt{contraction} & Wick 收缩、重子算符、动态收缩、顺序传播子 & 生成关联函数拓扑；必须保留源、汇、插入时刻和独立动量的轴语义\\
+\texttt{operator} & Clover 场强、对偶场强、直线 Wilson 线、胶子 OPE/TMD 基元 & 固定场强符号、Lorentz 指标与路径；不自动给出核子矩阵元\\
+\texttt{renorm} & Wilson flow、TMD 提取、$Z_R$、hybrid、NLO 匹配、外推 & 连接矩阵元与光锥量；其参数化与方案必须同时记录\\
+\texttt{analysis} & Jackknife/bootstrap、meff、三点比值、不相连拟合 & 将组态样本变为估计量与协方差；不能修复上游归一化错误\\
+\texttt{pipeline} & 配置、步骤调度、缓存和产物 & 固化执行顺序与依赖；不等于物理验收\\
+\texttt{parallel} & 元任务规划、MPI 调度、设备绑定和释放 & 按组态/步骤并行；不改变单任务数值算法\\
+\bottomrule
+\end{longtable}
+
+\section{实现链与物理证据链}
+
+历史报告给出了两种容易混淆的“完整”含义。第一种是\emph{实现完整}：入口能够按顺序调用流、算符、比值、重正化、Fourier 和匹配函数，中间数组能够缓存。第二种是\emph{物理完整}：同一 Wilson 线几何下的 UV 重正化、soft/rapidity 减除、色表示、匹配核、多格距/多流时/大动量极限和统计误差全部闭合。前者是后者的必要条件，但远非充分条件。专著应把下表的两类状态分开。
+
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.2cm}X}
+\toprule
+问题 & 可接受的表述\\
+\midrule
+代码链是否连通？ & “历史实现提供了从规范场到匹配入口的函数链”，并列出快照版本和未执行步骤。\\
+局部测试是否通过？ & “在该版本、该输入和该预算下通过”，附测试计数、输入形状和比较判据。\\
+物理 TMD 是否成立？ & 只有在算符、soft/rapidity、重正化、匹配和所有极限共同一致时才成立。\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+本批次材料中的 U001、U006 和 U024 记录了历史包结构、九步管线、三后端和测试计数，U004 则给出了更细的物理公式链。由于这些报告对应不同日期与提交，正文不应把 \texttt{18/18}、\texttt{237/237} 和 \texttt{106 passed} 合并成一个“总通过数”；应把它们视为不同快照的版本化证据。
+
+\section{张量布局与缓存语义}
+
+历史实现把规范场写成
+\begin{equation}
+  U \in \mathbb C^{N_t\times N_z\times N_y\times N_x\times 4\times 3\times 3},
+  \qquad U_{\mu,ab}(x)\in SU(3).
+  \label{eq:b07-layout}
+\end{equation}
+这里的维序是物理约定的一部分：时间方向在最前，随后是三个空间轴，再是方向、色指标和色指标。任何 \texttt{roll}、转置或 \texttt{einsum} 都必须显式映射到该布局；否则同一个矩阵乘法的结果可能在数组上“成功”但在几何上错位。中间产物优先以 HDF5 保存，并允许旧 npy/npz 回退，是为了保留旧基线的可读性，不是自动证明新旧格式具有相同归一化。
+
+对源分辨关联函数，缓存至少应保留组态标识、源时刻、汇时刻、插入时刻、动量标签、算符分离和规范场/流时标识。只缓存已经对源平均的数组会销毁源间相关性，也会使后续 bootstrap 或 jackknife 无法重建正确的协方差。
+
+\chapter{梯度流重整化胶子 TMD 的计算链}
+
+\section{Wilson flow：定义、RK3 与适用窗口}
+
+连续流方程把规范场沿辅助流时 $t$ 演化：
+\begin{equation}
+  \partial_t B_\mu(t,x)=D_\nu G_{\nu\mu}(t,x),
+  \qquad B_\mu(0,x)=A_\mu(x),
+  \qquad G_{\nu\mu}=\partial_\nu B_\mu-\partial_\mu B_\nu+[B_\nu,B_\mu].
+  \label{eq:b07-flow}
+\end{equation}
+在格点上，链接变量以无迹反厄米生成元演化。历史实现使用
+\begin{equation}
+  V(t+\varepsilon)=\exp\!\left[\varepsilon Z(V)\right]V(t),
+  \qquad
+  Z(V)=P_{\rm ah}\!\left[\Omega V^\dagger\right],
+  \label{eq:b07-flowstep}
+\end{equation}
+其中
+\begin{equation}
+  P_{\rm ah}[M]=\frac{M-M^\dagger}{2}
+  -\frac{\operatorname{Tr}(M-M^\dagger)}{2N_c}\mathbf 1,
+  \label{eq:b07-ah}
+\end{equation}
+$\Omega$ 由六条与链接相邻的 staple 贡献组成。投影保证数值演化停留在 $SU(3)$；它不改变流方程在大流时可能造成的非微扰平滑。
+
+历史实现采用 Lüscher 三阶 Runge--Kutta 结构：
+\begin{align}
+  W_1&=\exp\!\left[\frac{\varepsilon}{4}Z(W_0)\right]W_0,\nonumber\\
+  W_2&=\exp\!\left[\frac{8\varepsilon}{9}Z(W_1)-\frac{17\varepsilon}{36}Z(W_0)\right]W_1,\nonumber\\
+  V_{t+\varepsilon}&=\exp\!\left[\frac{3\varepsilon}{4}Z(W_2)
+  -\frac{8\varepsilon}{9}Z(W_1)+\frac{17\varepsilon}{36}Z(W_0)\right]W_2.
+  \label{eq:b07-rk3}
+\end{align}
+该格式的局部截断误差为 $\mathcal O(\varepsilon^4)$，单步演化的整体误差阶为 $\mathcal O(\varepsilon^3)$。历史报告对生产步长有 $0.05$ 与 $0.01$ 两种记载，故专著必须把“参考步长、生产步长、收敛检查所用步长”分别列出，不能用一个数字概括所有提交。
+
+流半径定义为
+\begin{equation}
+  r_f=\sqrt{8t}.
+  \label{eq:b07-flowradius}
+\end{equation}
+若目标是保留分离尺度 $z$ 或 $b_\perp$ 的短距结构，至少需要
+\begin{equation}
+  a\ll r_f\ll \min(z,b_\perp),
+  \qquad P_z r_f\ll 1,
+  \label{eq:b07-flowwindow}
+\end{equation}
+并扫描多个 $t$ 以检查 $t\to0$ 或短流时匹配。固定一个物理等价于格距相关值的流时，即使矩阵元有限，也不能区分短流时物理、格距伪迹和过度平滑。对于 $t=3a^2$，有 $r_f=\sqrt{24}\,a\approx4.90a$；当非零 $b_\perp$ 只覆盖到约 $4a$ 时，\eqref{eq:b07-flowwindow} 的右侧不等式并不成立。因此这类数据只能作为诊断，不能作为物理 $b_\perp$ 结构的最终证据。
+
+\section{Clover 场强、Wilson 线与胶子算符}
+
+Clover 场强取四个 plaquette 的对称反厄米组合：
+\begin{equation}
+  F_{\mu\nu}(x)=-\frac{i}{8}\sum_{k=1}^{4}\left(P_k-P_k^\dagger\right),
+  \label{eq:b07-clover}
+\end{equation}
+四个方位为 $(\mu,\nu)$、$(-\mu,\nu)$、$(-\mu,-\nu)$、$(\mu,-\nu)$。对偶场强为
+\begin{equation}
+  \widetilde F_{\mu\nu}=\frac12\epsilon_{\mu\nu\rho\sigma}F^{\rho\sigma}.
+  \label{eq:b07-dual}
+\end{equation}
+式 \eqref{eq:b07-clover} 是历史代码的裸 Clover 组合；是否额外出现 $1/(a^2g_0)$、色迹和规范耦合，取决于具体场强定义。专著必须从函数的输入输出和同一作用量约定出发检查，不能把两种归一化拼接。
+
+胶子 TMD 算符需要同时保留纵向分离 $z$、横向分离 $b_\perp$ 和规范链几何。令 $W_{\rm st}$ 为连接两个场强端点的 staple Wilson 线，定义未求和色迹
+\begin{equation}
+  M^{\mu\lambda;\nu\rho}(z,b_\perp)
+  =\operatorname{Tr}\!\left[
+  F^{\mu\lambda}(x+z\hat z+b_\perp\hat b)\,
+  W_{\rm st}\,
+  F^{\nu\rho}(x)W_{\rm st}^\dagger
+  \right],
+  \label{eq:b07-M}
+\end{equation}
+历史实现采用组合
+\begin{equation}
+  O(z,b_\perp)
+  =M^{tx;tx}(z,b_\perp)+M^{ty;ty}(z,b_\perp)
+  -2M^{xy;xy}(z,b_\perp).
+  \label{eq:b07-O}
+\end{equation}
+报告和代码注释称该组合在一圈水平具有乘性重正化性质，并在 $b_\perp\to0$ 时连接到胶子准 PDF 算符。这里应区分三个层次：组合的代数定义已经写定；一圈反常量纲相消是文献/代码声明；完整 nonperturbative 重正化、混合矩阵和 soft/rapidity 结构仍需独立验证。不能因为 \eqref{eq:b07-O} 是实数或能运行，就直接把它等同于物理 TMD。
+
+\section{不相连三点函数与裸矩阵元}
+
+胶子插入与核子价夸克线不连通时，历史链采用因子化近似
+\begin{equation}
+  C_3(dt,d\tau,z,b)=C_2(dt)\,\operatorname{OPE}(d\tau,z,b),
+  \label{eq:b07-factorization}
+\end{equation}
+其中 $dt$ 是源汇时间分离、$d\tau$ 是插入相对源的时间。真空贡献需要显式扣除：
+\begin{equation}
+  C_3^{\rm disc}=C_3-C_2\langle \operatorname{OPE}\rangle,
+  \qquad
+  R(dt,d\tau,z,b)
+  =\left\langle\frac{C_3^{\rm disc}}{C_2}\right\rangle_{t_i}.
+  \label{eq:b07-vacuum}
+\end{equation}
+这一步不是装饰性的常数减除：$C_2$ 的归一化、源平移、组态对齐和插入时刻都必须使用同一套约定。
+
+为了消除激发态污染，历史实现把比值拟合成
+\begin{equation}
+  R(dt,d\tau,z,b)=c_0(z,b)
+  +c_1(z,b)e^{-\Delta E\,d\tau}
+  +c_1(z,b)e^{-\Delta E(dt-d\tau)},
+  \label{eq:b07-ratiofit}
+\end{equation}
+在 $dt$ 的中间窗口拟合，并要求 $d\tau$ 和 $dt-d\tau$ 同时远离边界。典型历史参数是 $dt\in[7,10]$、边界 cut 为 6、协方差奇异时使用 \texttt{svdcut=1e-6} 或 plateau 均值备份。式 \eqref{eq:b07-ratiofit} 的渐近极限给出 $R\to c_0$，但有限统计下还必须报告拟合窗口、协方差条件数和模型变体。
+
+\section{自重整化与 hybrid 拼接}
+
+在短距窗口，历史报告使用 NLO $\overline{\rm MS}$ 因子
+\begin{equation}
+  Z_{\overline{\rm MS}}(z,\mu)
+  =1+\frac{\alpha_s C_A}{4\pi}
+  \left[
+  \frac53\ln\!\left(
+  \frac{z^2\mu^2}{4e^{-2\gamma_E}}\right)+3
+  \right].
+  \label{eq:b07-zms}
+\end{equation}
+长距部分用零动量比值数据 $h_B(z,P_z=0)$ 参数化。历史模型在短距写
+\begin{equation}
+  \ln h_B(z)=\ln Z_{\overline{\rm MS}}(z,\mu)
+  +(m_0+m_2a^2)z,
+  \qquad z\le z_1,
+  \label{eq:b07-hb}
+\end{equation}
+而在 $z>z_1$ 用一组拟合函数或节点描述。$z_1$ 是模型窗口边界，不是由格点自动确定的物理相变点。
+
+历史实现的自重整化因子写成
+\begin{align}
+  \ln Z_R
+  &=k\frac{z}{a\ln(a\Lambda)}
+  +\frac12\ln\!\left(1+\frac{d}{\ln(a\Lambda)}\right)^2
+  +\frac{5C_A}{3b_0}
+  \ln\!\left[
+  \frac{\ln(1/(a\Lambda))}{\ln(\mu/\Lambda)}
+  \right]\nonumber\\
+  &\quad +(m_0+m_2a^2)z+f_1a+f_2a^2,
+  \label{eq:b07-zr}
+\end{align}
+其中 $b_0=11-2N_f/3$，$k,d,m_0,m_2,\Lambda$ 与离散项是全局拟合参数。该式是 PyQCD 采用的实现模型，不是所有自重整化方案的普适定义；尤其不能把线性指数项、对数项和格距修正分别解释成互相独立的物理观测量。
+
+Hybrid 方案把短距比值和长距 $Z_R$ 拼接：
+\begin{equation}
+  h_R(z,P_z)=
+  \begin{cases}
+  \dfrac{h_B(z,P_z)}{h_B(z,0)},&z<z_s,\\[7pt]
+  \dfrac{h_B(z,P_z)}{Z_R(z)}\eta_s,
+  \quad \eta_s=\dfrac{Z_R(z_s)}{h_B(z_s,0)},&z\ge z_s.
+  \end{cases}
+  \label{eq:b07-hybrid}
+\end{equation}
+按定义，两支在 $z_s$ 处相等；这只证明拼接连续，不证明结果对 $z_s$ 不敏感。合格的系统误差扫描应改变 $z_s$、$Z_R$ 参数化和短距拟合窗口。
+
+\section{Fourier 重构、Collins--Soper 核与 NLO 匹配}
+
+历史 TMD 通道采用余弦重构
+\begin{equation}
+  x\tilde g(x,b_\perp,P_z)
+  =\frac{1}{\mathcal N}\frac{1}{2\pi P_z}
+  \int_0^{z_{\max}}\mathrm dz\,
+  \cos(xP_zz)\,h_R(z,b_\perp,P_z),
+  \qquad
+  \mathcal N=\left(\frac{P_z}{P_t}\right)^2,
+  \label{eq:b07-cos}
+\end{equation}
+其中 $P_t=\sqrt{M_N^2+P_z^2}$。共线反对称通道在旧代码中使用
+\begin{equation}
+  \tilde g(x,P_z)=\frac{2P_z}{x}
+  \int_0^{z_{\max}}\mathrm dz\,
+  h(z,P_z)\sin(xP_zz),
+  \label{eq:b07-sin}
+\end{equation}
+并在 $x\to0$ 采用显式保护。式 \eqref{eq:b07-cos} 与 \eqref{eq:b07-sin} 服务不同的表示与对称性；它们的归一化不能互相替换，也不能只比较离散数组的最大值。
+
+有限 $z_{\max}$ 造成 Fourier 截断。历史模型在数据区外用
+\begin{equation}
+  h_R(\lambda)\sim l_1\lambda^{-a_1}e^{-\lambda/\lambda_0},
+  \qquad \lambda=zP_z,
+  \label{eq:b07-tail}
+\end{equation}
+估计大 $\lambda$ 尾部。该 ansatz 只有在尾部拟合区间稳定、$\lambda_0$ 可辨识且对 $z_{\max}$ 不敏感时才可接受。
+
+Collins--Soper 核可由两个动量的比值近似提取：
+\begin{equation}
+  K(b_\perp)=
+  \frac{\ln[h_R(z_0,b_\perp,P_{z1})/h_R(z_0,b_\perp,P_{z2})]}
+  {\ln(P_{z1}/P_{z2})}.
+  \label{eq:b07-cs}
+\end{equation}
+这要求两个矩阵元已经使用同一套 UV 重正化、同一 staple 几何和兼容的软函数方案。$K$ 的强子无关性不是自动成立；有限动量、$b_\perp$ 截断和匹配阶数都会污染斜率。
+
+把准分布映射到光锥 TMD 的硬匹配可概括为
+\begin{equation}
+  x\tilde g(x,b_\perp;\mu,\zeta)
+  =\int\frac{\mathrm dy}{|y|}\,
+  C\!\left(\frac xy,\lambda_s,\frac{\mu}{yP_z}\right)
+  \frac{y\,g(y,b_\perp)}{\sqrt{S_I(b_\perp,\mu)}}
+  \exp\!\left[
+  \frac12\ln\!\left(\frac{\zeta_z}{\zeta}\right)K(b_\perp)
+  \right],
+  \label{eq:b07-tmdmatching}
+\end{equation}
+其中 $C$ 在历史实现中按 $x/y$ 分区，包含单圈胶子核与截断项。单态通道一般还需要夸克-胶子味混合，故式 \eqref{eq:b07-tmdmatching} 不能在没有说明的情况下当作完整单态公式。
+
+离散实现把卷积写成矩阵反演或矩阵乘：
+\begin{equation}
+  h_R^{\rm PDF}=Z^{-1}h_R,
+  \label{eq:b07-zmatrix}
+\end{equation}
+这里的 $Z$ 是硬匹配卷积矩阵，而不是 UV 重正化矩阵。主值奇点、端点支撑和 $Z^{-1}$ 的条件数都要报告；如果离散网格改变后系数不收敛，就不能把矩阵反演结果解释成物理 PDF。
+
+\section{连续极限与尺度层级}
+
+历史实现采用逐 $x$ 的联合参数化
+\begin{align}
+  f(x;a,P_z,m_\pi,L)
+  &=xg_0(x)+f_xa^2+l_xa^4+h_xa^2P_z^2
+  +d_xP_z^{-2}+b_xP_z^{-1}\nonumber\\
+  &\quad +k_x(m_\pi^2-m_{\pi,\mathrm{phys}}^2)
+  +c_xe^{-La m_\pi}.
+  \label{eq:b07-extrap}
+\end{align}
+各项分别代表格距修正、动量-格距交叉项、大动量幂修正、手征修正和有限体积修正。式 \eqref{eq:b07-extrap} 是拟合 ansatz，不是由单系综数据自动证明的展开定理。若只有一个格距或一个 $P_z$，相应系数不可辨识；此时应删去该项并把目标降为诊断，而不是用先验把系数固定后宣称完成连续极限。
+
+整个物理链至少应满足
+\begin{equation}
+  \Lambda_{\rm QCD},M_N\ll P_z\ll a^{-1},
+  \qquad
+  a\ll r_f\ll \min(z,b_\perp),
+  \qquad
+  |x|\gtrsim \frac{\Lambda_{\rm QCD}}{2P_z},
+  \label{eq:b07-windows}
+\end{equation}
+其中最后一项是固定阶匹配控制小 $x$ 的粗略条件。$b_\perp$ 还必须远离体积的一半，以免周期图像和强子波函数绕回。若窗口交集为空，任何“平台”都只是中间量。
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash}p{3.5cm}>{\raggedright\arraybackslash}p{7.3cm}}
+\caption{梯度流胶子 TMD 链的主要失败模式。}\label{tab:b07-failures}\\
+\toprule
+环节 & 失败信号 & 最小诊断\\
+\midrule
+\endfirsthead
+\toprule
+环节 & 失败信号 & 最小诊断\\
+\midrule
+\endhead
+场强归一化 & 同态局域极限不匹配 & 固定规范链，比较 Clover 定义、色迹和 $a,g_0$ 因子\\
+Wilson 线 & 随路径长度增长且无平台 & 同几何 Wilson 圈、多个 $L_\parallel$、同表示\\
+flow 窗口 & $r_f$ 与 $b_\perp,z$ 同量级 & 多流时扫描并检查 $t\to0$\\
+比值 & 对 $d\tau$ 或 $dt$ 无平台 & 双端点谱学拟合、源分辨缓存、协方差条件数\\
+$Z_R$/hybrid & 对 $z_s$、拟合窗和初值敏感 & 多模型、多窗口、完整 bootstrap 重拟合\\
+Fourier & 对 $z_{\max}$ 和尾部模型敏感 & 多个截断、尾部模型和可信 $x$ 区间\\
+匹配 & 随网格、$\mu$ 或阶数不收敛 & 支撑域检查、矩阵条件数、NLO 变体\\
+soft/rapidity & 与几何无关的软因子缺失 & 同几何 Wilson 圈与表示匹配\\
+\bottomrule
+\end{longtable}
+
+\chapter{验证、并行工程与证据边界}
+
+\section{质子两点函数与色散关系}
+
+两点函数回归是检验比例归一化和谱学拟合的最小闭环。历史复现使用
+\begin{equation}
+  C(dt)=\frac{1}{N_t}\sum_{ti}
+  \left|C^{\rm slice}(ti,ti+dt)\right|,
+  \qquad
+  aE_{\rm eff}(t)=\ln\frac{C(t)}{C(t+1)}.
+  \label{eq:b07-corr2}
+\end{equation}
+绝对值投影适用于报告当时检查的通道，但会丢失复相位；若目标通道本身含相位或需要相位敏感干涉，必须先证明该投影不会改变物理结论。
+
+平台拟合采用基态加激发态模型
+\begin{equation}
+  C(t)=c_0e^{-E_0t}\left[1+c_1e^{-\Delta E\,t}\right],
+  \label{eq:b07-c2fit}
+\end{equation}
+历史窗口为 $t=3,\ldots,7$。在 $P_z=6$ 的样本中，历史报告给出的平均结果为
+\begin{equation}
+  E_0=1.640(5)a^{-1}=3.069(9)\ {\rm GeV},
+  \label{eq:b07-e0}
+\end{equation}
+并与 $\sqrt{m_p^2+p^2}\approx3.14\ {\rm GeV}$ 的色散预期相差约 $2\%$。这组数字只属于对应报告的数据与拟合窗，不是本批次的新测量。
+
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{lXXXX}
+\toprule
+方向 & $E_0/a^{-1}$ & $E_0/{\rm GeV}$ & $\chi^2/{\rm dof}$ & 条件数\\
+\midrule
+$x$ & 1.649(8) & 3.084(15) & 0.27 & $6.3\times10^7$\\
+$y$ & 1.677(17) & 3.138(32) & 1.8 & $1.3\times10^8$\\
+$z$ & 1.637(6) & 3.063(11) & 1.7 & $6.3\times10^3$\\
+平均 & 1.640(5) & 3.069(9) & 2.4 & $1.4\times10^7$\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+该表的解释边界有三点。第一，三方向一致性与色散关系是必要检查，不是独立测量质子质量。第二，把平台窗改成 $[4,8]$ 时报告的平均值移动约 $3\%$，应计入系统误差。第三，$x/y$ 协方差的条件数达到 $10^7$--$10^8$，即使拟合收敛也必须检查窗口和正则化对中心值的影响。
+
+\section{后端适配、持久化与 MPI 元任务}
+
+历史 torch 适配层解决的是数组语义差异，而不是物理约定差异。复数输入按全局精度转换，numpy 风格函数经签名适配，二元运算补丁避免 \texttt{complex128} 与 \texttt{complex64} 混算破坏精度切换。其正确性判据应是同一输入、同一全局精度和同一后端能力下的最大差，而不是只看 dtype 或运行成功。
+
+HDF5 工具每次调用独立打开文件，使多 rank/线程不必共享同一个句柄。元任务按 \texttt{(step, conf)} 划分，静态 round-robin 分配，每个任务写独立目录；rank $r$ 绑定设备
+\begin{equation}
+  \mathrm{device}(r)=\mathrm{cuda}:(r\bmod n),
+  \label{eq:b07-gpumap}
+\end{equation}
+每任务结束后释放缓存。该方案没有 4D 网格 halo 交换，因而适合以组态为天然并行单位的蒸馏管线；代价是单个超大任务不能通过域分解进一步加速。
+
+历史资源规划写成
+\begin{equation}
+  N a=n b,
+  \label{eq:b07-resource}
+\end{equation}
+其中 $N$ 为总进程数，$a$ 为单任务显存，$n$ 为 GPU 数，$b$ 为单卡可预算显存。实际 $N$ 还要受 CPU 线程、可用内存、批次数和任务数封顶。资源不足时降至 $N=1$ 是正确行为，不应被理解为“并行失败”；真正需要验证的是任务映射是否无重复、无遗漏，以及串并行产物是否一致。
+
+\section{版本化验证矩阵}
+
+历史报告记录了多组不同层次的验证。它们不能横向求总和，应按快照、输入和验收目标分别登记。
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}p{4.1cm}>{\raggedright\arraybackslash}p{4.0cm}}
+\caption{B07 历史验证证据与解释边界。}\label{tab:b07-evidence}\\
+\toprule
+时间/对象 & 证据 & 已证明 & 未证明\\
+\midrule
+\endfirsthead
+\toprule
+时间/对象 & 证据 & 已证明 & 未证明\\
+\midrule
+\endhead
+2026-08-16 torch/MPI & 18/18 测试；12 个合成任务串并一致；后端差 $\sim10^{-15}$ & 适配层、合成调度和局部数值一致性 & 真实数据全步骤 MPI；生产规模资源行为\\
+2026-08-18 全库报告 & A--E 零差异；237/237 PASS & 特定基线的可复算接口 & 当前提交、完整 soft/rapidity 和物理 TMD\\
+2026-08-16 质子能量 & corr2 与参考最大差 0；三方向 $E_0$ 表 & 历史复现链和局部拟合 & 其他系综、其他动量、最终物理质量\\
+2026-09-28 GPD 审计 & 106 tests PASS & 通用基元、前向 PDF/TMD 与几何测试 & GPD 专项链；测试数不能外推为 GPD 通过\\
+固定流时诊断 & $r_f\approx4.90a$，$b_\perp/a\le4$ & 流窗口冲突可被识别 & 物理 $b_\perp$ 结果和连续极限\\
+\bottomrule
+\end{longtable}
+
+\section{物理结果的 fail-closed 条件}
+
+专著中的结果分级可压缩为四个门槛。第一，算符与代数门：场强、对偶场强、Wilson 路径、Lorentz 投影、Fourier 归一化和 $z=0$ 归一均可执行。第二，矩阵元门：源分辨两点函数、真空扣除、三点比值、谱学拟合和统计协方差通过。第三，方案门：同几何 soft/rapidity、UV 重正化、CS 核、NLO 匹配和单态混合处于同一方案。第四，极限门：多个 $a$、多个 $P_z$、多个流时和足够体积满足共同窗口。
+
+只有四门同时通过，才能使用“核子胶子 TMD-PDF 的格点结果”这一表述。若只有算符和局部测试通过，应称为“算符原型”或“矩阵元诊断”；若矩阵元也通过但方案未闭合，应称为“候选实现”。固定 $t=3a^2$、有限 $b_\perp$ 且无伴随表示 soft/rapidity 的数据，即使代数结果有限，也不能跨过第三和第四门。

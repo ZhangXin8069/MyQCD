@@ -1,0 +1,162 @@
+\chapter{胶子算符、关联函数与统计约定}\label{app:b09-conventions}
+本附录只收集本批次证据链实际使用的约定。不同报告若把 \(z,b_\perp\)、场强符号、Wilson-line 方向或 Fourier 变量换掉，数值即使看似一致也不能直接相加或比较。
+
+\section{低模、动量相位与颜色顶点}
+\label{app:b09-vertices}
+
+对空间体积 \(N_x^3\) 和低模 \(\phi_n^a(x)\)，定义
+\begin{align}
+  e_p(x)&=\exp\left[-\frac{2\pi i}{N_x}
+  \left(p_zz+p_yy+p_xx\right)\right],
+  \label{eq:app-phase}\\
+  V_{mn}(p)&=\sum_{x,a}\phi_m^{a*}(x)e_p(x)\phi_n^a(x),
+  \label{eq:app-vdv}\\
+  V_{mnl}(p)&=\sum_x e_p(x)\epsilon_{abc}
+  \phi_m^a(x)\phi_n^b(x)\phi_l^c(x).
+  \label{eq:app-vvv}
+\end{align}
+\(V_{mn}\) 是低模基上的二体颜色/空间投影，\(V_{mnl}\) 把三个夸克颜色指标组合成 singlet。式~\eqref{eq:app-vvv} 的六置换符号来自 \(\epsilon_{abc}\)，在缓存和转置时必须保留。4150 的真实 eigvec 为 \((8,13824,3)\)，phase 为 \((13824,)\)，VdV 为 \((1,4,4)\)，VVV 为 \((4,4,4)\)。
+
+\section{Clover 场强、对偶场强与直线 OPE}
+\label{app:b09-field-strength}
+
+本批次采用
+\begin{align}
+  F_{\mu\nu}(x)&=-\frac{i}{8}
+  \left(C_{\mu\nu}(x)-C_{\mu\nu}^\dagger(x)\right),
+  \label{eq:app-clover}\\
+  \widetilde F_{\mu\nu}(x)&=\frac12
+  \epsilon_{\mu\nu\rho\sigma}F_{\rho\sigma}(x),
+  \label{eq:app-dual}
+\end{align}
+其中 \(C_{\mu\nu}\) 是四个正向和反向 plaquette 的 Clover 组合。直线 Wilson-line OPE 写成
+\begin{equation}
+  M_{\mu\nu;\rho\sigma}(z)=
+  \sum_x\operatorname{tr}\left[
+  F_{\mu\nu}(x+z\hat d)W^\dagger(0\to z)
+  \widetilde F_{\rho\sigma}(x)W(0\to z)\right],
+  \label{eq:app-line-ope}
+\end{equation}
+而 4150 的非极化 HYP 通道使用第二场强 \(F\) 而不是 \(\widetilde F\)。正负方向要使用各自独立的 link 链；取实部、绝对值或错误方向的链都不能被解释为同一矩阵元。
+
+\section{胶子 TMD 组合与核子两点函数}
+\label{app:b09-correlators}
+
+本批次使用的胶子组合为
+\begin{equation}
+  O(z,b_\perp)=M^{tx;tx}+M^{ty;ty}-2M^{xy;xy}.
+  \label{eq:app-tmd-operator}
+\end{equation}
+它是报告所采用的特定 Lorentz 结构。若改变流化、场强投影或 Wilson-line 几何，必须重新建立算符基和匹配。
+
+核子两点函数写成
+\begin{equation}
+  C_2(\boldsymbol p;t_s,t_0)=
+  \left\langle O_p(\boldsymbol p,t_s)\bar O_p(\boldsymbol p,t_0)\right\rangle .
+  \label{eq:app-c2}
+\end{equation}
+正宇称投影采用 \(P_+=(1/2)(\gamma_0+\gamma_4)\)。对时间方向的反周期性，报告使用
+\begin{equation}
+  s_{++}(t_s,t_0)=
+  \begin{cases}
+    -1,&t_s<t_0,\\
+    +1,&t_s\ge t_0.
+  \end{cases}
+  \label{eq:app-boundary-sign}
+\end{equation}
+这个符号必须在缩并阶段与投影一起作用。若先算 \(C\)、取绝对值或在统计平均后补符号，反向传播和周期镜像会被混合。
+
+\section{复 GEVP}
+\label{app:b09-gevp}
+
+相关矩阵先 Hermitian 化：
+\begin{equation}
+  C_H(t)=\frac{C(t)+C^\dagger(t)}{2},
+  \qquad
+  C_H(t)v_n(t,t_0)=\lambda_n(t,t_0)C_H(t_0)v_n(t,t_0).
+  \label{eq:app-gevp}
+\end{equation}
+复 Hermitian 矩阵的本征值是实数，但 \(v_n\) 可以是复向量。一个实现可以把输出投影到实部以符合旧接口，但该操作改变了原方程，必须在约定中显式标记。判别实现是否正确时，应报告原复 GEVP 的残差、广义正交性和解析谱误差，不能只报告投影后的逐位一致。
+
+\section{数组级误差与统计秩}
+\label{app:b09-error}
+
+4150 对照采用
+\begin{equation}
+  \varepsilon_{\mathrm{rel}}(A_{\mathrm{PyQCD}},A_{\mathrm{ref}})
+  =\frac{\left\|A_{\mathrm{PyQCD}}-A_{\mathrm{ref}}\right\|_2}
+  {\max\left(\left\|A_{\mathrm{ref}}\right\|_2,10^{-300}\right)} .
+  \label{eq:app-relerr}
+\end{equation}
+它是整数组的相对 \(L_2\) 指标，不是逐元素最大相对误差。对接近零的极化槽位，式~\eqref{eq:app-relerr} 的分母很小，可能把绝对差 \(10^{-4}\) 放大成 \(10^5\)；报告必须同时给出最大绝对差、范数和缺失状态。
+
+对 \(N\) 个独立组态的中心化数据矩阵 \(X\)，样本协方差为
+\begin{equation}
+  \widehat C=\frac{1}{N-1}X^\dagger X,
+  \qquad
+  \operatorname{rank}\widehat C\le N-1.
+  \label{eq:app-rank}
+\end{equation}
+Bootstrap 的 replica 数不是独立样本数。要从不足秩的协方差获得数值稳定的拟合，只能使用伪逆、SVD 截断、shrinkage 或对角加载，并把这些操作的阈值作为系统选择报告。否则“200 次 bootstrap 得到满秩”这一说法在数学上不成立。
+
+\chapter{B09 复现证据矩阵与未决边界}
+\label{app:b09-evidence}
+
+本附录给出可直接回填来源表的九单元矩阵。表中“整合”表示正文采用；“去重”表示只保留其并入单元中的公式、数值或历史限制。PDF 仅用于页数、版式和独立结论核对，不与 TeX 重复计作两份物理证据。
+
+\begingroup
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{@{}p{0.08\textwidth}p{0.18\textwidth}p{0.18\textwidth}p{0.30\textwidth}p{0.16\textwidth}@{}}
+\caption{B09 单元、证据和处置（主证据为简称，完整路径见 \texttt{coverage.tsv}）}\label{tab:b09-evidence-matrix}\\
+\hline
+单元 & 主证据 & 关键数值或对象 & 本批次处置 & 未决边界 \\
+\hline
+\endfirsthead
+\hline
+单元 & 主证据 & 关键数值或对象 & 本批次处置 & 未决边界 \\
+\hline
+\endhead
+U017 & test6 report 2026-08-16 & 879 组态；\(E_0=3.069(9)\) GeV；参考差 0 & 整合入第 14 章和附录 G & 单一格距；平台与自相关未扩展到物理极限 \\
+\hline
+U018 & test7 report & 1 组态；P0/P2 都写成 0.000 GeV；缺图 & 并入 U020 的历史限制 & 内部矛盾，不能作为物理结果 \\
+\hline
+U019 & test8 report & 2 组态；约 1.060/1.517 GeV；26/26 输出投影 & 并入 U020 的演进基线 & 无误差、无窗口；PDF 与 TeX 不同步 \\
+\hline
+U020 & test9 analysis & 10 组态；\(\tau=3a^2\)；准/匹配 0.57/0.59；\(K=1.6\) & 整合入第 14、16 章和附录 E/G & 10 样本协方差、无完整 soft/rapidity、单流时、匹配参数缺失 \\
+\hline
+U025 & 4150 cmp1 report 2026-08-28 & 52 项中 51 直接通过；复 GEVP 残差 \(1.02\times10^{-15}\) & 整合入第 14 章和附录 E/G & 外部 4150 TMD/3pt 成品缺失；不能做端到端闭环 \\
+\hline
+U026 & donghx 4150 reproduction 2026-08-29 & 低层 7/7；HYP-OPE 9/9；2pt 与直线 OPE & 并入 U027 & 独立 smeared peram、逐时间 VVV、横向 staple 缺失 \\
+\hline
+U027 & donghx 4150 reproduction 2026-08-30 & 58/58 正宇称；effmass 25/25；极化 74/116 通过 & 整合入第 14 章和附录 E/G & 1 个极化异常；3pt, ratio, barematrix 未闭环 \\
+\hline
+U028 & donghx comparison summary & 统一 \(\varepsilon_{\mathrm{rel}}\)；五类通过项 & 并入 U027 与附录 E & 只列通过项，需与 U027 的失败清单同读 \\
+\hline
+U029 & donghx comparison table & 逐行 4150 对照表 & 并入 U027/U028 & 无独立物理结论，不复制本地路径长表 \\
+\hline
+\end{longtable}
+\endgroup
+
+\section{必须保留的未决项}
+
+\begin{enumerate}
+  \item test9 的 10 组态不能通过 200 次 bootstrap 获得秩 10 以上的样本协方差。任何拟合若使用了正则化，必须报告正则化方案、谱截断、失败 replica 和中心值移动。
+  \item test9 的准 TMD 与匹配后数值缺少匹配核、标度、阶数、卷积实现和误差传播，只能作为量级诊断。
+  \item test9 的 CS 核在高 \(b\) 触发 clamp；clamp 之前与之后的点属于不同统计质量，不能用一条平滑曲线掩盖。
+  \item 4150 的直线 OPE 通过不覆盖横向 staple；非零 \(b_\perp\) 的 Wilson-line 自能、端点和软结构仍未验证。
+  \item 4150 的 58 个极化文件缺失、41 个旧 \(il\) 轴序命中和 1 个近零异常槽位必须分栏保留，不能合并成单一通过率。
+  \item 4150 的独立 smeared perambulator、逐时间 VVV、3pt/ratio/barematrix 和 Cluster Decomposition 仍未形成可配对闭环。
+  \item test7/test8 的 1/2 组态和中心值只用于说明演进与失败关闭，不作为质量、能量或矩阵元测量。
+  \item 现有专著中的“11 个组态”快照与本批次 test9 的“10 个组态”来源必须核对。数量不同可能来自不同运行窗口，专著不能在没有 manifest 对照时把两者混为同一条数据链。
+\end{enumerate}
+
+\section{建议写入主文的断言}
+
+\begin{enumerate}
+  \item 真实输入上的数组级一致性是必要的实现门，但不是物理接受门。
+  \item GEVP 的复本征矢不能被默认实数化；必须报告原复问题的残差。
+  \item 自重整化只在其乘性分解和几何前提成立时有效，不能替代 soft/rapidity 与算符混合。
+  \item 直线 OPE、横向 staple TMD 和完整光锥 TMD 是三个不同层级的对象。
+  \item 统计显著性由独立组态数、误差传播和窗口稳定性决定，重采样次数只描述数值误差估计的精度。
+  \item 只要缺少同几何 soft/rapidity、显式匹配核或多尺度极限，结果就应保持 \texttt{diagnostic\_only}。
+\end{enumerate}

@@ -1,0 +1,613 @@
+\chapter{梯度流重整化：从规范场演化到可匹配算符}
+\label{sec:b06-flow-renormalization}
+
+\section{对象、符号与三条不能混用的链}
+
+梯度流在本项目中有三种经常被混称的角色。第一，它是一种规范协变的四维扩散，用正流时
+\(\tau\) 压制高动量涨落；第二，它定义一个有限流时的重整化方案，使流场算符可以通过小流时
+展开与无流算符匹配；第三，它可能作为准 PDF 或准 TMD 的 UV 正规化工具。三者共享流方程，
+却不共享完整的物理含义。一个有限的流化矩阵元既不是无流 \(\MSbar\) 矩阵元，也不是光锥
+分布函数。
+
+\begin{table}[htbp]
+\centering
+\caption{B06 统一记号。流时和几何分离在物理极限中必须保持独立。}
+\label{tab:b06-symbols}
+\small
+\begin{tabularx}{\textwidth}{@{}p{0.20\textwidth}p{0.28\textwidth}X@{}}
+\toprule
+符号 & 物理含义 & 使用边界 \\
+\midrule
+\(\tau\) 或 \(t\) & 物理流时，量纲为长度平方 & 格点无量纲量记为 \(\widehat\tau=\tau/a^2\)；两者不可混用 \\
+\(r_f\) & \(r_f=\sqrt{8\tau}\) 的平滑半径 & 不是 smear 步数，也不是普通重整化标度 \\
+\(z\) & 沿 Wilson line 的空间分离 & 非局域算符的短距匹配变量 \\
+\(\bT\) 或 \(b_T\) & TMD 的横向坐标空间分离 & 只有 staple/TMD 几何才能承载其物理信息 \\
+\(L_\parallel\) & staple 纵向臂长 & 必须检查平台或外推；不能默认等于物理无穷远 \\
+\(P_z\) & 核子沿 \(z\) 的 Euclidean 大动量 & 控制 LaMET 幂修正和匹配窗口 \\
+\(Z_\chi\) & 流夸克场的乘性重整化 & 含流夸克的非局域算符必须保留；纯流胶子算符没有这一因子 \\
+\(C_i,\delta m_A\) & GF 到无流准算符的端点系数和线质量 & 依赖投影、表示、流方案和微扰阶数 \\
+\(S_I^g,K_g\) & 胶子 soft 结构和 Collins--Soper 核 & 必须与 TMD Wilson-line 几何、伴随表示同一方案 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+本章首先建立流场与 SFTX 的语言，然后说明哪些重整化因子确实不需要，哪些仍然必须保留。
+下一章把固定流时连续极限与流时间窗口写成可执行顺序。第~\ref{sec:b06-tmd-continuum}
+节再把同一逻辑用于胶子 TMD，特别区分直线 Wilson-line OPE 与 staple TMD。
+
+\section{流方程、热核图像与格点实现}
+
+在 \(D\) 维 Euclidean QCD 中，纯规范梯度流满足
+\begin{equation}
+  \partial_\tau B_\mu(\tau,x)
+  =D_\nu G_{\nu\mu}(\tau,x),
+  \qquad B_\mu(0,x)=A_\mu(x),
+  \label{eq:b06-flow-equation}
+\end{equation}
+其中 \(G_{\mu\nu}=\partial_\mu B_\nu-\partial_\nu B_\mu+[B_\mu,B_\nu]\)，
+\(D_\mu=\partial_\mu+[B_\mu,\cdot\,]\) 作用在伴随表示上。在线性化极限中，
+横向模式满足
+\begin{equation}
+  \widetilde B_\mu(\tau,k)
+  =\left[P^\perp_{\mu\nu}(k)e^{-\tau k^2}
+  +P^\parallel_{\mu\nu}(k)\right]\widetilde B_\nu(0,k)
+  +O(B^2),
+  \label{eq:b06-heat-kernel}
+\end{equation}
+因此 \(\sqrt{8\tau}\) 是高斯平滑宽度的量级。这个结论说明为什么短流时可以接近无流算符，
+也说明为什么大流时会抹掉待测的 \(z\) 或 \(b_T\) 结构。式~\eqref{eq:b06-heat-kernel}
+不是全阶非微扰定理；非阿贝尔相互作用改变高阶结构，但不会取消正流时的 UV 平滑。
+
+格点上实际演化的是链接 \(V_\tau(x,\mu)\)。以 Wilson 规范作用量为例，
+\begin{equation}
+  \dot V_\tau(x,\mu)
+  =-g_0^2\left[\partial_{x,\mu}S_W(V_\tau)\right]V_\tau(x,\mu),
+  \qquad V_0(x,\mu)=U(x,\mu).
+  \label{eq:b06-wilson-flow}
+\end{equation}
+常用三阶 Runge--Kutta 积分。若时间步为 \(\epsilon\)，单步局部误差为
+\(O(\epsilon^3)\)；最终报告还必须记录实际步数、最后一步截断和链接幺正性/行列式守卫。
+式~\eqref{eq:b06-wilson-flow} 的连续极限并不自动给出目标流时的精确数值，离散积分误差应独立
+检查。
+
+物理上应监测 Wilson plaquette 作用量密度，而不是把所有 Clover 组合都当作逐点单调量：
+\begin{equation}
+  s_W(\tau,x)=\frac16\sum_{\mu<\nu}
+  \left[1-\frac{\Re\Tr P_{\mu\nu}(\tau,x)}{N_c}\right].
+  \label{eq:b06-plaquette-density}
+\end{equation}
+正流时通常降低平均作用量密度并改善短距噪声，但“作用量下降”只是实现诊断，不能替代流时
+窗口、连续极限和算符匹配。
+
+\section{\texorpdfstring{\(D+1\) 维表示与 UV 有限性}{D+1 维表示与 UV 有限性}}
+
+纯胶子流场 UV 有限性的核心不是“平滑后什么都有限”，而是流相关函数可以重新组织为一个
+\(D+1\) 维局部场论。体部场是 \(B_\mu(\tau,x)\)，流方程通过 Lagrange multiplier
+\(L_\mu\) 强制。其体作用量可写成
+\begin{equation}
+  S^{(G)}_{\rm fl}
+  =-2\int_0^\infty d\tau\int d^D x\,
+  \Tr\left\{
+  L_\mu\left[
+  \partial_\tau B_\mu-D_\nu G_{\nu\mu}
+  -\alpha_0D_\mu\partial_\nu B_\nu
+  \right]\right\},
+  \label{eq:b06-dplus1-action}
+\end{equation}
+其中 \(\alpha_0\) 项只改变流时间方向的规范固定。对 \(L_\mu\) 作泛函积分恢复流方程；体传播子
+在 \(k^2\to\infty\) 时含 \(e^{-\tau k^2}\)，于是正流时的体图 UV 收敛。
+
+\begin{quote}
+\textbf{纯胶子定理的精确表述。} 在标准 QCD 参数已经重整化后，由正流时
+\(B_\mu(\tau,x)\) 构成的规范不变局域乘积，其关联函数具有有限的连续极限；流规范场
+\(B_\mu\) 本身不需要额外的波函数重整化。BRS 对称性和 \(D+1\) 维幂次计数把可能的抵消项
+限制在 \(\tau=0\) 边界，即普通四维 QCD 的抵消项。
+\end{quote}
+
+不能把这个定理外推成“任意流场乘积均无额外因子”。若算符包含流夸克场
+\(\chi(\tau,x)\)，Lüscher 的乘性重整化为
+\begin{equation}
+  \chi_R=Z_\chi^{-1/2}\chi,
+  \qquad
+  \bar\chi_R=\bar\chi\,Z_\chi^{-1/2}.
+  \label{eq:b06-zchi-definition}
+\end{equation}
+在来源所用 MSbar 约定下，一圈系数写作
+\begin{equation}
+  Z_\chi
+  =1+\frac{3C_F}{16\pi^2}\frac{g^2}{\epsilon}
+  +O(g^4).
+  \label{eq:b06-zchi-oneloop}
+\end{equation}
+含 \(n\) 个流夸克和 \(\bar n\) 个流反夸克的规范不变局域算符需要整体因子
+\begin{equation}
+  O_{R,\tau}
+  =(Z_\chi)^{(n+\bar n)/2}O_\tau .
+  \label{eq:b06-zchi-operator}
+\end{equation}
+ringed field 通过流夸克动能归一化给出不依赖微扰截断的 \(Z_\chi\) 定义。ringed 双线性在
+端点处把两个场因子合并成一个整体归一化；普通未 ringed 的流夸克三点函数不能因为核子
+two-point overlap 在 ratio 中相消就当作已经重整化。
+
+\begin{quote}
+\textbf{纠错边界。} “\(\tau>0\) 的流场 UV 有限”与“任意非局域 Wilson-line 算符已经完成
+重正化和匹配”是不同命题。前者来自流场表示；后者还必须处理端点、线质量、cusp、
+pinch-pole、rapidity、软因子以及可能的算符混合。
+\end{quote}
+
+\section{小流时展开与方案转换}
+
+对纯胶子局域算符，SFTX 的典型形式是
+\begin{equation}
+  O(\tau,x)
+  \sim \langle O(\tau,x)\rangle
+  +\sum_i c_i(\tau,\mu)O_{R,i}(x;\mu)
+  +O(\tau\Lambda_{\rm QCD}^2).
+  \label{eq:b06-sftx-general}
+\end{equation}
+若多个算符具有相同量子数，系数应写成矩阵 \(c_{ij}\)，而不是把每个投影都当作可乘性
+重整化。规范作用量密度给出最熟悉的例子：
+\begin{equation}
+  E(\tau,x)
+  \sim \langle E(\tau,x)\rangle
+  +c_E(\tau)\left[\frac14F^a_{\mu\nu}F^a_{\mu\nu}\right]_R
+  +O(\tau).
+  \label{eq:b06-sftx-energy}
+\end{equation}
+对于非局域胶子算符，\(z\)、\(\bT\) 和 \(P_z\) 必须固定在匹配的两端；不能先对 \(z\) 积分，
+再用一个只对局域算符成立的系数。
+
+本批次材料给出的胶子直线 Wilson-line 一圈端点为
+\begin{align}
+  c_{\parallel\perp}(\tau,\mu)
+  &=1+O(\alpha_s^2),
+  \label{eq:b06-c-parperp}\\
+  c_{\perp\perp}(\tau,\mu)
+  &=1+\frac{\alpha_s C_A}{4\pi}
+  \ln\left(2\mu^2\tau e^{\gamma_E}\right)
+  +O(\alpha_s^2),
+  \label{eq:b06-c-perpperp}\\
+  \delta m_A(\tau)
+  &=-\frac{\alpha_s C_A}{4\pi}\sqrt{\frac{2\pi}{\tau}}
+  +O(\alpha_s^2).
+  \label{eq:b06-line-mass}
+\end{align}
+这里的 \(\parallel,\perp\) 是相对于 Wilson line 方向的场强指标分类，不是格点代码中
+\(t,i\) 标签的简单替换。沿物理长度 \(|z|\) 的线质量因子为
+\begin{equation}
+  L(z;\tau)=e^{-\delta m_A(\tau)|z|}.
+  \label{eq:b06-line-factor}
+\end{equation}
+对 U031 的两个生产投影，候选 GF-to-quasi 转换为
+\begin{align}
+  K_U(z;\tau,\mu)
+  &=\kappa_F^2\,L(z;\tau)\,c_{\perp\perp}^{-2}(\tau,\mu),
+  \label{eq:b06-KU}\\
+  K_H(z;\tau,\mu)
+  &=\kappa_F^2\,L(z;\tau)
+  \left[c_{\parallel\perp}(\tau,\mu)c_{\perp\perp}(\tau,\mu)\right]^{-1}.
+  \label{eq:b06-KH}
+\end{align}
+其中 \(U\) 指非极化 \(T_U-S_U\)，\(H\) 指 helicity 的候选 \(T_H-S_H\) 组合。
+\(\kappa_F\) 是树图归一化约定；来源中的诊断取 \(\kappa_F=1\)，但没有独立证明它就是最终
+Clover/color-projection 的完整归一化。式~\eqref{eq:b06-KH} 的 helicity 版本也是候选，
+不能称为完整 partonic matching。
+
+符号和重复扣除必须作为硬约束：
+\begin{itemize}
+  \item \(\tau\) 在 \(\ln(2\mu^2\tau e^{\gamma_E})\) 中必须是物理
+        \(\mathrm{GeV}^{-2}\)，不能直接放入 \(\widehat\tau=\tau/a^2\)；
+  \item \(L(z;\tau)\) 使用 \(|z|\)，因此正负方向共享同一线质量；
+  \item 若 ratio/hybrid 已经吸收线质量，不得再次乘 \(L(z;\tau)\)；
+  \item 端点因子应先作用在独立分量上，再重构 combined，避免分量与组合使用不同方案；
+  \item \(K_U,K_H\) 仍属于 GF 到无流准算符的转换，不包含 TMD soft、rapidity 或 LaMET。
+\end{itemize}
+
+\section{推荐的可执行顺序}
+
+在进入极限分析前，流化胶子直线 OPE 的最小顺序是：
+\begin{enumerate}
+  \item 从 thin link 开始作四维 Wilson flow，固定物理 \(\tau\)，保存实际流步和流后规范；
+  \item 在同一 \(V_\tau\) 上构造 Clover、对偶场强和直线伴随 Wilson line；
+  \item 保存正负 \(z\)、原始分量、无迹/未去迹两种 projection 以及所有线性恒等式；
+  \item 对每个 source 作真空扣除和 disconnected \(C_3/C_2\)，保留共同 nopol 分母；
+  \item 在逐 replica、逐组态或明确的 fit-level scalar 路径上施加 \(K_U,K_H\)，并记录两者差异；
+  \item 在通过流窗口的 \((z,P_z,\tau)\) 上做连续极限和匹配后的 \(\tau\) 外推；
+  \item 最后才进入有限 \(z\) Fourier、LaMET/pseudo-ITD 和 singlet mixing。
+\end{enumerate}
+任何一步只产生有限文件或通过形状测试时，状态仍应写成该步的对象，而不是“physical PDF”。
+
+\chapter{流时窗口、固定流时连续极限与匹配次序}
+\label{sec:b06-flow-window}
+
+\section{三个极限不能合并成一个拟合参数}
+
+令有限格距、有限流时的胶子矩阵元为
+\begin{equation}
+  \mathcal M^{\rm lat,GF}_{i}
+  \bigl(z,\bT,P_z;\tau,a\bigr),
+  \label{eq:b06-lattice-matrix-element}
+\end{equation}
+其中 \(i\) 标记 Lorentz 投影和 channel。固定物理 \(z,\bT,P_z,\tau\)，先定义连续
+GF-scheme 矩阵元
+\begin{equation}
+  \mathcal M^{\rm GF}_{i}(z,\bT,P_z;\tau)
+  =\lim_{a\to0}\mathcal M^{\rm lat,GF}_{i}(z,\bT,P_z;\tau,a).
+  \label{eq:b06-fixed-tau-continuum}
+\end{equation}
+对 U032 明确分析的直线 OPE projection，再作 GF-to-MSbar 转换：
+\begin{equation}
+  \mathcal M^{\MSbar,{\rm q}}_{i}(\tau;\mu)
+  =e^{-\delta m_A(\tau)|z|}
+  C^{-1}_{ij}(\tau,\mu)\mathcal M^{\rm GF}_{j}(\tau).
+  \label{eq:b06-gf-to-quasi}
+\end{equation}
+只有匹配后的对象才应分析残余流时依赖：
+\begin{equation}
+  \mathcal M^{\MSbar,{\rm q}}_{i}(\mu)
+  =\lim_{\tau\to0}\mathcal M^{\MSbar,{\rm q}}_{i}(\tau;\mu).
+  \label{eq:b06-matched-flow-limit}
+\end{equation}
+这三行不是同一个外推中的三个变量。未匹配的 GF 矩阵元在 \(\tau\to0\) 通常没有有限的
+非零极限，因为线质量因子和端点系数本身按 \(1/\sqrt\tau\) 或对数发散。把
+\(\mathcal M^{\rm lat,GF}\) 直接拟合成 \(\tau\to0\) 截距，会得到一个依赖匹配方案和
+截断的数值。
+
+\begin{table}[htbp]
+\centering
+\caption{三类对象、允许的极限和不能越过该层的宣称。}
+\label{tab:b06-object-levels}
+\small
+\begin{tabularx}{\textwidth}{@{}p{0.20\textwidth}p{0.27\textwidth}p{0.25\textwidth}X@{}}
+\toprule
+对象 & 依赖量 & 允许操作 & 仍不能宣称 \\
+\midrule
+finite-flow bare & \(a,\tau,z,\bT,P_z,L_\parallel\) 与源汇结构 & ratio、谱拟合、真空扣除、协方差 & 重整化矩阵元或物理分布 \\
+GF-scheme continuous & 固定物理 \(\tau,z,\bT,P_z\) & 多格距连续极限、SFTX/GF conversion & 光锥 TMD/PDF；TMD soft 也未处理 \\
+MSbar quasi & \(\tau\) 已转换为 \(\mu\)，仍有限 \(P_z\) & 匹配后 \(\tau\to0\)、Fourier、LaMET & 无穷动量极限和完整 singlet 物理量 \\
+light-cone & \(\mu,\zeta\) 与目标过程/表示 & 与实验或全局分析比较 & 若 soft、mixing 或极限缺失则仍无效 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{\texorpdfstring{\(a^2/\tau\) 与极限交换}{a2/tau 与极限交换}}
+
+固定物理 \(\tau\) 时，流半径随格距缩小而变大，因此格点 cutoff 效应不一定从普通的
+\(a^2\) 开始。基于 U032 所引局域 flowed PDF moment 结果，本批次把它作为诊断形式：
+\begin{equation}
+  \widehat{\mathcal M}^{\MSbar,{\rm q}}(\tau;a)
+  =\mathcal M^{\MSbar,{\rm q}}
+  +c_1\frac{a^2}{\tau}
+  +c_2a^2P_z^2
+  +c_3\tau\Lambda_{\rm QCD}^2
+  +c_4\alpha_s^{N+1}
+  +\cdots .
+  \label{eq:b06-cutoff-ansatz}
+\end{equation}
+各项物理来源不同：\(a^2/\tau\) 表示流半径相对格距的离散误差，\(a^2P_z^2\) 表示大动量与
+粗格距混合，\(\tau\Lambda_{\rm QCD}^2\) 表示短流时展开的高维修正，最后一项是匹配截断。
+本式不是对所有非局域胶子算符已经证明的普适拟合公式；系数可以相关，高阶项也不必按
+这里的顺序排列。它的用途是迫使分析显式报告极限交换和窗口，而不是给任意数据增加参数。
+
+若 \(a/\sqrt\tau\) 不小时，先在固定 \(\tau/a^2\) 上比较不同格距会把不同物理流时混在一起；
+若先取 \(\tau\to0\) 再取 \(a\to0\)，则会把 cutoff 增强项误当成流时物理。正确的数据组织是
+在每个物理 \(\tau\) 上分别完成式~\eqref{eq:b06-fixed-tau-continuum}，再比较匹配后的
+\(\tau\) 依赖。若没有多个格距，只能报告“固定格距、有限流时的参数点结果”。
+
+\section{联合流时窗口与源汇 footprint}
+
+对直线 Wilson-line 胶子 OPE，最小尺度层级是
+\begin{equation}
+  a\ll r_f=\sqrt{8\tau}\ll |z|,
+  \qquad
+  \sqrt{\tau}\,|P_z|\ll1,
+  \qquad
+  \tau\Lambda_{\rm QCD}^2\ll1,
+  \qquad
+  P_z^2\gg M_N^2 .
+  \label{eq:b06-line-window}
+\end{equation}
+第一个不等式要求流化确实压低 UV，同时不能吞掉待测的纵向结构；第二式控制 boost 后的
+流尺度；第三式保证 SFTX 的幂次展开；第四式保证 LaMET 的大动量条件。它们必须逐点满足，
+不能在平均参数上满足后就保留所有点。
+
+非局域插入还要求流半径不碰源和汇：
+\begin{equation}
+  r_f\ll t_{\rm insert}-t_{\rm source},
+  \qquad
+  r_f\ll t_{\rm sink}-t_{\rm insert}.
+  \label{eq:b06-source-sink-footprint}
+\end{equation}
+对 TMD staple 还要加入
+\begin{equation}
+  r_f\ll b_T,
+  \qquad
+  b_T\ll L_s/2,
+  \qquad
+  L_\parallel\gg b_T,
+  \label{eq:b06-tmd-window}
+\end{equation}
+并检查 \(L_\parallel\to\infty\) 的平台或受控外推。直线 OPE 没有物理 \(b_T\)，不能把
+式~\eqref{eq:b06-tmd-window} 的第二、三式伪装成已经控制的直线 Wilson-line 条件。
+
+窗口是交集，不是可逐点优选菜单。实践上应先按物理 \(\tau,z,b_T,P_z\) 建立 mask，再在
+同一 mask 上做拟合，并报告被排除的点。若交集为空，结论只能是“当前格距/体积/动量下
+没有可发布窗口”，不能通过增大误差棒制造物理平台。
+
+\section{三类匹配与两类混合}
+
+\begin{longtable}{@{}p{0.18\textwidth}p{0.27\textwidth}p{0.21\textwidth}p{0.22\textwidth}@{}}
+\caption{B06 要求的匹配层级。每一行改变对象，不能只改名字。}\label{tab:b06-matching-layers}\\
+\toprule
+层级 & 输入到输出 & 主要依赖 & 典型错误 \\
+\midrule
+\endfirsthead
+\toprule
+层级 & 输入到输出 & 主要依赖 & 典型错误 \\
+\midrule
+\endhead
+GF 方案转换 & GF-scheme flowed matrix element \(\to\) MSbar unflowed quasi & \(\tau,\mu,z,C_i,\delta m_A\) & 把 \(K_U/K_H\) 叫作 LaMET，或把线质量重复扣除 \\
+准量到光锥 & finite-\(P_z\) quasi PDF/TMD \(\to\) light-cone distribution & \(P_z,\mu,\zeta\)；\(C_{\rm hard},S,K\)；\(\alpha_s\) 阶数 & 用有限 \(P_z\) 直接声称光锥 PDF \\
+UV 算符混合 & \(O_i^{R}=Z_{ij}O_j\) & 同量子数算符、反常量纲矩阵 & 把 UV \(Z_{ij}\) 与 flavor-singlet 硬核混为一类 \\
+因子化味混合 & \(g\leftrightarrow q\) 在准量到光锥 matching 中卷积 & \(C_{gg},C_{gq},C_{qg},C_{qq}\) & 关闭 mixing 却不报告系统误差 \\
+\bottomrule
+\end{longtable}
+
+最重要的操作原则是：GF 流场不需要额外波函数重整化，并不表示流化 Wilson-line 算符没有
+端点或线质量；TMD 有软因子和快度结构，也不表示 first matching 可以省略。相反，第二层
+matching 越完整，越需要明确第一层的输入方案。
+
+\section{来源中的数值状态与可验证性}
+
+N406 是当前 GF 胶子产品中最新的统计快照，但它仍不是连续极限。来源记录的关键元数据为：
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+项目 & 来源记录 \\
+\midrule
+matched small-flow 输入 & \(N_{\rm conf}=406\)，\(N_{\rm boot}=1000\) \\
+格距 & \(a=0.0775\,\mathrm{fm}\) \\
+流时 & \(\tau/a^2=1.0,1.4,1.8,2.2,2.6,3.0,3.4,3.8\) \\
+小流时模型 & \(M(\tau)=M_0+c\tau\)，replica-level AIC 权重 \\
+动量/分离 & \(P_z=3,4,5\)，\(z/a=0,\ldots,24\) \\
+产品边界 & \(P_z=3\) 有缺失外推点；\(P_z=5\) 有 1 个 \(z=0\) 归一化符号翻转风险 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+这些数字来自来源 manifest 与交接记录，不是本批次重跑。它们证明已有统计产品覆盖
+406 个组态和多个流时，不证明存在多个格距，也不证明匹配后结果已经收敛。
+
+\begin{table}[htbp]
+\centering
+\caption{B06 证据的用途边界。}
+\label{tab:b06-evidence-boundaries}
+\small
+\begin{tabularx}{\textwidth}{@{}p{0.18\textwidth}p{0.23\textwidth}p{0.27\textwidth}X@{}}
+\toprule
+来源 & 能证明 & 不能证明 & 章节用途 \\
+\midrule
+U061 理论综述 & 流方程、\(D+1\)/BRS 结构、\(Z_\chi\)、局域 SFTX & 非局域 TMD 的完整匹配或数值结果 & 提供第10章定理和纠错边界 \\
+U032 文献综合 & GF-SFTX-LaMET 的两阶段逻辑和固定流时顺序 & 单一文献已完成质子胶子全链 & 提供极限与窗口综合 \\
+U031 算法报告 & 直线 OPE、ratio、端点转换和契约测试 & 真实生产能力、TMD soft 或连续极限 & 提供第11章实现对象 \\
+U030 算法报告 & staple/TMD 链、参数与失败模式 & 物理胶子 TMD；test9 仅 10 组态且窗口失败 & 提供第14章对象和风险表 \\
+U023 产品交接 & N406 元数据、缺失点和 warning & 新物理测量或连续外推 & 给出数据状态，不作为新结果 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\chapter{胶子 TMD、staple 匹配与连续极限验收}
+\label{sec:b06-tmd-continuum}
+
+\section{从准 PDF 的直线链到 TMD 的 staple 链}
+
+胶子 TMD 的光锥定义同时依赖 \(x,b_T,\mu\) 和 rapidity 标度 \(\zeta\)。在示意图层面，
+可写成
+\begin{equation}
+  f_1^g(x,b_T;\mu,\zeta)
+  =\mathcal N_g\int\frac{dz^-}{2\pi}
+  e^{-ixP^+z^-}
+  \langle P|O_g^{+i;+i}(z^-,b_T;\mu,\zeta)|P\rangle,
+  \label{eq:b06-tmd-definition}
+\end{equation}
+其中 \(O_g^{+i;+i}\) 含两条光样 Wilson line、横向连接和过程相关方向，\(\mathcal N_g\)
+依场强归一化和指标投影而定。式~\eqref{eq:b06-tmd-definition} 不是格点可直接计算的
+Euclidean 表达式；格点用有限 \(P_z\)、类空分离和有限长 staple 逼近它。
+
+胶子准 PDF 的直线几何是
+\begin{equation}
+  O^{\rm line}_{\mu\nu;\rho\sigma}(z)
+  =\sum_x\Tr\left[
+  F_{\mu\nu}(x+z\hat z)
+  W_{\rm adj}(x+z,x)
+  F_{\rho\sigma}(x)
+  \right],
+  \label{eq:b06-line-operator}
+\end{equation}
+而 TMD 的几何必须多出横向分离：
+\begin{equation}
+  O^{\rm TMD}_{\mu\nu;\rho\sigma}(z,b_T;L_\parallel)
+  =\sum_x\Tr\left[
+  F_{\mu\nu}(x+z\hat z+b_T)
+  W_{\rm st}(z,b_T;L_\parallel)
+  F_{\rho\sigma}(x)W^\dagger_{\rm st}
+  \right].
+  \label{eq:b06-staple-operator}
+\end{equation}
+其中 \(W_{\rm st}\) 是沿三段路径有序指数化的有限臂长 staple。式~\eqref{eq:b06-line-operator}
+的短距 OPE 只组织直线线的线质量、端点和局域算符；式~\eqref{eq:b06-staple-operator}
+还包含两条近乎平行长线之间的 pinch-pole、cusp、软因子和快度结构。两者不能用同一个
+\(K_U/K_H\) 或同一个 Wilson-loop subtraction 互相替代。
+
+当 \(b_T\to0\) 时，staple 算符可以退化为某种直线几何，但只有 soft subtraction、端点
+scheme 和 Fourier convention 同时定义后，才可与共线 PDF 比较。一个数值上的
+\(b_T=0\) 点单独不能证明 TMD/PDF 归一化一致。
+
+\section{Lorentz 投影与 disconnected 估计量}
+
+沿用 U031 的 Euclidean 记号，定义
+\begin{equation}
+  T_i=M_{ti;ti},\qquad
+  T_j=M_{tj;tj},\qquad
+  S_0=M_{ij;ij},
+  \label{eq:b06-ope-primitives}
+\end{equation}
+则非极化胶子组合为
+\begin{equation}
+  O_U=M_{titi}-M_{ijij}
+  =T_i+T_j-2S_0 .
+  \label{eq:b06-unpolarized-combination}
+\end{equation}
+helicity 目标为
+\begin{equation}
+  O_H^{\rm phys}
+  =\left(M_{titi}-M_{ijij}\right)_{\rm odd},
+  \label{eq:b06-helicity-combination}
+\end{equation}
+其中第二个场强使用对偶张量。历史文件中的 \(M_{titi}+M_{ijij}\) 只能作符号和方向诊断。
+方向的偶/奇投影使用
+\begin{equation}
+  O_{\rm even}=O_{+z}+O_{-z},
+  \qquad
+  O_{\rm odd}=O_{+z}-O_{-z},
+  \label{eq:b06-even-odd}
+\end{equation}
+不额外除以 2；任何归一化改变都必须同步进入 Fourier 和 matching。
+
+对胶子 disconnected 插入，配置估计量为
+\begin{align}
+  C_{3,\chi}
+  &=\left\langle O_\chi C_{2,\chi}\right\rangle
+  -\left\langle O_\chi\right\rangle
+  \left\langle C_{2,\chi}\right\rangle,
+  \label{eq:b06-c3-disconnected}\\
+  C_{2,\rm den}
+  &=\left\langle C_{2,\rm nopol}\right\rangle,
+  \qquad
+  R_\chi=\frac{C_{3,\chi}}{C_{2,\rm den}}.
+  \label{eq:b06-ratio-common-denom}
+\end{align}
+helicity 的 \(C_{3,H}\) 保留复数 \(pol35\) numerator，两个 channel 使用共同 nopol
+分母。最终物理相位投影为
+\begin{equation}
+  \operatorname{Re}[-iR_H]=\operatorname{Im}R_H,
+  \label{eq:b06-helicity-phase}
+\end{equation}
+但只能在逐 replica 的真空扣除、ratio、协方差和 jackknife 完成后进行。提前取实部/虚部
+会破坏复数的配置相关性；用 \(pol35\) 均值作近零分母则同时改变物理量和统计稳定性。
+
+\section{flow、soft、CS 与 hard matching 的对象图}
+
+一种可执行的 TMD 实现把匹配组织为
+\begin{equation}
+  \begin{aligned}
+  x\widetilde g(x,b_T;P_z)
+  =\int\frac{dy}{|y|}\,
+  C_{\rm hyb}\!\left(\frac{x}{y},\lambda_s,\frac{\mu}{yP_z}\right)
+  \frac{y\,g(y,b_T;\mu)}{\sqrt{S_I^g(b_T;\mu)}}\\
+  e^{\frac12\ln(\zeta_z/\zeta)K_g(b_T;\mu)}
+  +\text{power corrections}.
+  \end{aligned}
+  \label{eq:b06-tmd-matching}
+\end{equation}
+这里 \(S_I^g\) 必须是伴随表示、同一 staple 几何和同一 rapidity 方案的 soft 结构，
+\(K_g\) 是相应 CS 核。若 \(\sqrt{S_I^g}\)、Wilson-loop subtraction 或 staple 长度外推
+缺失，式~\eqref{eq:b06-tmd-matching} 只能作为算法示意。离散实现中的矩阵
+\(Z_{ij}\) 也必须作用在正确的 channel 和 \(b_T\) 网格上；它不是把 soft 因子替换成一个
+标量。
+
+从有限 \(P_z\) 准量到光锥单态分布还需要
+\begin{equation}
+  \begin{pmatrix}\Sigma(x,\mu)\\ g(x,\mu)\end{pmatrix}
+  =\mathbf C^{\rm LaMET}\!\left(\frac{\mu}{P_z}\right)\otimes
+  \begin{pmatrix}\widetilde\Sigma(x,P_z;\mu)\\ \widetilde g(x,P_z;\mu)\end{pmatrix}
+  +\mathcal O\!\left(\frac{\Lambda_{\rm QCD}^2}{[xP_z]^2},
+  \frac{\Lambda_{\rm QCD}^2}{[(1-x)P_z]^2}\right),
+  \label{eq:b06-lamet-mixing}
+\end{equation}
+其中 \(\Sigma=\sum_f(q_f+\bar q_f)\)。C 的卷积方向取决于来源 convention；不能把
+一个 quasi\(\to\)light-cone kernel 当成反向 kernel。对 helicity，应使用独立的
+polarized hard matrix 和 soft/rapidity 配套，而不是把式~\eqref{eq:b06-lamet-mixing}
+中的非极化 kernel 做符号替换。
+
+\begin{table}[htbp]
+\centering
+\caption{B06 建议的胶子 TMD 物理链。每一层都有独立的失败关闭条件。}
+\label{tab:b06-tmd-chain}
+\small
+\begin{tabularx}{\textwidth}{@{}p{0.05\textwidth}p{0.20\textwidth}p{0.28\textwidth}X@{}}
+\toprule
+层 & 对象 & 必须固定 & 失败关闭条件 \\
+\midrule
+T0 & 算符和路径 & 场强、对偶、生成元、伴随链、方向、Fourier 符号 & 端点规范恒等式或路径约定不闭合 \\
+T1 & 有限流时矩阵元 & \(a,\tau,z,b_T,P_z,L_\parallel\)、源汇 & ratio 不稳定、mask 被零填充、单一 source \\
+T2 & GF 方案转换 & \(C_i,\delta m_A,\kappa_F,\mu\) & 使用不匹配投影或重复线质量 \\
+T3 & soft/rapidity & \(S_I^g,K_g,\zeta,L_\parallel\)、伴随表示 & 缺同几何 Wilson loop 或 \(L_\parallel\) 无平台 \\
+T4 & hard matching & \(C_{gg},C_{gq}\)、阶数、\(\mu/P_z\) & 关闭 mixing 且未给误差、kernel 方向不清 \\
+T5 & 物理极限 & 多 \(a\)、匹配后 \(\tau\to0\)、多 \(P_z\)、体积与手征 & 任一极限只有单点或单格距 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{来源数据能支持到什么程度}
+
+U030 的 test9 链有可执行的 flow、staple、ratio、\(Z_R\)、Fourier、CS 和 matching
+接口，但参数是 \(24^3\times72\)、\(a=0.1053\,\)fm、10 个组态、\(z=0,\ldots,12\)、
+\(b_T=0,\ldots,4\)，且流时约为 \(3a^2\)。对应
+\(r_f/a=\sqrt{24}\approx4.90\)，已经大于非零 \(b_T/a\le4\)。这不是轻微的数值误差，
+而是流半径会抹平目标横向结构的窗口失败。PDF 第 17 页的归档还记录了
+\(N_{\rm conf}=10\)、\(13\times5\) 网格和多处 \(\operatorname{cond}=\infty\)；因此 test9 的有限图和
+matched curve 只能证明接口被调用。
+
+U031 的直线 OPE 报告提供了 \(9/9\) 契约测试和 106 项回归的静态记录，PDF 第 14 页
+展示相应数值表。它证明小数组下的轴、投影、共同分母和组合恒等式，不证明真实 ensemble
+的流窗口和连续极限。U023 的 N406 信息增加了统计产品覆盖，但依然只有一个格距；多个
+\(\tau/a^2\) 不是多个物理流时，多个 bootstrap 也不是多个格距。
+
+因此本批次可以作出的最强结论是：胶子直线 OPE、TMD staple 几何和 GF-SFTX-LaMET
+的对象关系已经可以写成可审计的算法链；完整物理胶子 TMD 仍需要同一表示/同一几何的
+soft 和 CS、完整单态 mixing、多个格距以及匹配后流时外推。来源中的测试计数、N406
+状态和归档图都不构成本批次的新数值测量。
+
+\section{失败模式与最小修正}
+
+\begin{longtable}{@{}p{0.24\textwidth}p{0.31\textwidth}p{0.37\textwidth}@{}}
+\caption{梯度流胶子 TMD 的常见错误、症状和失败关闭规则。}\label{tab:b06-failures}\\
+\toprule
+错误 & 典型症状 & 最小修正 \\
+\midrule
+\endfirsthead
+\toprule
+错误 & 典型症状 & 最小修正 \\
+\midrule
+\endhead
+把 finite-flow bare \(C_3/C_2\) 称为 PDF & 曲线可画但没有统一 UV/rapidity 方案 & 状态保持 bare/diagnostic；先完成方案转换 \\
+把三维 flow 当成四维 Wilson flow & 无 \(D+1\) 定理和四维匹配系数可用 & 重新定义 scheme；不得复用四维 \(Z_\chi,C_i\) \\
+跨格距固定 \(\tau/a^2\) & 看似有多个流时，实际比较不同物理 \(r_f\) & 固定物理 \(\tau\)、\(z,b_T,P_z\)，逐格距重算 \\
+先作 \(\tau\to0\) 再 \(a\to0\) & \(\tau\to0\) 截距依赖 cutoff 和 \(z\) & 先固定 \(\tau\) 取 \(a\to0\)，匹配后再作流时外推 \\
+\(r_f>b_T\) 或 \(r_f>|z|\) & 横向/纵向结构被流化抹平，平台变平滑 & 多流时全局 mask；交集为空就停止 \\
+把直线 OPE 的 \(K_U/K_H\) 用于 staple & soft、pinch-pole 和 rapidity 被静默遗漏 & 直线和 TMD 分链；TMD 另算 \(S_I,K_g,Z_E\) \\
+把 even/odd 除以 2 & Fourier 和 helicity 归一化偏移 & 采用来源约定；任何改动都进入 matching \\
+提前取 helicity 实部/虚部 & 协方差丢失，虚部投影不可恢复 & 全程保留 complex128，最后取 \(\operatorname{Im}R_H\) \\
+用 \(pol35\) 均值作分母 & 近零分母和 ratio 病态 & 两 channel 共享 nopol 分母，逐 replica 相除 \\
+重复乘 \(\exp[-\delta m|z|]\) & ratio/hybrid 后出现人为 \(z\) 斜率 & 明确非微扰减除是否已含线质量 \\
+令 \(\kappa_F=1\) 并称为已证明 & 整体归一化误差伪装成 matching & 把它列为未验证归一化，做独立树图/投影检查 \\
+关闭 singlet mixing 又称光锥单态 & 胶子与 quark singlet 比较出现整体偏移 & 加入 \(C_{gq},C_{qg}\) 或给出严格忽略依据 \\
+\bottomrule
+\end{longtable}
+
+\section{分级验收与本章结论}
+
+建议把 B06 的胶子 TMD 结果分为五级，并禁止跨级宣称：
+\begin{enumerate}
+  \item \textbf{C0：定义级。} 流方程、场强、对偶、伴随 Wilson line、直线/staple 几何和 Fourier 符号均有可执行检查；
+  \item \textbf{C1：矩阵元级。} 源分辨两点/三点函数、真空扣除、共同分母、谱拟合和协方差通过质量门；
+  \item \textbf{C2：GF 匹配级。} 固定物理 \(\tau\) 有连续极限，\(C_i,\delta m_A,\kappa_F\) 和可能的混合矩阵在同一方案；
+  \item \textbf{C3：TMD 方案级。} 伴随表示 soft、rapidity、CS、Wilson-loop subtraction、staple 长度和 hard kernel 闭合；
+  \item \textbf{C4：物理极限级。} 多格距、匹配后 \(\tau\to0\)、多 \(P_z\)、体积和手征误差均受控。
+\end{enumerate}
+
+本批次材料足以支持 C0 的定义整理、C1/C2 的算法和契约层面检查，以及 C3/C4 的明确失败
+条件；不足以支持完整物理胶子 TMD 的数值声称。最重要的纠错不是增加一个 matching
+公式，而是坚持对象分层：纯胶子流场的 UV 定理不等于非局域 TMD 的完整重整化；直线
+OPE 的端点转换不等于 staple TMD 的软结构；单格距下的多个流时也不等于连续极限。
