@@ -1,0 +1,1925 @@
+\documentclass[12pt,a4paper]{ctexart}
+
+\usepackage[top=2.45cm,bottom=2.45cm,left=2.55cm,right=2.55cm]{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{mathrsfs}
+\usepackage{booktabs,tabularx,array,longtable}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathmorphing}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{hyperref}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!55!black,
+  citecolor=blue!55!black,
+  urlcolor=blue!55!black,
+  pdftitle={使用格点QCD计算核子内胶子的横动量依赖的部分子分布函数的理论综述},
+  pdfauthor={MyQCD 理论物理研究组}
+}
+
+\linespread{1.18}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.25em}
+\setlength{\emergencystretch}{3em}
+\setlist[itemize]{leftmargin=2.2em,itemsep=0.15em,topsep=0.25em}
+\setlist[enumerate]{leftmargin=2.5em,itemsep=0.18em,topsep=0.25em}
+
+\newcommand{\MSbar}{\overline{\mathrm{MS}}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\Pz}{P_z}
+\newcommand{\bT}{\boldsymbol b_T}
+\newcommand{\kT}{\boldsymbol k_T}
+\newcommand{\pT}{\boldsymbol p_T}
+\newcommand{\fone}{f_{1}^{g/N}}
+\newcommand{\Oq}{\widetilde{\mathcal O}_{g}}
+
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\title{\heiti 使用格点QCD计算核子内胶子的\\横动量依赖的部分子分布函数的理论综述}
+\author{MyQCD 理论物理研究组}
+\date{2026 年 10 月 23 日}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent
+胶子的横动量依赖部分子分布函数（transverse-momentum-dependent parton distribution function，TMD-PDF）同时描述核子内胶子的纵向动量份额 \(x\)、横向动量 \(\kT\)、自旋关联以及非微扰软胶子效应，是理解质子三维结构、小 \(x\) 动力学和未来电子离子对撞机（EIC）物理的重要输入。本文综述使用格点 QCD 从第一性原理计算核子非极化胶子 TMD-PDF 的理论框架。讨论从光锥胶子关联函数及其规范链定义出发，说明快度（rapidity）发散、软函数、Collins--Soper 演化、准 TMD 算符、LaMET 因子化、Wilson 圈减除、短距比率与混合重正化、梯度流以及连续极限之间的逻辑关系。特别强调，梯度流提供的是受控的 UV 正规化与短流时匹配工具，而不是 rapidity 发散、表示相关软因子或完整单态混合的替代品。本文进一步给出格点两点与三点关联函数、Clover 场强、核子激发态、Fourier 反演和外推的系统误差矩阵，并以库内文献和实现审计为证据，区分共线胶子 PDF 的已发表先例、TMD 软函数与 CS 核的格点结果、夸克 TMD 的方法学基准，以及尚待闭合的直接核子胶子 TMD 计算。结论是：完整计算必须同时满足算符几何、表示、软因子、重正化、匹配和大动量尺度窗口的一致性；缺少任一环节时，只能报告诊断量或中间矩阵元，不能称为物理胶子 TMD-PDF。
+
+\vspace{0.7em}
+\noindent\textbf{关键词：}格点 QCD；胶子 TMD-PDF；大动量有效理论；Collins--Soper 核；梯度流；重正化；核子结构
+
+\vspace{1.2em}
+\noindent\textbf{Abstract.}
+We review the theoretical framework for calculating the gluon transverse-momentum-dependent parton distribution function (TMD-PDF) of the nucleon in lattice QCD. Starting from the light-cone gluon correlator and its gauge link, we discuss rapidity divergences, the soft function, Collins--Soper evolution, quasi-TMD operators, LaMET matching, Wilson-loop subtraction, short-distance ratio and hybrid renormalization, gradient flow, and continuum extrapolation. Gradient flow is presented as a controlled ultraviolet regulator and short-flow-time matching tool, not as a replacement for the representation-dependent soft factor, rapidity renormalization, or complete singlet mixing. We distinguish published lattice calculations of collinear gluon PDFs, determinations of the soft function and Collins--Soper kernel, methodological benchmarks from quark TMDs, and the remaining requirements for a physical nucleon gluon TMD. A calculation is physically complete only when operator geometry, color representation, soft and rapidity factors, renormalization, matching, and the large-momentum scale hierarchy are mutually consistent.
+
+\vspace{0.7em}
+\noindent\textbf{Keywords:} lattice QCD; gluon TMD; LaMET; Collins--Soper kernel; gradient flow; renormalization; nucleon structure
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{引言}
+
+\subsection{从一维 PDF 到胶子 TMD}
+
+共线部分子分布函数 \(f_{i/h}(x,\mu)\) 描述强子中携带动量份额 \(x\) 的部分子数密度，已在深度非弹性散射、Drell--Yan 过程和高 \(p_T\) 强子产生中得到系统应用。共线 PDF 对横向动量积分，因此不保留横向动量守恒和软辐射造成的方位角关联。当实验观测到硬过程中末态粒子或弱规范玻色子的横向动量 \(q_T\) 远小于硬标度 \(Q\) 时，TMD 因子化成为组织多尺度 QCD 的计算框架\cite{Collins2011}。此时截面不仅依赖 \(x\)，还依赖横向分离 \(\bT\) 或横向动量 \(\kT\)，从而直接编码核子的三维部分子图像。
+
+胶子在核子动量中占有重要份额，也是 Higgs 产生、Drell--Yan、重夸克产生和小 \(x\) 演化中的主导部分子之一。胶子 TMD 还与胶子饱和、横向极化胶子、质子自旋分解和 EIC 中的方位角不对称性相关\cite{JiReview2021,Meissner2007}。核子非极化胶子 TMD-PDF \(\fone(x,\kT;\mu,\zeta)\) 可作为最基础的基准量：它不依赖核子极化，却仍然包含 UV 重正化标度 \(\mu\)、rapidity 标度 \(\zeta\)、规范链方向和软胶子减除等全部关键理论结构。
+
+本文讨论的是\textbf{理论综述}，目标是建立一条可以逐项审计的计算链，而不是宣布某个现有数值为最终物理结果。文章采用以下证据优先级：
+\begin{enumerate}
+  \item 原始理论论文和库内全文转排用于定义算符、因子化公式、重正化方案与发表结果；
+  \item 库内教科书和专题笔记用于补充 Wilson 线、格点场强、关联函数和统计方法；
+  \item \texttt{refer/git-rep/PyQCD/} 源码与 \texttt{myqcd/} 公式审计仅作为实现和代数一致性的证据；
+  \item 历史报告和诊断运行不是新的物理测量，不能替代多格距、多流时、同方案软因子和真实系综验证。
+\end{enumerate}
+
+\subsection{物理对象与记号}
+
+采用 Minkowski 度规 \(g^{\mu\nu}=\mathrm{diag}(1,-1,-1,-1)\)，并定义光锥坐标
+\begin{equation}
+  v^\pm=\frac{v^0\pm v^3}{\sqrt{2}},
+  \qquad
+  v\cdot w=v^+w^-+v^-w^+-v_T\cdot w_T .
+  \label{eq:lightcone}
+\end{equation}
+核子沿 \(z\) 方向以大动量 \(P_z\) 运动，\(P^\mu=(P^0,0,0,P_z)\)。胶子的纵向动量份额为 \(x=k^+/P^+\)，横向动量与其 Fourier 共轭变量分别为
+\begin{equation}
+  \bT=(b^1,b^2),\qquad \kT=(k^1,k^2),\qquad
+  f(x,\bT)=\int\frac{\dd^2\kT}{(2\pi)^2} e^{i\kT\cdot\bT}f(x,\kT).
+  \label{eq:Fourier2d}
+\end{equation}
+表~\ref{tab:symbols} 汇总了后文反复使用的标度。\textbf{符号本身不是方案}：只有当 UV 方案、rapidity 方案、规范链方向、色表示和硬匹配核同时固定时，同一个符号才代表同一个物理量。
+
+\begin{table}[htbp]
+\centering
+\caption{胶子 TMD 计算中的主要变量与物理作用。}
+\label{tab:symbols}
+\small
+\begin{tabularx}{\textwidth}{L{2.3cm}L{3.2cm}Y}
+\toprule
+变量 & 物理意义 & 验收要点 \\
+\midrule
+\(x\) & 胶子纵向动量份额 & 应注明是否使用 \(G(x)=xg(x)\) 的动量密度约定 \\
+\(\kT,\bT\) & 横向动量及共轭空间分离 & TMD 在 \(b_T\) 空间更便于建立规范不变算符和因子化 \\
+\(\mu\) & UV 重正化标度 & 必须与 Wilson 系数、CS 核和软函数处于同一方案 \\
+\(\zeta\) & rapidity 重正化标度 & 由规范链和软因子定义，不应与 \(P_z^2\) 混为一谈 \\
+\(\Pz\) & 核子 boost & 控制 LaMET 幂修正，大动量通常要求更小格距和更高统计量 \\
+\(a,L_s,T_s\) & 格距、空间与时间长度 & 决定连续极限、有限体积和激发态控制 \\
+\(L_\parallel\) & staple 纵向臂长 & 用于实现 rapidity 正则化和 pinch-pole 减除；必须检查平台或极限 \\
+\(\tau,r_f\) & 流时间与流半径 \(r_f=\sqrt{8\tau}\) & 形成独立于 \(a\) 的 UV 尺度，需满足短流时窗口 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{文献范围与证据映射}
+
+本文不是对一个封闭数据库作 PRISMA 式系统综述，而是在 MyQCD 库内进行尽可能完整的理论核对。库内 \texttt{refer/papers/INDEX.md} 收录 50 篇原文转排及其中文译本，另有 38 篇评注导读、163 项 PyQCD 文档快照、若干原始 PDF 和可执行公式审计。表~\ref{tab:source-map} 给出与胶子 TMD 直接相关的来源分层。凡文献只讨论共线胶子 PDF、夸克 TMD 或纯梯度流方法时，本文只把它作为方法学先例，不把其结论跨通道升级。
+
+\begin{table}[htbp]
+\centering
+\caption{本文使用的核心文献与证据类型。}
+\label{tab:source-map}
+\scriptsize
+\begin{tabularx}{\textwidth}{L{3.0cm}L{3.2cm}Y}
+\toprule
+文献组 & 代表工作 & 在本文中的用途与边界 \\
+\midrule
+LaMET 基础 & Ji 2013, 2014；Ji--Zhang--Zhao 2018；Izubuchi 等 2018；Ji 等 2021 & 定义准算符、因子化、重正化和大动量展开；不提供胶子 TMD 数值结论\cite{Ji2013,Ji2014,JiZhangZhao2018,Izubuchi2018,JiReview2021} \\
+胶子准 PDF & Zhang 等 2019；Li--Ma--Qiu 2019；Balitsky 等 2020 & 给出胶子算符分类、可乘性重正化和匹配语言\cite{ZhangGluonLaMET2019,LiMaQiu2019,Balitsky2020} \\
+胶子 PDF 格点 & Fan 等 2018；Fan--Lin 2021；Salas-Chavira 等 2022；Good--Yao--Lin 2026 & 验证场强、HYP/flow、Ioffe-time、hybrid-ratio 与核子先例；均为共线 PDF\cite{FanQuasiGluon2018,FanLinPion2021,SalasChavira2022,GoodYaoLin2026} \\
+TMD 软结构 & Zhang 等 2020；Chu 等 2022, 2023；Zhang 等 2022 & 软函数、CS 核、Wilson 圈减除和五格距验证\cite{ZhangSoft2020,ChuCS2022,ChuSoft2023,Zhang2022TMD} \\
+夸克 TMD 基准 & He 等 2024；Ma 等 2025 & 展示完整 TMD 链和核子应用；不能直接替代胶子伴随表示\cite{HeTMD2024,MaBM2025} \\
+梯度流 & Lüscher 2010；Lüscher--Weisz 2011；Monahan--Orginos 2017；Monahan 2018 & 流方程、UV 有限性、短流时展开和准 PDF 匹配\cite{Luscher2010,LuscherWeisz2011,MonahanOrginos2017,Monahan2018} \\
+格点算法 & Peardon 等 2009；Bali 等 2016；CLQCD/PyQCD 实现 & distillation、momentum smearing、关联函数和统计流程\cite{Peardon2009,Bali2016} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{光锥胶子 TMD 的理论定义}
+
+\subsection{场强双线性与伴随规范链}
+
+QCD 场强张量取为
+\begin{equation}
+  F_{\mu\nu}=\frac{i}{g}[D_\mu,D_\nu],
+  \qquad
+  D_\mu=\partial_\mu-igA_\mu,
+  \qquad
+  A_\mu=A_\mu^aT^a,
+  \label{eq:fieldstrength}
+\end{equation}
+其中基本表示生成元取厄米约定，并统一采用
+\begin{equation}
+  \Tr(T^aT^b)=\frac{1}{2}\delta^{ab},
+  \qquad
+  C_F=\frac{N_c^2-1}{2N_c}=\frac{4}{3},
+  \qquad
+  C_A=N_c=3 .
+  \label{eq:generatornormalization}
+\end{equation}
+胶子 TMD 使用场强而不是胶子势 \(A_\mu\)，原因是非局域算符必须在规范变换下保持协变，而 \(F_{\mu\nu}\) 在 \(b_T=0\) 的局域极限直接连接到 twist-2 胶子算符和胶子动量分数\cite{Collins2011,JiReview2021}。
+
+在伴随表示中，规范链为
+\begin{equation}
+  U_{\Gamma,ab}(\bT)=\left[\mathcal P\exp\left(-ig\int_\Gamma \dd z^\mu A_\mu(z)\right)\right]_{ab},
+  \label{eq:adjlink}
+\end{equation}
+路径 \(\Gamma\) 连接场强算符的两个端点。若算符放在 \(0\) 与 \(z\hat z+\bT\)，准 TMD 的典型 staple 路径可写成
+\begin{equation}
+  \Gamma_\pm:\quad
+  0\longrightarrow \pm L_\parallel\hat z
+  \longrightarrow \pm L_\parallel\hat z+\bT
+  \longrightarrow z\hat z+\bT .
+  \label{eq:staplepath}
+\end{equation}
+正负方向对应初态或末态相互作用相反的规范链。对非极化 \(f_1^g\)，在严格 leading twist 下两种方向可属于同一普适类；对 T-odd 或自旋相关分布，方向改变会产生物理效应\cite{Collins2011,JiReview2021}。因此，格子计算不能只比较数值曲线，还必须声明路径方向。
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[>=Stealth,font=\small,scale=0.88,transform shape]
+  \tikzset{
+    link/.style={line width=1.35pt,blue!60!black},
+    soft/.style={line width=1.1pt,red!65!black,decorate,decoration={snake,amplitude=1.2pt,segment length=5pt}},
+    field/.style={circle,fill=orange!80!black,inner sep=1.8pt},
+    label/.style={align=center}
+  }
+  % Light-cone panel
+  \node[font=\bfseries] at (0,3.15) {(a) 光锥 TMD};
+  \draw[->] (-1.8,0)--(1.8,0) node[right] {\(z^-\)};
+  \draw[->] (0,-0.3)--(0,2.3) node[above] {\(z^+\)};
+  \draw[link] (-1.1,0.55)--(1.1,0.55);
+  \draw[link] (-1.1,1.55)--(1.1,1.55);
+  \draw[soft] (0,0.55)--(0,1.55);
+  \node[field] at (-1.1,0.55) {};
+  \node[field] at (1.1,1.55) {};
+  \node[label,below] at (0,-0.55) {两条光样 Wilson 线\\+ 软函数};
+
+  % Quasi panel
+  \begin{scope}[xshift=5.5cm]
+  \node[font=\bfseries] at (0,3.15) {(b) Euclidean 准 TMD};
+  \draw[->] (-2.0,0)--(2.2,0) node[right] {\(z\)};
+  \draw[->] (0,-0.3)--(0,2.35) node[above] {\(b_T\)};
+  \draw[link] (-0.9,0.35)--(-0.9,1.75)--(1.3,1.75)--(1.3,1.0);
+  \node[field] at (-0.9,0.35) {};
+  \node[field] at (1.3,1.0) {};
+  \draw[dashed,red!60!black] (-0.9,1.75)--(1.3,1.75) node[midway,above] {rapidity 臂};
+  \node[label,below] at (0,-0.55) {有限 \(L_\parallel\) staple\\+ Wilson 圈减除};
+  \end{scope}
+
+  % Matching panel
+  \begin{scope}[xshift=10.8cm]
+  \node[font=\bfseries] at (0,3.15) {(c) 匹配与极限};
+  \node[draw,rounded corners,fill=blue!7,minimum width=2.2cm,minimum height=0.7cm] (q) at (0,2.15) {准 TMD};
+  \node[draw,rounded corners,fill=green!8,minimum width=2.2cm,minimum height=0.7cm] (r) at (0,1.05) {重正化矩阵};
+  \node[draw,rounded corners,fill=orange!10,minimum width=2.2cm,minimum height=0.7cm] (m) at (0,-0.05) {硬核/软因子};
+  \node[draw,rounded corners,fill=red!7,minimum width=2.2cm,minimum height=0.7cm] (p) at (0,-1.15) {光锥 TMD};
+  \draw[->,thick] (q)--(r); \draw[->,thick] (r)--(m); \draw[->,thick] (m)--(p);
+  \draw[->,dashed] (2.0,2.15) to[bend left=25] node[right,align=left] {\(a\to0\)\\\(L\to\infty\)} (2.0,0.95);
+  \draw[->,dashed] (2.0,0.95) to[bend left=25] node[right,align=left] {\(P_z\to\infty\)\\\(\tau\to0\) 窗口} (2.0,-1.05);
+  \end{scope}
+\end{tikzpicture}
+\caption{胶子 TMD 的三个理论层次。光锥算符给出物理定义；Euclidean staple 算符使格点 QCD 可以直接计算；因子化、软/rapidity 减除和多尺度极限把格点矩阵元连接到光锥分布。}
+\label{fig:three-levels}
+\end{figure}
+
+\subsection{非极化投影与共线极限}
+
+定义裸胶子关联函数
+\begin{equation}
+  \Phi^{ij}_{g}(x,\bT)
+  =\frac{1}{xP^+}\int\frac{\dd\xi^-}{2\pi}\,
+  e^{-ixP^+\xi^-}
+  \langle P|\,
+  F^{+i}_a(\xi^-,\bT)\,
+  U^{ab}_{\Gamma}(\xi^-,\bT;0)\,F^{+j}_b(0)\,|P\rangle ,
+  \label{eq:gluoncorrelator}
+\end{equation}
+其中横向指标 \(i,j=1,2\)，色指标在伴随表示中缩并。非极化胶子分布由横向无迹投影给出
+\begin{equation}
+  \fone(x,\bT;\mu,\zeta)
+  =\frac{1}{2}\delta^{ij}_{T}\,
+  \Phi_{g,ij}(x,\bT;\mu,\zeta),
+  \label{eq:f1projection}
+\end{equation}
+其中整体归一化应随场强和生成元约定一起固定。若需要研究线性极化胶子，可定义无迹对称投影
+\begin{equation}
+  h_{1}^{\perp g}(x,\bT;\mu,\zeta)
+  \sim
+  \left(\frac{b_T^ib_T^j}{b_T^2}-\frac{1}{2}\delta_T^{ij}\right)
+  \Phi_{g,ij}(x,\bT;\mu,\zeta),
+  \label{eq:h1perpprojection}
+\end{equation}
+其具体归一化和符号必须与所用 TMD 分解约定一致。本文的主线是非极化 \(f_1^g\)；其它极化胶子分布的原则相同，但会增加自旋投影、手征结构和规范链方向相关的复杂性\cite{Meissner2007}。
+
+在 \(\bT\to0\) 且对横向动量积分后，TMD 应退化为共线胶子 PDF：
+\begin{equation}
+  f_{g/h}(x,\mu)
+  =\int\dd^2\kT\,\fone(x,\kT;\mu,\zeta)
+  \quad\text{(leading twist)},
+  \label{eq:collinearlimit}
+\end{equation}
+并满足动量求和
+\begin{equation}
+  \int_0^1\dd x\,x\left[f_{g/h}(x,\mu)+\sum_q f_{q/h}(x,\mu)\right]=1 .
+  \label{eq:momentumsum}
+\end{equation}
+这两个关系是重要的物理一致性检查，但不能替代数值验证：在格点上，积分截断、单态混合、零模减除和重正化方案都可能改变端点行为。
+
+\subsection{rapidity 发散、软函数与 Collins--Soper 演化}
+
+光样 Wilson 线带有无限长的快度积分。即使 UV 维数正规化已经固定，软胶子与共线胶子仍可能在 rapidity 方向产生额外发散。因此，光锥 TMD 不能只依赖 \(\mu\)，还必须引入 rapidity 标度 \(\zeta\)，并通过软函数完成减除\cite{Collins2011,JiReview2021}。物理量对 \emph{rapidity 方案} 的依赖应在硬核、软函数和 TMD 的组合中抵消。
+
+记表示相关的软函数为 \(S_R(\bT;\mu,Y_1,Y_2)\)。在因子化适用的方案中，它可分解成 rapidity 无关的内禀部分和 Collins--Soper 指数：
+\begin{equation}
+  S_R(\bT;\mu,Y_1,Y_2)
+  =S_{I,R}(\bT;\mu)\,
+  \exp\left[K_R(\bT;\mu)\,\mathcal Y(Y_1,Y_2)\right],
+  \label{eq:softfactor}
+\end{equation}
+其中 \(\mathcal Y\) 是依赖于正则化方案的快度组合，\(K_R\) 是表示 \(R\) 的 Collins--Soper 核。对胶子 TMD，Wilson 线处于伴随表示，软因子和 CS 核必须使用同一表示；夸克 TMD 中提取的数值不能在没有匹配关系的情况下直接替代胶子结果。
+
+物理 TMD 的 rapidity 演化由
+\begin{equation}
+  2\zeta\frac{\partial}{\partial\zeta}
+  \ln f^{R}(x,\bT;\mu,\zeta)
+  =K_R(\bT;\mu)
+  \label{eq:CSequation}
+\end{equation}
+描述。其 UV 演化满足
+\begin{equation}
+  \mu^2\frac{\partial}{\partial\mu^2}K_R(\bT;\mu)
+  =-\Gamma^{R}_{\rm cusp}(\alpha_s),
+  \label{eq:csrge}
+\end{equation}
+其中 \(\Gamma^{R}_{\rm cusp}\) 是表示相关的 cusp 反常维数。对胶子，领头项与 \(C_A\) 成正比；对夸克则为 \(C_F\)。这一表示依赖性是胶子 TMD 不能简单复用夸克软因子的根本原因之一。
+
+在实际因子化公式中，常把未减除的 TMD 除以 \(\sqrt{S_R}\)。平方根来自软函数包含两条规范链，而单个 TMD 关联函数只含一条规范链。符号和幂次依赖于快度定义，但结构要求不变：\textbf{TMD、软函数、硬核和 CS 演化必须来自同一方案}。
+
+\subsection{Lorentz 分解与胶子算符投影}
+
+胶子算符含两个场强指标，因此比夸克双线性更容易发生 Lorentz 投影歧义。对核子自旋平均的矩阵元，最一般的分解可写成
+\begin{align}
+  M_{\mu\alpha;\lambda\beta}(z,p)
+  &=\mathcal M_{pp}\,
+  \big(g_{\mu\lambda}p_\alpha p_\beta
+  -g_{\mu\beta}p_\alpha p_\lambda
+  -g_{\alpha\lambda}p_\mu p_\beta
+  +g_{\alpha\beta}p_\mu p_\lambda\big)\nonumber\\
+  &\quad+\mathcal M_{zz}\,
+  \big(g_{\mu\lambda}z_\alpha z_\beta
+  -g_{\mu\beta}z_\alpha z_\lambda
+  -g_{\alpha\lambda}z_\mu z_\beta
+  +g_{\alpha\beta}z_\mu z_\lambda\big)\nonumber\\
+  &\quad+\mathcal M_{zp}\,
+  \big(g_{\mu\lambda}z_\alpha p_\beta
+  -g_{\mu\beta}z_\alpha p_\lambda
+  -g_{\alpha\lambda}z_\mu p_\beta
+  +g_{\alpha\beta}z_\mu p_\lambda\big)\nonumber\\
+  &\quad+\mathcal M_{pz}\,
+  \big(g_{\mu\lambda}p_\alpha z_\beta
+  -g_{\mu\beta}p_\alpha z_\lambda
+  -g_{\alpha\lambda}p_\mu z_\beta
+  +g_{\alpha\beta}p_\mu z_\lambda\big)\nonumber\\
+  &\quad+\mathcal M_{ppzz}\,
+  (p_\mu z_\alpha-p_\alpha z_\mu)
+  (p_\lambda z_\beta-p_\beta z_\lambda)\nonumber\\
+  &\quad+\mathcal M_{gg}\,
+  \big(g_{\mu\lambda}g_{\alpha\beta}
+  -g_{\mu\beta}g_{\alpha\lambda}\big),
+  \label{eq:sixamplitudes}
+\end{align}
+其中六个不变振幅依赖于 \(z^2\) 与 Ioffe 时间 \(\nu=-p\cdot z\)\cite{Balitsky2020}。光锥胶子 PDF 由 \(\mathcal M_{pp}\) 决定：
+\begin{equation}
+  -\,\mathcal M_{pp}(\nu,0)
+  =\frac{1}{2}\int_{-1}^{1}\dd x\,e^{-ix\nu}\,x f_g(x).
+  \label{eq:Mpp}
+\end{equation}
+在 Euclidean 算符中，单独的 \(F^{zi}F^{zi}\) 或 \(F^{ti}F^{ti}\) 会混入 \(\mathcal M_{zz},\mathcal M_{gg}\) 或其它结构。为了提取 twist-2 的 \(\mathcal M_{pp}\)，需要选择线性组合，例如
+\begin{equation}
+  \mathcal M_{0i;i0}+\mathcal M_{ij;ij}
+  =2p_0^2\,\mathcal M_{pp}
+  +\text{高扭度/接触项},
+  \label{eq:Mppcombination}
+\end{equation}
+其中横向指标按二维 Euclidean 空间缩并。该组合也是格点上常见的非极化胶子流投影之一\cite{Balitsky2020,FanQuasiGluon2018}。不同投影的 UV 反常量纲一般不同，因此“同一个胶子 PDF”不能由任意 Lorentz 分量等价地读出。
+
+\subsection{胶子极化和 TMD 分类}
+
+对非极化核子，最低阶的非极化胶子 TMD 为 \(f_1^g\)，它在 \(\bT\to0\) 时连接到胶子动量密度 \(xg(x)\)。线性极化胶子分布 \(h_1^{\perp g}\) 通过无迹横向张量投影提取，描述横向平面内的极化关联；在 \(k_T\) 空间，它表现为 \(k_T^ik_T^j\) 型的角度依赖\cite{Meissner2007}。核子极化后还可以定义螺旋度胶子、worm-gear 型和横向极化胶子 TMD；这些分布不能由 \(f_1^g\) 的标量倍数得到，因为它们对应不同的自旋和角度结构。
+
+本文把非极化 \(f_1^g\) 作为主对象，原因是：
+\begin{enumerate}
+  \item 它不需要极化核子插值算符，先把 gluon loop、Wilson 线和 soft/rapidity 结构暴露出来；
+  \item 它与共线胶子 PDF、动量求和和 QCD 演化有最直接的交叉检验；
+  \item 它的 TMD 因子化和软函数在概念上最接近标准 Drell--Yan/SIDIS 结构，便于把纯理论误差与极化投影误差分开。
+\end{enumerate}
+极化胶子 TMD 的计算不是简单替换一个 Gamma 矩阵。场强指标、对偶张量、核子自旋投影和规范链方向会同时改变，且部分 T-odd 结构对过程方向敏感\cite{Egerer2022,JiReview2021}。
+
+\subsection{过程依赖与规范链方向}
+
+TMD 因子化中的 Wilson 线不是数学装饰，而是过程依赖的物理输入。Drell--Yan 的初态相互作用和 SIDIS 的末态相互作用对应相反的规范链方向。对非极化 \(f_1^g\)，在严格 leading twist 且采用兼容的软函数方案时，方向差异可以被吸收到统一的方案中；对 T-odd 或自旋相关胶子分布，方向变化可以给出符号或相位差异。因此，以下两种说法必须区分：
+\begin{itemize}
+  \item “同一个 TMD”是指在固定过程类和固定 rapidity 方案下的普适函数；
+  \item “同一个裸格点算符”则不是过程无关的，路径方向、端点和软减除都改变数值。
+\end{itemize}
+在格点上模拟 \(+\hat z\) 与 \(-\hat z\) staple 并比较差值，可以作为过程依赖和 T-odd 结构的诊断；但只有配合相应的 soft/rapidity 方案和合法的 \(L_\parallel\to\infty\) 极限，差值才具有物理意义。
+
+\subsection{物理极限与一致性检查}
+
+一个胶子 TMD 结果至少应通过以下极限检查：
+\begin{align}
+  &\bT\to0:\qquad
+  f_1^g(x,\bT;\mu,\zeta)\text{ 与短距 OPE 和胶子 PDF 的微扰匹配相容},
+  \label{eq:limit-b0}\\
+  &\int\dd^2\kT\,f_1^g(x,\kT;\mu,\zeta)
+  =f_g(x,\mu)+\mathcal O(\text{scheme/higher twist}),
+  \label{eq:limit-collinear}\\
+  &\int_0^1\dd x\,x\,f_g(x,\mu)+\sum_q\int_0^1\dd x\,x\,f_q(x,\mu)=1,
+  \label{eq:limit-momentum}\\
+  &b_T\gg\Lambda_{\rm QCD}^{-1}:\qquad
+  f_1^g\text{ 进入非微扰区，不能用固定阶微扰外推代替}.
+  \label{eq:limit-largeb}
+\end{align}
+这些关系不是独立的数值拟合约束，而是方案一致性的物理要求。若某个外推在 \(\bT\to0\) 与共线 PDF 不一致，或在大 \(\bT\) 处仍使用未加控制的微扰核，就不能用“格点误差”掩盖方案错误。
+
+\section{Euclidean 格点表述}
+
+\subsection{为什么不能直接在格点上模拟光锥}
+
+格点 QCD 计算的是带正权重的 Euclidean 路径积分。光锥方向 \(n^2=0\) 在 Wick 转动后不具有实的 Euclidean 对应，实时 Wilson 线也不能直接作为有限格距算符计算。直接的困难包括：
+\begin{itemize}
+  \item 光锥分离和实时演化要求解析延拓，数值上不可控；
+  \item 光样 Wilson 线产生 rapidity 发散和 cusp 发散；
+  \item 物理 TMD 依赖初态/末态规范链方向，不能用一个无方向的局域算符替代；
+  \item TMD 的 \(k_T\) 分布需要大体积和稳定的横向 Fourier 变换；
+  \item 胶子算符是单态算符，统计噪声、真空减除和算符混合都比非单态夸克算符更复杂。
+\end{itemize}
+
+\subsection{准 TMD 算符与 staple 几何}
+
+LaMET 的核心思想是：在强子具有大空间动量 \(P_z\) 时，等时、空间分离的 Euclidean 关联函数可以在大动量极限下匹配到光锥关联函数\cite{Ji2013,Ji2014,JiReview2021}。对胶子 TMD，定义准关联函数
+\begin{equation}
+  \Oq(z,\bT;P_z,L_\parallel)
+  =
+  F^{zi}_a(z\hat z+\bT)\,
+  U^{ab}_{\Gamma_\pm}(z\hat z+\bT;0)\,
+  F^{zj}_b(0),
+  \label{eq:quasioperator}
+\end{equation}
+并将横向指标按光锥投影的 leading-twist 结构缩并。坐标空间矩阵元写成
+\begin{equation}
+  h_g(z,\bT;P_z,L_\parallel;1/a)
+  =\langle P_z|\Oq(z,\bT;P_z,L_\parallel)|P_z\rangle .
+  \label{eq:quasimat}
+\end{equation}
+在有限格距上，准 TMD 还含有 Wilson 线自能、cusp、pinch-pole 和端点对数发散。若直接对 \(z\) 做 Fourier 变换而不先减除这些结构，所得函数不能被解释为物理分布。
+
+物理的 \(b_T\) 依赖通过
+\begin{equation}
+  \widetilde f^{g}(x,\bT;P_z;\mu_R)
+  =\int\frac{\dd z}{2\pi}\,e^{ixP_z z}
+  \frac{h_g(z,\bT;P_z,L_\parallel;1/a)}
+  {\mathcal N(x,P_z,a,L_\parallel)}
+  \label{eq:quasifourier}
+\end{equation}
+定义；\(\mathcal N\) 是归一化和重正化因子，依赖于所用方案。这里故意没有把 \(\mathcal N\) 写成一个普遍的指数因子：胶子 TMD 的 Wilson 线自能、cusp 角度、场强端点和 pinch-pole 结构不能用一个标量函数在没有假设的情况下全部吸收。
+
+\subsection{准 TMD、软函数与 CS 核的关系}
+
+在 LaMET 因子化成立的区域，重正化后的准 TMD 与光锥 TMD 的关系可概括为
+\begin{equation}
+  \frac{\widetilde f^{g}(x,\bT;P_z;\mu)}
+  {\sqrt{S_{I,g}(\bT;\mu)}}
+  =
+  \left[H_g\otimes f_g\right](x,\bT;\mu;\zeta_z)
+  \exp\left[\frac{1}{2}K_g(\bT;\mu)
+  \ln\frac{\zeta_z}{\zeta}\right]
+  +\text{高扭度修正},
+  \label{eq:lametgluon}
+\end{equation}
+其中 \(\zeta_z\sim(2xP_z)^2\) 是准分布的自然快度标度，\(\otimes\) 概括硬匹配中可能出现的 \(x\) 卷积以及胶子-夸克单态混合。对非单态或近似忽略混合的计算，可把硬核取为对角形式；但在核子单态胶子通道中，不能把“忽略 \(g-q\) 混合”当作普适定理，只能作为有误差估计的近似\cite{ZhangGluonLaMET2019,JiReview2021}。
+
+高扭度修正至少包括
+\begin{equation}
+  \mathcal O\!\left(\frac{M_N^2}{P_z^2},
+  \frac{\Lambda_{\rm QCD}^2}{P_z^2},
+  \frac{1}{b_T^2P_z^2},
+  \frac{\Lambda_{\rm QCD}}{P_z}\right),
+  \label{eq:powercorrections}
+\end{equation}
+具体幂次取决于算符、投影和匹配方案。大 \(P_z\) 因此不是可选的数值优化，而是因子化定义的一部分；没有大动量窗口时，即使矩阵元本身有限，也不能把结果解释为光锥 TMD。
+
+\subsection{准 PDF、赝 PDF 与 Ioffe-time 表述}
+
+胶子 TMD 不是孤立的格点对象。理解它与准 PDF、赝 PDF 和 reduced Ioffe-time distribution（RITD）的关系，有助于把短距 OPE、Fourier 变换和 TMD 的 \(b_T\) 匹配分开。对共线胶子 PDF，准 PDF 定义为
+\begin{equation}
+  \tilde f_g(x,P_z)
+  =\int\frac{\dd z}{2\pi xP_z}
+  e^{ixP_z z}
+  \langle P_z|\mathcal O_g(z,0)|P_z\rangle ,
+  \label{eq:quasipdf}
+\end{equation}
+其中 \(\mathcal O_g(z,0)=F^{zi}_a(z)U_{ab}(z,0)F^{zj}_b(0)\) 的横向指标按 twist-2 投影缩并。这里的 \(1/(xP_z)\) 和 Fourier 相位必须与矩阵元归一化一起定义；等价地，可以使用动量密度 \(x\tilde f_g(x,P_z)\)，以避免端点处的额外歧义。
+
+令 Ioffe 时间
+\begin{equation}
+  \nu=P_z z,
+  \label{eq:Ioffe}
+\end{equation}
+并记坐标空间矩阵元为 \(M_g(\nu,z^2)\)。在短距离 \(z^2\ll\Lambda_{\rm QCD}^{-2}\) 区域，算符乘积展开给出
+\begin{equation}
+  M_g(\nu,z^2)
+  =\sum_{n=0}^{\infty}\frac{(-i\nu)^n}{n!}
+  C_{g,n}(z^2\mu^2)\,
+  \langle x^n\rangle_g(\mu)
+  +\mathcal O(z^2\Lambda_{\rm QCD}^2),
+  \label{eq:OPEgluon}
+\end{equation}
+其中 \(C_{g,n}\) 是微扰 Wilson 系数，\(\langle x^n\rangle_g\) 是胶子 PDF 的 Mellin 矩。因子 \((-i\nu)^n/n!\) 来自 \(z\) 的 Taylor 展开，而 Wilson 系数包含 UV 重整化和 DGLAP 型对数。该式说明：准 PDF 不是直接等于 PDF，而是把光锥矩重新求和为空间关联；只有在 \(P_z\to\infty\)、固定 \(x\) 以及适当重正化后，才恢复光锥分布\cite{Ji2013,Ji2014,Izubuchi2018,JiReview2021}。
+
+赝 PDF 方法从同一 Euclidean 矩阵元出发，先构造 reduced Ioffe-time distribution。一个常用定义是
+\begin{equation}
+  \mathscr M_g(\nu,z^2)
+  =\frac{M_g(\nu,z^2)/M_g(0,0)}
+  {M_g(0,z^2)/M_g(0,0)}
+  =\frac{M_g(\nu,z^2)}{M_g(0,z^2)},
+  \label{eq:RITDdef}
+\end{equation}
+等价地可以写成 \(M_g(\nu,z^2)/M_g(0,z^2)\) 的归一化形式。分子保留 boost 依赖，分母用零动量矩阵元吸收 Wilson 线的 UV 结构，因此 RITD 在固定 \(z^2\) 下可以在不同 \(P_z\) 之间比较。胶子 RITD 与光锥 PDF 的匹配写成
+\begin{align}
+  \mathscr M_g(\nu,z^2)
+  &=\int_0^1\dd y\,\frac{y g(y,\mu)}{\langle x\rangle_g}
+  R_{gg}(y\nu,z^2\mu^2)\nonumber\\
+  &\quad+\frac{P_z}{P_0}\int_0^1\dd y\,
+  \frac{y q_S(y,\mu)}{\langle x\rangle_g}
+  R_{gq}(y\nu,z^2\mu^2)+\cdots,
+  \label{eq:RITDmatching}
+\end{align}
+其中 \(q_S\) 概括单态夸克组合，\(P_0\) 是参考动量，\(R_{gg},R_{gq}\) 包含演化和方案转换。若忽略 \(R_{gq}\)，必须把误差单独列出；这不是“胶子只与胶子匹配”的严格陈述。
+
+准 PDF 与赝 PDF 的主要区别在于幂修正的组织方式。准 PDF 的匹配以 \(P_z\) 为大标度，典型修正为 \(M_N^2/P_z^2\) 和 \(\Lambda_{\rm QCD}^2/P_z^2\)；赝 PDF 的匹配以 \(z^2\) 为短距标度，典型修正为 \(z^2\Lambda_{\rm QCD}^2\)。二者在短距 OPE 的公共区域可以相互转换，但不能把一种方法的端点外推直接套到另一种方法上\cite{Izubuchi2018,Cichy2019}。
+
+\subsection{从共线准 PDF 到 quasi-TMD 的逻辑差异}
+
+共线准 PDF 的 Wilson 线是一条直线；quasi-TMD 则需要 staple，因为 TMD 的横向分离与过程相关的软结构同时存在。因此两者的重正化问题并不相同：
+\begin{itemize}
+  \item 准 PDF 的直线 Wilson 线主要产生线性自能和端点对数，局部 Wilson 圈或质量减除常常足以组织重正化；
+  \item quasi-TMD 的 staple 还包含两条平行长 Wilson 线之间的 pinch-pole、cusp 角度和横向分离，必须使用同几何 Wilson 圈、软函数和 CS 演化；
+  \item 准 PDF 的匹配只在 \(x\) 与硬核之间进行，而 TMD 匹配还必须保留 \(\bT\)、\(\zeta\) 和过程相关的规范链。
+\end{itemize}
+因此，“胶子准 PDF 已经算到连续极限”不能推出“胶子 TMD 已完成”。前者是后者的重要构件，但 TMD 额外要求 \(b_T\) 分辨、rapidity 减除和表示相关软结构。
+
+\subsection{准 TMD 波函数与软函数提取}
+
+介子准 TMD 波函数提供了一条重要的辅助路线。对赝标量介子，定义带 staple 的准波函数，并把它与介子形状因子、软函数和硬核联系。该路线的优点是两点函数计算成本较低，且软函数和 CS 核可以通过不同强子态或不同动量的比值提取\cite{ZhangSoft2020,ChuCS2022}。它不能直接替代核子的胶子 TMD，但可以验证以下普适结构：
+\begin{enumerate}
+  \item 规范链自能是否按同几何的 Wilson 圈平方根抵消；
+  \item 内禀软函数是否在多个 \(P_z\) 下稳定；
+  \item CS 核是否与强子态无关；
+  \item 匹配核是否在误差范围内消除硬贡献的动量依赖。
+\end{enumerate}
+
+\subsection{软函数提取的显式因子化链}
+
+在大动量赝标量介子形状因子方法中，定义四夸克形状因子
+\begin{equation}
+  F(b_T,P_z)
+  =\langle \pi(-P_z)|
+  (\bar q_1\Gamma q_1)(\bT)\,
+  (\bar q_2\Gamma q_2)(0)
+  |\pi(P_z)\rangle_c ,
+  \label{eq:mesonformfactor}
+\end{equation}
+其中不同味道和连通收缩用于避免不需要的 disconnected 拓扑。leading-power 因子化为
+\begin{equation}
+  \begin{aligned}
+  F(b_T,P_z)
+  &=S_{I,g}(b_T;\mu)
+  \int_0^1\dd x\,\dd x'\,
+  H_g(x,x',P_z;\mu)\\
+  &\quad\times
+  \Phi_g^\dagger(x',b_T,-P_z;\mu)\,
+  \Phi_g(x,b_T,P_z;\mu)
+  +\mathcal O(P_z^{-2}),
+  \end{aligned}
+  \label{eq:mesonfactorization}
+\end{equation}
+其中 \(\Phi_g\) 是 quasi-TMDWF，\(H_g\) 是硬核。若在领头阶把 \(H_g\) 近似为常数，并利用赝标量介子的宇称关系 \(\phi_g(0,b_T,-P_z)=\phi_g(0,b_T,P_z)\)，则
+\begin{equation}
+  S_{I,g}(b_T;\mu)
+  =\frac{2N_c\,F(b_T,P_z)}
+  {|\phi_g(0,b_T,P_z)|^2}
+  +\mathcal O(\alpha_s,P_z^{-2}),
+  \label{eq:SIextraction}
+\end{equation}
+其中 \(\phi_g(0,b_T,P_z)=\int_0^1\dd x\,\Phi_g(x,b_T,P_z)\)。在单圈精度下，必须把硬核 \(H_g\)、波函数归一化和 Fierz 重排一起纳入；否则 \(S_I\) 的 \(P_z\) 平台可能只是硬核误差被误当作软物理\cite{ZhangSoft2020,ChuSoft2023}。
+
+CS 核可由不同动量下的准 TMDWF 比值提取：
+\begin{equation}
+  K_g(b_T;\mu)
+  =\frac{1}{\ln(P_1^z/P_2^z)}
+  \ln\left|
+  \frac{H_g(xP_2^z;\mu)\,
+  \widetilde\Phi_g(x,b_T,P_1^z;\mu)}
+  {H_g(xP_1^z;\mu)\,
+  \widetilde\Phi_g(x,b_T,P_2^z;\mu)}
+  \right|
+  +\mathcal O(P_z^{-2}).
+  \label{eq:CScore}
+\end{equation}
+若使用 \(\Phi_g\) 的 \(x\) 积分或特定 \(x\) 点，必须验证所得 \(K_g\) 对 \(x\)、\(P_1^z/P_2^z\) 和硬核阶数不敏感。CS 核的普适性不是“任取两个动量相除”即可自动成立，而是因子化和幂修正控制后的结果。
+
+\subsection{短距匹配与软因子不可交换}
+
+把准 TMD 写成
+\begin{equation}
+  \widetilde f_g
+  =H_g\otimes f_g\,
+  \exp\left[\frac{1}{2}K_g\ln\frac{\zeta_z}{\zeta}\right]
+  \frac{1}{\sqrt{S_{I,g}}}
+  +\text{高扭度}
+  \label{eq:matchingrepeat}
+\end{equation}
+时，四种常见错误是：
+\begin{enumerate}
+  \item 用裸准 TMD 直接除一个没有同几何的软函数；
+  \item 用夸克表示或夸克通道拟合的 \(K\) 替代 \(K_g\)；
+  \item 在匹配后乘一个标量 \(Z\) 吸收所有混合，却不报告 \(g-q\) 矩阵；
+  \item 在 \(P_z\) 尚未进入因子化窗口时，把 \(1/P_z^2\) 修正吸收到软函数中。
+\end{enumerate}
+这些操作的共同问题是把不同尺度、不同表示和不同过程的贡献混在一个因子中。正确的顺序应当是：固定算符和几何，完成 UV 重正化，构造软/rapidity 减除，再匹配硬核，最后做大动量外推。每一步都应有独立检查和可回退的方案。
+
+\section{重正化与梯度流}
+
+\subsection{发散分类}
+
+胶子 TMD 关联函数的 UV 结构比局域胶子算符复杂。表~\ref{tab:divergences} 给出常见的发散类型及其物理来源。不同发散的减除必须使用同一 Wilson 线几何；否则可以出现“数值上看似抵消、实际上改变了 TMD 方案”的错误。
+
+\begin{table}[htbp]
+\centering
+\caption{胶子 staple 关联函数中的主要 UV 与 rapidity 结构。}
+\label{tab:divergences}
+\footnotesize
+\begin{tabularx}{\textwidth}{L{3.0cm}L{3.2cm}Y}
+\toprule
+结构 & 典型形式 & 物理来源与处理 \\
+\midrule
+Wilson 线自能 & \(e^{-\delta m\,L_\parallel/a}\) & 与路径长度和表示有关，需用同长度 Wilson 圈或质量重正化吸收 \\
+cusp 发散 & \(\exp[-\Gamma_{\rm cusp}\ln(\mu L)]\) & 转角角度、表示和路径端点决定；不能用一个普适常数替代 \\
+pinch pole & \(e^{-V(\bT)L_\parallel}\) & 两条长 Wilson 线之间的有效势；在 \(L_\parallel\to\infty\) 形成平台或需 Wilson 圈减除 \\
+端点对数 & \(Z_O(\mu,1/a)\) & 场强与 Wilson 线连接处的局域反常量纲，可通过 RI/MOM、比率或匹配处理 \\
+rapidity 发散 & \(f_{\rm bare}/\sqrt{S_R}\) & 与快度积分、软胶子和规范链方向有关，不能由普通 UV 重正化消除 \\
+算符混合 & \(O_i=Z_{ij}O_j\) & 同量纲胶子算符、单态夸克算符和不同 Lorentz 投影可能混合 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Wilson 圈减除与短距方案}
+
+对长度为 \(L_\parallel\)、横向分离为 \(\bT\) 的 Wilson 圈取
+\begin{equation}
+  Z_{E,R}(\bT;L_\parallel;1/a)
+  =\frac{1}{d_R}\left\langle
+  \Tr_R\,U_{\square,R}(\bT;2L_\parallel)
+  \right\rangle ,
+  \label{eq:wilsonloop}
+\end{equation}
+其中 \(d_R\) 是表示维数。若开 Wilson 线的自能按总长度增长，则 \(\sqrt{Z_{E,R}}\) 可抵消相应的线性因子；Wilson 圈与 staple 具有相同的转角结构时，cusp 贡献也可部分抵消。该减除必须使用胶子的伴随表示，不能直接套用夸克的基本表示数值。
+
+在消除线性项和 pinch-pole 之后，仍需处理剩余的对数 UV 发散。短距比率方案把非局域矩阵元除以零动量、短距离参考点上的矩阵元：
+\begin{equation}
+  h^{\rm ratio}_g(z,\bT;P_z)
+  =
+  \frac{h_g(z,\bT;P_z;1/a)}
+  {h_g(z_0,\boldsymbol b_{T,0};0;1/a)}
+  \frac{h_g^{\MSbar}(z_0,\boldsymbol b_{T,0};\mu)}
+  {h_g^{\MSbar}(z,\bT;\mu)},
+  \label{eq:ratioscheme}
+\end{equation}
+其中 \(z_0,\boldsymbol b_{T,0}\) 位于短距离微扰窗口。混合方案则在短距离使用比率、在长距离使用自重整化或质量重正化，以便同时控制 \(z\to0\) 与 \(a\to0\) 的非交换极限\cite{JiHybrid2021,Huo2021}。这些方案的共同要求是：短距离参考点、Wilson 线几何、场强投影和 Fourier 约定必须在同一计算中固定。
+
+RI/MOM 方案可以确定某些局域反常量纲，但它不自动消除非局域 Wilson 线的线性发散，也不能自动处理 staple 的 pinch-pole。对于非手征费米子作用量，手征对称性破缺还可能引发额外的算符混合。因此，“RI/MOM 重正化后曲线随 \(z\) 变平”不是充分的物理判据；还必须检查连续极限、不同格距和不同几何下的稳定性\cite{Huo2021,Ishikawa2017}。
+
+\subsection{辅助场、36 个分量与可乘性重正化}
+
+胶子准算符的 UV 分类可以通过辅助伴随“重夸克”场系统化。引入
+\begin{equation}
+  \mathcal L_{\rm aux}
+  =\mathcal L_{\rm QCD}
+  +\overline Q_a(x)(in\cdot D-m)_{ab}Q_b(x),
+  \label{eq:auxiliarylagrangian}
+\end{equation}
+其中 \(n^\mu\) 指向非局域分离方向。Wilson 线可以写成辅助场的两点函数，从而使非局域算符的端点和规范链自能转化为局域算符乘积的重正化问题\cite{ZhangGluonLaMET2019}。在维数正规化中，纯胶子准算符的 UV 发散局域在端点，并可按 Lorentz 指标中 \(z\) 分量的个数分类。对四个场强指标 \(\mu,\nu,\rho,\sigma\)，令 \(s\) 为其中等于 \(z\) 的指标数，则符号结构可概括为
+\begin{equation}
+  O^{\mu\nu\rho\sigma}_{g,\rm bare}
+  =e^{-C_g|z|}
+  Z_{wg}Z_{vg1}^{s/2}Z_{vg2}^{(2-s)/2}
+  O^{\mu\nu\rho\sigma}_{g,\rm ren}
+  +\text{contact/EOM},
+  \label{eq:multiplicativegluon}
+\end{equation}
+其中 \(C_g\) 概括线性自能，\(Z_{wg}\) 是 Wilson 线端点因子，\(Z_{vg1},Z_{vg2}\) 依赖于 \(z\) 指标数。该结构说明：并非所有 Lorentz 组合都可用同一个标量 \(Z\) 重正化；但存在若干可乘性重正化的构建块，可用于构造准 PDF 或准 TMD 的物理投影\cite{LiMaQiu2019,ZhangGluonLaMET2019}。
+
+对于物理 TMD staple，还需要把该局域分类与横向分离、长 Wilson 线夹角和软函数结合。可乘性重正化的“准 PDF 结论”不能被误写为“任意 staple 算符都可乘性重正化”。一个安全的表述是：在固定几何、固定表示和固定投影下，UV 发散可由有限个因子组织；但 pinch-pole 和 rapidity 结构仍需要专门减除。
+
+\subsection{RI/MOM 条件及其适用边界}
+
+RI/MOM 方案的出发点是对截肢 Green 函数施加离壳条件。若 \(\Gamma_O(p)\) 是算符 \(O\) 的截肢顶点，\(P_\Gamma\) 是投影算符，则一种典型定义为
+\begin{equation}
+  Z_O^{-1}(\mu_R,p_R)
+  \left[
+  \frac{P_\Gamma\Gamma_O(p)}
+  {P_\Gamma\Gamma_O^{(0)}(p)}
+  \right]_{p^2=-\mu_R^2,\;p_z=p_R^z}
+  =1,
+  \label{eq:ri-momcondition}
+\end{equation}
+其中 \(\Gamma_O^{(0)}\) 是树级顶点。对具有多个 Lorentz 结构的胶子算符，必须同时说明投影、色指标缩并和混合矩阵；单一标量条件通常不足以固定所有分量。
+
+RI/MOM 的优点是系统、可非微扰计算，并且能与 \(\MSbar\) 通过微扰转换。它的局限在于：
+\begin{itemize}
+  \item 离壳 Green 函数包含规范依赖和 Goldstone 型 IR 结构，需检查规范固定和动量窗口；
+  \item 非局域 Wilson 线的线性自能不是普通局域反常量纲，单靠 RI/MOM 除法不能证明消失；
+  \item 物理矩阵元和离壳顶点对算子混合的投影可能不同；
+  \item 对破坏手征对称性的作用量，标量-伪标量或张量型混合可能需要额外矩阵。
+\end{itemize}
+因此，RI/MOM 可以作为局域反常量纲和混合矩阵的工具，但对 staple 型 TMD，必须与 Wilson 圈、短距比率或自重整化联合使用，并在多个格距上做连续检验\cite{Huo2021,Zhang2022TMD}。
+
+\subsection{Ratio、hybrid 与 self-renormalization}
+
+Ratio 方案用零动量矩阵元构造比值：
+\begin{equation}
+  h_R^{\rm ratio}(z,P_z)
+  =\frac{h_{\rm bare}(z,P_z;1/a)}
+  {h_{\rm bare}(z,0;1/a)}
+  \frac{h_{\rm bare}(0,0;1/a)}{h_{\rm bare}(0,P_z;1/a)} .
+  \label{eq:ratiodetail}
+\end{equation}
+它的优点是消除了只依赖 \(z/a\) 的自能和部分端点因子；缺点是零动量分母在大 \(z\) 处可能进入非微扰区，且比值的局域极限会改变整体归一化。
+更早的准 PDF 方案还常把非微扰重正化与短距比率组合成两步流程，以便同时控制端点混合和幂修正\cite{Alexandrou2017}。
+
+Hybrid 方案把短距离和长距离分开：
+\begin{equation}
+  h_R^{\rm hyb}(z,P_z)=
+  \begin{cases}
+  \dfrac{h_{\rm bare}(0,0)}{h_{\rm bare}(0,P_z)}
+  \dfrac{h_{\rm bare}(z,P_z)}{h_{\rm bare}(z,0)}, & |z|\le z_s,\\[1.0em]
+  \dfrac{h_{\rm bare}(0,0)}{h_{\rm bare}(0,P_z)}
+  \dfrac{h_{\rm bare}(z,P_z)}{h_{\rm bare}(z_s,0)}
+  e^{(\delta m+m_0)(|z|-z_s)}, & |z|>z_s,
+  \end{cases}
+  \label{eq:hybriddetail}
+\end{equation}
+其中 \(z_s\) 是短距切换点，\(\delta m\) 是 Wilson 线线性发散系数，\(m_0\) 概括残余质量或重整子歧义。短距端可以用微扰 Wilson 系数匹配到 \(\MSbar\)，长距端则保留非微扰矩阵元的指数衰减。若 \(z_s\) 的选择改变最终结果超过统计误差，说明幂修正或微扰匹配尚未受控\cite{JiHybrid2021,GoodYaoLin2026}。
+
+Self-renormalization 采用乘性比值
+\begin{equation}
+  h_R^{\rm self}(z,P_z)
+  =\frac{h_{\rm bare}(z,P_z;1/a)}
+  {\left[h_{\rm bare}(z_0,0;1/a)\right]^{z/z_0}},
+  \label{eq:selfrenorm}
+\end{equation}
+或用零动量短距点 \(z_0\) 的拟合参数化线性项与对数项。它不依赖 Wilson 圈的显式测量，适合多格距联合分析；但其成功条件是多格距数据能区分 \(a^{-1}\) 线性和对数依赖。单格距时，不同 \(z_0\) 或参数化可能给出不可辨识的结果\cite{Huo2021}。
+
+\subsection{规范固定、HYP 与平滑链接}
+
+Wilson 线的信噪比和非微扰矩阵元对规范固定的精度敏感。对需要固定规范的计算，残差应远低于常用阈值，尤其在细格距和长路径上；规范固定误差若随路径长度累积，可能伪装成物理的 \(z\) 依赖。对规范不变实现，HYP、stout 或 Wilson flow 可以降低 UV 噪声，但会改变算符的 UV 结构，因此必须把平滑参数纳入重正化和匹配方案，而不能把不同平滑度的裸矩阵元直接比较\cite{ZhangGauge2024,Peardon2009,Bali2016}。
+
+表~\ref{tab:schemematrix} 概括各方案的分工。一个完整 TMD 计算通常不是选一个方案，而是把 Wilson 圈、短距匹配、软/rapidity 和 flow 组合成一条有明确适用域的链。
+
+\begin{table}[htbp]
+\centering
+\caption{胶子非局域算符重正化方案的适用域。}
+\label{tab:schemematrix}
+\footnotesize
+\begin{tabularx}{\textwidth}{L{2.4cm}L{3.2cm}L{3.0cm}Y}
+\toprule
+方案 & 主要消除对象 & 优点 & 主要风险/缺口 \\
+\midrule
+Wilson 圈开方 & 线性自能、pinch-pole、部分 cusp & 同几何、物理直观 & 必须同表示/同路径；不能单独消除端点对数 \\
+Ratio & \(z/a\) 型 UV、部分端点 & 实现简单，短距归一化明确 & 长距零模、端点归一化和幂修正 \\
+Hybrid & 短距 ratio + 长距质量减除 & 兼顾微扰与非微扰 & \(z_s\) 依赖、\(\delta m+m_0\) 拟合和格距数 \\
+Self-renorm & 线性项、重整子 & 多格距联合，非微扰 & 单格距不可辨识；参数化模型依赖 \\
+RI/MOM & 局域反常量纲和混合矩阵 & 系统、可转换到 \(\MSbar\) & 非局域自能、规范依赖和混合投影 \\
+Gradient flow & UV 平滑、短流时匹配 & 规范不变、降低噪声 & 流窗口、SFTX 截断和软/rapidity 不替代 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{梯度流作为 UV 正规化}
+
+在 Euclidean 规范理论中定义流场 \(B_\mu(\tau,x)\)：
+\begin{equation}
+  \partial_\tau B_\mu(\tau,x)
+  =D_\nu G_{\nu\mu}(\tau,x),
+  \qquad
+  B_\mu(0,x)=A_\mu(x),
+  \label{eq:flowequation}
+\end{equation}
+其中 \(G_{\mu\nu}\) 是流场的场强，\(\tau\) 的量纲为长度平方。格点上的 Wilson flow 通过
+\begin{equation}
+  \dot V_\tau(x,\mu)
+  =-g_0^2\left[\partial_{x,\mu}S_W(V_\tau)\right]V_\tau(x,\mu),
+  \qquad
+  V_0=U
+  \label{eq:wilsonflow}
+\end{equation}
+实现\cite{Luscher2010}。Lüscher--Weisz 的微扰分析表明，在标准 QCD 参数已重正化的前提下，流场的规范不变局域关联函数在 \(d\le4\) 时是 UV 有限的\cite{LuscherWeisz2011}。这使流半径
+\begin{equation}
+  r_f=\sqrt{8\tau}
+  \label{eq:flowradius}
+\end{equation}
+成为一个独立于格距的平滑尺度。
+
+然而，流动并不等于完整 TMD 重正化。流场是 UV 调节器，短流时展开把流化算符表示为普通重正化算符的线性组合：
+\begin{equation}
+  O_R(\tau,x)
+  \sim\sum_i c_i(\tau)\,\mathcal O_{R,i}(x)
+  +\mathcal O(\tau\Lambda_{\rm QCD}^2),
+  \label{eq:sftx}
+\end{equation}
+其中 Wilson 系数 \(c_i\) 与流方案和算符表示有关。对非局域 TMD 算符，短距展开还必须同时考虑 \(z,\bT\) 和 \(P_z\)。因此，流化只提供一个可控的短距离窗口，不能替代软函数、rapidity 方案和硬匹配。
+
+\subsection{流的微扰图像与短流时系数}
+
+在自由场极限中，把流场按 Fourier 模式展开，线性化流方程给出横向极化模式的高斯衰减：
+\begin{equation}
+  \widetilde B_\mu(\tau,k)
+  =\left[e^{-k^2\tau}P^\perp_{\mu\nu}(k)
+  +P^\parallel_{\mu\nu}(k)\right]\widetilde B_\nu(0,k),
+  \label{eq:flowkernel}
+\end{equation}
+其中 \(P^\perp_{\mu\nu}=g_{\mu\nu}-k_\mu k_\nu/k^2\) 是横向投影，\(P^\parallel_{\mu\nu}=k_\mu k_\nu/k^2\) 是纵向投影。该式说明流半径 \(r_f=\sqrt{8\tau}\) 是扩散长度，不是简单的“平滑步数”。在非阿贝尔理论中，非线性项会改变高阶系数，但短流时展开仍按规范不变局域算符组织。
+
+规范作用量密度的典型短流时展开为
+\begin{equation}
+  E(\tau,x)
+  =\frac{1}{4}G^a_{\mu\nu}G^a_{\mu\nu}
+  \sim \langle E(\tau,x)\rangle
+  +c_E(\tau)\left[\frac{1}{4}F^a_{\mu\nu}F^a_{\mu\nu}\right]_R
+  +\mathcal O(\tau),
+  \label{eq:Esftx}
+\end{equation}
+其中 \(c_E(\tau)\) 的紫外行为由重整化群控制。更一般地，任何流化规范不变算符都可写成
+\begin{equation}
+  O_R(\tau,x)
+  =\sum_i c_i(\tau)\mathcal O_{R,i}(x)
+  +\mathcal O(\tau\Lambda_{\rm QCD}^2),
+  \label{eq:genericsftx}
+\end{equation}
+系数 \(c_i\) 必须通过微扰匹配或非微扰方案确定。对胶子 TMD，非局域算符的 SFTX 可以看成在固定 \(z,\bT\) 下先对流场做局域展开，再对剩余非局域结构做算子匹配；因此流时间和外部分离的极限不可交换。
+
+\subsection{流时间外推与匹配策略}
+
+单一流时间的数值结果不能作为物理结果。推荐至少做到：
+\begin{enumerate}
+  \item 选取若干满足 \(a\ll r_f\ll b_T,z\) 的流时；
+  \item 在每个流时上独立完成 Wilson 圈、场强和准 TMD 矩阵元计算；
+  \item 用同一匹配核把结果转换到 \(\MSbar\) 或选定的连续方案；
+  \item 对 \(\tau\to0\) 做线性或包含高阶项的受控外推；
+  \item 检查不同外推窗口、不同 \(z_0\) 和不同 \(\alpha_s\) 阶数下的稳定性；
+  \item 将流时间误差与格距、体积、统计和匹配误差分别报告。
+  \end{enumerate}
+如果只在 \(\tau=3a^2\) 上做计算，即使矩阵元有限，也无法区分短流时物理、格距效应和流化导致的非微扰污染。该点与第 6 节库内审计中的 \(r_f>b_T\) 问题直接相关。
+
+\subsection{流时间窗口}
+
+为了让流化 TMD 同时接近物理光锥关联和保持可微扰匹配，需要满足尺度层级
+\begin{equation}
+  a\ll r_f\ll \min\left(z,b_T,\Lambda_{\rm QCD}^{-1}\right),
+  \qquad
+  P_zr_f\ll1 .
+  \label{eq:flowwindow}
+\end{equation}
+第一组不等式表示：流半径必须大于格距以平滑 UV，但小于非局域算符的物理分离，否则流会抹平待测的横向结构。第二式要求 boost 不把流半径放大成硬尺度。实际计算中还需加入
+\begin{equation}
+  b_T\ll L_s/2,
+  \qquad
+  L_\parallel\gg b_T,
+  \label{eq:volumeconditions}
+\end{equation}
+以控制有限体积和 staple 平台。一个“流后矩阵元有限”的结果，如果违反这些窗口，仍然只能作为诊断。
+
+\subsection{梯度流、混合与单态演化}
+
+梯度流可以降低高维算符污染和统计噪声，但它不能消除所有算符混合。对非极化胶子，等时算符的不同 Lorentz 分量可能有不同的反常量纲；可乘性重正化的组合必须在场强指标和横向投影上固定\cite{ZhangGluonLaMET2019,LiMaQiu2019}。在核子单态通道中，胶子与夸克的物理演化还会在因子化层发生混合，表现为硬核矩阵 \(C_{gg},C_{gq},C_{qg},C_{qq}\)。这与 UV 重正化矩阵不是同一个概念，但二者都要求在最终误差预算中显式列出。
+
+\section{从格点关联函数到 TMD}
+
+\subsection{两点与三点关联函数}
+
+核子两点函数取
+\begin{equation}
+  C_2(t;\mathbf P)
+  =\sum_{\mathbf x}e^{i\mathbf P\cdot\mathbf x}
+  \langle N(\mathbf x,t)\overline N(\mathbf 0,0)\rangle .
+  \label{eq:two-point}
+\end{equation}
+胶子算符插入的三点函数为
+\begin{equation}
+  C_{3,g}(t,\tau;\mathbf P)
+  =\sum_{\mathbf x}e^{i\mathbf P\cdot\mathbf x}
+  \langle N(\mathbf x,t)\,
+  \Oq[\tau,\bT;L_\parallel]\,
+  \overline N(\mathbf 0,0)\rangle .
+  \label{eq:three-point}
+\end{equation}
+对纯胶子插入，必须减去真空期望值，并把胶子回路与核子传播子正确收缩。实际的核子胶子矩阵元包含单态和断开型贡献；若忽略某些拓扑，必须证明其在该通道中被压低，而不能只凭图的数量判断。
+
+在源汇时间间隔 \(t_{\rm sep}=t-t_0\) 足够大时，基态矩阵元可通过比值或双态拟合提取：
+\begin{equation}
+  R_g(t,\tau;t_{\rm sep})
+  =\frac{C_{3,g}(t,\tau)}{C_2(t)}
+  \longrightarrow
+  \frac{\langle P|\Oq|P\rangle}{2E_P}
+  \left[1+\mathcal O(e^{-\Delta Et_{\rm sep}})
+  +\mathcal O(e^{-\Delta E\min(\tau,t_{\rm sep}-\tau)})\right].
+  \label{eq:ratio}
+\end{equation}
+对高动量核子，基态能量间隙和信噪比都会恶化，因此必须同时报告单态拟合、双态拟合、不同 \(t_{\rm sep}\) 窗口和模型平均结果。仅报告一个 plateau 点不足以证明基态矩阵元。
+
+\subsection{谱分解、四态结构与比值归一化}
+
+为了看清三点函数中的污染，写出有限体积谱分解。两点函数为
+\begin{equation}
+  C_2(t;\mathbf P)
+  =\sum_n |A_n(\mathbf P)|^2e^{-E_n(\mathbf P)t},
+  \qquad
+  A_n(\mathbf P)=\langle 0|\chi_N(\mathbf P)|n,\mathbf P\rangle ,
+  \label{eq:c2spectral}
+\end{equation}
+其中 \(\chi_N\) 是核子插值算符。三点函数在 \(t_0<\tau<t_s\) 时为
+\begin{equation}
+  C_3(t_s,\tau;\mathbf P)
+  =\sum_{m,n}
+  A_m^*(\mathbf P)A_n(\mathbf P)\,
+  \langle m,\mathbf P|\mathcal O_g(\tau)|n,\mathbf P\rangle\,
+  e^{-E_m(\mathbf P)(t_s-\tau)}
+  e^{-E_n(\mathbf P)\tau}.
+  \label{eq:c3spectral}
+\end{equation}
+若 \(t_s\) 不够大，会出现四类贡献：
+\begin{enumerate}
+  \item \(m=n=0\)：基态矩阵元，目标项；
+  \item \(m=0,n>0\) 或 \(m>0,n=0\)：源端或汇端跃迁；
+  \item \(m,n>0\)：激发态-激发态项；
+  \item 多粒子阈值与有限体积能级，可能表现为非指数或近简并结构。
+\end{enumerate}
+简单的 \(C_3/C_2\) 比值只在基态主导时收敛。若用两点函数在源端的局部比值，常见的 tree-level 归一化形式是
+\begin{equation}
+  R_g(\tau,t_s;\mathbf P)
+  =\frac{\sum_{\mathbf x}e^{i\mathbf P\cdot\mathbf x}
+  \langle N(t_s,\mathbf x)\mathcal O_g(\tau)\overline N(0)\rangle}
+  {\sum_{\mathbf x}e^{i\mathbf P\cdot\mathbf x}
+  \langle N(t_s,\mathbf x)\overline N(0)\rangle},
+  \label{eq:ratio-equivalent}
+\end{equation}
+若使用分段 Wilson 线或单独的源归一化，还应乘以由两点函数构造的端点因子。实际实现应根据源汇位置和算符插入归一化选择正确因子；关键是分子和分母必须来自同一组源、同一组规范组态和同一套 Wilson 线。任何“先对源平均再重建比值”的做法都可能丢失源间关联和归一化信息。
+
+\subsection{双态拟合、求和法与 GEVP}
+
+双态拟合通常把两点和三点函数联合参数化：
+\begin{align}
+  C_2(t)&=A_0^2e^{-E_0t}
+  +A_1^2e^{-E_1t}+\cdots,
+  \label{eq:two-state}\\
+  C_3(t_s,\tau)&=A_0^2\langle0|O|0\rangle
+  e^{-E_0t_s}\left[1+
+  r_1e^{-\Delta E(t_s-\tau)}
+  +r_1'e^{-\Delta E\tau}
+  +\cdots\right].
+  \label{eq:three-state}
+\end{align}
+其中 \(r_1,r_1'\) 概括跃迁矩阵元与振幅比。对胶子算符，跃迁项不一定具有简单的正比结构，故应把 \(r_1,r_1'\) 作为独立拟合参数并检查可辨识性。
+
+求和法定义
+\begin{equation}
+  S_g(t_s)=\sum_{\tau=\tau_{\min}}^{t_s-\tau_{\min}}
+  R_g(\tau,t_s)
+  \simeq \text{const}
+  +t_s\,\frac{\langle P|O_g|P\rangle}{2E_P}
+  +\mathcal O(e^{-\Delta Et_s}),
+  \label{eq:summation}
+\end{equation}
+其斜率给出基态矩阵元，但求和会放大源端和汇端污染，且对 \(t_s\) 窗口敏感。GEVP 则用算符基 \(i,j=1,\dots,N\) 构造矩阵
+\begin{equation}
+  C_{ij}(t)v_j^{(n)}(t,t_0)
+  =\lambda_n(t,t_0)C_{ij}(t_0)v_j^{(n)}(t,t_0),
+  \label{eq:gevp}
+\end{equation}
+并对角化得到有效能量和 overlap。GEVP 的优点是变分压低激发态，缺点是矩阵估计噪声、基算符线性相关和本征向量符号追踪；对纯胶子插入，扩展基还应包含不同 smear、不同场强投影和不同动量。
+
+\subsection{顺序源与胶子回路的收缩}
+
+标准三点函数可以用顺序源方法降低 Dirac 求逆次数。对核子传播子 \(S_q(x,y)=M_q^{-1}(x,y)\)，在汇点构造带有算符和 Gamma 结构的源，再向插入时间传播。胶子算符是纯规范算符，因此在 Wick 收缩中它与夸克传播子的连接可以组织为胶子回路与核子两点函数的乘积，再加上可能的连接拓扑。典型形式可写成
+\begin{equation}
+  C_{3,g}(t_s,\tau)
+  =\left\langle
+  \mathrm{Tr}\left[
+  \mathcal G_g(\tau)\,\mathcal C_N(t_s)
+  \right]\right\rangle
+  -\left\langle\mathcal G_g(\tau)\right\rangle
+  \left\langle\mathcal C_N(t_s)\right\rangle ,
+  \label{eq:disconnected}
+\end{equation}
+其中 \(\mathcal G_g\) 是胶子场强、Wilson 线和颜色指标的闭合结构，\(\mathcal C_N\) 是核子两点收缩，第二项是真空减除。若胶子算符还通过显式夸克流连接，必须把连通与断开部分分别保留，不能用一个统一的 `disconnected` 标签覆盖所有拓扑。
+
+非连通贡献的统计误差通常较大，且需要源分辨和全系综真空协方差。一个常见错误是只减除全局平均 \(\langle \mathcal G_g\rangle\)，却忽略每个源、每个时间片和每个组态的真空结构；这会在高动量下产生与物理信号同量级的偏置。
+
+\subsection{Clover 场强与规范链实现}
+
+在格点上，Clover 场强通常由四个 plaquette 的反对称组合构造：
+\begin{equation}
+  F_{\mu\nu}(x)
+  =-\frac{i}{8a^2}\left[Q_{\mu\nu}(x)-Q_{\nu\mu}(x)\right],
+  \label{eq:clover}
+\end{equation}
+其中 \(Q_{\mu\nu}\) 是围绕 \(x\) 的四个 plaquette 的适当和。对非阿贝尔场强，还需在色空间做无迹投影：
+\begin{equation}
+  F_{\mu\nu}\longrightarrow
+  F_{\mu\nu}-\frac{1}{N_c}\Tr(F_{\mu\nu})\,\mathbf 1 .
+  \label{eq:traceless}
+\end{equation}
+这一步在连续理论中对基本表示恒成立，但在有限格距和非手征作用量中是必要的数值稳定化。
+
+Wilson 线应由同一套格点链接逐段相乘。对伴随表示，可先构造基本表示路径，再通过
+\begin{equation}
+  U^{(\mathrm{adj})}_{ab}
+  =2\Tr\left(T_aU^{(\mathrm{fund})}T_bU^{(\mathrm{fund})\dagger}\right)
+  \label{eq:adjointlink}
+\end{equation}
+做表示转换，或在伴随矩阵空间直接累积链接。两种实现的对易、归一化和反号必须通过小矩阵测试。若沿路径采用 HYP、stout 或 Wilson flow，场强和长 Wilson 线必须使用同一套平滑链接，否则端点处的局域 UV 结构不一致。
+
+\subsection{传播子、涂抹与谱学}
+
+高动量核子的信噪比可以通过 momentum smearing、distillation、Gaussian smearing 和 GEVP 改善\cite{Bali2016,Peardon2009}。这些技术改变的是插值算符的 overlap，不改变 TMD 算符的定义。一个合格的谱学分析应区分：
+\begin{itemize}
+  \item 插值算符的基态 overlap 和有效质量平台；
+  \item 源分辨两点函数的平移与归一化；
+  \item 三点函数的激发态污染；
+  \item 胶子算符插入位置 \(\tau\) 的对称性；
+  \item 不同源、汇和动量下的 jackknife/bootstrap 相关性。
+\end{itemize}
+如果两点函数先对源做平均，再把它当作完整时间序列参与比值，可能引入不可恢复的归一化错误。源分辨缓存应保留源轴和每个源的规范组态信息，统计重采样也应在同一组 replica 内完成。
+
+\subsection{Distillation、perambulator 与顺序源}
+
+高动量核子的胶子三点函数需要对多个源、多个动量、多个 Wilson 线长度和多个流时重复计算，直接求解传播子的成本很高。Distillation 通过低模投影降低有效自由度。先在每个时间片求解协变 Laplace 算符的低本征模 \(v_x^{(k)}\)，定义蒸馏算符
+\begin{equation}
+  \Box_{xy}(t)
+  =\sum_{k=1}^{N_v}v_x^{(k)}(t)v_y^{(k)\dagger}(t),
+  \qquad
+  \Box^2=\Box,
+  \label{eq:distillation}
+\end{equation}
+再用
+\begin{equation}
+  \tau^{(p,p')}_{\alpha\beta}
+  =V^{(p)\dagger}
+  D^{-1}_{\alpha\beta}
+  V^{(p')}
+  \label{eq:perambulator}
+\end{equation}
+表示低模空间中的传播子。动量投影和 momentum smearing 可以写成
+\begin{equation}
+  \widetilde v_x^{(k)}(\mathbf P)
+  =e^{i\mathbf P\cdot\mathbf x}v_x^{(k)},\qquad
+  \widetilde f(\mathbf p)\mapsto\widetilde f(\mathbf p-\mathbf P),
+  \label{eq:momentumsmearing}
+\end{equation}
+从而把高动量核子的 overlap 集中到目标动量附近\cite{Bali2016,Peardon2009}。
+
+对三点函数，顺序源方法把汇点核子、插入算符和源端传播子组织成一次或少数几次额外求逆。若 \(S_q\) 是夸克传播子，汇点源可写成包含 \(\gamma_5\)、颜色和自旋投影的向量；把该源向插入时间传播后，再与胶子场强或 Wilson 线收缩。distillation 的广义 perambulator 则把三点函数分解成低模传播子、算符顶点和核子 elemental 的乘积。两种方法的共同物理要求是：
+\begin{enumerate}
+  \item 源和汇使用同一套规范链接和 smearing；
+  \item 胶子算符插入不改变核子插值算符的动量投影；
+  \item 低模截断 \(N_v\) 的收敛通过增加 \(N_v\) 或与直接传播子比较验证；
+  \item 复用缓存时绑定组态哈希、流时、Wilson 线长度和算符版本；
+  \item 不在不同 smearing/流时的矩阵元之间做未经匹配的插值。
+\end{enumerate}
+
+\subsection{统计重采样与协方差}
+
+格点组态之间存在自相关，不能把每个时间片或每个源当作独立样本。设观测量 \(X\) 在 bootstrap replica \(b=1,\dots,N_b\) 上的值为 \(X_b\)，则样本协方差可取
+\begin{equation}
+  \mathrm{Cov}_{ij}
+  =\frac{1}{N_b-1}\sum_{b=1}^{N_b}
+  (X_i^b-\overline X_i)(X_j^b-\overline X_j),
+  \label{eq:bootstrapcov}
+\end{equation}
+并用相关 \(\chi^2\) 拟合
+\begin{equation}
+  \chi^2
+  =(\mathbf d-\mathbf m(\theta))^T
+  \mathrm{Cov}^{-1}
+  (\mathbf d-\mathbf m(\theta)).
+  \label{eq:chi2}
+\end{equation}
+当协方差矩阵秩不足或条件数过大时，应使用 SVD、正则化或先做 binning，并把正则化参数作为系统误差扫描。对胶子 TMD，尤其要避免以下三个问题：
+\begin{itemize}
+  \item 用单一 central fit 冒充 replica 误差；
+  \item 对每个 replica 使用不同的数据窗口而不记录选择偏差；
+  \item 把拟合失败或 fallback 的 replica 静默替换成中心值。
+\end{itemize}
+合格报告应同时给出 central fit、replica 分布、失败率、协方差条件数、拟合窗口和每个物理点的支持状态。
+
+\subsection{坐标空间 Fourier 与大 \texorpdfstring{\(z\)}{z} 尾部}
+
+准 TMD 的 \(x\) 依赖来自 \(z\) 的 Fourier 变换。格点数据只覆盖有限 \(|z|\le z_{\max}\)，直接截断会产生振铃和不物理的端点。常用的处理包括：
+\begin{enumerate}
+  \item 在短距离使用微扰匹配和比率方案；
+  \item 在中等距离保留格点矩阵元；
+  \item 对大距离使用满足已知渐近行为的模型或外推；
+  \item 用多组截断和尾部模型估计系统误差；
+  \item 明确报告 Fourier 约定、归一化和 \(x\) 支撑。
+\end{enumerate}
+大 \(z\) 外推不是纯粹的技术选择。若尾部模型包含了未测量的 soft/rapidity 或混合贡献，误差会以不可区分的函数形式进入最终 TMD。因此，尾部模型必须与短距离重正化方案分开记录。
+
+\subsection{Fourier 反演、端点与正定性}
+
+坐标空间 Fourier 反演本质上是不适问题：有限 \(z_{\max}\)、离散格点和统计噪声会在 \(x\) 空间产生高频振荡。一个实用的反演流程应区分三类信息：
+\begin{enumerate}
+  \item \textbf{被数据约束的区间}：\(|z|\lesssim z_{\rm trusted}\) 内的矩阵元；
+  \item \textbf{被外推模型约束的区间}：\(z_{\rm trusted}<|z|\lesssim z_{\max}\)；
+  \item \textbf{完全由先验或边界条件决定的区间}：\(|z|>z_{\max}\)。
+\end{enumerate}
+常用尾部形式包括指数衰减、幂次乘指数、物理渐近约束或在 \(x\) 空间做带先验的展开。无论采用哪种，都应报告：
+\begin{itemize}
+  \item Fourier 约定：\(e^{+ixP_z z}\) 或 \(e^{-ixP_z z}\)；
+  \item 是否使用 \(xg(x)\) 或 \(g(x)\)；
+  \item \(z\) 网格的端点和权重；
+  \item \(x\to0\) 与 \(x\to1\) 的支撑和端点处理；
+  \item 多组 \(z_{\max}\)、尾部模型和窗口选择的结果；
+  \item 是否施加正定性、动量求和或 normalization 约束，以及这些约束的影响。
+\end{itemize}
+胶子分布的 \(x\to0\) 行为尤其敏感于大 \(z\) 尾部，而 \(x\to1\) 行为敏感于短距和端点匹配。把两个区域用同一个平滑模型强行拟合，容易掩盖不同物理来源的系统误差。更稳健的做法是分别报告 \(x\) 可信区间、外推区间和模型依赖区间。
+
+\subsection{联合外推与误差传播}
+
+胶子 TMD 至少有 \(a,M_\pi,P_z,b_T,\tau,L_\parallel\) 六个控制变量。全联合外推可以写成
+\begin{equation}
+  f_1^g(x,b_T)
+  =f_0(x,b_T)
+  +c_a a^2+c_{aP}a^2P_z^2+c_M\frac{M_\pi^2}{\Lambda^2}
+  +c_P\frac{\Lambda^2}{P_z^2}
+  +c_\tau\tau+c_L e^{-m_\pi L_s}
+  +\cdots .
+  \label{eq:fullextrap}
+\end{equation}
+这样写只是说明误差结构，不是宣称所有系数都可独立拟合。实际应：
+\begin{enumerate}
+  \item 先在不改变物理定义的变量上做重正化和匹配；
+  \item 用 bootstrap 保留同一 replica 内的相关性；
+  \item 按尺度层级逐步加入外推项，避免参数数目超过数据自由度；
+  \item 对每种拟合模型给出参数协方差、残差和拟合质量；
+  \item 采用模型平均或信息准则，而不是选择“看起来最平滑”的结果；
+  \item 将统计误差、拟合模型选择和外推区间分开报告。
+\end{enumerate}
+若只在一个 \(a\)、一个 \(\tau\)、一个 \(P_z\) 和一个 \(m_\pi\) 上计算，式~\eqref{eq:fullextrap} 中的系统项无法辨识。此时应把最终对象称为“该参数点的有效结果”，而不是连续极限物理量。
+
+\subsection{连续极限、手征极限与无穷动量极限}
+
+最终物理结果要求至少控制三类极限：
+\begin{equation}
+  a\to0,\qquad M_\pi\to M_\pi^{\rm phys},\qquad P_z\to\infty .
+  \label{eq:threelimits}
+\end{equation}
+在有效范围内，可参数化
+\begin{equation}
+  f^{g}(x,\bT;a,M_\pi,P_z)
+  =f^{g}_{0}(x,\bT)
+  +c_a\,a^2+c_M\,M_\pi^2+c_P\,\frac{\Lambda_{\rm QCD}^2}{P_z^2}
+  +c_{aP}\,a^2P_z^2+\cdots .
+  \label{eq:extrapolation}
+\end{equation}
+其中 \(a^2P_z^2\) 项反映大动量与粗格距的非交换误差，不能假定它自动消失。若只有单一格距、单一流时或单一价夸克质量，只能报告在该参数点的模型依赖结果，不能声称完成连续物理极限。
+
+\section{当前理论进展与证据边界}
+
+\subsection{关键工作的证据矩阵}
+
+表~\ref{tab:publication-matrix} 按“算符/理论、共线胶子、软结构、完整 TMD”四类整理库内最相关的格点工作。最后两列尤其重要：一个工作验证了方法，不等于它已经得到核子胶子 TMD。把“首次”“连续极限”“第一性原理”等措辞放回具体观测量和参数范围，是综述写作的基本要求。
+
+\begin{footnotesize}
+\begin{longtable}{L{2.8cm}L{2.2cm}L{3.0cm}L{2.8cm}L{2.9cm}}
+\caption{库内胶子 TMD 相关工作的证据矩阵。}\label{tab:publication-matrix}\\
+\toprule
+工作 & 方法/对象 & 主要参数或范围 & 已建立 & 未建立/限制 \\
+\midrule
+\endfirsthead
+\toprule
+工作 & 方法/对象 & 主要参数或范围 & 已建立 & 未建立/限制 \\
+\midrule
+\endhead
+Ji 2013, 2014\cite{Ji2013,Ji2014} & LaMET/准 PDF & 理论框架 & 空间关联连接光锥物理 & 非胶子专用；无格点数值 \\
+Ji--Zhang--Zhao 2018；Izubuchi 等 2018\cite{JiZhangZhao2018,Izubuchi2018} & 重正化与因子化 & 理论 & 准 PDF/准 TMD 的因子化语言 & 胶子 staple 和软函数仍需专门定义 \\
+Zhang 等 2019\cite{ZhangGluonLaMET2019} & 胶子准 PDF 算符 & 四个可乘性构建块 & 胶子算符分类、混合与匹配 & 共线 PDF，不是 TMD \\
+Li--Ma--Qiu 2019\cite{LiMaQiu2019} & 准胶子算符 & 全阶 UV 结构 & 可乘性重正化的严格证明 & 不处理 TMD rapidity/pinch-pole \\
+Balitsky 等 2020\cite{Balitsky2020} & 胶子赝分布 & 短距 ITD/RITD & 不变振幅、短距匹配 & 共线极限与伪分布 \\
+Fan 等 2018\cite{FanQuasiGluon2018} & 首次胶子准 PDF & 格点 proof-of-principle & 胶子场强和 Wilson 线可算 & 早期算符/统计限制 \\
+Fan--Lin 2021\cite{FanLinPion2021} & 介子胶子 PDF & 两 \(a\)，三 \(m_\pi\)，\(P_z\le2.29\) GeV & pseudo-PDF 与匹配链 & 介子；无 \(b_T\)/TMD \\
+Salas-Chavira 等 2022\cite{SalasChavira2022} & K 介子胶子 PDF & 两 \(a\)，\(m_K\sim0.53\) GeV & 味道依赖与 Ioffe-time & 介子；无 TMD \\
+Good--Yao--Lin 2026\cite{GoodYaoLin2026} & 核子胶子 PDF & \(a\simeq0.12\) fm，\(m_\pi^{\rm val}=310,690\) MeV，\(P_z\simeq1.71\) GeV & 核子 LaMET proof-of-principle、hybrid-ratio、单圈匹配 & 单格距、较重金属质量、非 TMD \\
+Zhang 等 2020\cite{ZhangSoft2020} & TMD 软函数 & CLS \(a=.098\) fm，\(m_\pi^{\rm val}=547\) MeV & 形状因子/准 TMDWF 提取 \(S_I\)、CS 核先例 & 介子态、领头阶匹配、非胶子核子 TMD \\
+Zhang 等 2022\cite{Zhang2022TMD} & 准 TMD 重正化 & 五个格距 \(0.032\)--\(0.121\) fm & Wilson 圈减除、RI/MOM 失效诊断 & 准 TMD 重正化，不是最终物理 TMD \\
+Chu 等 2022\cite{ChuCS2022} & CS 核 & MILC \(a=.12\) fm，\(m_\pi^{\rm val}=670\) MeV，三动量 & 单圈匹配提取 \(K(b_T)\) & 单格距；胶子表示/核子直接计算未闭合 \\
+Chu 等 2023\cite{ChuSoft2023} & \(S_I\) 与 CS 核 & MILC/CLS 交叉 & 多系综、Fierz、两种 TMD 方案对照 & 仍主要是介子辅助量 \\
+Chu 等 2023\cite{ChuTMDWF2023} & \(\pi\) TMDWF & 双系综 & TMDWF 首算与模型比较 & 不是核子胶子 TMD \\
+He 等 2024\cite{HeTMD2024} & 核子非极化 TMD & 单系综完整链 & 夸克 TMD 的 NNLO/RGR 先例 & 夸克通道，不能替代胶子 \\
+Ma 等 2025\cite{MaBM2025} & Boer--Mulders & 核子与介子 & T-odd/自旋关联探索 & 夸克通道，胶子 counterpart 未完成 \\
+Egerer 等 2022\cite{Egerer2022} & 胶子螺旋度 & 格点探索 & 胶子自旋结构的先例 & 共线/矩水平，非完整 TMD \\
+\bottomrule
+\end{longtable}
+\end{footnotesize}
+
+\subsection{共线胶子 PDF 的格点先例}
+
+胶子 TMD 计算首先依赖胶子场强算符、胶子回路、重正化和 Fourier 匹配等基础技术。库内文献已经包含若干共线胶子 PDF 的格点研究：
+\begin{itemize}
+  \item 介子胶子 PDF 使用 pseudo-PDF 框架，在多个格距和介子质量上构造 reduced Ioffe-time distribution，并通过胶子-夸克匹配核提取 \(x\) 依赖\cite{FanLinPion2021}；
+  \item 首个核子胶子 PDF 使用 MILC \(N_f=2+1+1\) HISQ 系综、单格距 \(a\approx0.12\)~fm、较重的价 \(\pi\) 质量、\(P_z\approx1.71\)~GeV 和 hybrid-ratio 重正化，给出了 LaMET 的 proof-of-principle\cite{GoodYaoLin2026}；
+  \item 胶子准 PDF 的算符分类、乘性可重正化组合和一阶匹配核已经建立\cite{ZhangGluonLaMET2019,LiMaQiu2019,Balitsky2020}。
+\end{itemize}
+这些结果证明了胶子场强、Wilson 线和 Fourier 匹配的可行性，但没有提供 \(b_T\) 分辨或 rapidity 演化；因此不能直接改称为胶子 TMD-PDF。
+
+\subsection{软函数与 Collins--Soper 核}
+
+库内已发表的格点研究给出了 TMD 软函数和 CS 核的重要先例。Zhang 等在 CLS \(a=0.098\)~fm 系综上，通过大动量赝标量介子形状因子和准 TMD 波函数，在 leading-order 因子化下提取了内禀软函数，并研究了 CS 核\cite{ZhangSoft2020}。Chu 等在 MILC \(a\approx0.12\)~fm 系综上使用三个介子动量，在单圈匹配下把 CS 核提取到 \(b_T\lesssim0.6\)~fm，并系统讨论了算符混合、标度依赖和 \(1/P_z^2\) 修正\cite{ChuCS2022}。这些结果表明：
+\begin{enumerate}
+  \item 同几何 Wilson 圈可以显著消除长 Wilson 线的 UV 结构；
+  \item 软函数和 CS 核在小 \(b_T\) 区域可以与微扰 QCD 对接；
+  \item 大 \(b_T\) 区域包含不可由普通 PDF 拟合替代的非微扰信息；
+  \item 当前结果仍主要基于单格距和特定的介子态，不能自动外推为核子胶子 TMD。
+\end{enumerate}
+
+\subsection{夸克 TMD 与直接胶子 TMD 的差距}
+
+夸克 TMD 的格点计算为胶子通道提供了方法学模板：准 TMD 算符、Wilson 圈平方根、软函数、CS 核、硬匹配和大动量外推可以组合成完整链条。库内报告引用的核子非极化 TMD 与 Boer--Mulders 探索说明该方法在夸克通道已经进入全分布阶段\cite{HeTMD2024,MaBM2025}。然而，胶子通道不能直接照搬以下对象：
+\begin{itemize}
+  \item 基本表示 Wilson 线不能替代伴随表示 Wilson 线；
+  \item 夸克端点发散、Dirac 投影和手征混合与胶子场强算符不同；
+  \item 胶子的单态演化需要 \(g-q\) 混合矩阵，而不是单独一个非单态反常量纲；
+  \item 胶子回路和真空减除的统计误差结构不同；
+  \item 胶子 TMD 的极化分解包含两个场强指标，投影和规范链转角更复杂。
+\end{itemize}
+因此，把夸克软函数或夸克 CS 核数值直接代入胶子公式，至多得到诊断性估计。
+
+\subsection{库内实现审计的结论}
+
+本库近期的胶子 TMD 审计提供了一个重要的“失败关闭”案例。真实组态上的源分辨两点函数、Wilson flow 和 TMD OPE 已经能够运行，但在固定 \(\tau=3a^2\) 时，流半径 \(r_f=\sqrt{8\tau}\approx4.90a\)，而库内扫描的非零横向分离主要为 \(b_T/a\le4\)。这违反了 \(r_f<b_T\) 的短流时窗口，因此流化会污染待测的 \(b_T\) 结构。审计还发现：
+\begin{itemize}
+  \item 单组态或少量组态下，ratio/plateau 统计不可辨识；
+  \item \(P_z=0\) 分母的部分点未通过严格质量门；
+  \item 缺少同流时、同 staple 几何、同伴随表示的 soft/rapidity；
+  \item 缺少完整胶子-夸克单态混合矩阵；
+  \item 当前只有单格距、有限流时和有限组态数，不能构成连续极限。
+\end{itemize}
+因此，即使某些中间矩阵元有限，审计仍将链条标记为 \texttt{diagnostic\_only} 和 \texttt{physical\_acceptance=false}。这不是实现失败，而是物理验收边界被正确执行。它直接支持本文的核心结论：\textbf{可执行代码、有限矩阵元和物理 TMD 是三级不同的证据}。
+
+\subsection{库内真实组态审计的定量快照}
+
+为避免“实现能运行”被误读为“物理结果已成立”，这里把审计中最关键的状态独立列出。该快照不替代发表结果，只用于说明验收门如何工作。
+
+\begin{table}[htbp]
+\centering
+\caption{库内胶子 TMD 诊断链的代表性状态。所有数字均来自本地审计记录，不是本文新产生的测量。}
+\label{tab:audit-snapshot}
+\small
+\begin{tabularx}{\textwidth}{L{3.0cm}L{4.2cm}Y}
+\toprule
+项目 & 状态/数值 & 物理解释 \\
+\midrule
+系综与体积 & \(\beta=6.20\)，\(24^3\times72\)，11 个组态 & 单格距、单流时的小样本诊断，不是生产系综 \\
+源分辨两点函数 & 保存 \((source,dt)\) 轴，shape \((72,72)\) & 避免把源平均量二次平移，保留源间关联 \\
+动量标签 & \(P_0,P_{200},P_{400}\) & 覆盖零动量和两个非零动量，但未形成大动量连续扫描 \\
+Sumratio 质量 & \(P_0=52/65\)，\(P_{200}=51/65\)，\(P_{400}=65/65\) & P400 中心质量较好，P0/P200 未通过严格覆盖门 \\
+replica 统计 & 1000 bootstrap；fallback 非零 & fallback 不能当作中心物理值，必须保留状态 \\
+流时间 & \(\tau=3a^2\)，\(r_f=\sqrt{24}\,a\approx4.90a\) & 只测一个流时，无法做 \(\tau\to0\) 外推 \\
+横向窗口 & 非零扫描主要 \(b_T/a\le4\) & 多数点不满足 \(r_f<b_T\)，流会污染待测横向结构 \\
+soft/rapidity & 无同几何、同伴随表示测量 & TMD 因子化链未闭合 \\
+单态混合 & 无完整 \(Z_{ij}\) 矩阵和夸克输入 & 胶子-夸克 singlet mixing 未闭合 \\
+链条状态 & \texttt{diagnostic\_only}；物理接受标记为 false & 只能报告诊断量，不应生成“物理 TMD”结论 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+这组状态还揭示了一个常见的逻辑错误：把“矩阵元 finite/shape 正确”当作“矩阵元有物理意义”。有限的裸矩阵元可以完全由错误的真空归一化、源平均、流窗口或软因子导致。正确的判据是：数据在多个物理窗口、多个参数点和多个方案下稳定，并且每个中间量都有可复现的来源契约。
+
+\begin{table}[htbp]
+\centering
+\caption{库内胶子 TMD 相关证据的分层。表中“可用于 TMD”仅表示方法学相关性，不表示已完成直接核子胶子 TMD 计算。}
+\label{tab:evidence}
+\small
+\begin{tabularx}{\textwidth}{L{3.1cm}L{2.7cm}Y}
+\toprule
+证据类型 & 已建立内容 & 对核子胶子 TMD 的意义与缺口 \\
+\midrule
+胶子共线 PDF & 场强算符、ratio/hybrid、NLO 匹配、介子与核子先例 & 验证场强、Wilson 线与 Fourier 基础；缺少 \(b_T\) 和 rapidity \\
+软函数/CS 核 & 同几何 Wilson 圈、内禀软函数、单圈 CS 提取 & 提供 nonperturbative 软结构先例；需胶子伴随表示和核子态闭合 \\
+夸克 TMD & 准 TMD、Wilson 圈、NNLO/RGR、核子应用 & 提供算法模板；不能替代胶子表示和单态混合 \\
+库内诊断链 & source-resolved correlators、flow、OPE、bootstrap、fail-closed & 证明实现可运行；当前不满足物理窗口和完整混合要求 \\
+直接胶子 TMD & 尚需同方案 soft/rapidity、多格距、多流时、连续极限 & 本文核查的库内语料不足以支持物理数值声称 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{系统误差与验证协议}
+
+\subsection{误差预算}
+
+表~\ref{tab:errors} 给出了胶子 TMD 计算的最小误差矩阵。每一项都必须有独立的扫描或解析边界，不能用总的 bootstrap 误差替代。
+
+\begin{table}[htbp]
+\centering
+\caption{核子胶子 TMD-PDF 的系统误差矩阵。}
+\label{tab:errors}
+\small
+\begin{tabularx}{\textwidth}{L{3.0cm}L{3.3cm}Y}
+\toprule
+误差源 & 控制变量 & 验收证据 \\
+\midrule
+格距与连续极限 & \(a\), \(aP_z\) & 至少多个格距，检查 \(a^2\) 和 \(a^2P_z^2\) 项 \\
+有限体积 & \(L_s\), \(b_T\), \(L_\parallel\) & \(b_T<L_s/2\)，长 Wilson 线平台与体积扫描 \\
+激发态 & \(t_{\rm sep}\), 拟合模型 & 单态/双态/GEVP 一致性与窗口稳定性 \\
+重正化 & \(Z_L,Z_O,Z_{ij}\), \(\mu\) & 多方案交叉、连续极限、非零动量矩阵元稳定性 \\
+rapidity/soft & \(S_R\), \(K_R\), 方案 & 同一表示和几何的软因子、多个 \(P_z\) 的 CS 检验 \\
+梯度流 & \(\tau\), \(r_f\) & 多 \(\tau\) 外推和 \(a\ll r_f\ll b_T,z\) 窗口 \\
+匹配核 & \(C_{gg},C_{gq}\), \(\alpha_s\) & 阶数变化、标度变化、单态混合误差 \\
+高扭度 & \(P_z\), \(M_N\), \(b_T\) & 多个大动量，报告 \(1/P_z^2,1/(b_T^2P_z^2)\) 拟合 \\
+Fourier 反演 & \(z_{\max}\), 尾部模型 & 多截断、多模型、正定性/端点检查 \\
+统计 & 组态数、源数、bootstrap & 源分辨、相关性、不同 replica 的稳定性 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{统计误差、自相关与相关拟合}
+
+格点数据的时间片、源和组态并不独立。若观测量 \(X_t\) 的时间序列具有自相关函数
+\begin{equation}
+  \rho_X(\Delta t)
+  =\frac{\langle X_tX_{t+\Delta t}\rangle-\langle X_t\rangle^2}
+  {\langle X_t^2\rangle-\langle X_t\rangle^2},
+  \label{eq:autocorr}
+\end{equation}
+则有效样本数近似为
+\begin{equation}
+  N_{\rm eff}
+  =\frac{N}{1+2\sum_{\Delta t=1}^{\Delta t_{\max}}\rho_X(\Delta t)},
+  \label{eq:neff}
+\end{equation}
+并用 binning 检查误差是否随 bin 大小达到平台。对胶子回路、真空减除和高动量三点函数，单靠 \(\sigma/\sqrt{N}\) 往往会低估误差。
+
+拟合时应在每个 bootstrap replica 内独立完成重正化、Fourier、匹配和外推，而不是先拟合中心值再对误差做线性传播。对于高度相关的数据，可先做 SVD 或采用带先验的协方差；任何正则化都必须报告奇异值谱、截断阈值和对最终结果的影响。第 5.8 节的协方差公式与本节共同构成统计验收门。
+
+\subsection{尺度窗口与失败模式}
+
+胶子 TMD 的物理结果必须位于一个互相兼容的多尺度窗口：
+\begin{align}
+  &\text{UV/连续：} & a&\ll r_f,\;1/\mu &&\ll \text{物理尺度},
+  \label{eq:window-uv}\\
+  &\text{OPE/匹配：} & \Lambda_{\rm QCD}&\ll 1/b_T,\;P_z &&\ll 1/a,
+  \label{eq:window-ope}\\
+  &\text{LaMET：} & M_N,\Lambda_{\rm QCD}&\ll P_z &&\ll \pi/a,
+  \label{eq:window-lamet}\\
+  &\text{流化：} & a&\ll r_f\ll b_T,z &&\text{且 }P_zr_f\ll1,
+  \label{eq:window-flow}\\
+  &\text{体积：} & b_T,L_\parallel&\ll L_s/2 &&\text{且 }t_s\gg1/\Delta E.
+  \label{eq:window-volume}
+\end{align}
+这些窗口不是装饰性不等式。若 \(P_z r_f\sim1\)，流化会改变 boost 相关结构；若 \(1/b_T\lesssim\Lambda_{\rm QCD}\)，微扰匹配已进入非微扰区；若 \(b_T\gtrsim L_s/2\)，周期图像和核子波函数绕回会污染矩阵元；若 \(aP_z\) 接近 \(1\)，格点色散关系和 \(a^2P_z^2\) 误差不可控。
+
+表~\ref{tab:failure-modes} 汇总常见失败模式。每一项都应触发明确的“失败关闭”，而不是用更大的误差棒继续报结果。
+
+\begin{table}[htbp]
+\centering
+\caption{胶子 TMD 计算的常见错误及其最小修正。}
+\label{tab:failure-modes}
+\small
+\begin{tabularx}{\textwidth}{L{3.2cm}L{4.2cm}Y}
+\toprule
+失败模式 & 典型症状 & 最小修正 \\
+\midrule
+源平均后再比值 & 归一化随 \(t_s\) 漂移，ratio 出现非物理平台 & 保留 source 轴，按 replica 重算真空协方差 \\
+两端 Wilson 线表示不一致 & 线性项残留，随 \(a,z\) 增强 & 同伴随表示、同路径长度、同 staple 几何 \\
+Wilson 圈几何不匹配 & \(L_\parallel\) 无平台或 pinch-pole 残留 & 用同端点/同转角的矩形圈，检查 \(L\to\infty\) \\
+把 RI/MOM 当万能减除 & 小 \(a\) 或大 \(z\) 格距依赖增强 & 联合 ratio/hybrid/self-renorm，检查连续极限 \\
+流时过大 & \(b_T<r_f\)，横向结构被抹平 & 多 \(\tau\) 扫描，只保留满足窗口的点 \\
+只用单流时 & 无 \(\tau\to0\) 外推 & 至少三个流时并报告截距 \\
+匹配核阶数/标度不匹配 & \(\mu\) 变化导致系统漂移 & 同方案转换，扫描阶数与 \(\mu\) 区间 \\
+忽略 \(g-q\) 混合 & 与全局 PDF 比较出现整体偏移 & 加入 \(Z_{ij}/C_{gq}/C_{qg}\) 或给出严格忽略依据 \\
+Fourier 端点外推过强 & \(x\) 端点出现振铃/负值 & 多 \(z_{\max}\)、多尾部模型，报告可信区 \\
+协方差秩不足 & 拟合参数不可辨识，结果依赖 seed & SVD/正则化、增加统计或减少参数 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{分级验收清单}
+
+
+建议把胶子 TMD 结果分为四级，禁止跨级宣称：
+\begin{enumerate}
+  \item \textbf{L0：算符与代数。} 场强、伴随链接、staple 路径、投影、归一化和 Fourier 约定均有可执行检查；
+  \item \textbf{L1：受控矩阵元。} 源分辨两点函数、三点比值、真空减除、谱学拟合和统计误差通过质量门；
+  \item \textbf{L2：方案一致性。} 同几何 Wilson 圈、伴随软函数、CS 核、重正化矩阵和硬匹配核属于同一方案；
+  \item \textbf{L3：物理极限。} 多个 \(a\)、多个 \(\tau\)、多个 \(P_z\) 和至少一个物理或可控手征点支持下，连续、手征和大动量极限同时闭合。
+\end{enumerate}
+只有达到 L3，才应使用“核子胶子 TMD-PDF 的格点结果”这一表述。L0/L1 可以称为算符原型或矩阵元诊断；L2 是完整理论链的候选，但仍可能受单一参数点限制。
+
+\subsection{必须报告的约定}
+
+为保证可复核，论文和代码至少应明确：
+\begin{itemize}
+  \item 光锥坐标、度规、场强符号和生成元归一化；
+  \item 规范链的起点、终点、方向和表示；
+  \item \(\mu\)、\(\zeta\)、\(\Pz\)、\(\tau\) 与 Fourier 变量的定义；
+  \item 横向指标的缩并和无迹投影；
+  \item Wilson 圈长度、参考点 \(z_0,\boldsymbol b_{T,0}\) 和短距窗口；
+  \item 单态混合的保留或忽略方式及误差；
+  \item 所有外推函数、数据截断、bootstrap seed 和来源哈希。
+\end{itemize}
+
+\section{展望}
+
+\subsection{大动量、细格距与算符混合}
+
+胶子 TMD 的下一步不是单一算法优化，而是多尺度计算。高 \(P_z\) 会增加 boost 和对偶 Wilson 线的重叠，要求更小 \(a\) 和更大体积；细格距又会增加 GPU、传播子和胶子回路的成本。可行路线包括：
+\begin{itemize}
+  \item 用自重整化和 hybrid 方案把短距离非微扰匹配与长距离 Wilson 线分开；
+  \item 用多个流时和多个格距确定短流时展开系数；
+  \item 采用导数流、stout/HYP 和动量涂抹改善高动量信号，同时保持几何一致；
+  \item 通过 GEVP、源分辨缓存和机器学习重采样降低统计误差；
+  \item 把胶子-夸克单态混合作为矩阵问题，而不是事后乘一个标量因子。
+\end{itemize}
+
+\subsection{胶子 TMD 的自旋与小 \texorpdfstring{\(x\)}{x} 物理}
+
+非极化 \(\fone\) 是最先应该闭合的基准。随后可以扩展到线性极化胶子、螺旋度胶子和 T-odd 相关分布。胶子自旋和轨道角动量与 proton spin sum rule、胶子 helicity PDF 和 EIC 可观测量有关\cite{Egerer2022,JiReview2021}。在小 \(x\) 区域，TMD 演化、饱和效应和软胶子重叠会使固定阶匹配面临大对数；这要求把 CS 核、BFKL/CCFM 或偶极图像与格点输入的关系说清楚，而不是用单一 PDF 拟合外推。
+
+\subsection{与实验的闭环}
+
+格点胶子 TMD 的价值在于提供非微扰先验、检验因子化和约束全局拟合。与 EIC 的协同可形成一个闭环：
+\begin{enumerate}
+  \item 格点计算给出特定 \((\mu,\zeta,b_T)\) 方案下的非微扰输入；
+  \item 微扰 QCD 将输入演化到实验标度；
+  \item Drell--Yan、SIDIS 和喷注/重味过程检验因子化与方案；
+  \item 实验数据反过来约束格点外推和软/rapidity 模型。
+\end{enumerate}
+在没有完整方案前，把格点曲线与全局 PDF 直接叠加只能作为定性比较，不能作为因子化证明。
+
+\subsection{建议的分阶段研究计划}
+
+一个可审计的胶子 TMD 项目可以按以下顺序推进。每一阶段都以可复现证据作为进入下一阶段的条件。
+\begin{enumerate}
+  \item \textbf{算符与几何阶段：}固定场强符号、生成元、伴随链接、staple 方向、横向投影和 Fourier 约定；建立小矩阵/自由场/恒等链接测试。
+  \item \textbf{两点与三点原型：}在单系综上验证 source-resolved 两点函数、三点比值、真空减除、色散关系和激发态拟合；先以 \(b_T=0\) 或小 \(b_T\) 做闭环。
+  \item \textbf{UV 与流窗口：}测量同几何 Wilson 圈，建立 ratio/hybrid/self-renorm 的交叉检验；扫描多个 \(\tau\)，只保留 \(a\ll r_f\ll b_T,z\) 的点。
+  \item \textbf{soft/rapidity 阶段：}在同一表示和几何下计算 \(S_I^g\) 与 \(K_g\)，用多个 \(P_z\) 验证平台；与微扰小 \(b_T\) 极限对接。
+  \item \textbf{匹配与混合阶段：}接入胶子硬核、\(g-q\) 混合矩阵和 \(\MSbar\) 转换；报告匹配阶数、标度区间和高阶误差。
+  \item \textbf{多参数生产：}扩展到多个 \(a\)、多个 \(L_s\)、至少一个物理或可控手征质量；进行 bootstrap 联合分析。
+  \item \textbf{极限与外推：}按第 7 节的窗口做 \(a\to0,\tau\to0,P_z\to\infty\) 联合外推，并给出每个 \(x,b_T\) 点的可信区。
+  \item \textbf{发表与复现：}公开算符契约、缓存哈希、拟合窗口、协方差、失败 replica、Fourier 约定和来源 manifest。
+\end{enumerate}
+
+\subsection{开放问题清单}
+
+按照物理重要性排序，当前最需要解决的问题包括：
+\begin{enumerate}
+  \item 胶子表示下的 soft/rapidity 因子如何与现有夸克 TMD 方案统一，并在多个系综上验证；
+  \item 胶子 TMD 的单态混合矩阵能否在非微扰层面完整确定，而不是依赖 NLO 匹配和全局 PDF 拟合；
+  \item 大 \(b_T\) 非微扰区的 Fourier 尾部如何与 CS 核、内禀软函数和格点体积联合约束；
+  \item 高动量下 \(a^2P_z^2\)、流化半径和 Wilson line overlap 的联合控制；
+  \item 线性极化胶子 TMD 的投影、符号和 T-odd 结构与 \(f_1^g\) 的分离；
+  \item 小 \(x\) 区域能否在固定阶 LaMET 之外，与 BFKL/饱和物理建立可检验的桥接；
+  \item 胶子 TMD 的格点先验如何进入 EIC 全局分析，而不引入重复计数或方案不一致；
+  \item 以“失败关闭”为默认的报告标准如何推广到所有 TMD 计算，避免只发表通过质量门的子集。
+\end{enumerate}
+
+\section{结论}
+
+使用格点 QCD 计算核子胶子 TMD-PDF 的核心并不是把一个 PDF 公式“翻译成 Euclidean 算符”，而是建立一条多尺度、方案一致的理论链：
+\begin{equation}
+  \text{光锥 TMD}
+  \xleftarrow{\text{soft/rapidity+CS+匹配}}
+  \text{准 TMD}
+  \xleftarrow{\text{Wilson 圈+重正化+flow}}
+  \text{格点矩阵元}.
+  \label{eq:chain}
+\end{equation}
+在这条链上，胶子场强、伴随规范链、Wilson 圈减除、CS 核、硬匹配、单态混合和大动量极限缺一不可。梯度流和短流时展开可以显著改善 UV 控制，但它们只解决链中的一个尺度问题；rapidity、表示相关软因子和连续极限必须独立验证。
+
+结合库内文献与实现审计，本文的结论是：共线胶子 PDF、TMD 软函数和 CS 核已经有重要格点先例；夸克 TMD 提供了完整算法模板；但本文所核查的库内证据尚不足以支持经过完整 soft/rapidity、混合、多格距和多流时验收的直接核子胶子 TMD-PDF 数值结果。现阶段最稳健的表述是“理论框架已建立，关键构件已有格点验证，直接胶子 TMD 物理计算仍在闭合中”。这一证据边界本身就是后续计算的出发点。
+
+\appendix
+
+\section{符号与约定速查}
+
+\begin{longtable}{L{2.5cm}L{5.2cm}L{6.6cm}}
+\toprule
+符号 & 定义 & 备注 \\
+\midrule
+\endfirsthead
+\toprule
+符号 & 定义 & 备注 \\
+\midrule
+\endhead
+\(F_{\mu\nu}\) & \(F=(i/g)[D_\mu,D_\nu]\)，\(D_\mu=\partial_\mu-igA_\mu\) & 与正文生成元约定一致 \\
+\(T^a\) & \([T^a,T^b]=if^{abc}T^c\) & 伴随链与基本链的转换须显式验证 \\
+\(\bT\) & 横向分离 & \(b_T=|\bT|\) \\
+\(\zeta\) & rapidity 重正化标度 & 与 \(\zeta_z\sim(2xP_z)^2\) 区分 \\
+\(K_R\) & 表示 \(R\) 的 Collins--Soper 核 & 胶子使用伴随表示 \\
+\(S_{I,R}\) & 内禀软函数 & 与同方案 \(K_R\) 配套 \\
+\(r_f\) & \(\sqrt{8\tau}\) & 流半径，不是格距 \\
+\(L_\parallel\) & staple 纵向臂长 & 需报告平台/外推 \\
+\bottomrule
+\end{longtable}
+
+\section{关键推导补充}
+
+\subsection{从格点链接到 Clover 场强}
+
+沿 \(\mu,\nu\) 平面的基本 plaquette 为
+\begin{equation}
+  U_{\mu\nu}(x)
+  =U_\mu(x)U_\nu(x+\hat\mu)
+  U_\mu^\dagger(x+\hat\nu)U_\nu^\dagger(x).
+  \label{eq:plaquette}
+\end{equation}
+把每个链接用 \(U_\mu(x)=e^{iagA_\mu(x+\hat\mu/2)}\) 展开，Baker--Campbell--Hausdorff 公式给出
+\begin{equation}
+  U_{\mu\nu}(x)
+  =\exp\left[ia^2F_{\mu\nu}(x)+\mathcal O(a^3)\right],
+  \label{eq:plaquettebch}
+\end{equation}
+其中 \(F_{\mu\nu}\) 按正文约定包含非阿贝尔对易项。把四个方向的 plaquette 相加：
+\begin{equation}
+  Q_{\mu\nu}
+  =U_{\mu\nu}+U_{-\nu,\mu}+U_{\nu,-\mu}+U_{-\mu,-\nu},
+  \label{eq:cloversum}
+\end{equation}
+再取反对称组合
+\begin{equation}
+  F_{\mu\nu}^{\rm clover}
+  =-\frac{i}{8a^2}\left(Q_{\mu\nu}-Q_{\nu\mu}\right)
+  =\frac{1}{2}\left(F_{\mu\nu}-F_{\nu\mu}\right)+\mathcal O(a^2).
+  \label{eq:cloverderive}
+\end{equation}
+对基本表示，连续场强无迹；有限格距下应做 \(F\to F-\frac1{N_c}\Tr F\,\mathbf 1\)。该投影必须在计算 Wilson 线收缩之前完成，否则迹部分会与颜色指标缩并混合。
+
+\subsection{rapidity 发散的玩具积分}
+
+为了看出 rapidity 发散不是普通 UV 极点，考虑一个简化的光锥积分
+\begin{equation}
+  I=\int\dd k^+\dd k^-\,
+  \frac{f(k^+k^-)}{(k^+k^-)^{1+\epsilon}}.
+  \label{eq:rapiditytoy}
+\end{equation}
+引入 \(m^2=k^+k^-\) 和快度变量 \(y=k^+/k^-\)，有
+\begin{equation}
+  I=\frac12\int\frac{\dd y}{y}
+  \int\frac{\dd m^2\,f(m^2)}{m^{2+2\epsilon}}.
+  \label{eq:rapiditytoy2}
+\end{equation}
+UV 维数正规化只控制 \(m^2\to\infty\)，而 \(y\to0\) 或 \(y\to\infty\) 的端点仍没有尺度截断。这正是光样 Wilson 线之间的软胶子交换产生的 rapidity 发散。TMD 软函数的作用是为这两个端点提供统一的快度减除，并使物理组合对快度方案不依赖。
+
+\subsection{Collins--Soper 方程的解}
+
+将 CS 方程写成
+\begin{equation}
+  \frac{\partial}{\partial\ln\zeta}
+  \ln f(\zeta)=\frac12K(\mu),
+  \label{eq:cslog}
+\end{equation}
+在固定 \(\mu\) 下积分得到
+\begin{equation}
+  f(\zeta)=f(\zeta_0)
+  \exp\left[\frac12K(\mu)\ln\frac{\zeta}{\zeta_0}\right].
+  \label{eq:cs-solution}
+\end{equation}
+另一方面，\(K\) 的 UV 演化满足
+\begin{equation}
+  \mu^2\frac{\partial K}{\partial\mu^2}
+  =-\Gamma_{\rm cusp}(\alpha_s),
+  \label{eq:k-rge-detail}
+\end{equation}
+因此可把非微扰信息放在参考标度 \(1/b_T\)：
+\begin{equation}
+  K(b_T;\mu)
+  =K(b_T;1/b_T)
+  -2\int_{1/b_T}^{\mu}\frac{\dd\mu'}{\mu'}
+  \Gamma_{\rm cusp}(\alpha_s(\mu')).
+  \label{eq:k-solution}
+\end{equation}
+对胶子，领头 cusp 系数与 \(C_A\) 成正比。这个表示清楚说明为什么 CS 核不能只看成一条经验曲线：它同时包含微扰 cusp 演化和大 \(b_T\) 的非微扰初值。
+
+\subsection{Fourier 变换与小 \texorpdfstring{\(b_T\)}{bT} OPE}
+
+坐标空间 TMD 和动量空间 TMD 的关系为
+\begin{equation}
+  f(x,\bT;\mu,\zeta)
+  =\int\frac{\dd^2\kT}{(2\pi)^2}
+  e^{i\kT\cdot\bT}f(x,\kT;\mu,\zeta).
+  \label{eq:fourierTMD}
+\end{equation}
+在小 \(b_T\) 区域，可以把非局域算符做短距 OPE。对胶子，最低阶算符是 twist-2 场强双线性，其矩阵元给出胶子 PDF；更高维算符给出 \(b_T^2\) 幂修正。因此
+\begin{equation}
+  f_1^g(x,\bT;\mu,\zeta)
+  =f_g(x,\mu)
+  +b_T^2\,\mathcal C_2(x;\mu,\zeta)
+  +\mathcal O(b_T^4\Lambda_{\rm QCD}^2),
+  \label{eq:smallb}
+\end{equation}
+其中 \(\mathcal C_2\) 概括 twist-4 和方案相关贡献。该展开的有效范围是 \(b_T\Lambda_{\rm QCD}\ll1\)。在大 \(b_T\)，Wilson 线的非微扰势和软胶子使该展开失效，必须用格点数据或非微扰模型。
+
+\subsection{梯度流热核与规范作用量}
+
+在自由极限下，流方程对横向模式给出
+\begin{equation}
+  \partial_\tau\widetilde B_\mu(\tau,k)
+  =-k^2P^\perp_{\mu\nu}\widetilde B_\nu(\tau,k).
+  \label{eq:heatflow}
+\end{equation}
+解为
+\begin{equation}
+  \widetilde B_\mu(\tau,k)
+  =P^\perp_{\mu\nu}e^{-k^2\tau}\widetilde B_\nu(0,k)
+  +P^\parallel_{\mu\nu}\widetilde B_\nu(0,k).
+  \label{eq:heatflowsolution}
+\end{equation}
+因此流半径 \(r_f=\sqrt{8\tau}\) 是高斯平滑宽度。规范作用量密度的领头短流时展开可写成
+\begin{equation}
+  E(\tau,x)
+  =\frac14G^a_{\mu\nu}G^a_{\mu\nu}
+  =\langle E\rangle
+  +c_E(\tau)\left[\frac14F^a_{\mu\nu}F^a_{\mu\nu}\right]_R
+  +\mathcal O(\tau),
+  \label{eq:energyflow}
+\end{equation}
+其中 \(c_E\) 的 \(\tau\to0\) 对数行为由 \(\beta\) 函数控制。对非局域胶子 TMD，类似展开必须保留 \(z,\bT\)，并在固定外部分离后逐项匹配。
+
+\subsection{Wilson 圈抵消的结构}
+
+设开 Wilson 线矩阵元的自能和 pinch 结构近似为
+\begin{equation}
+  h_{\rm bare}(z,\bT;L)
+  \sim
+  \exp\left[-\delta m\,\frac{2L+|z|}{a}
+  -V(\bT)L\right]\,
+  h_{\rm phys}(z,\bT),
+  \label{eq:barewilson}
+\end{equation}
+同几何矩形 Wilson 圈满足
+\begin{equation}
+  Z_E(\bT;2L)
+  \sim
+  \exp\left[-\delta m\,\frac{4L}{a}-2V(\bT)L\right]
+  Z_{\rm finite}.
+  \label{eq:zwilson}
+\end{equation}
+当路径长度和转角匹配时，\(\sqrt{Z_E}\) 可抵消开 Wilson 线中的线性项和 pinch 项，留下端点对数与物理矩阵元。这里的近似式用来说明结构，不应替代实际算符的严格重正化；特别是胶子伴随表示、转角角度和横向端点必须逐项核对。
+
+\section{本库证据映射}
+
+本文的文献和实现审阅覆盖以下库内入口：
+\begin{itemize}
+  \item \path{docs/pyqcd_physics/README.md}：当前物理导航和证据层级；
+  \item \path{docs/pyqcd_reference/}：从固定提交吸收的格点 QCD、胶子 PDF/TMD、重整化和梯度流文档；
+  \item \path{refer/papers/INDEX.md}：50 篇原文转排、双语目录和来源 arXiv 标识；
+  \item 以下四个原文目录提供胶子算符、软函数和 CS 核原文：\\
+  \path{refer/papers/Accessing_Gluon_PDF_LaMET_latex/}，\\
+  \path{refer/papers/Gluon_Pseudo_Short_Distances_latex/}，\\
+  \path{refer/papers/CS_Kernel_Quasi_TMDWF_latex/}，\\
+  \path{refer/papers/TMD_Soft_Function_LaMET_latex/}；
+  \item \path{refer/git-rep/PyQCD/pyqcd/operator/}、\path{renorm/}、\path{pipeline/}：场强、staple、flow、TMD 和匹配实现；
+  \item \path{myqcd/formula_registry.py}、\path{pyqcd_theory_audit.py}：代数、量纲和有限维审计边界；
+  \item \path{docs/pyqcd_reference/absorb_dev20_gluon_tmd_audit_20261022.md}：近期真实组态 smoke、fail-closed 状态和仍缺口。
+\end{itemize}
+
+\subsection{来源类别与用途}
+
+\begin{longtable}{L{3.2cm}L{4.4cm}L{7.0cm}}
+\toprule
+来源类别 & 典型路径 & 本文使用方式 \\
+\midrule
+\endfirsthead
+\toprule
+来源类别 & 典型路径 & 本文使用方式 \\
+\midrule
+\endhead
+上游源码 & \path{refer/git-rep/PyQCD/pyqcd/operator/} & 场强、staple、直线 Wilson 线和胶子 OPE 的接口语义 \\
+上游源码 & \path{refer/git-rep/PyQCD/pyqcd/renorm/} & hybrid、self-renorm、flow、TMD 和 matching 的公式组织 \\
+上游流水线 & \path{refer/git-rep/PyQCD/pyqcd/pipeline/} & 两点/三点、flow、TMD ratio、缓存和状态门 \\
+原文转排 & \path{refer/papers/} & 原始公式、参数、因子化与文献边界 \\
+书籍/教材 & \path{refer/books/} & Wilson 线、关联函数、统计和格点 QFT 背景 \\
+吸收快照 & \path{docs/pyqcd_reference/} & 胶子 PDF/TMD 推导、代码解析、历史报告与证据快照 \\
+公式审计 & \path{myqcd/} & SymPy 恒等式、量纲、有限维代理和来源行号绑定 \\
+运行证据 & \path{logs/}、\path{data/runs/} & 真实 smoke、统计拟合、失败关闭和缓存哈希 \\
+\bottomrule
+\end{longtable}
+
+\subsection{最小可复现报告清单}
+
+\begin{table}[htbp]
+\centering
+\caption{胶子 TMD 数值结果的复现清单。}
+\label{tab:repro-checklist}
+\small
+\begin{tabularx}{\textwidth}{L{3.3cm}Y}
+\toprule
+项目 & 必须记录的内容 \\
+\midrule
+规范与算符 & 场强约定、生成元、链接方向、伴随/基本表示、staple 路径和横向投影 \\
+系综 & \(\beta,a,L_s,T_s,N_{\rm conf}\)、海/价夸克质量、作用量、边界条件、源数 \\
+动量与流 & \(P_z\) 网格、核子色散关系、\(\tau\) 网格、\(r_f\)、\(P_zr_f\) \\
+算符几何 & \(z/a\)、\(b_T/a\)、\(L_\parallel/a\)、路径端点、HYP/stout/flow 参数 \\
+UV 重正化 & Wilson 圈、ratio/hybrid/self-renorm、短距点、\(\delta m+m_0\)、\(\mu\) \\
+rapidity/soft & \(S_{I,g}\)、\(K_g\)、表示、方案定义、\(P_1/P_2\) 和 soft 提取方法 \\
+匹配 & \(C_{gg},C_{gq}\)、\(\alpha_s\) 阶数、标度、RGR、是否忽略混合及误差 \\
+统计 & 源分辨策略、binning、bootstrap seed、replica 数、协方差和 fallback 率 \\
+谱学 & \(t_{\rm sep}\) 范围、拟合态数、GEVP 基、残差和模型平均 \\
+Fourier & 相位约定、\(z_{\max}\)、尾部模型、\(x\) 支撑、端点和正定性处理 \\
+外推 & \(a\to0\)、\(m_\pi\to m_\pi^{\rm phys}\)、\(P_z\to\infty\)、\(\tau\to0\) 的函数和窗口 \\
+状态 & 每个 \(x,b_T\) 点的可信区、系统误差、失败点和最终 evidence level \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{数据与代码可用性}
+
+本文不产生新的蒙卡系综或 GPU 数值。所引用的公式、文献转排、实现路径和审计日志均位于本库：
+\begin{itemize}
+  \item 文献来源索引：\texttt{refer/papers/INDEX.md}；
+  \item 上游 PyQCD 固定提交：\texttt{refer/git-rep/PyQCD/}，当前提交标识由库内来源表记录；
+  \item 公式审计：\texttt{python -m myqcd} 与 \texttt{myqcd/formula\_registry.py}；
+  \item 历史吸收与质量审计：\texttt{docs/pyqcd\_reference/} 与 \texttt{logs/}；
+  \item 真实数据、缓存和 build 产物：\texttt{data/}，按仓库规则不入库。
+\end{itemize}
+任何后续数值结果都应记录系综、规范组态哈希、格距、体积、价/海夸克质量、\(P_z\)、\(\tau\)、\(L_\parallel\)、\(b_T\)、重正化方案、soft/rapidity 方案、匹配阶数和重采样 seed。
+
+\section{伦理、贡献、利益冲突与资助}
+
+\noindent\textbf{伦理声明：}本文为理论综述，不涉及人类受试者、动物实验或个人隐私数据。
+
+\noindent\textbf{作者贡献：}MyQCD 理论物理研究组负责文献范围界定、物理论证、公式约定统一、证据分层和文稿整理；任何真实系综或数值结果的使用均应另行署名和审计。
+
+\noindent\textbf{利益冲突：}作者声明不存在与本文主题相关的利益冲突。
+
+\noindent\textbf{资助：}本文整理工作未声明新的外部资助；库内原始文献和合作组结果的资助信息以其原文为准。
+
+\noindent\textbf{AI 使用说明：}本文在 MyQCD 文献证据和本地源码约束下使用自动化研究写作工具辅助整理、交叉核对和 LaTeX 排版。所有物理结论、文献标识和验证状态均回溯到库内来源；未执行的真实系综、GPU、soft/rapidity 或连续极限验证没有作为结果陈述。
+
+\begin{thebibliography}{99}
+
+\bibitem{Collins2011}
+J. Collins,
+\newblock \textit{Foundations of Perturbative QCD},
+\newblock Cambridge University Press, Cambridge, 2011.
+\newblock DOI: 10.1017/CBO9780511622656.
+
+\bibitem{Meissner2007}
+S. Meissner, A. Metz, and K. Goeke,
+\newblock ``Relations between generalized and transverse momentum dependent parton distributions,''
+\newblock Phys. Rev. D \textbf{76}, 034002 (2007).
+\newblock DOI: 10.1103/PhysRevD.76.034002; arXiv:hep-ph/0703176.
+
+\bibitem{Ji2013}
+X. Ji,
+\newblock ``Parton physics on a Euclidean lattice,''
+\newblock Phys. Rev. Lett. \textbf{110}, 262002 (2013).
+\newblock DOI: 10.1103/PhysRevLett.110.262002; arXiv:1305.1539.
+
+\bibitem{Ji2014}
+X. Ji,
+\newblock ``Parton physics from large-momentum effective field theory,''
+\newblock Sci. China Phys. Mech. Astron. \textbf{57}, 1407 (2014).
+\newblock DOI: 10.1007/s11433-014-5492-3; arXiv:1404.6680.
+
+\bibitem{JiZhangZhao2018}
+X. Ji, J.-H. Zhang, and Y. Zhao,
+\newblock ``Renormalization in large momentum effective theory of parton physics,''
+\newblock Phys. Rev. Lett. \textbf{120}, 112001 (2018).
+\newblock DOI: 10.1103/PhysRevLett.120.112001; arXiv:1706.08962.
+
+\bibitem{Izubuchi2018}
+T. Izubuchi, X. Ji, L. Jin, I. W. Stewart, and Y. Zhao,
+\newblock ``Factorization theorem relating Euclidean and light-cone parton distributions,''
+\newblock Phys. Rev. D \textbf{98}, 056004 (2018).
+\newblock DOI: 10.1103/PhysRevD.98.056004; arXiv:1801.03917.
+
+\bibitem{JiReview2021}
+X. Ji, Y. Liu, Y.-S. Liu, J.-H. Zhang, and Y. Zhao,
+\newblock ``Large-momentum effective theory,''
+\newblock Rev. Mod. Phys. \textbf{93}, 035005 (2021).
+\newblock DOI: 10.1103/RevModPhys.93.035005; arXiv:2004.03543.
+
+\bibitem{ZhangGluonLaMET2019}
+J.-H. Zhang, X. Ji, A. Schäfer, W. Wang, and S. Zhao,
+\newblock ``Accessing gluon parton distributions in large momentum effective theory,''
+\newblock Phys. Rev. Lett. \textbf{122}, 142001 (2019).
+\newblock DOI: 10.1103/PhysRevLett.122.142001; arXiv:1808.10824.
+
+\bibitem{LiMaQiu2019}
+Z.-Y. Li, Y.-Q. Ma, and J.-W. Qiu,
+\newblock ``Multiplicative renormalizability of quasi-parton operators,''
+\newblock Phys. Rev. Lett. \textbf{122}, 062002 (2019).
+\newblock DOI: 10.1103/PhysRevLett.122.062002; arXiv:1809.01836.
+
+\bibitem{Balitsky2020}
+I. Balitsky, W. Morris, and A. Radyushkin,
+\newblock ``Gluon pseudo-distributions at short distances: forward case,''
+\newblock Phys. Lett. B \textbf{808}, 135621 (2020); arXiv:1910.13963.
+
+\bibitem{FanQuasiGluon2018}
+Z.-Y. Fan, Y.-B. Yang, A. Anthony, H.-W. Lin, and K.-F. Liu,
+\newblock ``Gluon quasi-parton-distribution functions from lattice QCD,''
+\newblock Phys. Rev. Lett. \textbf{121}, 242001 (2018).
+\newblock DOI: 10.1103/PhysRevLett.121.242001.
+
+\bibitem{FanLinPion2021}
+Z. Fan and H.-W. Lin,
+\newblock ``Gluon parton distribution of the pion from lattice QCD,''
+\newblock Phys. Lett. B \textbf{823}, 136778 (2021).
+\newblock DOI: 10.1016/j.physletb.2021.136778; arXiv:2104.06372.
+
+\bibitem{SalasChavira2022}
+A. Salas-Chavira, Z. Fan, and H.-W. Lin,
+\newblock ``First glimpse into the kaon gluon parton distribution using lattice QCD,''
+\newblock Phys. Rev. D \textbf{106}, 094510 (2022).
+\newblock DOI: 10.1103/PhysRevD.106.094510; arXiv:2112.03124.
+
+\bibitem{GoodYaoLin2026}
+W. Good, F. Yao, and H.-W. Lin,
+\newblock ``First nucleon gluon PDF from large momentum effective theory,''
+\newblock arXiv:2505.13321v3 [hep-lat] (2026).
+
+\bibitem{ZhangSoft2020}
+Q.-A. Zhang \textit{et al.} (Lattice Parton Collaboration),
+\newblock ``Lattice-QCD calculations of TMD soft function through large-momentum effective theory,''
+\newblock Phys. Rev. Lett. \textbf{125}, 192001 (2020).
+\newblock DOI: 10.1103/PhysRevLett.125.192001; arXiv:2005.14572.
+
+\bibitem{ChuCS2022}
+M.-H. Chu \textit{et al.} (Lattice Parton Collaboration),
+\newblock ``Nonperturbative determination of Collins--Soper kernel from quasi transverse-momentum dependent wave functions,''
+\newblock Phys. Rev. D \textbf{106}, 034509 (2022).
+\newblock DOI: 10.1103/PhysRevD.106.034509; arXiv:2204.00200.
+
+\bibitem{Zhang2022TMD}
+K. Zhang \textit{et al.} (Lattice Parton Collaboration),
+\newblock ``Renormalization of transverse-momentum-dependent parton distribution on the lattice,''
+\newblock Phys. Rev. Lett. \textbf{129}, 082002 (2022).
+\newblock DOI: 10.1103/PhysRevLett.129.082002; arXiv:2205.13402.
+
+\bibitem{ChuSoft2023}
+M.-H. Chu \textit{et al.} (Lattice Parton Collaboration),
+\newblock ``Lattice calculation of the intrinsic soft function and the Collins--Soper kernel,''
+\newblock JHEP \textbf{08}, 172 (2023).
+\newblock DOI: 10.1007/JHEP08(2023)172; arXiv:2306.06488.
+
+\bibitem{ChuTMDWF2023}
+M.-H. Chu \textit{et al.} (Lattice Parton Collaboration),
+\newblock ``Transverse-momentum-dependent wave functions of pion from lattice QCD,''
+\newblock Phys. Rev. D \textbf{109}, L091503 (2024).
+\newblock DOI: 10.1103/PhysRevD.109.L091503; arXiv:2302.09961.
+
+\bibitem{HeTMD2024}
+J.-C. He \textit{et al.} (Lattice Parton Collaboration),
+\newblock ``Unpolarized transverse-momentum-dependent parton distributions of the nucleon from lattice QCD,''
+\newblock Phys. Rev. D \textbf{109}, 114513 (2024).
+\newblock DOI: 10.1103/PhysRevD.109.114513; arXiv:2211.02340.
+
+\bibitem{MaBM2025}
+L. Ma \textit{et al.} (Lattice Parton Collaboration),
+\newblock ``Quark transverse spin-momentum correlation of the nucleon from lattice QCD: the Boer--Mulders function,''
+\newblock arXiv:2502.11807 [hep-lat] (2025).
+
+\bibitem{Luscher2010}
+M. Lüscher,
+\newblock ``Properties and uses of the Wilson flow in lattice QCD,''
+\newblock JHEP \textbf{08}, 071 (2010).
+\newblock DOI: 10.1007/JHEP08(2010)071; arXiv:1006.4518.
+
+\bibitem{LuscherWeisz2011}
+M. Lüscher and P. Weisz,
+\newblock ``Perturbative analysis of the gradient flow in non-Abelian gauge theories,''
+\newblock JHEP \textbf{02}, 051 (2011).
+\newblock DOI: 10.1007/JHEP02(2011)051; arXiv:1101.0963.
+
+\bibitem{MonahanOrginos2017}
+C. Monahan and K. Orginos,
+\newblock ``Quasi parton distributions and the gradient flow,''
+\newblock JHEP \textbf{03}, 116 (2017).
+\newblock DOI: 10.1007/JHEP03(2017)116; arXiv:1612.01584.
+
+\bibitem{Monahan2018}
+C. Monahan,
+\newblock ``Smeared quasidistributions in perturbation theory,''
+\newblock Phys. Rev. D \textbf{97}, 054507 (2018); Erratum: Phys. Rev. D \textbf{110}, 059902 (2024).
+\newblock DOI: 10.1103/PhysRevD.97.054507; arXiv:1710.04607.
+
+\bibitem{Huo2021}
+Y.-K. Huo \textit{et al.},
+\newblock ``Self-renormalization of quasi-light-front correlators on the lattice,''
+\newblock Nucl. Phys. B \textbf{969}, 115443 (2021).
+\newblock DOI: 10.1016/j.nuclphysb.2021.115443; arXiv:2103.02965.
+
+\bibitem{ZhangGauge2024}
+K. Zhang \textit{et al.} (Lattice Parton Collaboration),
+\newblock ``Impact of gauge fixing precision on the continuum limit of non-local quark-bilinear lattice operators,''
+\newblock Phys. Rev. D \textbf{110}, 074505 (2024); arXiv:2405.14097.
+
+\bibitem{JiHybrid2021}
+X. Ji, Y. Liu, A. Schäfer, W. Wang, Y.-B. Yang, J.-H. Zhang, and Y. Zhao,
+\newblock ``A hybrid renormalization scheme for quasi light-front correlations in large-momentum effective theory,''
+\newblock Nucl. Phys. B \textbf{964}, 115311 (2021).
+\newblock DOI: 10.1016/j.nuclphysb.2021.115311; arXiv:2008.03886.
+
+\bibitem{Ishikawa2017}
+T. Ishikawa, Y.-Q. Ma, J.-W. Qiu, and S. Yoshida,
+\newblock ``Renormalizability of quasiparton distribution functions,''
+\newblock Phys. Rev. D \textbf{96}, 094019 (2017).
+\newblock DOI: 10.1103/PhysRevD.96.094019; arXiv:1707.03107.
+
+\bibitem{Alexandrou2017}
+C. Alexandrou \textit{et al.},
+\newblock ``A complete non-perturbative renormalization prescription for quasi-PDFs,''
+\newblock Nucl. Phys. B \textbf{923}, 394 (2017).
+\newblock DOI: 10.1016/j.nuclphysb.2017.08.012; arXiv:1706.00265.
+
+\bibitem{Cichy2019}
+K. Cichy and M. Constantinou,
+\newblock ``A guide to light-cone PDFs from lattice QCD: an overview of approaches, techniques and results,''
+\newblock Adv. High Energy Phys. \textbf{2019}, 3036904.
+\newblock DOI: 10.1155/2019/3036904; arXiv:1811.07248.
+
+\bibitem{Peardon2009}
+M. Peardon \textit{et al.},
+\newblock ``Novel quark-field creation operator construction for hadronic physics in lattice QCD,''
+\newblock Phys. Rev. D \textbf{80}, 054506 (2009).
+\newblock DOI: 10.1103/PhysRevD.80.054506; arXiv:0905.2160.
+
+\bibitem{Bali2016}
+G. S. Bali, B. Lang, B. U. Musch, and A. Schäfer,
+\newblock ``Novel quark smearing for hadrons with high momenta in lattice QCD,''
+\newblock Phys. Rev. D \textbf{93}, 094515 (2016).
+\newblock DOI: 10.1103/PhysRevD.93.094515; arXiv:1602.05525.
+
+\bibitem{Egerer2022}
+C. Egerer \textit{et al.} (HadStruc Collaboration),
+\newblock ``Toward the determination of the gluon helicity distribution in the nucleon from lattice quantum chromodynamics,''
+\newblock Phys. Rev. D \textbf{106}, 094511 (2022).
+\newblock DOI: 10.1103/PhysRevD.106.094511; arXiv:2207.08733.
+
+\end{thebibliography}
+
+\end{document}

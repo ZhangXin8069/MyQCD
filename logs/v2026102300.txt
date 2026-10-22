@@ -1,0 +1,80 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-10-23 00:27:45 +0800
+批次: gluon-tmd-review-20261023
+主任务: 恢复并完成核子胶子 TMD-PDF 格点 QCD 详尽理论综述
+触发原因: 任务完成
+摘要: 恢复会话 01a16448-8ccb-7f82-8652-5cfaafcbdeae；完成 43 页综述的文献修订、编译、公式/引用/格式与根测试验证；严格格式审计仅有 21 条既有只读快照路径告警
+Git 根目录: /root/MyQCD
+
+## 关键日志
+
+### S1 — 会话恢复与现场核验
+- 目标: 恢复 UUID `01a16448-8ccb-7f82-8652-5cfaafcbdeae`，继续完成核子胶子 TMD-PDF 格点 QCD 理论综述。
+- 命令/操作: 定位本地 rollout；提取可见用户任务与工具轨迹；检查 Git 状态、目标目录和残留 LaTeX 进程。
+- 关键输出: 原会话因历史消息含大体积内嵌图片超过 1,048,576 token 上限；稿件已存在，PDF 为 43 页。
+- 退出码: 0。
+- 证据与判断: 原始任务和中间产物完整；采用干净上下文恢复，不重放旧会话的大量图片数据，避免再次上下文溢出。
+
+### S2 — 内容、文献和导航修订
+- 目标: 对 43 页稿件做内容级复审并修正可核验问题。
+- 命令/操作: 审阅完整 TeX；对照库内原文元数据；用 Python 检测引用闭合和重复期刊卷页；应用最小补丁。
+- 关键输出: 将 `arXiv:2205.13402` 的期刊标识由错误的 PRD 106, 094510 修正为 PRL 129, 082002；补齐 Fan--Lin、Monahan、Chu TMDWF 等正式期刊信息；补充生成元迹归一化；修正中文 rapidity 表述；在 `docs/pyqcd_physics/README.md` 增加本综述入口。
+- 退出码: 0。
+- 证据与判断: 修订均有库内原文或已发表元数据支撑；未改变原稿的物理结论与验收边界。
+
+### S3 — 最终验证
+- 目标: 验证 LaTeX、引用、PDF、公式审计、根测试、格式和 Git 边界。
+- 命令/操作: 两遍 XeLaTeX；引用键集合比较；`pdftotext`/`pdfinfo`/`pdffonts`；`python -m myqcd`；`python -m pytest`；`form-audit.sh --strict --quiet`；`git diff --check`。
+- 关键输出: XeLaTeX 两遍均为退出码 0，PDF 43 页；引用 34/34 闭合且无重复期刊卷页；`pytest` 为 `120 passed in 369.73s`；`python -m myqcd` 状态 `verified_core_with_unparsed_inventory`，94 项核心推导无失败；格式审计退出码 1，仅 21 条 `docs/pyqcd_reference/` 只读历史快照路径告警，新增文件无告警。
+- 退出码: 编译 0；测试 0；公式审计 0；严格格式审计 1（既有快照告警）。
+- 证据与判断: 稿件可编译、可检索、引用自洽，代码回归通过；全库严格格式门禁仍受只读历史快照约束，不修改快照规避告警。
+
+## 验证与证据
+- 测试/检查: XeLaTeX 两遍、`pdfinfo`、`pdffonts`、引用/文献键集合、重复卷页检测、`python -m myqcd`、`python -m pytest`、`form-audit --strict`、README 链接、尾随空白、`git diff --check`。
+- 结果: 编译零错误；43 页；34 个 cite key 与 34 个 bibitem 完全匹配；`120 passed`；94 项公式核心检查通过；PDF 字体均已嵌入；README 链接有效；尾随空白为 0；Git 空白检查通过。
+- 未验证项: 未在本轮重新做整页光栅视觉复核，以遵守最新“避免大上下文/图片”约束；PDF 仍有 2 条非致命 `Underfull \hbox`；`python -m myqcd` 报告 2263 条文献库存公式未解析，不影响 94 项核心审计结论；`qpdf` 不可用。
+
+## 变更与产物
+- 文件: `docs/pyqcd_physics/report_gluon_tmd_lattice_qcd_review_20261023.tex`（新建）
+- 文件: `docs/pyqcd_physics/report_gluon_tmd_lattice_qcd_review_20261023.pdf`（新建，738028 bytes）
+- 文件: `docs/pyqcd_physics/README.md`（修改，加入新综述入口）
+- 产物 SHA-256: TeX `41195c12fc4ed450daeffaf862bd77ae3a6bd6ad4dd9b28d30f9a622f3138dde`; PDF `5b0e4c4d45e252088c4d703559adb5b30fc6b4d081c89978f7ad19a6476376f9`。
+- 未改动范围: PyQCD 上游源码、`docs/pyqcd_reference/` 只读快照、真实系综/GPU 数据和其他无关文件均未修改。
+
+## 风险、限制与下一步
+- 风险: 严格格式审计仍因既有快照命名产生 21 条告警；两处 Underfull 属于非致命排版提示；文献库存仍有未解析公式条目。
+- 阻塞: 无任务级阻塞。
+- 下一步: 审阅后按仓库批准范围将 TeX、PDF 和 README 修改作为同一文档批次普通提交；未经明确授权未执行 Git 暂存、提交或推送。
+
+## 用户输入指令
+1. `resume"01a16448-8ccb-7f82-8652-5cfaafcbdeae"`
+2. `避免出现"■ {\"error\":{\"message\":{\"error\":{\"param\":\"\",\"type\":\"invalid_request_error\",\"code\":\"invalid_request_error\",\"message\":\"Upstream request failed: [invalid_request_error] This model's maximum context length is 1048576 tokens. However, you requested 1768686 tokens ...`（要求避免再次出现上下文长度溢出错误）
+3. 恢复会话中的原始任务：使用 `conf-refer-skill` 并参考本库所有内容，编写题为“使用格点QCD计算核子内胶子的横动量依赖的部分子分布函数的理论综述”的学术论文，保存在 `docs` 目录；并要求“事无巨细”。
+
+## Agent 全文报告
+--- report begin ---
+状态：**finished**
+
+### 改动内容
+- 完成并交付 `docs/pyqcd_physics/report_gluon_tmd_lattice_qcd_review_20261023.tex` 与同名 PDF，共 43 页。
+- 文献元数据已校正，重点修复 `arXiv:2205.13402` 被误标为 PRD 106, 094510 的冲突，现为 PRL 129, 082002。
+- 补充 Fan--Lin、Monahan、Chu TMDWF 等正式期刊信息、生成元迹归一化，并将不自然的中文“fastness”改为“快度（rapidity）”。
+- `docs/pyqcd_physics/README.md` 已加入本综述的阅读入口。
+
+### 推理依据
+- 原会话的生产文件完整，但历史上下文因四张大图的内嵌数据超出模型上限；本会话只提取任务、结构和关键验证结果，不重放图片及长工具输出。
+- 文献修订以库内原文首页、权威元数据记录和原始 TeX 为准；物理框架与“尚不足以宣称直接核子胶子 TMD-PDF 数值结果”的结论保持不变。
+
+### 验证结果
+- XeLaTeX 两遍均成功，零 LaTeX/引用错误，PDF 43 页。
+- 34 个 `cite` 键与 34 个 `bibitem` 完全匹配，无缺失、无未引用项、无重复期刊卷页。
+- `python -m pytest`：`120 passed in 369.73s`。
+- `python -m myqcd`：`verified_core_with_unparsed_inventory`，94 项核心推导无失败；库存中 2263 条公式仍为未解析条目，已明确保留为限制。
+- `git diff --check`、尾随空白和 README 链接检查通过；PDF 字体均已嵌入。
+- `form-audit --strict` 退出码 1，仅 21 条只读历史快照路径告警；本轮新增文件无告警。
+- 未在本轮重新做整页光栅视觉复核，以遵守“避免大上下文/图片”的最新要求；PDF 仍有 2 条非致命 `Underfull \hbox`。
+
+### 后续步骤
+- 审阅通过后，将两份新产物与 README 修改作为同一文档批次普通提交；未获明确授权，本轮未暂存、提交或推送。
+--- report end ---
