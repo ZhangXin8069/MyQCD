@@ -8,6 +8,7 @@
 - 上游参考根：`refer/git-rep/PyQCD/refer/`
 - 上游 URL：<https://gitee.com/zhangxin8069/PyQCD.git>
 - 当前检出：`0a2f85d30881fc8ead60972c0afb9c028abc348f`
+- 已吸收文档入口：`docs/pyqcd_reference/README.md`
 
 ## 一级入口
 

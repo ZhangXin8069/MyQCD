@@ -7,9 +7,12 @@
   审计；`docs/` 保存物理说明与报告；`refer/papers/`、`refer/books/` 保存本地
   LaTeX 文献辅助；`skills/` 保存维护技能；`logs/` 保存机器证据；`data/` 保存
   不入库的运行数据。
+- `docs/pyqcd_reference/` 保存从 PyQCD 固定提交吸收的只读文档快照；其正文中的历史
+  绝对路径和旧接口不构成当前运行入口。
 - `refer/git-rep/PyQCD/` 是唯一 PyQCD 源码事实源，
-  `refer/git-rep/PyQCD/refer/` 是其只读参考树。不得修改、移动或复制上游子模块
-  内容；新增说明写入 `refer/git-rep/docs/`。
+  `refer/git-rep/PyQCD/refer/` 是其只读参考树。不得修改或移动上游子模块内容；除
+  经明确吸收任务审核并登记 SHA-256 的 `docs/` 快照外，不得复制其内容，新增说明
+  写入 `refer/git-rep/docs/`。
 - 不在未获明确授权时读取 `/root/MyQCD` 之外的目录，也不得退回使用仓库外同级 PyQCD。
   真实系综或 GPU 验证必须另行确认资源与运行时，不能用旧产物冒充新验证结果。
 - 一次任务只修改相关文件；不得用 `git add -A`、强制推送、删除未跟踪用户文件或改写
