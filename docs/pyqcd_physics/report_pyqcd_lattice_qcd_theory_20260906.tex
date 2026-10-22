@@ -169,8 +169,8 @@ QCD 物理理论的连续链条：
 正文采用“物理图像 $\to$ 定义 $\to$ 方程 $\to$ 算法 $\to$ 极限/量纲检查
 $\to$ 源码与文献”的顺序。文件引用使用真实相对路径和行号；其中
 \fileline{refer/git-rep/PyQCD/...} 是相对于仓库根 \fileline{/root/MyQCD/} 的只读对照路径。
-论文优先引用 \fileline{MyQCD/refer/papers/} 的中文/英文转排源，教材引用
-\fileline{MyQCD/refer/books/}；PyQCD 的中文文档和源码只承担实现接口与约定
+论文优先引用 \fileline{refer/papers/} 的中文/英文转排源，教材引用
+\fileline{refer/books/}；PyQCD 的中文文档和源码只承担实现接口与约定
 的对照证据。
 
 核心复现命令为：
@@ -752,7 +752,7 @@ failed\_local\_checks & 0\\
   \item Wilson flow 只做 UV 平滑，不替代 soft subtraction 或 rapidity renorm。
   \item 有限维 SymPy 只能证明局部代数恒等式，不能把真实系综结果升级成定理。
 \end{itemize}
-\src{logs/data/pyqcd_theory_audit/theory_audit.json；../myqcd/pyqcd_theory_audit.py}
+\src{logs/data/pyqcd_theory_audit/theory_audit.json；myqcd/pyqcd_theory_audit.py}
 
 \section{参考源汇总}
 \begin{table}[htbp]
@@ -2069,7 +2069,7 @@ sum\_kind, normalization, output\_projection, field\_projection}；输出是
 \texttt{cs\_kernel\_two\_momentum}: 输入两个动量的 \(c_0\) 或 \(h_R\) 数据和 \(\texttt{z\_ref}\)；中间量是 \(\log\) 比值与 \(\log(P_{z1}/P_{z2})\)；输出 Collins--Soper 核 \(K(b_\perp)\) 及可选截断。\src{refer/git-rep/PyQCD/pyqcd/renorm/_tmdextract.py:187--220}\\
 \texttt{tmd\_matching\_hybrid}: 输入 \(x/y\) 网格、\(b_\perp\)、\(\mu\)、\(P_z\)、软因子、CS 核和 \(x\widetilde g\)；中间量是离散 \(Z_{ij}\)、\(S_I\) 和快度演化因子；输出混合方案下的匹配 TMD。\src{refer/git-rep/PyQCD/pyqcd/renorm/_tmdextract.py:230--304}\\
 \texttt{wilson\_flow}: 输入 \(U,\tau,\epsilon\) 或步数；中间量是六个 staple 的 \(\Omega_\mu\) 与 su(3) 投影的 \(Z_\mu\)；输出流场 \(V_\mu(t)\)，保持 \(SU(3)\) 幺正性。\src{refer/git-rep/PyQCD/pyqcd/renorm/_gradient_flow.py:126--267}\\
-\texttt{sftx\_gluon\_matching\_coeff}: 输入 \(\mu\) 以及 \(t_{\rm GeV^{-2}}\) 或 \((\tau,a_{\rm fm})\)；中间量是 \(\alpha_s/(4\pi)\) 与 \(2b_0[\log(2\mu^2t)+\gamma_E]\)；输出一圈 SFTX 系数。\src{refer/git-rep/PyQCD/pyqcd/renorm/_tmdextract.py:318--381}\\
+\texttt{sftx\_gluon\_matching\_coeff}: 输入 \(\mu\) 以及 \(t_{\rm GeV^{-2}}\) 或 \((\tau,a_{\rm fm})\)；中间量是 \(\alpha_s/(4\pi)\) 与 \(2b_0[\log(2\mu^2t)+\gamma_E]\)；输出一圈 SFTX 系数。\src{refer/git-rep/PyQCD/pyqcd/renorm/_tmdextract.py:620--669}\\
 \end{longtable}
 
 \section{端到端单列算法}
@@ -2100,7 +2100,7 @@ sum\_kind, normalization, output\_projection, field\_projection}；输出是
 \(12.\) 若研究胶子 OPE，调用 \texttt{gluon\_ope\_operator\_z0} 或 \texttt{gluon\_ff\_operator\_z0}，把 \(F\)、\(F^{\sim}\) 和直线 Wilson 线收成 \((\Delta z,N_t)\)；若通道表不明确，先用 \texttt{get\_ope\_lorentz\_pairs} 固定 \((\mu,\nu,\mu_2,\nu_2)\) 再做数值。\src{refer/git-rep/PyQCD/pyqcd/operator/_gluon_ope.py:617--848}\\
 \(13.\) 若走准 PDF / OPE 匹配，先做 \texttt{hR\_PDF} 或 \texttt{C\_gluon\_ratio} 的离散核逆；这里必须避开精确 \(x=0\) 节点，并保留 \(\xi=x/y\) 的三分区结构和 Si 项，不可把主值点硬塞成任意小数。\src{refer/git-rep/PyQCD/pyqcd/renorm/_matching.py:1--180}\\
 \(14.\) 若走 Fourier 变换，collinear 胶子准 PDF 只能用 \texttt{quasi\_pdf\_gluon} 的 sin 通道；准 TMD 则必须用 \texttt{quasi\_tmd\_pdf} 的 Hermitian 半轴 cos/sin 通道，二者不得互换。\src{refer/git-rep/PyQCD/pyqcd/renorm/_tmdextract.py:1--165}\\
-\(15.\) 若需要 UV 平滑和 SFTX，则先 \texttt{wilson\_flow} 到流时间 \(t\)，再用 \texttt{sftx\_gluon\_matching\_coeff} 把 \(\mathcal O_{\rm flow}(t)\) 送回 \(\overline{\rm MS}\)；失败门槛是 \(a^2\ll t\ll\Lambda_{\rm QCD}^{-2}\) 窗口不存在。\src{refer/git-rep/PyQCD/pyqcd/renorm/_gradient_flow.py:126--267；refer/git-rep/PyQCD/pyqcd/renorm/_tmdextract.py:318--381}\\
+\(15.\) 若需要 UV 平滑和 SFTX，则先 \texttt{wilson\_flow} 到流时间 \(t\)，再用 \texttt{sftx\_gluon\_matching\_coeff} 把 \(\mathcal O_{\rm flow}(t)\) 送回 \(\overline{\rm MS}\)；失败门槛是 \(a^2\ll t\ll\Lambda_{\rm QCD}^{-2}\) 窗口不存在。\src{refer/git-rep/PyQCD/pyqcd/renorm/_gradient_flow.py:126--267；refer/git-rep/PyQCD/pyqcd/renorm/_tmdextract.py:620--669}\\
 \(16.\) 若研究 TMD，则先调用 \texttt{gluon\_tmd\_operator} 构造 staple bilocal，再用 \texttt{soft\_function\_intrinsic}、\texttt{cs\_kernel\_two\_momentum} 与 \texttt{tmd\_matching\_hybrid} 处理 soft/rapidity 演化；没有同几何 soft factor 时，最终 TMD 只能停在未验证边界。\src{refer/git-rep/PyQCD/pyqcd/renorm/_tmd.py:233--320；refer/git-rep/PyQCD/pyqcd/renorm/_tmdextract.py:187--304}\\
 \(17.\) 所有中间量必须连同 \texttt{status}、\texttt{window}、\texttt{source\_inventory}、\texttt{fit\_report} 和 \(P_z,\mu,\tau,b_\perp\) 的元数据一起落盘；如果只剩接口、没有真实系综或完整卷积，就必须把结果写成结构性或未验证，而不是物理定论。\src{logs/data/pyqcd_theory_audit/theory_audit.json；myqcd/pyqcd_theory_audit.py}\\
 \end{longtable}
@@ -2657,7 +2657,7 @@ Wilson 作用量密度和 Clover 场强能量密度是两个不同离散量：
 \bottomrule
 \end{tabular}
 \end{table}
-\src{refer/git-rep/PyQCD/pyqcd/renorm/_gradient_flow.py:139--267；refer/git-rep/PyQCD/pyqcd/renorm/_tmdextract.py:318--381；refer/papers/准部分子分布与梯度流_latex/chapters/section02.tex}
+\src{refer/git-rep/PyQCD/pyqcd/renorm/_gradient_flow.py:139--267；refer/git-rep/PyQCD/pyqcd/renorm/_tmdextract.py:620--669；refer/papers/准部分子分布与梯度流_latex/chapters/section02.tex}
 
 \section{SymPy 与流实现的边界}
 已有核心 SymPy 推导验证了流方程的五维形式、Duhamel 解、RK3 三阶全局

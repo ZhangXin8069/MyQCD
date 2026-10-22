@@ -48,13 +48,13 @@
 
 \titleformat{\part}[display]
   {\normalfont\Huge\bfseries\color{qcdnavy}\centering}
-  {\Large\color{qcdrust}\partname\ \thepart}
+  {\Large\color{qcdrust}\CTEXthepart}
   {1.2ex}
   {\vspace{0.4ex}{\color{qcdnavy!28}\titlerule[0.8pt]}\vspace{1.2ex}}
 \titlespacing*{\part}{0pt}{2.4cm}{2.0cm}
 \titleformat{\chapter}[display]
   {\normalfont\Huge\bfseries\color{qcdnavy}}
-  {\filleft\Large\color{qcdrust}\chaptertitlename\ \thechapter}
+  {\filleft\Large\color{qcdrust}\CTEXthechapter}
   {0.8ex}
   {\vspace{0.25ex}{\color{qcdnavy!28}\titlerule[0.8pt]}\vspace{1.2ex}\filright}
 \titlespacing*{\chapter}{0pt}{-1.0cm}{2.1cm}
@@ -77,7 +77,7 @@
 \fancyhead[RE]{\small\nouppercase{\leftmark}}
 \fancyhead[LO]{\small\nouppercase{\rightmark}}
 \renewcommand{\headrulewidth}{0.4pt}
-\renewcommand{\chaptermark}[1]{\markboth{\thechapter\quad #1}{}}
+\renewcommand{\chaptermark}[1]{\markboth{\CTEXthechapter\quad #1}{}}
 \renewcommand{\sectionmark}[1]{\markright{\thesection\quad #1}}
 \fancypagestyle{plain}{
   \fancyhf{}
@@ -203,6 +203,15 @@ This book develops the theoretical, algorithmic, and reproducible-implementation
 \tableofcontents
 
 \clearpage
+\listoffigures
+
+\clearpage
+\listoftables
+
+\clearpage
+\listofalgorithms
+
+\clearpage
 \chapter*{阅读路线与课程设计}
 \addcontentsline{toc}{chapter}{阅读路线与课程设计}
 \markboth{阅读路线与课程设计}{}
@@ -221,7 +230,7 @@ This book develops the theoretical, algorithmic, and reproducible-implementation
 
 \begin{table}[htbp]
 \centering
-\caption{面向不同读者的阅读路径。章节号为逻辑依赖顺序，不要求逐字读完。}
+\caption{面向不同读者的阅读路径。}
 \label{tab:reading-paths}
 \small
 \begin{tabularx}{\textwidth}{L{2.6cm}L{3.6cm}Y}
@@ -289,7 +298,7 @@ This book develops the theoretical, algorithmic, and reproducible-implementation
 
 胶子在核子动量中占有重要份额，也是 Higgs 产生、Drell--Yan、重夸克产生和小 \(x\) 演化中的主导部分子之一。胶子 TMD 还与胶子饱和、横向极化胶子、质子自旋分解和 EIC 中的方位角不对称性相关\cite{JiReview2021,Meissner2007}。核子非极化胶子 TMD-PDF \(\fone(x,\kT;\mu,\zeta)\) 可作为最基础的基准量：它不依赖核子极化，却仍然包含 UV 重正化标度 \(\mu\)、rapidity 标度 \(\zeta\)、规范链方向和软胶子减除等全部关键理论结构。
 
-本文讨论的是\textbf{理论综述}，目标是建立一条可以逐项审计的计算链，而不是宣布某个现有数值为最终物理结果。文章采用以下证据优先级：
+本书是一部\textbf{理论专著}，目标是建立一条可以逐项审计的计算链，而不是宣布某个现有数值为最终物理结果。全书采用以下证据优先级：
 \begin{enumerate}
   \item 原始理论论文和库内全文转排用于定义算符、因子化公式、重正化方案与发表结果；
   \item 库内教科书和专题笔记用于补充 Wilson 线、格点场强、关联函数和统计方法；
@@ -343,16 +352,16 @@ This book develops the theoretical, algorithmic, and reproducible-implementation
 
 \section{文献范围与证据映射}
 
-本文不是对一个封闭数据库作 PRISMA 式系统综述，而是在 MyQCD 库内进行尽可能完整的理论核对。库内 \texttt{refer/papers/INDEX.md} 收录 50 篇原文转排及其中文译本，另有 38 篇评注导读、163 项 PyQCD 文档快照、若干原始 PDF 和可执行公式审计。表~\ref{tab:source-map} 给出与胶子 TMD 直接相关的来源分层。凡文献只讨论共线胶子 PDF、夸克 TMD 或纯梯度流方法时，本文只把它作为方法学先例，不把其结论跨通道升级。
+本书不是对一个封闭数据库作 PRISMA 式系统综述，而是在 MyQCD 库内进行尽可能完整的理论核对。库内 \texttt{refer/papers/INDEX.md} 收录 50 篇原文转排及其中文译本，另有 38 篇评注导读、163 项 PyQCD 文档快照、若干原始 PDF 和可执行公式审计。表~\ref{tab:source-map} 给出与胶子 TMD 直接相关的来源分层。凡文献只讨论共线胶子 PDF、夸克 TMD 或纯梯度流方法时，本书只把它作为方法学先例，不把其结论跨通道升级。
 
 \begin{table}[htbp]
 \centering
-\caption{本文使用的核心文献与证据类型。}
+\caption{本书使用的核心文献与证据类型。}
 \label{tab:source-map}
 \scriptsize
 \begin{tabularx}{\textwidth}{L{3.0cm}L{3.2cm}Y}
 \toprule
-文献组 & 代表工作 & 在本文中的用途与边界 \\
+文献组 & 代表工作 & 在本书中的用途与边界 \\
 \midrule
 LaMET 基础 & Ji 2013, 2014；Ji--Zhang--Zhao 2018；Izubuchi 等 2018；Ji 等 2021 & 定义准算符、因子化、重正化和大动量展开；不提供胶子 TMD 数值结论\cite{Ji2013,Ji2014,JiZhangZhao2018,Izubuchi2018,JiReview2021} \\
 胶子准 PDF & Zhang 等 2019；Li--Ma--Qiu 2019；Balitsky 等 2020 & 给出胶子算符分类、可乘性重正化和匹配语言\cite{ZhangGluonLaMET2019,LiMaQiu2019,Balitsky2020} \\
@@ -399,7 +408,7 @@ TMD 软结构 & Zhang 等 2020；Chu 等 2022, 2023；Zhang 等 2022 & 软函数
 
 后文出现的许多困难并不来自单个公式，而来自公式之间使用了不同的数学对象：场强是Lie代数取值张量，Wilson线是路径有序指数，准TMD是Euclidean矩阵元，TMD分布是含Dirac delta与光锥投影的分布函数，重正化因子是方案依赖矩阵，格点关联函数又是随机采样估计。若只记住最终公式，容易把“算符相等”“矩阵元相等”“分布函数相等”混为一谈。本节先建立一套共同语言，使后续每个公式都能回答四个问题：对象属于哪个空间，指标如何缩并，量纲由什么标度补偿，取极限时哪一层展开先于另一层。
 
-本文采用的主要约定如下：
+本书采用的主要约定如下：
 \begin{enumerate}
   \item Minkowski度规取 \(g^{\mu\nu}=\mathrm{diag}(1,-1,-1,-1)\)，光锥分量用 \(v^\pm=(v^0\pm v^3)/\sqrt2\) 时可保持 \(v^+w^-+v^-w^+=v^0w^0-v^3w^3\)；
   \item 四维动量积分记作 \(\int_p\equiv\int\dd^4p/(2\pi)^4\)，三维格点动量只取离散值 \(\mathbf p=2\pi\mathbf n/L\)；
@@ -500,7 +509,7 @@ Clifford代数为
 \end{equation}
 核子矩阵元中出现的 \(\gamma^\mu\)、\(\gamma^\mu\gamma_5\) 和 \(\sigma^{\mu\nu}\) 分别探测不同自旋结构。胶子TMD的非极化投影通常先对场强指标做横向对称无迹组合，再与核子自旋平均。不能因为胶子本身不带电荷就省略Dirac结构；外部核子态仍由旋量描述，投影的选择决定矩阵元是否为实数、是否含反称张量以及在高扭度中如何混合。
 
-对Euclidean计算，常用Hermitian矩阵 \(\gamma_5\) 与 \(\gamma_\mu\) 的性质会随具体表示改变。代码中的 \(\gamma_5\)-Hermiticity、Clover系数和手征投影必须与文章约定一致。论文只写一个 \(\gamma_5\) 而不说明表示，读者无法复核传播子或三点函数。
+对Euclidean计算，常用Hermitian矩阵 \(\gamma_5\) 与 \(\gamma_\mu\) 的性质会随具体表示改变。代码中的 \(\gamma_5\)-Hermiticity、Clover系数和手征投影必须与原文约定一致。原始文献只写一个 \(\gamma_5\) 而不说明表示时，读者无法复核传播子或三点函数。
 
 \section{路径积分、相关函数与矩阵元}
 
@@ -734,7 +743,7 @@ Wilson 线不是把两个场强点“连接起来”的数值工具，而是对�
 \label{fig:three-levels}
 \end{figure}
 
-图~\ref{fig:three-levels} 概括了本文反复使用的三层结构：光锥算符提供定义，Euclidean staple 提供可计算对象，soft/rapidity、重正化、匹配和极限把两者连接起来。后续所有公式和流程都应能放回图中的某一条边，不能把不同层次的对象直接等同。
+图~\ref{fig:three-levels} 概括了本书反复使用的三层结构：光锥算符提供定义，Euclidean staple 提供可计算对象，soft/rapidity、重正化、匹配和极限把两者连接起来。后续所有公式和流程都应能放回图中的某一条边，不能把不同层次的对象直接等同。
 
 \section{非极化投影与共线极限}
 
@@ -763,7 +772,7 @@ Wilson 线不是把两个场强点“连接起来”的数值工具，而是对�
   \Phi_{g,ij}(x,\bT;\mu,\zeta),
   \label{eq:h1perpprojection}
 \end{equation}
-其具体归一化和符号必须与所用 TMD 分解约定一致。本文的主线是非极化 \(f_1^g\)；其它极化胶子分布的原则相同，但会增加自旋投影、手征结构和规范链方向相关的复杂性\cite{Meissner2007}。
+其具体归一化和符号必须与所用 TMD 分解约定一致。本书的主线是非极化 \(f_1^g\)；其它极化胶子分布的原则相同，但会增加自旋投影、手征结构和规范链方向相关的复杂性\cite{Meissner2007}。
 
 在 \(\bT\to0\) 且对横向动量积分后，TMD 应退化为共线胶子 PDF：
 \begin{equation}
@@ -861,7 +870,7 @@ Wilson 线不是把两个场强点“连接起来”的数值工具，而是对�
 
 对非极化核子，最低阶的非极化胶子 TMD 为 \(f_1^g\)，它在 \(\bT\to0\) 时连接到胶子动量密度 \(xg(x)\)。线性极化胶子分布 \(h_1^{\perp g}\) 通过无迹横向张量投影提取，描述横向平面内的极化关联；在 \(k_T\) 空间，它表现为 \(k_T^ik_T^j\) 型的角度依赖\cite{Meissner2007}。核子极化后还可以定义螺旋度胶子、worm-gear 型和横向极化胶子 TMD；这些分布不能由 \(f_1^g\) 的标量倍数得到，因为它们对应不同的自旋和角度结构。
 
-本文把非极化 \(f_1^g\) 作为主对象，原因是：
+本书把非极化 \(f_1^g\) 作为主对象，原因是：
 \begin{enumerate}
   \item 它不需要极化核子插值算符，先把 gluon loop、Wilson 线和 soft/rapidity 结构暴露出来；
   \item 它与共线胶子 PDF、动量求和和 QCD 演化有最直接的交叉检验；
@@ -1852,7 +1861,7 @@ Gradient flow & UV 平滑、短流时匹配 & 规范不变、降低噪声 & 流�
   \item 检查不同外推窗口、不同 \(z_0\) 和不同 \(\alpha_s\) 阶数下的稳定性；
   \item 将流时间误差与格距、体积、统计和匹配误差分别报告。
   \end{enumerate}
-如果只在 \(\tau=3a^2\) 上做计算，即使矩阵元有限，也无法区分短流时物理、格距效应和流化导致的非微扰污染。该点与第 6 节库内审计中的 \(r_f>b_T\) 问题直接相关。
+如果只在 \(\tau=3a^2\) 上做计算，即使矩阵元有限，也无法区分短流时物理、格距效应和流化导致的非微扰污染。该点与“当前理论进展与证据边界”一章库内审计中的 \(r_f>b_T\) 问题直接相关。
 
 \section{流时间窗口}
 
@@ -3154,16 +3163,16 @@ EIC & 因子化与观测量框架 & 全 \(b_T\)、方案统一的格点输入 \\
 
 \section{PyQCD 文档中的实现层增补}
 
-本节把 \path{refer/git-rep/PyQCD/docs/} 中的方法性笔记压缩成若干可检验的增量点。这些文档是二次综合与实现审计，不是新的实验测量；涉及具体物理结论时仍回到原始论文和格点数据。表~\ref{tab:pyqcd-docs-map} 给出选用文档与本文新增内容的对应关系，正文只保留经交叉核对后能够落到公式、窗口或状态门上的部分。
+本节把 \path{refer/git-rep/PyQCD/docs/} 中的方法性笔记压缩成若干可检验的增量点。这些文档是二次综合与实现审计，不是新的实验测量；涉及具体物理结论时仍回到原始论文和格点数据。表~\ref{tab:pyqcd-docs-map} 给出选用文档与本书新增内容的对应关系，正文只保留经交叉核对后能够落到公式、窗口或状态门上的部分。
 
 \begin{table}[htbp]
 \centering
-\caption{PyQCD 文档中与本文直接相关的增量材料及其使用边界。}
+\caption{PyQCD 文档中与本书直接相关的增量材料及其使用边界。}
 \label{tab:pyqcd-docs-map}
 \small
 \begin{tabularx}{\textwidth}{L{3.4cm}L{4.0cm}Y}
 \toprule
-文档主题 & 增量要点 & 本文中的落点与边界 \\
+文档主题 & 增量要点 & 本书中的落点与边界 \\
 \midrule
 \textit{大动量有效理论} & 极限交换、解析延拓、普适性类 & 补充 LaMET 的有效场论图像；不把类比当成证明 \\
 \textit{胶子算符} & 36 分量、辅助场、三角混合、\(2\times2\) 匹配 & 区分 UV 可乘性重正化与匹配层味混合 \\
@@ -3486,7 +3495,7 @@ Egerer 等 2022\cite{Egerer2022} & 胶子螺旋度 & 格点探索 & 胶子自旋
   \item 缺少完整胶子-夸克单态混合矩阵；
   \item 当前只有单格距、有限流时和有限组态数，不能构成连续极限。
 \end{itemize}
-因此，即使某些中间矩阵元有限，审计仍将链条标记为 \texttt{diagnostic\_only} 和 \texttt{physical\_acceptance=false}。这不是实现失败，而是物理验收边界被正确执行。它直接支持本文的核心结论：\textbf{可执行代码、有限矩阵元和物理 TMD 是三级不同的证据}。
+因此，即使某些中间矩阵元有限，审计仍将链条标记为 \texttt{diagnostic\_only} 和 \texttt{physical\_acceptance=false}。这不是实现失败，而是物理验收边界被正确执行。它直接支持本书的核心结论：\textbf{可执行代码、有限矩阵元和物理 TMD 是三级不同的证据}。
 
 \section{库内真实组态审计的定量快照}
 
@@ -3494,7 +3503,7 @@ Egerer 等 2022\cite{Egerer2022} & 胶子螺旋度 & 格点探索 & 胶子自旋
 
 \begin{table}[htbp]
 \centering
-\caption{库内胶子 TMD 诊断链的代表性状态。所有数字均来自本地审计记录，不是本文新产生的测量。}
+\caption{库内胶子 TMD 诊断链的代表性状态。所有数字均来自本地审计记录，不是本书新产生的测量。}
 \label{tab:audit-snapshot}
 \small
 \begin{tabularx}{\textwidth}{L{3.0cm}L{4.2cm}Y}
@@ -3530,7 +3539,7 @@ soft/rapidity & 无同几何、同伴随表示测量 & TMD 因子化链未闭合
 软函数/CS 核 & 同几何 Wilson 圈、内禀软函数、单圈 CS 提取 & 提供 nonperturbative 软结构先例；需胶子伴随表示和核子态闭合 \\
 夸克 TMD & 准 TMD、Wilson 圈、NNLO/RGR、核子应用 & 提供算法模板；不能替代胶子表示和单态混合 \\
 库内诊断链 & source-resolved correlators、flow、OPE、bootstrap、fail-closed & 证明实现可运行；当前不满足物理窗口和完整混合要求 \\
-直接胶子 TMD & 尚需同方案 soft/rapidity、多格距、多流时、连续极限 & 本文核查的库内语料不足以支持物理数值声称 \\
+直接胶子 TMD & 尚需同方案 soft/rapidity、多格距、多流时、连续极限 & 本书核查的库内语料不足以支持物理数值声称 \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -3763,7 +3772,7 @@ Dirac 求逆 & \(\epsilon_{\rm rel}\), \(i_{\max}\), restart, 预条件 & 递归
 \end{equation}
 并用 binning 检查误差是否随 bin 大小达到平台。对胶子回路、真空减除和高动量三点函数，单靠 \(\sigma/\sqrt{N}\) 往往会低估误差。
 
-拟合时应在每个 bootstrap replica 内独立完成重正化、Fourier、匹配和外推，而不是先拟合中心值再对误差做线性传播。对于高度相关的数据，可先做 SVD 或采用带先验的协方差；任何正则化都必须报告奇异值谱、截断阈值和对最终结果的影响。第 5.8 节的协方差公式与本节共同构成统计验收门。
+拟合时应在每个 bootstrap replica 内独立完成重正化、Fourier、匹配和外推，而不是先拟合中心值再对误差做线性传播。对于高度相关的数据，可先做 SVD 或采用带先验的协方差；任何正则化都必须报告奇异值谱、截断阈值和对最终结果的影响。协方差与统计推断章节给出的公式与本节共同构成统计验收门。
 
 \section{尺度窗口与失败模式}
 
@@ -3932,7 +3941,7 @@ Fourier 端点外推过强 & \(x\) 端点出现振铃/负值 & 多 \(z_{\max}\)�
   \item \textbf{soft/rapidity 阶段：}在同一表示和几何下计算 \(S_I^g\) 与 \(K_g\)，用多个 \(P_z\) 验证平台；与微扰小 \(b_T\) 极限对接。
   \item \textbf{匹配与混合阶段：}接入胶子硬核、\(g-q\) 混合矩阵和 \(\MSbar\) 转换；报告匹配阶数、标度区间和高阶误差。
   \item \textbf{多参数生产：}扩展到多个 \(a\)、多个 \(L_s\)、至少一个物理或可控手征质量；进行 bootstrap 联合分析。
-  \item \textbf{极限与外推：}按第 7 节的窗口做 \(a\to0,\tau\to0,P_z\to\infty\) 联合外推，并给出每个 \(x,b_T\) 点的可信区。
+  \item \textbf{极限与外推：}按“系统误差与验证协议”一章的窗口做 \(a\to0,\tau\to0,P_z\to\infty\) 联合外推，并给出每个 \(x,b_T\) 点的可信区。
   \item \textbf{发表与复现：}公开算符契约、缓存哈希、拟合窗口、协方差、失败 replica、Fourier 约定和来源 manifest。
 \end{enumerate}
 
@@ -3966,7 +3975,7 @@ Fourier 端点外推过强 & \(x\) 端点出现振铃/负值 & 多 \(z_{\max}\)�
 
 最底层的格点矩阵元也不是“由代码直接给出”的黑箱。每个夸克传播子都是固定规范背景中 \(D_q[U]\psi_\eta=\eta\) 的解；BiCGSTAB 的搜索方向、shadow 残差和局部稳定化系数只是构造这个逆矩阵列的方式。近零模和条件数会放大源、舍入与停止容差的影响，非连通胶子拓扑又会把求解偏差传播到真空减除和统计相关中。因此，合格的 TMD 报告不仅应说明用了哪一种 Krylov 算法，还应证明递归残差与真实残差、容差扫描、预条件选择和目标矩阵元对求解误差均处于统计误差之内。传播子求逆是物理链的一部分，不是可以隐藏在性能附录中的数值细节。
 
-结合库内文献与实现审计，本文的结论是：共线胶子 PDF、TMD 软函数和 CS 核已经有重要格点先例；夸克 TMD 提供了完整算法模板；但本文所核查的库内证据尚不足以支持经过完整 soft/rapidity、混合、多格距和多流时验收的直接核子胶子 TMD-PDF 数值结果。现阶段最稳健的表述是“理论框架已建立，关键构件已有格点验证，直接胶子 TMD 物理计算仍在闭合中”。这一证据边界本身就是后续计算的出发点。
+结合库内文献与实现审计，本书的结论是：共线胶子 PDF、TMD 软函数和 CS 核已经有重要格点先例；夸克 TMD 提供了完整算法模板；但本书所核查的库内证据尚不足以支持经过完整 soft/rapidity、混合、多格距和多流时验收的直接核子胶子 TMD-PDF 数值结果。现阶段最稳健的表述是“理论框架已建立，关键构件已有格点验证，直接胶子 TMD 物理计算仍在闭合中”。这一证据边界本身就是后续计算的出发点。
 
 \appendix
 
@@ -4141,7 +4150,7 @@ UV 维数正规化只控制 \(m^2\to\infty\)，而 \(y\to0\) 或 \(y\to\infty\) 
 \clearpage
 \chapter{本库证据映射}
 
-本文的文献和实现审阅覆盖以下库内入口：
+本书的文献和实现审阅覆盖以下库内入口：
 \begin{itemize}
   \item \path{docs/pyqcd_physics/README.md}：当前物理导航和证据层级；
   \item \path{docs/pyqcd_reference/}：从固定提交吸收的格点 QCD、胶子 PDF/TMD、重整化和梯度流文档；
@@ -4160,11 +4169,11 @@ UV 维数正规化只控制 \(m^2\to\infty\)，而 \(y\to0\) 或 \(y\to\infty\) 
 
 \begin{longtable}{L{3.0cm}L{4.0cm}L{6.3cm}}
 \toprule
-来源类别 & 典型路径 & 本文使用方式 \\
+来源类别 & 典型路径 & 本书使用方式 \\
 \midrule
 \endfirsthead
 \toprule
-来源类别 & 典型路径 & 本文使用方式 \\
+来源类别 & 典型路径 & 本书使用方式 \\
 \midrule
 \endhead
 上游源码 & \path{refer/git-rep/PyQCD/pyqcd/operator/} & 场强、staple、直线 Wilson 线和胶子 OPE 的接口语义 \\
@@ -4209,7 +4218,7 @@ Fourier & 相位约定、\(z_{\max}\)、尾部模型、\(x\) 支撑、端点和�
 \clearpage
 \chapter{数据与代码可用性}
 
-本文不产生新的蒙卡系综或 GPU 数值。所引用的公式、文献转排、实现路径和审计日志均位于本库：
+本书不产生新的蒙卡系综或 GPU 数值。所引用的公式、文献转排、实现路径和审计日志均位于本库：
 \begin{itemize}
   \item 文献来源索引：\texttt{refer/papers/INDEX.md}；
   \item 上游 PyQCD 固定提交：\texttt{refer/git-rep/PyQCD/}，当前提交标识由库内来源表记录；
@@ -4222,15 +4231,15 @@ Fourier & 相位约定、\(z_{\max}\)、尾部模型、\(x\) 支撑、端点和�
 \clearpage
 \chapter{伦理、贡献、利益冲突与资助}
 
-\noindent\textbf{伦理声明：}本文为理论综述，不涉及人类受试者、动物实验或个人隐私数据。
+\noindent\textbf{伦理声明：}本书为理论专著，不涉及人类受试者、动物实验或个人隐私数据。
 
 \noindent\textbf{作者贡献：}MyQCD 理论物理研究组负责文献范围界定、物理论证、公式约定统一、证据分层和文稿整理；任何真实系综或数值结果的使用均应另行署名和审计。
 
-\noindent\textbf{利益冲突：}作者声明不存在与本文主题相关的利益冲突。
+\noindent\textbf{利益冲突：}作者声明不存在与本书主题相关的利益冲突。
 
-\noindent\textbf{资助：}本文整理工作未声明新的外部资助；库内原始文献和合作组结果的资助信息以其原文为准。
+\noindent\textbf{资助：}本书整理工作未声明新的外部资助；库内原始文献和合作组结果的资助信息以其原文为准。
 
-\noindent\textbf{AI 使用说明：}本文在 MyQCD 文献证据和本地源码约束下使用自动化研究写作工具辅助整理、交叉核对和 LaTeX 排版。所有物理结论、文献标识和验证状态均回溯到库内来源；未执行的真实系综、GPU、soft/rapidity 或连续极限验证没有作为结果陈述。
+\noindent\textbf{AI 使用说明：}本书在 MyQCD 文献证据和本地源码约束下使用自动化研究写作工具辅助整理、交叉核对和 LaTeX 排版。所有物理结论、文献标识和验证状态均回溯到库内来源；未执行的真实系综、GPU、soft/rapidity 或连续极限验证没有作为结果陈述。
 
 \clearpage
 \input{docs/pyqcd_physics/monograph/lattice_conventions.tex}
@@ -4868,7 +4877,7 @@ Blinding & 防偏 & 在正式解盲前隐藏分析选择或偏移。随机种子
 \section{算法索引}
 
 \begin{longtable}{L{2.2cm}L{2.8cm}L{2.7cm}L{5.2cm}}
-\caption{本文算法索引、复杂度与失败信号。}\label{tab:algorithm-index}\\
+\caption{本书算法索引、复杂度与失败信号。}\label{tab:algorithm-index}\\
 \toprule
 算法 & 输入/输出 & 粗复杂度 & 主要失败信号 \\
 \midrule

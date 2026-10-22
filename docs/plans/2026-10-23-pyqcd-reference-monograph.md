@@ -1,15 +1,15 @@
 # PyQCD 文档全量整合专著计划
 
 **目标:** 以现有核子胶子 TMD-PDF 综述为主线，编写一本完整吸收
-`docs/pyqcd_reference/` 中 163 个内容文件、76 个 TeX/PDF 成对单元、4 个独立 PDF
-和 6 个 Markdown 文档的 QCD 专著。
+`docs/pyqcd_reference/` 中 163 个内容文件的 QCD 专著；语料分为 76 个 TeX/PDF
+成对单元、1 个独立 TeX、4 个独立 PDF 和 6 个 Markdown 文档，共 87 个知识单元。
 
-**架构:** 保留现有 152 页综述的物理主线与可执行审计结构；在其前后补充格点 QCD
+**架构:** 以现有 152 页综述为起点，保留其物理主线与可执行审计结构；在其前后补充格点 QCD
 基础、算法与统计、PDF/OPE/LaMET、胶子算符与 TMD、梯度流与匹配、PyQCD 实现、
 历史验证、学位论文综合和来源图谱。正文以综合重写为主，快照只作为可追溯证据，
 不复制大段上游原文。
 
-**技术栈:** LaTeX (`ctexart`)、XeLaTeX、Python 3、`pdfinfo`/`pdftotext`、
+**技术栈:** LaTeX (`ctexbook`)、XeLaTeX、Python 3、`pdfinfo`/`pdftotext`、
 SymPy 审计入口 `python -m myqcd`、Pytest。
 
 **规格:** 用户要求“继续以本论文为主线，整合 `docs/pyqcd_reference` 的所有内容，
@@ -81,10 +81,10 @@ SymPy 审计入口 `python -m myqcd`、Pytest。
 - 产出: 每批次 `coverage.tsv`、`notes.md`、`current_gap.md`、
   `draft_sections.tex`、`completion.json`。
 
-- [ ] **Step 1: 派发** 同一条响应并行调用 10 个 `agent-dispatch.sh --task-file`。
-- [ ] **Step 2: 汇总** 检查每批 `all_units_covered=true` 且无重复单元。
-- [ ] **Step 3: 抽查** 每批抽取至少 2 个物理结论与来源行/页核对。
-- [ ] **Step 4: 交付检查** 汇总 87/87 覆盖，记录失败批次并串行补齐。
+- [x] **Step 1: 派发** 同一条响应并行调用 10 个 `agent-dispatch.sh --task-file`。
+- [x] **Step 2: 汇总** 检查每批 `all_units_covered=true` 且无重复单元。
+- [x] **Step 3: 抽查** 每批抽取至少 2 个物理结论与来源行/页核对。
+- [x] **Step 4: 交付检查** 汇总 87/87 覆盖，记录失败批次并串行补齐。
 
 ## Task 3: 设计专著章节与来源图谱结构
 
@@ -103,10 +103,10 @@ SymPy 审计入口 `python -m myqcd`、Pytest。
 - 消费: 10 个批次的 `notes.md`、`current_gap.md`、`draft_sections.tex`。
 - 产出: `unit_id -> batch -> chapter -> disposition -> source file` 的唯一映射。
 
-- [ ] **Step 1: 目录设计** 建立 18 章、4 个教程附录、来源图谱和审计附录。
-- [ ] **Step 2: 去重** 将历史重复版本映射到主版本并保留版本差异说明。
-- [ ] **Step 3: 生成图谱** 输出 163 个文件的路径、类型、哈希、页数/行数、用途和章节。
-- [ ] **Step 4: 交付检查** 映射表覆盖 87/87 单元和 163/163 文件。
+- [x] **Step 1: 目录设计** 建立四篇正文、教程篇、来源图谱和审计附录的完整章节体系。
+- [x] **Step 2: 去重** 将历史重复版本映射到主版本并保留版本差异说明。
+- [x] **Step 3: 生成图谱** 输出 163 个文件的路径、类型、哈希、页数/行数、用途和章节。
+- [x] **Step 4: 交付检查** 映射表覆盖 87/87 单元和 163/163 文件。
 
 ## Task 4: 整合格点基础、相关函数与算法
 
@@ -125,10 +125,10 @@ SymPy 审计入口 `python -m myqcd`、Pytest。
 - 消费: B01–B03 的证据与草案。
 - 产出: 统一记号、场论基础、格点方法、数值算法和误差预算章节。
 
-- [ ] **Step 1: 重写基础** 合并 Symanzik、Wilson 线、场强、费米子、HQET、重正化。
-- [ ] **Step 2: 重写格点计算** 合并 2pt/3pt、GEVP、Lüscher、形状因子、蒸馏和图分类。
-- [ ] **Step 3: 重写算法统计** 合并传播子求解、涂抹、Monte Carlo、误差、bootstrap 和外推。
-- [ ] **Step 4: 交付检查** 相关章节无重复定义，公式记号与现有稿一致。
+- [x] **Step 1: 重写基础** 合并 Symanzik、Wilson 线、场强、费米子、HQET、重正化。
+- [x] **Step 2: 重写格点计算** 合并 2pt/3pt、GEVP、Lüscher、形状因子、蒸馏和图分类。
+- [x] **Step 3: 重写算法统计** 合并传播子求解、涂抹、Monte Carlo、误差、bootstrap 和外推。
+- [x] **Step 4: 交付检查** 相关章节无重复定义，公式记号与现有稿一致。
 
 ## Task 5: 整合 PDF、胶子算符、TMD、梯度流与匹配
 
@@ -147,10 +147,10 @@ SymPy 审计入口 `python -m myqcd`、Pytest。
 - 消费: B04–B06 的证据与草案。
 - 产出: 从光锥 PDF 到格点可计算准量、软函数、匹配、流时窗口和物理 TMD 的闭合章节。
 
-- [ ] **Step 1: 重写 PDF 基础** 合并 PDF、OPE、DGLAP、LaMET、GPD 与准/赝 PDF。
-- [ ] **Step 2: 重写胶子与 TMD** 合并胶子算符、36 分量、极化、TMD 软/rapidity 与自旋。
-- [ ] **Step 3: 重写流与匹配** 合并梯度流、热核、flow window、SFTX、NLO 与连续极限。
-- [ ] **Step 4: 交付检查** 物理层级、极限交换、尺度窗口和失败条件明确区分。
+- [x] **Step 1: 重写 PDF 基础** 合并 PDF、OPE、DGLAP、LaMET、GPD 与准/赝 PDF。
+- [x] **Step 2: 重写胶子与 TMD** 合并胶子算符、36 分量、极化、TMD 软/rapidity 与自旋。
+- [x] **Step 3: 重写流与匹配** 合并梯度流、热核、flow window、SFTX、NLO 与连续极限。
+- [x] **Step 4: 交付检查** 物理层级、极限交换、尺度窗口和失败条件明确区分。
 
 ## Task 6: 整合 PyQCD 实现、历史验证、复现实验与学位论文
 
@@ -169,10 +169,10 @@ SymPy 审计入口 `python -m myqcd`、Pytest。
 - 消费: B07–B10 的证据与草案。
 - 产出: 代码—物理对象映射、数据流、测试门、历史审计和论文级综合章节。
 
-- [ ] **Step 1: 实现章** 合并包架构、核心物理链、GPU/并行、缓存、provenance 和 fail-closed。
-- [ ] **Step 2: 验证章** 合并 4150、dev5、stab、test6–test9 的证据与版本差异。
-- [ ] **Step 3: 论文综合** 吸收两篇独立学位论文与新旧理论工作流的内容结构。
-- [ ] **Step 4: 交付检查** 诊断结果不冒充物理验收，历史路径只作为快照语境。
+- [x] **Step 1: 实现章** 合并包架构、核心物理链、GPU/并行、缓存、provenance 和 fail-closed。
+- [x] **Step 2: 验证章** 合并 4150、dev5、stab、test6–test9 的证据与版本差异。
+- [x] **Step 3: 论文综合** 吸收两篇独立学位论文与新旧理论工作流的内容结构。
+- [x] **Step 4: 交付检查** 诊断结果不冒充物理验收，历史路径只作为快照语境。
 
 ## Task 7: 生成来源图谱与完成全书编译
 
@@ -187,10 +187,10 @@ SymPy 审计入口 `python -m myqcd`、Pytest。
 - 修改: `docs/pyqcd_physics/report_gluon_tmd_lattice_qcd_review_20261023.pdf`
 - 修改: `docs/pyqcd_physics/README.md`
 
-- [ ] **Step 1: 组装** 合并章节、附录、图谱和参考文献。
-- [ ] **Step 2: 编译** 连续两遍 XeLaTeX，修复引用、标签、缺字和版面问题。
-- [ ] **Step 3: 验收** 检查页数、字体、目录、来源图谱、代表性页面和全文文本。
-- [ ] **Step 4: 交付检查** `Overfull=0`、`Float too large=0`、重复标签=0、未定义引用/引文=0。
+- [x] **Step 1: 组装** 合并章节、附录、图谱和参考文献。
+- [x] **Step 2: 编译** 连续两遍 XeLaTeX，修复引用、标签、缺字和版面问题。
+- [x] **Step 3: 验收** 检查页数、字体、目录、来源图谱、代表性页面和全文文本。
+- [x] **Step 4: 交付检查** `Overfull=0`、`Float too large=0`、重复标签=0、未定义引用/引文=0。
 
 ## Task 8: 全量审计、日志与收敛
 
@@ -208,9 +208,20 @@ SymPy 审计入口 `python -m myqcd`、Pytest。
 - 消费: Task 7 的最终 PDF、TeX、来源图谱和审计输出。
 - 产出: 最终报告与恢复入口。
 
-- [ ] **Step 1: 仓库审计** 运行 `python -m myqcd`、`python -m pytest`、
+- [x] **Step 1: 仓库审计** 运行 `python -m myqcd`、`python -m pytest`、
   `form-snapshot-verify`、`form-audit --strict`、旧路径搜索和 `git diff --check`。
-- [ ] **Step 2: 覆盖审计** 验证 87/87 单元、163/163 文件、所有章节和来源图谱闭合。
-- [ ] **Step 3: 日志** 按 `log` 的 `final` 模式归档完整报告。
-- [ ] **Step 4: 收尾** 清除日志脚本可能追加的 EOF 空行，复查 Git 状态并标记 goal 完成。
+- [x] **Step 2: 覆盖审计** 验证 87/87 单元、163/163 文件、所有章节和来源图谱闭合。
+- [x] **Step 3: 日志** 按 `log` 的 `final` 模式归档完整报告。
+- [x] **Step 4: 收尾** 清除日志脚本可能追加的 EOF 空行，复查 Git 状态并完成交付审查。
 
+## 交付记录
+
+- 最终主专著：391 页 A4，`1,924,487` bytes，SHA-256
+  `dd4c565ac9f419a9352faa780a091a90b0606ee9d22c3976b81553fb591ae07b`。
+- 来源覆盖：163/163 文件、87/87 知识单元；文件级与单元级缺失、重复均为 0。
+- 理论报告：68 页 A4，`841,169` bytes，SHA-256
+  `bc12ceb263c748a0f1344c3ce0a1c6f0206ed7ee84879e79b3187fbc2cb09192`。
+- 编译日志：undefined refs/cites、Overfull、Float too large、Missing character 均为 0。
+- 回归：`121 passed`；`python -m myqcd` 核心 94 项推导通过、`failed_checks=[]`。
+- 格式：快照校验通过；严格审计 0 ERROR、21 条仅来自只读历史快照的既有 WARNING。
+- 稳定标签：本轮 Git 交付完成后创建并推送 `stab7`。
