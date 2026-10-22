@@ -1,0 +1,88 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-10-23 05:36:16 +0800
+批次: pyqcd-reference-monograph-resume-final-20261023
+主任务: 恢复并完成 PyQCD 全量参考专著，完成 dev7 以来改动复审与稳定交付
+触发原因: 任务完成
+摘要: 恢复超长会话断点，完成 391 页专著、163/87 覆盖、双轴复审微调、全量测试与稳定交付证据
+Git 根目录: /root/MyQCD
+
+
+## 关键日志
+### S1 — 超长会话轻量恢复
+- 目标: 恢复线程 01a164be-7f55-7ee1-8bfa-b75ea2aa983f，不重新加载 15.7 MB、3923 条事件全文。
+- 命令/操作: 使用 `codex migrate-rollouts --thread` 定位分页 rollout；流式解析用户消息索引、最后任务边界、工具调用和失败事件；未执行 `codex exec resume`。
+- 关键输出: 原任务为将 163 份 PyQCD 参考文档整合为 QCD 专著；中断点为最终两遍编译完成后、视觉抽查阶段，因一次返回六张整页图片触发上游 context_length_exceeded。
+- 退出码: 0
+- 证据与判断: 仓库改动、线程事件与旧日志三源交叉一致；恢复采用摘要、暂存账本和批次文件，不重放旧会话。
+
+### S2 — 覆盖与构建基线
+- 目标: 确认文件、知识单元、构建 PDF 与源码一致。
+- 命令/操作: 校验 integration_summary.json、integration_ledger.tsv、10 个 completion.json；检查 PDF、字体、时间戳和 LaTeX 日志。
+- 关键输出: 163/163 文件哈希匹配，87/87 单元唯一覆盖，missing/duplicate=0；主专著 391 页 A4，字体全部嵌入。
+- 退出码: 0
+- 证据与判断: 新构建 PDF 晚于源码；旧交付 PDF 为 152 页，确认必须替换。
+
+### S3 — 独立双轴复审与微调
+- 目标: 审查 dev7 以来全部文档和代码/仓库边界改动。
+- 命令/操作: 两个继承当前 provider/model 的只读审查代理并行检查文档一致性与代码边界；主代理逐项复核并修复。
+- 关键输出: 修复 8 个 `formula_registry.py` 旧行号或错误报告来源、SFTX `_tmdextract.py:620-669` 锚点、章节号硬编码、相对路径、AGENTS 快照例外、顶层专著入口和计划统计；新增默认 PyQCD 根路径回归测试。
+- 退出码: 0
+- 证据与判断: 所有 Important/Minor findings 已处理或由后续证据消除；未发现 Critical。
+
+### S4 — 最终编译与验收
+- 目标: 重建主专著和同步修改的理论报告，并完成全量审计。
+- 命令/操作: 两份文档各连续 XeLaTeX 两遍；视觉抽查使用单张低分辨率六页拼图；运行 pytest、myqcd、form-snapshot-verify、form-audit、compileall、tag-chain 和 Git 检查。
+- 关键输出: 主专著 391 页、1,924,487 bytes；理论报告 68 页、841,169 bytes；两份 PDF 字体全部嵌入；`121 passed in 330.15s`；myqcd core verified、94 derivations、failed_checks=[]。
+- 退出码: pytest/myqcd/compileall/snapshot/tag-chain/git diff check 均为 0；form-audit 为 1，仅有 21 条既有只读快照路径告警、0 errors。
+- 证据与判断: 编译日志 fatal 模式为 0，主专著 90 条 Underfull、理论报告 11 条 Underfull，均非失败门；标题页、目录、篇首页、章首页、来源图谱和文件账本拼图未发现遮挡或裁切。
+
+## 验证与证据
+- 测试/检查: `python -m pytest`；`python -m myqcd`；`python -m compileall -q myqcd`；两次双遍 XeLaTeX；`pdfinfo`；`pdffonts`；视觉拼图；`form-snapshot-verify`；`form-audit --strict`；覆盖账本；`tag-chain.sh --check --remote origin`；`git diff --check`。
+- 结果: 121 项测试通过；公式核心 94 项通过且无失败；两份 PDF 编译和字体检查通过；快照校验与标签链通过；Git 空白检查通过。
+- 未验证项: 未执行新的真实系综、GPU、集群、soft/rapidity 闭环或多格距数值实验；21 条严格格式告警全部来自只读历史快照并保持基线。
+
+## 变更与产物
+- 文件: `docs/pyqcd_physics/report_gluon_tmd_lattice_qcd_review_20261023.tex/.pdf`；`docs/pyqcd_physics/report_pyqcd_lattice_qcd_theory_20260906.tex/.pdf`；`docs/pyqcd_physics/monograph/*.tex`；来源图谱；计划与 README；`myqcd/formula_registry.py`；`myqcd/pyqcd_theory_audit.py`；回归测试；`skills/long-context-monograph/`。
+- 产物: 391 页 `ctexbook` 专著、68 页理论报告、87/87 单元来源图谱、10 个批次 completion 账本、最终日志。
+- 未改动范围: 未修改 `refer/git-rep/PyQCD/` 上游工作树；未执行真实系综或 GPU 运行。
+
+## 风险、限制与下一步
+- 风险: 严格格式审计因只读快照历史路径名保留 21 条 WARNING；物理数值结论仍受来源快照和未执行真实计算限制。
+- 阻塞: 无。
+- 下一步: 提交并普通推送当前分支，随后创建并推送 `stab7` 稳定标签。
+
+## 用户输入指令
+- “resume"01a164be-7f55-7ee1-8bfa-b75ea2aa983f",谨慎避免"■ {"error":{"message":"{\"error\":{\"param\":null,\"type\":\"invalid_request_error\",\"code\":\"invalid_request_error\",\"message":"Upstream request failed: [invalid_request_error] This model's maximum context length is 1048576 tokens; the prompt has 1397791 tokens\n(max_model_len) (request_id: gw-e6fbc0f95e84-a63ec)\"}}","type":"upstream_error"}}",尽量分批次”
+- “注意:所有主要任务完成后对本次大任务(上个tag到现在)的改动进行快速的检查与微调,使之完美收尾,最后~tag:stab(在此之前先push本地git到远程)”
+
+## Agent 全文报告
+--- report begin ---
+状态：finished
+
+### 改动内容
+- 轻量恢复线程 `01a164be-7f55-7ee1-8bfa-b75ea2aa983f`，以摘要、覆盖账本和批次产物重建断点，未重放 15.7 MB 原会话。
+- 完成 391 页 `ctexbook` 专著与 68 页 PyQCD 理论报告的最终双遍编译，并替换交付 PDF。
+- 完成 163/163 文件、87/87 知识单元与 10 个批次 completion 的闭合校验。
+- 对 dev7 以来改动做文档与代码双轴复审，修复公式来源行号、SFTX 源码锚点、章节号硬编码、相对路径、AGENTS 快照例外、顶层入口、计划统计和默认 PyQCD 根路径测试。
+- 新增 `skills/long-context-monograph/`，固化来源冻结、双层覆盖账本、分块派发、上下文安全与专著验收流程。
+
+### 推理依据
+- 原线程全文已超过模型上限，直接 resume 会再次失败；只读流式解析和仓库证据交叉可满足续接要求。
+- 交付硬门为：文件与单元覆盖闭合、两遍编译成功、引用/标签/字体/版面无致命问题、视觉抽查通过、公式与格式审计可解释、根测试全绿。
+- 21 条格式告警全部来自固定只读快照路径，不能通过修改上游快照制造全绿。
+
+### 验证结果
+- 主专著：391 页 A4，1,924,487 bytes，字体全部嵌入，fatal 日志模式 0。
+- 理论报告：68 页 A4，841,169 bytes，字体全部嵌入，fatal 日志模式 0。
+- `python -m pytest`：`121 passed in 330.15s`。
+- `python -m myqcd`：`status=verified_core_with_unparsed_inventory`，`derivation_count=94`，`failed_checks=[]`。
+- 覆盖：`units_covered=87/87`，`content_files_total=163`，`manifest_hash_matches=163`，重复单元 0。
+- `form-snapshot-verify` 退出 0；`form-audit --strict` 为 0 ERROR、21 条既有只读快照 WARNING。
+- `compileall`、`git diff --check`、`tag-chain.sh --check --remote origin` 均通过。
+- 视觉抽查：标题页、目录、篇首页、章首页、来源图谱和文件账本单张拼图未见遮挡、裁切或跨页错位。
+
+### 后续步骤
+- 提交本轮全部相关改动并普通推送到 `origin/main`。
+- 创建并推送 `stab7` 注释标签，完成稳定收尾。
+--- report end ---
