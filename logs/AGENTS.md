@@ -25,7 +25,6 @@
 - 关键内容: 完成唯一格式冲突清理、精确忽略与根规则同步；全部测试和审计通过，未提交或推送
 - 验证: path, size, required sections, conflict markers
 - 批次状态: complete
-
 ## refer-wick-audit-20261020 - final - 2026-10-20 03:23:11 +0800
 - 主任务: 分析新增参考文档与代码并合并有效内容
 - 日志文件: logs/v2026102003.txt
@@ -129,5 +128,13 @@
 - 文件大小: 6395 bytes
 - 触发原因: 任务完成
 - 关键内容: 新增 16 个编号关系、4 个关键公式卡、1 个物理判据框和 1 个尺度审计框；重构摘要框、章节标题规则与图题样式；论文扩至 50 页并通过编译、公式、引用、图形和格式验证
+- 验证: path, size, required sections, conflict markers
+- 批次状态: complete
+## gluon-tmd-review-supplement - final - 2026-10-23 01:13:47 +0800
+- 主任务: 充实核子胶子 TMD-PDF 综述并完成 PDF 与审计验证
+- 日志文件: logs/v2026102301-2.txt
+- 文件大小: 6951 bytes
+- 触发原因: 任务完成
+- 关键内容: 综合 PyQCD docs 的实现层材料，扩充综述公式、表格、物理解释和验收门控，并完成编译、格式、公式与 Git 验证。
 - 验证: path, size, required sections, conflict markers
 - 批次状态: complete
