@@ -18,7 +18,7 @@ class FormulaSpec:
     notes: str
 
 
-_REPORT = "docs/report_refer_papers_all_contents_20260830.tex"
+_REPORT = "docs/pyqcd_physics/report_pyqcd_lattice_qcd_theory_20260906.tex"
 
 
 CORE_FORMULAS: Dict[str, FormulaSpec] = {
@@ -185,7 +185,7 @@ CORE_FORMULAS: Dict[str, FormulaSpec] = {
     "wick_pairing_enumeration": FormulaSpec(
         "wick_pairing_enumeration",
         r"N_{\mathrm{Wick}}=\prod_f n_{q,f}!,\qquad \epsilon_w=(-1)^{\mathrm{inv}(q_0,\ldots,q_n,\bar q_{\pi(0)},\ldots,\bar q_{\pi(n)})}",
-        "docs/reference-repositories-audit-20261020.md:63-70",
+        "refer/git-rep/PyQCD/pyqcd/contraction/_autowick.py:28-52,60-110",
         "verified",
         "derive_wick_pairing_enumeration",
         "按精确味道枚举配对并显式保存 Grassmann 重排符号；验证 pn=36、ppn=2880、Delta++Delta-=36。Gamma、颜色和源共轭不作为组合枚举的一部分。",

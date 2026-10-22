@@ -3,7 +3,7 @@
 ## 底稿来源
 - arXiv:1501.05348v2 [hep-lat]（2015-04-21），官方 e-print 源码 `wflow_ope.tex` + 9 张图 PDF。
 - 期刊版本：Phys. Rev. D 91, 074513 (2015)，DOI 10.1103/PhysRevD.91.074513。
-- 库内 PDF（/root/PyQCD/refer/papers/...Monahan_Orginos_2015.pdf）仅用于核对首页书目信息。
+- 历史外部库内 PDF（Monahan--Orginos 2015）仅用于核对首页书目信息。
 
 ## 归一化说明
 - revtex4-1 (aps,prd,twocolumn) → `\documentclass[11pt]{article}` 单栏 a4/margin2.5cm；

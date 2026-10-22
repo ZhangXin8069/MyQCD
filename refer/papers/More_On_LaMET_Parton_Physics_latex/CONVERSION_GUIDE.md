@@ -3,7 +3,7 @@
 ## 底稿来源
 - arXiv 官方源：`https://arxiv.org/e-print/1706.07416`（gzip 单文件 `mk_eu_new.tex`，2017-09-18 版），
   解包于 `/tmp/opencode/work/More_On_LaMET_Parton_Physics/src/`。
-- 调度方提供的库内 PDF 路径（/root/PyQCD/...）不存在；未使用 PDF 兜底。
+- 调度方提供的历史外部 PDF 路径不存在；未使用 PDF 兜底。
 - 期刊信息 Nucl. Phys. B 924, 366–376 (2017) 来自调度方输入，转录于标题脚注。
 
 ## 归一化说明

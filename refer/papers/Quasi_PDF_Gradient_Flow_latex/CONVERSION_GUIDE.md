@@ -3,7 +3,7 @@
 ## 底稿来源
 - arXiv 官方 LaTeX 源（`https://arxiv.org/e-print/1612.01584`，gzip tar）：
   `qpdf.tex` + `qpdf.bbl`，jheppub 文档类；无图源文件（论文无插图）。
-- 库内本地 PDF 仅用于核对（/root/PyQCD/refer/papers/…Monahan_Orginos_2017.pdf），未参与排版。
+- 历史外部库内 PDF（Monahan--Orginos 2017）仅用于核对，未参与排版。
 
 ## 归一化说明
 - `\documentclass[11pt]{article}` + geometry(a4paper,2.5cm)；统一宏包 amsmath/amssymb/

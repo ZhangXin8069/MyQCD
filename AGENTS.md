@@ -2,11 +2,16 @@
 
 ## 项目边界
 
-- 本库为复杂 Python/LaTeX 项目，主包是 `myqcd/`；`refer/` 保存外部论文和书籍资料，
-  `skills/` 保存本库 agent 技能，`docs/` 保存交付文档，`logs/` 保存机器证据，
-  `data/` 保存不入库的运行数据。
-- 不在未获明确授权时读取仓库外的 `../PyQCD` 或其他外部目录。涉及该路径的完整课程
-  重编译必须等待授权，不能以旧产物冒充新验证结果。
+- 本库的核心定位是解释 `refer/git-rep/PyQCD/` 中的物理，专注 QCD，尤其是格点
+  QCD、胶子算符、梯度流、重正化、匹配和 TMD-PDF。主包 `myqcd/` 提供可执行公式
+  审计；`docs/` 保存物理说明与报告；`refer/papers/`、`refer/books/` 保存本地
+  LaTeX 文献辅助；`skills/` 保存维护技能；`logs/` 保存机器证据；`data/` 保存
+  不入库的运行数据。
+- `refer/git-rep/PyQCD/` 是唯一 PyQCD 源码事实源，
+  `refer/git-rep/PyQCD/refer/` 是其只读参考树。不得修改、移动或复制上游子模块
+  内容；新增说明写入 `refer/git-rep/docs/`。
+- 不在未获明确授权时读取 `/root/MyQCD` 之外的目录，也不得退回使用仓库外同级 PyQCD。
+  真实系综或 GPU 验证必须另行确认资源与运行时，不能用旧产物冒充新验证结果。
 - 一次任务只修改相关文件；不得用 `git add -A`、强制推送、删除未跟踪用户文件或改写
   已推送标签来解决格式问题。
 
@@ -37,16 +42,14 @@
 - `docs/` 只放 Markdown、TeX、PDF 和图片；`logs/` 只放 `AGENTS.md` 以及
   `log/json/tsv/csv/txt` 文件，不允许 `.DS_Store`；`data/` 只跟踪 `.gitignore`、
   `AGENTS.md`、`README.md`。
-- 课程代码位于 `skills/lqcd-course/scripts/`，教学模块位于其 `course_examples/`；
-  文献报告生成器位于 `skills/refer/scripts/`。
-- 测试入口：`python -m pytest`。课程证据入口：
-  `python skills/lqcd-course/scripts/sympy_validation.py --check-only` 和
-  `python skills/lqcd-course/scripts/course_examples/run_all.py --quiet`。
+- 测试入口：`python -m pytest`；公式与来源审计入口：`python -m myqcd`。
 - 格式验证入口：
   `/root/configure/skills/form/scripts/form-audit.sh --root /root/MyQCD --strict --quiet`。
 - Git 交付按 `~form` 批准范围分批提交并普通推送；禁止强推。`refer/**` 保留上游目录名；
   `logs/**` 是历史证据快照，迁移记录也可以引用旧路径，但当前可执行文件和现行文档
   不得继续使用旧路径。
+- PyQCD 源码、文档和 `refer/` 参考统一从仓库内
+  `refer/git-rep/PyQCD/` 解析；仓库外同级 PyQCD 不再是有效入口。
 - `data/**` 的运行内容、缓存和图片是本库唯一批准的不入库例外；由 `data/.gitignore`
   统一排除。
 <!-- form-skill:end -->

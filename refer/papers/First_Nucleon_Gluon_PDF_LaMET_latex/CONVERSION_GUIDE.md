@@ -3,7 +3,7 @@
 ## 底稿来源
 - arXiv:2505.13321v3 [hep-lat]（官方源 `https://arxiv.org/e-print/2505.13321`，gzip tar）
 - 源文件：`main-PLB-v2.tex`（REVTeX4 双栏）+ `refs.bib` + `Figs/`（16 个 PDF 图）
-- 本地库内 PDF（/root/PyQCD/refer/papers/…）用于核对首页书目信息；未走 PDF 重排路线。
+- 历史外部库内 PDF 用于核对首页书目信息；未走 PDF 重排路线。
 
 ## 归一化说明
 - `\documentclass[11pt]{article}` + geometry(a4paper,margin=2.5cm)；统一宏包

@@ -185,11 +185,11 @@ def audit_euclidean_gamma() -> AuditRecord:
         checks,
         "verified",
         "SymPy 显式构造四维矩阵并逐元素精确化简为零。",
-        ("../PyQCD/pyqcd/lattice/_gamma.py:1-23,32-100",),
+        ("refer/git-rep/PyQCD/pyqcd/lattice/_gamma.py:1-23,32-100",),
         (
             "refer/books/Quantum_Chromodynamics_on_the_Lattice_latex/"
             "chapters/chapter01.tex",
-            "../PyQCD/docs/格点QCD中的关联函数.tex",
+            "refer/git-rep/PyQCD/docs/格点QCD中的关联函数.tex",
         ),
         "只证明有限维 Clifford/投影代数；不证明费米子离散化、谱纯度或真实核子态污染已消失。",
         "gamma(0) 在 PyQCD API 中是单位矩阵哨兵，不应误当作第五个 Euclidean gamma。",
@@ -259,13 +259,13 @@ def audit_vertices() -> AuditRecord:
         "verified",
         "SymPy 逐项展开复共轭与 Levi-Civita 收缩；没有执行大体积数组 contraction。",
         (
-            "../PyQCD/pyqcd/vertex/_vertex.py:32-83",
-            "../PyQCD/pyqcd/vertex/_vertex.py:134-234",
+            "refer/git-rep/PyQCD/pyqcd/vertex/_vertex.py:32-83",
+            "refer/git-rep/PyQCD/pyqcd/vertex/_vertex.py:134-234",
         ),
         (
             "refer/papers/夸克场产生算符构造_latex/chapters/section02.tex",
-            "../PyQCD/docs/格点QCD蒸馏方法解析.tex",
-            "../PyQCD/docs/格点QCD中的维克收缩与傅里叶变换.tex",
+            "refer/git-rep/PyQCD/docs/格点QCD蒸馏方法解析.tex",
+            "refer/git-rep/PyQCD/docs/格点QCD中的维克收缩与傅里叶变换.tex",
         ),
         "有限维指标恒等式不等于 eigvec 文件、相位轴序和 GPU contraction 的真实数据验证。",
         "VVV 的颜色 singlet 结构由 epsilon 收缩给出；动量相位不改变本征指标的反对称性。",
@@ -312,13 +312,13 @@ def audit_wilson_links() -> AuditRecord:
         "verified",
         "SymPy 对交换 U(1) 与非交换 MatrixSymbol 两种路径分别化简。",
         (
-            "../PyQCD/pyqcd/vertex/_vertex.py:241-376",
-            "../PyQCD/pyqcd/renorm/_tmd.py:71-133",
+            "refer/git-rep/PyQCD/pyqcd/vertex/_vertex.py:241-376",
+            "refer/git-rep/PyQCD/pyqcd/renorm/_tmd.py:71-133",
         ),
         (
             "refer/papers/夸克禁闭_latex/chapters/section03.tex",
-            "../PyQCD/docs/格点QCD中的Wilson线.tex",
-            "../PyQCD/docs/格点QCD中的TMD_PDF.tex",
+            "refer/git-rep/PyQCD/docs/格点QCD中的Wilson线.tex",
+            "refer/git-rep/PyQCD/docs/格点QCD中的TMD_PDF.tex",
         ),
         "这是路径端点的代数代理；没有对周期边界、链接幺正性或真实 SU(3) 组态做数值回归。",
     )
@@ -393,10 +393,10 @@ def audit_clover_dual() -> AuditRecord:
         checks,
         "verified",
         "对六个独立分量的全 Lorentz 指标求和由 SymPy 精确验证。",
-        ("../PyQCD/pyqcd/operator/_gluon_ope.py:472-569",),
+        ("refer/git-rep/PyQCD/pyqcd/operator/_gluon_ope.py:472-569",),
         (
-            "../PyQCD/docs/格点QCD中的场强张量.tex",
-            "../PyQCD/docs/格点QCD中的OPE算符.tex",
+            "refer/git-rep/PyQCD/docs/格点QCD中的场强张量.tex",
+            "refer/git-rep/PyQCD/docs/格点QCD中的OPE算符.tex",
             "refer/papers/Properties_Uses_Wilson_Flow_latex/chapters/section02.tex",
         ),
         "不验证四叶 plaquette 在有限格距下的离散误差、色迹归一化或噪声行为。",
@@ -454,10 +454,10 @@ def audit_jackknife_covariance() -> AuditRecord:
         checks,
         "verified",
         "对四配置二维符号样本逐项展开，精确验证均值和协方差系数。",
-        ("../PyQCD/pyqcd/analysis/_analyse.py:91-162",),
+        ("refer/git-rep/PyQCD/pyqcd/analysis/_analyse.py:91-162",),
         (
-            "../PyQCD/docs/格点QCD中的关联函数.tex",
-            "../PyQCD/docs/格点QCD中的重整化.tex",
+            "refer/git-rep/PyQCD/docs/格点QCD中的关联函数.tex",
+            "refer/git-rep/PyQCD/docs/格点QCD中的重整化.tex",
         ),
         "只审计公式归一化；自相关、阻塞、复数观测量、bootstrap 随机种子和有限样本偏差仍需单独验证。",
     )
@@ -533,12 +533,12 @@ def audit_three_point_ratio() -> AuditRecord:
         "verified",
         "SymPy 精确消去指数和 overlap；额外的 2√(EfEi) 是把 PyQCD ratio 变为协变矩阵元的运动学因子。",
         (
-            "../PyQCD/pyqcd/analysis/_analyse.py:361-520",
-            "../PyQCD/pyqcd/analysis/_bare_matrix.py:60-129",
+            "refer/git-rep/PyQCD/pyqcd/analysis/_analyse.py:361-520",
+            "refer/git-rep/PyQCD/pyqcd/analysis/_bare_matrix.py:60-129",
         ),
         (
-            "../PyQCD/docs/格点QCD中的3pt构造.tex",
-            "../PyQCD/docs/格点QCD中的关联函数.tex",
+            "refer/git-rep/PyQCD/docs/格点QCD中的3pt构造.tex",
+            "refer/git-rep/PyQCD/docs/格点QCD中的关联函数.tex",
         ),
         "该记录证明的是两点/三点谱模型的渐近结构；没有证明有限 t_sep 下 excited-state contamination 已被拟合消除。",
         "PyQCD ratio_3pt 返回无额外 2E 因子的 R；若下游把 R 直接称为矩阵元，必须显式记录归一化约定。",
@@ -595,15 +595,15 @@ def audit_bare_hybrid_fourier() -> AuditRecord:
         "structural",
         "SymPy 验证拼接点连续性、乘法逆和 Fourier 前因子；不读取真实 hB/Z_R 数组。",
         (
-            "../PyQCD/pyqcd/analysis/_bare_matrix.py:60-179",
-            "../PyQCD/pyqcd/renorm/_zr.py:25-113",
-            "../PyQCD/pyqcd/renorm/_hybrid.py:21-153",
-            "../PyQCD/pyqcd/renorm/_tmdextract.py:30-125",
+            "refer/git-rep/PyQCD/pyqcd/analysis/_bare_matrix.py:60-179",
+            "refer/git-rep/PyQCD/pyqcd/renorm/_zr.py:25-113",
+            "refer/git-rep/PyQCD/pyqcd/renorm/_hybrid.py:21-153",
+            "refer/git-rep/PyQCD/pyqcd/renorm/_tmdextract.py:30-125",
         ),
         (
             "refer/papers/Hybrid_Renorm_Quasi_LightFront_latex/chapters/section02.tex",
             "refer/papers/威尔逊线重正化改进准分布_latex/chapters/section02.tex",
-            "../PyQCD/docs/格点QCD中的重整化.tex",
+            "refer/git-rep/PyQCD/docs/格点QCD中的重整化.tex",
         ),
         "连续性和代数闭合不等于 Z_R 拟合、长距离外推、系统误差或傅里叶截断已经由系综数据验证。",
         "hR_z_Pz 的 mask 实现需额外保证 z_s 两侧都有节点；脚本只审计公式条件。",
@@ -650,15 +650,15 @@ def audit_gradient_flow_dimensions() -> AuditRecord:
         "verified",
         "SymPy 验证 tau 换算和 sqrt(8t) 的单位一致性；质量维数由自然单位记账显式检查。",
         (
-            "../PyQCD/pyqcd/renorm/_gradient_flow.py:139-180",
-            "../PyQCD/pyqcd/renorm/_gradient_flow.py:219-267",
-            "../PyQCD/pyqcd/renorm/_tmdextract.py:318-367",
+            "refer/git-rep/PyQCD/pyqcd/renorm/_gradient_flow.py:139-180",
+            "refer/git-rep/PyQCD/pyqcd/renorm/_gradient_flow.py:219-267",
+            "refer/git-rep/PyQCD/pyqcd/renorm/_tmdextract.py:318-367",
         ),
         (
             "refer/papers/Properties_Uses_Wilson_Flow_latex/chapters/section02.tex",
             "refer/papers/梯度流的微扰分析_latex/chapters/section02.tex",
             "refer/papers/准部分子分布与梯度流_latex/chapters/section02.tex",
-            "../PyQCD/docs/格点QCD中的梯度流重整化.tex",
+            "refer/git-rep/PyQCD/docs/格点QCD中的梯度流重整化.tex",
         ),
         "量纲正确不保证存在 a<<sqrt(8t)<<非局域路径支撑的流窗口，也不替代软因子和 rapidity 重整化。",
         "代码中的 flow_time_gev_m2 使用 (a_fm/0.1973269804 GeV fm)^2；报告保留该换算而不硬编码格距。",
@@ -707,16 +707,16 @@ def audit_matching_tmd_boundary() -> AuditRecord:
         "unverified",
         "SymPy 只验证树级与一阶矩阵代数；完整非微扰匹配、soft subtraction、rapidity 重整化和真实三点数据未执行。",
         (
-            "../PyQCD/pyqcd/renorm/_matching.py:25-177",
-            "../PyQCD/pyqcd/renorm/_tmd.py:140-304",
-            "../PyQCD/pyqcd/renorm/_tmdextract.py:128-304",
+            "refer/git-rep/PyQCD/pyqcd/renorm/_matching.py:25-177",
+            "refer/git-rep/PyQCD/pyqcd/renorm/_tmd.py:140-304",
+            "refer/git-rep/PyQCD/pyqcd/renorm/_tmdextract.py:128-304",
         ),
         (
             "refer/papers/大动量有效理论获取胶子分布_latex/chapters/section02.tex",
             "refer/papers/准部分子分布与梯度流_latex/chapters/section03.tex",
             "refer/papers/从准TMD波函数确定CS核_latex/chapters/section02.tex",
             "refer/papers/LaMET计算TMD软函数_latex/chapters/section02.tex",
-            "../PyQCD/docs/格点QCD中的TMD_PDF.tex",
+            "refer/git-rep/PyQCD/docs/格点QCD中的TMD_PDF.tex",
         ),
         "不能把 1 圈核、离散矩阵逆或接口测试称作完整 PDF/TMD 物理结果；必须补真实系综和同几何软因子。",
         "matching.py 的 x=0 网格保护和 TMD 的 z/b_perp 路径几何是独立验证门，不由此代数检查覆盖。",
@@ -747,8 +747,8 @@ def _ref_file(ref: str) -> str:
 
 def _resolve_source(root: Path, pyqcd_root: Path, ref: str) -> Path:
     path = Path(_ref_file(ref))
-    if str(path).startswith("../PyQCD/"):
-        return pyqcd_root / str(path)[len("../PyQCD/") :]
+    if str(path).startswith("refer/git-rep/PyQCD/"):
+        return pyqcd_root / str(path)[len("refer/git-rep/PyQCD/") :]
     if path.is_absolute():
         return path
     return root / path
@@ -791,7 +791,7 @@ def build_audit_report(
     pyqcd_path = (
         Path(pyqcd_root).resolve()
         if pyqcd_root is not None
-        else root_path.parent / "PyQCD"
+        else root_path / "refer" / "git-rep" / "PyQCD"
     )
     records = run_structural_audits()
     source_inventory = _source_inventory(root_path, pyqcd_path, records)
@@ -850,7 +850,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument(
         "--pyqcd-root",
         type=Path,
-        help="PyQCD 对照目录；默认取 MyQCD 同级的 PyQCD",
+        help="PyQCD 对照目录；默认取 refer/git-rep/PyQCD",
     )
     parser.add_argument(
         "--output",
