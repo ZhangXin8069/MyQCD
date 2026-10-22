@@ -18,7 +18,12 @@
 ## 建议阅读顺序
 
 1. [`report_gluon_tmd_lattice_qcd_review_20261023.pdf`](report_gluon_tmd_lattice_qcd_review_20261023.pdf)
-   给出核子胶子 TMD-PDF 的定义、格点算符、Dirac/BiCGSTAB 求逆、软/rapidity、重正化、梯度流、匹配、关键公式卡片，并综合 PyQCD 文档中的极限交换、味混合、Wilson 线策略、顺序源成本和实现门控，配有图形化的尺度窗口、误差预算与分级验收链。
+   是一部 152 页的教程型专著，从数学与场论工具箱、格点构造和核子胶子
+   TMD-PDF 定义出发，系统展开 Dirac/BiCGSTAB 求逆、Krylov 方法、软/rapidity、
+   重正化、梯度流、匹配、Fourier 逆问题、统计推断和连续极限；并综合 PyQCD
+   文档中的极限交换、味混合、Wilson 线策略、顺序源成本和实现门控，配有图形化
+   尺度窗口、误差预算、分级验收链、十个逐步推导、专业术语百科、公式与算法手册
+   以及六个可执行复现实验。
 2. [`report_pyqcd_lattice_qcd_theory_20260906.pdf`](report_pyqcd_lattice_qcd_theory_20260906.pdf)
    给出全链物理结构和源码入口。
 3. [`report_gluon_tmd_gradient_flow_20260828.pdf`](report_gluon_tmd_gradient_flow_20260828.pdf)

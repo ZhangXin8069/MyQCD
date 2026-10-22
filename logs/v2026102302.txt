@@ -1,0 +1,81 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-10-23 02:02:40 +0800
+批次: gluon-tmd-review-resume-final
+主任务: 完成核子胶子 TMD-PDF 教程型专著最终交付
+触发原因: 任务完成
+摘要: 轻量恢复旧会话断点，完成 152 页教程型专著最终编译、PDF 替换、公式/引用/格式/来源/PDF 与根测试验证。
+Git 根目录: /root/MyQCD
+
+## 关键日志
+### S1 — 旧会话轻量恢复
+- 目标: 从会话 01a16467-b04d-7333-b2ec-67c87cdd2616 的 20 MB、3133 条事件记录中恢复最后有效任务和断点，避免再次注入超过模型上限的完整历史。
+- 命令/操作: 只读解析会话元数据、压缩摘要、首尾用户消息与末段助手报告；未把旧会话全文重新载入模型上下文。
+- 关键输出: 恢复出的任务为 150–200 页核子胶子 TMD-PDF 教程型专著收尾；旧构建已为 152 页，交付目录 PDF 仍为旧版。
+- 退出码: 0
+- 证据与判断: 采用仓库文件、构建产物与摘要交叉确认断点，而不是重放全历史；未再次触发上游 context_length_exceeded 错误。
+
+### S2 — 最终构建与交付 PDF
+- 目标: 对当前 TeX 连续两遍 XeLaTeX，并替换 docs/pyqcd_physics/ 中旧 PDF。
+- 命令/操作: 连续运行两遍 XeLaTeX，输出到 data/build/gluon_tmd_review/；复制最终 PDF 到 docs/pyqcd_physics/。
+- 关键输出: resume-final-pass1.stdout、resume-final-pass2.stdout 均退出 0；最终 PDF 152 页、A4、1230667 bytes。
+- 退出码: 0
+- 证据与判断: 源码含 259 个 equation、21 个 align、9 个 figure、28 个 table/longtable、8 个 algorithm、360 个 label；无重复标签。
+
+### S3 — 审计与回归
+- 目标: 验证公式、引用、格式、来源快照、PDF 字体、Python 回归与 Git 边界。
+- 命令/操作: python -m myqcd；form-snapshot-verify --quiet；form-audit --strict --quiet；python -m pytest；pdfinfo；pdffonts；sha256sum；git diff --check。
+- 关键输出: myqcd core.status=verified、derivation_count=94、failed_checks=[]；根 pytest 为 120 passed in 358.38s；引用键自审无缺失或重复；PDF 字体全部嵌入；构建 PDF 与交付 PDF SHA-256 均为 f2898a5d636776ad4dc99b2a84ae0b113909c3fe813f6bc781c6cacfd7f3c594。
+- 退出码: form-audit 为 1，其余为 0。
+- 证据与判断: form-audit 共 21 条 WARNING、0 条 ERROR，全部位于只读 docs/pyqcd_reference/ 快照；本次改动文件未新增格式告警。编译日志仅有 4 条非致命 Underfull 与 3 条 Fandol 字体能力提示。
+
+## 验证与证据
+- 测试/检查: 两遍 XeLaTeX；错误/警告扫描；引用键与 bibitem 对账；PDF 页数、页面尺寸和字体嵌入；四页视觉抽查；form-snapshot-verify；python -m myqcd；form-audit --strict；根 pytest；git diff --check。
+- 结果: 构建、引用、公式核心审计、PDF、格式快照与 120 项根测试通过；严格格式审计仅保留 21 条已知只读快照告警。
+- 未验证项: 未执行真实系综、GPU 或新的格点数值实验；论文中的诊断状态仍不升级为物理结果。
+
+## 变更与产物
+- 文件: docs/pyqcd_physics/report_gluon_tmd_lattice_qcd_review_20261023.tex、docs/pyqcd_physics/report_gluon_tmd_lattice_qcd_review_20261023.pdf、docs/pyqcd_physics/README.md。
+- 产物: 152 页教程型专著 PDF；data/build/gluon_tmd_review/ 保留最终编译、审计、测试输出和页面抽查图。
+- 未改动范围: 未修改 refer/** 上游内容、Python 源码或测试代码；未暂存、提交或推送。
+
+## 风险、限制与下一步
+- 风险: 21 条严格格式告警来自只读历史快照，全库 strict 命令因此仍为非零；真实物理验收仍需新系综和 GPU 运行时。
+- 阻塞: 无。
+- 下一步: 审阅最终 152 页 PDF；如需交付远端，再按授权范围显式暂存、提交并普通推送。
+
+## 用户输入指令
+- “resume\"01a16467-b04d-7333-b2ec-67c87cdd2616\"”
+- 避免再次出现上游 context_length_exceeded 错误。
+- 原始任务目标：将核子胶子 TMD-PDF 综述扩充为 150–200 页、结构完整且可审计的教程型专著，并完成 LaTeX 编译、公式/引用/格式/PDF 与日志验证。
+
+## Agent 全文报告
+--- report begin ---
+状态：finished
+
+### 改动内容
+- 将 docs/pyqcd_physics/report_gluon_tmd_lattice_qcd_review_20261023.pdf 从旧版替换为最终 152 页版本。
+- 保留并验证 TeX 最终稿：中英文摘要已声明教程型专著定位；README 已更新 152 页阅读说明。
+- 未修改 refer/** 上游内容，未执行暂存、提交或推送。
+
+### 推理依据
+- 采用旧的 Codex thread 摘要、仓库构建产物和当前源码交叉恢复断点，不重新注入 20 MB 会话全文，从根本上避免再次超过 1,048,576 token 上下文上限。
+- 以“152 页落在 150–200 页区间、引用/标签闭合、PDF 可读、核心公式审计通过、根测试通过”作为交付硬门控。
+- 对只读 docs/pyqcd_reference/ 快照仅记录既有格式告警，不通过修改上游快照制造全绿结果。
+
+### 验证结果
+- XeLaTeX 连续两遍退出码 0；最终 PDF 152 页、A4、1230667 bytes。
+- 编译日志无缺字、未定义引用/引文、重复标签、Overfull、Float too large 或 rerun 警告；仅 4 条非致命 Underfull 和 3 条 Fandol 字体能力提示。
+- 源码引用键自审：360 个标签、46 个 ref/eqref、36 个引用；缺失标签、缺失 aux、重复标签和缺失 bibitem 均为 0。
+- PDF 字体全部嵌入；摘要、长表、公式密集页与末段教程页视觉抽查通过。
+- 构建 PDF 与交付 PDF SHA-256 一致：f2898a5d636776ad4dc99b2a84ae0b113909c3fe813f6bc781c6cacfd7f3c594。
+- form-snapshot-verify --quiet 退出码 0。
+- python -m myqcd：core.status=verified，derivation_count=94，failed_checks=[]；库存层仍有 2263 个未解析公式条目，属于现有审计层级。
+- form-audit --strict --quiet：0 条 ERROR、21 条 WARNING，告警全部来自 docs/pyqcd_reference/ 只读历史快照。
+- python -m pytest：120 passed in 358.38s。
+- git diff --check：通过。
+
+### 后续步骤
+- 审阅最终 152 页 PDF 的物理取舍与版面。
+- 如需同步远端，再按仓库授权范围显式暂存、提交并普通推送。
+--- report end ---
