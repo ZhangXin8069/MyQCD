@@ -12,6 +12,7 @@ MyQCD 是一个面向
 |---|---|
 | [`docs/pyqcd_physics/README.md`](docs/pyqcd_physics/README.md) | 按物理链组织的总导航与阅读顺序 |
 | [`docs/pyqcd_reference/README.md`](docs/pyqcd_reference/README.md) | 从 PyQCD 吸收的 163 个格点 QCD 文档、报告和配对 PDF |
+| [`docs/pyqcd_physics/report_gluon_tmd_lattice_qcd_review_20261023.pdf`](docs/pyqcd_physics/report_gluon_tmd_lattice_qcd_review_20261023.pdf) | 391 页 `ctexbook` 专著：全量整合 PyQCD 参考文档的理论、算法、实现与来源审计 |
 | [`docs/pyqcd_physics/report_pyqcd_lattice_qcd_theory_20260906.pdf`](docs/pyqcd_physics/report_pyqcd_lattice_qcd_theory_20260906.pdf) | PyQCD 物理理论审计：从规范组态、蒸馏和 Wick 收缩到 OPE、梯度流、准 PDF/TMD |
 | [`docs/pyqcd_physics/report_gluon_tmd_gradient_flow_20260828.pdf`](docs/pyqcd_physics/report_gluon_tmd_gradient_flow_20260828.pdf) | 梯度流重整化核子胶子 `f_1^g` 的物理方案、实现路径与验证门 |
 | [`myqcd/`](myqcd/README.md) | 可执行 SymPy 公式审计、论文公式索引和精确 Wick 配对 |
