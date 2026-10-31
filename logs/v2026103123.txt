@@ -1,0 +1,137 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-10-31 23:32:35 +0800
+批次: myqcd-init-dev9-20261031
+主任务: MyQCD diff -> init -> verify -> commit/push -> dev9 tag -> final log
+触发原因: 任务完成
+摘要: 补齐 6 个维护目录 AGENTS.md，提交并推送 main，创建并推送 dev9，保留既有 PyQCD 指针变化
+Git 根目录: /root/MyQCD
+
+## 关键日志
+
+### S1 - 初始 diff 与边界固定
+- 目标: 在任何写操作前记录工作区、暂存区、HEAD、upstream 与四类标签。
+- 命令/操作: `git status --short --branch`; `git diff`; `git diff --cached`; `git rev-parse HEAD`; `git rev-list --left-right --count '@{upstream}...HEAD'`; 四类 `git tag -l`; `git submodule status`。
+- 关键输出: branch 为 `main...origin/main`; 工作区仅有 `M refer/git-rep/PyQCD`; diff 为 gitlink `52e64805b0c627d39132c6e66d6f1d871f92f6a3 -> 51e8f141da05db2452f8bc85a7ed276cb4d8c645`; 暂存区为空; HEAD 为 `a3325153cffc578b526bdbe543e371c70986b1d4`; upstream 领先/落后为 `0/0`。
+- 退出码: status/diff/HEAD/upstream/tag/submodule 命令均为 0。
+- 证据与判断: 初始标签为 stab 8 个（最大 stab7）、dev 9 个（最大 dev8）、bug 1 个（bug0）、test 0 个。PyQCD 指针是派发前用户状态，完整保留且未进入暂存区。
+
+### S2 - init 只读盘点与 apply
+- 目标: 只为维护源码、技能和文档目录补齐 agent 指令，不修改 refer/data 边界。
+- 命令/操作: 读取根 `AGENTS.md`、`skills/AGENTS.md`、`skills/long-context-monograph/AGENTS.md`、`logs/AGENTS.md`、`data/AGENTS.md` 及指定 diff/init/tag/log 技能；盘点 AGENTS、agent 初始化文件、配置目录和散落 SKILL.md。
+- 关键输出: 受维护目录缺少 6 个 AGENTS.md; 无 CLAUDE/CODEX/GEMINI/.cursorrules 等散落初始化文件; `.opencode/` 不存在且被 `.gitignore` 隐藏规则忽略; 散落技能为 `form` 与 `long-context-monograph`。
+- 退出码: 只读盘点命令均为 0。
+- 证据与判断: 新建 6 个 AGENTS.md; 更新 0 个; 归档 0 个; 将两个完整技能目录复制到 `.opencode/skills/`，原位置保留; 未修改 refer/git-rep 子模块、外部书籍/论文拷贝或 data 运行归档。
+
+### S3 - 验证与提交
+- 目标: 验证初始化完整性、幂等性和暂存边界后提交。
+- 命令/操作: `git diff --check`; `git diff --cached --check`; `PYTHONDONTWRITEBYTECODE=1 python -m compileall -q myqcd`; AGENTS 覆盖检查; 散落 agent 文件检查; 两次 `diff -r`; `form-audit.sh --strict --quiet`; `git diff --cached --name-status`。
+- 关键输出: 6 files changed, 78 insertions(+); 暂存区只含 6 个 AGENTS.md; init 幂等检查为 `missing_agents=0`、`stray_agent_files=0`; 两份技能副本与源目录一致; Python 编译通过。
+- 退出码: diff check 0; Python compileall 0; idempotence 0; skill diff 0; strict form audit 1。
+- 证据与判断: strict form audit 仅报告 `refer/git-rep/README.md` 未登记 LQCD_Wickcontraction_reduce 与 feyncalc 来源两项既有警告; 该文件不在本次 diff 内且位于禁止修改的 refer/git-rep 边界，保留为遗留。
+
+### S4 - main 推送与标签链
+- 目标: 普通推送 init 提交，随后只在标签链安全时创建 dev9。
+- 命令/操作: `git commit`; `git push origin main`; `bash /root/configure/skills/tag/tag-chain.sh --check --remote origin`; 实测 dev 最大主版本和任意类型 tagger-time 链尖; `git tag -a dev9`; `git push origin dev9`; 回读远端 refs 并复跑链检查。
+- 关键输出: init 提交 `8e786190e4adbe97b267def4703d3f27bdf149d3`; main 推送 `a332515..8e78619`; 标签链首次 18 个 PASS; dev 最大主版本与链尖均为 dev8; dev9 本地和远端原先不存在; dev9 推送后远端 tag object 为 `29269675fe6d1dd41630de12036a76a6aa632d01`，peeled target 为 `8e786190e4adbe97b267def4703d3f27bdf149d3`; 复检 19 个标签 PASS。
+- 退出码: commit 0; main push 0; 两次 tag-chain 0; tag create/push/readback 0。
+- 证据与判断: 未 force push，未删除或改写任何已推送标签，标签目标与远端 main 一致。
+
+### S5 - final log
+- 目标: 以 log 技能 final 模式归档本次全部阶段、验证、遗留与最终报告。
+- 命令/操作: `/root/configure/skills/log/scripts/write-log.sh --mode final --task ... --batch ... --summary ...`。
+- 关键输出: 由脚本创建 `logs/v2026103123.txt` 并追加 `logs/AGENTS.md` 索引；脚本完成后执行显式暂存、普通提交和 `git push origin main`。
+- 退出码: 以脚本与实际提交/推送回读结果为准。
+- 证据与判断: 日志正文不记录凭据、隐藏提示或内部推理。
+
+## 验证与证据
+- `git diff --cached --check`: 退出 0。
+- `PYTHONDONTWRITEBYTECODE=1 python -m compileall -q myqcd`: 退出 0。
+- init 幂等复查: `missing_agents=0`，`stray_agent_files=0`，退出 0。
+- `diff -r --no-dereference` 两份 `.opencode/skills` 副本: 退出 0。
+- `/root/configure/skills/form/scripts/form-audit.sh --root /root/MyQCD --strict --quiet`: 退出 1，仅有 refer/git-rep/README.md 两项既有来源登记警告。
+- `python -m myqcd`: 退出 1，缺少 `refer/papers/INDEX.md`。
+- `python -m pytest`: 基线运行 368.79 秒后人工中止，退出 2；中止前 60 passed, 12 failed。失败包含缺少 `refer/papers/INDEX.md` 与 PyQCD 文档 21 个缺失文件，均与本次纯 AGENTS 改动无关；未在 init 后重复运行。
+- `tag-chain.sh --check --remote origin`: 创建前 18 tags PASS，创建后 19 tags PASS，退出 0。
+- 远端回读: `refs/heads/main` 与 `refs/tags/dev9^{}` 均为 `8e786190e4adbe97b267def4703d3f27bdf149d3`。
+
+## 变更与产物
+- 新增: `docs/AGENTS.md`, `myqcd/AGENTS.md`, `myqcd/testing/AGENTS.md`, `myqcd/testing/myqcd/AGENTS.md`, `skills/form/AGENTS.md`, `skills/long-context-monograph/references/AGENTS.md`。
+- 本地忽略副本: `.opencode/skills/form/`, `.opencode/skills/long-context-monograph/`; 未 force-add。
+- 提交: `8e786190e4adbe97b267def4703d3f27bdf149d3`。
+- 标签: 附注标签 `dev9`，已推送。
+- 日志: `/root/MyQCD/logs/v2026103123.txt` 与 `/root/MyQCD/logs/AGENTS.md`。
+
+## 风险、限制与下一步
+- 风险: 当前 checkout 缺少完整 refer/papers 与部分 PyQCD 文档，因此完整 pytest 与 CLI 不能作为本轮全绿证据。
+- 限制: strict form audit 的两项 refer/git-rep/README.md 来源登记警告未修复，原因是用户明确禁止修改 refer/git-rep。
+- 阻塞: 无。
+- 下一步: 数据恢复后重新运行 `python -m pytest`、`python -m myqcd` 与严格格式审计；修复 refer/git-rep/README.md 需另立授权任务。
+
+## 用户输入指令
+你是 configure agent 系列的子 agent。只处理下面给出的任务，不扩大范围；先理解再行动，采用最小可靠改动，执行可用的验证，最终简洁返回结果、证据与阻塞。除非任务明确要求，不要继续派发子 agent；确需派发但失败时，复用启动本 agent 的同一 provider/model/auth/settings 链重试，仍失败则自行串行完成。
+
+【派发任务】
+身份：{代码}。你是 MyQCD 仓库维护代理，唯一工作范围是 /root/MyQCD，不得访问或修改其他项目仓库或仓库外同级 PyQCD。
+开始前完整读取 /root/MyQCD/AGENTS.md、相关子目录最近的 AGENTS.md，以及 /root/configure/skills/diff/SKILL.md、init/SKILL.md、tag/SKILL.md、log/SKILL.md；tag 的 references/tag-operations.md 按需读取。遵守仓库安全边界，不读取无关文件。
+目标：在 /root/MyQCD 完成 diff → init → 验证 → 提交本次 init 产物 → push main → 创建并 push dev tag → final log。
+当前已知未暂存改动：refer/git-rep/PyQCD 子模块指针，这是派发前已有用户状态，必须完整保留，不得 reset、checkout、暂存、提交或推送该指针，也不得进入子模块修改。
+强制步骤：
+1. diff：记录 status、工作区 diff（含上述指针）、暂存区 diff、HEAD、upstream 领先/落后、当前四类 tag。
+2. init：先只读盘点再 apply。所有 refer/git-rep 子模块、外部书籍/论文拷贝和 data 运行归档不得修改；只处理本仓库维护源码、技能与文档目录。已有 AGENTS.md 就地校正，缺失的受维护目录按 init 规则生成；不臆造命令。检查散落 SKILL.md 与 .opencode/skills 归集规则；.opencode 被隐藏文件规则忽略，不得 force-add。
+3. 验证：至少 git diff --check；运行 init 幂等复查。目标仅为配置/文档初始化，不运行 GPU 或真实系综长任务；仅运行与改动直接相关且快速的检查，例如 python -m pytest 如本地环境可快速完成，否则记录未运行原因。
+4. 提交：只显式暂存本次 init 产生的文件，禁止 git add -A、git add .、git commit -a；绝不能暂存子模块指针。提交消息写明原因、改动、验证。
+5. push：先 git push origin main，禁止 force。若远端不可 fast-forward 或认证失败，保留本地提交并如实报告。
+6. tag：分支 push 成功后运行 bash /root/configure/skills/tag/tag-chain.sh --check --remote origin。不得删除或改写已推送标签。若安全通过，按 tag 技能计算任意类型最新基线和下一个 dev 主版本（当前候选 dev9，但必须实测确认），从本次 init 的 diff/commit 生成合规中文变更清单，创建注释标签并 git push origin <tag>。
+7. log：全部完成后按 log 技能 final 模式写入并验证 /root/MyQCD/logs；显式暂存该日志和 logs/AGENTS.md，普通提交并 push origin main，禁止 force。
+安全：不删除文件，不修改系统配置，不触碰子模块内部，不泄露凭据。若 init 没有产生变更，如实说明，不得伪造变更。若 tag 链需要改写，停止该部分并报告。
+返回格式：状态 finished/blocked/failed；初始 diff；init 新建/更新/归档统计；验证命令与退出码；提交 SHA；branch push 与 tag push 结果；dev tag 名和完整消息；日志绝对路径；未触碰的子模块指针和任何其他遗留。
+
+## Agent 全文报告
+--- report begin ---
+状态: finished
+
+## 初始 diff
+- 分支: `main...origin/main`。
+- 工作区: 仅 `M refer/git-rep/PyQCD`，gitlink `52e64805b0c627d39132c6e66d6f1d871f92f6a3 -> 51e8f141da05db2452f8bc85a7ed276cb4d8c645`。
+- 暂存区: 空。
+- HEAD: `a3325153cffc578b526bdbe543e371c70986b1d4`。
+- upstream 领先/落后: `0/0`。
+- 初始标签: stab 8 个（最大 stab7）、dev 9 个（最大 dev8）、bug 1 个（bug0）、test 0 个。
+
+## init
+- 新建 AGENTS.md: 6。
+- 更新 AGENTS.md: 0。
+- 归档 agent 初始化文件/目录: 0。
+- 完整技能归集: 2，`form` 与 `long-context-monograph` 复制到被忽略的 `.opencode/skills/`，原目录保留且未 force-add。
+- 未修改: 3 个 refer/git-rep 子模块、外部书籍/论文拷贝、data 运行归档。
+
+## 验证
+- `git diff --cached --check`: 0。
+- `PYTHONDONTWRITEBYTECODE=1 python -m compileall -q myqcd`: 0。
+- init 幂等复查: 0，缺失 AGENTS 0、散落初始化文件 0。
+- 两个技能副本 `diff -r`: 0。
+- 严格格式审计: 1，仅 `refer/git-rep/README.md` 两个既有来源登记警告，位于禁改边界。
+- `python -m myqcd`: 1，缺少 `refer/papers/INDEX.md`。
+- `python -m pytest`: 基线 368.79 秒后人工中止，退出 2，60 passed / 12 failed；失败来自缺失 refer 数据与 PyQCD 文档，与本次 AGENTS 改动无关，未重复运行。
+- `tag-chain.sh --check --remote origin`: 创建前/后均 0，18/19 个标签 PASS。
+
+## Git 与标签
+- init 提交: `8e786190e4adbe97b267def4703d3f27bdf149d3`。
+- main push: 成功，`a332515..8e78619 main -> main`。
+- dev tag: `dev9`，附注标签，已推送。
+- 远端 tag object: `29269675fe6d1dd41630de12036a76a6aa632d01`。
+- peeled target: `8e786190e4adbe97b267def4703d3f27bdf149d3`。
+- 完整消息: `follow dev8, 1. 为 docs, myqcd 主包与测试树, form 技能和长上下文技能参考补齐 6 份就近 AGENTS.md 指令; 2. 固化 PyQCD 唯一源码边界, 测试数据前置, 已验证入口和文档跟踪规则; 3. 完成 init 幂等, 技能副本一致性, Python 编译和暂存区空白检查, 严格格式审计保留 refer/git-rep/README.md 两项既有来源警告; [codex].`
+
+## 日志
+- 绝对路径: `/root/MyQCD/logs/v2026103123.txt`。
+- 索引: `/root/MyQCD/logs/AGENTS.md`。
+- 日志写完后按授权显式暂存、普通提交并推送 main。
+
+## 遗留
+- PyQCD 子模块指针仍完整保留在工作区，未暂存、未提交、未推送，未进入子模块修改。
+- strict form audit 的 refer/git-rep/README.md 两项来源登记警告保留，修复需另行授权。
+- 当前 checkout 缺少 `refer/papers/INDEX.md` 和部分 PyQCD 文档；完整 pytest 与 CLI 不能声明通过。
+- 无阻塞。
+--- report end ---
