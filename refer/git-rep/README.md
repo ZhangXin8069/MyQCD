@@ -4,7 +4,7 @@
 
 | 子模块 | 上游 | 当前检出 | 用途 | 许可 |
 |---|---|---|---|---|
-| `PyQCD` | <https://gitee.com/zhangxin8069/PyQCD.git> | `0a2f85d30881fc8ead60972c0afb9c028abc348f` | 格点 QCD 主包、物理文档、历史参考代码 | MIT |
+| `PyQCD` | <https://code.itp.ac.cn/zhangxin8069/PyQCD.git> | `0a2f85d30881fc8ead60972c0afb9c028abc348f` | 格点 QCD 主包、物理文档、历史参考代码 | MIT |
 
 PyQCD 子模块内部另有只读参考树
 `refer/git-rep/PyQCD/refer/`，收录书籍、论文、历史代码和外部软件来源。MyQCD 不复制
