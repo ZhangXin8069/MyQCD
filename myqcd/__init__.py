@@ -9,7 +9,7 @@
 语义化，并不表示论文公式错误。
 """
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 from . import color, diagram_export, feynman, gamma, operators
 from .derivations import (

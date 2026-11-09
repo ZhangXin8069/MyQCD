@@ -77,6 +77,8 @@ def to_tikz(diagram: Diagram) -> str:
         lines.append(
             f"\\vertex (v{index}) at ({2.4 * index},0) {{{label}}};"
         )
+    if any(edge.left < 0 or edge.right < 0 for edge in diagram.edges):
+        lines.append("\\vertex (external) at (-2.4,0) {};")
     if diagram.external_legs:
         comments = ", ".join(diagram.external_legs)
         lines.append(f"% external legs: {comments}")

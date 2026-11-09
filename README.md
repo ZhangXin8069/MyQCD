@@ -1,36 +1,93 @@
 # MyQCD
 
-MyQCD 是 PyQCD 格点 QCD 物理的可执行公式审计库：把报告中的结构公式拆成
-SymPy 可检查推导、来源索引与独立的算符/费曼图层。它不复制上游 GPL 或无许可证
-源码，所有新实现均以数学恒等式与精确代数测试为证据。
+**English** | [中文](https://gitlab.itp.ac.cn/zhangxin8069/MyQCD/-/blob/main/README.zh-CN.md)
 
-## 安装
+MyQCD provides executable audits for the lattice-QCD formulas used by PyQCD. It
+splits a physics report into SymPy-checkable derivations, a source registry, and
+independent operator-construction and Feynman-diagram layers. Reference
+libraries are read-only Git submodules; GPL-3.0 or unlicensed upstream content is
+never copied.
+
+## Install
 
 ```bash
 pip install myqcd
 ```
 
-唯一运行依赖是 `sympy`。Python 3.10 及以上可用；当前完整测试在 Python 3.12
-（SymPy 1.14）上执行。
+Requirements: Python 3.10+ and SymPy 1.12+. The complete test suite is currently
+exercised on Python 3.12 with SymPy 1.14.
 
-## 能力
+Check an installation without any source checkout:
 
-| 模块 | 作用 |
+```bash
+python -m myqcd.operator_audit
+python -m myqcd
+```
+
+`python -m myqcd` runs the core formula checks. When `refer/papers/INDEX.md` is
+unavailable it skips the paper inventory and reports
+`verified_core_without_inventory`; the core checks still run.
+
+## Documentation
+
+* English — https://myqcd.readthedocs.io/en/latest/
+* 中文 — https://myqcd.readthedocs.io/zh-cn/latest/
+
+## Repositories
+
+| Platform | Role | URL |
+|---|---|---|
+| GitLab (gitlab.itp.ac.cn) | 国内开发 — primary development | https://gitlab.itp.ac.cn/zhangxin8069/MyQCD |
+| Gitee | 国内发布 — China release mirror | https://gitee.com/zhangxin8069/MyQCD |
+| GitHub | 国外发布 — global release mirror | https://github.com/zhangxin8069/MyQCD |
+
+## Quick start
+
+```python
+import sympy as sp
+
+from myqcd import color, diagram_export, feynman, gamma, operators
+
+assert gamma.gamma_basis_rank() == 16
+assert gamma.trace_gamma_product((1, 1)) == 4
+assert color.casimir_fundamental() == sp.Rational(4, 3)
+
+operator = operators.BilinearOperator(
+    name="O_V4", left_flavor="u", right_flavor="d", structure="V4"
+)
+assert operator.pyqcd_gamma_index == 4
+assert operator.mass_dimension == 3
+
+triangle = feynman.Diagram(
+    vertices=("a", "b", "c"),
+    edges=(
+        feynman.Edge(0, 1, "gluon"),
+        feynman.Edge(1, 2, "gluon"),
+        feynman.Edge(2, 0, "gluon"),
+    ),
+)
+assert triangle.loop_count == 1
+assert diagram_export.to_tikz(triangle).startswith("%")
+```
+
+## What is inside
+
+| Module | Content |
 |---|---|
-| `myqcd.audit` | 核心公式检查、论文显示公式索引与 JSON 报告 |
-| `myqcd.pyqcd_theory_audit` | PyQCD 的 gamma、顶点、Wilson 线、Clover、Jackknife、ratio、混合方案与量纲审计 |
-| `myqcd.derivations` | 格点规范场、梯度流、LaMET、PDF/TMD、重正化与统计的 SymPy 推导 |
-| `myqcd.formula_registry` | 公式到报告、来源行号与推导入口的注册表 |
-| `myqcd.latex_inventory` | 论文 LaTeX 显示公式清单 |
-| `myqcd.wick` | 精确味道 Wick 配对与 Grassmann 重排符号 |
-| `myqcd.gamma` | PyQCD DeGrand--Rossi gamma 基、0..17 索引、迹定理、16 个 Dirac 基与 H/T/C 符号 |
-| `myqcd.color` | SU(3) 生成元、结构常数、对称常数、Casimir 与颜色 Fierz 恒等式 |
-| `myqcd.operators` | 16 个 Dirac 双线性结构、精确分解、宇称/C 分类、量纲与 PyQCD 索引映射 |
-| `myqcd.feynman` | 费曼图数据结构、QCD 顶点/传播子规则清单、Wick 配对图与圈数 |
-| `myqcd.diagram_export` | 零依赖导出 TikZ-Feynman、Graphviz DOT 与 SVG |
-| `myqcd.operator_audit` | 算符/图构建一键审计 |
+| `myqcd.audit` | Core formula checks, paper inventory and JSON report |
+| `myqcd.pyqcd_theory_audit` | PyQCD gamma, vertex, Wilson-line, Clover, ratio and TMD boundary audits |
+| `myqcd.derivations` | SymPy derivations for lattice gauge theory, flow, LaMET, PDF/TMD and statistics |
+| `myqcd.formula_registry` | Formula-to-source-to-derivation registry |
+| `myqcd.latex_inventory` | Display-formula inventory for paper sources |
+| `myqcd.wick` | Exact flavor-respecting Wick pairings with Grassmann signs |
+| `myqcd.gamma` | DeGrand--Rossi gamma basis, trace theorem and 16 Dirac structures |
+| `myqcd.color` | SU(3) generators, structure constants, Casimirs and color Fierz identity |
+| `myqcd.operators` | Dirac bilinear decomposition, parity/C classification and PyQCD index mapping |
+| `myqcd.feynman` | Diagram structures, QCD rule catalog, Wick pairing graphs and loop counting |
+| `myqcd.diagram_export` | Zero-dependency TikZ-Feynman, Graphviz DOT and SVG export |
+| `myqcd.operator_audit` | One-command audit for the operator and diagram layers |
 
-## 入口
+## Entry points
 
 ```bash
 python -m myqcd
@@ -38,29 +95,22 @@ python -m myqcd.operator_audit --root .
 python -m myqcd.pyqcd_theory_audit --root .
 ```
 
-`python -m myqcd` 在源码仓库中会附加论文公式清单；缺少 `refer/papers/INDEX.md`
-时自动跳过清单并以 `verified_core_without_inventory` 报告，核心检查仍然执行。
-纯安装环境可直接运行 `python -m myqcd` 或 `python -m myqcd.operator_audit`。
+`python -m myqcd.operator_audit` writes
+`logs/data/operator_audit/operator_feynman_audit.json` under the current
+directory and exits non-zero if any check fails.
 
-## 证据边界
+## Evidence boundary
 
-- `verified` 只表示写明的代数、量纲、有限维代理或组合恒等式通过。
-- 不声称完成非阿贝尔圈积分、非微扰矩阵元、真实系综、GPU 数值、soft/rapidity
-  闭环或连续极限。
-- 颜色约定：`myqcd.color` 使用厄米归一化 `Tr[T^aT^b] = +δ^{ab}/2`；历史
-  `derivations.py` 中的 SU(3) 推导使用反厄米 `-δ^{ab}/2`，两套约定不可混用。
-- 费曼图导出只保证组合结构与字符串格式，不证明具体图的对称因子或圈积分结果。
+- `verified` covers only the algebra, dimensions, finite-dimensional proxies and
+  combinatorial identities that are actually checked.
+- No claim is made for loop integrals, nonperturbative matrix elements, real
+  ensembles, GPU numerics, soft/rapidity closure or the continuum limit.
+- `myqcd.color` uses the Hermitian normalization `Tr[T^aT^b] = +delta^{ab}/2`;
+  the historical SU(3) derivations in `myqcd.derivations` use the anti-Hermitian
+  `-delta^{ab}/2`. The two conventions must not be mixed.
+- Diagram export guarantees combinatorial structure and string format only; it
+  does not prove symmetry factors or loop-integral results.
 
-## 仓库与文档
+## License
 
-- 主仓库：<https://gitlab.itp.ac.cn/zhangxin8069/MyQCD>
-- Gitee 镜像：<https://gitee.com/zhangxin8069/MyQCD>
-- GitHub 镜像（由 Gitee 自动同步）：<https://github.com/zhangxin8069/MyQCD>
-- 文档：<https://myqcd.readthedocs.io/>
-
-外部参考库以只读 Git 子模块固定在 `refer/git-rep/`，来源、提交与许可证见
-`docs/absorb_reference_libraries_20261109.md`。
-
-## 许可
-
-MIT。见 `LICENSE`。
+MIT. See `LICENSE`.

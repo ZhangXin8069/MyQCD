@@ -208,6 +208,16 @@ class Diagram:
     def edge_count(self) -> int:
         return len(self.edges)
 
+    @property
+    def internal_edge_count(self) -> int:
+        """返回两个端点都在图中的内部边数；外部腿不计入。"""
+
+        return sum(
+            1
+            for edge in self.edges
+            if edge.left >= 0 and edge.right >= 0
+        )
+
     def adjacency(self) -> Tuple[Tuple[int, ...], ...]:
         neighbours: list[list[int]] = [[] for _ in self.vertices]
         for edge in self.edges:
@@ -246,9 +256,13 @@ class Diagram:
 
     @property
     def loop_count(self) -> int:
-        """返回圈数 ``E - V + C``（连通图为 ``E - V + 1``）。"""
+        """返回圈数 ``E_int - V + C``；外部腿边不计入 ``E_int``。"""
 
-        return self.edge_count - self.vertex_count + self.connected_components()
+        return (
+            self.internal_edge_count
+            - self.vertex_count
+            + self.connected_components()
+        )
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -259,6 +273,7 @@ class Diagram:
             "sign": self.sign,
             "vertex_count": self.vertex_count,
             "edge_count": self.edge_count,
+            "internal_edge_count": self.internal_edge_count,
             "connected_components": self.connected_components(),
             "loop_count": self.loop_count,
         }

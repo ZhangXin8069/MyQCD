@@ -48,6 +48,20 @@ def test_disconnected_components():
     assert diagram.loop_count == 1 - 4 + 3
 
 
+def test_external_legs_do_not_count_as_loops():
+    diagram = feynman.Diagram(
+        vertices=("a", "b"),
+        edges=(
+            feynman.Edge(0, 1, "quark"),
+            feynman.Edge(0, -1, "quark"),
+        ),
+    )
+    assert diagram.edge_count == 2
+    assert diagram.internal_edge_count == 1
+    assert diagram.loop_count == 0
+    assert diagram.to_dict()["internal_edge_count"] == 1
+
+
 def test_edge_validation():
     with pytest.raises(ValueError):
         feynman.Edge(0, 0, "quark")

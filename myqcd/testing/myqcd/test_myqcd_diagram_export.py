@@ -33,6 +33,19 @@ def test_tikz_export():
     assert "[gluon]" in text
 
 
+def test_tikz_declares_external_vertex():
+    diagram = feynman.Diagram(
+        vertices=("a", "b"),
+        edges=(
+            feynman.Edge(0, 1, "quark"),
+            feynman.Edge(0, -1, "quark"),
+        ),
+    )
+    text = diagram_export.to_tikz(diagram)
+    assert "\\vertex (external)" in text
+    assert "(external)" in text
+
+
 def test_svg_export():
     text = diagram_export.to_svg(_diagram())
     assert text.startswith("<?xml")
