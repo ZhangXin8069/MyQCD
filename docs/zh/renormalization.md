@@ -62,6 +62,23 @@ assert values == [1, 1, -1, -1]
 print(values)
 ```
 
+## 投影器代数
+
+```python
+import sympy as sp
+
+from myqcd import renormalization
+
+for name in renormalization.bilinear_projectors():
+    assert sp.simplify(
+        renormalization.tree_level_projection(name) - 1
+    ) == 0
+
+assert renormalization.z_factor(sp.Integer(2), sp.Integer(4)) == sp.Rational(1, 2)
+assert renormalization.mixing_matrix_is_invertible(sp.eye(3))
+print(renormalization.projector_table()[:2])
+```
+
 ## 边界
 
 本包不声称完成完整 RI/MOM 分析：圈积分、带外线旋量的投影器、微扰匹配核

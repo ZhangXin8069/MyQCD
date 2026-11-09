@@ -113,6 +113,11 @@ TikZ/DOT/SVG export are in
 | `myqcd.fierz` | General 16-basis Dirac Fierz transformations with exact coefficients |
 | `myqcd.operator_basis` | Derivative operators, chiral combinations, color representations and operator tables |
 | `myqcd.qcd_rules` | Symbolic QCD propagators, Ward identities, vertex factors and dimensions |
+| `myqcd.renormalization` | RI/MOM projectors, Z factors and mixing-matrix algebra |
+| `myqcd.wilson` | Symbolic Wilson-path products and gauge-covariance checks |
+| `myqcd.matching` | Tree-level matching, Fourier prefactor and hybrid switch |
+| `myqcd.evolution` | Single-exponent RGE evolution and anomalous dimensions |
+| `myqcd.symmetry` | Vertex automorphisms and parallel-edge exchange counts |
 | `myqcd.lattice` | Lattice momenta, Fourier phases and dispersion relations |
 | `myqcd.statistics` | Jackknife, bootstrap and effective-mass estimators |
 | `myqcd.feynman` | Diagram structures, QCD rule catalog, Wick pairing graphs and loop counting |

@@ -24,17 +24,22 @@ from . import (
     color,
     color_traces,
     diagram_export,
+    evolution,
     feynman,
     fierz,
     gamma,
     gamma_traces,
     lattice,
     lorentz,
+    matching,
     operator_basis,
     operators,
     qcd_rules,
+    renormalization,
     statistics,
+    symmetry,
     topology,
+    wilson,
     wick,
 )
 
@@ -241,6 +246,35 @@ def run_checks() -> dict[str, bool]:
             [(1.0, 2.0), (2.0, 4.0), (3.0, 6.0)]
         )
         == (2.0, 4.0),
+        "renormalization_projectors": all(
+            sp.simplify(
+                renormalization.tree_level_projection(name) - 1
+            )
+            == 0
+            for name in renormalization.bilinear_projectors()
+        ),
+        "renormalization_z_factor": renormalization.z_factor(
+            sp.Integer(2), sp.Integer(4)
+        )
+        == sp.Rational(1, 2),
+        "wilson_covariance": (
+            wilson.covariance_residual(
+                (sp.diag(1, 1, -1), sp.diag(-1, 1, 1)),
+                (sp.eye(3), sp.eye(3), sp.eye(3)),
+            ).is_zero_matrix
+        ),
+        "matching_tree_level": matching.tree_level_matching("S") == 1,
+        "evolution_residual": evolution.evolution_residual(
+            3,
+            1,
+            sp.Symbol("mu0", positive=True),
+            sp.Symbol("mu", positive=True),
+        )
+        == 0,
+        "symmetry_triangle": symmetry.automorphism_count(
+            topology.build_cycle(3)
+        )
+        == 6,
         "rule_audit_vertices": feynman.rule_audit()["vertex_count"] >= 4,
         "diagram_export_all_formats": bool(
             diagram_export.export_audit(_diagram_triangle())["nonempty"]

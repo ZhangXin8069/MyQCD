@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[3]
 def test_complex_diagram_checks_are_present():
     report = operator_audit.build_report(ROOT)
     assert report["status"] == "verified"
-    assert report["check_count"] >= 46
+    assert report["check_count"] >= 52
     for name in (
         "image_self_energy_loop_one",
         "sunset_loop_count_two",

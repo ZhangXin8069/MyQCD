@@ -9,23 +9,28 @@
 语义化，并不表示论文公式错误。
 """
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 from . import (
     color,
     color_traces,
     diagram_export,
+    evolution,
     feynman,
     fierz,
     gamma,
     gamma_traces,
     lattice,
     lorentz,
+    matching,
     operator_basis,
     operators,
     qcd_rules,
+    renormalization,
     statistics,
+    symmetry,
     topology,
+    wilson,
 )
 from .derivations import (
     DerivationResult,

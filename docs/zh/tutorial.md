@@ -106,5 +106,5 @@ assert operator_basis.enumerate_derivative_operators(
 python -m myqcd.operator_audit
 ```
 
-该命令报告 48 项检查，覆盖 Clifford 代数、颜色迹、Fierz 变换、QCD 规则、
+该命令报告 54 项检查，覆盖 Clifford 代数、颜色迹、Fierz 变换、QCD 规则、
 算符计数、拓扑与导出。

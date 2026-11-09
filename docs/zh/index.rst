@@ -28,6 +28,10 @@ myqcd
    qcd-rules
    vertex-catalog
    renormalization
+   wilson-lines
+   matching
+   evolution
+   symmetry
    topology
    diagrams
    diagram-catalog

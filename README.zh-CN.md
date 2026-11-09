@@ -109,6 +109,11 @@ LaTeX 渲染同一组公式。
 | `myqcd.fierz` | 16 基通用 Dirac Fierz 变换与精确系数 |
 | `myqcd.operator_basis` | 导数算符、手征组合、颜色表示与算符表 |
 | `myqcd.qcd_rules` | 符号 QCD 传播子、Ward 恒等式、顶点因子与量纲 |
+| `myqcd.renormalization` | RI/MOM 投影器、Z 因子与混合矩阵代数 |
+| `myqcd.wilson` | 符号 Wilson 路径乘积与规范协变检查 |
+| `myqcd.matching` | 树级匹配、Fourier 前因子与 hybrid 开关 |
+| `myqcd.evolution` | 单指数 RGE 演化与反常维度 |
+| `myqcd.symmetry` | 顶点自同构与平行边交换计数 |
 | `myqcd.lattice` | 格点动量、Fourier 相位与色散关系 |
 | `myqcd.statistics` | Jackknife、bootstrap 与有效质量估计 |
 | `myqcd.feynman` | 图结构、QCD 规则清单、Wick 配对图与圈数 |

@@ -107,5 +107,5 @@ Run the full structural audit:
 python -m myqcd.operator_audit
 ```
 
-The command reports 48 checks covering Clifford algebra, color traces,
+The command reports 54 checks covering Clifford algebra, color traces,
 Fierz transformations, QCD rules, operator counting, topology and exports.

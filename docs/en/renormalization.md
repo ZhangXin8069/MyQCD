@@ -65,6 +65,23 @@ assert values == [1, 1, -1, -1]
 print(values)
 ```
 
+## Projector algebra
+
+```python
+import sympy as sp
+
+from myqcd import renormalization
+
+for name in renormalization.bilinear_projectors():
+    assert sp.simplify(
+        renormalization.tree_level_projection(name) - 1
+    ) == 0
+
+assert renormalization.z_factor(sp.Integer(2), sp.Integer(4)) == sp.Rational(1, 2)
+assert renormalization.mixing_matrix_is_invertible(sp.eye(3))
+print(renormalization.projector_table()[:2])
+```
+
 ## Boundary
 
 The package does not claim a complete RI/MOM analysis: loop integrals,

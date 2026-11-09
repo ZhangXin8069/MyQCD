@@ -33,6 +33,10 @@ PAGES = (
     "qcd-rules",
     "vertex-catalog",
     "renormalization",
+    "wilson-lines",
+    "matching",
+    "evolution",
+    "symmetry",
     "topology",
     "diagrams",
     "diagram-catalog",
@@ -102,7 +106,7 @@ def test_toctree_matches_pages_on_disk() -> None:
 
 @pytest.mark.parametrize(
     "page",
-    ("quickstart", "tutorial", "usage", "operators", "operator-basis", "lattice-operators", "fierz", "lorentz", "gamma-traces", "color-algebra", "qcd-rules", "renormalization", "topology", "diagrams", "diagram-formats", "lattice-geometry", "statistics", "worked-examples", "operator-examples", "qcd-lagrangian"),
+    ("quickstart", "tutorial", "usage", "operators", "operator-basis", "lattice-operators", "fierz", "lorentz", "gamma-traces", "color-algebra", "qcd-rules", "renormalization", "wilson-lines", "matching", "evolution", "symmetry", "topology", "diagrams", "diagram-formats", "lattice-geometry", "statistics", "worked-examples", "operator-examples", "qcd-lagrangian"),
 )
 def test_documentation_python_blocks_execute(page: str) -> None:
     namespace: dict[str, object] = {}

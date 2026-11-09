@@ -40,14 +40,14 @@ bilingual documentation and PyPI/RTD delivery.
 | Scope | Lines |
 |---|---|
 | Baseline operator/diagram subsystem | 2,443 |
-| Current code (16 modules) | 3,835 |
-| Current tests (16 files) | 1,450 |
-| Current bilingual docs (42 pages) | 5,491 |
-| Documentation relative to the 546-line baseline | 10.06× |
-| Code + tests + docs total | 10,776 (4.41× baseline) |
+| Current code (20 modules) | 4,362 |
+| Current tests (21 files) | 1,721 |
+| Current bilingual docs (46 pages) | 5,901 |
+| Documentation relative to the 546-line baseline | 10.81× |
+| Code + tests + docs total | 11,984 (4.91× baseline) |
 
 The line counts are physical `wc -l` counts. They measure coverage, not
-correctness; correctness is guarded by the test suite and the 48-check
+correctness; correctness is guarded by the test suite and the 54-check
 operator audit.
 
 ## Commands
