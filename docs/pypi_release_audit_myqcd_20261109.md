@@ -44,11 +44,11 @@
 | 9 | PyPI 上传 | `twine upload` 八次均 exit 0（0.1.0–0.3.0） | ✅ |
 | 10 | simple index 传播 | 八个版本均出现在 simple index；CDN 边缘偶有滞后，重试即可 | ✅ |
 | 11 | PyPI 远程安装 | 新 venv 分别安装 0.1.0–0.3.0；版本/路径/代数检查通过 | ✅ |
-| 12 | 双远端推送 | gitlab 与 gitee 同步 0.1.5 代码提交 `3fc4ee7`；GitHub 随 Gitee 自动同步 | ✅ |
+| 12 | 双远端推送 | gitlab 与 gitee 同步 0.3.0 提交 `69052cd`；GitHub 随 Gitee 自动同步 | ✅ |
 | 13 | Read the Docs 双语言构建 | `sphinx -W docs/en` 与 `docs/zh` 均 `build succeeded.` | ✅ |
 | 14 | 双语代码块逐字节一致 | overview/usage/operators/diagrams/install 的围栏块完全一致 | ✅ |
 | 15 | 文档示例可执行 | `usage.md` 的 3 个 python 块顺序执行通过 | ✅ |
-| 16 | RTD 线上项目 | API：`myqcd` 与 `myqcd-zh` 存在；0.1.4 文档 build commit `6100706`、state=finished；operators/diagrams 与 sunset/self-energy SVG 均 200；operators 页 86 个 math span、MathJax 已加载 | ✅ |
+| 16 | RTD 线上项目 | API：`myqcd` 与 `myqcd-zh` 存在；0.3.0 build commit `69052cd`、state=finished；matching/evolution/symmetry/wilson-lines 均 200 | ✅ |
 | 17 | 缺 `INDEX.md` 时默认 CLI 可用 | 安装环境 `python -m myqcd` exit 0，`status=verified_core_without_inventory` | ✅ 0.1.1 |
 | 18 | `operator_audit` 默认根目录 | 安装环境从 `/tmp` 运行，输出写入 `/tmp/logs/data/operator_audit/` | ✅ 0.1.1 |
 | 19 | 外部腿不计入圈数 | `E_int - V + C`；含 `-1` 端点的边不计入内部边 | ✅ 0.1.2 |
@@ -66,6 +66,7 @@
 | 31 | 多格式导出 | JSON/Mermaid/LaTeX/TikZ/DOT/SVG 六种；导出审计 48 项检查 | ✅ 0.2.0 |
 | 32 | 文档覆盖 10× | 46 个双语页，5,901 行 = 546 行基线的 10.81×；代码+测试+文档总量 11,984 行 = 4.91× | ✅ 文档目标 |
 | 33 | 重正化/Wilson/演化 | RI/MOM 投影器、Z 因子、Wilson 路径协变、树级匹配、单指数 RGE、图自同构；54 项审计 | ✅ 0.3.0 |
+| 34 | 0.3.0 远程交付 | sdist 45 成员；PyPI 0.3.0 远程安装；RTD 新页 200；GitLab/Gitee `69052cd` | ✅ |
 
 ## 构建与安装证据
 

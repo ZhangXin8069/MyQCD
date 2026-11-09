@@ -225,3 +225,11 @@
 - 关键内容: 9 个模块、16 个测试、42 个双语页; 文档 10.06×、总量 4.41×; PyPI 0.2.0 与 RTD 验证
 - 验证: path, size, required sections, conflict markers
 - 批次状态: complete
+## myqcd-content-expansion - final - 2026-11-09 11:29:50 +0800
+- 主任务: 扩充 myqcd 内容并发布 0.3.0
+- 日志文件: logs/v2026110911-2.txt
+- 文件大小: 3623 bytes
+- 触发原因: 任务完成
+- 关键内容: 5 个模块、5 个测试、4 个双语页; 文档 10.81×、总量 4.91×; PyPI 0.3.0 与 RTD 验证
+- 验证: path, size, required sections, conflict markers
+- 批次状态: complete
