@@ -1,0 +1,1013 @@
+\section*{Acknowledgments}
+This research was funded by the Deutsche Forschungsgemeinschaft Grant
+No.\ SFB/TRR 55. The authors benefited
+from discussions with Vladimir Braun, Robert Edwards and Jian-Hui Zhang.
+We also thank Nilmani Mathur, Sasa Prelovsek and Rainer Sommer
+for comments relating to
+an earlier version of the manuscript.
+Gunnar~S.~Bali acknowledges the hospitality of the
+Mainz Institute for Theoretical Physics (MITP) where a
+part of this article was written.
+We used the CHROMA~\cite{Edwards:2004sx} software package along with the
+LibHadronAnalysis library
+and the multigrid solver implementation
+of Ref.~\cite{Heybrock:2015kpy} (see also Refs.~\cite{Richtmann:2016kcq,Heybrock:2014iga,Frommer:2013fsa}). Computations were performed on
+Regensburg's QPACE~B Xeon~Phi system and on the
+SFB/TRR~55 QPACE~2~\cite{Arts:2015jia} Xeon~Phi installation in Regensburg.
+We thank Sara Collins,
+Peter Georg, Benjamin Gl\"a\ss{}le and Daniel Richtmann
+for their help and technical support.
+
+\section*{APPENDIX: BOOSTED (MOMENTUM) SMEARING}
+We describe how we introduce an anisotropy
+into (momentum) Wuppertal smearing to introduce a
+Lorentz contraction of the smearing
+function~\cite{Roberts:2012tp,DellaMorte:2012xc}
+along the momentum direction proportional to $1/\gamma$,
+where in the continuum
+\begin{equation}
+\label{eq:gamma}\gamma=E(\vect{p})/m=\sqrt{1+\frac{\vect{p}^2}{m^2}}\geq 1\,.
+\end{equation}
+Note that $m$ above denotes the hadron mass and
+the hadron momentum $\vect{p}$ differs from
+the momentum smearing parameter $\vect{k}$. We remark that
+as we are using equal Euclidean time
+interpolators there is no compelling reason why such a boost
+should be applied.
+
+In order to ``boost'' the smearing function we need to replace
+\begin{equation}
+\vect{\nabla}+i\vect{k}\mapsto\left(\frac{\vect{\nabla}_{\parallel}}{\gamma}
++\vect{\nabla}_{\perp}\right)+i\left(\frac{\vect{k}_{\parallel}}{\gamma}+\vect{k}_{\perp}\right)
+\end{equation}
+within Eq.~\eqref{eq:drift}, where $\vect{\nabla}_{\parallel}
+=\vect{e}(\vect{e}\cdot
+\vect{\nabla})$, $\vect{\nabla}_{\perp}=\vect{\nabla}-
+\vect{\nabla}_{\parallel}$ and
+\begin{equation}
+\vect{e}=\frac{\vect{p}}{|\vect{p}|}=\frac{\vect{k}}{|\vect{k}|}\,.
+\end{equation}
+For the Laplacian this means
+\begin{equation}
+\label{eq:lboost}
+\Laplace\mapsto \frac{\vect{\nabla}_{\parallel}^2}{\gamma^2}
++\vect{\nabla}_{\perp}^2=\left(\frac{1}{\gamma^2}-1\right)\vect{\nabla}_{\parallel}^2+\Laplace\,,
+\end{equation}
+where
+\begin{equation}
+\vect{\nabla}_{\parallel}^2=\sum_{i,j}e_ie_j\frac{\partial}{\partial x_i}
+\frac{\partial}{\partial x_j}\,.
+\end{equation}
+One can easily derive a corresponding
+iterative smearing: Generalizing
+Eqs.~\eqref{fermsmear}--\eqref{eq:alphadef} and \eqref{fermsmear2},
+we obtain
+
+\begin{equation}
+(\Phi^{\gamma}_{(\vect{k})} q)_{\vect{x}} = \frac{1}{N}\!\!\left\{\!q_{\vect{x}}
++\wupc'\!\left[\sum_{j=\pm 1}^{\pm d}\! N_{|j|}U_{\vect{x},j}e^{i\vect{k}\cdot\unitj} q_{\vect{x}+\unitj}+\left(\!1-\frac{1}{\gamma^2}\!\right)\!
+\sum_{i\neq j=1}^d\!\!\frac{e_ie_j}{2}\left(U_{\vect{x},j}U_{\vect{x}+\unitj,-i}
++U_{\vect{x},-i}U_{\vect{x}-\uniti,j}\right)e^{i\vect{k}\cdot(\unitj-\uniti)}
+q_{\vect{x}+\unitj-\uniti}\right]\!
+\right\}\,,
+\label{eq:boostsmear}
+\end{equation}
+
+where
+\begin{equation}
+N_j=
+N_j(\gamma,\vect{e})=1+\left(\frac{1}{\gamma^2}-1\right)e_{j}\sum_{i=1}^de_i\,.
+\end{equation}
+The (arbitrary) normalization factor
+\begin{equation}
+\label{boostnorm}
+N=N(\wupc',\gamma)=1+2\wupc'\left(d-1+\frac{1}{\gamma^2}\right)
+\end{equation}
+follows in the free case and is kept
+to avoid numerical overflow for high iteration counts.
+Like Eq.~\eqref{fermsmear2} this is most easily implemented,
+replacing the (APE smeared) links $U_{\vect{x},j}$ by
+$U_{\vect{x},j}e^{i\vect{k}\cdot\unitj}$ and then iterating
+Eq.~\eqref{eq:boostsmear}, using these modified transporters,
+instead of multiplying in the additional phase factors.
+
+We remark that if the momentum is chosen parallel to
+a lattice axis, the second sum within Eq.~\eqref{eq:boostsmear} 
+vanishes. In this case the only differences with respect to the
+momentum Wuppertal smearing defined in
+Eq.~\eqref{fermsmear2} are that shifts in this direction carry a
+suppression factor $1/\gamma^2$,
+the normalization factor $N$ and $\wupc'\neq\wupc$.
+
+The free field solution for $n$ iterations of
+Eq.~\eqref{eq:boostsmear}
+is a Gaussian with a phase factor
+$e^{i\vect{k}\cdot\vect{x}}$ and variance,
+\begin{equation}
+\sigma^2=2na^2\frac{\wupc'}{N(\wupc',\gamma)}\,,
+\end{equation}
+in the directions perpendicular to the momentum, see Eq.~\eqref{eq:width}.
+Parallel to the momentum the width is reduced by a factor $1/\gamma$,
+as it should be. The perpendicular variance above can be kept fixed,
+equating $\wupc'/N$ with $\wupc/(1+2d\wupc)$.
+The resulting relation between the $\gamma=1$ smearing parameter $\wupc$
+and the boosted parameter $\wupc'$ reads:
+\begin{equation}
+\label{boosttrans}
+\wupc'=\frac{\wupc}{1+2\wupc\left(1-1/\gamma^2\right)}\leq\wupc\,.
+\end{equation}
+
+%merlin.mbs apsrev4-1.bst 2010-07-25 4.21a (PWD, AO, DPC) hacked
+%Control: key (0)
+%Control: author (0) dotless jnrlst
+%Control: editor formatted (1) identically to author
+%Control: production of article title (0) allowed
+%Control: page (1) range
+%Control: year (0) verbatim
+%Control: production of eprint (0) enabled
+\begin{thebibliography}{56}%
+\makeatletter
+\providecommand \@ifxundefined [1]{%
+ \@ifx{#1\undefined}
+}%
+\providecommand \@ifnum [1]{%
+ \ifnum #1\expandafter \@firstoftwo
+ \else \expandafter \@secondoftwo
+ \fi
+}%
+\providecommand \@ifx [1]{%
+ \ifx #1\expandafter \@firstoftwo
+ \else \expandafter \@secondoftwo
+ \fi
+}%
+\providecommand \natexlab [1]{#1}%
+\providecommand \enquote  [1]{``#1''}%
+\providecommand \bibnamefont  [1]{#1}%
+\providecommand \bibfnamefont [1]{#1}%
+\providecommand \citenamefont [1]{#1}%
+\providecommand \href@noop [0]{\@secondoftwo}%
+\providecommand \href [0]{\begingroup \@sanitize@url \@href}%
+\providecommand \@href[1]{\@@startlink{#1}\@@href}%
+\providecommand \@@href[1]{\endgroup#1\@@endlink}%
+\providecommand \@sanitize@url [0]{\catcode `\\12\catcode `\$12\catcode
+  `\&12\catcode `\#12\catcode `\^12\catcode `\_12\catcode `\%12\relax}%
+\providecommand \@@startlink[1]{}%
+\providecommand \@@endlink[0]{}%
+\providecommand \url  [0]{\begingroup\@sanitize@url \@url }%
+\providecommand \@url [1]{\endgroup\@href {#1}{\urlprefix }}%
+\providecommand \urlprefix  [0]{URL }%
+\providecommand \Eprint [0]{\href }%
+\providecommand \doibase [0]{http://dx.doi.org/}%
+\providecommand \selectlanguage [0]{\@gobble}%
+\providecommand \bibinfo  [0]{\@secondoftwo}%
+\providecommand \bibfield  [0]{\@secondoftwo}%
+\providecommand \translation [1]{[#1]}%
+\providecommand \BibitemOpen [0]{}%
+\providecommand \bibitemStop [0]{}%
+\providecommand \bibitemNoStop [0]{.\EOS\space}%
+\providecommand \EOS [0]{\spacefactor3000\relax}%
+\providecommand \BibitemShut  [1]{\csname bibitem#1\endcsname}%
+\let\auto@bib@innerbib\@empty
+%</preamble>
+\bibitem [{\citenamefont {Detmold}\ \emph {et~al.}(2015)\citenamefont
+  {Detmold}, \citenamefont {Lehner},\ and\ \citenamefont
+  {Meinel}}]{Detmold:2015aaa}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {William}\ \bibnamefont
+  {Detmold}}, \bibinfo {author} {\bibfnamefont {Christoph}\ \bibnamefont
+  {Lehner}}, \ and\ \bibinfo {author} {\bibfnamefont {Stefan}\ \bibnamefont
+  {Meinel}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{$\Lambda_b \to
+  p \ell^- \bar{\nu}_\ell$ and $\Lambda_b \to \Lambda_c \ell^- \bar{\nu}_\ell$
+  form factors from lattice QCD with relativistic heavy quarks}},}\ }\href
+  {\doibase 10.1103/PhysRevD.92.034503} {\bibfield  {journal} {\bibinfo
+  {journal} {Phys. Rev. D}\ }\textbf {\bibinfo {volume} {92}},\ \bibinfo
+  {pages} {034503} (\bibinfo {year} {2015})},\ \Eprint
+  {http://arxiv.org/abs/1503.01421} {arXiv:1503.01421 [hep-lat]} \BibitemShut
+  {NoStop}%
+%%CITATION = ARXIV:1503.01421;%%
+\bibitem [{\citenamefont {H{\"a}gler}\ \emph {et~al.}(2009)\citenamefont
+  {H{\"a}gler}, \citenamefont {Musch}, \citenamefont {Negele},\ and\
+  \citenamefont {Sch{\"a}fer}}]{Hagler:2009mb}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Philipp}\ \bibnamefont
+  {H{\"a}gler}}, \bibinfo {author} {\bibfnamefont {Bernhard~U.}\ \bibnamefont
+  {Musch}}, \bibinfo {author} {\bibfnamefont {John~W.}\ \bibnamefont {Negele}},
+  \ and\ \bibinfo {author} {\bibfnamefont {Andreas}\ \bibnamefont
+  {Sch{\"a}fer}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{Intrinsic
+  quark transverse momentum in the nucleon from lattice QCD}},}\ }\href
+  {\doibase 10.1209/0295-5075/88/61001} {\bibfield  {journal} {\bibinfo
+  {journal} {Europhys. Lett.}\ }\textbf {\bibinfo {volume} {88}},\ \bibinfo
+  {pages} {61001} (\bibinfo {year} {2009})},\ \Eprint
+  {http://arxiv.org/abs/0908.1283} {arXiv:0908.1283 [hep-lat]} \BibitemShut
+  {NoStop}%
+%%CITATION = ARXIV:0908.1283;%%
+\bibitem [{\citenamefont {Musch}\ \emph {et~al.}(2011)\citenamefont {Musch},
+  \citenamefont {H{\"a}gler}, \citenamefont {Negele},\ and\ \citenamefont
+  {Sch{\"a}fer}}]{Musch:2010ka}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Bernhard~U.}\
+  \bibnamefont {Musch}}, \bibinfo {author} {\bibfnamefont {Philipp}\
+  \bibnamefont {H{\"a}gler}}, \bibinfo {author} {\bibfnamefont {John~W.}\
+  \bibnamefont {Negele}}, \ and\ \bibinfo {author} {\bibfnamefont {Andreas}\
+  \bibnamefont {Sch{\"a}fer}},\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {{Exploring quark transverse momentum distributions with lattice QCD}},}\
+  }\href {\doibase 10.1103/PhysRevD.83.094507} {\bibfield  {journal} {\bibinfo
+  {journal} {Phys. Rev. D}\ }\textbf {\bibinfo {volume} {83}},\ \bibinfo
+  {pages} {094507} (\bibinfo {year} {2011})},\ \Eprint
+  {http://arxiv.org/abs/1011.1213} {arXiv:1011.1213 [hep-lat]} \BibitemShut
+  {NoStop}%
+%%CITATION = 1011.1213;%%
+\bibitem [{\citenamefont {Musch}\ \emph {et~al.}(2012)\citenamefont {Musch},
+  \citenamefont {H{\"a}gler}, \citenamefont {Engelhardt}, \citenamefont
+  {Negele},\ and\ \citenamefont {Sch{\"a}fer}}]{Musch:2011er}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Bernhard~U.}\
+  \bibnamefont {Musch}}, \bibinfo {author} {\bibfnamefont {Philipp}\
+  \bibnamefont {H{\"a}gler}}, \bibinfo {author} {\bibfnamefont {Michael}\
+  \bibnamefont {Engelhardt}}, \bibinfo {author} {\bibfnamefont {John~W.}\
+  \bibnamefont {Negele}}, \ and\ \bibinfo {author} {\bibfnamefont {Andreas}\
+  \bibnamefont {Sch{\"a}fer}},\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {{Sivers and Boer-Mulders observables from lattice QCD}},}\ }\href {\doibase
+  10.1103/PhysRevD.85.094510} {\bibfield  {journal} {\bibinfo  {journal} {Phys.
+  Rev. D}\ }\textbf {\bibinfo {volume} {85}},\ \bibinfo {pages} {094510}
+  (\bibinfo {year} {2012})},\ \Eprint {http://arxiv.org/abs/1111.4249}
+  {arXiv:1111.4249 [hep-lat]} \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1111.4249;%%
+\bibitem [{\citenamefont {Engelhardt}\ \emph {et~al.}(2016)\citenamefont
+  {Engelhardt}, \citenamefont {H{\"a}gler}, \citenamefont {Musch},
+  \citenamefont {Negele},\ and\ \citenamefont
+  {Sch{\"a}fer}}]{Engelhardt:2015xja}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Michael}\ \bibnamefont
+  {Engelhardt}}, \bibinfo {author} {\bibfnamefont {Philipp}\ \bibnamefont
+  {H{\"a}gler}}, \bibinfo {author} {\bibfnamefont {Bernhard~U.}\ \bibnamefont
+  {Musch}}, \bibinfo {author} {\bibfnamefont {John~W.}\ \bibnamefont {Negele}},
+  \ and\ \bibinfo {author} {\bibfnamefont {Andreas}\ \bibnamefont
+  {Sch{\"a}fer}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{Lattice
+  QCD study of the Boer-Mulders effect in a pion}},}\ }\href {\doibase
+  10.1103/PhysRevD.93.054501} {\bibfield  {journal} {\bibinfo  {journal} {Phys.
+  Rev. D}\ }\textbf {\bibinfo {volume} {93}},\ \bibinfo {pages} {054501}
+  (\bibinfo {year} {2016})},\ \Eprint {http://arxiv.org/abs/1506.07826}
+  {arXiv:1506.07826 [hep-lat]} \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1506.07826;%%
+\bibitem [{\citenamefont {Ji}(2013)}]{Ji:2013dva}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Xiangdong}\
+  \bibnamefont {Ji}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{Parton
+  Physics on a Euclidean Lattice}},}\ }\href {\doibase
+  10.1103/PhysRevLett.110.262002} {\bibfield  {journal} {\bibinfo  {journal}
+  {Phys. Rev. Lett.}\ }\textbf {\bibinfo {volume} {110}},\ \bibinfo {pages}
+  {262002} (\bibinfo {year} {2013})},\ \Eprint {http://arxiv.org/abs/1305.1539}
+  {arXiv:1305.1539 [hep-ph]} \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1305.1539;%%
+\bibitem [{\citenamefont {Ji}\ and\ \citenamefont {Zhang}(2015)}]{Ji:2015jwa}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Xiangdong}\
+  \bibnamefont {Ji}}\ and\ \bibinfo {author} {\bibfnamefont {Jian-Hui}\
+  \bibnamefont {Zhang}},\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {{Renormalization of quasiparton distribution}},}\ }\href {\doibase
+  10.1103/PhysRevD.92.034006} {\bibfield  {journal} {\bibinfo  {journal} {Phys.
+  Rev. D}\ }\textbf {\bibinfo {volume} {92}},\ \bibinfo {pages} {034006}
+  (\bibinfo {year} {2015})},\ \Eprint {http://arxiv.org/abs/1505.07699}
+  {arXiv:1505.07699 [hep-ph]} \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1505.07699;%%
+\bibitem [{\citenamefont {Lin}\ \emph {et~al.}(2015)\citenamefont {Lin},
+  \citenamefont {Chen}, \citenamefont {Cohen},\ and\ \citenamefont
+  {Ji}}]{Lin:2014zya}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Huey-Wen}\
+  \bibnamefont {Lin}}, \bibinfo {author} {\bibfnamefont {Jiunn-Wei}\
+  \bibnamefont {Chen}}, \bibinfo {author} {\bibfnamefont {Saul~D.}\
+  \bibnamefont {Cohen}}, \ and\ \bibinfo {author} {\bibfnamefont {Xiangdong}\
+  \bibnamefont {Ji}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{Flavor
+  structure of the nucleon sea from lattice QCD}},}\ }\href {\doibase
+  10.1103/PhysRevD.91.054510} {\bibfield  {journal} {\bibinfo  {journal} {Phys.
+  Rev. D}\ }\textbf {\bibinfo {volume} {91}},\ \bibinfo {pages} {054510}
+  (\bibinfo {year} {2015})},\ \Eprint {http://arxiv.org/abs/1402.1462}
+  {arXiv:1402.1462 [hep-ph]} \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1402.1462;%%
+\bibitem [{\citenamefont {Alexandrou}\ \emph {et~al.}(2015)\citenamefont
+  {Alexandrou}, \citenamefont {Cichy}, \citenamefont {Drach}, \citenamefont
+  {Garc{\'{\i}}a-Ramos}, \citenamefont {Hadjiyiannakou}, \citenamefont
+  {Jansen}, \citenamefont {Steffens},\ and\ \citenamefont
+  {Wiese}}]{Alexandrou:2015rja}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Constantia}\
+  \bibnamefont {Alexandrou}}, \bibinfo {author} {\bibfnamefont {Krzysztof}\
+  \bibnamefont {Cichy}}, \bibinfo {author} {\bibfnamefont {Vincent}\
+  \bibnamefont {Drach}}, \bibinfo {author} {\bibfnamefont {Elena}\ \bibnamefont
+  {Garc{\'{\i}}a-Ramos}}, \bibinfo {author} {\bibfnamefont {Kyriakos}\
+  \bibnamefont {Hadjiyiannakou}}, \bibinfo {author} {\bibfnamefont {Karl}\
+  \bibnamefont {Jansen}}, \bibinfo {author} {\bibfnamefont {Fernanda}\
+  \bibnamefont {Steffens}}, \ and\ \bibinfo {author} {\bibfnamefont
+  {Christian}\ \bibnamefont {Wiese}} (\bibinfo {collaboration} {ETM
+  Collaboration}),\ }\bibfield  {title} {\enquote {\bibinfo {title} {{Lattice
+  calculation of parton distributions}},}\ }\href {\doibase
+  10.1103/PhysRevD.92.014502} {\bibfield  {journal} {\bibinfo  {journal} {Phys.
+  Rev. D}\ }\textbf {\bibinfo {volume} {92}},\ \bibinfo {pages} {014502}
+  (\bibinfo {year} {2015})},\ \Eprint {http://arxiv.org/abs/1504.07455}
+  {arXiv:1504.07455 [hep-lat]} \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1504.07455;%%
+\bibitem [{\citenamefont {Aglietti}\ \emph {et~al.}(1998)\citenamefont
+  {Aglietti}, \citenamefont {Ciuchini}, \citenamefont {Corbo}, \citenamefont
+  {Franco}, \citenamefont {Martinelli},\ and\ \citenamefont
+  {Silvestrini}}]{Aglietti:1998ur}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Ugo}\ \bibnamefont
+  {Aglietti}}, \bibinfo {author} {\bibfnamefont {Marco}\ \bibnamefont
+  {Ciuchini}}, \bibinfo {author} {\bibfnamefont {Guido}\ \bibnamefont {Corbo}},
+  \bibinfo {author} {\bibfnamefont {Enrico}\ \bibnamefont {Franco}}, \bibinfo
+  {author} {\bibfnamefont {Guido}\ \bibnamefont {Martinelli}}, \ and\ \bibinfo
+  {author} {\bibfnamefont {Luca}\ \bibnamefont {Silvestrini}},\ }\bibfield
+  {title} {\enquote {\bibinfo {title} {{Model independent determination of the
+  light cone wave functions for exclusive processes}},}\ }\href {\doibase
+  10.1016/S0370-2693(98)01138-1} {\bibfield  {journal} {\bibinfo  {journal}
+  {Phys. Lett. B}\ }\textbf {\bibinfo {volume} {441}},\ \bibinfo {pages} {371}
+  (\bibinfo {year} {1998})},\ \Eprint {http://arxiv.org/abs/hep-ph/9806277}
+  {arXiv:hep-ph/9806277 [hep-ph]} \BibitemShut {NoStop}%
+%%CITATION = HEP-PH/9806277;%%
+\bibitem [{\citenamefont {Abada}\ \emph {et~al.}(2001)\citenamefont {Abada},
+  \citenamefont {Boucaud}, \citenamefont {Herdoiza}, \citenamefont {Leroy},
+  \citenamefont {Micheli}, \citenamefont {P{\`e}ne},\ and\ \citenamefont
+  {Rodr{\'{\i}}guez-Quintero}}]{Abada:2001if}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Asmaa}\ \bibnamefont
+  {Abada}}, \bibinfo {author} {\bibfnamefont {Philippe}\ \bibnamefont
+  {Boucaud}}, \bibinfo {author} {\bibfnamefont {Gregorio}\ \bibnamefont
+  {Herdoiza}}, \bibinfo {author} {\bibfnamefont {Jean-Pierre}\ \bibnamefont
+  {Leroy}}, \bibinfo {author} {\bibfnamefont {Jacquez}\ \bibnamefont
+  {Micheli}}, \bibinfo {author} {\bibfnamefont {Olivier}\ \bibnamefont
+  {P{\`e}ne}}, \ and\ \bibinfo {author} {\bibfnamefont {Jos{\'e}}\ \bibnamefont
+  {Rodr{\'{\i}}guez-Quintero}},\ }\bibfield  {title} {\enquote {\bibinfo
+  {title} {{Preliminaries on a lattice analysis of the pion light cone wave
+  function: A partonic signal?}}}\ }\href {\doibase 10.1103/PhysRevD.64.074511}
+  {\bibfield  {journal} {\bibinfo  {journal} {Phys. Rev. D}\ }\textbf {\bibinfo
+  {volume} {64}},\ \bibinfo {pages} {074511} (\bibinfo {year} {2001})},\
+  \Eprint {http://arxiv.org/abs/hep-ph/0105221} {arXiv:hep-ph/0105221 [hep-ph]}
+  \BibitemShut {NoStop}%
+%%CITATION = HEP-PH/0105221;%%
+\bibitem [{\citenamefont {Braun}\ and\ \citenamefont
+  {M{\"u}ller}(2008)}]{Braun:2007wv}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Vladimir}\
+  \bibnamefont {Braun}}\ and\ \bibinfo {author} {\bibfnamefont {Dieter}\
+  \bibnamefont {M{\"u}ller}},\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {{Exclusive processes in position space and the pion distribution
+  amplitude}},}\ }\href {\doibase 10.1140/epjc/s10052-008-0608-4} {\bibfield
+  {journal} {\bibinfo  {journal} {Eur. Phys. J. C}\ }\textbf {\bibinfo {volume}
+  {55}},\ \bibinfo {pages} {349} (\bibinfo {year} {2008})},\ \Eprint
+  {http://arxiv.org/abs/0709.1348} {arXiv:0709.1348 [hep-ph]} \BibitemShut
+  {NoStop}%
+%%CITATION = ARXIV:0709.1348;%%
+\bibitem [{\citenamefont {Falcioni}\ \emph {et~al.}(1985)\citenamefont
+  {Falcioni}, \citenamefont {Paciello}, \citenamefont {Parisi},\ and\
+  \citenamefont {Taglienti}}]{Falcioni:1984ei}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Massimo}\ \bibnamefont
+  {Falcioni}}, \bibinfo {author} {\bibfnamefont {Maria~Luigia}\ \bibnamefont
+  {Paciello}}, \bibinfo {author} {\bibfnamefont {Giorgio}\ \bibnamefont
+  {Parisi}}, \ and\ \bibinfo {author} {\bibfnamefont {Bruno}\ \bibnamefont
+  {Taglienti}} (\bibinfo {collaboration} {APE Collaboration}),\ }\bibfield
+  {title} {\enquote {\bibinfo {title} {{Again on SU(3) glueball mass}},}\
+  }\href {\doibase 10.1016/0550-3213(85)90280-9} {\bibfield  {journal}
+  {\bibinfo  {journal} {Nucl. Phys. B}\ }\textbf {\bibinfo {volume} {251}},\
+  \bibinfo {pages} {624} (\bibinfo {year} {1985})}\BibitemShut {NoStop}%
+%%CITATION = NUPHA,B251,624;%%
+\bibitem [{\citenamefont {Teper}(1987)}]{Teper:1987wt}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Michael}\ \bibnamefont
+  {Teper}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{An improved
+  method for lattice glueball calculations}},}\ }\href {\doibase
+  10.1016/0370-2693(87)90976-2} {\bibfield  {journal} {\bibinfo  {journal}
+  {Phys. Lett. B}\ }\textbf {\bibinfo {volume} {183}},\ \bibinfo {pages} {345}
+  (\bibinfo {year} {1987})}\BibitemShut {NoStop}%
+%%CITATION = PHLTA,B183,345;%%
+\bibitem [{\citenamefont {Hasenfratz}\ and\ \citenamefont
+  {Knechtli}(2001)}]{Hasenfratz:2001hp}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Anna}\ \bibnamefont
+  {Hasenfratz}}\ and\ \bibinfo {author} {\bibfnamefont {Francesco}\
+  \bibnamefont {Knechtli}},\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {{Flavor symmetry and the static potential with hypercubic blocking}},}\
+  }\href {\doibase 10.1103/PhysRevD.64.034504} {\bibfield  {journal} {\bibinfo
+  {journal} {Phys. Rev. D}\ }\textbf {\bibinfo {volume} {64}},\ \bibinfo
+  {pages} {034504} (\bibinfo {year} {2001})},\ \Eprint
+  {http://arxiv.org/abs/hep-lat/0103029} {arXiv:hep-lat/0103029} \BibitemShut
+  {NoStop}%
+%%CITATION = HEP-LAT/0103029;%%
+\bibitem [{\citenamefont {Gupta}\ \emph {et~al.}(1991)\citenamefont {Gupta},
+  \citenamefont {Patel}, \citenamefont {Baillie}, \citenamefont {Kilcup},\ and\
+  \citenamefont {Sharpe}}]{Gupta:1990ek}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Rajan}\ \bibnamefont
+  {Gupta}}, \bibinfo {author} {\bibfnamefont {Apoorva}\ \bibnamefont {Patel}},
+  \bibinfo {author} {\bibfnamefont {Clive~F.}\ \bibnamefont {Baillie}},
+  \bibinfo {author} {\bibfnamefont {Gregory~W.}\ \bibnamefont {Kilcup}}, \ and\
+  \bibinfo {author} {\bibfnamefont {Stephen~R.}\ \bibnamefont {Sharpe}},\
+  }\bibfield  {title} {\enquote {\bibinfo {title} {{Exploring glueball wave
+  functions on the lattice}},}\ }\href {\doibase 10.1103/PhysRevD.43.2301}
+  {\bibfield  {journal} {\bibinfo  {journal} {Phys. Rev. D}\ }\textbf {\bibinfo
+  {volume} {43}},\ \bibinfo {pages} {2301} (\bibinfo {year}
+  {1991})}\BibitemShut {NoStop}%
+%%CITATION = PHRVA,D43,2301;%%
+\bibitem [{\citenamefont {G{\"u}sken}\ \emph {et~al.}(1989)\citenamefont
+  {G{\"u}sken}, \citenamefont {L{\"o}w}, \citenamefont {M{\"u}tter},
+  \citenamefont {Sommer}, \citenamefont {Patel},\ and\ \citenamefont
+  {Schilling}}]{Gusken:1989ad}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Stephan}\ \bibnamefont
+  {G{\"u}sken}}, \bibinfo {author} {\bibfnamefont {Ute}\ \bibnamefont
+  {L{\"o}w}}, \bibinfo {author} {\bibfnamefont {Karl-Heinz}\ \bibnamefont
+  {M{\"u}tter}}, \bibinfo {author} {\bibfnamefont {Rainer}\ \bibnamefont
+  {Sommer}}, \bibinfo {author} {\bibfnamefont {Apoorva}\ \bibnamefont {Patel}},
+  \ and\ \bibinfo {author} {\bibfnamefont {Klaus}\ \bibnamefont {Schilling}},\
+  }\bibfield  {title} {\enquote {\bibinfo {title} {{Nonsinglet axial vector
+  couplings of the baryon octet in lattice {QCD}}},}\ }\href {\doibase
+  10.1016/S0370-2693(89)80034-6} {\bibfield  {journal} {\bibinfo  {journal}
+  {Phys. Lett. B}\ }\textbf {\bibinfo {volume} {227}},\ \bibinfo {pages} {266}
+  (\bibinfo {year} {1989})}\BibitemShut {NoStop}%
+%%CITATION = PHLTA,B227,266;%%
+\bibitem [{\citenamefont {G{\"u}sken}(1990)}]{Gusken:1989qx}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Stephan}\ \bibnamefont
+  {G{\"u}sken}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{Study of
+  smearing techniques for hadron correlation functions}},}\ }\bibfield
+  {booktitle} {\emph {\bibinfo {booktitle} {Proceedings, International
+  Symposium on Lattice Field Theory (Lattice 1989)}},\ }\href {\doibase
+  10.1016/0920-5632(90)90273-W} {\bibfield  {journal} {\bibinfo  {journal}
+  {Nucl. Phys. B Proc. Suppl.}\ }\textbf {\bibinfo {volume} {17}},\ \bibinfo
+  {pages} {361} (\bibinfo {year} {1990})}\BibitemShut {NoStop}%
+%%CITATION = NUPHZ,17,361;%%
+\bibitem [{\citenamefont {Alexandrou}\ \emph {et~al.}(1991)\citenamefont
+  {Alexandrou}, \citenamefont {Jegerlehner}, \citenamefont {G{\"u}sken},
+  \citenamefont {Schilling},\ and\ \citenamefont {Sommer}}]{Alexandrou:1990dq}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Constantia}\
+  \bibnamefont {Alexandrou}}, \bibinfo {author} {\bibfnamefont {Fred}\
+  \bibnamefont {Jegerlehner}}, \bibinfo {author} {\bibfnamefont {Stephan}\
+  \bibnamefont {G{\"u}sken}}, \bibinfo {author} {\bibfnamefont {Klaus}\
+  \bibnamefont {Schilling}}, \ and\ \bibinfo {author} {\bibfnamefont {Rainer}\
+  \bibnamefont {Sommer}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{B
+  meson properties from lattice QCD}},}\ }\href {\doibase
+  10.1016/0370-2693(91)90219-G} {\bibfield  {journal} {\bibinfo  {journal}
+  {Phys. Lett. B}\ }\textbf {\bibinfo {volume} {256}},\ \bibinfo {pages} {60}
+  (\bibinfo {year} {1991})}\BibitemShut {NoStop}%
+%%CITATION = PHLTA,B256,60;%%
+\bibitem [{\citenamefont {Collins}(1993)}]{Collins:1992rp}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Sara}\ \bibnamefont
+  {Collins}} (\bibinfo {collaboration} {UKQCD Collaboration}),\ }\bibfield
+  {title} {\enquote {\bibinfo {title} {{Gauge invariant smearing and the
+  extraction of excited state masses using Wilson fermions at $\beta =
+  6.2$}},}\ }\bibfield  {booktitle} {\emph {\bibinfo {booktitle} {{The
+  International Symposium on Lattice Field Theory: Lattice 92 Amsterdam,
+  Netherlands, September 15-19, 1992}}},\ }\href {\doibase
+  10.1016/0920-5632(93)90235-X} {\bibfield  {journal} {\bibinfo  {journal}
+  {Nucl. Phys. B Proc. Suppl.}\ }\textbf {\bibinfo {volume} {30}},\ \bibinfo
+  {pages} {393} (\bibinfo {year} {1993})},\ \Eprint
+  {http://arxiv.org/abs/hep-lat/9211039} {arXiv:hep-lat/9211039} \BibitemShut
+  {NoStop}%
+%%CITATION = NUPHZ,30,393;%%
+\bibitem [{\citenamefont {Allton}\ \emph {et~al.}(1993)\citenamefont {Allton}
+  \emph {et~al.}}]{Allton:1993wc}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Christopher~R.}\
+  \bibnamefont {Allton}} \emph {et~al.} (\bibinfo {collaboration} {UKQCD
+  Collaboration}),\ }\bibfield  {title} {\enquote {\bibinfo {title} {{Gauge
+  invariant smearing and matrix correlators using Wilson fermions at $\beta =
+  6.2$}},}\ }\href {\doibase 10.1103/PhysRevD.47.5128} {\bibfield  {journal}
+  {\bibinfo  {journal} {Phys. Rev. D}\ }\textbf {\bibinfo {volume} {47}},\
+  \bibinfo {pages} {5128} (\bibinfo {year} {1993})},\ \Eprint
+  {http://arxiv.org/abs/hep-lat/9303009} {arXiv:hep-lat/9303009} \BibitemShut
+  {NoStop}%
+%%CITATION = HEP-LAT/9303009;%%
+\bibitem [{\citenamefont {Bali}\ \emph {et~al.}(2005)\citenamefont {Bali},
+  \citenamefont {Neff}, \citenamefont {D{\"u}ssel}, \citenamefont {Lippert},\
+  and\ \citenamefont {Schilling}}]{Bali:2005fu}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Gunnar~S.}\
+  \bibnamefont {Bali}}, \bibinfo {author} {\bibfnamefont {Hartmut}\
+  \bibnamefont {Neff}}, \bibinfo {author} {\bibfnamefont {Thomas}\ \bibnamefont
+  {D{\"u}ssel}}, \bibinfo {author} {\bibfnamefont {Thomas}\ \bibnamefont
+  {Lippert}}, \ and\ \bibinfo {author} {\bibfnamefont {Klaus}\ \bibnamefont
+  {Schilling}} (\bibinfo {collaboration} {SESAM Collaboration}),\ }\bibfield
+  {title} {\enquote {\bibinfo {title} {{Observation of string breaking in
+  QCD}},}\ }\href {\doibase 10.1103/PhysRevD.71.114513} {\bibfield  {journal}
+  {\bibinfo  {journal} {Phys. Rev. D}\ }\textbf {\bibinfo {volume} {71}},\
+  \bibinfo {pages} {114513} (\bibinfo {year} {2005})},\ \Eprint
+  {http://arxiv.org/abs/hep-lat/0505012} {arXiv:hep-lat/0505012 [hep-lat]}
+  \BibitemShut {NoStop}%
+%%CITATION = HEP-LAT/0505012;%%
+\bibitem [{\citenamefont {Lacock}\ \emph {et~al.}(1995)\citenamefont {Lacock},
+  \citenamefont {McKerrell}, \citenamefont {Michael}, \citenamefont {Stopher},\
+  and\ \citenamefont {Stephenson}}]{Lacock:1994qx}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Pierre}\ \bibnamefont
+  {Lacock}}, \bibinfo {author} {\bibfnamefont {Archie}\ \bibnamefont
+  {McKerrell}}, \bibinfo {author} {\bibfnamefont {Christopher}\ \bibnamefont
+  {Michael}}, \bibinfo {author} {\bibfnamefont {Ian~M.}\ \bibnamefont
+  {Stopher}}, \ and\ \bibinfo {author} {\bibfnamefont {Peter~W.}\ \bibnamefont
+  {Stephenson}} (\bibinfo {collaboration} {UKQCD Collaboration}),\ }\bibfield
+  {title} {\enquote {\bibinfo {title} {{Efficient hadronic operators in lattice
+  gauge theory}},}\ }\href {\doibase 10.1103/PhysRevD.51.6403} {\bibfield
+  {journal} {\bibinfo  {journal} {Phys. Rev. D}\ }\textbf {\bibinfo {volume}
+  {51}},\ \bibinfo {pages} {6403} (\bibinfo {year} {1995})},\ \Eprint
+  {http://arxiv.org/abs/hep-lat/9412079} {arXiv:hep-lat/9412079} \BibitemShut
+  {NoStop}%
+%%CITATION = HEP-LAT/9412079;%%
+\bibitem [{\citenamefont {Boyle}(2002)}]{Boyle:1999gx}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Peter}\ \bibnamefont
+  {Boyle}} (\bibinfo {collaboration} {UKQCD Collaboration}),\ }\bibfield
+  {title} {\enquote {\bibinfo {title} {{A novel gauge invariant multistate
+  smearing technique}},}\ }\href {\doibase 10.1006/jcph.2001.6798} {\bibfield
+  {journal} {\bibinfo  {journal} {J. Comput. Phys.}\ }\textbf {\bibinfo
+  {volume} {179}},\ \bibinfo {pages} {349} (\bibinfo {year} {2002})},\ \Eprint
+  {http://arxiv.org/abs/hep-lat/9903033} {arXiv:hep-lat/9903033} \BibitemShut
+  {NoStop}%
+%%CITATION = HEP-LAT/9903033;%%
+\bibitem [{\citenamefont {von Hippel}\ \emph {et~al.}(2013)\citenamefont {von
+  Hippel}, \citenamefont {J{\"a}ger}, \citenamefont {Rae},\ and\ \citenamefont
+  {Wittig}}]{vonHippel:2013yfa}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Georg~M.}\
+  \bibnamefont {von Hippel}}, \bibinfo {author} {\bibfnamefont {Benjamin}\
+  \bibnamefont {J{\"a}ger}}, \bibinfo {author} {\bibfnamefont {Thomas~D.}\
+  \bibnamefont {Rae}}, \ and\ \bibinfo {author} {\bibfnamefont {Hartmut}\
+  \bibnamefont {Wittig}},\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {{The shape of covariantly smeared sources in lattice QCD}},}\ }\href
+  {\doibase 10.1007/JHEP09(2013)014} {\bibfield  {journal} {\bibinfo  {journal}
+  {J. High Energy Phys.}\ }\textbf {\bibinfo {volume} {09}},\ \bibinfo {pages}
+  {014} (\bibinfo {year} {2013})},\ \Eprint {http://arxiv.org/abs/1306.1440}
+  {arXiv:1306.1440 [hep-lat]} \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1306.1440;%%
+\bibitem [{\citenamefont {Bacilieri}\ \emph {et~al.}(1988)\citenamefont
+  {Bacilieri} \emph {et~al.}}]{Bacilieri:1988fh}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {P.}~\bibnamefont
+  {Bacilieri}} \emph {et~al.} (\bibinfo {collaboration} {APE Collaboration}),\
+  }\bibfield  {title} {\enquote {\bibinfo {title} {{The hadronic mass spectrum
+  in quenched lattice {QCD}: Results at $\beta = 5.7$ and $\beta = 6.0$}},}\
+  }\href {\doibase 10.1016/0370-2693(88)90462-5} {\bibfield  {journal}
+  {\bibinfo  {journal} {Phys. Lett. B}\ }\textbf {\bibinfo {volume} {214}},\
+  \bibinfo {pages} {115} (\bibinfo {year} {1988})}\BibitemShut {NoStop}%
+%%CITATION = PHLTA,B214,115;%%
+\bibitem [{\citenamefont {Detmold}\ \emph {et~al.}(2012)\citenamefont
+  {Detmold}, \citenamefont {Orginos},\ and\ \citenamefont
+  {Shi}}]{Detmold:2012wc}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {William}\ \bibnamefont
+  {Detmold}}, \bibinfo {author} {\bibfnamefont {Kostas}\ \bibnamefont
+  {Orginos}}, \ and\ \bibinfo {author} {\bibfnamefont {Zhifeng}\ \bibnamefont
+  {Shi}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{Lattice QCD at
+  non-zero isospin chemical potential}},}\ }\href {\doibase
+  10.1103/PhysRevD.86.054507} {\bibfield  {journal} {\bibinfo  {journal} {Phys.
+  Rev. D}\ }\textbf {\bibinfo {volume} {86}},\ \bibinfo {pages} {054507}
+  (\bibinfo {year} {2012})},\ \Eprint {http://arxiv.org/abs/1205.4224}
+  {arXiv:1205.4224 [hep-lat]} \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1205.4224;%%
+\bibitem [{\citenamefont {Allton}\ \emph {et~al.}(1991)\citenamefont {Allton},
+  \citenamefont {Sachrajda}, \citenamefont {Lubicz}, \citenamefont {Maiani},\
+  and\ \citenamefont {Martinelli}}]{Allton:1990qg}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Christopher~R.}\
+  \bibnamefont {Allton}}, \bibinfo {author} {\bibfnamefont {Christopher~T.}\
+  \bibnamefont {Sachrajda}}, \bibinfo {author} {\bibfnamefont {Vittorio}\
+  \bibnamefont {Lubicz}}, \bibinfo {author} {\bibfnamefont {Luciano}\
+  \bibnamefont {Maiani}}, \ and\ \bibinfo {author} {\bibfnamefont {Guido}\
+  \bibnamefont {Martinelli}},\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {{A lattice computation of the decay constant of the B meson}},}\ }\href
+  {\doibase 10.1016/0550-3213(91)90337-W} {\bibfield  {journal} {\bibinfo
+  {journal} {Nucl. Phys. B}\ }\textbf {\bibinfo {volume} {349}},\ \bibinfo
+  {pages} {598} (\bibinfo {year} {1991})}\BibitemShut {NoStop}%
+%%CITATION = NUPHA,B349,598;%%
+\bibitem [{\citenamefont {DeGrand}\ and\ \citenamefont
+  {Loft}(1991)}]{DeGrand:1990dz}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Thomas~A.}\
+  \bibnamefont {DeGrand}}\ and\ \bibinfo {author} {\bibfnamefont {Richard~D.}\
+  \bibnamefont {Loft}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{Wave
+  function tests for lattice QCD spectroscopy}},}\ }\bibfield  {booktitle}
+  {\emph {\bibinfo {booktitle} {{TEX Users Group Conference, including Annual
+  Meeting, College Station, Texas, June 1990}}},\ }\href {\doibase
+  10.1016/0010-4655(91)90158-H} {\bibfield  {journal} {\bibinfo  {journal}
+  {Comput. Phys. Commun.}\ }\textbf {\bibinfo {volume} {65}},\ \bibinfo {pages}
+  {84} (\bibinfo {year} {1991})}\BibitemShut {NoStop}%
+%%CITATION = CPHCB,65,84;%%
+\bibitem [{\citenamefont {DeGrand}\ and\ \citenamefont
+  {Hecht}(1992)}]{DeGrand:1991ng}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Thomas~A.}\
+  \bibnamefont {DeGrand}}\ and\ \bibinfo {author} {\bibfnamefont {Matthew}\
+  \bibnamefont {Hecht}},\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {{Observation of orbitally excited hadrons in simulations of lattice QCD}},}\
+  }\href {\doibase 10.1016/0370-2693(92)91614-F} {\bibfield  {journal}
+  {\bibinfo  {journal} {Phys. Lett. B}\ }\textbf {\bibinfo {volume} {275}},\
+  \bibinfo {pages} {435} (\bibinfo {year} {1992})}\BibitemShut {NoStop}%
+%%CITATION = PHLTA,B275,435;%%
+\bibitem [{\citenamefont {Peardon}\ \emph {et~al.}(2009)\citenamefont
+  {Peardon}, \citenamefont {Bulava}, \citenamefont {Foley}, \citenamefont
+  {Morningstar}, \citenamefont {Dudek}, \citenamefont {Edwards}, \citenamefont
+  {Jo{\'o}}, \citenamefont {Lin}, \citenamefont {Richards},\ and\ \citenamefont
+  {Juge}}]{Peardon:2009gh}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Michael~J.}\
+  \bibnamefont {Peardon}}, \bibinfo {author} {\bibfnamefont {John}\
+  \bibnamefont {Bulava}}, \bibinfo {author} {\bibfnamefont {Justin}\
+  \bibnamefont {Foley}}, \bibinfo {author} {\bibfnamefont {Colin}\ \bibnamefont
+  {Morningstar}}, \bibinfo {author} {\bibfnamefont {Jozef}\ \bibnamefont
+  {Dudek}}, \bibinfo {author} {\bibfnamefont {Robert~G.}\ \bibnamefont
+  {Edwards}}, \bibinfo {author} {\bibfnamefont {B{\'a}lint}\ \bibnamefont
+  {Jo{\'o}}}, \bibinfo {author} {\bibfnamefont {Huey-Wen}\ \bibnamefont {Lin}},
+  \bibinfo {author} {\bibfnamefont {David~G.}\ \bibnamefont {Richards}}, \ and\
+  \bibinfo {author} {\bibfnamefont {Keisuke~Jimmy}\ \bibnamefont {Juge}}
+  (\bibinfo {collaboration} {Hadron Spectrum Collaboration}),\ }\bibfield
+  {title} {\enquote {\bibinfo {title} {{Novel quark-field creation operator
+  construction for hadronic physics in lattice QCD}},}\ }\href {\doibase
+  10.1103/PhysRevD.80.054506} {\bibfield  {journal} {\bibinfo  {journal} {Phys.
+  Rev. D}\ }\textbf {\bibinfo {volume} {80}},\ \bibinfo {pages} {054506}
+  (\bibinfo {year} {2009})},\ \Eprint {http://arxiv.org/abs/0905.2160}
+  {arXiv:0905.2160 [hep-lat]} \BibitemShut {NoStop}%
+%%CITATION = ARXIV:0905.2160;%%
+\bibitem [{\citenamefont {Roberts}\ \emph {et~al.}(2012)\citenamefont
+  {Roberts}, \citenamefont {Kamleh}, \citenamefont {Leinweber}, \citenamefont
+  {Mahbub},\ and\ \citenamefont {Menadue}}]{Roberts:2012tp}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Dale~S.}\ \bibnamefont
+  {Roberts}}, \bibinfo {author} {\bibfnamefont {Waseem}\ \bibnamefont
+  {Kamleh}}, \bibinfo {author} {\bibfnamefont {Derek~B.}\ \bibnamefont
+  {Leinweber}}, \bibinfo {author} {\bibfnamefont {M.~Selim}\ \bibnamefont
+  {Mahbub}}, \ and\ \bibinfo {author} {\bibfnamefont {Benjamin~J.}\
+  \bibnamefont {Menadue}},\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {{Accessing high momentum states in lattice QCD}},}\ }\href {\doibase
+  10.1103/PhysRevD.86.074504} {\bibfield  {journal} {\bibinfo  {journal} {Phys.
+  Rev. D}\ }\textbf {\bibinfo {volume} {86}},\ \bibinfo {pages} {074504}
+  (\bibinfo {year} {2012})},\ \Eprint {http://arxiv.org/abs/1206.5891}
+  {arXiv:1206.5891 [hep-lat]} \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1206.5891;%%
+\bibitem [{\citenamefont {Della~Morte}\ \emph {et~al.}(2012)\citenamefont
+  {Della~Morte}, \citenamefont {J{\"a}ger}, \citenamefont {Rae},\ and\
+  \citenamefont {Wittig}}]{DellaMorte:2012xc}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Michele}\ \bibnamefont
+  {Della~Morte}}, \bibinfo {author} {\bibfnamefont {Benjamin}\ \bibnamefont
+  {J{\"a}ger}}, \bibinfo {author} {\bibfnamefont {Thomas}\ \bibnamefont {Rae}},
+  \ and\ \bibinfo {author} {\bibfnamefont {Hartmut}\ \bibnamefont {Wittig}},\
+  }\bibfield  {title} {\enquote {\bibinfo {title} {{Improved interpolating
+  fields for hadrons at non-zero momentum}},}\ }\href {\doibase
+  10.1140/epja/i2012-12139-9} {\bibfield  {journal} {\bibinfo  {journal} {Eur.
+  Phys. J. A}\ }\textbf {\bibinfo {volume} {48}},\ \bibinfo {pages} {139}
+  (\bibinfo {year} {2012})},\ \Eprint {http://arxiv.org/abs/1208.0189}
+  {arXiv:1208.0189 [hep-lat]} \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1208.0189;%%
+\bibitem [{\citenamefont {Hamermesh}(1962)}]{Hamermesh:100343}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Morton}\ \bibnamefont
+  {Hamermesh}},\ }\href {https://cds.cern.ch/record/100343} {\emph {\bibinfo
+  {title} {{Group Theory and Its Application to Physical Problems}}}}\
+  (\bibinfo  {publisher} {Addison-Wesley},\ \bibinfo {address} {Reading, MA},\
+  \bibinfo {year} {1962})\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Bali}\ \emph {et~al.}(2011)\citenamefont {Bali},
+  \citenamefont {Collins},\ and\ \citenamefont {Ehmann}}]{Bali:2011rd}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Gunnar~S.}\
+  \bibnamefont {Bali}}, \bibinfo {author} {\bibfnamefont {Sara}\ \bibnamefont
+  {Collins}}, \ and\ \bibinfo {author} {\bibfnamefont {Christian}\ \bibnamefont
+  {Ehmann}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{Charmonium
+  spectroscopy and mixing with light quark and open charm states from $n_F$=2
+  lattice QCD}},}\ }\href {\doibase 10.1103/PhysRevD.84.094506} {\bibfield
+  {journal} {\bibinfo  {journal} {Phys. Rev. D}\ }\textbf {\bibinfo {volume}
+  {84}},\ \bibinfo {pages} {094506} (\bibinfo {year} {2011})},\ \Eprint
+  {http://arxiv.org/abs/1110.2381} {arXiv:1110.2381 [hep-lat]} \BibitemShut
+  {NoStop}%
+%%CITATION = ARXIV:1110.2381;%%
+\bibitem [{\citenamefont {Lee}\ and\ \citenamefont
+  {Leinweber}(1999)}]{Lee:1998cx}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Frank~X.}\
+  \bibnamefont {Lee}}\ and\ \bibinfo {author} {\bibfnamefont {Derek~B.}\
+  \bibnamefont {Leinweber}},\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {{Negative parity baryon spectroscopy}},}\ }\bibfield  {booktitle} {\emph
+  {\bibinfo {booktitle} {{Lattice Field Theory. Proceedings: 16th International
+  Symposium, Lattice '98, Boulder, USA, July 13--18, 1998}}},\ }\href {\doibase
+  10.1016/S0920-5632(99)85041-5} {\bibfield  {journal} {\bibinfo  {journal}
+  {Nucl. Phys. Proc. Suppl.}\ }\textbf {\bibinfo {volume} {73}},\ \bibinfo
+  {pages} {258} (\bibinfo {year} {1999})},\ \Eprint
+  {http://arxiv.org/abs/hep-lat/9809095} {arXiv:hep-lat/9809095 [hep-lat]}
+  \BibitemShut {NoStop}%
+%%CITATION = HEP-LAT/9809095;%%
+\bibitem [{\citenamefont {G{\"o}ckeler}\ \emph {et~al.}(1999)\citenamefont
+  {G{\"o}ckeler}, \citenamefont {Horsley}, \citenamefont {Oelrich},
+  \citenamefont {Perlt}, \citenamefont {Petters}, \citenamefont {Rakow},
+  \citenamefont {Sch{\"a}fer}, \citenamefont {Schierholz},\ and\ \citenamefont
+  {Schiller}}]{Gockeler:1998ye}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Meinulf}\ \bibnamefont
+  {G{\"o}ckeler}}, \bibinfo {author} {\bibfnamefont {Roger}\ \bibnamefont
+  {Horsley}}, \bibinfo {author} {\bibfnamefont {Harald}\ \bibnamefont
+  {Oelrich}}, \bibinfo {author} {\bibfnamefont {Holger}\ \bibnamefont {Perlt}},
+  \bibinfo {author} {\bibfnamefont {Daniel}\ \bibnamefont {Petters}}, \bibinfo
+  {author} {\bibfnamefont {P.~E.~L.}\ \bibnamefont {Rakow}}, \bibinfo {author}
+  {\bibfnamefont {Andreas}\ \bibnamefont {Sch{\"a}fer}}, \bibinfo {author}
+  {\bibfnamefont {Gerrit}\ \bibnamefont {Schierholz}}, \ and\ \bibinfo {author}
+  {\bibfnamefont {Arwed}\ \bibnamefont {Schiller}},\ }\bibfield  {title}
+  {\enquote {\bibinfo {title} {{Nonperturbative renormalization of composite
+  operators in lattice QCD}},}\ }\href {\doibase 10.1016/S0550-3213(99)00036-X}
+  {\bibfield  {journal} {\bibinfo  {journal} {Nucl. Phys. B}\ }\textbf
+  {\bibinfo {volume} {544}},\ \bibinfo {pages} {699} (\bibinfo {year}
+  {1999})},\ \Eprint {http://arxiv.org/abs/hep-lat/9807044}
+  {arXiv:hep-lat/9807044 [hep-lat]} \BibitemShut {NoStop}%
+%%CITATION = HEP-LAT/9807044;%%
+\bibitem [{\citenamefont {Brown}\ and\ \citenamefont
+  {Orginos}(2012)}]{Brown:2012tm}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Zachary~S.}\
+  \bibnamefont {Brown}}\ and\ \bibinfo {author} {\bibfnamefont {Kostas}\
+  \bibnamefont {Orginos}},\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {{Tetraquark bound states in the heavy-light heavy-light system}},}\ }\href
+  {\doibase 10.1103/PhysRevD.86.114506} {\bibfield  {journal} {\bibinfo
+  {journal} {Phys. Rev. D}\ }\textbf {\bibinfo {volume} {86}},\ \bibinfo
+  {pages} {114506} (\bibinfo {year} {2012})},\ \Eprint
+  {http://arxiv.org/abs/1210.1953} {arXiv:1210.1953 [hep-lat]} \BibitemShut
+  {NoStop}%
+%%CITATION = ARXIV:1210.1953;%%
+\bibitem [{\citenamefont {Bali}\ and\ \citenamefont
+  {Endr{\H{o}}di}(2015)}]{Bali:2015msa}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Gunnar~S.}\
+  \bibnamefont {Bali}}\ and\ \bibinfo {author} {\bibfnamefont {Gergely}\
+  \bibnamefont {Endr{\H{o}}di}},\ }\bibfield  {title} {\enquote {\bibinfo
+  {title} {{Hadronic vacuum polarization and muon $g-2$ from magnetic
+  susceptibilities on the lattice}},}\ }\href {\doibase
+  10.1103/PhysRevD.92.054506} {\bibfield  {journal} {\bibinfo  {journal} {Phys.
+  Rev. D}\ }\textbf {\bibinfo {volume} {92}},\ \bibinfo {pages} {054506}
+  (\bibinfo {year} {2015})},\ \Eprint {http://arxiv.org/abs/1506.08638}
+  {arXiv:1506.08638 [hep-lat]} \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1506.08638;%%
+\bibitem [{\citenamefont {Sommer}(1995)}]{Sommer:1994gg}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Rainer}\ \bibnamefont
+  {Sommer}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{Leptonic decays
+  of $B$ and $D$ mesons}},}\ }\bibfield  {booktitle} {\emph {\bibinfo
+  {booktitle} {{Lattice 94: 12th International Symposium on Lattice Field
+  Theory Bielefeld, Germany, September 27-October 1, 1994}}},\ }\href {\doibase
+  10.1016/0920-5632(95)00201-J} {\bibfield  {journal} {\bibinfo  {journal}
+  {Nucl. Phys. Proc. Suppl.}\ }\textbf {\bibinfo {volume} {42}},\ \bibinfo
+  {pages} {186} (\bibinfo {year} {1995})},\ \Eprint
+  {http://arxiv.org/abs/hep-lat/9411024} {arXiv:hep-lat/9411024 [hep-lat]}
+  \BibitemShut {NoStop}%
+%%CITATION = HEP-LAT/9411024;%%
+\bibitem [{\citenamefont {Foster}\ and\ \citenamefont
+  {Michael}(1999)}]{Foster:1998wu}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {M.}~\bibnamefont
+  {Foster}}\ and\ \bibinfo {author} {\bibfnamefont {Christopher}\ \bibnamefont
+  {Michael}} (\bibinfo {collaboration} {UKQCD Collaboration}),\ }\bibfield
+  {title} {\enquote {\bibinfo {title} {{Hadrons with a heavy color adjoint
+  particle}},}\ }\href {\doibase 10.1103/PhysRevD.59.094509} {\bibfield
+  {journal} {\bibinfo  {journal} {Phys. Rev. D}\ }\textbf {\bibinfo {volume}
+  {59}},\ \bibinfo {pages} {094509} (\bibinfo {year} {1999})},\ \Eprint
+  {http://arxiv.org/abs/hep-lat/9811010} {arXiv:hep-lat/9811010 [hep-lat]}
+  \BibitemShut {NoStop}%
+%%CITATION = HEP-LAT/9811010;%%
+\bibitem [{\citenamefont {Billoire}\ \emph {et~al.}(1985)\citenamefont
+  {Billoire}, \citenamefont {Marinari},\ and\ \citenamefont
+  {Parisi}}]{Billoire:1985yn}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Alain}\ \bibnamefont
+  {Billoire}}, \bibinfo {author} {\bibfnamefont {Enzo}\ \bibnamefont
+  {Marinari}}, \ and\ \bibinfo {author} {\bibfnamefont {Giorgio}\ \bibnamefont
+  {Parisi}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{Computing the
+  hadronic mass spectrum. Eight is better than one}},}\ }\href {\doibase
+  10.1016/0370-2693(85)91079-2} {\bibfield  {journal} {\bibinfo  {journal}
+  {Phys. Lett.}\ }\textbf {\bibinfo {volume} {162B}},\ \bibinfo {pages} {160}
+  (\bibinfo {year} {1985})}\BibitemShut {NoStop}%
+%%CITATION = PHLTA,B162,160;%%
+\bibitem [{\citenamefont {Basak}\ \emph {et~al.}(2012)\citenamefont {Basak},
+  \citenamefont {Datta}, \citenamefont {Padmanath}, \citenamefont {Majumdar},\
+  and\ \citenamefont {Mathur}}]{Basak:2012py}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Subhasish}\
+  \bibnamefont {Basak}}, \bibinfo {author} {\bibfnamefont {Saumen}\
+  \bibnamefont {Datta}}, \bibinfo {author} {\bibfnamefont {M.}~\bibnamefont
+  {Padmanath}}, \bibinfo {author} {\bibfnamefont {Pushan}\ \bibnamefont
+  {Majumdar}}, \ and\ \bibinfo {author} {\bibfnamefont {Nilmani}\ \bibnamefont
+  {Mathur}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{Charm and
+  strange hadron spectra from overlap fermions on HISQ gauge
+  configurations}},}\ }\bibfield  {booktitle} {\emph {\bibinfo {booktitle}
+  {{Proceedings, 30th International Symposium on Lattice Field Theory (Lattice
+  2012)}}},\ }\href@noop {} {\bibfield  {journal} {\bibinfo  {journal} {Proc.
+  Sci.}\ }\textbf {\bibinfo {volume} {LATTICE2012}},\ \bibinfo {pages} {141}
+  (\bibinfo {year} {2012})},\ \Eprint {http://arxiv.org/abs/1211.6277}
+  {arXiv:1211.6277 [hep-lat]} \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1211.6277;%%
+\bibitem [{\citenamefont {Bedaque}(2004)}]{Bedaque:2004kc}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Paulo~F.}\
+  \bibnamefont {Bedaque}},\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {{Aharonov-Bohm effect and nucleon nucleon phase shifts on the lattice}},}\
+  }\href {\doibase 10.1016/j.physletb.2004.04.045} {\bibfield  {journal}
+  {\bibinfo  {journal} {Phys. Lett. B}\ }\textbf {\bibinfo {volume} {593}},\
+  \bibinfo {pages} {82} (\bibinfo {year} {2004})},\ \Eprint
+  {http://arxiv.org/abs/nucl-th/0402051} {arXiv:nucl-th/0402051 [nucl-th]}
+  \BibitemShut {NoStop}%
+%%CITATION = NUCL-TH/0402051;%%
+\bibitem [{\citenamefont {Sachrajda}\ and\ \citenamefont
+  {Villadoro}(2005)}]{Sachrajda:2004mi}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Christopher~T.}\
+  \bibnamefont {Sachrajda}}\ and\ \bibinfo {author} {\bibfnamefont {Giovanni}\
+  \bibnamefont {Villadoro}},\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {{Twisted boundary conditions in lattice simulations}},}\ }\href {\doibase
+  10.1016/j.physletb.2005.01.033} {\bibfield  {journal} {\bibinfo  {journal}
+  {Phys. Lett. B}\ }\textbf {\bibinfo {volume} {609}},\ \bibinfo {pages} {73}
+  (\bibinfo {year} {2005})},\ \Eprint {http://arxiv.org/abs/hep-lat/0411033}
+  {arXiv:hep-lat/0411033 [hep-lat]} \BibitemShut {NoStop}%
+%%CITATION = HEP-LAT/0411033;%%
+\bibitem [{\citenamefont {Bali}\ \emph {et~al.}(2014)\citenamefont {Bali},
+  \citenamefont {Collins}, \citenamefont {Gl{\"a}{\ss{}}le}, \citenamefont
+  {G{\"o}ckeler}, \citenamefont {Najjar}, \citenamefont {R{\"o}dl},
+  \citenamefont {Sch{\"a}fer}, \citenamefont {Schiel}, \citenamefont
+  {Sternbeck},\ and\ \citenamefont {S{\"o}ldner}}]{Bali:2014gha}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Gunnar~S.}\
+  \bibnamefont {Bali}}, \bibinfo {author} {\bibfnamefont {Sara}\ \bibnamefont
+  {Collins}}, \bibinfo {author} {\bibfnamefont {Benjamin}\ \bibnamefont
+  {Gl{\"a}{\ss{}}le}}, \bibinfo {author} {\bibfnamefont {Meinulf}\ \bibnamefont
+  {G{\"o}ckeler}}, \bibinfo {author} {\bibfnamefont {Johannes}\ \bibnamefont
+  {Najjar}}, \bibinfo {author} {\bibfnamefont {Rudolf~H.}\ \bibnamefont
+  {R{\"o}dl}}, \bibinfo {author} {\bibfnamefont {Andreas}\ \bibnamefont
+  {Sch{\"a}fer}}, \bibinfo {author} {\bibfnamefont {Rainer~W.}\ \bibnamefont
+  {Schiel}}, \bibinfo {author} {\bibfnamefont {Andr{\'e}}\ \bibnamefont
+  {Sternbeck}}, \ and\ \bibinfo {author} {\bibfnamefont {Wolfgang}\
+  \bibnamefont {S{\"o}ldner}} (\bibinfo {collaboration} {RQCD Collaboration}),\
+  }\bibfield  {title} {\enquote {\bibinfo {title} {{The moment $\langle
+  x\rangle_{u-d}$ of the nucleon from $N_f=2$ lattice QCD down to nearly
+  physical quark masses}},}\ }\href {\doibase 10.1103/PhysRevD.90.074510}
+  {\bibfield  {journal} {\bibinfo  {journal} {Phys. Rev. D}\ }\textbf {\bibinfo
+  {volume} {90}},\ \bibinfo {pages} {074510} (\bibinfo {year} {2014})},\
+  \Eprint {http://arxiv.org/abs/1408.6850} {arXiv:1408.6850 [hep-lat]}
+  \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1408.6850;%%
+\bibitem [{\citenamefont {Bali}\ \emph {et~al.}(2015)\citenamefont {Bali},
+  \citenamefont {Collins}, \citenamefont {Gl{\"a}{\ss{}}le}, \citenamefont
+  {G{\"o}ckeler}, \citenamefont {Najjar}, \citenamefont {R{\"o}dl},
+  \citenamefont {Sch{\"a}fer}, \citenamefont {Schiel}, \citenamefont
+  {S{\"o}ldner},\ and\ \citenamefont {Sternbeck}}]{Bali:2014nma}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Gunnar~S.}\
+  \bibnamefont {Bali}}, \bibinfo {author} {\bibfnamefont {Sara}\ \bibnamefont
+  {Collins}}, \bibinfo {author} {\bibfnamefont {Benjamin}\ \bibnamefont
+  {Gl{\"a}{\ss{}}le}}, \bibinfo {author} {\bibfnamefont {Meinulf}\ \bibnamefont
+  {G{\"o}ckeler}}, \bibinfo {author} {\bibfnamefont {Johannes}\ \bibnamefont
+  {Najjar}}, \bibinfo {author} {\bibfnamefont {Rudolf~H.}\ \bibnamefont
+  {R{\"o}dl}}, \bibinfo {author} {\bibfnamefont {Andreas}\ \bibnamefont
+  {Sch{\"a}fer}}, \bibinfo {author} {\bibfnamefont {Rainer~W.}\ \bibnamefont
+  {Schiel}}, \bibinfo {author} {\bibfnamefont {Wolfgang}\ \bibnamefont
+  {S{\"o}ldner}}, \ and\ \bibinfo {author} {\bibfnamefont {Andr{\'e}}\
+  \bibnamefont {Sternbeck}} (\bibinfo {collaboration} {RQCD Collaboration}),\
+  }\bibfield  {title} {\enquote {\bibinfo {title} {{Nucleon isovector couplings
+  from $N_f=2$ lattice QCD}},}\ }\href {\doibase 10.1103/PhysRevD.91.054501}
+  {\bibfield  {journal} {\bibinfo  {journal} {Phys. Rev. D}\ }\textbf {\bibinfo
+  {volume} {91}},\ \bibinfo {pages} {054501} (\bibinfo {year} {2015})},\
+  \Eprint {http://arxiv.org/abs/1412.7336} {arXiv:1412.7336 [hep-lat]}
+  \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1412.7336;%%
+\bibitem [{\citenamefont {El-Khadra}\ \emph {et~al.}(1997)\citenamefont
+  {El-Khadra}, \citenamefont {Kronfeld},\ and\ \citenamefont
+  {Mackenzie}}]{ElKhadra:1996mp}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Aida~X.}\ \bibnamefont
+  {El-Khadra}}, \bibinfo {author} {\bibfnamefont {Andreas~S.}\ \bibnamefont
+  {Kronfeld}}, \ and\ \bibinfo {author} {\bibfnamefont {Paul~B.}\ \bibnamefont
+  {Mackenzie}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{Massive
+  fermions in lattice gauge theory}},}\ }\href {\doibase
+  10.1103/PhysRevD.55.3933} {\bibfield  {journal} {\bibinfo  {journal} {Phys.
+  Rev. D}\ }\textbf {\bibinfo {volume} {55}},\ \bibinfo {pages} {3933}
+  (\bibinfo {year} {1997})},\ \Eprint {http://arxiv.org/abs/hep-lat/9604004}
+  {arXiv:hep-lat/9604004 [hep-lat]} \BibitemShut {NoStop}%
+%%CITATION = HEP-LAT/9604004;%%
+\bibitem [{\citenamefont {Morningstar}\ and\ \citenamefont
+  {Peardon}(2004)}]{Morningstar:2003gk}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Colin}\ \bibnamefont
+  {Morningstar}}\ and\ \bibinfo {author} {\bibfnamefont {Mike~J.}\ \bibnamefont
+  {Peardon}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{Analytic
+  smearing of SU(3) link variables in lattice QCD}},}\ }\href {\doibase
+  10.1103/PhysRevD.69.054501} {\bibfield  {journal} {\bibinfo  {journal} {Phys.
+  Rev. D}\ }\textbf {\bibinfo {volume} {69}},\ \bibinfo {pages} {054501}
+  (\bibinfo {year} {2004})},\ \Eprint {http://arxiv.org/abs/hep-lat/0311018}
+  {arXiv:hep-lat/0311018 [hep-lat]} \BibitemShut {NoStop}%
+%%CITATION = HEP-LAT/0311018;%%
+\bibitem [{\citenamefont {Parisi}(1980)}]{Parisi:1980pe}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Giorgio}\ \bibnamefont
+  {Parisi}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{Recent
+  progresses in gauge theories}},}\ }\bibfield  {booktitle} {\emph {\bibinfo
+  {booktitle} {{Proceedings, 20th International Conference on High-Energy
+  Physics, Madison}}},\ }\href {\doibase 10.1063/1.2948626} {\bibfield
+  {journal} {\bibinfo  {journal} {World Sci. Lect. Notes Phys.}\ }\textbf
+  {\bibinfo {volume} {49}},\ \bibinfo {pages} {349} (\bibinfo {year} {1980})},\
+  \bibinfo {note} {[AIP Conf. Proc. 68, 1531 (1980)]}\BibitemShut {NoStop}%
+%%CITATION = 00327,49,349;%%
+\bibitem [{\citenamefont {Edwards}\ and\ \citenamefont
+  {Jo{\'o}}(2005)}]{Edwards:2004sx}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Robert~G.}\
+  \bibnamefont {Edwards}}\ and\ \bibinfo {author} {\bibfnamefont {Balint}\
+  \bibnamefont {Jo{\'o}}} (\bibinfo {collaboration} {SciDAC, LHP Collaboration
+  and UKQCD Collaboration}),\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {{The Chroma software system for lattice QCD}},}\ }\href {\doibase
+  10.1016/j.nuclphysbps.2004.11.254} {\bibfield  {journal} {\bibinfo  {journal}
+  {Nucl. Phys. B Proc. Suppl.}\ }\textbf {\bibinfo {volume} {140}},\ \bibinfo
+  {pages} {832} (\bibinfo {year} {2005})},\ \Eprint
+  {http://arxiv.org/abs/hep-lat/0409003} {arXiv:hep-lat/0409003} \BibitemShut
+  {NoStop}%
+%%CITATION = HEP-LAT/0409003;%%
+\bibitem [{\citenamefont {Heybrock}\ \emph {et~al.}(2016)\citenamefont
+  {Heybrock}, \citenamefont {Rottmann}, \citenamefont {Georg},\ and\
+  \citenamefont {Wettig}}]{Heybrock:2015kpy}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Simon}\ \bibnamefont
+  {Heybrock}}, \bibinfo {author} {\bibfnamefont {Matthias}\ \bibnamefont
+  {Rottmann}}, \bibinfo {author} {\bibfnamefont {Peter}\ \bibnamefont {Georg}},
+  \ and\ \bibinfo {author} {\bibfnamefont {Tilo}\ \bibnamefont {Wettig}},\
+  }\bibfield  {title} {\enquote {\bibinfo {title} {{Adaptive algebraic
+  multigrid on SIMD architectures}},}\ }\bibfield  {booktitle} {\emph {\bibinfo
+  {booktitle} {{Proceedings, 33rd International Symposium on Lattice Field
+  Theory (Lattice 2015)}}},\ }\href
+  {http://inspirehep.net/record/1409505/files/arXiv:1512.04506.pdf} {\bibfield
+  {journal} {\bibinfo  {journal} {Proc. Sci.}\ }\textbf {\bibinfo {volume}
+  {LATTICE2015}},\ \bibinfo {pages} {036} (\bibinfo {year} {2016})},\ \Eprint
+  {http://arxiv.org/abs/1512.04506} {arXiv:1512.04506 [physics.comp-ph]}
+  \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1512.04506;%%
+\bibitem [{\citenamefont {Richtmann}\ \emph {et~al.}(2016)\citenamefont
+  {Richtmann}, \citenamefont {Heybrock},\ and\ \citenamefont
+  {Wettig}}]{Richtmann:2016kcq}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Daniel}\ \bibnamefont
+  {Richtmann}}, \bibinfo {author} {\bibfnamefont {Simon}\ \bibnamefont
+  {Heybrock}}, \ and\ \bibinfo {author} {\bibfnamefont {Tilo}\ \bibnamefont
+  {Wettig}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{Multiple
+  right-hand-side setup for the DD-$\alpha$AMG}},}\ }\bibfield  {booktitle}
+  {\emph {\bibinfo {booktitle} {{Proceedings, 33rd International Symposium on
+  Lattice Field Theory (Lattice 2015)}}},\ }\href
+  {http://inspirehep.net/record/1415122/files/arXiv:1601.03184.pdf} {\bibfield
+  {journal} {\bibinfo  {journal} {Proc. Sci.}\ }\textbf {\bibinfo {volume}
+  {LATTICE2015}},\ \bibinfo {pages} {035} (\bibinfo {year} {2016})},\ \Eprint
+  {http://arxiv.org/abs/1601.03184} {arXiv:1601.03184 [hep-lat]} \BibitemShut
+  {NoStop}%
+%%CITATION = ARXIV:1601.03184;%%
+\bibitem [{\citenamefont {Heybrock}\ \emph {et~al.}(2014)\citenamefont
+  {Heybrock}, \citenamefont {Jo{\'o}}, \citenamefont {Kalamkar}, \citenamefont
+  {Smelyanskiy}, \citenamefont {Vaidyanathan}, \citenamefont {Wettig},\ and\
+  \citenamefont {Dubey}}]{Heybrock:2014iga}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Simon}\ \bibnamefont
+  {Heybrock}}, \bibinfo {author} {\bibfnamefont {B{\'a}lint}\ \bibnamefont
+  {Jo{\'o}}}, \bibinfo {author} {\bibfnamefont {Dhiraj~D.}\ \bibnamefont
+  {Kalamkar}}, \bibinfo {author} {\bibfnamefont {Mikhail}\ \bibnamefont
+  {Smelyanskiy}}, \bibinfo {author} {\bibfnamefont {Karthikeyan}\ \bibnamefont
+  {Vaidyanathan}}, \bibinfo {author} {\bibfnamefont {Tilo}\ \bibnamefont
+  {Wettig}}, \ and\ \bibinfo {author} {\bibfnamefont {Pradeep}\ \bibnamefont
+  {Dubey}},\ }\bibfield  {title} {\enquote {\bibinfo {title} {{Lattice QCD with
+  domain decomposition on Intel Xeon Phi co-processors}},}\ }\bibfield
+  {booktitle} {\emph {\bibinfo {booktitle} {{The International Conference for
+  High Performance Computing, Networking, Storage, and Analysis, New Orleans,
+  LA, USA, November 16-21, 2014}}},\ }\href {\doibase 10.1109/SC.2014.11}
+  {\bibfield  {journal} {\bibinfo  {journal} {Proceedings of SC14}\ ,\ \bibinfo
+  {pages} {69}} (\bibinfo {year} {2014})},\ \Eprint
+  {http://arxiv.org/abs/1412.2629} {arXiv:1412.2629 [hep-lat]} \BibitemShut
+  {NoStop}%
+%%CITATION = ARXIV:1412.2629;%%
+\bibitem [{\citenamefont {Frommer}\ \emph {et~al.}(2014)\citenamefont
+  {Frommer}, \citenamefont {Kahl}, \citenamefont {Krieg}, \citenamefont
+  {Leder},\ and\ \citenamefont {Rottmann}}]{Frommer:2013fsa}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Andreas}\ \bibnamefont
+  {Frommer}}, \bibinfo {author} {\bibfnamefont {Karsten}\ \bibnamefont {Kahl}},
+  \bibinfo {author} {\bibfnamefont {Stefan}\ \bibnamefont {Krieg}}, \bibinfo
+  {author} {\bibfnamefont {Bj{\"{o}}rn}\ \bibnamefont {Leder}}, \ and\ \bibinfo
+  {author} {\bibfnamefont {Matthias}\ \bibnamefont {Rottmann}},\ }\bibfield
+  {title} {\enquote {\bibinfo {title} {{Adaptive aggregation based domain
+  decomposition Multigrid for the lattice Wilson Dirac operator}},}\ }\href
+  {\doibase 10.1137/130919507} {\bibfield  {journal} {\bibinfo  {journal} {SIAM
+  J. Sci. Comput.}\ }\textbf {\bibinfo {volume} {36}},\ \bibinfo {pages}
+  {A1581} (\bibinfo {year} {2014})},\ \Eprint {http://arxiv.org/abs/1303.1377}
+  {arXiv:1303.1377 [hep-lat]} \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1303.1377;%%
+\bibitem [{\citenamefont {Arts}\ \emph {et~al.}(2015)\citenamefont {Arts} \emph
+  {et~al.}}]{Arts:2015jia}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Paul}\ \bibnamefont
+  {Arts}} \emph {et~al.},\ }\bibfield  {title} {\enquote {\bibinfo {title}
+  {{QPACE 2 and domain decomposition on the Intel Xeon Phi}},}\ }\bibfield
+  {booktitle} {\emph {\bibinfo {booktitle} {{Proceedings, 32nd International
+  Symposium on Lattice Field Theory (Lattice 2014)}}},\ }\href@noop {}
+  {\bibfield  {journal} {\bibinfo  {journal} {Proc. Sci.}\ }\textbf {\bibinfo
+  {volume} {LATTICE2014}},\ \bibinfo {pages} {021} (\bibinfo {year} {2015})},\
+  \Eprint {http://arxiv.org/abs/1502.04025} {arXiv:1502.04025 [cs.DC]}
+  \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1502.04025;%%
+\end{thebibliography}%

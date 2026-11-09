@@ -1,0 +1,625 @@
+\section{Momentum smearing and hadronic two-point functions}
+\label{sec:wuppertal}
+We recapitulate Wuppertal smearing as a generic example of
+an iterative smearing algorithm.
+Then to clarify notations we discuss the standard construction
+of hadronic two-point functions,
+before generalizing the smearing by introducing a momentum shift as described
+above. The discussion can easily be extended to incorporate generic hadrons and
+$n$-point functions with $n\geq 2$. 
+We conclude with a suggestion how to
+further improve the method. This is relevant for fine lattices
+where the iteration count becomes large. In the Appendix
+we discuss how an additional Lorentz boost factor can be implemented.
+\subsection{Wuppertal smearing}
+\label{sec:wup}
+The most prominent gauge covariant realization of a smearing function is
+Wuppertal smearing~\cite{Gusken:1989ad,Gusken:1989qx}, where
+$F=\Phi^n$, with $\Phi$ being defined as
+\begin{equation}
+(\Phi q)_{\vect{x}} = \frac{1}{1+2d\wupc} \left[q_{\vect{x}}+\wupc \sum_{j=\pm 1}^{\pm d} U_{\vect{x},j} q_{\vect{x}+\unitj}\right]\,. \label{fermsmear}
+\end{equation}
+Again $d=3$ denotes the dimension of space. The gauge
+transporters
+\begin{align}\label{eq:gausssmear}
+U_{x,-j} = U^{\dagger}_{x-\unitj,j}\,,\quad U_{\vect{x},j}=U_{x,j}\quad\text{with}\,\, x_4\,\,\text{fixed}\,,
+\end{align}
+can also be spatially APE smeared
+links~\cite{Falcioni:1984ei,Alexandrou:1990dq,Bali:2005fu}.
+$\unitj$ denotes a vector of length of one lattice unit $a$, pointing
+into the direction $j$. In Eq.~\eqref{fermsmear} we suppressed the index $x_4$
+since the smearing is diagonal in time. $\wupc$ is a positive
+constant and the arbitrary normalization factor $1/(1+2d\wupc)$
+is introduced to avoid a numerical overflow for large iteration
+counts $n$.
+
+$\Phi$ (and by implication $\Phi^n$) is self-adjoint, a unit matrix
+in spinor space and transforms according to the $A_1$ representation of $O_h$
+or its little groups.\footnote{$O_h$ symmetry will be reduced to $C_{nv}$
+for momenta along a lattice axis ($C_{4v}$), a spatial diagonal ($C_{3v}$)
+or a planar diagonal ($C_{2v}$), see, e.g., Ref.~\cite{Hamermesh:100343}.}
+The replacement $q\mapsto \Phi^n q$ will therefore not interfere with
+the symmetry properties of any interpolator.
+
+The smearing operator $\Phi$ is related to a
+discretized covariant Laplacian $\Laplace$:
+\begin{align}
+\Phi\,q&=q+\frac{\wupc}{1+2d\wupc}a^2\Laplace q\,,\\
+a^2\left(\Laplace q\right)_{\vect{x}}
+&=-2d\, q_{\vect{x}}+\sum_{j=\pm 1}^{\pm d} U_{\vect{x},j} q_{\vect{x}+\unitj}\,.\label{eq:laplace}
+\end{align}
+Introducing a fictitious time $\tau=n\Delta\tau$ and defining
+$q(\tau)=\Phi^nq(0)$, i.e.\ $q(\tau+\Delta\tau)=\Phi q(\tau)$,
+results in the diffusion (or heat) equation
+\begin{equation}
+\frac{\partial q(\tau)}{\partial\tau}\approx
+\frac{q(\tau+\Delta\tau)-q(\tau)}{\Delta\tau}=\alpha\Laplace q(\tau)\,,\label{eq:diffuse}
+\end{equation}
+where
+\begin{equation}
+\alpha=\frac{a^2}{\Delta\tau}\frac{\wupc}{1+2d\wupc}\,.
+\label{eq:alphadef}
+\end{equation}
+This is solved by $q(\tau)\approx \exp\left(\alpha\tau\Laplace\right)q(0)$.
+Starting from $\delta$-sources in position and colour space
+$q_{\vect{x}}^a(0)=\delta_{\vect{x}\vect{0}}\delta^{ab}$,
+assuming the free case $U_{\vect{x},j}=\mathds{1}_3$
+and large distances $r=|\vect{x}|\gg a$, Eq.~\eqref{eq:diffuse}
+is obviously solved by a Gaussian with
+\begin{equation}
+\sigma(\tau)=\sqrt{2\alpha\tau}=\sqrt{2na^2}\sqrt{\frac{\wupc}{1+2d\wupc}}\label{eq:width}
+\end{equation}
+being the square root of the variance,
+i.e.\ the smearing corresponds to the smearing kernel Eq.~\eqref{eq:smgauss}.
+Employing a parallel transporter within the covariant Laplacian
+Eqs.~\eqref{eq:gausssmear} and \eqref{eq:laplace}
+that is close to unity, like
+$d$ dimensional APE smeared gauge links,
+means that this
+Gaussian shape is a good approximation, see, e.g., Ref.~\cite{Bali:2011rd}.
+
+The diffusivity $\alpha$ obviously is maximal for large values of the
+parameter $\wupc$
+($\alpha\rightarrow \frac16 a^2/\Delta\tau$ for $\wupc\rightarrow\infty$).
+For small values ($\alpha\approx \wupc\, a^2/\Delta\tau$),
+the iteration count
+$n$ to achieve a given smearing radius\footnote{Note that the root mean
+squared radius in $d$ dimensions reads
+$\sqrt{d}\sigma$. Also
+note that the width of the gauge invariant combination
+$q^{\dagger}_{\vect{x}}q_{\vect{x}}$ Eq.~\eqref{density}
+is smaller by a factor $\sqrt{2}$.}
+$\sqrt{3}\sigma$ is larger but the
+resulting wave function will be smoother. Equation~\eqref{eq:width}
+highlights that, to keep the smearing radius fixed in physical
+units, the iteration
+count needs to be increased in proportion to the square of the
+inverse lattice spacing. Obviously,
+this becomes computer time intensive towards the
+continuum limit. We remark that at small lattice spacings
+the diffusion equation~\eqref{eq:diffuse} should be
+solved using a smarter method than iteratively applying the smearing operator
+$\Phi$ defined in Eq.~\eqref{eq:gausssmear}. We will return to this
+in Sec.~\ref{sec:improve}.
+
+\subsection{Construction of two-point functions} 
+As an example we discuss the construction of momentum projected
+pion and nucleon two-point functions:
+\begin{align}
+C_{\pi}(\vect{p},t)
+&=\langle \pi_{\vect{p}} (t) \pi^{\dagger}_{\vect{p}} (0)\rangle\,,\nonumber\\
+C_{N}(\vect{p},t)&=
+\langle N_{\vect{p}}^{\alpha} (t) \overline{N}_{\vect{p}}^{\beta}(0)\rangle \mathbb{P}^{\alpha\beta}\,,
+ \label{interpol}
+\end{align}
+where $\mathbb{P}=\frac{1}{2}(\mathds{1}+\gamma_4)$ denotes a projector onto
+positive parity.\footnote{Note that for $\vect{p}\neq\vect{0}$
+this projector will not completely remove the negative parity contribution.
+To improve on this, instead one can employ the oblique
+projector~\cite{Lee:1998cx}
+$\mathbb{P}_{\vect{p}}=\frac{1}{2}\{\mathds{1}+[m_{N^*}/E_{N^*}(\vect{p})]\gamma_4\}$,
+where $m_{N^*}$ and $E_N^*$ denote mass and energy of the
+nucleon's negative parity partner. Since this state is higher
+in mass than the nucleon, for simplicity, here we abstain from attempting this.}
+Without smearing the pion and nucleon interpolators
+are local quark bilinears and trilinears:
+\begin{align}
+\pi_{\vect{p}}= a^3\sum_{\vect{x}}e^{i\vect{p}\cdot\vect{x}} \bar{u}_{\vect{x}}\gamma_5 d_{\vect{x}}\,,\\
+N^{\alpha}_{\vect{p}} = a^3\sum_{\vect{x}} e^{i\vect{p}\cdot\vect{x}} \left[ u^t_{\vect{x}} C \gamma_5 d_{\vect{x}} \right]u^{\alpha}_{\vect{x}}\,,
+\end{align}
+where $C$ is the charge conjugation operator and $u_{\vect{x}}$ and
+$d_{\vect{x}}$ annihilate up and down quarks, respectively, at the
+spatial position $\vect{x}$.
+
+For the pion the Wick contraction then gives
+\begin{align}
+C_{\pi}(\vect{p},t)
+&= -L^3a^3\sum_{\vect{x}}
+e^{i \vect{p}\cdot\vect{x}} \left\langle\bar{u}_x \gamma_5 d_{x} d^{\dagger}_0 \gamma_5
+\bar{u}^{\dagger}_0\right\rangle\label{eq:contract} \\\nonumber
+&=-L^3a^3\sum_{\vect{x}}\left\langle\tr\left[(d\bar{d})_{x0}\gamma_5
+(u\bar{u})_{0x}\gamma_5\right]\right\rangle e^{i \vect{p}\cdot\vect{x}}\\
+&=-L^3a^3\left\langle\sum_{\vect{x}}\tr\left(M^{-1\dagger}_{x0}M^{-1}_{x0}
+\right)e^{i \vect{p}\cdot\vect{x}}\right\rangle\,,\nonumber
+\end{align}
+where $x=(\vect{x},t)$ and the trace is over spin and colour.
+Momentum projection at the source is not
+necessary, due to the translational symmetry of expectation values
+and $L^3=N^3a^3$ denotes the three-volume that corresponds to this omitted sum.
+$M$ is a Wilson-like lattice Dirac matrix
+with the quark mass $m_u=m_d$ and we
+have used\footnote{Note that the assignment
+$\bar{d}=d^{\dagger}\gamma_4$ is convenient but
+not consistent in Euclidean spacetime, where
+the Dirac operator is $\gamma_5$- instead of
+$(\gamma_4=\gamma_0)$-Hermitian.
+This is the reason for the negative sign in Eq.~\eqref{eq:contract}.
+In the simulation, we correct for this phase and obtain a
+positive two-point function.} $d^\dagger\gamma_5\bar{u}^\dagger=d^\dagger
+\gamma_5\gamma_4u=-\bar{d}\gamma_5u$, the Grassmann nature of the
+quark field creation and annihilation operators and replaced
+$\langle d\bar{d}\rangle_d=\langle u\bar{u}\rangle_u=M^{-1}$,
+where the subscripts $d$, $u$ denote integrating out the respective
+Grassmann field
+on a given gauge background. In the last step we also
+exploited $\gamma_5$-Hermiticity:
+$\gamma_5M^{-1}\gamma_5={M^{-1}}^{\dagger}$.
+For the nucleon one can easily work out an analogous expression that contains
+$\epsilon^{abc}\epsilon^{a'b'c'}(M^{-1})_{x0}^{aa'}
+(M^{-1})_{x0}^{bb'}(M^{-1})_{x0}^{cc'}$, where we have suppressed the
+spinor indices and $a,b,c,a',b',c'\in\{1,2,3\}$ run over fundamental
+colour.
+Equation~\eqref{eq:contract} can now be evaluated, solving the linear systems
+\begin{equation}
+\sum_{x,\alpha, a}M^{\beta' b'\alpha a}_{x'x}S^{\alpha a \beta  b}_x=\delta_{x'0}\delta^{b\beta'\beta}\delta^{b'b}\label{eq:prop}
+\end{equation}
+for twelve $\delta$-sources
+(for each source spin $\beta$ and colour $b$) to obtain the point-to-all
+propagator $S$ with sink position, spin and colour indices
+$x$, $\alpha$ and $a$, respectively. Then,
+\begin{equation}
+C_{\pi}(\vect{p},t)\propto\left\langle\sum_{\vect{x}}\tr\left(S^{\dagger}_xS_x\right)e^{i\vect{p}\cdot\vect{x}}
+\right\rangle\,,\label{eq:picontract}
+\end{equation}
+where again $x_4=t$. The construction of the analogous nucleon
+two-point function from three point-to-all propagators
+is straightforward. Note that in that case no Hermitian adjoint
+will appear.
+
+Smearing is diagonal in Euclidean time (hence
+we suppressed the $t$ dependence) and trivial in Dirac spin. 
+So, obviously, the smearing operator $F=\Phi^n$ commutes with
+any $\Gamma$ structure, however,
+it does not commute with covariant derivatives that may appear
+within the hadronic interpolator. 
+Smearing can easily be implemented
+at the source, replacing $S=M^{-1}\delta$
+by $S^F=M^{-1}F\delta$, see Eq.~\eqref{eq:prop}.
+Note that, due to the fact that
+$F$ is a unit matrix in spinor space, 
+the same smeared source can be employed for all four
+spinor components.
+To obtain a so-called
+smeared-smeared two-point function, the argument of the sum
+in Eq.~\eqref{eq:picontract} will usually be replaced by
+$\tr[(FS^{F})^{\dagger}_{x}(FS^{F})_{x}]e^{i\vect{p}\cdot\vect{x}}$:
+every source smearing requires new inversions while
+sink smearing needs to be carried out on all time slices
+of interest.\\
+
+We remark that momentum sources have been used for quite some time, see, e.g.,
+Refs.~\cite{Gockeler:1998ye,Brown:2012tm,Bali:2015msa}.
+Injecting momentum into quark sources is
+necessary (and has been done) in the context
+of the one-end-trick of Refs.~\cite{Sommer:1994gg,Foster:1998wu},
+where one usually employs colour diagonal (complex) $\mathbb{Z}_N$ or
+$\textmd{U}(1)$ random sources. Generalizing this
+to $\textmd{SU}(3)$ noise is in fact equivalent to using a non-gauge fixed
+wall source~\cite{Billoire:1985yn}, which does not change expectation
+values. Momentum was however also injected into gauge fixed wall sources
+in Refs.~\cite{Detmold:2012wc,Basak:2012py}
+(``color wave propagator''), favourably affecting not only
+statistical errors but also ground state overlaps. While these latter
+references share some of our motivation, the method presented
+here is quite different. For instance, in our case
+the hadron's total momentum still needs
+to be injected at the source and $\vect{k}$ is not quantized.\\
+
+Finally, we remark that the asymmetry of only carrying
+out the position sum at the sink often is exploited
+to reduce the statistical errors of heavy-light meson
+correlation functions, by only smearing the heavy quark with
+$F^2=FF$ at the source, instead of smearing each quark with $F$.
+Clearly, it would be advantageous if for each momentum
+smearing parameter of interest only the heavy quark propagator had
+to be recomputed. Unfortunately, momentum smearing (as well as
+traditional smearing) as
+an operation will not commute with momentum projection, unless
+$\vect{p}=\vect{0}$. Therefore, a different distribution of the smearing
+between the quarks will result in a different
+and not necessarily optimal ground state overlap.
+
+\subsection{Momentum (Wuppertal) smearing}
+\label{sec:newsmear}
+As explained in Sec.~\ref{sec:basic},
+if we inject a momentum $\vect{p}$ into the hadron, it may be
+a good idea to distribute at least part of it among the quarks.
+Their smearing functions should therefore ideally be centred around
+a value $\vect{k}\neq\vect{0}$, where $\vect{k}$ is
+some fraction of $\vect{p}$, to best resemble the
+wave function of the physical state we wish to create.\\
+
+The Fourier transform of a Gaussian,
+centred about $\vect{k}$  in momentum space, reads
+\begin{equation}
+f^{\sigma}_{(\vect{k})\,\vect{x}-\vect{y}}\propto
+\exp\left[-\frac{(\vect{x}-\vect{y})^2}{2\sigma^2}-i\vect{k}\cdot(\vect{x}-\vect{y})\right]\,.\label{eq:momsf}
+\end{equation}
+Similarly, momentum can be injected also into differently
+shaped smearing functions, a possibility that we shall not explore
+here.  $q(\tau)=F_{(\vect{k})}^{\sigma(\tau)}q(0)$
+solves the heat equation with a constant drift term
+\begin{equation}
+\label{eq:drift}
+\frac{\partial q(\tau)}{\partial\tau}=
+\alpha\left(\vect{\nabla}+i\vect{k}\right)^2 q(\tau)\,.
+\end{equation}
+
+In analogy to the discussion of Sec.~\ref{sec:wup},
+in the free case the above smearing function can iteratively be constructed
+from ``momentum'' Gau\ss{} smearing steps,
+$F_{(\vect{k})} =\Phi_{(\vect{k})}^n$, introducing a phase 
+into Eq.~\eqref{fermsmear}:
+\begin{equation}
+(\Phi_{(\vect{k})} q)_{\vect{x}} = \frac{1}{1+2d\wupc} \left[q_{\vect{x}}+\wupc \sum_{j=\pm 1}^{\pm d} U_{\vect{x},j}e^{i\vect{k}\cdot\unitj} q_{\vect{x}+\unitj}\right]\,, \label{fermsmear2}
+\end{equation}
+where $\Phi_{(\vect{0})}=\Phi$.
+One can easily show that the variance $\sigma^2(\tau)$ is still given
+as in Eq.~\eqref{eq:width}. Moreover, as expected
+$\Phi_{(\vect{k})}$ remains self-adjoint:
+
+
+\begin{align}
+\Phi_{(\vect{k})\vect{x}\vect{y}}&=\frac{1}{1+2d\wupc}\left\{\delta_{\vect{x},\vect{y}}+
+\wupc \sum_{j=1}^{3} \left[\delta_{\vect{x}+\unitj,\vect{y}}
+U_{\vect{x},j} e^{i\vect{k}\cdot\unitj}
++\delta_{\vect{y}+\unitj,\vect{x}}U^{\dagger}_{\vect{y},j} e^{-i\vect{k}\cdot\unitj}
+\right]\right\}\,,\nonumber\\
+\Phi_{(\vect{k})\vect{y}\vect{x}}^{\dagger}
+&=
+\frac{1}{1+2d\wupc}\left\{\delta_{\vect{y},\vect{x}}+
+\wupc \sum_{j= 1}^{3} \left[\delta_{\vect{y}+\unitj,\vect{x}}
+U_{\vect{y},j}^{\dagger} e^{-i\vect{k}\cdot\unitj}
++\delta_{\vect{x}+\unitj,\vect{y}}U_{\vect{x},j} e^{i\vect{k}\cdot\unitj}
+\right]\right\}
+=\Phi_{(\vect{k})\vect{x}\vect{y}}\,.\label{eq:transpose}
+\end{align}
+
+
+We will use the same smearing for quarks and
+antiquarks. For the $\pi^-$ meson this amounts to the replacements
+$d\mapsto \Phi^n_{(\vect{k})}d$,
+$u\mapsto \Phi^n_{(-\vect{k})}u$, $\bar{d}\mapsto \bar{d}\Phi^n_{(\vect{k})}$
+and $\bar{u}\mapsto \bar{u}\Phi^n_{(-\vect{k})}$
+within Eq.~\eqref{eq:contract}. Note that the $\Phi^n_{(-\vect{k})}$ smearing is needed
+as in the contraction
+with the momentum projector, $(\delta_{\vect{x}\vect{x}'}e^{i\vect{p}\cdot\vect{x}})
+\Phi^n_{(\vect{k})\vect{x}\vect{y}}\Phi^n_{(\vect{k})\vect{x}'\vect{y}'}$,
+transposing the ordering of the indices of the first smearing operator
+gives $\Phi^n_{(\vect{k})\vect{x}\vect{y}}=\Phi^n_{(-\vect{k})\vect{y}\vect{x}}$
+in the free case,
+see Eq.~\eqref{eq:freec}.
+Exploiting the Hermiticity of $\Phi^n_{\vect{k}}$, we then obtain
+\begin{align}
+C_{\pi}(t)
+\propto\sum_{\vect{x}}&\left\langle\!\tr\!\left\{\left[\left(\Phi^n_{(-\vect{k})}M^{-1}\Phi^n_{(-\vect{k})}\right)_{x0}\right]^{\dagger}\right.\right.\nonumber\\
+&\qquad\times\left.\left.\left(\Phi^n_{(\vect{k})}M^{-1}\Phi^n_{(\vect{k})}\right)_{x0}
+\right\}\right\rangle e^{i \vect{p}\cdot\vect{x}}\,.
+\end{align}
+In contrast, for baryonic two-point functions, where
+all quarks propagate in the forward direction, only $\Phi^n_{(+\vect{k})}$
+will appear. 
+The pion two-point function can now be constructed in analogy
+to Eq.~\eqref{eq:picontract} from
+\begin{equation}
+C_{\pi}(\vect{p},t)\propto\left\langle\!\sum_{\vect{x}}\tr\!\left[
+\left(\Phi^n_{(-\vect{k})}S_{(-\vect{k})}\right)^{\!\dagger}_{\!x}\!\!\left(
+\Phi^n_{(\vect{k})}S_{(\vect{k})}\right)_{\!x}\right]\!e^{i\vect{p}\cdot\vect{x}}\!
+\right\rangle\,,
+\end{equation}
+where the source-smeared
+point-to-all propagator is defined as [see Eq.~\eqref{eq:prop}]
+\begin{equation}
+{S_{(\vect{k})}}^{\alpha a \beta  b}_x=
+\sum_{x',\alpha',a',z,c}\!\!\!\!\!\left(M^{-1}\right)^{\alpha a\alpha' a'}_{x,x'}\!\!\delta^{\alpha'\beta}
+{\Phi^n_{(\vect{k})}}_{x'z}^{a'c}
+\delta_{z0}\delta^{cb}\,,
+\end{equation}
+or, in shorthand notation: $S_{(\vect{k})}=M^{-1}\Phi_{(\vect{k})}^n\delta$.
+For mesons the above twelve linear systems need to be solved, both for
+$\delta$-sources smeared with $\Phi_{(\vect{k})}^n$ and
+with $\Phi_{(-\vect{k})}^n$, while for baryons smearing with
+$\Phi_{(\vect{k})}^n$ is sufficient.
+
+We remark that the momentum smearing Eq.~\eqref{fermsmear2} can very
+easily be implemented by substituting the (APE smeared) transporters
+$U_{\vect{x},j}\mapsto U_{\vect{x},j}e^{i\vect{k}\cdot\unitj}$
+and then iterating the usual Wuppertal smearing
+Eq.~\eqref{fermsmear} on these modified
+$\textmd{U}(3)$ links.
+
+\subsection{Free field investigation}
+\label{freefield}
+Having defined the smearing and how the contractions are to be
+carried out, we are now in the position to address the question
+what value of $\vect{k}$
+should be chosen. Naively, one may expect $\vect{k}\approx \vect{p}/2$
+and $\vect{k}\approx\vect{p}/3$ to be optimal for mesons and baryons,
+respectively, that are composed of degenerate quarks and carry
+a total momentum
+$\vect{p}$. This is indeed what we will find here for
+the non-interacting case.
+The interacting case somewhat deviates from this as we will
+see in Sec.~\ref{sec:results} below.
+
+Setting $U_{\vect{x},j}=\mathds{1}$ within Eq.~\eqref{fermsmear2}
+gives the free case smearing function Eq.~\eqref{eq:momsf}
+for a large volume $L^3\gg\sigma^3$ and number of smearing iterations
+so that $\sigma\gg a$.
+Smearing the quark and antiquark annihilation operators
+at the sink with $F_{(\vect{k})}$
+and $F_{(-\vect{k})}$, respectively, we obtain
+the momentum projected smeared pion interpolator,
+\begin{align}
+\pi_{\vect{p}}&\propto
+\sum_{\vect{x}, \vect{y},\vect{y}^{\prime}}
+\bar{u}_{\vect{y}'}f_{(-\vect{k})\vect{y}'-\vect{x}} e^{i\vect{p}\cdot\vect{x}}
+f_{(\vect{k})\vect{x}-\vect{y}}\gamma_5d_{\vect{y}}\nonumber\\
+&\propto\sum_{\vect{x}, \vect{y},\vect{y}^{\prime}}\exp\left[-\frac{(\vect{y}-\vect{x})^2+(\vect{y}'-\vect{x})^2}{2\sigma^2}\right]
+ e^{i\vect{p}\cdot\vect{x}}e^{-2i\vect{k}\cdot\vect{x}} e^{i\vect{k}\cdot(\vect{y}+\vect{y}^{\prime})} \left[\bar{u}_{\vect{y}^{\prime}} \gamma_5 d_{\vect{y}}\right]\label{eq:freec}\\\nonumber
+&\propto \exp\left[-\frac{\sigma^2}{2}(\vect{p}-2 \vect{k})^2\right]
+\sum_{\vect{Z},\vect{\Delta}}
+\exp\left[-\frac{\vect{\Delta}^2}{\sigma^2}\right]
+e^{i\vect{p}\cdot \vect{Z}} \left[\bar{u}_{\vect{Z}+\vect{\Delta}} \gamma_5 d_{\vect{Z}-\vect{\Delta}}\right]\,,
+\end{align}
+
+where we have defined centre and relative coordinates
+\begin{align}
+\vect{Z} = \frac{\vect{y}+\vect{y}^{\prime}}{2}\,,\quad
+\vect{\Delta} =\frac{\vect{y}^{\prime}-\vect{y}}{2}\,.
+\end{align}
+Note that the components of $\vect{Z}/a$ and $\vect{\Delta}/a$
+can be integer or half-integer valued, subject to
+the constraints $(Z_j+\Delta_j)/a\in\mathbb{Z}$.
+The result of Eq.~\eqref{eq:freec} is indeed maximized for
+$\vect{k}=\vect{p}/2$:
+in the free case $\vect{k}=\vect{p}/2$ is
+the optimal smearing parameter for mesons
+with mass-degenerate valence quarks while we encounter an exponential
+suppression in $\vect{p}^2$ for the conventional
+$\vect{k}=\vect{0}$ smearing. The broader the wave function in coordinate
+space, the more
+important becomes the correct choice of $\vect{k}$ as one can
+see from the first exponent in Eq.~\eqref{eq:freec} (as well as from
+Eq.~\eqref{kerfour}).
+Unsurprisingly, for baryonic interpolators $\vect{k}=\vect{p}/3$
+would be the optimal choice.
+
+We have demonstrated that in the free case $\vect{k}$ can be
+interpreted as the momentum
+carried by the smeared quark. If the quarks differ in mass
+or, like for the example of the nucleon, the interpolator
+is not symmetric with respect to the quark flavour,
+injecting different $\vect{k}$-values into different quark fields
+may be advisable. In the interacting case
+the interpretation is not as straightforward:
+neither is the interpolator directly related to any of the
+usual definitions of a wave function nor will all
+momentum be carried by the valence quarks.
+
+\subsection{Non-iterative (momentum) smearing}
+\label{sec:improve}
+We propose replacing iterative smearing, where the iteration count
+diverges with $a^{-2}$ towards the continuum limit,
+by a more refined method.
+In this context we show how
+to introduce phase factors (and shape functions) into
+the ``distillation'' (or Laplacian-Heaviside) method of
+Ref.~\cite{Peardon:2009gh}.
+Although we already present the basics of the method here, systematic
+tests are yet to be completed.
+Another natural extension,
+which we will investigate numerically in Sec.~\ref{sec:results}, is to
+Lorentz boost the smearing function.
+
+We define eigenvectors $|v_{\ell}\rangle$ and eigenvalues $-\omega_{\ell}^2$
+of a covariant Laplacian with (smeared) gauge transporters,
+at a fixed Euclidean time:
+\begin{equation}
+\label{eq:eigen}
+\left(\Laplace +\omega_\ell^2\right)|v_{\ell}\rangle=0\,.
+\end{equation}
+Since the Laplacian is self-adjoint, the bra-ket notation is convenient
+in the present context.
+For a lattice of $N^d$ points per time slice ($L=Na$), $3N^d$ 
+linearly independent eigenvectors $|v_{\ell}\rangle$ with
+components $v^{a}_{\ell\vect{x}}$ exist.
+Such eigenvectors were for instance used in Ref.~\cite{Peardon:2009gh}.
+The heat equation~\eqref{eq:diffuse} is solved by
+\begin{align}
+|q(\tau)\rangle&=\exp\left(\alpha\tau\Laplace\right)|q(0)\rangle\nonumber\\
+&=\sum_{\ell}| v_{\ell}\rangle\exp\left(-\alpha\tau\omega_{\ell}^2\right)\langle v_{\ell}|q(0)\rangle
+\,.\label{eq:noniter}
+\end{align}
+If we start from a $\delta$-function at $\tau=0$, this results in a Gaussian of
+variance $\sigma^2=2\alpha\tau$.
+
+To implement momentum smearing one
+can easily replace $U_{\vect{x},j}\mapsto U_{\vect{x},j}e^{i\vect{k}\cdot\unitj}$
+within the covariant Laplacian $\Laplace\mapsto\Laplace_{(\vect{k})}\sim
+(\vect{\nabla}+i\vect{k})^2$ and then
+recompute the eigenvectors and -values:
+\begin{equation}
+\label{eq:eigen2}
+\left(\Laplace_{(\vect{k})} +\omega_{(\vect{k})\ell}^2\right)|v_{(\vect{k})\ell}\rangle=0\,.
+\end{equation}
+The natural generalization of Eq.~\eqref{eq:noniter} for moving
+particles then reads:
+\begin{equation}
+|q_{(\vect{k})}(\tau)\rangle
+=\sum_{\ell}| v_{(\vect{k})\ell}\rangle\exp\left(-\alpha\tau\omega_{(\vect{k})\ell}^2\right)\langle v_{(\vect{k})\ell}|q(0)\rangle
+\,.
+\label{eq:noniter2}
+\end{equation}
+
+The motivation for computing eigenvectors of the covariant
+Laplacian is to truncate Eqs.~\eqref{eq:noniter} or \eqref{eq:noniter2}
+at a value $\ell_{\max}$ where $\omega_{\ell_{\max}+1}^2>\omega_{\max}^2$.
+As $\alpha\tau=\sigma^2/2$, achieving a suppression by a
+factor $e^{-2}$ requires $\omega_{\max}\approx 2/\sigma$.
+In general, the wider the smearing function in coordinate space
+the less eigenvectors will be needed. The extreme opposite
+limit $\alpha\tau=0\Rightarrow\sigma=0$ corresponds to the Laplacian-Heaviside
+method proposed in Ref.~\cite{Peardon:2009gh}, where summing over all
+eigenvectors will ultimately result in
+a $\delta$-function in position space while truncating 
+at some finite $\ell_{\max}$ value
+gives a bell shape~\cite{Peardon:2009gh}. (In the free case
+the modulus would be a sum of sines.) The same holds for
+the sources suggested in Ref.~\cite{Brown:2012tm} that correspond to
+sums of eigenvectors of the non-interacting Laplacian.
+
+It is trivial to work out more details in the free case, where
+one basically encounters a one dimensional problem.
+For instance, setting $\omega= j (2\pi/L)\gtrsim 2/\sigma$,
+where $j\in\mathbb{Z}\setminus\{0\}$
+means
+$|j|\gtrsim L/(\pi\sigma)$. Therefore, in $d$ dimensions
+$\ell_{\max}\gtrsim 3\times[\pi^{d/2}/\Gamma(d/2+1)]\times[L/(\pi\sigma)]^d$, where the
+factor $3$ is due to colour and the next factor is the volume
+of a $d$ dimensional unit-sphere ($4\pi/3$ for $d=3$): the number of
+required eigenvectors increases in proportion to the
+spatial volume in physical units
+but is independent of the lattice spacing $a$.
+In contrast, in the case of iterative smearing, reducing the lattice spacing
+at a fixed value of $\sigma$ increases the iteration count
+in proportion to $a^{-2}$, independent of the volume.
+For our smearing size $\sigma\approx0.45\units{fm}$ and a spatial volume
+$L^3=(6\units{fm})^3$, which
+would ensure $Lm_{\pi}>4$ even at the physical mass point, we obtain
+$\ell_{\max}\approx 960$ while
+for a $(3\,\units{fm})^3$ box
+about 120 eigenvectors should suffice.
+Therefore, satisfactory results in terms of
+ground state overlaps appear to be within reach, employing moderately
+large numbers of eigenvectors. This is at present under investigation.
+
+Non-Gaussian shapes can easily
+be modelled too, e.g., by multiplying in a ``free form'' weight
+function, $\left(|v_{\ell}\rangle\langle v_{\ell}|\right)_{\vect{x}\vect{y}}
+\mapsto \sum_{\vect{xy}}h_{\vect{x}\vect{y}}\exp\left[\alpha\tau(\vect{x}-\vect{y})^2\right]\left(|v_{\ell}\rangle\langle v_{\ell}|\right)_{\vect{x}\vect{y}}$,
+in analogy to Ref.~\cite{vonHippel:2013yfa}.
+However, the numerical complexity of this operation is
+$\mathcal{O}(N^{2d})$ for each time slice and eigenvector. At the
+source this can be reduced to $\mathcal{O}(N^{d})$
+if the solution is only required
+for a fixed $\delta$-source position
+$|q(0)\rangle=|\delta_{\vect{y}_0}^a\rangle$
+($\langle\vect{y},b|\delta_{\vect{y}_0}^a\rangle=(|\delta_{\vect{y}_0}^a\rangle)_{\vect{y}}^b=\delta_{\vect{y}\vect{y}_0}\delta^{ba}$).
+Other, numerically less expensive options include
+placing non-linear functions of $\omega^2_{\ell}$ in the exponents
+of Eqs.~\eqref{eq:noniter} and \eqref{eq:noniter2}, employing
+linear combinations of Gaussians or substituting the covariant
+Laplacian by a different
+operator within Eqs.~\eqref{eq:eigen} and \eqref{eq:eigen2}, e.g.,
+introducing an anisotropy.
+
+Once the eigenvectors Eq.~\eqref{eq:eigen} or
+Eq.~\eqref{eq:eigen2} of the APE or HYP
+smeared covariant Laplacian have been computed,
+any smearing radius can be realized, replacing
+$\alpha\tau$ by the targeted $\sigma^2/2$ value within the exponent of
+Eq.~\eqref{eq:noniter} or Eq.~\eqref{eq:noniter2}.
+Another potential advantage of the non-iterative smearing is
+that, instead of solving for smeared sources
+$|q_{(\vect{k})}(\tau)\rangle$ that have evolved from
+a $\delta$-source $|q(0)\rangle=|\delta_{\vect{y}_0a}\rangle$,
+one can also directly apply the inverse lattice Dirac operator to
+the eigenvectors, thereby
+constructing so-called perambulators~\cite{Peardon:2009gh}:
+\begin{equation}
+{\tau_{(\vect{k})}}^{\alpha\beta}_{m t\, \ell 0}=\left\langle v_{(\vect{k})m t}\left|\left(M^{-1}\right)^{\alpha\beta}_{t0}\right|v_{(\vect{k})\ell 0}\right\rangle\,.
+\end{equation}
+The inner product above is over spatial position and colour,
+replacing these indices by the eigenvector labels
+$\ell$ at the sink and $m$ at the source. The respective
+Euclidean times are
+explicitly shown as additional eigenvector (and perambulator) subscripts.
+These perambulators can then be folded with the appropriate
+eigenvalue Gaussians during the construction
+of hadronic $n$-point functions.
+
+We abstain from repeating here the steps outlined in
+Ref.~\cite{Peardon:2009gh} how to construct hadronic two-point
+functions from these perambulators as there is only one
+difference: In the contractions over $\ell$ and $m$ weight factors
+$\exp(-\sigma^2\omega_{(\vect{k})\ell 0}^2/2)$
+and $\exp(-\sigma^2\omega_{(\vect{k})m t}^2/2)$ should be introduced,
+where $\omega_{(\vect{k})m t}^2$ refers to the $m$th eigenvalue
+of the negative covariant Laplacian defined on time slice $t$.
+
+On one hand using perambulators will require a larger number of inversions
+and computationally more expensive contractions
+than starting from $\delta$-sources.
+On the other hand, due to volume averaging, the statistical
+errors of the perambulator method will be smaller and this method allows
+for more flexibility in the subsequent construction of hadronic
+$n$-point functions.
+Whether the use of perambulators
+or of traditional (smeared) point-to-all propagators is preferable
+will therefore depend on the problem at hand and in particular on
+the number of different hadrons we are interested in. We have
+shown that the same quark smearing can be employed in both cases.
+
+Finally, we remark that in certain situations recomputing the eigenvectors
+for different values of $\vect{k}$
+may be avoidable. In the interacting case, gauge covariant derivatives
+$\nabla^2_j$ will depend on all spatial coordinates, including
+$x_i$ with $i\neq j$, and will therefore not commute with each other.
+However, our intuition was based on the free case and
+also the spatially APE~\cite{Falcioni:1984ei}
+or HYP~\cite{Hasenfratz:2001hp} smeared gauge covariant
+transporters are close to unity.
+Assuming translational invariance, the coordinates can be separated and
+the components of an eigenvector read
+$v^a_{\vect{x}}\propto\sin(\omega_1^ax_1)\cdots\sin(\omega_d^ax_d)$,
+where $\omega_j^a=2\pi m_j^a/L$ and $m_j^a$ are integer valued.
+The corresponding eigenvalue of the negative Laplacian
+is given as $\omega^2=\vect{\omega}^2$ where
+the frequencies for different colour components
+are constrained: $\vect{\omega}^2:={\vect{\omega}^1}^2={\vect{\omega}^2}^2={\vect{\omega}^3}^2$. Defining
+\begin{equation}
+|\tilde{v}_{(\vect{k})\ell}\rangle=e^{-i\vect{k}\cdot\vect{x}}|v_{\ell}\rangle
+\label{eq:phases}
+\end{equation}
+then gives
+$\left[\left(\vect{\nabla}+i\vect{k}\right)^2+\omega_{\ell}^2\right]|\tilde{v}_{(\vect{k})\ell}\rangle=0$.
+
+In the interacting case this will not exactly solve the heat equation
+with drift~\eqref{eq:drift} but
+the approximation $\omega_{(\vect{k})\ell}\approx\omega_{\ell}$,
+$|v_{(\vect{k})\ell}\rangle\approx|\tilde{v}_{(\vect{k})\ell}\rangle$ should
+be sufficient to construct a gauge covariant Gaussian shape
+with the intended phase factors.
+Note that the phases Eq.~\eqref{eq:phases} appear both
+in the bra- and in the ket-vector of Eq.~\eqref{eq:noniter2},
+such that only relative
+phases between two spatial positions matter and the choice of the zero
+point becomes irrelevant. The clear disadvantage of the explicit
+multiplication by phase factors Eq.~\eqref{eq:phases} is that these
+have to obey the lattice periodicity, i.e.\ $k_j\in (2\pi/L)\mathbb{Z}$.
+However, such a restriction may be tolerable on large lattices.
+Also introducing twisted fermionic boundary
+conditions~\cite{Bedaque:2004kc,Sachrajda:2004mi} may
+provide a way to increase the flexibility of the choice of $\vect{k}$.
+

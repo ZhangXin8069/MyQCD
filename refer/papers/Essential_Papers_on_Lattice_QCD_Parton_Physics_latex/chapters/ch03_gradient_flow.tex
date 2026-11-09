@@ -1,0 +1,195 @@
+\chapter{The Yang--Mills Gradient Flow Program}
+
+In 2009--2010 Martin L\"uscher introduced a diffusion equation for gauge
+fields and turned it into one of the most fruitful ideas of modern lattice
+field theory. The flow smooths gauge fields over a radius $\sqrt{8t}$
+while preserving gauge invariance, and the smoothed fields are
+\emph{renormalized fields}: composite observables built from them are
+finite without additional renormalization. The library contains the
+original articles of this program; they anchor its two offshoots ---
+precision scale setting and thermodynamics on one side, smeared operator
+product expansions and smeared quasi-PDFs on the other.
+
+% ----------------------------------------------------------------------
+\section{Smooth Wilson Loops: The Idea of a Flow Before the Flow}
+\papercard{R.\ Narayanan and H.\ Neuberger}
+{Infinite N phase transitions in continuum Wilson loop operators}
+{JHEP \textbf{03} (2006) 064}
+{arXiv:hep-th/0601210 | DOI: 10.1088/1126-6708/2006/03/064}
+\whyselected{An original article of this library and the conceptual
+ancestor of gradient-flow smearing of Wilson lines: it is cited by the
+Monahan--Orginos and Monahan quasi-PDF papers, by the Brambilla--Wang
+off-lightcone paper, and by the higher-order flow papers ($\sim$6/99).}
+\physics{A large Wilson loop is not a well-defined observable in the
+continuum limit --- its perimeter diverges. Narayanan and Neuberger
+studied a \emph{smoothed} loop obtained by diffusing the contour,
+and showed numerically that the smoothed loop has a finite continuum
+limit. In the 't~Hooft limit, enlarging the loop triggers a phase
+transition where the eigenvalue density of the holonomy closes its gap;
+if the transition falls in a solvable universality class (the
+Gross--Witten / Durhuus--Olesen / Douglas--Kazakov lineage cited in the
+paper), the string tension becomes analytically accessible.}
+\impact{Beyond large-$N$ physics, this paper established that smoothing a
+Wilson line is compatible with a finite continuum limit --- precisely the
+fact on which smeared (pseudo-/quasi-) PDFs rest, since their nonlocal
+operators contain open Wilson lines. The library's flow-based PDF papers
+cite it as the origin of the idea.}
+\cardend
+
+% ----------------------------------------------------------------------
+\section{Trivializing Maps: The Flow Enters Field Theory}
+\papercard{M.\ L\"uscher}
+{Trivializing maps, the Wilson flow and the HMC algorithm}
+{Commun.\ Math.\ Phys.\ \textbf{293}, 899--911 (2010)}
+{arXiv:0907.5491 | DOI: 10.1007/s00220-009-0995-5}
+\whyselected{An original article of this library, and the first appearance
+of the Yang--Mills gradient flow in the literature: the ``Wilson flow'' is
+named here. Cited throughout the flow corpus of the library
+($\sim$6/99).}
+\physics{A trivializing map transforms the action to one whose
+long-distance couplings vanish, ideally rendering the measure Gaussian.
+L\"uscher shows that integrating the infinitesimal version leads to a
+diffusion equation on field space,
+\begin{equation}\label{eq:trivmap}
+  \partial_s B_\mu(s,u) = E_\mu(B(s,u)), \qquad B_\mu(0)=U_\mu ,
+\end{equation}
+where $E_\mu$ is the negative $SU(3)$ gradient of the action --- the flow.
+Exact maps would make Monte Carlo trivial; approximate ones can still be
+used inside HMC to damp topological autocorrelations. The paper already
+notes that short flow times probe the ultraviolet structure of the theory,
+setting the agenda for everything that follows.}
+\impact{This is where the community learned that flowing fields is both a
+numerical tool and a renormalization concept. The AI-sampling papers of
+Chapter~8 are, in a precise sense, machine-learning searches for
+trivializing maps.}
+\cardend
+
+% ----------------------------------------------------------------------
+\section{Properties of the Wilson Flow}
+\papercard{M.\ L\"uscher}
+{Properties and uses of the Wilson flow in lattice QCD}
+{JHEP \textbf{08} (2010) 071}
+{arXiv:1006.4518 | DOI: 10.1007/JHEP08(2010)071}
+\whyselected{The single most-cited paper of the entire citation network
+mined for this selection ($\sim$15/99): every gradient-flow article of the
+library builds on it, and even LaMET and BMW papers quote it for scale
+setting or QED-flow interpolation. An original article of the library.}
+\physics{The Wilson flow evolves link fields by the gauge-covariant heat
+equation
+\begin{equation}\label{eq:flow}
+  \partial_t B_\mu = D_\nu G_{\nu\mu} + \xi\,D_\mu\,\partial_\nu B_\nu,
+  \qquad B_\mu(0)=A_\mu ,
+\end{equation}
+with $\xi=0$ (Wilson) or $1/5$ (symmetric). Combining one-loop perturbation
+theory with numerical evidence, L\"uscher establishes three facts:
+(i)~$B_\mu(t)$ at any fixed $t>0$ is a smooth field whose local gauge-invariant
+functionals have finite continuum limits --- the flow is itself a
+renormalization; (ii)~the observable $w(t)=t^2\langle E(t)\rangle$ with
+$E=\frac12 G^a_{\mu\nu}G^a_{\mu\nu}$ rises steeply through a crossover at
+$t\sim a^2$, so the scale $w_0$, defined by $\sqrt{8t}\,w(t)|_{w_0}=w_0$
+($\approx0.4$~fm), provides a precision reference scale; (iii)~topological
+sectors decouple dynamically once flowed beyond $\sqrt{8t}\sim a$.}
+\impact{$w_0/w_a$ scale setting is standard practice across the library's
+ensembles (BMW, CLQCD clover sets). More profoundly, the theorem
+``flowed products are UV finite'' is the license for every application in
+this chapter and the smeared-operator applications of Chapter~6.}
+\cardend
+
+% ----------------------------------------------------------------------
+\section{Renormalizability of the Flowed Theory}
+\papercard{M.\ L\"uscher and P.\ Weisz}
+{Perturbative analysis of the gradient flow in non-abelian gauge theories}
+{JHEP \textbf{02} (2011) 051}
+{arXiv:1101.0963 | DOI: 10.1007/JHEP02(2011)051}
+\whyselected{Second-highest hub of the flow corpus ($\sim$13/99): all
+short-flow-time calculations in the library (energy--momentum tensor at
+NNLO, quark bilinears through NNLO, dipole matching) cite it as their
+axiomatic base. Original article of the library.}
+\physics{The flow lives on the half-space $\mathbb{R}^4\times[0,\infty)$
+with boundary condition $B(0)=A$; L\"uscher and Weisz formulate it as a
+five-dimensional local field theory, derive its Feynman rules, and prove
+by power counting plus BRST symmetry that correlation functions of flowed
+fields at strictly positive flow time require \emph{no renormalization
+beyond that of the underlying four-dimensional theory}. The proof
+organizes divergences into counterterms that are themselves flows of
+renormalized lower-dimension operators, with coefficients fixed recursively;
+BRST Ward identities kill the dangerous classes. This is the all-orders
+theorem on which every ``small-flow-time expansion'' rests:
+\begin{equation}
+  O_R(x) \;\xrightarrow{t\to0}\; c_O(t,\mu)\,[O]_R(x) + \mathcal{O}(t),
+\end{equation}
+with computable Wilson coefficients $c_O$ and finite, unambiguous limits.}
+\impact{Every matched observable in this book's chapters 3 and 6 ---
+running couplings, energy--momentum tensor, chiral condensate, smeared
+twist-2 operators, smeared quasi-PDFs --- is an instance of this expansion
+with coefficients computed within the five-dimensional formalism
+introduced here.}
+\cardend
+
+% ----------------------------------------------------------------------
+\section{Fermions and Chiral Symmetry}
+\papercard{M.\ L\"uscher}
+{Chiral symmetry and the Yang--Mills gradient flow}
+{JHEP \textbf{04} (2013) 123}
+{arXiv:1302.5246 | DOI: 10.1007/JHEP04(2013)123}
+\whyselected{Third hub of the flow corpus ($\sim$12/99): the fermion flow
+defined here is the basis of ringed fermions, smeared bilinears, the
+smeared-quasi-PDF program and the flow-dressed CP-violating operators all
+present in the library. Original article of the library.}
+\physics{The flow is extended to quark fields by the covariant heat
+equation
+\begin{equation}
+  \partial_t\chi = \Delta\,\chi, \qquad \Delta = D_\mu D_\mu,
+  \qquad \chi(0)=\psi ,
+\end{equation}
+whose solution admits a representation as a five-dimensional local theory
+(the fermion propagates in one extra dimension). Consequences proved or
+constructed here: flowed bilinears such as $S(t)=\bar\chi\chi$ have finite
+continuum limits; the small-flow-time limit of $S(t)$ defines the
+renormalized scalar density, so the chiral condensate follows from
+\begin{equation}
+  \lim_{t\to0} Z_S^{-1}(t)\,\langle S(t)\rangle = -\langle\bar\psi\psi\rangle_R ,
+\end{equation}
+with no additive self-renormalization ambiguity; and O($a$)-improved
+lattice actions can be constructed by adding the flow-induced dimension-5
+term --- the germ of ``ringed'' fermions later used to keep wave-function
+renormalization multiplicative in smeared quasi-PDFs.}
+\impact{Monahan--Orginos's smeared quasi-PDFs (Chapter~6) and Shindler's
+gradient-flow moments (in the library) take the flowed fermion as their
+starting point; the NNLO bilinear-matching papers compute exactly the
+coefficients of this expansion.}
+\cardend
+
+% ----------------------------------------------------------------------
+\section{The Energy--Momentum Tensor from the Flow}
+\papercard{H.\ Suzuki}
+{Energy--momentum tensor from the Yang--Mills gradient flow}
+{Prog.\ Theor.\ Exp.\ Phys.\ \textbf{2013}, 083B03}
+{arXiv:1304.0533 | DOI: 10.1093/ptep/ptt059}
+\whyselected{Hub of the flow corpus ($\sim$8/99), together with its
+companion Makino--Suzuki, PTEP \textbf{2014}, 063B02 [arXiv:1403.4772]
+which extends the formula to full QCD with fermions ($\sim$9/99). Both
+are original articles of the library.}
+\physics{Because flowed products are finite (\ref{eq:flow} above and the
+L\"uscher--Weisz theorem), any properly normalized local product of flowed
+fields has an unambiguous small-flow-time expansion. Suzuki constructs
+gauge-invariant combinations $U_{\mu\nu}(t,x)$ of flowed fields whose
+expansion begins with the traceless stress tensor, and derives the master
+formula for pure YM:
+\begin{equation}
+  T_{\mu\nu}(x)
+   = \lim_{t\to0}\Big[\mathcal{C}_1(t)\,U_{\mu\nu}^{(1)}(t,x)
+      + \mathcal{C}_2(t)\,\delta_{\mu\nu}\,U^{(2)}(t,x)\Big],
+\end{equation}
+where the coefficients are fixed by matching to dimensional
+regularization through the trace identity
+$T^\mu{}_\mu=(\beta(g)/2g)\,F^2$. The result bridges lattice and continuum
+schemes and turns thermodynamic quantities (trace anomaly, entropy
+density) into flow measurements.}
+\impact{The Makino--Suzuki extension supplies the fermion terms used by
+the library's thermodynamics-oriented flow papers; Harlander--Kluth--Lange
+(in the library) pushed the Wilson coefficients to NNLO, making the method
+quantitatively competitive. Conceptually, this paper is the template for
+\emph{any} flowed-composite observable: define it at finite $t$, expand,
+match. Chapter~6 will apply the same template to parton physics.}
+\cardend

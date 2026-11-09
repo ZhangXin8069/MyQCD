@@ -1,0 +1,150 @@
+\section{方法在数值模拟中的实现}
+\label{sec:duef}
+
+为实现上一节的思想，考虑一般的局域两费米子算符
+\beq O_{\Gamma}(x) = \bar{\psi}(x)\Gamma \psi(x) \label{eq:2ferm} \eeq
+其中 $\Gamma$ 是任意狄拉克矩阵。$O_{\Gamma}$ 在离壳夸克态之间的格点裸格林函数可由下式得到：
+\beq
+G_{O}( x, y )=\langle \psi(x) O_{\Gamma}(0)\bar{\psi}(y) \rangle=
+\frac{1}{N}\sum^{N}_{i=1} S_i(x \vert 0) \Gamma S_i(0 \vert y),
+\label{eq:gxy} \eeq
+其中 $i=1,N$ 标记规范场组态，$S_i(x \vert 0) $ 是单个组态 $i$ 上的夸克传播子，由离散化狄拉克算符求逆
+得到。我们以 $S_i(x \vert y)$ 记逆狄拉克算符，它不具有平移不变性；与之相对，$S(x-y)$ 是通常的夸克传播
+子。    规范场组态用某种标准的规范不变算法生成；随后把规范场与夸克传播子转动到朗道规范（其定义见第
+\ref{sec:nonper} 节）。由式 (\ref{eq:gxy})，利用 $S_i(x \vert y)= \gamma_5
+S_i(y \vert x )^\dagger \gamma_5$，可得
+\beq
+G_{O}(pa)&\equiv &\int d^4 x d^4 y  e^{-i \,( p \cdot x- p \cdot y)}
+ G_O( x ,  y ) \nn \\
+&=&\frac{1}{N} \sum_{i=1}^{N} \Bigl(\int d^4 x S_i(x \vert 0)
+e^{-i \, p \cdot x} \Bigr) \Gamma \Bigl(\int d^4 y S_i(0 \vert y)
+e^{i \, p \cdot y} \Bigr)
+\nn \\ &=&\frac{1}{N} \sum_{i=1}^{N}  S_i(p \vert 0)
+\Gamma  \gamma_5 \Bigl(\int d^4 y S^\dagger_i(y \vert 0)
+e^{i \, p \cdot y} \Bigr) \gamma_5
+\nn \\& =&\frac{1}{N} \sum_{i=1}^{N} S_i(p \vert 0)
+ \Gamma  \Bigl( \gamma_5 S^\dagger_i(p \vert  0) \gamma_5
+ \Bigr) ,
+\label{eq:nuovo}
+\eeq
+其中我们定义了
+\beq
+S_i(p \vert y)=\int d^{4}x S_i(x \vert y)
+e^{-i \,( p \cdot x)},
+\eeq
+因为在单个组态上夸克传播子不具有平移不变性。对组态作平均后平移不变性恢复。于是可写
+\beq
+S(pa)= \langle S(p \vert 0) \rangle= \frac{1}{N}\sum^{N}_{i=1} S_i(p \vert 0)
+. \label{eq:nuovo1} \eeq
+
+式 (\ref{eq:nuovo}) 与 (\ref{eq:nuovo1}) 用夸克传播子表出了 $G_O(pa)$ 与
+$S(pa)$，这些传播子由数值模拟生成的背景规范场组态下狄拉克算符的求逆计算而得。有了这些量，就可以应用
+第 \ref{sec:idea} 节引入的策略与公式。我们补充一些有助于读者实际应用的信息。夸克波函数重正化常数
+$Z_\psi$ 用下式计算：
+\beq
+Z_{\psi}= \Gamma_{V^L} \times Z_{V^L}= \frac{1}{48} {\rm tr}
+\left( \Lambda_{V^L_{\mu}} (p a)\gamma_\mu\right)\vert_{p^2=\mu^2}\times
+  Z_{V^{L}}
+\label{eq:zpsil}
+\eeq
+其中 $\Lambda_{V_\mu^L}(pa) $ 如式 (\ref{eq:lam}) 那样定义；迹取遍色与自旋，$Z_{V^L}$ 是局域矢量流
+$V^L_\mu(x)=\bar \psi(x)
+\gamma_\mu \psi(x)$ 的重正化常数。式 (\ref{eq:zpsi})
+与 (\ref{eq:zpsil}) 是 $Z_\psi$ 的两个等价定义。我们采用式 (\ref{eq:zpsil}) 而非
+式 (\ref{eq:zpsi})，因为当如我们的情形那样只算出从原点出发的夸克传播子时，前者更为方便。三点
+($q-V-q$) 格林函数通过在原点插入局域矢量流得到。$Z_{V^L}$ 可以由守恒流与局域流矩阵元之比以很高精度
+获得 \cite{ma,msv}。
+{}从截腿格林函数
+\beq \Gamma_{1}(pa)=\frac{1}{12} {\rm tr} \Bigl( \Lambda_1(pa)\hat 1 \Bigr) ,
+\nn \eeq
+\beq \Gamma_{\gamma_5}(pa)=\frac{1}{12} {\rm tr} \Bigl( \Lambda_
+{\gamma_5}(pa) \gamma_5 \Bigr) , \nn
+\eeq
+\beq \Gamma_{\gamma_\mu \gamma_5}(pa)=\frac{1}{48} {\rm tr} \Bigl( \Lambda_
+{\gamma_\mu \gamma_5}(pa) \gamma_5 \gamma_\mu \Bigr) ,
+\eeq
+出发，在若干个 $p^2=\mu^2$ 值（将在第 \ref{sec:nonper} 节具体给出）上施加重正化条件 (\ref{eq:zdef})，
+我们确定了作为 $\mu^2$ 函数的 $Z_{S,P,A}\Bigl(\mu,g(a)\Bigr)$。
+
+如果想按第 \ref{sec:casivari} 节定义的流程计算 $Z_{V^L}$，显然不能取式 (\ref{eq:zpsil}) 给出的
+$Z_\psi$。由 Ward 恒等式有
+\beq Z_\psi = - i \frac{1}{12}
+{\rm tr} \Bigl( \frac{\partial S(p)^{-1}}{\partial \pslash}
+\Bigr)\vert_{p^2=\mu^2} \label{eq:zpsiq}
+\eeq
+其中 $\partial S(p)^{-1}/\partial \pslash = 1/4 \times
+\gamma_\rho \partial S(p)^{-1}/\partial p_\rho$。为避免对离散变量求导，我们使用了
+\beq Z_\psi^{\prime}\Bigl(\mu , g(a) \Bigr)= \frac {{\rm tr } \Bigl(
+-i \sum_{\lambda=1,4} \gamma_\lambda \sin( p_\lambda a ) S^{-1}(pa)
+\Bigr)}{4 \sum _{\lambda=1,4} \sin^2 p_\lambda a }\vert_{p^2=\mu^2}.
+\label{eq:zpsi1} \eeq
+在一圈微扰论中、在朗道规范下，$Z_\psi^{\prime}=Z_\psi$\footnote{一般而言，二者相差一个
+$\alpha_s$ 量级的有限项。}。利用
+\beq \Gamma_{\gamma_\mu }(pa)=\frac{1}{48} {\rm tr} \Bigl( \Lambda_
+{\gamma_\mu }(pa) \gamma_\mu \Bigr) , \label{eq:gvl}
+\eeq
+并施加重正化条件 (\ref{eq:zdef})，我们确定了多个 $\mu^2$ 处的 $Z_{V^L}$。按上一节的一般讨论，
+预期如此定义的 $Z_{V^L}$ 在 $O(a)$ 项精度内不依赖于 $\mu^2$；实际发现确实如此，
+见第 \ref{sec:nonper} 节。
+
+在实际的数值模拟中，重正化流程可能被格点伪迹——即 $O(\mu a)$ 的项——所干扰；当为避免大的非微扰或高阶
+效应而必须在较大的 $\mu^2$ 值处施加重正化条件时，这类项是存在的。如文献 \cite{noi} 所示（此处沿用其记号），
+为了减小因格点间距有限而产生的离散化误差，可以用近邻改进费米子作用量 \cite{slami} 计算关联函数：
+\beq
+S^{I}_{F}=
+S^{W}_{F} +
+a^{4} \sum_{x,\mu \nu} \left[-ig_{0}
+\frac{ar}{4}\bar{\psi}(x)
+\sigma_{\mu \nu}F_{\mu \nu}(x)\psi(x) \right],
+\label{eq:si}
+\eeq
+其中 $S^{W}_{F}$ 是通常的 Wilson 作用量，$r$ 是 Wilson 参数，$F_{\mu\nu}$ 是格点场强张量。此外，还必须使用
+改进算符 $O_{\Gamma}^{I}$，定义为
+\beq
+O_{\Gamma}^I(x) =
+\bar{\psi}(x) \overleftarrow{R}_{x}
+\Gamma
+\overrightarrow{R}_{x} \psi(x),
+\label{eq:oi}
+\eeq
+其中费米子场的转动定义为
+\beq
+\overrightarrow{R}_{x}=
+\Bigl(1-a {r\over{4}} (\overrightarrow{\Dslash}_{x} - m_0)\Bigr)
+{}~~~,~~~
+\overleftarrow{R}_{y}=
+\Bigl(1+a {r\over{4}} (\overleftarrow{\Dslash}_{y} + m_0)\Bigr).
+\label{eq:rotaz}
+\eeq
+使用改进作用量与改进算符可以消除 $O(a)$ 的离散化误差，只剩下 $O(\alpha_s a)$ 或 $O(a^2)$ 或更高阶的误差。
+在式 (\ref{eq:oi}) 中，$\overrightarrow R_x$ 与
+ $\overleftarrow R_y$ 可替换为
+\beq
+\overrightarrow{R^\prime}_{x}=
+1-a {r\over{2}} \overrightarrow{\Dslash}_{x}
+{}~~~,~~~
+\overleftarrow{R^\prime}_{y}=
+1+a {r\over{2}} \overleftarrow{\Dslash}_{y},
+\label{eq:rotaz1}
+\eeq
+用于强子谱及壳上算符矩阵元的计算。如文献 \cite{tass2,newi} 所讨论，改进流程等价于把所有关联函数用
+``有效''夸克传播子表达：
+\beq
+S^{eff}_i(x \vert 0)=
+\Bigl(1-a{r\over{2}}
+\overrightarrow{\Dslash}_{x} \Bigr)
+S^{I}_i(x \vert 0)
+\Bigl(1+a{r\over{2}}
+\overleftarrow{\Dslash}_{y=0} \Bigr)
+\label{eq:seff}
+\eeq
+其中 $S^{I}_i(x \vert 0)$ 是改进理论中从 $x$ 点到原点的费米子传播子。为了消除本研究中使用的离壳关联函数中
+的 $O(a)$ 项，还需一步 \cite{wi}：我们必须把夸克传播子平移一个局域项，它在傅里叶空间表现为一个常数，需加到
+其对角分量上：
+\beq S^{AB}_{\alpha \beta}(pa) = S^{eff,AB}_{\alpha \beta}(pa)
+ + \frac{r}{2}
+\delta^{AB}
+\delta_{\alpha \beta} \nn \eeq
+
+在下文中，矢量流 $V^L_\mu$、轴矢流 $A^L_\mu$、赝标密度 $P$
+与标量密度 $S$ 都是通过式 (\ref{eq:seff}) 得到的改进算符。

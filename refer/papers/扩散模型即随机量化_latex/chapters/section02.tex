@@ -1,0 +1,111 @@
+\section{随机量化}
+\label{sec:sq}
+
+在欧几里得量子场论中，作为一种替代的量子化方案，可以采用随机量化（SQ）~\cite{Parisi:1980ys}。这里我们只考虑实作用量，对它们而言 SQ 已被充分理解且收敛性有保证~\cite{Damgaard:1987rr}。从带欧几里得作用量 $S_E$ 的一般欧几里得路径积分出发，
+\begin{equation}
+    Z = \int D\phi \, e^{-S_E},
+\end{equation}
+SQ 为场 $\phi$ 引入一个\textit{虚构}时间 $\tau$，其演化由朗之万动力学描述，
+\begin{equation}
+    \frac{\partial \phi(x,\tau)}{\partial \tau} = - \frac{\delta S_E[\phi]}{\delta \phi(x,\tau)} + \eta(x,\tau),
+    \label{eq:sq}
+\end{equation}
+其中噪声项通常满足
+\begin{equation}
+    \langle \eta(x,\tau) \rangle = 0,\qquad \langle \eta(x,\tau)\eta(x',\tau') \rangle = 2\alpha\delta(x-x')\delta(\tau - \tau'),
+\end{equation}
+$\alpha$ 为扩散常数。记分布为
+\begin{equation}
+    p(\phi) = \frac{e^{-S_E(\phi)}}{Z},
+\end{equation}
+则朗之万方程中的漂移项可写为
+\begin{equation}
+\label{eq:K}
+    K(\phi)  \equiv  - \frac{\delta S_E}{\delta \phi(x)} = \frac{\delta \log p(\phi)}{\delta \phi(x)}.
+\end{equation}
+在长时间极限（$\tau\rightarrow \infty$）下，若漂移项具有阻尼效应，系统便达到该动力学的平衡态~\cite{Namiki:1993fd}，这一点最好用 Fokker--Planck 方程来分析（见下）。此外，引入随机性只是量子化的一种策略。\textit{虚构}时间本身也可以成为发展微正则量子化的线索，后者描述由常微分方程给出的确定性演化~\cite{Callaway:1982eb}。我们将在\ref{subsec:continious} 节重新审视这一思想及其与 DMs 的联系。
+
+\subsection{Fokker--Planck 方程与观测量}
+
+Fokker--Planck 方程~\cite{risken1996fokker}描述承受随机过程（如朗之万方程）的场组态概率分布的时间演化。它也称为 Kolmogorov 前向方程；在 SQ 的语境下，它描述时刻 $\tau$ 处场组态 $\phi$ 的概率密度函数 $P[\phi,\tau]$ 的时间演化~\cite{Damgaard:1987rr,Namiki:1992wf}：
+\begin{equation}
+ \frac{\partial P[\phi, \tau]}{\partial \tau} = \int d^nx \left\{
+ \frac{\delta}{\delta \phi}
+ \left(\alpha\frac{\delta }{\delta \phi} + \frac{\delta S_E}{\delta \phi} \right)
+ \right\} P[\phi, \tau].
+ \label{eq:f-p}
+\end{equation}
+这里 $n$ 是场论所在的欧几里得时空维数。给定这一概率分布函数，观测量 $\mathcal{O}[\phi]$ 的期望值即为~\cite{Damgaard:1987rr}
+\begin{equation}
+\langle \mathcal{O}[\phi] \rangle_\tau = \int D\phi\,\mathcal{O}[\phi] P[\phi, \tau],
+\end{equation}
+其中左边理解为对许多随机过程的平均，右边的积分遍及所有场组态 $\phi$。
+
+在长时间极限下，概率分布 $P[\phi,t]$ {趋于}一个平衡分布，即 Fokker--Planck 方程（\ref{eq:f-p}）的定态解，
+\begin{equation}
+P_{\text{eq}}[\phi] \propto e^{-\frac{1}{\alpha}S_E[\phi]}.
+\label{eq:equ}
+\end{equation}
+若将 $\alpha$ （形式上）取为 $\hbar$ 且平衡分布归一化，则观测量的期望值确实是量子理论中的观测量：
+\begin{equation}
+\langle \mathcal{O}[\phi] \rangle_{\tau\to\infty} = \frac{\int D\phi \, \mathcal{O}(\phi) e^{-\frac{1}{\hbar}S_E(\phi)}}{\int D\phi \, e^{-\frac{1}{\hbar}S_E(\phi)}}
+= \langle \mathcal{O}[\phi] \rangle_{\text{quantum}},
+\end{equation}
+这表明按式~(\ref{eq:sq}) 进行的随机过程可用于量子化一个系统。
+
+{
+注意，向定态解（\ref{eq:equ}）的收敛源于与 Fokker--Planck 方程（\ref{eq:f-p}）相联系的 Fokker--Planck 哈密顿量的性质~\cite{Damgaard:1987rr}。简言之，把含时解 $P[\phi,t]$ 写成
+\begin{equation}
+\label{eq:PQ}
+P[\phi,t]=e^{-\frac{1}{2\alpha}S_E[\phi]} Q[\phi,t],
+\end{equation}
+容易证明 $Q[\phi,t]$ 满足方程
+\begin{equation}
+\label{eq:Q}
+\frac{\partial Q[\phi, \tau]}{\partial \tau}  = -H_{\rm FP}Q[\phi, \tau],
+\end{equation}
+其中 Fokker--Planck 哈密顿量为
+\begin{equation}
+H_{\rm FP} = \int d^nx\, L^\dagger L,
+\end{equation}
+而
+\begin{equation}
+L = \sqrt{\alpha}\frac{\delta}{\delta \phi} + \frac{1}{2\sqrt{\alpha}}\frac{\delta S_E}{\delta\phi},
+\qquad\qquad
+L^\dagger = -\sqrt{\alpha}\frac{\delta}{\delta \phi} + \frac{1}{2\sqrt{\alpha}}\frac{\delta S_E}{\delta
+\phi}.
+\end{equation}
+因此 Fokker--Planck 哈密顿量以零为下界。只要其谱存在能隙，式~(\ref{eq:Q}) 中的含时成分将指数衰减，仅剩解 $H_{\rm FP}Q[\phi]=0$。该解由
+\begin{equation}
+LQ[\phi]=0 \qquad \Rightarrow \qquad Q[\phi] \propto
+e^{-\frac{1}{2\alpha}S_E[\phi]},
+\end{equation}
+给出，与式~(\ref{eq:PQ}) 结合后再次得到平衡解（\ref{eq:equ}），从而完成标准的收敛性证明。
+}
+
+\subsection{朗之万模拟}
+\label{subsec:sim}
+
+在大多数情形下，Fokker--Planck 方程无法解析求解。作为替代，人们通过对朗之万方程 式~\eqref{eq:sq} 离散化来数值求解该随机过程。
+使用 It\^o 微积分，采用时间步长 $\Delta\tau$ 的最简离散化朗之万方程为
+\begin{equation}
+    \phi(x,\tau_{n+1}) = \phi(x,\tau_n) + K[\phi(x,\tau_n)]\Delta\tau + \sqrt{\Delta\tau}\eta(x,\tau_n),
+    \label{eq:dis-sq}
+\end{equation}
+其中 $\langle \eta(x,\tau_n)\eta(x',\tau_{n'}) \rangle = 2\alpha\delta(x-x')\delta_{nn'}$。
+
+一次典型的计算包括：首先，用初始条件制备场组态 $\{\phi(x, \tau=0)\}$；其次，热化过程，即以适当的时间步长 $\Delta \tau$ 迭代足够多的时间步使系统达到平衡；第三，热化之后，记录系综中每个组态的物理观测量 $\mathcal{O}[\phi]$ 的数值，例如在时间 $T$ 之后。对众多组态重复此过程以提高系综平均的统计精度。
+图~\ref{fig:simu} 展示了一维情形下一个典型的朗之万过程。
+目标分布通过漂移项编码，参见式~(\ref{eq:K})。
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[thbp!]
+    \centering
+    \includegraphics[width = 0.8\textwidth]{images/Langevindynamics.pdf}
+    \caption{朗之万模拟示意图。每条线代表一条不同的轨迹，从 $\tau=0$ 的初态演化到稍后的时刻 $T$。初始组态从一个先验但朴素的分布采样，$\phi\sim P[\phi,\tau=0]$。模拟之后，最终组态服从平衡分布，$\phi\sim P[\phi,\tau=T]\sim P_{\rm target}[\phi]$。}
+    \label{fig:simu}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+{该过程为观测量 $\mathcal{O}[\phi]$ 提供了量子期望值的估计。由于上述简单离散化格式带来关于 $\Delta\tau$ 线性的有限步长误差，必须重复分析并外推到零步长。朗之万模拟为蒙特卡洛方法提供了替代方案，并已被用于格点 QCD 模拟~\cite{Batrouni:1985jn}。其特点是未使用接受/拒绝步骤，这使算法并不精确（例如有限步长修正所展示的那样）。引入这样的接受/拒绝步骤可以补救这一问题，由此得到优于基本朗之万算法因而更受青睐的更精细算法（如混合蒙特卡洛）。对于具有复值玻尔兹曼权重、因而无法做重要性抽样的理论，无接受/拒绝步骤反而成为一项优点。SQ 在这类理论中的应用通常称为复朗之万动力学~\cite{Parisi:1983mgm}，至今仍是活跃的研究领域~\cite{Berges:2006xc,Aarts:2008rr,Aarts:2008wh,Seiler:2012wz,Sexty:2013ica,Aarts:2015tyj,Attanasio:2020spv,Berger:2019odf,Nagata:2021ugx,Aarts:2009uq,Aarts:2011ax,Nagata:2016vkn,Aarts:2017vrv,Scherzer:2018hid,WesthHansen:2022iqd,Alvestad:2021hsi,Alvestad:2022abf,Lampl:2023xpb}，
+但本文不作进一步探讨。}

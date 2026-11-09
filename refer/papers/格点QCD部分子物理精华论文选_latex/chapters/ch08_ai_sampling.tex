@@ -1,0 +1,70 @@
+\chapter{随机量子化的新生：AI 采样}
+
+本库最新的一根支柱是机器学习采样。它的物理根源早了四十年：随机量子化
+把量子场论表示为 Langevin 扩散，而生成式扩散模型恰恰是时间反演的
+Langevin 动力学。本库的两篇原文创立了格点应用。
+
+% ----------------------------------------------------------------------
+\section{随机量子化}
+\papercard{G.\ Parisi, Y.-S.\ Wu}{无规范固定的微扰论}
+{Sci.\ Sinica \textbf{24}, 483 (1981)}
+{无 arXiv（印本前时代）}
+\whyselected{整个 AI 采样路线之根（AI 语料内约 $\sim$3/99，另在流论文
+中有概念性引用）："量子场论等价于某随机过程的平衡统计"这一想法先于
+并如今支撑着机器学习时代。}
+\physics{让场成为虚拟第五时间 $s$ 的函数并服从 Langevin 动力学，
+\begin{equation}
+  \frac{\partial A_\mu(x,s)}{\partial s}
+   = -\frac{\delta S[A]}{\delta A_\mu(x,s)} + \eta_\mu(x,s),
+   \qquad
+   \langle\eta_\mu(x,s)\eta_\nu(y,s')\rangle = 2\delta_{\mu\nu}\delta(x-y)\delta(s-s'),
+\end{equation}
+其平衡分布为 $e^{-S}$。由于漂移项规范协变，无需规范固定——微扰论自动
+在物理（横向）子空间中进行，Fokker--Planck 算符生成重整化群
+（Zinn--Justin）。这一流时间结构将逐字重现于 L\"uscher 的梯度流——
+只是以确定性漂移替代噪声平均。}
+\impact{库内 Wang--Aarts--Zhou 的扩散即随机量化论文使该对应变得精确且
+可构造：训练 score-based 扩散模型复现反向 Langevin 过程，产生场论的
+Boltzmann 分布样本。}
+\cardend
+
+% ----------------------------------------------------------------------
+\section{基于流的 MCMC}
+\papercard{M.\ S.\ Albergo, G.\ Kanwar, P.\ E.\ Shanahan}
+{格点场论马尔可夫链蒙特卡洛的流式生成模型}
+{Phys.\ Rev.\ D \textbf{100}, 034515 (2019)}
+{arXiv:1904.12072 | DOI: 10.1103/PhysRevD.100.034515}
+\whyselected{机器学习采样之于格点场论的奠基文献，本库原文之一
+（其小生境内约 $\sim$4/99）：被库内每篇 AI-for-lattice 论文引用。}
+\physics{训练可逆神经网络 $f_\phi$ 作为提议分布
+$q_\phi(\phi)=p_0(f_\phi(\phi))|\det J_{f_\phi}|$，然后放入
+Metropolis--Hastings 中使用，接受率
+$\min(1, e^{-S[\phi]}/e^{-S[f_\phi(\phi)]}\cdot q/p)$：无论学到的模型
+多不完美，目标分布的正确性都得以保持。在二维 $\phi^4$ 理论上演示，
+该方法恰在局部算法失效处抑制临界慢化，而且无需目标分布样本即可训练
+——损失函数只进入作用量。这解决了基于模拟的学习的经典自举难题。}
+\impact{在本库内此文是下文规范等变推广、扩散即随机量化路线以及逆问题
+的物理驱动学习议程的共同祖先；概念上它用可学习的映射实现了第三章
+平庸化映射的梦想。}
+\cardend
+
+% ----------------------------------------------------------------------
+\section{规模化的规范等变性}
+\papercard{G.\ Kanwar, M.\ S.\ Albergo, D.\ Boyda, K.\ Cranmer,
+D.\ C.\ Hackett, S.\ Racani\`ere, D.\ J.\ Rezende, P.\ E.\ Shanahan}
+{用于格点规范理论的等变流式采样}
+{Phys.\ Rev.\ Lett.\ \textbf{125}, 121601 (2020)}
+{arXiv:2003.06413 | DOI: 10.1103/PhysRevLett.125.121601}
+\whyselected{本库原文之一；证明了机器学习可以进攻格点 QCD 最困难的
+采样问题——拓扑（其小生境内约 $\sim$3/99）。}
+\physics{由与规范变换对易的层构造流（把链变量耦合到 plaquette 派生
+函数的 masking、经指数迹投影到群上的耦合核），使得
+$q_\phi(U^g)=q_\phi(U)$，采样系综显式规范不变。应用于接近连续极限的
+二维 $U(1)$ 纯规范，训练后的模型将拓扑荷的自关联时间相对 HMC 改善约
+1500 倍、相对热浴改善约 200 倍——正面攻击细格点 QCD 模拟中拓扑指数
+冻结的问题（自 L\"uscher 开边界条件工作以来即有记载）。}
+\impact{本库围绕这一结果组织其 AI-for-QCD 叙事：尊重对称性的架构不是
+约束而是增益之源——当其智能体计算论文坚持确定性领域工具必须主导物理
+而语言模型只做编排时，吸取的是同一教训。故事在此回到 Parisi--Wu 与
+平庸化映射，画成一个圆。}
+\cardend

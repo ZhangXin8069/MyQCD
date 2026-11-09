@@ -1,0 +1,189 @@
+\section{Field transformations}
+
+Most concepts developed in this paper
+are expected to be widely applicable, but as explained above,
+the case of immediate interest is lattice QCD.
+In the following, the gauge group is therefore taken to
+be $\Group$.
+Since the quarks will play a spectator r\^ole,
+they will be added to the theory only in sect.~6, where the proposed
+simulation algorithm for lattice QCD is discussed.
+
+\subsection{Field space}
+
+The lattice theory is set up on a finite
+hypercubic lattice $\Lambda$ with periodic boundary conditions.
+For notational convenience, the lattice spacing is set to unity.
+As usual, the gauge field variables $U(x,\mu)\in\Group$
+are assumed to
+reside on the links $(x,\mu)$ of the lattice
+(where $x\in\Lambda$ and $\mu=0,\ldots,3$).
+The expectation value of any observable
+$\mathcal{O}(U)$ is then given by the functional integral
+\begin{equation}
+  \langle\mathcal{O}\rangle=
+  \frac{1}{\mathcal{Z}}\int\rmD[U]\,\mathcal{O}(U)\,\rme^{-S(U)}
+\end{equation}
+over the space of gauge fields. In this expression,
+$S(U)$ denotes the gauge-field action,
+$\mathcal{Z}$ the partition function and
+$\rmD[U]$ the product of the normalized
+$\Group$-invariant integration measures of the link variables
+$U(x,\mu)$.
+
+From a purely mathematical point of view, the space of
+lattice gauge fields
+is a power of $\Group$ and therefore a compact connected manifold.
+Field transformations
+are invertible maps of this manifold onto itself.
+Such transformations will always be required to be
+differentiable
+in both directions and orientation-preserving
+(here and below, ``differentiable'' means
+``infinitely often continuously differentiable'').
+
+
+\subsection{Right-invariant differential operators}
+
+Since the link variables $U(x,\mu)$ take values in a Lie group,
+it is natural to express differentiations with respect
+to them through a basis
+$\du^a_{x,\mu}$, $a=1,\ldots,8$, of
+differential operators that are invariant under the right-action
+of the group.
+The action of these operators
+on a differentiable function $f(U)$ of the gauge field
+is given by
+\begin{equation}
+  \du_{x,\mu}^af(U)=\left.{\rmd\over\rmd t}
+  f(U_t)\right|_{t=0},\qquad\quad
+  U_t(y,\nu)=
+  \begin{cases}
+    \rme^{tT^a}U(x,\mu) & \text{if $(y,\nu)=(x,\mu)$,}\\[1.0ex]
+    U(y,\nu)            & \text{otherwise,}
+  \end{cases}
+\end{equation}
+where $T^a$ are the $\Group$ generators (see appendix~A).
+In particular,
+$\du^a_{x,\mu}$ transforms according to the adjoint
+representation under the left-action of $\Group$.
+
+The operators $\du^a_{x,\mu}$ go along with
+a basis of 1-forms on the field manifold,
+\begin{equation}
+  \theta^a_{x,\mu}=-2\,\tr\{\rmd U(x,\mu)U(x,\mu)^{-1}T^a\},
+\end{equation}
+such that
+\begin{equation}
+  \rmd f(U)=\sum_{x,\mu}\theta^a_{x,\mu}\du^a_{x,\mu}f(U)
+\end{equation}
+for all functions $f(U)$.
+
+
+\subsection{Jacobian matrix}
+
+For any given gauge field $V(y,\nu)$,
+the transformation (1.1) produces another field
+$U(x,\mu)=[\trans(V)](x,\mu)$.
+When considering such transformations, one
+needs to distinguish differentiations with respect to $V$
+from those with respect $U$. The associated 1-forms must
+also be distinguished. In the following, all symbols
+carrying a hat represent quantities and operations
+referring to $V$.
+
+The Jacobian matrix
+\begin{equation}
+  [\transs(V)](x,\mu;y,\nu)^{ab}=
+  -2\,\tr\{\hat{\du}^b_{y,\nu}U(x,\mu)U(x,\mu)^{-1}T^a\}
+\end{equation}
+can be considered to be the kernel of a linear operator acting
+on link fields with
+values in $\Lie$. In particular,
+\begin{equation}
+  \theta^a_{x,\mu}=\sum_{y,\nu}[\transs(V)](x,\mu;y,\nu)^{ab}
+  \hat{\theta}^b_{y,\nu}.
+\end{equation}
+Since the functional integration measure $\rmD[U]$
+is proportional to the maximal product of these
+1-forms, it follows that
+\begin{equation}
+  \rmD[U]=\rmD[V]\det\transs(V).
+\end{equation}
+The Jacobian of the map (1.1) is thus $\det\transs(V)$.
+
+If the transformation satisfies
+\begin{equation}
+  S(\trans(V))-\ln\det\transs(V)=\text{constant},
+\end{equation}
+the substitution $U\to V$ of the integration variables
+in the functional integral
+maps the theory to the trivial one where the link variables
+are completely decoupled from one another.
+The expectation values (2.1) are then given by
+\begin{equation}
+  \langle\mathcal{O}\rangle=
+  \int\rmD[V]\,\mathcal{O}(\trans(V)).
+\end{equation}
+Such trivializing maps thus contain the entire
+dynamics of the theory.
+
+Although the remark is likely to remain an academic one,
+an intriguing observation is that the integral (2.9)
+can be simulated simply by generating
+uniformly distributed random gauge fields. Subsequent
+field configurations are uncorrelated in this case
+and there are therefore no autocorrelations in
+the data series for the observables $\mathcal{O}$.
+
+
+\subsection{Transformation behaviour of the HMC algorithm}
+
+The HMC algorithm~\cite{HMC} operates on the phase space
+associated to the field manifold.
+In particular, the transition $V\to V'$ in fig.~1 requires
+the equations of motion derived from the Hamilton function
+\begin{equation}
+  \hat{H}(\hat{\mom},V)=
+  \frac{1}{2}(\hat{\mom},\hat{\mom})+
+  S(\trans(V))-\ln\det\transs(V)
+\end{equation}
+to be integrated,
+where $\hat{\mom}(x,\mu)\in\Lie$ is the canonical momentum of $V(x,\mu)$.
+
+Although the complete update algorithm for the field $U$
+described by fig.~1 looks different,
+it is in fact equivalent to the HMC algorithm
+with a non-standard Hamilton function.
+The equivalence can be established by noting
+that the transformation from $V$ to $U$
+preserves the symplectic 2-form
+\begin{equation}
+  \hat{\Omega}=
+  \sum_{x,\mu}\rmd\{\hat{\mom}^a(x,\mu)\hat{\theta}^a_{x,\mu}\},
+\end{equation}
+i.e.\ $\Omega=\hat{\Omega}$,
+if the momenta of the fields are transformed according to
+\begin{equation}
+  \hat{\mom}^b(y,\nu)
+  =\sum_{x,\mu}[\transs(V)](x,\mu;y,\nu)^{ab}\mom^a(x,\mu).
+\end{equation}
+The evolution of the transformed fields
+is then governed by the Hamilton function
+\begin{equation}
+  H(\mom,U)=
+  \frac{1}{2}(\mom,K(U)\mom)+
+  S(U)-\ln\det\transs(V),
+\end{equation}
+where
+\begin{equation}
+  K(U)=\transs(V)^T\transs(V),\qquad V=\trans^{-1}(U).
+\end{equation}
+Note that the Jacobian in eq.~(2.13)
+cancels when the momenta are integrated over in the
+functional integral.
+The algorithm outlined in fig.~1 thus amounts
+to applying the HMC algorithm with
+a modified Hamilton function
+of the kind considered long ago by
+Duane et al.~\cite{DuaneEtAl}.

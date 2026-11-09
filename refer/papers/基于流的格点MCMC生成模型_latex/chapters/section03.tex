@@ -1,0 +1,208 @@
+\section{基于流的 MCMC 在 $\phi^4$ 理论中的应用}
+\label{sec:phi4}
+
+具有有质量标量场 $\phi(x)$ 与四次自相互作用的理论是可构造的最简单的相互作用场论之一。因此它是格点场论新算法——例如本文提出的基于流的 MCMC 方案——的便利试验场。
+
+在 $d$ 维欧氏时空中，$\phi^4$ 理论的离散化表述可以定义在格点为 $x_\mu = a n_\mu$ 的格点上，其中 $a$ 为格距，$\mu \in \curly{1, \dots, d}$ 标记时空维，$n_\mu \in \mathbb{Z}^d$。本文考虑有限格点体积 $V=(aL)^d$，所有方向均取周期边界条件。格点作用量（在 $a=1$ 的单位下）可写为
+%
+\begin{equation}\small
+    S(\phi) = \sum_{x} \left( \sum_y\phi(x)\Box(x,y)\phi(y) + m^2\phi(x)^2 + \lambda \phi(x)^4\right),
+\end{equation}
+%
+其中参数 $m^2$ 与 $\lambda$ 分别是裸质量平方与裸耦合常数，格点达朗贝尔算子定义为
+%
+\begin{equation}
+    \sum_y\Box(x,y)\phi(y) = \sum_\mu \left(2\phi(x) -\phi({x-\hat{\mu}}) - \phi({x+\hat{\mu}})\right).
+\end{equation}
+%
+对分布 $p(\phi) = e^{-S(\phi)}/Z$ 取期望值，即可估计理论中的观测量。
+%
+
+%%% Better float placement
+\begin{table}[h]
+    \centering
+    \begin{tabular}{c|ccccc}\hline\hline
+    & E1 & E2 & E3 & E4 & E5\\\hline
+         $L$ & $6$ & $8$ & $10$ & $12$ & $14$ \\
+         $m^2$ & $-4$ & $-4$ & $-4$ & $-4$ & $-4$ \\
+         $\lambda$ & $6.975$ & $6.008$ & $5.550$ & $5.276$ & $5.113$ \\
+         $m_p L$ & $3.96(3)$ & $3.97(5)$ & $4.00(4)$ & $3.96(5)$ & $4.03(6)$ \\\hline\hline
+    \end{tabular}
+    \caption{用于本文所提基于流 MCMC 算法数值研究的 $\phi^4$ 理论 $L\times L$ 格点的参数 $\{m^2,\lambda\}$。耦合常数 $\lambda$ 的选取使 $m_pL$ 在 $L$ 变化时近似保持恒定。}
+    \label{tab:lattice-params}
+\end{table}
+
+%%% Better float placement
+\begin{figure*}
+    \centering
+    \subfloat[训练到 50\% 平均接受的基于流的 MCMC。]{
+    \includegraphics[width=0.46\linewidth]{images/ml50_hist_acc.pdf}}
+    \hfill
+    \subfloat[训练到 70\% 平均接受的基于流的 MCMC，以及调到 70\% 平均接受的 HMC。]{
+    \includegraphics[width=0.46\linewidth]{images/ml70_hist_acc.pdf}}
+    \caption{机器学习（ML）模型在 50\% 与 70\% 平均接受率下 Metropolis 拒绝连续游程长度的直方图。图中还给出由 HMC 生成的马尔可夫链的同项统计量，其平均接受率调至 70\%。对训练到更高平均接受的模型，长拒绝游程的出现频率一致地降低。在 70\% 接受率下，ML 系综与 HMC 系综显示出非常相似的拒绝连串分布。}
+    \label{fig:accepthistograms}
+\end{figure*}
+
+
+本文研究的观测量是连通两点格林函数
+%
+\begin{equation}
+\begin{aligned}
+    G_c(x) &= \frac{1}{V} \sum_y \big( \langle \phi(y)\phi(y+x) \rangle - \langle \phi(y) \rangle \langle \phi(y+x) \rangle \big)
+\end{aligned}
+\end{equation}
+%
+及其动量表象
+%
+\begin{equation}
+    \tilde{G}_c(\vec{p},t) = \frac{1}{L^{d-1}} \sum_{\vec{x}} e^{i\vec{p}\cdot\vec{x}}G_c(\vec{x},t),
+\end{equation}
+其中 $x_\mu = (\vec{x}, t)$，
+%
+以及相应的极点质量
+%
+\begin{equation}
+    m_p = -\partial_t \log \avg{\tilde{G}_c(0,t)},
+\end{equation}
+和两点磁化率
+%
+\begin{equation}
+    \chi_2 = \sum_x G_c(x).
+\end{equation}
+%
+在极限 $\lambda \rightarrow \infty$ 且固定 $m^2/\lambda < 0$ 时，标量 $\phi^4$ 理论退化为 Ising 模型。
+因此另一个值得关注的观测量是平均 Ising 能量密度~\cite{vierhaus}，定义为
+%
+\begin{equation}
+E = \frac{1}{d} \sum_{1\le \mu \le d} G_c(\hat{\mu}),
+\end{equation}
+%
+求和遍历所有维度中的单格点位移。
+
+$\phi^4$ 理论的作用量在离散对称性 $\phi(x) \rightarrow -\phi(x)$ 下不变。依参数 $m^2$ 与 $\lambda$ 的取值，该对称性可以自发破缺。该理论因此有两相：对称相与对称性破缺相。
+
+
+
+\subsection{模型定义与训练}
+\label{subsec:model}
+
+作为原理验证研究，把第~\ref{sec:flowMCMC} 节详述的基于流的 MCMC 算法应用于二维 $\phi^4$ 理论，每维格点数 $L=\{6,8,10,12,14\}$。参数 $m^2$ 与 $\lambda$ 的选取使每个格距尺寸下 $m_p L \approx 4$；其数值见表~\ref{tab:lattice-params}。为简化这项初始工作，所有参数都选在对称相。原则上，基于流的 MCMC 算法可以用完全相同的方法应用于该理论的对称性破缺相，但针对这类参数选择能否训练出模型仍有待证明。
+
+%%% Better float placement
+\begin{figure*}
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/corr_L14.pdf}
+    \caption{参数组 E5 的零动量格林函数。由 HMC、局域 Metropolis 及机器学习（ML）系综各 $10^6$ 个构型计算的结果在统计误差内一致。误差棒表示用分箱大小为 $100$ 的 bootstrap 重采样估计的 68\% 置信区间。}
+    \label{fig:observables-1}
+\end{minipage}
+\hspace{0.02\textwidth}
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/meff_L14.pdf}
+    \caption{参数组 E5 的有效极点质量，由正文给出的 arccosh 估计量定义。由 HMC、局域 Metropolis 及机器学习（ML）系综各 $10^6$ 个构型计算的结果在统计误差内一致。误差棒表示用分箱大小为 $100$ 的 bootstrap 重采样估计的 68\% 置信区间。}
+    \label{fig:observables-2}
+\end{minipage}
+\end{figure*}
+
+对每组参数，用 8--12 个仿射耦合层定义 real NVP 模型（见第~\ref{subsec:normalizing-flows} 节）。耦合层按棋盘格式更新一半格点；相继各层交替更新奇、偶格点。耦合层 $g_i$ 中使用的神经网络 $s_i$ 与 $t_i$（见式~\eqref{eq:affinecoupling}）由二至六个全连接层构成，每个全连接层定义为一次矩形矩阵乘法，随后逐点施加一个非线性函数（此处为 leaky 修正线性单元~\cite{Nair2010}）。中间向量（隐层单元）的大小介于 100--1024 之间。先验分布 $r(z)$ 取为无关联的高斯分布
+\begin{equation}
+    r(z) \propto \prod_i e^{-z_i^2 / 2}.
+\end{equation}
+模型以 Adam 优化器~\cite{Kingma2015Adam}（一种带动量的特定梯度下降方法）做基于梯度的更新，训练目标是最小化输出分布 $\netp(\phi)$ 与期望分布 $p(\phi) = e^{-S(\phi)}/Z$ 之间的平移 KL 损失。对 $14^2$ 模型，在正式训练之前先优化了附录~\ref{app:mae-loss} 中定义的平均绝对误差损失，发现它能加速向 KL 损失极小值的收敛。
+
+对先验分布 $r(z)$ 的最优选择、模型深度、神经网络的架构与初始化以及仿射层的耦合方式做穷尽研究超出了本原理验证的范围。不过，这里使用的参数被证明足以定义表达能力充分的模型，使得将 Metropolis-Hastings 算法应用于训练后模型的输出时，接受率轻松达到远高于 50\% 的水平。
+%
+若进一步投入超参数优化，可以获得更高的接受率。在任何使用 Metropolis-Hastings 算法的马尔可夫链中，都存在计算代价与低接受率所致相关性之间的权衡。最优接受率应最小化链上每个去关联样本的代价。在这里，不仅要考虑模型求值的代价，还必须考虑训练的代价，而未来应用中的最优训练程度将取决于诸多因素，例如期望的系综规模。
+
+%%% Better float placement
+\begin{figure*}
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/all_susc.pdf}
+
+    \includegraphics[width=\linewidth]{images/all_e.pdf}
+    \caption{在全部系综上估计的磁化率（$\chi_2$）与 Ising 能量（$E$）。由 HMC、局域 Metropolis 及机器学习（ML）系综各 $10^6$ 个构型计算的结果在统计误差内一致。误差表示用分箱大小为 $100$ 的 bootstrap 重采样估计的 68\% 置信区间。}
+    \label{fig:observables-3}
+\end{minipage}
+\hspace{0.02\textwidth}
+\begin{minipage}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/susc_sqrtn_L14.pdf}
+
+    \includegraphics[width=\linewidth]{images/e_sqrtn_L14.pdf}
+    \caption{HMC、局域 Metropolis 及机器学习（ML）系综中两个候选观测量 $\chi_2$ 与 $E$ 的统计误差随样本数 $N$ 的变化。红色虚线是一条 $1/\sqrt{N}$ 曲线，按三种方法在 $N=1000$ 处的平均误差估计归一化。中心值通过 bootstrap 重采样大小为 $N$ 的系综子集、以 68\% 置信区间估计每个观测量得到。误差棒表示用外部 bootstrap 重采样步骤估计的 68\% 置信区间。}
+    \label{fig:errorscaling}
+\end{minipage}
+\end{figure*}
+
+对所研究的每组参数，模型实例都被分别训练到 50\% 与 70\% 两档平均 Metropolis 接受率。图~\ref{fig:accepthistograms} 给出两档训练水平下模型相邻两次被接受构型之间更新次数的直方图。可见训练到更高接受率的模型具有更短的连续拒绝游程。
+由于独立 Metropolis 抽样中自相关与拒绝通过 $\rho(\tau)/\rho(0) = p_{\tau \text{rej}}$ 相联系，长度超过 $\tau$ 的拒绝游程频率降低直接意味着 $\rho(\tau)/\rho(0)$ 减小。这对产生去关联构型的临界慢化的影响在第~\ref{subsec:CSD} 节讨论。
+
+作为比较，在匹配参数下分别用基于流的 MCMC 中的机器学习模型以及标准局域 Metropolis~\cite{Wolff1996} 和杂交蒙特卡洛（HMC）~\cite{Duane1987HMC} 算法生成了 $10^6$ 个格点构型的系综。局域 Metropolis 算法采用对各格点的固定顺序逐点更新，对 $\phi(x)$ 的提议更新从区间 $[\phi(x)-\delta, \phi(x)+\delta]$ 均匀抽取，随后进行 Metropolis-Hastings 接受/拒绝步骤；对所有考虑的参数，宽度 $\delta$ 均调到 70\% 接受率。HMC 方法采用蛙跳积分器实现，轨迹长度 $\tau$ 固定分为 $10$ 步；轨迹长度 $\tau$ 同样调到 70\% 接受率。局域 Metropolis 与 HMC 两种方法都是每第 10 次更新保存一个样本。
+
+
+\subsection{检验：物理观测量与误差标度}
+\label{subsec:tests}
+
+既然基于流的 MCMC 算法满足遍历性与平衡性，它就被保证在无限长链的极限下产生来自期望概率分布的样本。为检验算法在有限样本数下的性能，把上文定义的每个物理观测量都在表~\ref{tab:lattice-params} 参数下、分别由标准 HMC 与局域 Metropolis 方法以及训练好的基于流的 MCMC 算法生成的构型系综中进行了计算。图~\ref{fig:observables-1}--\ref{fig:observables-3} 比较了三种方法生成的系综上计算的观测量。
+
+为估计极点质量 $m_p$，基于不同时间间隔处的零动量格林函数定义一个有效质量：
+\begin{equation}
+    m^\text{eff}_p(t) = \text{arccosh}\paren{\frac{\tilde{G}_c(0,t-1) + \tilde{G}_c(0,t+1)}{2 \tilde{G}_c(0,t)}}.
+\end{equation}
+对所有观测量，用基于流的 MCMC 系综计算的数值与标准方法所得结果在统计不确定度内一致。
+%
+此外，图~\ref{fig:errorscaling} 表明这些观测量的统计不确定度随样本数 $N$ 按 $1 / \sqrt{N}$ 标度，正如对去关联样本所预期的那样。
+
+\subsection{临界慢化}
+\label{subsec:CSD}
+
+\begin{figure*}
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \subfloat[HMC 系综]{
+        \includegraphics[width=\linewidth]{images/hmc_csd.pdf}
+        }
+    \end{minipage}\hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \subfloat[局域 Metropolis 系综]{
+        \includegraphics[width=\linewidth]{images/hb_csd.pdf}
+        }
+    \end{minipage}\hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \subfloat[基于流的 MCMC 系综]{
+        \label{subfl:ml-auto}
+        \includegraphics[width=\linewidth]{images/all_ml_csd.pdf}
+        }
+    \end{minipage}
+  \caption{
+  HMC、局域 Metropolis 与基于流的 MCMC 的积分自相关时间随格点尺寸的标度。在图 \protect\subref{subfl:ml-auto} 中，上方蓝色点组对应训练到平均接受率 50\% 的模型，下方绿色点组对应训练到平均接受率 70\% 的模型。红色虚线是对 $L = \curly{10,12,14}$ 的幂律拟合，标注 $L^z$ 给出标度行为。HMC 与局域 Metropolis 方法表现出 $\tau_{\mathrm{int}}$ 的幂律增长，而基于流的 MCMC 的 $\tau_{\mathrm{int}}$ 与常数一致且随平均接受率升高而下降。基于流系综的点划蓝线和绿线给出了依据式~\eqref{eq:mean-acc-bound} 用平均接受率表示的下界。误差棒表示用 bootstrap 重采样与误差传播估计的 68\% 置信区间。}
+  \label{fig:compare_autocorr}
+
+\end{figure*}
+
+针对 $\phi^4$ 理论，人们已发展出多种在不同程度上缓解 CSD 的算法，如蠕虫算法~\cite{vierhaus}、多重网格方法~\cite{GoodmanSokal89}、傅里叶加速 Langevin 更新~\cite{Batrouni87} 以及借助嵌入 Ising 动力学的团簇更新~\cite{BrowerTamayo89}。然而把这些算法推广到 QCD 等更复杂理论的路径并不明朗。同样用于 QCD 与纯规范理论研究的 HMC 和局域 Metropolis 等算法，则在逼近连续极限时对 $\phi^4$（以及更复杂的理论）表现出 CSD。
+
+本文为 $\phi^4$ 理论研究选取的参数组（表~\ref{tab:lattice-params}）对应于 $L\rightarrow \infty$ 时 $m_pL$ 恒定的临界线。对本文提出的基于流的 MCMC 方案以及用 HMC 和局域 Metropolis 算法生成的系综，把前文讨论的那组物理观测量的自相关时间拟合到 $L$ 的领头阶幂律，以确定相应观测量的动力学临界指数 $z_\mathcal{O}$。
+%
+图~\ref{fig:compare_autocorr} 给出每种系综生成方式下每个观测量的自相关时间。由于每次更新的代价不同，各方法的 $\tau_\text{int}$ 绝对值不能直接比较。另一方面，随格点尺寸的标度则反映了每种方法对临界慢化的敏感程度。对 HMC 与局域 Metropolis 二者，临界行为进而算法的性能被发现依赖于具体观测量。两种情形下的临界指数均为 $0.3\lesssim z_\mathcal{O}\lesssim 2.0$。相比之下，固定接受率的基于流的 MCMC 系综的临界指数与零一致，自相关时间与观测量无关，并与第~\ref{subsec:autocorr} 节定义的基于接受的估计量相符。
+
+由于这些模型的训练停止准则是平均接受率，先验上并不能保证测得的积分自相关时间在不同模型之间保持恒定。然而图~\ref{fig:compare_autocorr} 的结果表明，超出式~\eqref{eq:mean-acc-bound} 的简单下界之外，对用平移 KL 损失训练的模型，平均接受率与积分自相关时间之间存在强相关。图~\ref{fig:accepthistograms} 所示基于流 MCMC 的拒绝游程直方图在各格点尺寸间的相似性进一步印证了这一点。
+
+\subsection{训练成本}
+\label{subsec:training-cost}
+虽然基于流的 MCMC 在抽样环节消除了 CSD，但训练生成模型引入了一笔额外的前期成本，如第~\ref{subsec:CSD-theory} 节所述。由于这笔成本可在整个系综上摊销，该方案在生成大量样本的极限下自然具有计算优势。对有限的目标系综规模而言，可能的加速效果关键取决于训练时间。
+
+在本工作中，所有模型的训练都耗费一到两个 GPU·周，较大格点的计算成本最高。
+对于本工作使用的简单全连接架构，抽样时间与训练时间的标度都由稠密矩阵--向量乘法控制，每次需要 $O(V^2)$ 次浮点运算。训练最大格点所用轮数也大约是最小格点的 $10\times$。这一渐近标度是本原理验证研究所用简单模型架构的结果。对于应用于图像生成的相关方法，采用卷积神经网络与多尺度架构显著降低了训练与抽样成本，并把标度改善到 $O(V)$~\cite{Dinh2016}。有物理上的理由预期这些工具同样适用于当前应用。卷积网络仅利用局部信息来更新每一层中的数值，从而利用系统内的定域性；并且对格点上每个点使用相同的权重，明显保持了平移不变性。多尺度架构在不同的层中分别学习粗粒化分布与细粒化流程；对可重正化量子场论——人们预期其中会出现简单的粗粒化描述——这是一种有效的任务分工。生成式模型，特别是基于流的模型，也正在迅速朝更高效的表示能力演进。复杂的耦合层已被实现~\cite{Dinh2015, Dinh2016}，广义卷积~\cite{Kingma2018, Hoogeboom2019} 以及不依赖受限耦合层的连续动力学变换~\cite{Grathwohl2019} 也已问世。这些进展使模型能在给定训练步数内更好地刻画一个分布。
+%
+%
+
+对复杂应用而言，同样关键的是带有大量耦合层的大型模型能够在不超出内存上限的情况下训练。本文提出的算法可以在层数增加时以常数内存开销训练~\cite{Grathwohl2018}，缓解梯度优化中可能出现的存储限制。通过把每个训练批内的样本分发到多台机器上，还可进一步降低内存开销。
+
+
+最后，典型应用需要在许多不同的参数取值下产生系综，且往往要求参数调节。训练成本因而可以进一步摊销：针对某组参数值处作用量训练的模型，既可用于初始化训练，也可作为针对邻近参数值处同一作用量的其他流模型的先验分布。

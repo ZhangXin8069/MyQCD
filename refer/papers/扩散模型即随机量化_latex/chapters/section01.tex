@@ -1,0 +1,22 @@
+\section{引言}
+
+为了在格点场论中得到物理观测量，必须将路径积分近似为对场组态的求和。蒙特卡洛方法依赖从概率分布中随机采样，该分布由系统的作用量决定~\cite{Knechtli:2017sna}。这类方法的计算代价可能很高，尤其是在参数空间临界点附近~\cite{Wolff:1989wq}。生成模型作为机器学习（ML）算法的一类，可以被训练来生成与给定数据集服从同一分布的新数据，从而刻画底层的目标分布~\cite{tomczak:2022deep}。
+因此，生成模型在格点 QCD 中的一个重要潜在应用便是提高蒙特卡洛模拟的效率~\cite{Boyda:2022nmh}。
+
+按照似然估计方式的不同，正在发展的生成模型大致分为两大类。在隐式极大似然估计（MLE）中，生成对抗网络（GANs）可以通过极小--极大博弈学会生成新组态，其训练数据由例如标准格点模拟制备。
+训练良好的 GAN 随后可以生成新样本，这些样本应当与原数据集服从相同的统计分布，但计算代价更低。此外，GANs 还可通过生成系统行为的可视化来改善格点 QCD 模拟的可解释性~\cite{Zhou:2018ill,Pawlowski:2018qxs}。
+在显式 MLE 中，基于流的模型最近被提出用于提高格点模拟的效率~\cite{ Albergo:2019eim,  Kanwar:2020xzo, Nicoli:2020njz,Albergo:2021bna, Albergo:2021vyo, DelDebbio:2021qwf, Hackett:2021idh, Albergo:2022qfi, Bacchio:2022vje, Caselle:2022acb, Chen:2022ytr, Gerdes:2022eve, Albandea:2023wgd, Singha:2023cql}。基于流的模型无需制备训练数据便能直接逼近量子场的底层分布。尽管该方法可能遇到``模式坍缩''（mode-collapse）与可扩展性问题~\cite{Abbott:2022zsh,Nicoli:2023qsl}，它允许生成可用于 MC 模拟的相互独立的新组态，同样降低了计算成本。生成模型应用的当前进展还包括为特定场论设计新型神经网络结构，例如自回归网络~\cite{Wang:2020hji,Luo:2023opo}与规范等变神经网络~\cite{Favoni:2020reg, Kanwar:2020xzo, Aronsson:2023rli, Abbott:2022zhs, Gerdes:2022eve,Luo:2023opo}。这些进展表明，生成模型有潜力提升格点 QCD 模拟的能力。全面的综述可参见文献~\cite{Zhou:2023pti, He:2023zin}。
+
+最近，ML 社区发展出一类新的深度生成模型，即扩散模型（Diffusion Models，DMs）~\cite{yang:2022diffusion}。通过随机去噪过程生成高质量图像已取得令人瞩目的成功，代表性应用~\cite{Croitoru:2023dm}包括 DALL-E 2~\cite{2022arXiv220406125R} 与 Stable Diffusion~\cite{Rombach_2022_CVPR}。作为编码于随机过程中的一类主流生成模型，DMs 以马尔可夫链为基础，其实施涉及变分推断方法的使用。在高能物理实验中的应用可参见文献~\cite{Mikuni:2022xry,Mikuni:2023dvk}。
+
+
+在数值格点场论中，存在一种替代蒙特卡洛方法来生成场组态的途径，它依赖于求解随机微分方程，即朗之万方程。其起源是 Parisi 与 Wu 提出的随机量化（SQ）~\cite{Parisi:1980ys}。SQ 的基本思想是把量子系统视为某个假想随机过程相对于一个虚构时间的热平衡极限。对于规范场，它不需要固定规范~\cite{Parisi:1980ys}。全面的综述见文献~\cite{Damgaard:1987rr,Namiki:1993fd}。
+对于带有符号问题或复权重问题的理论，例如非零重子密度的量子色动力学或处于实时间（而非欧几里得时间）的理论，朗之万过程可以推广为复朗之万动力学~\cite{Parisi:1983mgm}，它在某些情形下可以规避符号问题~\cite{Berges:2006xc,Aarts:2008rr,Aarts:2008wh,Seiler:2012wz,Sexty:2013ica}，另见综述~\cite{Aarts:2015tyj,Attanasio:2020spv,Berger:2019odf,Nagata:2021ugx}。尽管该方法已被置于更坚实的理论基础之上~\cite{Aarts:2009uq,Aarts:2011ax,Nagata:2016vkn,Aarts:2017vrv,Scherzer:2018hid}，
+收敛性与边界条件问题仍阻碍人们获得完全令人满意的方案。解决这一问题的近期工作包括
+文献~\cite{WesthHansen:2022iqd,Alvestad:2021hsi,Alvestad:2022abf,Lampl:2023xpb}。
+
+在本工作中，我们首先指出 ML 社区的生成式 DMs 与量子场论中的 SQ 之间的对应关系。然后，我们探索用 DMs 生成格点场组态。具体而言，我们针对二维 $\phi^4$ 格点场论证明：与混合蒙特卡洛（HMC）算法相结合，DMs 可以充当沿马尔可夫链的高效全局采样器，从而缩短自关联时间。我们提供了自洽性检验与数值证据，表明该方法能够%statistically exact and
+捕捉由 SQ 视角诱导的量子场论随机动力学。
+
+本文结构如下。下一节简要概述 SQ 的概念。\ref{sec:dm} 节给出 DMs 的细节，并论证 DMs 的去噪过程可以明确地充当一种 SQ 程序。\ref{sec:phi4} 节探索将 DMs 应用于二维标量 $\phi^4$ 场论；此外，我们证明 DMs 能够借助概率流方法以无监督方式准确估计物理作用量。\ref{sec:sum} 节总结 DMs 与 SQ 的对应关系，并概述这一新方法如何推动进一步研究，特别是对于那些用标准方法从先验分布采样的代价高昂的理论。附录~\ref{app:unet} 给出所采用的 U-Net 结构的信息，而附录 \ref{app:she} 简要讨论 Skilling-Hutchinson 估计器。
+关于观测量和接受率对各系统参数及 DM 参数依赖性的研究分别见附录 \ref{app:sta} 与 \ref{app:acc}。

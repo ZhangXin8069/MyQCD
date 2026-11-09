@@ -1,0 +1,56 @@
+\section{程序开发与基准测试}
+\label{sec:benchmarking}
+
+在包括 NNPDF3.0 在内的以往所有 NNPDF 发布中，PDF 演化与深度非弹性散射都用内部程序 {\tt
+  FKgenerator} 计算。如第~\ref{sec:expdata} 节所述，NNPDF3.1 的 PDF 演化改用公开的 {\tt APFEL} 程序。深度非弹性散射与固定靶 Drell-Yan 也改用 {\tt APFEL} 计算。
+就微扰演化而言，{\tt APFEL} 已与其他公开程序——如用于 PDF 演化的
+{\tt HOPPET}~\cite{Salam:2008qg} 与 {\tt QCDNUM}~\cite{Botje:2010ay}，以及用于在质量方案中计算重夸克结构函数的
+{\tt OpenQCDrad}~\cite{Alekhin:2013nda}——进行了充分比对。
+
+我们对 {\tt APFEL} 与 {\tt FKgenerator} 进行了广泛的基准测试，同时涉及深度非弹性结构函数
+（文献~\cite{Ball:2016neh}已提及）与 Drell-Yan 截面。
+在这一过程中发现了 {\tt FKgenerator} 实现 DIS 结构函数的两个漏洞
+（一个与靶质量修正有关，另一个出在 $\mathcal{O}(\alpha_s)$ 带电流质量系数函数的表达式中）：
+我们明确核查过，二者对 NNPDF3.0 PDF 的影响都无法与统计涨落区分开。
+
+图~\ref{fig:benchmarking} 给出深度非弹性结构函数基准测试的代表性结果：
+以 NNPDF3.0 为输入 PDF，图中给出 {\tt FKgenerator} 与 {\tt APFEL}
+实现之间的相对差异，对象为 CHORUS 带电流中微子-核约化截面、NMC 质子约化截面，
+以及 H1 实验 HERA-II 数据集的中性与带电流截面。各种情形我们都给出 LO 以及 FONLL-A、-B、-C 一般质量方案的理论计算。两个程序符合良好，差异至多在 1\% 量级，通常远小得多。
+%
+该论断对所有微扰阶都成立。
+
+%%%%%%%%%%%%%%
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.46\textwidth]{images/plots/CHORUSNU.pdf}
+\includegraphics[width=0.46\textwidth]{images/plots/NMC.pdf}
+\includegraphics[width=0.46\textwidth]{images/plots/H1HERA2NCEM.pdf}
+\includegraphics[width=0.46\textwidth]{images/plots/H1HERA2CCEP.pdf}
+\caption{\small 以 NNPDF3.0 为输入 PDF 时用 {\tt FKgenerator} 与 {\tt APFEL}
+  计算的 DIS 结构函数相对差异：对象为 CHORUS 带电流中微子-核
+  约化截面、NMC 质子约化截面以及 H1 实验 HERA-II 数据集的中性与带电流截面。
+  数据集同文献~\cite{Ball:2014uwa} 表 1。对每个数据集我们比较
+  LO 及 FONLL-A、B、C~\cite{Forte:2010ta} 重夸克质量方案下的理论计算。
+  \label{fig:benchmarking}}
+\end{figure}
+%%%%%%%%%%%%%%%%%%
+
+
+Drell-Yan 截面的基准测试见图~\ref{fig:benchmarking2}：仍以 NNPDF3.0 为输入，
+图中给出 E605 $pd$ 与 E866 $pp$ 截面在 LO、NLO、NNLO 下 {\tt FKgenerator} 与 {\tt APFEL}
+计算的相对差异。同样，差异至多在 2\% 量级且通常远小。我们查明这些残余差异源于
+{\tt FKgenerator} 计算对大 $x$ 区覆盖欠佳；得益于更好的输入 $x$ 网格选择，
+{\tt APFEL} 在这方面有所改进。
+
+%%%%%%%%%%%%%%
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.49\textwidth]{images/plots/60x_DYE605_fixed.pdf}
+\includegraphics[width=0.49\textwidth]{images/plots/60x_DYE886R_P.pdf}
+\caption{\small 同图~\ref{fig:benchmarking}，对应固定靶 Drell-Yan 截面：
+  结果以 LO、NLO 与 NNLO 给出，数据集为 E605 $pA$ 与 E866 $pp$
+  截面（依文献~\cite{Ball:2014uwa} 表 2）。
+ \label{fig:benchmarking2}} 
+\end{figure}
+%%%%%%%%%%%%%%%%%%
