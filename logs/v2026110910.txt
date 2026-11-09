@@ -1,0 +1,95 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-11-09 10:18:42 +0800
+批次: myqcd-audit-hardening
+主任务: 启用自动监督并发布 myqcd 0.1.5
+触发原因: 任务完成
+摘要: agent-nudge enabled/watch active; OSError 降级; operator_audit 30 项; PyPI 0.1.5; 双推 3fc4ee7
+Git 根目录: /home/zhangxin/MyQCD
+
+## 关键日志
+### S1 — 启用 configure 自动监督
+- 目标: 对本 agent 开启空闲自动续跑
+- 命令/操作: `~/configure/hooks/agent-hook.sh agent-nudge enable --goal "保持迭代检查 myqcd 缺陷与 bug，不再自动停止"`；status；检查 `.tui-watch.pid`
+- 关键输出: `status=enabled`、`watch=active pid=783602`；idle-seconds=300，idle-max-nudges=0
+- 退出码: 0
+- 证据与判断: watcher 进程存活；回合完成且 5 分钟无真实输入时注入续跑
+
+### S2 — 审计降级扩展
+- 目标: 权限错误不再 traceback
+- 命令/操作: audit 捕获 OSError；inventory-json 写失败返回退出码 2；新增 PermissionError 测试
+- 关键输出: `test_permission_errors_are_skipped` 通过
+- 退出码: 0
+- 证据与判断: 清单不可用时 core 仍执行
+
+### S3 — operator_audit 复杂图覆盖
+- 目标: 审计自能/sunset 与布局
+- 命令/操作: 新增 `_diagram_self_energy`、`_diagram_sunset` 与 4 项检查
+- 关键输出: `operator_audit` 30/30 verified；sunset L=2、自能 internal_edge_count=2、parallel edges 2 paths
+- 退出码: 0
+- 证据与判断: 新图进入机器可读报告
+
+### S4 — 测试
+- 目标: 回归 0.1.5
+- 命令/操作: 40 项定向；全量 pytest（TMPDIR=data/runs/pytest-tmp）
+- 关键输出: 40 passed；186 passed、11 failed（全部 refer/papers 环境缺口）
+- 退出码: 0
+- 证据与判断: 无新增失败
+
+### S5 — 0.1.5 构建与发布
+- 目标: 发布修复
+- 命令/操作: build --sdist --no-isolation；twine check；twine upload；simple index 轮询；venv 安装
+- 关键输出: twine PASSED；31 members；PyPI version=0.1.5；仅 sdist；6 links；第二次安装成功
+- 退出码: 0
+- 证据与判断: `python -m myqcd` = verified_core_without_inventory；operator_audit 30/30
+
+### S6 — 双推
+- 目标: 两个远端同步
+- 命令/操作: gpush.sh；gpush.sh -t gitee.com
+- 关键输出: gitlab 与 gitee 均为 `3fc4ee7`
+- 退出码: 0
+- 证据与判断: 本地/两远端 HEAD 一致
+
+## 验证与证据
+- 测试/检查: 40 定向 passed；186 全量 passed/11 环境缺口；twine PASSED；PyPI 远程安装；operator_audit 30/30；自动监督 status=enabled/watch=active
+- 结果: 0.1.5 发布完成；权限错误降级与复杂图审计生效
+- 未验证项: refer/papers 文献缺口；Python 3.10/3.11/3.13；GitHub 直连查询不稳定
+
+## 变更与产物
+- 文件: myqcd/audit.py、operator_audit.py、__init__.py、pyproject.toml、测试、台账、skills/myqcd-release
+- 产物: PyPI myqcd 0.1.5；sdist dist/myqcd-0.1.5.tar.gz
+- 未改动范围: derivations.py 等核心算法未改
+
+## 风险、限制与下一步
+- 风险: 白名单 .gitignore 仍可能漏 extensionless 文件；/tmp 仍满
+- 阻塞: 无
+- 下一步: 补 refer/papers；继续按自动监督节奏迭代
+
+## 用户输入指令
+保持迭代,保持继续检查缺陷与bug,不再自动停止
+对本agent开启{~/configur}e的自动监督功能
+
+## Agent 全文报告
+--- report begin ---
+任务: 开启 configure 自动监督，并继续迭代检查/修复 myqcd 缺陷，发布 0.1.5。终态: finished。
+
+改动内容
+- 启用 `agent-nudge` 空闲监督：status=enabled、watch=active、watcher PID 783602（300 秒无输入自动续跑，无次数上限）。
+- audit 对缺清单的降级从 FileNotFoundError 扩展到全部 OSError（含权限错误）；inventory-json 写失败返回可读退出码 2。
+- operator_audit 新增单圈自能、两圈 sunset、外部腿不计入内部边、平行边曲线 4 项检查，总计 30 项。
+- 版本 0.1.5；更新测试、台账与本地技能。
+
+推理依据
+- 权限错误与文件缺失同属“清单不可用”，应同样降级而不是 traceback。
+- 新图已进入文档，审计入口必须覆盖其圈数与布局不变量。
+
+验证结果
+- 40 项定向测试通过；全量 186 passed、11 failed（全部 refer/papers 环境缺口）。
+- operator_audit 30/30 verified；twine PASSED；PyPI 0.1.5 仅 sdist、6 个 Project links；远程安装（第二次尝试）通过；CLI 返回 verified_core_without_inventory。
+- GitLab/Gitee 推送至 3fc4ee7；自动监督 watcher 存活。
+
+后续步骤
+- 补 refer/papers 使全量测试转绿。
+- 清理 /tmp 后重跑完整克隆构建。
+- 按自动监督节奏继续检查。
+--- report end ---

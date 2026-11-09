@@ -201,3 +201,11 @@
 - 关键内容: 启用 MathJax/dollarmath; 复杂算符实例; 自能/sunset 图; 环形/平行边/外部腿布局; PyPI 0.1.4 与 RTD 验证
 - 验证: path, size, required sections, conflict markers
 - 批次状态: complete
+## myqcd-audit-hardening - final - 2026-11-09 10:18:42 +0800
+- 主任务: 启用自动监督并发布 myqcd 0.1.5
+- 日志文件: logs/v2026110910.txt
+- 文件大小: 4655 bytes
+- 触发原因: 任务完成
+- 关键内容: agent-nudge enabled/watch active; OSError 降级; operator_audit 30 项; PyPI 0.1.5; 双推 3fc4ee7
+- 验证: path, size, required sections, conflict markers
+- 批次状态: complete

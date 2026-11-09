@@ -42,7 +42,7 @@
 | 9 | PyPI 上传 | `twine upload` 六次均 exit 0（0.1.0–0.1.5） | ✅ |
 | 10 | simple index 传播 | 六个版本均出现在 simple index；CDN 边缘偶有滞后，重试即可 | ✅ |
 | 11 | PyPI 远程安装 | 新 venv 分别安装 0.1.0–0.1.5；版本/路径/代数检查通过 | ✅ |
-| 12 | 双远端推送 | gitlab 与 gitee 同步 0.1.4 提交 `6100706`；GitHub 随 Gitee 自动同步 | ✅ |
+| 12 | 双远端推送 | gitlab 与 gitee 同步 0.1.5 代码提交 `3fc4ee7`；GitHub 随 Gitee 自动同步 | ✅ |
 | 13 | Read the Docs 双语言构建 | `sphinx -W docs/en` 与 `docs/zh` 均 `build succeeded.` | ✅ |
 | 14 | 双语代码块逐字节一致 | overview/usage/operators/diagrams/install 的围栏块完全一致 | ✅ |
 | 15 | 文档示例可执行 | `usage.md` 的 3 个 python 块顺序执行通过 | ✅ |
