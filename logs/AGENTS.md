@@ -177,3 +177,11 @@
 - 关键内容: 同步 4 个参考库子模块; 新增算符/费曼图层; PyPI myqcd 0.1.0 发布并从远程复验; gitlab+gitee 双推
 - 验证: path, size, required sections, conflict markers
 - 批次状态: complete
+## myqcd-docs-release - final - 2026-11-09 09:12:10 +0800
+- 主任务: 增加算符/费曼图展示并发布 myqcd 0.1.3
+- 日志文件: logs/v2026110909.txt
+- 文件大小: 8213 bytes
+- 触发原因: 任务完成
+- 关键内容: 16 个算符表、3 张 SVG 图、标准值对照、双语 README、完整 PyPI links、skills/myqcd-release; PyPI 0.1.3 与 RTD 构建验证
+- 验证: path, size, required sections, conflict markers
+- 批次状态: complete

@@ -44,7 +44,7 @@
 | 13 | Read the Docs 双语言构建 | `sphinx -W docs/en` 与 `docs/zh` 均 `build succeeded.` | ✅ |
 | 14 | 双语代码块逐字节一致 | overview/usage/operators/diagrams/install 的围栏块完全一致 | ✅ |
 | 15 | 文档示例可执行 | `usage.md` 的 3 个 python 块顺序执行通过 | ✅ |
-| 16 | RTD 线上项目 | API：`myqcd` 与 `myqcd-zh` 存在；build commit 260fc13、state=finished；两站页面 200 | ✅ |
+| 16 | RTD 线上项目 | API：`myqcd` 与 `myqcd-zh` 存在；0.1.3 文档 build commit 86f1d89、state=finished；operators/diagrams 页与 `_images/*.svg` 均 200 | ✅ |
 | 17 | 缺 `INDEX.md` 时默认 CLI 可用 | 安装环境 `python -m myqcd` exit 0，`status=verified_core_without_inventory` | ✅ 0.1.1 |
 | 18 | `operator_audit` 默认根目录 | 安装环境从 `/tmp` 运行，输出写入 `/tmp/logs/data/operator_audit/` | ✅ 0.1.1 |
 | 19 | 外部腿不计入圈数 | `E_int - V + C`；含 `-1` 端点的边不计入内部边 | ✅ 0.1.2 |
@@ -52,7 +52,7 @@
 | 21 | 英文默认 README + 中文版 | `README.md` 英文、`README.zh-CN.md` 中文，sdist 同时包含两者 | ✅ 0.1.2 |
 | 22 | PyPI Project links | JSON `project_urls` 含 Documentation/Homepage/GitLab/Gitee/GitHub/Issues 六项 | ✅ 0.1.2 |
 | 23 | 算符展示 | 16 个 Dirac 双线性表，含宇称/C/量纲/PyQCD 索引与标准值对照 | ✅ 0.1.3 |
-| 24 | 费曼图展示 | 两张链图、三胶子三角、Wick 配对的 SVG；圈数与 QCD 规则对照 | ✅ 0.1.3 |
+| 24 | 费曼图展示 | 两点链图、三胶子三角、Wick 配对的 SVG；圈数与 QCD 规则对照 | ✅ 0.1.3 |
 
 ## 构建与安装证据
 

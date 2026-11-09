@@ -80,7 +80,7 @@ twine 上传、PyPI 远程安装复验、双远端推送、Read the Docs 双语�
 - 根 `README.md` 默认英文，顶部 `**English** | [中文](...)`；`README.zh-CN.md` 中文，顶部反向链接。语言链接用 GitLab 绝对 URL。
 - PyPI Project links 对齐 PyQCD 六项：Documentation、Homepage、国内开发 (GitLab)、国内发布 (Gitee)、国外发布 (GitHub)、Issues。
 - RTD 每侧：`index.rst` + `overview/usage/operators/diagrams/install.md` + `conf.py` + `.readthedocs.yaml` + `requirements.txt`。两侧 toctree 与页面集合必须一致。
-- 图放在 `docs/<lang>/_static/*.svg`，用 Markdown `![...](_static/name.svg)` 引用；`conf.py` 设 `html_static_path = ["_static"]`。
+- 图放在 `docs/<lang>/_static/*.svg`，用 Markdown `![...](_static/name.svg)` 引用；`conf.py` 设 `html_static_path = ["_static"]`。Sphinx 会把图片节点输出到 `_images/name.svg`；README/PyPI 的绝对图片 URL 必须用 `https://myqcd.readthedocs.io/<lang>/latest/_images/name.svg`，不要写 `_static`。
 - 算符页必须给出 16 个结构的表：结构、类别、宇称、C、量纲、PyQCD 索引；说明 `T13` 无精确 PyQCD 索引的原因。
 - 图页必须给出图的 `V`、`E_int`、`C`、`L=E_int-V+C`，并与树图/单圈标准值对照；QCD 顶点表列出颜色因子与耦合幂次。
 - 对照表只写可复现的精确值（Dirac 迹、`C_F=4/3`、`C_A=3`、`f_123=1`、`d_118=1/sqrt(3)`、`sum f^2=24`、`sum d^2=40/3`），不写未验证的数值。
@@ -97,6 +97,7 @@ twine 上传、PyPI 远程安装复验、双远端推送、Read the Docs 双语�
 | 外部腿被算成圈 | `loop_count` 用了总边数 | 改用 `internal_edge_count`（两端点都 >=0） |
 | TikZ 引用未声明的 `external` | 外部腿边端点 `-1` | 输出 `\vertex (external) at (-2.4,0) {};` |
 | RTD 页面没有新内容 | 只查了首页 | 查 `install.html`/`operators.html` 等独立页；查 builds API 的 commit 与 state |
+| README 图片 404 | 用了 `_static/` 绝对 URL | 改用 `_images/name.svg`（Sphinx 图片节点输出目录） |
 | gpush 拒绝提交 | 有已暂存 submodule gitlink | 先显式提交 gitlink，再 `gpush.sh` |
 | 日志索引末尾空行 | `write-log.sh` 追加索引 | 修掉 `logs/AGENTS.md` 的 blank line at EOF，再 `git diff --check` |
 
