@@ -173,8 +173,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument(
         "--root",
         type=Path,
-        default=Path(__file__).resolve().parents[1],
-        help="MyQCD 工作区根目录",
+        default=Path.cwd(),
+        help="MyQCD 工作区根目录（默认当前目录）",
     )
     parser.add_argument(
         "--output",

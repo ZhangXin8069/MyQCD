@@ -38,8 +38,9 @@ python -m myqcd.operator_audit --root .
 python -m myqcd.pyqcd_theory_audit --root .
 ```
 
-`python -m myqcd` 需要源码仓库中的 `refer/papers/INDEX.md`；纯安装环境请使用
-`python -m myqcd.operator_audit`，它只依赖包内代码与 SymPy。
+`python -m myqcd` 在源码仓库中会附加论文公式清单；缺少 `refer/papers/INDEX.md`
+时自动跳过清单并以 `verified_core_without_inventory` 报告，核心检查仍然执行。
+纯安装环境可直接运行 `python -m myqcd` 或 `python -m myqcd.operator_audit`。
 
 ## 证据边界
 

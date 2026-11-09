@@ -13,8 +13,10 @@ python -m pytest myqcd/testing/myqcd
 python -m compileall -q myqcd
 ```
 
-`python -m myqcd` 需要 `refer/papers/INDEX.md`。当前检出缺少该文件时命令会以
-`FileNotFoundError` 退出；必须如实记录，不能把核心公式检查当作完整 CLI 验证。
+`python -m myqcd` 在 `refer/papers/INDEX.md` 缺失时自动跳过论文清单
+（`status=verified_core_without_inventory`），核心检查仍然执行；指定
+`--paper-id` 或 `--inventory-json` 时因无法校验/写出清单而以退出码 2 报错。
+不能把跳过清单当作完整 CLI 验证。
 
 - PyQCD 事实源只允许是仓库内 `refer/git-rep/PyQCD/`；默认入口不得回退到仓库外路径。
 - `verified` 只覆盖代码实际检查的代数、组合、量纲或有限维代理，不扩展到非微扰矩阵元、

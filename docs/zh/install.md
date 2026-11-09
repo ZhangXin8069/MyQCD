@@ -26,6 +26,8 @@ python -m sphinx -b html -W docs/en docs/en/_build
 
 ## 证据边界
 
-安装包后可以使用代数、算符与图层。`python -m myqcd` 入口还需要源码仓库中的
-`refer/papers/INDEX.md`；纯安装环境请改用
-`python -m myqcd.operator_audit`。
+安装包后可以使用代数、算符与图层。`python -m myqcd` 在
+`refer/papers/INDEX.md` 可用时会附加论文公式清单；文件缺失时自动跳过清单并以
+`verified_core_without_inventory` 报告，核心检查仍然执行。纯安装环境下
+`python -m myqcd` 与 `python -m myqcd.operator_audit` 均可用；后者的输出根目录
+默认是当前工作目录。

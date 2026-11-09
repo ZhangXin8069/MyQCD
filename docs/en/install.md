@@ -28,6 +28,8 @@ python -m sphinx -b html -W docs/en docs/en/_build
 ## Evidence boundary
 
 Installing the package gives access to the algebra, operator and diagram
-layers. The `python -m myqcd` entry point additionally needs
-`refer/papers/INDEX.md` from the source repository; in a pure installation use
-`python -m myqcd.operator_audit` instead.
+layers. `python -m myqcd` additionally uses `refer/papers/INDEX.md` when it is
+available; if the file is missing, the inventory is skipped with
+`verified_core_without_inventory` and the core checks still run. In a pure
+installation, `python -m myqcd` and `python -m myqcd.operator_audit` both work;
+the latter defaults its output root to the current directory.

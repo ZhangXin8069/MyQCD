@@ -72,8 +72,11 @@
 
 ## 验证
 
-- `python -m pytest myqcd/testing/myqcd/test_myqcd_gamma.py ...`：47 passed。
+- 定向测试：58 passed（gamma/color/operators/feynman/diagram_export/audit fallback/wick）。
+- 全量测试：161 passed；11 failed 全部由 `refer/papers` 文献目录缺失引起，属环境缺口。
 - `python -m myqcd.operator_audit`：26 项检查，`status=verified`，0 失败。
+- `python -m myqcd`：缺 `refer/papers/INDEX.md` 时自动跳过清单，返回
+  `verified_core_without_inventory`，核心检查仍执行。
 - 新增测试覆盖：Clifford 代数、迹定理与显式矩阵对拍、16 基秩、C/H/T 关系、SU(3) 结构与
   Fierz 恒等式、Dirac 双线性分解往返、PyQCD 索引映射、Wick 图与圈数、TikZ/DOT/SVG 导出结构。
 

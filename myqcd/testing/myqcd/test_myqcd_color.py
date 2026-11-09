@@ -59,3 +59,10 @@ def test_generator_index_validation():
 
     with pytest.raises(ValueError):
         color.quark_gluon_vertex(9)
+
+
+def test_epsilon_tensor_values():
+    epsilon = color.epsilon_tensor()
+    assert epsilon[0, 1, 2] == 1
+    assert epsilon[2, 1, 0] == -1
+    assert epsilon[0, 0, 1] == 0

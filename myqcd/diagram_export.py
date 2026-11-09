@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Mapping
 
-from .feynman import Diagram, PARTICLE_STYLES
+from .feynman import Diagram
 
 
 _TIKZ_STYLES = {

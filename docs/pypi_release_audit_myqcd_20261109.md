@@ -9,12 +9,19 @@
 |---|---|
 | 分发名 | `myqcd` |
 | 导入名 | `myqcd` |
-| 版本 | `0.1.0` |
-| 上传物 | 仅 sdist：`dist/myqcd-0.1.0.tar.gz` |
+| 版本 | `0.1.1`（当前；0.1.0 为首版） |
+| 上传物 | 仅 sdist：`dist/myqcd-0.1.0.tar.gz`、`dist/myqcd-0.1.1.tar.gz` |
 | 用户名 | `TWINE_USERNAME=__token__` |
 | 凭据变量 | `PYPI_ZHANGXIN8069_API_KEY`（只从 `~/env-key.sh` 读取，不落盘） |
-| 项目页 | <https://pypi.org/project/myqcd/0.1.0/> |
-| 文档站 | <https://myqcd.readthedocs.io/>（配置就绪，线上项目待网页绑定） |
+| 项目页 | <https://pypi.org/project/myqcd/0.1.1/> |
+| 文档站 | <https://myqcd.readthedocs.io/>（线上项目已存在，中英文构建通过） |
+
+## 发布记录
+
+| 版本 | 变更 | 证据 |
+|---|---|---|
+| 0.1.0 | 首次发布：算符/费曼图层与打包接口 | `twine check` PASSED；PyPI 远程安装通过 |
+| 0.1.1 | 修复默认 CLI 缺 `INDEX.md` 时 traceback；`operator_audit` 默认根改为当前目录；顶层子模块可发现；移除未使用导入 | 全量 161 passed（11 个 `refer/papers` 环境缺口）；PyPI 远程安装后 `python -m myqcd` 返回 `verified_core_without_inventory` |
 
 ## 验收清单
 
@@ -28,24 +35,36 @@
 | 6 | `SOURCES.txt` 无家目录绝对路径 | `/home/` 命中数 0 | ✅ |
 | 7 | 构建无弃用/绝对路径告警 | `grep -iE "deprecat|path must be relative"` → 空 | ✅ |
 | 8 | 干净 venv 安装本地 sdist | `myqcd.__file__` 含 `site-packages`；26 项审计 verified | ✅ |
-| 9 | PyPI 上传 | `twine upload` exit 0 | ✅ |
-| 10 | simple index 传播 | 轮询立即出现 `myqcd-0.1.0.tar.gz` | ✅ |
-| 11 | PyPI 远程安装 | 新 venv `pip install myqcd==0.1.0` exit 0；版本/路径/代数检查通过 | ✅ |
-| 12 | 双远端推送 | gitlab.itp.ac.cn + gitee.com（见最终日志） | 待推送 |
+| 9 | PyPI 上传 | `twine upload` 两次均 exit 0（0.1.0、0.1.1） | ✅ |
+| 10 | simple index 传播 | 两个版本均立即出现在 simple index | ✅ |
+| 11 | PyPI 远程安装 | 新 venv 分别安装 0.1.0、0.1.1；版本/路径/代数检查通过 | ✅ |
+| 12 | 双远端推送 | gitlab 260fc13、gitee 260fc13；GitHub 260fc13 | ✅ |
 | 13 | Read the Docs 双语言构建 | `sphinx -W docs/en` 与 `docs/zh` 均 `build succeeded.` | ✅ |
 | 14 | 双语代码块逐字节一致 | overview/usage/install 的围栏块完全一致 | ✅ |
 | 15 | 文档示例可执行 | `usage.md` 的 3 个 python 块顺序执行通过 | ✅ |
-| 16 | RTD 线上项目 | 未提供 RTD token，未执行网页注册/绑定 | 未验证 |
+| 16 | RTD 线上项目 | API：`myqcd` 与 `myqcd-zh` 存在；build commit 260fc13、state=finished；两站页面 200 | ✅ |
+| 17 | 缺 `INDEX.md` 时默认 CLI 可用 | 安装环境 `python -m myqcd` exit 0，`status=verified_core_without_inventory` | ✅ 0.1.1 |
+| 18 | `operator_audit` 默认根目录 | 安装环境从 `/tmp` 运行，输出写入 `/tmp/logs/data/operator_audit/` | ✅ 0.1.1 |
 
 ## 构建与安装证据
 
 ```text
-Successfully built myqcd-0.1.0.tar.gz
-Checking dist/myqcd-0.1.0.tar.gz: PASSED
+Successfully built myqcd-0.1.1.tar.gz
+Checking dist/myqcd-0.1.1.tar.gz: PASSED
 members=30
 ```
 
 干净 venv（先本地 sdist，后 PyPI 远程）：
+
+```text
+version: 0.1.1
+file: .../site-packages/myqcd/__init__.py
+python -m myqcd: exit=0, status=verified_core_without_inventory
+myqcd (console): exit=0, status=verified_core_without_inventory
+operator_audit: status=verified, check_count=26
+```
+
+0.1.0 的安装证据：
 
 ```text
 version: 0.1.0

@@ -119,13 +119,37 @@ def _build_audit_bundle(
     root: Path | str,
     paper_ids: Iterable[str] | str | None = None,
     paper_id_files: Iterable[Path | str] | None = None,
-) -> tuple[Dict[str, Any], InventoryReport]:
+) -> tuple[Dict[str, Any], InventoryReport | None]:
     core = run_core_checks()
     requested_paper_ids = _merge_paper_ids(
         paper_ids=paper_ids,
         paper_id_files=paper_id_files,
     )
-    inventory = scan_refer_papers(root, paper_ids=requested_paper_ids)
+    try:
+        inventory = scan_refer_papers(root, paper_ids=requested_paper_ids)
+    except FileNotFoundError as exc:
+        missing = exc.filename or str(exc)
+        reason = f"论文公式清单不可用：缺少 {missing}"
+        if requested_paper_ids:
+            raise ValueError(reason) from exc
+        return (
+            {
+                "status": "verified_core_without_inventory"
+                if core["status"] == "verified"
+                else "failed",
+                "core": core,
+                "paper_ids": [],
+                "paper_filter": {
+                    "enabled": False,
+                    "requested_paper_ids": [],
+                    "requested_count": 0,
+                    "selected_paper_count": 0,
+                    "source_files": [],
+                },
+                "inventory": {"skipped": True, "reason": reason},
+            },
+            None,
+        )
     paper_filter = {
         "enabled": bool(requested_paper_ids),
         "requested_paper_ids": list(requested_paper_ids),
@@ -169,8 +193,8 @@ def main() -> int:
     parser.add_argument(
         "--root",
         type=Path,
-        default=Path(__file__).resolve().parents[1],
-        help="MyQCD 工作区根目录",
+        default=Path.cwd(),
+        help="MyQCD 工作区根目录（默认当前目录）",
     )
     parser.add_argument(
         "--paper-id",
@@ -203,6 +227,11 @@ def main() -> int:
     except ValueError as exc:
         parser.exit(2, f"error: {_cli_error_message(exc)}\n")
     if args.inventory_json is not None:
+        if inventory is None:
+            parser.exit(
+                2,
+                "error: 论文公式清单不可用，无法写出逐公式索引\n",
+            )
         write_inventory(args.inventory_json, inventory)
         report["inventory_json"] = str(args.inventory_json)
     print(json.dumps(report, ensure_ascii=False, indent=2))

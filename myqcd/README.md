@@ -31,9 +31,11 @@ python -m myqcd.pyqcd_theory_audit --root .
 python -m pytest myqcd/testing/myqcd
 ```
 
-`python -m myqcd.operator_audit` 输出
-`logs/data/operator_audit/operator_feynman_audit.json`，覆盖 Clifford 代数、
-Dirac 基秩、迹定理、颜色 Fierz、双线性分解、Wick 图、圈数与导出器结构。
+`python -m myqcd` 在源码仓库中会附加论文公式清单；缺少
+`refer/papers/INDEX.md` 时自动跳过清单并以
+`verified_core_without_inventory` 报告，核心检查仍然执行。指定
+`--paper-id` 或 `--inventory-json` 时因无法校验/写出清单而返回退出码 2。
+`python -m myqcd.operator_audit` 的默认根目录是当前工作目录。
 
 `python -m myqcd.pyqcd_theory_audit` 默认读取仓库内
 `refer/git-rep/PyQCD/`，并输出
