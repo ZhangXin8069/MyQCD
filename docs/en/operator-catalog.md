@@ -1,0 +1,106 @@
+# Operator catalog
+
+Generated from `operator_basis.operator_table` for one flavor, derivatives
+0–2 and singlet/octet color. This is a combinatorial catalog: it does not
+claim that all rows are independent after equations of motion.
+
+| Name | Structure | Class | n | dim | P | C | PyQCD | Color |
+|---|---|---|---|---|---|---|---|---|
+| `u_u_S_d0_singlet` | `S` | S | 0 | 3 | 1 | 1 | 0 | singlet |
+| `u_u_S_d0_octet` | `S` | S | 0 | 3 | 1 | 1 | 0 | octet |
+| `u_u_S_d1_singlet` | `S` | S | 1 | 4 | 1 | 1 | 0 | singlet |
+| `u_u_S_d1_octet` | `S` | S | 1 | 4 | 1 | 1 | 0 | octet |
+| `u_u_S_d2_singlet` | `S` | S | 2 | 5 | 1 | 1 | 0 | singlet |
+| `u_u_S_d2_octet` | `S` | S | 2 | 5 | 1 | 1 | 0 | octet |
+| `u_u_P_d0_singlet` | `P` | P | 0 | 3 | -1 | 1 | 5 | singlet |
+| `u_u_P_d0_octet` | `P` | P | 0 | 3 | -1 | 1 | 5 | octet |
+| `u_u_P_d1_singlet` | `P` | P | 1 | 4 | -1 | 1 | 5 | singlet |
+| `u_u_P_d1_octet` | `P` | P | 1 | 4 | -1 | 1 | 5 | octet |
+| `u_u_P_d2_singlet` | `P` | P | 2 | 5 | -1 | 1 | 5 | singlet |
+| `u_u_P_d2_octet` | `P` | P | 2 | 5 | -1 | 1 | 5 | octet |
+| `u_u_V1_d0_singlet` | `V1` | V | 0 | 3 | -1 | 1 | 1 | singlet |
+| `u_u_V1_d0_octet` | `V1` | V | 0 | 3 | -1 | 1 | 1 | octet |
+| `u_u_V1_d1_singlet` | `V1` | V | 1 | 4 | -1 | 1 | 1 | singlet |
+| `u_u_V1_d1_octet` | `V1` | V | 1 | 4 | -1 | 1 | 1 | octet |
+| `u_u_V1_d2_singlet` | `V1` | V | 2 | 5 | -1 | 1 | 1 | singlet |
+| `u_u_V1_d2_octet` | `V1` | V | 2 | 5 | -1 | 1 | 1 | octet |
+| `u_u_V2_d0_singlet` | `V2` | V | 0 | 3 | -1 | -1 | 2 | singlet |
+| `u_u_V2_d0_octet` | `V2` | V | 0 | 3 | -1 | -1 | 2 | octet |
+| `u_u_V2_d1_singlet` | `V2` | V | 1 | 4 | -1 | -1 | 2 | singlet |
+| `u_u_V2_d1_octet` | `V2` | V | 1 | 4 | -1 | -1 | 2 | octet |
+| `u_u_V2_d2_singlet` | `V2` | V | 2 | 5 | -1 | -1 | 2 | singlet |
+| `u_u_V2_d2_octet` | `V2` | V | 2 | 5 | -1 | -1 | 2 | octet |
+| `u_u_V3_d0_singlet` | `V3` | V | 0 | 3 | -1 | 1 | 3 | singlet |
+| `u_u_V3_d0_octet` | `V3` | V | 0 | 3 | -1 | 1 | 3 | octet |
+| `u_u_V3_d1_singlet` | `V3` | V | 1 | 4 | -1 | 1 | 3 | singlet |
+| `u_u_V3_d1_octet` | `V3` | V | 1 | 4 | -1 | 1 | 3 | octet |
+| `u_u_V3_d2_singlet` | `V3` | V | 2 | 5 | -1 | 1 | 3 | singlet |
+| `u_u_V3_d2_octet` | `V3` | V | 2 | 5 | -1 | 1 | 3 | octet |
+| `u_u_V4_d0_singlet` | `V4` | V | 0 | 3 | 1 | -1 | 4 | singlet |
+| `u_u_V4_d0_octet` | `V4` | V | 0 | 3 | 1 | -1 | 4 | octet |
+| `u_u_V4_d1_singlet` | `V4` | V | 1 | 4 | 1 | -1 | 4 | singlet |
+| `u_u_V4_d1_octet` | `V4` | V | 1 | 4 | 1 | -1 | 4 | octet |
+| `u_u_V4_d2_singlet` | `V4` | V | 2 | 5 | 1 | -1 | 4 | singlet |
+| `u_u_V4_d2_octet` | `V4` | V | 2 | 5 | 1 | -1 | 4 | octet |
+| `u_u_A1_d0_singlet` | `A1` | A | 0 | 3 | 1 | 1 | 12 | singlet |
+| `u_u_A1_d0_octet` | `A1` | A | 0 | 3 | 1 | 1 | 12 | octet |
+| `u_u_A1_d1_singlet` | `A1` | A | 1 | 4 | 1 | 1 | 12 | singlet |
+| `u_u_A1_d1_octet` | `A1` | A | 1 | 4 | 1 | 1 | 12 | octet |
+| `u_u_A1_d2_singlet` | `A1` | A | 2 | 5 | 1 | 1 | 12 | singlet |
+| `u_u_A1_d2_octet` | `A1` | A | 2 | 5 | 1 | 1 | 12 | octet |
+| `u_u_A2_d0_singlet` | `A2` | A | 0 | 3 | 1 | -1 | 13 | singlet |
+| `u_u_A2_d0_octet` | `A2` | A | 0 | 3 | 1 | -1 | 13 | octet |
+| `u_u_A2_d1_singlet` | `A2` | A | 1 | 4 | 1 | -1 | 13 | singlet |
+| `u_u_A2_d1_octet` | `A2` | A | 1 | 4 | 1 | -1 | 13 | octet |
+| `u_u_A2_d2_singlet` | `A2` | A | 2 | 5 | 1 | -1 | 13 | singlet |
+| `u_u_A2_d2_octet` | `A2` | A | 2 | 5 | 1 | -1 | 13 | octet |
+| `u_u_A3_d0_singlet` | `A3` | A | 0 | 3 | 1 | 1 | 14 | singlet |
+| `u_u_A3_d0_octet` | `A3` | A | 0 | 3 | 1 | 1 | 14 | octet |
+| `u_u_A3_d1_singlet` | `A3` | A | 1 | 4 | 1 | 1 | 14 | singlet |
+| `u_u_A3_d1_octet` | `A3` | A | 1 | 4 | 1 | 1 | 14 | octet |
+| `u_u_A3_d2_singlet` | `A3` | A | 2 | 5 | 1 | 1 | 14 | singlet |
+| `u_u_A3_d2_octet` | `A3` | A | 2 | 5 | 1 | 1 | 14 | octet |
+| `u_u_A4_d0_singlet` | `A4` | A | 0 | 3 | -1 | -1 | 15 | singlet |
+| `u_u_A4_d0_octet` | `A4` | A | 0 | 3 | -1 | -1 | 15 | octet |
+| `u_u_A4_d1_singlet` | `A4` | A | 1 | 4 | -1 | -1 | 15 | singlet |
+| `u_u_A4_d1_octet` | `A4` | A | 1 | 4 | -1 | -1 | 15 | octet |
+| `u_u_A4_d2_singlet` | `A4` | A | 2 | 5 | -1 | -1 | 15 | singlet |
+| `u_u_A4_d2_octet` | `A4` | A | 2 | 5 | -1 | -1 | 15 | octet |
+| `u_u_T12_d0_singlet` | `T12` | T | 0 | 3 | 1 | -1 | 8 | singlet |
+| `u_u_T12_d0_octet` | `T12` | T | 0 | 3 | 1 | -1 | 8 | octet |
+| `u_u_T12_d1_singlet` | `T12` | T | 1 | 4 | 1 | -1 | 8 | singlet |
+| `u_u_T12_d1_octet` | `T12` | T | 1 | 4 | 1 | -1 | 8 | octet |
+| `u_u_T12_d2_singlet` | `T12` | T | 2 | 5 | 1 | -1 | 8 | singlet |
+| `u_u_T12_d2_octet` | `T12` | T | 2 | 5 | 1 | -1 | 8 | octet |
+| `u_u_T13_d0_singlet` | `T13` | T | 0 | 3 | 1 | 1 | — | singlet |
+| `u_u_T13_d0_octet` | `T13` | T | 0 | 3 | 1 | 1 | — | octet |
+| `u_u_T13_d1_singlet` | `T13` | T | 1 | 4 | 1 | 1 | — | singlet |
+| `u_u_T13_d1_octet` | `T13` | T | 1 | 4 | 1 | 1 | — | octet |
+| `u_u_T13_d2_singlet` | `T13` | T | 2 | 5 | 1 | 1 | — | singlet |
+| `u_u_T13_d2_octet` | `T13` | T | 2 | 5 | 1 | 1 | — | octet |
+| `u_u_T14_d0_singlet` | `T14` | T | 0 | 3 | -1 | -1 | 9 | singlet |
+| `u_u_T14_d0_octet` | `T14` | T | 0 | 3 | -1 | -1 | 9 | octet |
+| `u_u_T14_d1_singlet` | `T14` | T | 1 | 4 | -1 | -1 | 9 | singlet |
+| `u_u_T14_d1_octet` | `T14` | T | 1 | 4 | -1 | -1 | 9 | octet |
+| `u_u_T14_d2_singlet` | `T14` | T | 2 | 5 | -1 | -1 | 9 | singlet |
+| `u_u_T14_d2_octet` | `T14` | T | 2 | 5 | -1 | -1 | 9 | octet |
+| `u_u_T23_d0_singlet` | `T23` | T | 0 | 3 | 1 | -1 | 6 | singlet |
+| `u_u_T23_d0_octet` | `T23` | T | 0 | 3 | 1 | -1 | 6 | octet |
+| `u_u_T23_d1_singlet` | `T23` | T | 1 | 4 | 1 | -1 | 6 | singlet |
+| `u_u_T23_d1_octet` | `T23` | T | 1 | 4 | 1 | -1 | 6 | octet |
+| `u_u_T23_d2_singlet` | `T23` | T | 2 | 5 | 1 | -1 | 6 | singlet |
+| `u_u_T23_d2_octet` | `T23` | T | 2 | 5 | 1 | -1 | 6 | octet |
+| `u_u_T24_d0_singlet` | `T24` | T | 0 | 3 | -1 | 1 | 10 | singlet |
+| `u_u_T24_d0_octet` | `T24` | T | 0 | 3 | -1 | 1 | 10 | octet |
+| `u_u_T24_d1_singlet` | `T24` | T | 1 | 4 | -1 | 1 | 10 | singlet |
+| `u_u_T24_d1_octet` | `T24` | T | 1 | 4 | -1 | 1 | 10 | octet |
+| `u_u_T24_d2_singlet` | `T24` | T | 2 | 5 | -1 | 1 | 10 | singlet |
+| `u_u_T24_d2_octet` | `T24` | T | 2 | 5 | -1 | 1 | 10 | octet |
+| `u_u_T34_d0_singlet` | `T34` | T | 0 | 3 | -1 | -1 | 11 | singlet |
+| `u_u_T34_d0_octet` | `T34` | T | 0 | 3 | -1 | -1 | 11 | octet |
+| `u_u_T34_d1_singlet` | `T34` | T | 1 | 4 | -1 | -1 | 11 | singlet |
+| `u_u_T34_d1_octet` | `T34` | T | 1 | 4 | -1 | -1 | 11 | octet |
+| `u_u_T34_d2_singlet` | `T34` | T | 2 | 5 | -1 | -1 | 11 | singlet |
+| `u_u_T34_d2_octet` | `T34` | T | 2 | 5 | -1 | -1 | 11 | octet |
+
+Total rows: 96.

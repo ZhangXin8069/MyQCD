@@ -16,21 +16,49 @@ ROOT = Path(__file__).resolve().parents[3]
 DOCS = ROOT / "docs"
 PAGES = (
     "overview",
+    "summary",
+    "quickstart",
     "tutorial",
     "usage",
     "operators",
     "operator-basis",
+    "lattice-operators",
+    "operator-catalog",
     "fierz",
     "lorentz",
     "gamma-traces",
+    "gamma-catalog",
     "color-algebra",
+    "color-catalog",
     "qcd-rules",
+    "vertex-catalog",
+    "renormalization",
     "topology",
     "diagrams",
+    "diagram-catalog",
     "diagram-formats",
     "lattice-geometry",
     "statistics",
     "worked-examples",
+    "case-studies",
+    "operator-examples",
+    "qcd-lagrangian",
+    "reference-values",
+    "api-reference",
+    "glossary",
+    "notation",
+    "conventions",
+    "comparison",
+    "validation",
+    "migration",
+    "limitations",
+    "roadmap",
+    "methods",
+    "release-checklist",
+    "troubleshooting",
+    "reading-guide",
+    "faq",
+    "design",
     "install",
 )
 SVG_ASSETS = (
@@ -74,7 +102,7 @@ def test_toctree_matches_pages_on_disk() -> None:
 
 @pytest.mark.parametrize(
     "page",
-    ("tutorial", "usage", "operators", "operator-basis", "fierz", "lorentz", "gamma-traces", "color-algebra", "qcd-rules", "topology", "diagrams", "diagram-formats", "lattice-geometry", "statistics", "worked-examples"),
+    ("quickstart", "tutorial", "usage", "operators", "operator-basis", "lattice-operators", "fierz", "lorentz", "gamma-traces", "color-algebra", "qcd-rules", "renormalization", "topology", "diagrams", "diagram-formats", "lattice-geometry", "statistics", "worked-examples", "operator-examples", "qcd-lagrangian"),
 )
 def test_documentation_python_blocks_execute(page: str) -> None:
     namespace: dict[str, object] = {}
