@@ -75,6 +75,18 @@ twine 上传、PyPI 远程安装复验、双远端推送、Read the Docs 双语�
 9. 双推：`gpush.sh` → `gpush.sh -t gitee.com`；核对三端 HEAD。
 10. 等 RTD builds API 出现新 commit 且 finished，再 `curl` 中英文页面与 `_static` 图。
 
+## 自动监督
+
+长任务或无人值守迭代前，对当前 run 启用 configure 的空闲看门狗：
+
+```bash
+"$HOME/configure/hooks/agent-hook.sh" agent-nudge enable \
+  --goal "保持迭代检查 myqcd 缺陷与 bug，不再自动停止"
+"$HOME/configure/hooks/agent-hook.sh" agent-nudge status
+```
+
+判据：`status=enabled`、`watch=active`，且 `.tui-watch.pid` 对应进程存活。看门狗在回合完成、目标未完成且连续 `AGENT_IDLE_NUDGE_SECONDS`（默认 300 秒）无真实用户输入时，以用户身份注入“汇报阶段进度并继续下一轮”。目标真正完成时执行 `agent-nudge complete`；用户中断时执行 `disable`。
+
 ## 文档要求
 
 - 根 `README.md` 默认英文，顶部 `**English** | [中文](...)`；`README.zh-CN.md` 中文，顶部反向链接。语言链接用 GitLab 绝对 URL。

@@ -20,9 +20,25 @@ def _missing_index(*args, **kwargs):
     )
 
 
+def _permission_denied(*args, **kwargs):
+    raise PermissionError(13, "Permission denied", "refer/papers/INDEX.md")
+
+
 def test_missing_inventory_is_skipped(monkeypatch, tmp_path):
     monkeypatch.setattr(audit, "run_core_checks", _core_ok)
     monkeypatch.setattr(audit, "scan_refer_papers", _missing_index)
+
+    report, inventory = audit._build_audit_bundle(tmp_path)
+
+    assert report["status"] == "verified_core_without_inventory"
+    assert report["inventory"]["skipped"] is True
+    assert "INDEX.md" in report["inventory"]["reason"]
+    assert inventory is None
+
+
+def test_permission_errors_are_skipped(monkeypatch, tmp_path):
+    monkeypatch.setattr(audit, "run_core_checks", _core_ok)
+    monkeypatch.setattr(audit, "scan_refer_papers", _permission_denied)
 
     report, inventory = audit._build_audit_bundle(tmp_path)
 

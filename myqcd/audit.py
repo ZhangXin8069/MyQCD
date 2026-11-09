@@ -127,7 +127,7 @@ def _build_audit_bundle(
     )
     try:
         inventory = scan_refer_papers(root, paper_ids=requested_paper_ids)
-    except FileNotFoundError as exc:
+    except OSError as exc:
         missing = exc.filename or str(exc)
         reason = f"论文公式清单不可用：缺少 {missing}"
         if requested_paper_ids:
@@ -232,7 +232,13 @@ def main() -> int:
                 2,
                 "error: 论文公式清单不可用，无法写出逐公式索引\n",
             )
-        write_inventory(args.inventory_json, inventory)
+        try:
+            write_inventory(args.inventory_json, inventory)
+        except OSError as exc:
+            parser.exit(
+                2,
+                f"error: 无法写出逐公式索引: {exc}\n",
+            )
         report["inventory_json"] = str(args.inventory_json)
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0 if report["status"] != "failed" else 1

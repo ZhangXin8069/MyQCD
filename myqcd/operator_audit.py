@@ -51,6 +51,35 @@ def _diagram_triangle() -> feynman.Diagram:
     )
 
 
+def _diagram_self_energy() -> feynman.Diagram:
+    return feynman.Diagram(
+        vertices=("q_in", "q_out"),
+        edges=(
+            feynman.Edge(0, 1, "quark"),
+            feynman.Edge(0, 1, "gluon"),
+            feynman.Edge(0, -1, "quark"),
+            feynman.Edge(1, -1, "quark"),
+        ),
+        external_legs=("q_in", "q_out"),
+        name="quark-self-energy",
+    )
+
+
+def _diagram_sunset() -> feynman.Diagram:
+    return feynman.Diagram(
+        vertices=("a", "b"),
+        edges=(
+            feynman.Edge(0, 1, "gluon"),
+            feynman.Edge(0, 1, "gluon"),
+            feynman.Edge(0, 1, "gluon"),
+            feynman.Edge(0, -1, "quark"),
+            feynman.Edge(1, -1, "quark"),
+        ),
+        external_legs=("q_in", "q_out"),
+        name="sunset-two-loop",
+    )
+
+
 def run_checks() -> dict[str, bool]:
     """运行全部代数、算符、图和导出检查。"""
 
@@ -123,6 +152,15 @@ def run_checks() -> dict[str, bool]:
         ),
         "chain_loop_count_zero": _diagram_chain().loop_count == 0,
         "triangle_loop_count_one": _diagram_triangle().loop_count == 1,
+        "image_self_energy_loop_one": _diagram_self_energy().loop_count == 1,
+        "sunset_loop_count_two": _diagram_sunset().loop_count == 2,
+        "external_legs_not_counted": (
+            _diagram_self_energy().edge_count == 4
+            and _diagram_self_energy().internal_edge_count == 2
+        ),
+        "parallel_edges_are_curved": (
+            diagram_export.to_svg(_diagram_self_energy()).count("<path") == 2
+        ),
         "triangle_connected": _diagram_triangle().is_connected,
         "rule_audit_vertices": feynman.rule_audit()["vertex_count"] >= 4,
         "diagram_export_all_formats": bool(
@@ -160,6 +198,8 @@ def build_report(root: Path | str) -> dict[str, object]:
         "diagram_samples": {
             "chain": _diagram_chain().to_dict(),
             "triangle": _diagram_triangle().to_dict(),
+            "self_energy": _diagram_self_energy().to_dict(),
+            "sunset": _diagram_sunset().to_dict(),
         },
         "trusted_scope": (
             "精确 Clifford/颜色代数、Dirac 双线性分解、Wick 配对图、"
