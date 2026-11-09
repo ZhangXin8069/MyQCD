@@ -40,7 +40,7 @@ twine 上传、PyPI 远程安装复验、双远端推送、Read the Docs 双语�
 | # | 门 | 判据 |
 |---|---|---|
 | 1 | 版本一致 | `pyproject.toml` 的 `version` == `myqcd/__init__.py` 的 `__version__` |
-| 2 | 打包配置已跟踪 | `git ls-files pyproject.toml MANIFEST.in` 非空；全新克隆能构建 |
+| 2 | 打包配置已跟踪 | `git ls-files pyproject.toml MANIFEST.in myqcd/py.typed` 全部非空；全新克隆能构建 |
 | 3 | sdist 内容 | 含 `py.typed` 与两个 README；无 `myqcd/testing`、无 `AGENTS.md`、`SOURCES.txt` 无 `/home/` |
 | 4 | 元数据 | `python -m twine check dist/*` 为 PASSED；无弃用/绝对路径告警 |
 | 5 | 干净安装 | 新 venv 从 sdist 安装；`myqcd.__file__` 含 `site-packages` |
@@ -90,6 +90,7 @@ twine 上传、PyPI 远程安装复验、双远端推送、Read the Docs 双语�
 | 现象 | 根因 | 处置 |
 |---|---|---|
 | 本地 sdist 正常，全新克隆不能 `pyproject.toml` | 根 `.gitignore` 是白名单，漏了 `!pyproject.toml`、`!MANIFEST.in` | 补例外，`git ls-files` 验证，克隆后重建 |
+| 全新克隆 sdist 缺 `py.typed` | `py.typed` 无扩展名，同样被白名单忽略 | 补 `!myqcd/py.typed`，`git ls-files myqcd/py.typed` 非空 |
 | 刚改 `.gitignore` 后 `git add` 仍报 ignored | 同一 shell 中读取了旧规则/输出误导 | 重新 `git status --short` 与 `git check-ignore -v --no-index` 确认 |
 | PyPI 上传成功但 pip 装不到 | simple index 边缘滞后 | 重试 pip；以 simple index 出现文件为准，不重传同版本 |
 | 安装包 `python -m myqcd` traceback | 缺 `refer/papers/INDEX.md` 未捕获 | 捕获 `FileNotFoundError`，无 paper id 时降级为 `verified_core_without_inventory`；指定 `--paper-id`/`--inventory-json` 时退出码 2 |

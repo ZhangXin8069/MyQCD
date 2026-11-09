@@ -185,3 +185,11 @@
 - 关键内容: 16 个算符表、3 张 SVG 图、标准值对照、双语 README、完整 PyPI links、skills/myqcd-release; PyPI 0.1.3 与 RTD 构建验证
 - 验证: path, size, required sections, conflict markers
 - 批次状态: complete
+## myqcd-release-hardening - general - 2026-11-09 09:16:00 +0800
+- 主任务: 修复 py.typed 跟踪与可复现构建
+- 日志文件: logs/v20261109091600.txt
+- 文件大小: 2223 bytes
+- 触发原因: 一般记录
+- 关键内容: py.typed 被白名单忽略；补跟踪并从 HEAD 重建 sdist；/tmp 满改用 data 运行区
+- 验证: path, size, required sections, conflict markers
+- 批次状态: in-progress
