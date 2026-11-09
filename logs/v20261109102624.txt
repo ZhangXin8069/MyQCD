@@ -1,0 +1,38 @@
+[日志元数据]
+日志类型: general
+生成时间: 2026-11-09 10:26:24 +0800
+批次: agent-supervision
+主任务: 将 agent 监督间隔改为 30s
+触发原因: 一般记录
+摘要: 重启 watcher 为 idle-seconds=30/poll=5；保留失败恢复与空闲注入；PID 925413
+Git 根目录: /home/zhangxin/MyQCD
+
+## 关键日志
+### S1 — 修改监督间隔
+- 目标: 将 watcher 空闲阈值从 300s 改为 30s
+- 命令/操作: 检查 `agent-tui-watch.py` 确认 `--idle-seconds` 是启动参数；TERM 旧 watcher PID 783602；用显式参数启动新 watcher（`--idle-seconds 30 --idle-poll 5`）
+- 关键输出: 新 PID 925413；日志 `action=start ... idle_seconds=30.0`；`.tui-watch.pid` 已更新；`agent-nudge status` 仍 enabled=1
+- 退出码: 0
+- 证据与判断: 运行中的旧 watcher 不热加载，必须重启；旧进程成为 `Z` 僵尸但不再工作
+
+### S2 — 保留失败恢复与空闲注入
+- 目标: 重启不丢监督能力
+- 命令/操作: 用 `--recover-command-json`、`--idle-nudge-command-json`、`--attempt-marker`、`--event-file`、`--stop-file` 重建 watcher
+- 关键输出: 新 watcher 进程存活，PPID 661806、STAT Ss
+- 退出码: 0
+- 证据与判断: 失败恢复和空闲续跑命令均保留
+
+## 验证与证据
+- 测试/检查: `ps -p 925413`；`tail tui-watch.log`；`agent-hook.sh agent-nudge status`
+- 结果: 监督启用，间隔 30s、轮询 5s
+- 未验证项: 实际注入需等回合完成且空闲 30s
+
+## 变更与产物
+- 文件: 运行标记 `.idle-nudge-enabled`、`.tui-watch.pid`、`tui-watch.log`；本库 `skills/myqcd-release/SKILL.md`
+- 产物: 新 watcher PID 925413
+- 未改动范围: agent 进程 783601 未重启
+
+## 风险、限制与下一步
+- 风险: 旧 watcher 僵尸由父进程回收；不要重复启动第二个 watcher
+- 阻塞: 无
+- 下一步: 观察下一次空闲注入是否按 30s 触发

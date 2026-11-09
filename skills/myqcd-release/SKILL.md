@@ -87,6 +87,8 @@ twine 上传、PyPI 远程安装复验、双远端推送、Read the Docs 双语�
 
 判据：`status=enabled`、`watch=active`，且 `.tui-watch.pid` 对应进程存活。看门狗在回合完成、目标未完成且连续 `AGENT_IDLE_NUDGE_SECONDS`（默认 300 秒）无真实用户输入时，以用户身份注入“汇报阶段进度并继续下一轮”。目标真正完成时执行 `agent-nudge complete`；用户中断时执行 `disable`。
 
+改间隔（例如 30 秒）：`AGENT_IDLE_NUDGE_SECONDS` 只在 watcher 启动时读取，运行中的 watcher **不会热加载**，标记文件也不含间隔。必须重启 watcher：保留原 argv，把 `--idle-seconds` 改为 30、`--idle-poll` 改为 5；旧 watcher 被 TERM 后可能成为 `Z` 僵尸，**不要用 `/proc/<pid>` 是否存在判断退出**，读 `/proc/<pid>/stat` 的 state。新 watcher 启动后检查日志出现 `idle_seconds=30.0` 并更新 `.tui-watch.pid`。
+
 ## 文档要求
 
 - 根 `README.md` 默认英文，顶部 `**English** | [中文](...)`；`README.zh-CN.md` 中文，顶部反向链接。语言链接用 GitLab 绝对 URL。
@@ -114,6 +116,8 @@ twine 上传、PyPI 远程安装复验、双远端推送、Read the Docs 双语�
 | RTD 页面没有新内容 | 只查了首页 | 查 `install.html`/`operators.html` 等独立页；查 builds API 的 commit 与 state |
 | README 图片 404 | 用了 `_static/` 绝对 URL | 改用 `_images/name.svg`（Sphinx 图片节点输出目录） |
 | Sphinx 在 `/tmp` 满时 exit 2 | 构建输出/静态文件写入 `/tmp` 失败 | 把 `-d` 与输出目录放到仓库 `data/runs/`；检查 `df -h /tmp` |
+| 改 watcher 间隔后仍按旧阈值 | 阈值是启动参数，标记文件不含间隔 | 重启 watcher，改 `--idle-seconds`/`--idle-poll`，检查日志 `idle_seconds=30.0` |
+| TERM 旧 watcher 后 `/proc` 仍存在 | 父进程未回收，进程为 `Z` 僵尸 | 读 `/proc/<pid>/stat` 的 state，不要等路径消失 |
 | gpush 拒绝提交 | 有已暂存 submodule gitlink | 先显式提交 gitlink，再 `gpush.sh` |
 | 日志索引末尾空行 | `write-log.sh` 追加索引 | 修掉 `logs/AGENTS.md` 的 blank line at EOF，再 `git diff --check` |
 

@@ -209,3 +209,11 @@
 - 关键内容: agent-nudge enabled/watch active; OSError 降级; operator_audit 30 项; PyPI 0.1.5; 双推 3fc4ee7
 - 验证: path, size, required sections, conflict markers
 - 批次状态: complete
+## agent-supervision - general - 2026-11-09 10:26:24 +0800
+- 主任务: 将 agent 监督间隔改为 30s
+- 日志文件: logs/v20261109102624.txt
+- 文件大小: 1880 bytes
+- 触发原因: 一般记录
+- 关键内容: 重启 watcher 为 idle-seconds=30/poll=5；保留失败恢复与空闲注入；PID 925413
+- 验证: path, size, required sections, conflict markers
+- 批次状态: in-progress
