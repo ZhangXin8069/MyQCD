@@ -12,4 +12,6 @@ myqcd
 
    overview
    usage
+   operators
+   diagrams
    install

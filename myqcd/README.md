@@ -42,6 +42,13 @@ python -m pytest myqcd/testing/myqcd
 `logs/data/pyqcd_theory_audit/theory_audit.json`。若需审计另一份显式提供的
 PyQCD 检出，使用 `--pyqcd-root <path>`；未显式提供时不会读取仓库外路径。
 
+## 算符与费曼图文档
+
+- 算符表（16 个 Dirac 双线性、宇称/C/量纲/PyQCD 索引，及标准值对照）：
+  <https://myqcd.readthedocs.io/zh-cn/latest/operators.html>
+- 费曼图（两点链、三胶子三角、Wick 配对、圈数与 QCD 规则）：
+  <https://myqcd.readthedocs.io/zh-cn/latest/diagrams.html>
+
 ## 证据边界
 
 - `verified` 只表示写明的代数、量纲、有限维代理或组合恒等式通过。

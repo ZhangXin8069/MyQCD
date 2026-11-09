@@ -67,6 +67,27 @@ assert triangle.loop_count == 1
 assert diagram_export.to_tikz(triangle).startswith("%")
 ```
 
+## 算符与费曼图
+
+`myqcd` 提供全部 16 个 Dirac 双线性，并给出精确的宇称/C 符号、质量量纲与
+PyQCD gamma 索引：
+
+| 类别 | 结构 | 数量 |
+|---|---|---|
+| S | `I` | 1 |
+| P | `gamma5` | 1 |
+| V | `gamma_mu` | 4 |
+| A | `gamma_mu gamma5` | 4 |
+| T | `sigma_mu_nu` | 6 |
+
+完整表格及与标准 Dirac/SU(3) 值的逐项对照见
+[算符](https://myqcd.readthedocs.io/zh-cn/latest/operators.html)。
+
+![三胶子三角图](https://myqcd.readthedocs.io/zh-cn/latest/_images/three_gluon_triangle.svg)
+
+两点链图、三胶子三角图与 Wick 配对图的圈数，以及 TikZ/DOT/SVG 导出见
+[费曼图](https://myqcd.readthedocs.io/zh-cn/latest/diagrams.html)。
+
 ## 包内有什么
 
 | 模块 | 内容 |

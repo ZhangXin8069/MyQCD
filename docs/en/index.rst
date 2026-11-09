@@ -13,4 +13,6 @@ diagram structure.
 
    overview
    usage
+   operators
+   diagrams
    install

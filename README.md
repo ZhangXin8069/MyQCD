@@ -70,6 +70,28 @@ assert triangle.loop_count == 1
 assert diagram_export.to_tikz(triangle).startswith("%")
 ```
 
+## Operators and diagrams
+
+`myqcd` exposes all 16 Dirac bilinears with exact parity/C signs, mass
+dimension, and PyQCD gamma indices:
+
+| Class | Structures | Count |
+|---|---|---|
+| S | `I` | 1 |
+| P | `gamma5` | 1 |
+| V | `gamma_mu` | 4 |
+| A | `gamma_mu gamma5` | 4 |
+| T | `sigma_mu_nu` | 6 |
+
+The full table and the comparison with standard Dirac/SU(3) values are in
+[Operators](https://myqcd.readthedocs.io/en/latest/operators.html).
+
+![Three-gluon triangle](https://myqcd.readthedocs.io/en/latest/_images/three_gluon_triangle.svg)
+
+Diagram examples (two-point chain, three-gluon triangle and Wick pairing) with
+loop counts and TikZ/DOT/SVG export are in
+[Feynman diagrams](https://myqcd.readthedocs.io/en/latest/diagrams.html).
+
 ## What is inside
 
 | Module | Content |
