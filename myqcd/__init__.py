@@ -9,9 +9,24 @@
 语义化，并不表示论文公式错误。
 """
 
-__version__ = "0.1.5"
+__version__ = "0.2.0"
 
-from . import color, diagram_export, feynman, gamma, operators
+from . import (
+    color,
+    color_traces,
+    diagram_export,
+    feynman,
+    fierz,
+    gamma,
+    gamma_traces,
+    lattice,
+    lorentz,
+    operator_basis,
+    operators,
+    qcd_rules,
+    statistics,
+    topology,
+)
 from .derivations import (
     DerivationResult,
     derive_collins_soper_evolution,

@@ -14,7 +14,25 @@ from myqcd import operators
 
 ROOT = Path(__file__).resolve().parents[3]
 DOCS = ROOT / "docs"
-PAGES = ("overview", "usage", "operators", "diagrams", "install")
+PAGES = (
+    "overview",
+    "tutorial",
+    "usage",
+    "operators",
+    "operator-basis",
+    "fierz",
+    "lorentz",
+    "gamma-traces",
+    "color-algebra",
+    "qcd-rules",
+    "topology",
+    "diagrams",
+    "diagram-formats",
+    "lattice-geometry",
+    "statistics",
+    "worked-examples",
+    "install",
+)
 SVG_ASSETS = (
     "two_point_chain.svg",
     "three_gluon_triangle.svg",
@@ -54,7 +72,10 @@ def test_toctree_matches_pages_on_disk() -> None:
     assert set(zh) == {path.stem for path in (DOCS / "zh").glob("*.md")}
 
 
-@pytest.mark.parametrize("page", ("usage", "operators", "diagrams"))
+@pytest.mark.parametrize(
+    "page",
+    ("tutorial", "usage", "operators", "operator-basis", "fierz", "lorentz", "gamma-traces", "color-algebra", "qcd-rules", "topology", "diagrams", "diagram-formats", "lattice-geometry", "statistics", "worked-examples"),
+)
 def test_documentation_python_blocks_execute(page: str) -> None:
     namespace: dict[str, object] = {}
     blocks = [

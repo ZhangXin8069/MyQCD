@@ -11,6 +11,7 @@ sunset 和三角形不会退化成重叠的直线。
 
 from __future__ import annotations
 
+import json
 import math
 from collections import Counter
 from typing import Mapping
@@ -125,6 +126,51 @@ def _external_stub(
     ]
     offset = 18.0 * (external_index - (len(same_vertex) - 1) / 2)
     return x, y, stub_x, y + offset
+
+
+def to_json(diagram: Diagram) -> str:
+    """把图的结构导出为 JSON。"""
+
+    return json.dumps(
+        diagram.to_dict(), ensure_ascii=False, indent=2
+    ) + "\n"
+
+
+def to_mermaid(diagram: Diagram) -> str:
+    """把图导出为 Mermaid flowchart。"""
+
+    lines = ["flowchart LR"]
+    for index, label in enumerate(diagram.vertices):
+        lines.append(f'  v{index}["{label}"]')
+    for index, edge in enumerate(diagram.edges):
+        if edge.left < 0 or edge.right < 0:
+            lines.append(f'  ext{index}((""))')
+            left = f"ext{index}" if edge.left < 0 else f"v{edge.left}"
+            right = f"ext{index}" if edge.right < 0 else f"v{edge.right}"
+        else:
+            left, right = f"v{edge.left}", f"v{edge.right}"
+        lines.append(f"  {left} -->|{edge.particle}| {right}")
+    return "\n".join(lines) + "\n"
+
+
+def to_latex_table(diagram: Diagram) -> str:
+    """把图的顶点/边摘要导出为 LaTeX tabular。"""
+
+    lines = [
+        "\\begin{tabular}{lll}",
+        "\\hline",
+        "Edge & Particle & Endpoints \\\\",
+        "\\hline",
+    ]
+    for edge in diagram.edges:
+        left = "$-1$" if edge.left < 0 else str(edge.left)
+        right = "$-1$" if edge.right < 0 else str(edge.right)
+        lines.append(
+            f"{edge.left}/{edge.right} & {edge.particle} & "
+            f"({left},{right}) \\\\"
+        )
+    lines.extend(["\\hline", "\\end{tabular}"])
+    return "\n".join(lines) + "\n"
 
 
 def to_dot(diagram: Diagram) -> str:
@@ -312,8 +358,11 @@ def to_svg(
 
 _EXPORTERS = {
     "dot": to_dot,
-    "tikz": to_tikz,
+    "json": to_json,
+    "latex": to_latex_table,
+    "mermaid": to_mermaid,
     "svg": to_svg,
+    "tikz": to_tikz,
 }
 
 
@@ -334,8 +383,11 @@ def export_audit(diagram: Diagram) -> Mapping[str, object]:
 
     outputs = {
         "dot": to_dot(diagram),
-        "tikz": to_tikz(diagram),
+        "json": to_json(diagram),
+        "latex": to_latex_table(diagram),
+        "mermaid": to_mermaid(diagram),
         "svg": to_svg(diagram),
+        "tikz": to_tikz(diagram),
     }
     return {
         "formats": sorted(outputs),
@@ -352,6 +404,9 @@ __all__ = [
     "export_audit",
     "render",
     "to_dot",
+    "to_json",
+    "to_latex_table",
+    "to_mermaid",
     "to_svg",
     "to_tikz",
 ]

@@ -106,9 +106,18 @@ TikZ/DOT/SVG export are in
 | `myqcd.wick` | Exact flavor-respecting Wick pairings with Grassmann signs |
 | `myqcd.gamma` | DeGrand--Rossi gamma basis, trace theorem and 16 Dirac structures |
 | `myqcd.color` | SU(3) generators, structure constants, Casimirs and color Fierz identity |
+| `myqcd.color_traces` | SU(3) trace, f/d contractions and generic Casimir formulas |
+| `myqcd.gamma_traces` | gamma5 traces, epsilon correspondence and chiral projector traces |
 | `myqcd.operators` | Dirac bilinear decomposition, parity/C classification and PyQCD index mapping |
+| `myqcd.lorentz` | Euclidean epsilon contractions, Schouten identity, transverse and spin-2 projectors |
+| `myqcd.fierz` | General 16-basis Dirac Fierz transformations with exact coefficients |
+| `myqcd.operator_basis` | Derivative operators, chiral combinations, color representations and operator tables |
+| `myqcd.qcd_rules` | Symbolic QCD propagators, Ward identities, vertex factors and dimensions |
+| `myqcd.lattice` | Lattice momenta, Fourier phases and dispersion relations |
+| `myqcd.statistics` | Jackknife, bootstrap and effective-mass estimators |
 | `myqcd.feynman` | Diagram structures, QCD rule catalog, Wick pairing graphs and loop counting |
-| `myqcd.diagram_export` | Zero-dependency TikZ-Feynman, Graphviz DOT and SVG export |
+| `myqcd.topology` | Graph invariants, isomorphism, topology enumeration and builders |
+| `myqcd.diagram_export` | Zero-dependency JSON, Mermaid, LaTeX, TikZ, DOT and SVG export |
 | `myqcd.operator_audit` | One-command audit for the operator and diagram layers |
 
 ## Entry points

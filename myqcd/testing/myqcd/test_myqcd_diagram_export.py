@@ -99,8 +99,37 @@ def test_render_dispatch_and_error():
 
 def test_export_audit():
     audit = diagram_export.export_audit(_diagram())
-    assert audit["formats"] == ["dot", "svg", "tikz"]
+    assert audit["formats"] == [
+        "dot",
+        "json",
+        "latex",
+        "mermaid",
+        "svg",
+        "tikz",
+    ]
     assert audit["nonempty"]
     assert audit["svg_well_formed_prefix"]
     assert audit["tikz_has_feynman_environment"]
     assert audit["dot_has_digraph"]
+
+
+def test_json_export_roundtrip():
+    import json
+
+    payload = json.loads(diagram_export.to_json(_diagram()))
+    assert payload["edge_count"] == 3
+    assert payload["loop_count"] == 1
+
+
+def test_mermaid_export():
+    text = diagram_export.to_mermaid(_diagram())
+    assert text.startswith("flowchart LR")
+    assert "v0 -->|quark| v1" in text
+    assert "v1 -->|gluon| v2" in text
+
+
+def test_latex_table_export():
+    text = diagram_export.to_latex_table(_diagram())
+    assert "\\begin{tabular}" in text
+    assert "Edge & Particle & Endpoints" in text
+    assert "quark" in text

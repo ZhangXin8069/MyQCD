@@ -20,7 +20,23 @@ from typing import Sequence
 
 import sympy as sp
 
-from . import color, diagram_export, feynman, gamma, operators, wick
+from . import (
+    color,
+    color_traces,
+    diagram_export,
+    feynman,
+    fierz,
+    gamma,
+    gamma_traces,
+    lattice,
+    lorentz,
+    operator_basis,
+    operators,
+    qcd_rules,
+    statistics,
+    topology,
+    wick,
+)
 
 
 def _matrix_zero(matrix: sp.MatrixBase) -> bool:
@@ -162,6 +178,69 @@ def run_checks() -> dict[str, bool]:
             diagram_export.to_svg(_diagram_self_energy()).count("<path") == 2
         ),
         "triangle_connected": _diagram_triangle().is_connected,
+        "lorentz_epsilon_double_contract": (
+            lorentz.epsilon_two_contract_residual() == 0
+        ),
+        "lorentz_schouten": lorentz.schouten_residual(
+            lorentz.vector_components("p")
+        )
+        == 0,
+        "lorentz_projector_idempotent": (
+            sp.simplify(
+                sum(
+                    lorentz.transverse_projector(
+                        lorentz.vector_components("p"), 0, nu
+                    )
+                    * lorentz.transverse_projector(
+                        lorentz.vector_components("p"), nu, 2
+                    )
+                    for nu in range(4)
+                )
+                - lorentz.transverse_projector(
+                    lorentz.vector_components("p"), 0, 2
+                )
+            )
+            == 0
+        ),
+        "fierz_scalar_scalar": len(fierz.fierz_transform("S", "S")) == 16,
+        "fierz_mixed_nonempty": bool(fierz.fierz_transform("S", "V1")),
+        "operator_basis_count": len(
+            operator_basis.enumerate_derivative_operators(
+                ("u",), max_derivatives=1, colors=("singlet",)
+            )
+        )
+        == 32,
+        "chiral_projectors": all(
+            operator_basis.chiral_projector_identities().values()
+        ),
+        "qcd_quark_propagator": qcd_rules.quark_propagator_residual(
+            lorentz.vector_components("p"), sp.Symbol("m", positive=True)
+        ).is_zero_matrix,
+        "qcd_ward_identity": qcd_rules.ward_identity_residual(
+            lorentz.vector_components("p")
+        ).is_zero_matrix,
+        "qcd_landau_transverse": all(
+            qcd_rules.gluon_transversality(
+                lorentz.vector_components("p"), nu, gauge_parameter=0
+            )
+            == 0
+            for nu in range(4)
+        ),
+        "color_trace_three": color_traces.trace_three(1, 2, 3)
+        == sp.I / 4,
+        "color_jacobi": color_traces.jacobi_residual(1, 2, 3, 4) == 0,
+        "gamma5_four_trace": gamma_traces.trace_gamma5_four_residual() == 0,
+        "gamma5_projectors": gamma_traces.trace_projector_orthogonality()[
+            "Tr[P_L]"
+        ]
+        == 2,
+        "topology_tree": topology.is_tree(topology.build_chain(3)),
+        "topology_cycle": topology.is_cycle(topology.build_cycle(3)),
+        "lattice_dispersion": lattice.lattice_dispersion((0.1, 0.2)) > 0,
+        "statistics_jackknife": statistics.jackknife_mean(
+            [(1.0, 2.0), (2.0, 4.0), (3.0, 6.0)]
+        )
+        == (2.0, 4.0),
         "rule_audit_vertices": feynman.rule_audit()["vertex_count"] >= 4,
         "diagram_export_all_formats": bool(
             diagram_export.export_audit(_diagram_triangle())["nonempty"]

@@ -277,11 +277,11 @@ def parity_projectors() -> Tuple[sp.Matrix, sp.Matrix]:
 
 
 def chiral_projectors() -> Tuple[sp.Matrix, sp.Matrix]:
-    """返回手征投影 ``P_pm = (1 +/- gamma5)/2``。"""
+    """返回 ``(P_L, P_R) = ((1-gamma5)/2, (1+gamma5)/2)``。"""
 
     return (
-        sp.expand((_IDENTITY + _GAMMA5) / 2),
         sp.expand((_IDENTITY - _GAMMA5) / 2),
+        sp.expand((_IDENTITY + _GAMMA5) / 2),
     )
 
 

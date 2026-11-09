@@ -11,7 +11,19 @@ myqcd
    :maxdepth: 2
 
    overview
+   tutorial
    usage
    operators
+   operator-basis
+   fierz
+   lorentz
+   gamma-traces
+   color-algebra
+   qcd-rules
+   topology
    diagrams
+   diagram-formats
+   lattice-geometry
+   statistics
+   worked-examples
    install

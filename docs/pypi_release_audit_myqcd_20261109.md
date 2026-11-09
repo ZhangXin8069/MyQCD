@@ -9,11 +9,11 @@
 |---|---|
 | 分发名 | `myqcd` |
 | 导入名 | `myqcd` |
-| 版本 | `0.1.5`（当前；0.1.0 为首版） |
-| 上传物 | 仅 sdist：`dist/myqcd-0.1.0.tar.gz` … `0.1.5` |
+| 版本 | `0.2.0`（当前；0.1.0 为首版） |
+| 上传物 | 仅 sdist：`dist/myqcd-0.1.0.tar.gz` … `0.2.0` |
 | 用户名 | `TWINE_USERNAME=__token__` |
 | 凭据变量 | `PYPI_ZHANGXIN8069_API_KEY`（只从 `~/env-key.sh` 读取，不落盘） |
-| 项目页 | <https://pypi.org/project/myqcd/0.1.5/> |
+| 项目页 | <https://pypi.org/project/myqcd/0.2.0/> |
 | 文档站 | <https://myqcd.readthedocs.io/>（线上项目已存在，中英文构建通过） |
 
 ## 发布记录
@@ -26,6 +26,7 @@
 | 0.1.3 | 新增算符页（16 个 Dirac 双线性、宇称/C/量纲/PyQCD 索引）与费曼图页（三点链、三胶子三角、Wick 配对、圈数、QCD 规则）；加入标准 Dirac/SU(3) 值对照与 SVG 图；README 增加算符/图展示与文档链接 | Sphinx -W 双站通过；双语代码块一致；PyPI 0.1.3 描述含算符/图段落与图片链接 |
 | 0.1.4 | 算符页增加非平凡分解、介子插值算符、导数算符与 $T_F$ 对照；图页增加单圈夸克自能、两圈 sunset；导出器改为环形/平行边/外部腿布局；文档启用 MyST dollarmath + MathJax，公式改用 LaTeX | 25 项文档/导出测试通过；Sphinx -W 双站通过；PyPI 0.1.4 远程安装与元数据通过 |
 | 0.1.5 | 审计入口覆盖单圈自能/两圈 sunset 与平行边曲线；缺 `INDEX.md` 的降级从仅 `FileNotFoundError` 扩展到全部 `OSError`（含权限错误）；写出 inventory JSON 失败时返回可读退出码 | 40 项定向测试通过；`operator_audit` 30/30 verified；PyPI 0.1.5 远程安装通过 |
+| 0.2.0 | 内容扩充检查点：新增 Lorentz 张量代数、通用 Fierz、算符基、QCD 规则、图拓扑、SU(3) 迹、γ5 迹、格点几何、统计重采样；新增 14 个双语页面（教程、工作实例、API 方向、颜色/γ迹、拓扑、导出等）；算子/图导出扩展到 JSON/Mermaid/LaTeX | 全量 298 passed、11 个文献环境缺口；`operator_audit` 48/48；Sphinx -W 双站通过；相关子系统 7,674 行（3.14× 基线），文档 2,389 行（4.38×） |
 
 ## 验收清单
 
@@ -38,10 +39,10 @@
 | 5 | sdist 不含 `AGENTS.md` | 命中数 0 | ✅ |
 | 6 | `SOURCES.txt` 无家目录绝对路径 | `/home/` 命中数 0 | ✅ |
 | 7 | 构建无弃用/绝对路径告警 | `grep -iE "deprecat|path must be relative"` → 空 | ✅ |
-| 8 | 干净 venv 安装本地 sdist | `myqcd.__file__` 含 `site-packages`；30 项审计 verified | ✅ |
-| 9 | PyPI 上传 | `twine upload` 六次均 exit 0（0.1.0–0.1.5） | ✅ |
-| 10 | simple index 传播 | 六个版本均出现在 simple index；CDN 边缘偶有滞后，重试即可 | ✅ |
-| 11 | PyPI 远程安装 | 新 venv 分别安装 0.1.0–0.1.5；版本/路径/代数检查通过 | ✅ |
+| 8 | 干净 venv 安装本地 sdist | `myqcd.__file__` 含 `site-packages`；48 项审计 verified | ✅ |
+| 9 | PyPI 上传 | `twine upload` 七次均 exit 0（0.1.0–0.2.0） | ✅ |
+| 10 | simple index 传播 | 七个版本均出现在 simple index；CDN 边缘偶有滞后，重试即可 | ✅ |
+| 11 | PyPI 远程安装 | 新 venv 分别安装 0.1.0–0.2.0；版本/路径/代数检查通过 | ✅ |
 | 12 | 双远端推送 | gitlab 与 gitee 同步 0.1.5 代码提交 `3fc4ee7`；GitHub 随 Gitee 自动同步 | ✅ |
 | 13 | Read the Docs 双语言构建 | `sphinx -W docs/en` 与 `docs/zh` 均 `build succeeded.` | ✅ |
 | 14 | 双语代码块逐字节一致 | overview/usage/operators/diagrams/install 的围栏块完全一致 | ✅ |
@@ -60,12 +61,14 @@
 | 27 | LaTeX 公式 | MyST dollarmath + MathJax；算符/图页公式为 `$...$` | ✅ 0.1.4 |
 | 28 | 权限错误降级 | `PermissionError` 也按清单不可用处理，不 traceback | ✅ 0.1.5 |
 | 29 | 审计复杂图 | `operator_audit` 覆盖自能 L=1、sunset L=2、外部腿与平行边曲线；30 项检查 | ✅ 0.1.5 |
+| 30 | 内容扩充检查点 | 新增 9 个模块与 14 个双语页；相关子系统 7,674 行、文档 2,389 行 | ✅ 0.2.0 |
+| 31 | 多格式导出 | JSON/Mermaid/LaTeX/TikZ/DOT/SVG 六种；导出审计 48 项检查 | ✅ 0.2.0 |
 
 ## 构建与安装证据
 
 ```text
-Successfully built myqcd-0.1.5.tar.gz
-Checking dist/myqcd-0.1.5.tar.gz: PASSED
+Successfully built myqcd-0.2.0.tar.gz
+Checking dist/myqcd-0.2.0.tar.gz: PASSED
 members=31
 readme_en=1 readme_zh=1 py.typed=1 testing=0 agents=0
 ```
@@ -73,11 +76,11 @@ readme_en=1 readme_zh=1 py.typed=1 testing=0 agents=0
 干净 venv（先本地 sdist，后 PyPI 远程）：
 
 ```text
-version: 0.1.5
+version: 0.2.0
 file: .../site-packages/myqcd/__init__.py
 python -m myqcd: exit=0, status=verified_core_without_inventory
 myqcd (console): exit=0, status=verified_core_without_inventory
-operator_audit: status=verified, check_count=30
+operator_audit: status=verified, check_count=48
 PyPI project_urls: 6 labels
 ```
 

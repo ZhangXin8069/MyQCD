@@ -102,9 +102,18 @@ LaTeX 渲染同一组公式。
 | `myqcd.wick` | 精确味道 Wick 配对与 Grassmann 符号 |
 | `myqcd.gamma` | DeGrand--Rossi gamma 基、迹定理与 16 个 Dirac 结构 |
 | `myqcd.color` | SU(3) 生成元、结构常数、Casimir 与颜色 Fierz 恒等式 |
+| `myqcd.color_traces` | SU(3) 迹、f/d 缩并与通用 Casimir 公式 |
+| `myqcd.gamma_traces` | γ5 迹、epsilon 对应与手征投影迹 |
 | `myqcd.operators` | Dirac 双线性分解、宇称/C 分类与 PyQCD 索引映射 |
+| `myqcd.lorentz` | Euclidean epsilon 缩并、Schouten 恒等式、横向与 spin-2 投影 |
+| `myqcd.fierz` | 16 基通用 Dirac Fierz 变换与精确系数 |
+| `myqcd.operator_basis` | 导数算符、手征组合、颜色表示与算符表 |
+| `myqcd.qcd_rules` | 符号 QCD 传播子、Ward 恒等式、顶点因子与量纲 |
+| `myqcd.lattice` | 格点动量、Fourier 相位与色散关系 |
+| `myqcd.statistics` | Jackknife、bootstrap 与有效质量估计 |
 | `myqcd.feynman` | 图结构、QCD 规则清单、Wick 配对图与圈数 |
-| `myqcd.diagram_export` | 零依赖 TikZ-Feynman、Graphviz DOT 与 SVG 导出 |
+| `myqcd.topology` | 图不变量、同构、拓扑枚举与构造器 |
+| `myqcd.diagram_export` | 零依赖 JSON、Mermaid、LaTeX、TikZ、DOT 与 SVG 导出 |
 | `myqcd.operator_audit` | 算符层与图层的一键审计 |
 
 ## 入口
