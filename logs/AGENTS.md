@@ -193,3 +193,11 @@
 - 关键内容: py.typed 被白名单忽略；补跟踪并从 HEAD 重建 sdist；/tmp 满改用 data 运行区
 - 验证: path, size, required sections, conflict markers
 - 批次状态: in-progress
+## myqcd-latex-docs - final - 2026-11-09 09:58:26 +0800
+- 主任务: LaTeX 算符/费曼图文档与 myqcd 0.1.4
+- 日志文件: logs/v2026110909-2.txt
+- 文件大小: 6657 bytes
+- 触发原因: 任务完成
+- 关键内容: 启用 MathJax/dollarmath; 复杂算符实例; 自能/sunset 图; 环形/平行边/外部腿布局; PyPI 0.1.4 与 RTD 验证
+- 验证: path, size, required sections, conflict markers
+- 批次状态: complete

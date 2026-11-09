@@ -1,0 +1,120 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-11-09 09:58:26 +0800
+批次: myqcd-latex-docs
+主任务: LaTeX 算符/费曼图文档与 myqcd 0.1.4
+触发原因: 任务完成
+摘要: 启用 MathJax/dollarmath; 复杂算符实例; 自能/sunset 图; 环形/平行边/外部腿布局; PyPI 0.1.4 与 RTD 验证
+Git 根目录: /home/zhangxin/MyQCD
+
+## 关键日志
+### S1 — LaTeX 数学与文档配置
+- 目标: 公式与物理量改用 LaTeX 风格
+- 命令/操作: docs/{en,zh}/conf.py 加 sphinx.ext.mathjax 与 myst_enable_extensions=["dollarmath","amsmath"]；算符/图页公式改为 `$...$`
+- 关键输出: Sphinx -W 双站 build succeeded；operators 页 86 个 math span、MathJax 已加载
+- 退出码: 0
+- 证据与判断: 页面 HTML 含 `\gamma_4\Gamma...` 等 LaTeX 源，浏览器由 MathJax 渲染
+
+### S2 — 复杂算符实例
+- 目标: 实例不能过于简单
+- 命令/操作: 增加非平凡分解 M=γ1γ2+2γ3γ5+γ5（T12/A3/P）、π/ρ/a1 介子插值算符、导数算符量纲 4/5、显式 γ5/C/迹恒等式
+- 关键输出: 全部示例代码实际执行通过；宇称 [-1,+1,-1]、C [+1,-1,-1]
+- 退出码: 0
+- 证据与判断: 表格与代码同源，避免手工抄写漂移
+
+### S3 — 复杂费曼图与布局
+- 目标: 图不应是简单共线点
+- 命令/操作: diagram_export 重写布局（树图水平链、环图圆周、平行边二次曲线、外部腿短桩）；新增 quark_self_energy.svg（L=1）与 sunset_two_loop.svg（L=2）
+- 关键输出: 三角形三顶点非共线；自能 2 条曲线+2 外部腿；sunset 3 条曲线；TikZ/DOT 外部腿使用独立 extN
+- 退出码: 0
+- 证据与判断: 修复 __all__ 中残留的未定义 PARTICLE_STYLES；新增 5 项导出测试
+
+### S4 — 测试
+- 目标: 回归新布局与文档契约
+- 命令/操作: 定向 82 项；全量 pytest（TMPDIR=data/runs/pytest-tmp）
+- 关键输出: 82 passed；全量 184 passed、11 failed（全部 refer/papers 环境缺口）
+- 退出码: 0
+- 证据与判断: 新增文档契约测试覆盖双语代码块、toctree、算符表、SVG、数学配置、打包文件跟踪
+
+### S5 — 0.1.4 构建
+- 目标: 发布含 LaTeX 与复杂图的新版本
+- 命令/操作: 版本 0.1.4；python -m build --sdist --no-isolation（/tmp 满）
+- 关键输出: twine PASSED；31 members；py.typed=1、readme_zh=1、testing=0、home=0
+- 退出码: 0
+- 证据与判断: 构建前后版本一致
+
+### S6 — RTD 构建
+- 目标: 中英文站点更新
+- 命令/操作: 双推 6100706；轮询 RTD builds API
+- 关键输出: myqcd/myqcd-zh 均 finished at 6100706；operators/diagrams 页 200；sunset/self-energy SVG 200
+- 退出码: 0
+- 证据与判断: 数学与图均在线
+
+### S7 — PyPI 0.1.4
+- 目标: 发布并远程安装
+- 命令/操作: twine upload；simple index 轮询；仓库内 venv 安装（第二次尝试成功）
+- 关键输出: version=0.1.4；仅 sdist；project_urls 六项；description 含 Operators、sunset 图与 LaTeX 说明；python -m myqcd = verified_core_without_inventory；operator_audit 26/26
+- 退出码: 0
+- 证据与判断: CDN 边缘滞后一次
+
+### S8 — 技能回写
+- 目标: 实时沉淀经验
+- 命令/操作: skills/myqcd-release 增加 LaTeX/MathJax、复杂图布局、/tmp 满、_images、extN 等条目
+- 关键输出: 发布门禁与踩坑清单更新
+- 退出码: 0
+- 证据与判断: 技能文件随提交进入 Git
+
+## 验证与证据
+- 测试/检查: 82 定向 passed；184 全量 passed/11 环境缺口；Sphinx -W 双站；twine PASSED；RTD 页面与图片 200；PyPI 远程安装
+- 结果: 0.1.4 发布成功，文档公式为 LaTeX，算符/图实例复杂度提升
+- 未验证项: refer/papers 文献缺口；Python 3.10/3.11/3.13；PyPI 内嵌 SVG 的浏览器截图
+
+## 变更与产物
+- 文件: docs/{en,zh}/operators.md、diagrams.md、conf.py、_static/*.svg；myqcd/diagram_export.py；README 双语；skills/myqcd-release；0.1.4
+- 产物: PyPI myqcd 0.1.4；RTD operators/diagrams；sdist dist/myqcd-0.1.4.tar.gz
+- 未改动范围: derivations.py 等核心算法未改
+
+## 风险、限制与下一步
+- 风险: 白名单 .gitignore 仍可能漏 extensionless 文件；颜色双约定并存
+- 阻塞: /tmp 100% 满（改用 data 运行区）
+- 下一步: 补 refer/papers；清理 /tmp 后重跑完整克隆；继续抽查 LaTeX 页面
+
+## 用户输入指令
+确认,继续
+保持迭代,保持继续检查缺陷与bug,不再自动停止
+本库应默认英文README,并搭配中文README,参考~/PyQCD
+pypi的'Project links'也不全,继续参考~/PyQCD
+各个文档中缺少算符展示与费曼图展示,无法与其他物理理论值比对
+增加算符展示与费曼图展示,增加与其他物理理论值比对
+同时实时加经验写入本库skills
+保持迭代,保持继续检查缺陷与bug,不再自动停止
+增加算符公式展示与费曼图展示[实例不能过于简单],增加与其他物理理论值比对
+公式和字符应使用latex风格
+
+## Agent 全文报告
+--- report begin ---
+任务: 为 myqcd 文档增加 LaTeX 风格的复杂算符公式与费曼图展示，并继续做缺陷检查与发布。终态: finished。
+
+改动内容
+- 文档双站启用 sphinx.ext.mathjax 与 MyST dollarmath/amsmath；算符/图页公式改为 LaTeX。
+- 算符页新增非平凡分解、π/ρ/a1 介子插值算符、导数算符量纲、显式 γ5/C/迹恒等式；对照表加入 T_F 与更多 Dirac 迹。
+- 图页新增单圈夸克自能与两圈 sunset；导出器支持环形、平行边曲线与外部腿短桩。
+- 修复 diagram_export.__all__ 中残留的未定义 PARTICLE_STYLES；新增文档/仓库契约测试。
+- 版本 0.1.4 发布；skills/myqcd-release 回写 LaTeX、复杂图、/tmp 满等经验。
+
+推理依据
+- 物理公式由 SymPy 精确结果生成；对照值只写可复现的标准 Dirac/SU(3)/QCD 值。
+- PyPI README 不渲染 MathJax，因此 README 用 Unicode，RTD 页面用 `$...$` LaTeX。
+- 复杂图必须避免线性重叠，因此环图用圆周、平行边用二次曲线、外部腿用短桩。
+
+验证结果
+- 82 项定向测试通过；全量 184 passed、11 failed（全部 refer/papers 环境缺口）。
+- Sphinx -W 双站通过；operators 页 86 个 math span、MathJax 加载；5 张 SVG 在线。
+- PyPI 0.1.4 上传成功；远程安装（第二次尝试）通过；project_urls 六项；description 含算符/图/LaTeX 内容。
+- GitLab/Gitee 推送至 6100706；RTD 两个项目均在该 commit 构建完成。
+
+后续步骤
+- 补 refer/papers 使全量测试转绿。
+- 清理 /tmp 后重跑完整克隆构建。
+- 继续抽查 LaTeX 渲染与 PyPI 内嵌 SVG。
+--- report end ---

@@ -98,7 +98,7 @@ twine 上传、PyPI 远程安装复验、双远端推送、Read the Docs 双语�
 | 安装包 `python -m myqcd` traceback | 缺 `refer/papers/INDEX.md` 未捕获 | 捕获 `FileNotFoundError`，无 paper id 时降级为 `verified_core_without_inventory`；指定 `--paper-id`/`--inventory-json` 时退出码 2 |
 | 安装包默认写 `site-packages/logs` | 默认 root 取 `__file__.parents[1]` | 入口默认 root 改为 `Path.cwd()` |
 | 外部腿被算成圈 | `loop_count` 用了总边数 | 改用 `internal_edge_count`（两端点都 >=0） |
-| TikZ 引用未声明的 `external` | 外部腿边端点 `-1` | 输出 `\vertex (external) at (-2.4,0) {};` |
+| TikZ 引用未声明的 `external` | 外部腿边端点 `-1` | 每个外部腿声明独立的 `\vertex (extN)` |
 | RTD 页面没有新内容 | 只查了首页 | 查 `install.html`/`operators.html` 等独立页；查 builds API 的 commit 与 state |
 | README 图片 404 | 用了 `_static/` 绝对 URL | 改用 `_images/name.svg`（Sphinx 图片节点输出目录） |
 | Sphinx 在 `/tmp` 满时 exit 2 | 构建输出/静态文件写入 `/tmp` 失败 | 把 `-d` 与输出目录放到仓库 `data/runs/`；检查 `df -h /tmp` |
