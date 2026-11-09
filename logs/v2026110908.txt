@@ -1,0 +1,129 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-11-09 08:14:19 +0800
+批次: myqcd-release
+主任务: 吸收参考库并发布 myqcd 0.1.0
+触发原因: 任务完成
+摘要: 同步 4 个参考库子模块; 新增算符/费曼图层; PyPI myqcd 0.1.0 发布并从远程复验; gitlab+gitee 双推
+Git 根目录: /home/zhangxin/MyQCD
+
+## 关键日志
+### S1 — 现状侦察与基线
+- 目标: 确认子模块、测试与工具链基线
+- 命令/操作: git submodule status; python -m pytest test_myqcd_wick.py; python -m compileall -q myqcd
+- 关键输出: 3 个子模块未初始化; SymPy 1.14 / Python 3.12; wick 8 passed; compileall ok
+- 退出码: 0
+- 证据与判断: 可继续；现有 myqcd 只有公式审计与 Wick 组合层
+
+### S2 — 外部库调研（多子代理）
+- 目标: 调研 QCD 理论库与费曼图作图库
+- 命令/操作: 3 个并行子代理；GitHub API 与 git ls-remote 核验
+- 关键输出: 现有子模块代理完成——feyncalc GPL-3.0、LQCD_Wickcontraction_reduce 无 LICENSE，只能按恒等式独立重写；两个外部检索代理超时被终止，主代理核验 syHEP 77d3d48 (GPL-3.0)、RGBeta 946db15 (MIT)、pyfeyn2 d5de3ea (GPL-3.0)、pyfeyngen 530a357 (MIT)
+- 退出码: 0
+- 证据与判断: 4 个候选可只读同步；GPL/无许可内容不复制
+
+### S3 — 子模块同步
+- 目标: 同步参考库到 refer/git-rep
+- 命令/操作: git submodule add ×4；补充 .gitignore 的显式例外
+- 关键输出: 4 个子模块检出到固定 HEAD；顶层子模块共 7 个
+- 退出码: 0
+- 证据与判断: 仅只读参考；未递归初始化 PyQCD 内部参考树
+
+### S4 — myqcd 独立实现
+- 目标: 新增算符构建与费曼图层
+- 命令/操作: 新增 gamma.py、color.py、operators.py、feynman.py、diagram_export.py、operator_audit.py
+- 关键输出: 修复迹定理递归符号错位、Euclidean 16 基 Gram 判据、sum 初值；新增 47 项测试
+- 退出码: 0
+- 证据与判断: Clifford、迹定理、SU(3) Fierz、双线性分解、图圈数与导出均通过
+
+### S5 — 吸收报告与文档
+- 目标: 记录来源、许可、吸收矩阵与约定差异
+- 命令/操作: 新增 docs/absorb_reference_libraries_20261109.md；更新 refer/git-rep/README.md、myqcd/README.md、myqcd/AGENTS.md
+- 关键输出: GPL-3.0 与无许可证项全部 reference-only；记录 color +δ/2 与 derivations -δ/2 不可混用
+- 退出码: 0
+- 证据与判断: 吸收以独立重写与测试为证
+
+### S6 — 全量验证
+- 目标: 回归新增层与既有基线
+- 命令/操作: pytest 新增 5 文件 + wick；python -m myqcd.operator_audit；python -m myqcd.pyqcd_theory_audit；compileall；git diff --check
+- 关键输出: 55 passed；operator_audit 26/26 verified；pyqcd_theory_audit core=verified、failed_local_checks=0、missing_sources=21（10 个 PyQCD docs + 11 个 refer/papers）；diff check 0
+- 退出码: 0（审计入口按 missing_sources 返回整体 failed）
+- 证据与判断: missing sources 属既有文献缺口；核心公式与本地检查通过
+
+### S7 — PyPI 打包接口
+- 目标: 新增可发布元数据，不改核心算法
+- 命令/操作: 新增 pyproject.toml、MANIFEST.in、myqcd/py.typed、__version__=0.1.0；扩展根 README
+- 关键输出: sdist 30 members；twine PASSED；py.typed=1、testing=0、AGENTS=0、/home/=0；无弃用告警
+- 退出码: 0
+- 证据与判断: 只发 sdist；纯 Python 包
+
+### S8 — PyPI 发布与远程复验
+- 目标: 发布 myqcd 0.1.0 并从 PyPI 安装
+- 命令/操作: twine upload（8069 token，环境变量读取）；轮询 simple index；新 venv pip install myqcd==0.1.0
+- 关键输出: 上传 exit 0；simple index 立即出现；远程安装 version=0.1.0、file 含 site-packages、代数检查通过
+- 退出码: 0
+- 证据与判断: 发布成功；URL https://pypi.org/project/myqcd/0.1.0/
+
+### S9 — Read the Docs 双语言站点
+- 目标: 建立可构建的 RTD 源
+- 命令/操作: 新增 docs/en 与 docs/zh 的 conf.py、.readthedocs.yaml、requirements.txt、index.rst、overview/usage/install.md；sphinx -W 双站构建
+- 关键输出: 两站 build succeeded；双语围栏代码块逐字节一致；usage 3 个 python 块执行通过
+- 退出码: 0
+- 证据与判断: 本地构建通过；线上项目注册/绑定未执行（未提供 RTD token）
+
+### S10 — Git 双远端推送
+- 目标: 两个远程都更新
+- 命令/操作: git commit e5650c5、a97a485；gpush.sh；gpush.sh -t gitee.com
+- 关键输出: gitlab 4211e63..a97a485；gitee 4211e63..a97a485；local/gitlab/gitee HEAD 均为 a97a48566e4e043c57f43961f4b152fe5af631d0
+- 退出码: 0
+- 证据与判断: 双推成功；GitHub 查询无响应，按 Gitee 自动镜像机制待确认
+
+## 验证与证据
+- 测试/检查: 55 passed；operator_audit 26/26；sdist twine PASSED；PyPI 远程安装通过；Sphinx -W 双站通过；git diff --check 0
+- 结果: 所有新增代数与图结构检查通过；PyPI 0.1.0 可远程安装
+- 未验证项: Python 3.10/3.11/3.13；RTD 线上项目；GitHub 镜像同步；PyQCD 更新导致 21 个来源文件缺失
+
+## 变更与产物
+- 文件: 7 个顶层子模块；myqcd 新增 6 个模块与 5 个测试文件；pyproject/MANIFEST/py.typed；docs 吸收报告、发布台账、双语言 RTD 站点
+- 产物: PyPI myqcd 0.1.0；sdist dist/myqcd-0.1.0.tar.gz；审计 JSON logs/data/operator_audit/operator_feynman_audit.json
+- 未改动范围: myqcd/derivations.py 等核心算法未改；仅新增模块、版本号与打包接口
+
+## 风险、限制与下一步
+- 风险: 颜色 +δ/2 与历史 -δ/2 约定并存；GPL-3.0 参考库不可复制；PyQCD 旧 pin 已不可获取
+- 阻塞: GitHub 直连不稳定；RTD 线上注册缺 token
+- 下一步: 网页绑定 RTD 项目 myqcd（en + zh-cn）；补 refer/papers 或修正 PyQCD 来源清单；如需更新 PyQCD 嵌套参考树显式 --recursive
+
+## 用户输入指令
+更新子模块
+本库的定位为解释'PyQCD'中的物理,相关的算符构建和费曼图构建是其中的关键,由此自行在github上寻找相关的高质量QCD理论物理库与作图库,并同步到refer/git-rep中,再自行吸收他们,编写更优的./myqcd
+现有库中内容参考价值较低,准许忽略以及修改
+本任务不设置任何限制,并派发多个子代理协助本任务
+完美完成上述任务后:{参考{~/PyQCD}的发布工作流[主要参考其skills和日志和相关文档,工作对象主要为'pypi'和'readthedocs'和本库日志和本库文档,pyqcd发布的agent运行id为'20261108T044254.N2qMUN'],核验并发布pypi包'myqcd'[类比pyqcd],不修改核心代码,但是可以修补接口,且本库github为gitee的自动远程镜像,推送到gitee后,gitee自己会继续推送到github,且'发布任务':git推送时两个远程都要执行(gitee.com+gitlab.itp.ac.cn),且使用'myqcd'作为slug,并标记{py-qcd作为pypi包'pyqcd'的slug只是因为'pyqcd'被其他人占用,无其他特殊原因,且使用8069的pypi-api-token}
+
+## Agent 全文报告
+--- report begin ---
+任务: 调研并同步外部 QCD 参考库、吸收并新增算符/费曼图能力、核验并发布 PyPI 包 myqcd、双远端推送。终态: finished。
+
+改动内容
+- 新增 4 个只读子模块: syHEP (77d3d48, GPL-3.0)、RGBeta (946db15, MIT)、pyfeyn2 (d5de3ea, GPL-3.0)、pyfeyngen (530a357, MIT); 更新 PyQCD 指针到 2e6c868。
+- 新增 myqcd/gamma.py、color.py、operators.py、feynman.py、diagram_export.py、operator_audit.py 及 5 个测试文件。
+- 新增 pyproject.toml、MANIFEST.in、myqcd/py.typed、__version__=0.1.0、根 README；新增吸收报告、发布台账与 docs/en、docs/zh 双语言 RTD 站点。
+- 核心算法文件 derivations.py 未修改。
+
+推理依据
+- 现有 feyncalc 为 GPL-3.0、LQCD_Wickcontraction_reduce 无 LICENSE，只能按数学恒等式独立重写，不能复制。
+- 新实现采用 PyQCD DeGrand–Rossi 约定；颜色层使用厄米 +δ^{ab}/2，并在文档中标记与历史 -δ^{ab}/2 不可混用。
+- PyPI 分发名与导入名均为 myqcd；只发 sdist；版本 0.1.0；凭据仅从环境变量读取。
+
+验证结果
+- 55 项新测试通过；operator_audit 26/26 verified；sdist twine PASSED 且无 testing/AGENTS/绝对路径泄漏。
+- PyPI 上传成功，simple index 立即可见；全新 venv 从 PyPI 安装 myqcd==0.1.0，文件位于 site-packages，代数检查通过。
+- Sphinx -W 双站构建成功；双语代码块逐字节一致；文档示例执行通过。
+- gitlab 与 gitee 均推送成功，本地/两远端 HEAD 同为 a97a48566e4e043c57f43961f4b152fe5af631d0；GitHub 查询无响应，按 Gitee 自动镜像机制待确认。
+- 既有 pyqcd_theory_audit 因 21 个来源文件缺失整体 failed，但 core=verified、本地检查 0 失败；属既有文献缺口。
+
+后续步骤
+- 在 Read the Docs 网页创建/绑定 slug myqcd 与 zh-cn 语言版本。
+- 补 refer/papers 或修正 PyQCD 来源清单后重跑 pyqcd_theory_audit。
+- 确认 GitHub 镜像同步；后续修订版本只能用新版本号。
+--- report end ---

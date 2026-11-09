@@ -169,3 +169,11 @@
 - 关键内容: 初始化 3 个子模块; PyQCD 指针更新到 2e6c868 (0.2.1), 另两个保持原 pin
 - 验证: path, size, required sections, conflict markers
 - 批次状态: complete
+## myqcd-release - final - 2026-11-09 08:14:19 +0800
+- 主任务: 吸收参考库并发布 myqcd 0.1.0
+- 日志文件: logs/v2026110908.txt
+- 文件大小: 9063 bytes
+- 触发原因: 任务完成
+- 关键内容: 同步 4 个参考库子模块; 新增算符/费曼图层; PyPI myqcd 0.1.0 发布并从远程复验; gitlab+gitee 双推
+- 验证: path, size, required sections, conflict markers
+- 批次状态: complete
