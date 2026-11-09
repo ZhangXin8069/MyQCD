@@ -9,11 +9,11 @@
 |---|---|
 | 分发名 | `myqcd` |
 | 导入名 | `myqcd` |
-| 版本 | `0.1.3`（当前；0.1.0 为首版） |
-| 上传物 | 仅 sdist：`dist/myqcd-0.1.0.tar.gz`、`0.1.1`、`0.1.2`、`0.1.3` |
+| 版本 | `0.1.4`（当前；0.1.0 为首版） |
+| 上传物 | 仅 sdist：`dist/myqcd-0.1.0.tar.gz` … `0.1.4` |
 | 用户名 | `TWINE_USERNAME=__token__` |
 | 凭据变量 | `PYPI_ZHANGXIN8069_API_KEY`（只从 `~/env-key.sh` 读取，不落盘） |
-| 项目页 | <https://pypi.org/project/myqcd/0.1.3/> |
+| 项目页 | <https://pypi.org/project/myqcd/0.1.4/> |
 | 文档站 | <https://myqcd.readthedocs.io/>（线上项目已存在，中英文构建通过） |
 
 ## 发布记录
@@ -24,6 +24,7 @@
 | 0.1.1 | 修复默认 CLI 缺 `INDEX.md` 时 traceback；`operator_audit` 默认根改为当前目录；顶层子模块可发现；移除未使用导入 | 全量 161 passed（11 个 `refer/papers` 环境缺口）；PyPI 远程安装后 `python -m myqcd` 返回 `verified_core_without_inventory` |
 | 0.1.2 | 修复外部腿边被计入圈数；TikZ 导出声明 `external` 顶点；根 README 改为英文默认并新增 `README.zh-CN.md`；补全 PyPI Project links | 全量 163 passed（11 个环境缺口）；PyPI 0.1.2 远程安装、CLI 与 Project links 全部通过 |
 | 0.1.3 | 新增算符页（16 个 Dirac 双线性、宇称/C/量纲/PyQCD 索引）与费曼图页（三点链、三胶子三角、Wick 配对、圈数、QCD 规则）；加入标准 Dirac/SU(3) 值对照与 SVG 图；README 增加算符/图展示与文档链接 | Sphinx -W 双站通过；双语代码块一致；PyPI 0.1.3 描述含算符/图段落与图片链接 |
+| 0.1.4 | 算符页增加非平凡分解、介子插值算符、导数算符与 $T_F$ 对照；图页增加单圈夸克自能、两圈 sunset；导出器改为环形/平行边/外部腿布局；文档启用 MyST dollarmath + MathJax，公式改用 LaTeX | 25 项文档/导出测试通过；Sphinx -W 双站通过；PyPI 0.1.4 远程安装与元数据通过 |
 
 ## 验收清单
 
@@ -37,9 +38,9 @@
 | 6 | `SOURCES.txt` 无家目录绝对路径 | `/home/` 命中数 0 | ✅ |
 | 7 | 构建无弃用/绝对路径告警 | `grep -iE "deprecat|path must be relative"` → 空 | ✅ |
 | 8 | 干净 venv 安装本地 sdist | `myqcd.__file__` 含 `site-packages`；26 项审计 verified | ✅ |
-| 9 | PyPI 上传 | `twine upload` 四次均 exit 0（0.1.0–0.1.3） | ✅ |
-| 10 | simple index 传播 | 四个版本均出现在 simple index；CDN 边缘偶有滞后，重试即可 | ✅ |
-| 11 | PyPI 远程安装 | 新 venv 分别安装 0.1.0–0.1.3；版本/路径/代数检查通过 | ✅ |
+| 9 | PyPI 上传 | `twine upload` 五次均 exit 0（0.1.0–0.1.4） | ✅ |
+| 10 | simple index 传播 | 五个版本均出现在 simple index；CDN 边缘偶有滞后，重试即可 | ✅ |
+| 11 | PyPI 远程安装 | 新 venv 分别安装 0.1.0–0.1.4；版本/路径/代数检查通过 | ✅ |
 | 12 | 双远端推送 | gitlab 与 gitee 同步 0.1.3 提交；GitHub 随 Gitee 自动同步 | ✅ |
 | 13 | Read the Docs 双语言构建 | `sphinx -W docs/en` 与 `docs/zh` 均 `build succeeded.` | ✅ |
 | 14 | 双语代码块逐字节一致 | overview/usage/operators/diagrams/install 的围栏块完全一致 | ✅ |
@@ -48,17 +49,20 @@
 | 17 | 缺 `INDEX.md` 时默认 CLI 可用 | 安装环境 `python -m myqcd` exit 0，`status=verified_core_without_inventory` | ✅ 0.1.1 |
 | 18 | `operator_audit` 默认根目录 | 安装环境从 `/tmp` 运行，输出写入 `/tmp/logs/data/operator_audit/` | ✅ 0.1.1 |
 | 19 | 外部腿不计入圈数 | `E_int - V + C`；含 `-1` 端点的边不计入内部边 | ✅ 0.1.2 |
-| 20 | TikZ 外部顶点 | 含外部腿时输出 `\vertex (external)` | ✅ 0.1.2 |
+| 20 | TikZ 外部顶点 | 每个外部腿声明独立的 `\vertex (extN)` | ✅ 0.1.2/0.1.4 |
 | 21 | 英文默认 README + 中文版 | `README.md` 英文、`README.zh-CN.md` 中文，sdist 同时包含两者 | ✅ 0.1.2 |
 | 22 | PyPI Project links | JSON `project_urls` 含 Documentation/Homepage/GitLab/Gitee/GitHub/Issues 六项 | ✅ 0.1.2 |
 | 23 | 算符展示 | 16 个 Dirac 双线性表，含宇称/C/量纲/PyQCD 索引与标准值对照 | ✅ 0.1.3 |
 | 24 | 费曼图展示 | 两点链图、三胶子三角、Wick 配对的 SVG；圈数与 QCD 规则对照 | ✅ 0.1.3 |
+| 25 | 复杂算符实例 | 非平凡分解（T12/A3/P）、π/ρ/a1 量子数、导数算符量纲 4/5 | ✅ 0.1.4 |
+| 26 | 复杂费曼图 | 单圈夸克自能（L=1）、两圈 sunset（L=2）；环形/平行边/外部腿布局 | ✅ 0.1.4 |
+| 27 | LaTeX 公式 | MyST dollarmath + MathJax；算符/图页公式为 `$...$` | ✅ 0.1.4 |
 
 ## 构建与安装证据
 
 ```text
-Successfully built myqcd-0.1.3.tar.gz
-Checking dist/myqcd-0.1.3.tar.gz: PASSED
+Successfully built myqcd-0.1.4.tar.gz
+Checking dist/myqcd-0.1.4.tar.gz: PASSED
 members=31
 readme_en=1 readme_zh=1 py.typed=1 testing=0 agents=0
 ```
@@ -66,7 +70,7 @@ readme_en=1 readme_zh=1 py.typed=1 testing=0 agents=0
 干净 venv（先本地 sdist，后 PyPI 远程）：
 
 ```text
-version: 0.1.3
+version: 0.1.4
 file: .../site-packages/myqcd/__init__.py
 python -m myqcd: exit=0, status=verified_core_without_inventory
 myqcd (console): exit=0, status=verified_core_without_inventory

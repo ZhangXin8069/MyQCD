@@ -75,17 +75,19 @@ PyQCD gamma 索引：
 | 类别 | 结构 | 数量 |
 |---|---|---|
 | S | `I` | 1 |
-| P | `gamma5` | 1 |
-| V | `gamma_mu` | 4 |
-| A | `gamma_mu gamma5` | 4 |
-| T | `sigma_mu_nu` | 6 |
+| P | `γ₅` | 1 |
+| V | `γμ` | 4 |
+| A | `γμγ₅` | 4 |
+| T | `σμν` | 6 |
 
 完整表格及与标准 Dirac/SU(3) 值的逐项对照见
-[算符](https://myqcd.readthedocs.io/zh-cn/latest/operators.html)。
+[算符](https://myqcd.readthedocs.io/zh-cn/latest/operators.html)。文档站用
+LaTeX 渲染同一组公式。
 
-![三胶子三角图](https://myqcd.readthedocs.io/zh-cn/latest/_images/three_gluon_triangle.svg)
+![Sunset 两圈图](https://myqcd.readthedocs.io/zh-cn/latest/_images/sunset_two_loop.svg)
 
-两点链图、三胶子三角图与 Wick 配对图的圈数，以及 TikZ/DOT/SVG 导出见
+两点链图、三胶子三角图、单圈夸克自能、两圈 sunset 与 Wick 配对图的圈数，
+以及 TikZ/DOT/SVG 导出见
 [费曼图](https://myqcd.readthedocs.io/zh-cn/latest/diagrams.html)。
 
 ## 包内有什么

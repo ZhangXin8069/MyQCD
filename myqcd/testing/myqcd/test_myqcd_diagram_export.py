@@ -1,5 +1,7 @@
 """费曼图零依赖导出测试。"""
 
+import re
+
 import pytest
 
 from myqcd import diagram_export, feynman
@@ -42,8 +44,8 @@ def test_tikz_declares_external_vertex():
         ),
     )
     text = diagram_export.to_tikz(diagram)
-    assert "\\vertex (external)" in text
-    assert "(external)" in text
+    assert "\\vertex (ext1)" in text
+    assert "(ext1)" in text
 
 
 def test_svg_export():
@@ -52,6 +54,40 @@ def test_svg_export():
     assert "<svg" in text
     assert text.count("<circle") == 3
     assert text.count("<line") == 3
+
+
+def test_cycle_layout_is_not_collinear():
+    text = diagram_export.to_svg(_diagram())
+    ordinates = re.findall(r'<circle cx="[^"]+" cy="([\d.]+)"', text)
+    assert len(ordinates) == 3
+    assert len(set(ordinates)) >= 2
+
+
+def test_parallel_edges_are_drawn_as_curves():
+    diagram = feynman.Diagram(
+        vertices=("a", "b"),
+        edges=(
+            feynman.Edge(0, 1, "quark"),
+            feynman.Edge(0, 1, "gluon"),
+        ),
+    )
+    text = diagram_export.to_svg(diagram)
+    assert text.count("<path") == 2
+
+
+def test_external_legs_are_drawn():
+    diagram = feynman.Diagram(
+        vertices=("a",),
+        edges=(feynman.Edge(0, -1, "quark"),),
+    )
+    text = diagram_export.to_svg(diagram)
+    assert text.count("<line") == 1
+    assert "quark" in text
+
+
+def test_all_exports_exist():
+    for name in diagram_export.__all__:
+        assert hasattr(diagram_export, name)
 
 
 def test_render_dispatch_and_error():
