@@ -1,0 +1,95 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-11-09 11:05:31 +0800
+批次: myqcd-content-expansion
+主任务: 扩充 myqcd 内容并发布 0.2.0
+触发原因: 任务完成
+摘要: 9 个模块、16 个测试、42 个双语页; 文档 10.06×、总量 4.41×; PyPI 0.2.0 与 RTD 验证
+Git 根目录: /home/zhangxin/MyQCD
+
+## 关键日志
+### S1 — 模块扩充
+- 目标: 把算符/费曼图子系统做实用、做厚
+- 命令/操作: 新增 lorentz、fierz、operator_basis、qcd_rules、topology、color_traces、gamma_traces、lattice、statistics；扩展 diagram_export 与 operator_audit
+- 关键输出: 16 个相关模块共 3,835 行；测试 16 个文件 1,450 行
+- 退出码: 0
+- 证据与判断: 精确 SymPy 实现；Fierz 用 256×256 线性解与随机旋量双重验证
+
+### S2 — 文档 10×
+- 目标: 从 546 行双语基线扩充到至少 10×
+- 命令/操作: 新增 42 个双语页（教程、实例、目录、约定、验证、迁移、方法、排错等）
+- 关键输出: 文档 5,491 行 = 546 基线的 10.06×；代码+测试+文档 10,776 行 = 4.41×
+- 退出码: 0
+- 证据与判断: 文档目标达成；总量 10× 仍需继续
+
+### S3 — 契约与测试
+- 目标: 防止文档/打包漂移
+- 命令/操作: 文档契约检查双语代码块、toctree、Python 示例、算符表、SVG、数学配置、打包跟踪
+- 关键输出: 74 项文档契约通过；全量 298 passed、11 failed（refer/papers 环境缺口）
+- 退出码: 0
+- 证据与判断: 无新增回归
+
+### S4 — 0.2.0 发布
+- 目标: 检查点发布
+- 命令/操作: 版本 0.2.0；build --sdist --no-isolation；twine；PyPI 上传；远程 venv 安装
+- 关键输出: sdist 40 members；twine PASSED；PyPI 0.2.0；project_urls 6；operator_audit 48/48
+- 退出码: 0
+- 证据与判断: 第二次 pip 安装成功（CDN 边缘滞后）
+
+### S5 — RTD
+- 目标: 双语文档上线
+- 命令/操作: 双推 8ec06d0；文档扩充后 e83d9fe；轮询 builds API
+- 关键输出: 两个 RTD 项目 finished 于对应 commit；新增页面全部 200
+- 退出码: 0
+- 证据与判断: 数学与目录页面在线
+
+### S6 — 自动监督
+- 目标: 保持 10 秒空闲续跑
+- 命令/操作: watcher PID 926835，--idle-seconds 10 --idle-poll 2
+- 关键输出: status enabled；turn_running 时跳过
+- 退出码: 0
+- 证据与判断: 监督保持开启
+
+## 验证与证据
+- 测试/检查: 74 文档契约；298 全量 passed/11 环境缺口；48 项 operator audit；twine PASSED；PyPI 远程安装；RTD 23 个新页 200
+- 结果: 0.2.0 发布；文档 10.06×、总量 4.41×
+- 未验证项: refer/papers；Python 3.10/3.11/3.13；GitHub 直连镜像
+
+## 变更与产物
+- 文件: 9 个新模块、16 个测试文件、42 个双语页；README 模块表；发布台账
+- 产物: PyPI myqcd 0.2.0；RTD 全量页面；sdist dist/myqcd-0.2.0.tar.gz
+- 未改动范围: derivations.py 等核心算法
+
+## 风险、限制与下一步
+- 风险: 总量仍为 4.41×，未达总量 10×；白名单 .gitignore 仍需审计
+- 阻塞: /tmp 满（使用 data 运行区）
+- 下一步: 继续补重正化投影器、Wilson 路径、对称因子、匹配核与更多随机差分测试，向总量 10× 推进
+
+## 用户输入指令
+注意充实本库内容,当前内容过少且不实用[至少为当前的四倍]
+注意充实本库内容,当前内容过少且不实用[至少为当前的十倍]
+对本agent的监督间隔改为10s
+
+## Agent 全文报告
+--- report begin ---
+任务: 将 MyQCD 算符/费曼图子系统扩充到至少 10× 基线，并保持可执行、可发布、双语同步。终态: finished（0.2.0 检查点）。
+
+改动内容
+- 新增 9 个模块：lorentz、fierz、operator_basis、qcd_rules、topology、color_traces、gamma_traces、lattice、statistics。
+- 新增 16 个测试文件与 42 个双语页面，覆盖教程、实例、目录、约定、验证、迁移、方法、排错与参考值。
+- diagram_export 扩展到 JSON/Mermaid/LaTeX/TikZ/DOT/SVG；operator_audit 扩展到 48 项检查。
+- 发布 myqcd 0.2.0；RTD 双语文档全量上线。
+
+推理依据
+- Fierz 系数用对偶基投影并以 256×256 线性解与随机旋量复核；颜色/γ5 迹用显式矩阵对拍。
+- 文档行数为 5,491 / 546 = 10.06×；代码+测试+文档为 10,776 / 2,443 = 4.41×。文档目标达成，总量 10× 尚未达成。
+
+验证结果
+- 74 项文档契约通过；全量 298 passed、11 failed（全部 refer/papers 环境缺口）。
+- operator_audit 48/48；twine PASSED；PyPI 0.2.0 远程安装通过；RTD 23 个新增页面 200。
+- GitLab/Gitee 推送至 e83d9fe。
+
+后续步骤
+- 继续补重正化投影器、Wilson 路径代数、对称因子约定、匹配核与随机差分测试，向总量 10× 推进。
+- 补 refer/papers；清理 /tmp 后重跑完整克隆验证。
+--- report end ---

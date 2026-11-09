@@ -217,3 +217,11 @@
 - 关键内容: 重启 watcher 为 idle-seconds=30/poll=5；保留失败恢复与空闲注入；PID 925413
 - 验证: path, size, required sections, conflict markers
 - 批次状态: in-progress
+## myqcd-content-expansion - final - 2026-11-09 11:05:31 +0800
+- 主任务: 扩充 myqcd 内容并发布 0.2.0
+- 日志文件: logs/v2026110911.txt
+- 文件大小: 4847 bytes
+- 触发原因: 任务完成
+- 关键内容: 9 个模块、16 个测试、42 个双语页; 文档 10.06×、总量 4.41×; PyPI 0.2.0 与 RTD 验证
+- 验证: path, size, required sections, conflict markers
+- 批次状态: complete
