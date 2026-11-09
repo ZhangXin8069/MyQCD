@@ -7,6 +7,7 @@
 
 ```bash
 python -m myqcd
+python -m myqcd.operator_audit --root .
 python -m myqcd.pyqcd_theory_audit --root .
 python -m pytest myqcd/testing/myqcd
 python -m compileall -q myqcd

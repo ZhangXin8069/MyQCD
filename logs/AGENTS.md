@@ -161,3 +161,11 @@
 - 关键内容: 补齐 6 个维护目录 AGENTS.md，提交并推送 main，创建并推送 dev9，保留既有 PyQCD 指针变化
 - 验证: path, size, required sections, conflict markers
 - 批次状态: complete
+## submodule-update - final - 2026-11-09 07:44:24 +0800
+- 主任务: 更新子模块
+- 日志文件: logs/v2026110907.txt
+- 文件大小: 4718 bytes
+- 触发原因: 任务完成
+- 关键内容: 初始化 3 个子模块; PyQCD 指针更新到 2e6c868 (0.2.1), 另两个保持原 pin
+- 验证: path, size, required sections, conflict markers
+- 批次状态: complete

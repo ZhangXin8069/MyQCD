@@ -1,0 +1,88 @@
+[日志元数据]
+日志类型: final
+生成时间: 2026-11-09 07:44:24 +0800
+批次: submodule-update
+主任务: 更新子模块
+触发原因: 任务完成
+摘要: 初始化 3 个子模块; PyQCD 指针更新到 2e6c868 (0.2.1), 另两个保持原 pin
+Git 根目录: /home/zhangxin/MyQCD
+
+## 关键日志
+### S1 — 侦察子模块状态
+- 目标: 确认 MyQCD 三个子模块的初始化状态与 index pin
+- 命令/操作: git submodule status --recursive; git ls-files --stage refer/git-rep
+- 关键输出: 三个子模块均为 "-" 未初始化; pin: PyQCD=52e6480, feyncalc=1ee4800, LQCD_Wickcontraction_reduce=033d607
+- 退出码: 0
+- 证据与判断: 需执行 submodule update --init
+
+### S2 — 网络可达性诊断
+- 目标: 判断三个子模块远端是否可达
+- 命令/操作: git ls-remote; curl; TCP 端口探测
+- 关键输出: gitlab.itp.ac.cn 可达 (302, 0.31s); github.com HTTPS 首次超时, TCP 22/443 open, 重试 HTTPS 成功返回 HEAD=1ee4800
+- 退出码: 首次 124, 重试后 0
+- 证据与判断: GitHub 慢但可访问, 需要重试
+
+### S3 — PyQCD 更新尝试
+- 目标: 初始化 PyQCD 到 index pin 52e6480
+- 命令/操作: git submodule update --init refer/git-rep/PyQCD
+- 关键输出: fatal: remote error: upload-pack: not our ref 52e6480; 远端 main HEAD=2e6c868 (dev37, pyqcd 0.2.1)
+- 退出码: 128
+- 证据与判断: 旧 pin 已在上游历史重写中消失; 全部远端 refs 与完整克隆历史均不含该对象
+
+### S4 — 工作区恢复与指针更新
+- 目标: 恢复被失败 update 清空的子模块工作区, 并将父仓库 gitlink 前进到 2e6c868
+- 命令/操作: git -C refer/git-rep/PyQCD reset --hard HEAD; git add refer/git-rep/PyQCD
+- 关键输出: HEAD is now at 2e6c868f; 工作区 clean; 父仓库 M refer/git-rep/PyQCD (staged)
+- 退出码: 0
+- 证据与判断: pin 不可获取, 更新到远端 main 最新
+
+### S5 — GitHub 子模块初始化
+- 目标: 初始化 feyncalc 与 LQCD_Wickcontraction_reduce
+- 命令/操作: git submodule update --init --jobs 2 refer/git-rep/LQCD_Wickcontraction_reduce refer/git-rep/feyncalc
+- 关键输出: 分别 checked out 033d607 与 1ee4800, 与 index pin 一致
+- 退出码: 0
+- 证据与判断: 保持原 pin, 不移动指针
+
+## 验证与证据
+- 测试/检查: git submodule status; 各子模块 git status --porcelain; git diff --check; git diff --cached --check; python -m myqcd
+- 结果: 三个子模块无 -/+ 前缀且工作区 clean; 两项 diff check 均 exit=0; python -m myqcd 因 refer/papers/INDEX.md 缺失失败(该目录在当前树中从未存在, 与本次更新无关)
+- 未验证项: PyQCD 内部 7 个嵌套子模块未初始化(未递归); 未提交、未推送
+
+## 变更与产物
+- 文件: refer/git-rep/PyQCD (gitlink 52e6480 -> 2e6c868, 已暂存)
+- 产物: 三个子模块工作区就位; PyQCD 0.2.1
+- 未改动范围: feyncalc 与 LQCD_Wickcontraction_reduce 保持原 pin
+
+## 风险、限制与下一步
+- 风险: PyQCD 从不可获取的旧 pin 跳到 dev37/0.2.1, 依赖旧行为的文档或审计需复核
+- 阻塞: 旧 pin 52e6480 已不可获取; GitHub 首次访问不稳定
+- 下一步: 用户确认后提交 gitlink 变更; 如需 PyQCD 嵌套参考树可执行 git submodule update --init --recursive refer/git-rep/PyQCD
+
+## 用户输入指令
+更新子模块
+
+## Agent 全文报告
+--- report begin ---
+任务: 更新 MyQCD 仓库的 Git 子模块。终态: finished。
+
+改动内容
+- 初始化并检出全部 3 个子模块; PyQCD 指针由 52e6480 更新为 2e6c868 (dev37, pyqcd 0.2.1), 已在父仓库暂存, 未提交/未推送。
+- feyncalc 保持 1ee4800, LQCD_Wickcontraction_reduce 保持 033d607, 二者远端 HEAD 与 pin 一致。
+- 失败 update 曾清空 PyQCD 工作区, 已用 reset --hard 恢复。
+
+推理依据
+- 标准 git submodule update --init 应检出 index pin; 但 PyQCD 旧 pin 在上游历史重写后已不存在 (所有 refs 与完整克隆历史均无该对象), 因此只能跟随远端 main。
+- 另两个子模块 pin 仍有效, 不做移动。
+- PyQCD 内部 7 个嵌套子模块属其只读参考树, 非 MyQCD 本次范围, 未递归初始化。
+- GitHub 首次 HTTPS 超时, 重试成功; GitLab 稳定可达。
+
+验证结果
+- git submodule status: 三项均无 -/+ 前缀; 三个子模块工作区 clean。
+- git diff --check 与 git diff --cached --check: exit=0。
+- PyQCD 版本确认 0.2.1; python -m myqcd 失败于 refer/papers/INDEX.md 缺失 (既有状态, 与本次无关)。
+
+后续步骤
+- 确认后执行 git commit 提交已暂存的 gitlink 变更。
+- 如需嵌套参考树: git submodule update --init --recursive refer/git-rep/PyQCD。
+- refer/papers/INDEX.md 缺失需另行处理。
+--- report end ---
